@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:profile-coverage-policy-input:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "ids": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "bindingProfile": {
+      "type": "object",
+      "properties": {
+        "profile_id": {"$ref": "#/$defs/id"},
+        "profile_version": {"$ref": "#/$defs/id"},
+        "fixture_id": {"$ref": "#/$defs/id"},
+        "oracle_id": {"$ref": "#/$defs/id"}
+      },
+      "required": ["profile_id", "profile_version", "fixture_id", "oracle_id"],
+      "additionalProperties": false
+    },
+    "riskOverlayBody": {
+      "type": "object",
+      "properties": {
+        "overlay_id": {"$ref": "#/$defs/id"},
+        "overlay_version": {"$ref": "#/$defs/id"},
+        "approved_body_digest": {"$ref": "#/$defs/id"}
+      },
+      "required": ["overlay_id", "overlay_version", "approved_body_digest"],
+      "additionalProperties": false
+    },
+    "scenario": {
+      "type": "object",
+      "properties": {
+        "profile_id": {
+          "$ref": "#/$defs/id"
+        },
+        "scenario_ids": {
+          "$ref": "#/$defs/ids"
+        }
+      },
+      "required": [
+        "profile_id",
+        "scenario_ids"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "policy_id": {
+      "$ref": "#/$defs/id"
+    },
+    "approved_profile_registry_digest": {
+      "$ref": "#/$defs/id"
+    },
+    "evidence_authority": {
+      "type": "object",
+      "properties": {
+        "registry_digest": {"$ref": "#/$defs/id"},
+        "oracle_manifest_sha256": {"type": "string", "minLength": 64, "maxLength": 64}
+      },
+      "required": ["registry_digest", "oracle_manifest_sha256"],
+      "additionalProperties": false
+    },
+    "profile_column_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "risk_path_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "risk_path_policy": {
+      "type": "object",
+      "properties": {
+        "overlays": {
+          "type": "array", "minItems": 1, "maxItems": 64,
+          "items": {"$ref": "#/$defs/riskOverlayBody"}
+        }
+      },
+      "required": ["overlays"],
+      "additionalProperties": false
+    },
+    "case_binding_policy": {
+      "type": "object",
+      "properties": {
+        "evidence_type": {"$ref": "#/$defs/id"},
+        "owner_gate": {"$ref": "#/$defs/id"},
+        "profiles": {
+          "type": "array", "minItems": 1, "maxItems": 64,
+          "items": {"$ref": "#/$defs/bindingProfile"}
+        }
+      },
+      "required": ["evidence_type", "owner_gate", "profiles"],
+      "additionalProperties": false
+    },
+    "runtime_pins": {
+      "type": "object",
+      "properties": {
+        "runtime_kind": {"$ref": "#/$defs/id"},
+        "runtime_lineage_id": {"$ref": "#/$defs/id"},
+        "runtime_digest": {"$ref": "#/$defs/id"}
+      },
+      "required": ["runtime_kind", "runtime_lineage_id", "runtime_digest"],
+      "additionalProperties": false
+    },
+    "execution_policy": {
+      "type": "object",
+      "properties": {
+        "default_execution_kind": {"$ref": "#/$defs/id"},
+        "real_e2e_column_id": {"$ref": "#/$defs/id"},
+        "real_e2e_execution_kind": {"$ref": "#/$defs/id"}
+      },
+      "required": ["default_execution_kind", "real_e2e_column_id", "real_e2e_execution_kind"],
+      "additionalProperties": false
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/scenario"
+      }
+    },
+    "required_invariant_ids": {
+      "$ref": "#/$defs/ids"
+    }
+  },
+  "required": [
+    "schema_version",
+    "policy_id",
+    "approved_profile_registry_digest",
+    "evidence_authority",
+    "profile_column_ids",
+    "risk_path_ids",
+    "risk_path_policy",
+    "case_binding_policy",
+    "runtime_pins",
+    "execution_policy",
+    "scenarios",
+    "required_invariant_ids"
+  ],
+  "unevaluatedProperties": false
+}

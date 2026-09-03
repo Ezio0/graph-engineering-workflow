@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:input-safety-policy:1.0.0",
+  "$defs": {"digest": {"type": "string", "minLength": 78, "maxLength": 78}},
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "policy_id": {"type": "string", "format": "gew-id"},
+    "max_arguments": {"type": "integer", "minimum": 1},
+    "max_argument_chars": {"type": "integer", "minimum": 1},
+    "allow_symlinks": {"type": "boolean"},
+    "allow_shell": {"type": "boolean"},
+    "policy_digest": {"$ref": "#/$defs/digest"}
+  },
+  "required": ["schema_version", "policy_id", "max_arguments", "max_argument_chars", "allow_symlinks", "allow_shell", "policy_digest"],
+  "unevaluatedProperties": false
+}

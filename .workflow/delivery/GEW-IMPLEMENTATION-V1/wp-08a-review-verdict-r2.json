@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0",
+  "verdict": "PASS",
+  "artifact": "wp-08a",
+  "scope_changed": false,
+  "change_kinds": [],
+  "reviewer_id": "codex:/root/wp08a_candidate_reviewer_r1",
+  "source_manifest_digest": "4b7d5a799cceb3c28fe80604afe38fdca922c317239c252629e181a46a3950fc",
+  "command_evidence_digest": "73c3dd539d58941f79957e2c7e0bb86f9a8e2cc1165eda2e159e3d31a68c6968",
+  "candidate_exit_digest": "3322de9a0d50c410f75aa2cca2b3ab8ed087c3c8434980271dd30ced4774ec7e",
+  "governing_documents_digest": "8c356028ee109ebbed35d28403d69e0a70bffd374986add17feae26d6a7dffd6",
+  "wp08a_runtime_digest": "ea311ae1650e2801706c67507c3d4ae05a006e309f42925362b7e9b3a9c432b6",
+  "wp08a_runtime_dependencies_digest": "49844585e9ed750e010ca67a915297074ad9223df5732d0011a8742e96b3bb33",
+  "wp08a_sources_digest": "ddd2d9946bdf7d9de734c23249f301ab044ec930d5c3bf25c4b9d180a9c9616a",
+  "external_action_boundary_digest": "9f82ea7ae6f92f16de83b4f2e5e26dd2f1c14e842953ab7059dfc6f9ca041123",
+  "dependency_verdicts_digest": "e3512c8575d9ca5e6831c0295d931166895f468da806410dedb33d8101e71cab",
+  "immutable_tuple": {
+    "source_manifest_internal_digest": "4b7d5a799cceb3c28fe80604afe38fdca922c317239c252629e181a46a3950fc",
+    "source_manifest_raw_sha256": "d4451378e7a3730b5ddd23b5dfe7999c0b308dba739f4ae67e1addd4a4b24c7c",
+    "source_manifest_canonical_sha256": "4e502b8c0d00c5171fd3a6df305b61c42d1bdc7adef3534d38c3857bf7d3910f",
+    "source_manifest_row_count": 465,
+    "wp08a_delta_file_count": 150,
+    "wp08a_new_file_count": 123,
+    "wp08a_changed_file_count": 27,
+    "command_evidence_raw_sha256": "48f851881c8f2f18374432039693710779600bf6403caa8b889c768b7eb40182",
+    "command_evidence_canonical_sha256": "73c3dd539d58941f79957e2c7e0bb86f9a8e2cc1165eda2e159e3d31a68c6968",
+    "candidate_exit_raw_sha256": "8ee2ae80aa9afd4450a78c9550eb88f0da1a512321e9b305c27b8b21f0ab81d9",
+    "candidate_exit_canonical_sha256": "3322de9a0d50c410f75aa2cca2b3ab8ed087c3c8434980271dd30ced4774ec7e"
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "WP08A-QR-R1-001",
+      "status": "closed",
+      "evidence": "All four exact reducer and transition remedy bindings independently passed on the current 465-row source tuple, including invalid-kind zero-write and the closed twelve-operation reducer."
+    },
+    {
+      "finding_id": "WP08A-QR-R1-002",
+      "status": "closed",
+      "evidence": "Both historical task-pin selectivity and capability-set comparability remedy bindings independently passed."
+    },
+    {
+      "finding_id": "WP08A-QR-R1-003",
+      "status": "closed",
+      "evidence": "The trust post-commit matrix and monotonic-or-unprovable security join remedy bindings independently passed."
+    },
+    {
+      "finding_id": "WP08A-QR-R1-004",
+      "status": "closed",
+      "evidence": "The activation post-publish doctor and restoration remedy binding independently passed after the rollback eligibility change."
+    },
+    {
+      "finding_id": "WP08A-QR-R1-005",
+      "status": "closed",
+      "evidence": "The explicit source/build/ingest cross-attestation chronology remedy binding independently passed."
+    },
+    {
+      "finding_id": "WP08A-QR-R1-006",
+      "status": "closed",
+      "evidence": "The optional-but-exact previous source-attestation remedy binding independently passed."
+    },
+    {
+      "finding_id": "WP08A-QR-R1-007",
+      "status": "closed",
+      "evidence": "All three verified-byte execution, authenticated execution-record, source-mutation exclusion, launch-binding, and issuance-hook remedy bindings independently passed."
+    },
+    {
+      "finding_id": "WP08A-QR-R3-008",
+      "status": "closed",
+      "evidence": "All five packaging 26.3 offline closure bindings independently passed, covering parser attestation, same-path replacement, closure-return rechecks, protected fields, physical wheel members, Requires-Dist, and whole-closure limits."
+    },
+    {
+      "finding_id": "WP08A-CODE-R4-009",
+      "status": "closed",
+      "evidence": "The shared current-eligibility gate now precedes rollback registry, manifest, and pointer construction. The bound production-path matrix and independent probes denied all eight revoked subjects and all eight trust, compatibility, and resource tightenings with stable non-disclosing codes; every denial made zero calls to the registry builder, preserved byte-identical activation-ledger/data-registry/manifest/pointer rows, retained generation 2 and the current revocation high-water after restart, and rejected tampered immutable installed content. Unchanged eligibility and unrelated trust expansion both produced the valid generation-3 rollback."
+    }
+  ],
+  "reviewed_without_open_findings": [
+    "all 465 unique source rows are current and the exact WP-08A delta remains 150 files: 123 new and 27 changed",
+    "r2 raw, internal, canonical, and cross-digests; independent author/reviewer identities; and four predecessor PASS tuples",
+    "32 stable, 12 supplemental, 20 reviewer-remedy, and 3 evidence bindings",
+    "76 extension schemas, 32 runtime pins, 12 configuration inputs, and 20 runtime-source inputs",
+    "911 unique passing tests across exactly 915 executions, six evidence commands, and the offline reproducible wheel",
+    "all nine r1 finding dispositions, including R1-007 verified-byte execution, R3-008 packaging 26.3 offline closure, and R4-009 current-trust rollback closure",
+    "data-only activation, immutable installed-content verification, active-set and task-pin boundaries, zero-call denial of non-built-in executable packages, and the blocked WP-10 formal release boundary",
+    "offline trust plane with no network, user-repository, real external action, or authority expansion"
+  ],
+  "verification": {
+    "candidate_unique_passed_test_count": 911,
+    "candidate_test_execution_count": 915,
+    "candidate_command_count": 6,
+    "evidenced_wheel": {
+      "filename": "graph_engineering_workflow-0.1.0-py3-none-any.whl",
+      "sha256": "6e25e159773c53015484aeb7ffca6e9c8e8bb5a70e26942b0fe4cad49345e326"
+    },
+    "three_parameter_fast_verifier": {
+      "status": "PASS",
+      "findings": []
+    },
+    "independent_focused_tests": {
+      "status": "PASS",
+      "tests_run": 22,
+      "failures": 0,
+      "errors": 0,
+      "coverage": [
+        "all 20 reviewer-remedy bindings",
+        "both updated WP-08A gate contract tests"
+      ]
+    },
+    "source_currentness": {
+      "status": "PASS",
+      "row_count": 465,
+      "findings": []
+    },
+    "network_used": false,
+    "user_repository_used": false,
+    "real_external_actions_used": false
+  },
+  "findings": []
+}

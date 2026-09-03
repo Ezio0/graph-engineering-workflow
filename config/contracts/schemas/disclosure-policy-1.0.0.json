@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:disclosure-policy:1.0.0",
+  "$defs": {
+    "digest": {"type": "string", "minLength": 78, "maxLength": 78},
+    "rule": {
+      "type": "object",
+      "properties": {
+        "destination_kind": {"type": "string", "format": "gew-id"},
+        "trust_boundary": {"type": "string", "format": "gew-id"},
+        "maximum_sensitivity": {"enum": ["public", "internal", "confidential", "secret"]},
+        "allowed_purposes": {"type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true, "items": {"type": "string", "format": "gew-id"}},
+        "authority_required": {"type": "boolean"},
+        "receipt_required": {"type": "boolean"},
+        "redaction_required": {"type": "boolean"}
+      },
+      "required": ["destination_kind", "trust_boundary", "maximum_sensitivity", "allowed_purposes", "authority_required", "receipt_required", "redaction_required"],
+      "unevaluatedProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "policy_id": {"type": "string", "format": "gew-id"},
+    "rules": {"type": "array", "minItems": 1, "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/rule"}},
+    "policy_digest": {"$ref": "#/$defs/digest"}
+  },
+  "required": ["schema_version", "policy_id", "rules", "policy_digest"],
+  "unevaluatedProperties": false
+}

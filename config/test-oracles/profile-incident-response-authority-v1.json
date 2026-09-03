@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "oracle_id": "ORA-PROFILE-INCIDENT-RESPONSE",
+  "oracle_kind": "independent-frozen-vector",
+  "profile_id": "incident-response",
+  "selector_kind": "mandatory",
+  "column_id": "authority",
+  "scenario_id": null,
+  "category_boundary_case_id": null,
+  "overlay_id": "full-planned",
+  "evidence_kind": "authority-decision",
+  "required_outcome": "authority-current",
+  "required_fact_ids": [
+    "authority-ref",
+    "authority-status"
+  ],
+  "pass_result": "COMPLETED",
+  "reject_result": "EXPECTED_REJECTION",
+  "reject_error_type": "CategoryExecutionError",
+  "reject_error_message": "typed column evidence does not match authoritative durable facts: authority",
+  "reject_state_relation": "exact-equality",
+  "reject_input_relation": "exact-equality",
+  "isolated_runner_raw_sha256": "0f52a04ea53f099c10980d6ef1aa613fcdc8bf9e4022b5ba6079011c7f570d01",
+  "task_ids": {
+    "P": "task:wp08-coverage:gew-pro-incident-response-authority-p",
+    "R": "task:wp08-coverage:gew-pro-incident-response-authority-r"
+  },
+  "oracle_digest": "sha256-jcs-v1:ffa419bbd34d01fb5661cbf011d71b341d21d61880642c5b5c731d9199d1a5b4"
+}

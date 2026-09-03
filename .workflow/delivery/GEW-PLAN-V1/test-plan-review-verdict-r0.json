@@ -1,0 +1,11 @@
+{
+  "schema_version":"1.0","verdict":"REVISE","artifact":"test-plan","scope_changed":false,
+  "change_kinds":["clarification","consistency","traceability","testability"],
+  "findings":[
+    {"id":"GEW-TP-TRACE-001","severity":"blocking","evidence":"ID ranges had no mechanical exact obligation matrix.","required_change":"Map every requirement/WP/ADR/profile/path/runtime/channel/environment to exact cases and evidence.","verification":"Delete/mutation meta-tests fail for every missing cell.","status":"open"},
+    {"id":"GEW-TP-ARTIFACT-001","severity":"blocking","evidence":"Ten logical artifact and merged-body contract cases were not exact.","required_change":"Add stable valid/corruption/invalidation cases for all ten artifacts and LogicalBodyManifest.","verification":"Every required rule mutation fails and invalidation remains precise.","status":"open"},
+    {"id":"GEW-TP-DURABILITY-001","severity":"blocking","evidence":"Process kill did not model power loss, reorder or torn persistence.","required_change":"Define a seeded persistence fault harness and platform durability oracles.","verification":"Every durable step yields only old/new/blocked and ineffective sync is detected.","status":"open"},
+    {"id":"GEW-TP-ACTION-GATE-001","severity":"blocking","evidence":"Precondition, idempotency, rollback and verification mutations were missing.","required_change":"Add exact pre-call gate mutation cases.","verification":"Stable rejection occurs with zero side effects/start transition.","status":"open"}
+  ],
+  "reviewer_id":"codex:/root/adr_0002_reviewer_r1"
+}

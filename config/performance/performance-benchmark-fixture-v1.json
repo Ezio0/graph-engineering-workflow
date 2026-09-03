@@ -1,0 +1,1 @@
+{"schema_version":"1.0.0","fixture_id":"performance-fixture-v1","payload":{"operation":"deterministic-correctness","values":[1,2,3,5,8,13]},"fixture_digest":"sha256-jcs-v1:4594f3175d1d83c9e3a9b9edb3a2141badf2e4d4b6558a86ae6a1fed9c93a274"}

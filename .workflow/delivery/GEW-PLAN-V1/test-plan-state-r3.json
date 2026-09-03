@@ -1,0 +1,8 @@
+{
+  "schema_version":"1.0","task_id":"GEW-PLAN-V1","node":"test-plan-review","artifact":"test-plan",
+  "author_id":"codex:/root","reviewer_id":"codex:/root/adr_0002_reviewer_r1",
+  "targets":["docs/test-plans/graph-engineering-workflow.md"],"revision":3,
+  "artifact_digest":"430c3b7c1024b5b2f64ef7aa3fbbcbf7eafc8d4eef7874ea9e332ee96dd3f50e",
+  "previous_artifact_digest":"d0ff6fb95df107bd103f7b5f733fdc0ec36b05364ef3d4461758482346e6455e",
+  "open_finding_ids":["GEW-TP-TRACE-001"]
+}

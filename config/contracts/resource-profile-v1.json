@@ -1,0 +1,22 @@
+{
+  "profile_id": "urn:gew:resource-profile:default:1.0.0",
+  "schema_version": "1.0.0",
+  "limits": {
+    "raw_document_bytes": 1048576,
+    "schema_bytes": 1048576,
+    "utf8_scalars": 1048576,
+    "parse_tokens": 262144,
+    "parse_depth": 128,
+    "object_properties": 65536,
+    "array_items": 65536,
+    "registry_resources": 4096,
+    "registry_ref_depth": 64,
+    "schema_locations": 131072,
+    "ast_nodes": 65536,
+    "ast_depth": 128,
+    "path_tokens": 1024,
+    "result_bytes": 1048576,
+    "temporary_units": 1048576
+  },
+  "work_budget": 100000000
+}

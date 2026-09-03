@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "adr-0003",
+  "scope_changed": false,
+  "change_kinds": ["clarification", "consistency", "testability"],
+  "findings": [
+    {"id": "GEW-ADR3-JCS-001", "severity": "blocking", "evidence": "Opaque refs allowed non-zero unused pad-bit aliases with the same decoded value.", "required_change": "Require canonical base64url decode/re-encode equality and freeze decoded constraints.", "verification": "Canonical and alias/invalid vectors agree across implementations.", "status": "open"},
+    {"id": "GEW-ADR3-DIGEST-001", "severity": "blocking", "evidence": "Self-digest-bearing contracts had no exact digest-input projection, producing circular or implementation-defined hashing.", "required_change": "Freeze and bind an exact projection schema and validation order for every such contract.", "verification": "Source, projection, preimage and digest vectors agree across implementations.", "status": "open"},
+    {"id": "GEW-ADR3-GEEL-001", "severity": "blocking", "evidence": "Empty all/any and operand/error order were not normative.", "required_change": "Define emptiness, per-operator evaluation sequence and total error precedence.", "verification": "Permuted serialization and simultaneous-failure vectors yield identical results.", "status": "open"},
+    {"id": "GEW-ADR3-BUDGET-001", "severity": "blocking", "evidence": "The cost schedule omitted result-affecting recursive and temporary-work accounting.", "required_change": "Freeze the complete abstract resource-accounting schedule and E_LIMIT/E_BUDGET precedence.", "verification": "Cross-implementation boundary vectors cover every primitive and compound cost.", "status": "open"}
+  ],
+  "reviewer_id": "codex:/root/adr_0003_reviewer_r1"
+}

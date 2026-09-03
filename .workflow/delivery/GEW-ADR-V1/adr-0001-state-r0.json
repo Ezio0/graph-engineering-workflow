@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-ADR-V1",
+  "node": "adr-review",
+  "artifact": "adr-0001",
+  "author_id": "codex:/root",
+  "reviewer_id": "codex:/root/adr_0001_reviewer_r0",
+  "targets": [
+    "docs/adr/0001-core-implementation-and-local-packaging.md"
+  ],
+  "revision": 0,
+  "artifact_digest": "7d02466eae7bb5921fbf2a2ee9cb86efb433fabb8e7d98e4ac4ec6b9abe2e08f",
+  "previous_artifact_digest": null,
+  "open_finding_ids": []
+}

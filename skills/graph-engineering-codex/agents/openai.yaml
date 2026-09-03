@@ -1,0 +1,4 @@
+interface:
+  display_name: "Graph Engineering Codex"
+  short_description: "Run approved graph delivery through Codex"
+  default_prompt: "Use $graph-engineering-codex to continue this graph-engineering task."

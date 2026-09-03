@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "artifact": "wp-05-recovery-claim-architecture-amendment",
+  "verdict": "PASS",
+  "scope_changed": false,
+  "author_id": "codex:/root/wp05_author_r1",
+  "reviewer_id": "codex:/root/wp05_recovery_docs_reviewer_r1",
+  "human_decision": {
+    "path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/human-decision-wp-05-recovery-claim-r0.json",
+    "sha256": "8a783cc8f66a06223ad0e7382367247007702d682741781ce8b82a9efd97a554"
+  },
+  "authority_amendment": {
+    "path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/authority-envelope-wp-05-recovery-claim-amendment-r0.json",
+    "sha256": "8305ceaca6d6a4e0990307a35581d3f587fc53c917623eb6e6e97b78de9b5097"
+  },
+  "reviewed_artifacts": [
+    {
+      "path": "docs/adr/0005-recovery-claim-compensation.md",
+      "sha256": "51bfa011da6362132b712e9d30902571f41b79ff65da4425621ae0f0ef29bff0"
+    },
+    {
+      "path": "docs/specs/graph-engineering-workflow.md",
+      "sha256": "72f16ee950a788769fbdf944199764dc7b4f74110da764320d802290b8c1d37a"
+    },
+    {
+      "path": "docs/impact/graph-engineering-workflow.md",
+      "sha256": "5bc9bfcba5057eed9efca07d00dc26775b0c74d8845e2e3cfd17016dbee03df3"
+    },
+    {
+      "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+      "sha256": "3232365b008c25dc4a0f4ca9de3dceaff90309b2266b23e1a4e2cdf266512ac4"
+    },
+    {
+      "path": "docs/test-plans/graph-engineering-workflow.md",
+      "sha256": "168d9b8aae581ad00971a17225f57eea14919b15b98a012ea93ad631a35fe3fc"
+    }
+  ],
+  "finding_dispositions": [
+    {"id": "WP05-ADR5-R1-001", "status": "closed"},
+    {"id": "WP05-ADR5-R1-002", "status": "closed"},
+    {"id": "WP05-ADR5-R1-003", "status": "closed"},
+    {"id": "WP05-ADR5-R1-004", "status": "closed"}
+  ],
+  "findings": []
+}

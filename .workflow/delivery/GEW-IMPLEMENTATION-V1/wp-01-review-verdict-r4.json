@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "wp-01",
+  "scope_changed": false,
+  "change_kinds": ["implementation", "configuration", "tests", "verification"],
+  "source_manifest_digest": "556b926e037824d6173236fd02804022915aa41280a82298d0c994f5bd5f2c79",
+  "command_evidence_digest": "d2c94d32b596968d299dd30abfe954da04f390896a07ffc0d739a3031ba39fe6",
+  "candidate_exit_digest": "71aa01029bbccc3528f3e7f43c1dd2a2f29f85c1be19155878da1f616d3a8e17",
+  "finding_dispositions": [
+    {"id":"WP01-R0-001","status":"open","evidence":"Malformed lexical units are charged before rejection; registry work precedes its charges; result dictionaries precede result charges."},
+    {"id":"WP01-R0-002","status":"closed","evidence":"No successful annotation propagation regression found."},
+    {"id":"WP01-R0-003","status":"closed","evidence":"Predicate registry remains token-constructed, exact-built-in-only, digest-bound, immutable, and capability-free."},
+    {"id":"WP01-R0-004","status":"closed","evidence":"Error rule registry remains bound to exact rule/code/phase triples."},
+    {"id":"WP01-R0-005","status":"open","evidence":"Public ClosedSchemaRegistry construction permits forged schemas and digests to pass migration's isinstance check."},
+    {"id":"WP01-R0-006","status":"open","evidence":"Budget corpus remains eight fixed production trace kinds times five budgets and omits required event families and migration registry failure modes."},
+    {"id":"WP01-R0-007","status":"open","evidence":"Direct production constructors retain caller-owned nested aliases."}
+  ],
+  "findings": [
+    {"id":"WP01-R0-001","severity":"blocker","location":"strict_json.py; registry.py; resources.py; geel.py; versioning.py","claim":"Production emitters violate lexical occurrence, registry ordering, work-before-charge, and result construction sequencing.","evidence":"b'???', b'trux', and b'01' emit parse.token before rejection; registry parse/profile/freeze work precedes registry.resource; result mappings are allocated before result charges.","required_change":"Validate lexical units before token emission; make registry charges precede work with incremental location limits; use charged result construction and add counterexamples."},
+    {"id":"WP01-R0-005","severity":"blocker","location":"registry.py; versioning.py","claim":"Migration's closed schema registry can be forged.","evidence":"A directly constructed registry with True schemas and false digests migrates successfully.","required_change":"Use factory/token-only registry construction and exact pinned registry identity/digest checks with forged/missing/tampered counterexamples."},
+    {"id":"WP01-R0-006","severity":"blocker","location":"cross-implementation corpus and Node reference","claim":"Budget and migration corpus is incomplete.","evidence":"Forty budget vectors cover eight templates and omit multiple production events and migration failure modes.","required_change":"Add independent production traces and exact cutoffs for all event families plus missing/forged/zero/ambiguous migration cases."},
+    {"id":"WP01-R0-007","severity":"blocker","location":"resources.py; registry.py; versioning.py","claim":"Public constructors permit mutable aliases after digest verification.","evidence":"Direct schema/profile/compatibility construction can change behavior without changing digests.","required_change":"Make constructors factory-only or validate and deep-freeze every path; add mutation tests."}
+  ],
+  "reviewer_id": "codex:/root/adr_0003_reviewer_r1"
+}

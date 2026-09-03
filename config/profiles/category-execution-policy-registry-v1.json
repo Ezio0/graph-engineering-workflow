@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "urn:gew:category-execution-policy-registry:1.0.0",
+  "policy_id": "urn:gew:category-execution-policy:profiles:v1",
+  "policy_digest": "sha256-jcs-v1:526486bbd185b4b979273fdae4477ecf433678b98605eebe48d0dc56ec9ecb94",
+  "policy_path": "config/profiles/category-execution-policy-v1.json",
+  "policy_raw_sha256": "72e15d103071a2137f61e3b7958a5b9aca3eec7a1c43c9f58bce6e47f4ef535e",
+  "registry_digest": "sha256-jcs-v1:702a48383e13398542730facad4c7210e5eec43becfe8e31578db1905a1035a0"
+}

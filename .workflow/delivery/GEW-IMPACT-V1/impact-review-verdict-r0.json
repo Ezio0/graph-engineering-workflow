@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "impact",
+  "scope_changed": false,
+  "change_kinds": [
+    "consistency",
+    "adr-disposition"
+  ],
+  "findings": [
+    {
+      "id": "IMP-R0-001",
+      "severity": "blocking",
+      "evidence": "Impact language/runtime and ADR filenames preselected Python and SQLite before their required ADR comparisons.",
+      "required_change": "Keep Impact implementation-neutral and rename ADRs without assuming outcomes.",
+      "verification": "Sections 7 and 14 remain neutral while retaining complete ADR scopes and escalation boundaries.",
+      "status": "open"
+    }
+  ],
+  "reviewer_id": "codex:/root/impact_reviewer_r0"
+}

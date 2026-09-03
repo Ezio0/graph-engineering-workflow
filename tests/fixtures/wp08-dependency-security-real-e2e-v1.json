@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "profile_id": "dependency-security",
+  "artifact_name": "dependency-security-closure.json",
+  "baseline_document": {
+    "advisory_status": "active",
+    "closure_status": "affected-verified",
+    "distribution": "packaging",
+    "residual_exposure": "open",
+    "security_regression": "pending",
+    "version": "26.3"
+  },
+  "desired_document": {
+    "advisory_status": "active",
+    "closure_status": "fixed-verified",
+    "distribution": "packaging",
+    "residual_exposure": "empty",
+    "security_regression": "passed",
+    "version": "26.3"
+  },
+  "foreign_document": {
+    "advisory_status": "unknown",
+    "closure_status": "unapproved",
+    "distribution": "foreign",
+    "residual_exposure": "unknown",
+    "security_regression": "unverified",
+    "version": "27.0"
+  }
+}

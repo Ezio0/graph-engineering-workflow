@@ -1,0 +1,157 @@
+{
+  "schema_version": "1.0",
+  "dependencies": [
+    {
+      "work_package": "WP-03",
+      "revision": 8,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-03-source-manifest-r8.json",
+      "source_manifest_digest": "5dc67d11277eedafc4b9b80236ab38bbc50f008e3aae12d8bdd95c9c5bd9e322",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-03-command-evidence-r8.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-03-review-verdict-r8.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-03-exit-r8.json"
+    },
+    {
+      "work_package": "WP-04",
+      "revision": 3,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-04-source-manifest-r3.json",
+      "source_manifest_digest": "21423070adebaf10b1ded562893e826945f75fc7607fc4a44099b62835441570",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-04-command-evidence-r3.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-04-review-verdict-r3.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-04-exit-r3.json"
+    },
+    {
+      "work_package": "WP-05A",
+      "revision": 4,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05a-source-manifest-r4.json",
+      "source_manifest_digest": "1c104c5738fea22222914b2dcba8701d0fe6df97f5d9c35bb7aaf68ca66d2219",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05a-command-evidence-r4.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05a-review-verdict-r4.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05a-exit-r4.json"
+    },
+    {
+      "work_package": "WP-05",
+      "revision": 2,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05-source-manifest-r2.json",
+      "source_manifest_digest": "48536f411e6fb6213f049e7136541e69561fac0bb33df8a11bdab722898a7b8b",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05-command-evidence-r2.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05-review-verdict-r2.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05-exit-r2.json"
+    }
+  ],
+  "runtime_pins": {
+    "migration_fault_schedule": {
+      "path": "config/contracts/migration-fault-schedule-v2.json",
+      "sha256": "20b7095ec76b46b4fe392521f274942dcdeab7d8da33576eb7dbdaf219b9ef17",
+      "schedule_id": "wp06-migration-fault-schedule-v2",
+      "point_count": 51,
+      "process_crash_point_count": 31,
+      "concurrency_scenario_count": 4
+    },
+    "migration_registry": {
+      "path": "config/contracts/migration-registry-v1.json",
+      "sha256": "ea47a860d1fbd5ed9e5ce83bdb930431e880e27154f64ccf59ac06c2b62c472b",
+      "registry_id": "urn:gew:migration-registry:builtin:1.0.0",
+      "registry_digest": "sha256-jcs-v1:e4704dc2aeefadf5c8bda310f663eea5e395d4f6423ea55f8a32b903c8286cda"
+    },
+    "migration_schema_registry": {
+      "path": "config/contracts/migration-schema-registry-v1.json",
+      "sha256": "be5a15ff5b28598eac4e4b612631f5548d55106c78897a9b8ceb927246b53e2b",
+      "registry_id": "urn:gew:schema-registry:migration:1.0.0",
+      "registry_digest": "sha256-jcs-v1:7886b195ddd46637995cc1aae91e6612315965bd5ccc2df8f17b19bce85954f0"
+    },
+    "migration_storage_policy": {
+      "path": "config/contracts/migration-storage-policy-v1.json",
+      "sha256": "af36d2a9e2663e5932baed80e425b370f12eadfe20a616ee14648cf333854866",
+      "policy_id": "urn:gew:migration-storage-policy:local-v1"
+    },
+    "project_scope_schema": {
+      "path": "config/contracts/schemas/project-scope-1.0.0.json",
+      "sha256": "567df6f5084faf291be6122d18825ed58d997925c7fe34a800a2a75524352315",
+      "schema_id": "urn:gew:schema:project-scope:1.0.0"
+    },
+    "project_scope_digest_input_schema": {
+      "path": "config/contracts/schemas/project-scope-digest-input-1.0.0.json",
+      "sha256": "ece30400f23c72476ee08c1b70312ceb76922f0b476fe74556a467b0b956930f",
+      "schema_id": "urn:gew:schema:project-scope-digest-input:1.0.0"
+    }
+  },
+  "governing_document_digests": [
+    {"path": "docs/positioning/baselines/graph-engineering-workflow-v2.md", "sha256": "968d4b574008b53ce79f7fe4c1e1b3d5f71d44bca890425848f388577883f799"},
+    {"path": "docs/positioning/baselines/graph-engineering-workflow-v2.sha256", "sha256": "5929136653e13c91a7801e17e9fb7f73e13718ecbbedc4953b08d637cde1bc38"},
+    {"path": "docs/prd/baselines/graph-engineering-workflow-v2.md", "sha256": "594b4437301853919ce3b4aa93e703a395ed45bff924ea6266b3a8e202a30be7"},
+    {"path": "docs/prd/baselines/graph-engineering-workflow-v2.sha256", "sha256": "01e11ef7a0d89d76927675eec22a4278ff6e0a4f196aecd99910a2a0c615e58b"},
+    {"path": "docs/specs/graph-engineering-workflow.md", "sha256": "72f16ee950a788769fbdf944199764dc7b4f74110da764320d802290b8c1d37a"},
+    {"path": "docs/impact/graph-engineering-workflow.md", "sha256": "5bc9bfcba5057eed9efca07d00dc26775b0c74d8845e2e3cfd17016dbee03df3"},
+    {"path": "docs/plans/2026-08-13-graph-engineering-workflow.md", "sha256": "3232365b008c25dc4a0f4ca9de3dceaff90309b2266b23e1a4e2cdf266512ac4"},
+    {"path": "docs/test-plans/graph-engineering-workflow.md", "sha256": "168d9b8aae581ad00971a17225f57eea14919b15b98a012ea93ad631a35fe3fc"},
+    {"path": "docs/adr/0002-local-event-repository-and-coordination.md", "sha256": "8a38b1e55b615cd511ac19af92211ffff422ed046821b0d6ebdac3b171ed39d0"},
+    {"path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/authority-envelope.json", "sha256": "43552de463df28ea44e6fdb7ff28bd56149430b9bdcd006704e4bf8125877035"}
+  ],
+  "binding_groups": [
+    {"prefix": "GEW-MIG", "start": 1, "end": 10, "path": "tests/unit/test_wp06_migration_control.py", "module": "test_wp06_migration_control", "class": "WP06MigrationControlTests"},
+    {"prefix": "GEW-MIG", "start": 11, "end": 16, "path": "tests/integration/test_wp06_migration_repository.py", "module": "test_wp06_migration_repository", "class": "WP06MigrationRepositoryTests"},
+    {"prefix": "GEW-MIG", "start": 17, "end": 26, "path": "tests/integration/test_wp06_migration_failure.py", "module": "test_wp06_migration_failure", "class": "WP06MigrationFailureTests"},
+    {"prefix": "GEW-MIG", "start": 27, "end": 33, "path": "tests/integration/test_wp06_installation_routing.py", "module": "test_wp06_installation_routing", "class": "WP06InstallationRoutingTests"},
+    {"prefix": "GEW-MIG", "start": 34, "end": 39, "path": "tests/integration/test_wp06_migration_authority.py", "module": "test_wp06_migration_authority", "class": "WP06MigrationAuthorityTests"},
+    {"prefix": "GEW-MIG", "start": 40, "end": 46, "path": "tests/integration/test_wp06_migration_orchestration.py", "module": "test_wp06_migration_orchestration", "class": "WP06MigrationOrchestrationTests"},
+    {"prefix": "GEW-LIF", "start": 1, "end": 8, "path": "tests/unit/test_wp06_project_scope.py", "module": "test_wp06_project_scope", "class": "WP06ProjectScopeTests"},
+    {"prefix": "GEW-LIF", "start": 9, "end": 12, "path": "tests/integration/test_wp06_lifecycle_application.py", "module": "test_wp06_lifecycle_application", "class": "WP06LifecycleApplicationTests"},
+    {"prefix": "GEW-LIF", "start": 13, "end": 17, "path": "tests/integration/test_wp06_project_scope_repository.py", "module": "test_wp06_project_scope_repository", "class": "WP06ProjectScopeRepositoryTests"},
+    {"prefix": "GEW-LIF", "start": 18, "end": 22, "path": "tests/integration/test_wp06_lifecycle_application.py", "module": "test_wp06_lifecycle_application", "class": "WP06LifecycleApplicationTests"}
+  ],
+  "evidence_test_bindings": [
+    {"test_id": "GEW-WP-06-EXIT-P", "qualified_test": "test_wp06_evidence_contract.WP06EvidenceContractTests.test_valid_candidate_binding_passes"},
+    {"test_id": "GEW-WP-06-EXIT-R", "qualified_test": "test_wp06_evidence_contract.WP06EvidenceContractTests.test_source_command_runtime_document_dependency_and_review_mutations_fail"},
+    {"test_id": "GEW-WP-06-DEPENDENCY-R", "qualified_test": "test_wp06_evidence_contract.WP06EvidenceContractTests.test_prerequisites_require_exact_pass_candidates"}
+  ],
+  "reviewer_remedy_bindings": [
+    {"finding_id": "WP06-CODE-R1-001", "qualified_tests": ["test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_post_activation_operations_route_only_current_repository"]},
+    {"finding_id": "WP06-CODE-R1-002", "qualified_tests": ["test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_037_activation_recomputes_exact_candidate"]},
+    {"finding_id": "WP06-CODE-R1-006", "qualified_tests": ["test_wp06_project_scope_repository.WP06ProjectScopeRepositoryTests.test_gew_lif_015_rebase_invalidates_exact_targets_and_expands_authority", "test_wp06_project_scope_repository.WP06ProjectScopeRepositoryTests.test_scope_dependency_mapping_fails_closed"]},
+    {"finding_id": "WP06-CODE-R1-007", "qualified_tests": ["test_wp06_lifecycle_application.WP06LifecycleApplicationTests.test_gew_lif_020_cancel_uses_durable_retention_schedule"]},
+    {"finding_id": "WP06-CODE-R1-008", "qualified_tests": ["test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_042_versioned_fault_schedule_covers_every_production_cut", "test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_043_every_durable_cut_sigkill_recovers_active_or_blocked"]}
+  ],
+  "source_paths": [
+    "application/graph_engineering/application/tasks.py",
+    "config/contracts/migration-fault-schedule-v2.json",
+    "config/contracts/migration-registry-v1.json",
+    "config/contracts/migration-schema-registry-v1.json",
+    "config/contracts/migration-storage-policy-v1.json",
+    "config/contracts/schemas/project-scope-1.0.0.json",
+    "config/contracts/schemas/project-scope-digest-input-1.0.0.json",
+    "config/verification/wp-06-gate.json",
+    "core/graph_engineering/core/graph/state.py",
+    "core/graph_engineering/core/migration.py",
+    "core/graph_engineering/core/project.py",
+    "scripts/collect_wp06_evidence.py",
+    "scripts/evidence_utils.py",
+    "scripts/run_wp06_gate.py",
+    "scripts/verify_wp06_evidence.py",
+    "storage/graph_engineering/storage/connection.py",
+    "storage/graph_engineering/storage/leases.py",
+    "storage/graph_engineering/storage/locks.py",
+    "storage/graph_engineering/storage/migration.py",
+    "storage/graph_engineering/storage/objects.py",
+    "storage/graph_engineering/storage/repository.py",
+    "tests/contract/test_wp06_evidence_contract.py",
+    "tests/contract/test_wp06_gate_contract.py",
+    "tests/integration/test_wp06_installation_routing.py",
+    "tests/integration/test_wp06_lifecycle_application.py",
+    "tests/integration/test_wp06_migration_authority.py",
+    "tests/integration/test_wp06_migration_failure.py",
+    "tests/integration/test_wp06_migration_orchestration.py",
+    "tests/integration/test_wp06_migration_repository.py",
+    "tests/integration/test_wp06_project_scope_repository.py",
+    "tests/support/wp03_repository.py",
+    "tests/unit/test_wp06_migration_control.py",
+    "tests/unit/test_wp06_project_scope.py"
+  ],
+  "commands": [
+    {"id": "GEW-WP-06-LINT-P", "argv": ["{python}", "scripts/check_sources.py", "lint"]},
+    {"id": "GEW-WP-06-TYPE-P", "argv": ["{python}", "scripts/check_sources.py", "type"]},
+    {"id": "GEW-WP-06-ARCHITECTURE-P", "argv": ["{python}", "scripts/check_architecture.py"]},
+    {"id": "GEW-WP-06-TEST-P", "argv": ["{python}", "scripts/run_tests.py"]},
+    {"id": "GEW-WP-06-BUILD-P", "argv": ["{python}", "scripts/verify_build.py"]},
+    {"id": "GEW-WP-06-REPRODUCIBILITY-P", "argv": ["{python}", "scripts/verify_reproducible_build.py"]}
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "adr-0002",
+  "scope_changed": false,
+  "change_kinds": ["clarification", "consistency", "testability"],
+  "findings": [
+    {
+      "id": "GEW-ADR2-MIGRATION-001",
+      "severity": "blocking",
+      "evidence": "Migration held the non-reentrant installation lock while invoking a backup protocol that independently reacquired and released that same lock.",
+      "required_change": "Separate public export lock ownership from an already-held-lock snapshot primitive used by migration.",
+      "verification": "Public and migration exports cannot recursively lock or release installation exclusivity before verified activation/blocking.",
+      "status": "open"
+    }
+  ],
+  "reviewer_id": "codex:/root/adr_0002_reviewer_r1"
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "tech-spec",
+  "scope_changed": false,
+  "change_kinds": [
+    "architecture-detail",
+    "consistency",
+    "testability"
+  ],
+  "findings": [
+    {
+      "id": "GEW-TS-CONC-001",
+      "severity": "blocking",
+      "evidence": "§5.3 没有要求旧 action 仍为 executing/unknown 时冻结相关资源，也没有明确无原生 fencing 时本地排他锁覆盖整个外部调用。",
+      "required_change": "增加 durable unresolved-action resource claim；从 execution_started 到 reconciled/补偿完成不得重新授予资源。无原生 fencing 时持有覆盖整个调用的本地排他锁，崩溃或锁丢失后冻结到 reconciliation；无法满足则 fail closed。",
+      "verification": "在无原生 fencing adapter 注入长调用、TTL 到期、崩溃和 unknown；第二任务必须持续失败，直到第一动作被确定性协调。",
+      "status": "open"
+    },
+    {
+      "id": "GEW-TS-LIFE-001",
+      "severity": "blocking",
+      "evidence": "§4.3 没有定义 terminal/quiescent/resumable 精确集合，cancel/revoke/rollback 的来源和事件未穷举，图和表不能形成唯一状态机。",
+      "required_change": "统一为穷举 lifecycle transition contract：定义状态集合；为每个 command 列出精确来源、目标、event、active/unknown action 处理和非法转换。",
+      "verification": "覆盖每个 lifecycle state × command；合法组合唯一，非法组合 fail closed，图表与 reducer fixtures 一致。",
+      "status": "open"
+    }
+  ]
+}

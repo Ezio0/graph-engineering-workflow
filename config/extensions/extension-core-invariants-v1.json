@@ -1,0 +1,1 @@
+{"schema_version":"1.0.0","invariant_set_id":"gew-core-invariants-v1","invariant_ids":["authority-monotonicity","built-in-identity-integrity","canonical-digest-integrity","completion-truth","lease-fence-claim-safety"],"allowed_security_effects":["constrain-only"],"invariant_set_digest":"sha256-jcs-v1:aeaf21d6b27220a9732a7c1f4cacf3a6e9b647cc6f1ed510c194252039d59d28"}

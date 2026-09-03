@@ -1,0 +1,162 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "wp-08a",
+  "scope_changed": false,
+  "change_kinds": [
+    "correctness",
+    "security",
+    "reliability",
+    "tests",
+    "verification"
+  ],
+  "reviewer_id": "codex:/root/wp08a_candidate_reviewer_r1",
+  "source_manifest_digest": "d3d016d38981042c4b526c02c5c8349cf940e202177890cb03c725b4ac4e9177",
+  "command_evidence_digest": "1976d3eec39708b300f56f84abe530bd1903209ced5ed3999fced52b5e8e58c2",
+  "candidate_exit_digest": "222f8472071532f4258a57cb49decb15519ec367c8a5d068df65bc2b7e0df17f",
+  "governing_documents_digest": "8c356028ee109ebbed35d28403d69e0a70bffd374986add17feae26d6a7dffd6",
+  "wp08a_runtime_digest": "e144c48e27be3711ee7c054bb392a3f7571a79a7edc19f0db3d995d868a09d56",
+  "wp08a_runtime_dependencies_digest": "49844585e9ed750e010ca67a915297074ad9223df5732d0011a8742e96b3bb33",
+  "wp08a_sources_digest": "d90fc82052863b7a13c133504d16c1beb7fc174bd3159b0c4b396341f7367296",
+  "external_action_boundary_digest": "9f82ea7ae6f92f16de83b4f2e5e26dd2f1c14e842953ab7059dfc6f9ca041123",
+  "dependency_verdicts_digest": "e3512c8575d9ca5e6831c0295d931166895f468da806410dedb33d8101e71cab",
+  "immutable_tuple": {
+    "source_manifest_internal_digest": "d3d016d38981042c4b526c02c5c8349cf940e202177890cb03c725b4ac4e9177",
+    "source_manifest_raw_sha256": "0a697d7d910e0ea450acb075c8e7f6a3a34c57e964d651ef7f11f3a5ec10a812",
+    "source_manifest_canonical_sha256": "0d45276ba5cb32423ab385804620fea707a05d958a008d4e42178b0af2952477",
+    "source_manifest_row_count": 465,
+    "wp08a_delta_file_count": 150,
+    "wp08a_new_file_count": 123,
+    "wp08a_changed_file_count": 27,
+    "command_evidence_raw_sha256": "a762a3390de537bc5a05ff44a8dfa2e76d468c805fa8feb8cbc36fcf92a45e2e",
+    "command_evidence_canonical_sha256": "1976d3eec39708b300f56f84abe530bd1903209ced5ed3999fced52b5e8e58c2",
+    "candidate_exit_raw_sha256": "02a8009fd8126d757f2005f7205ff64dfac65d283e169a054a06f5f0c7f4d824",
+    "candidate_exit_canonical_sha256": "222f8472071532f4258a57cb49decb15519ec367c8a5d068df65bc2b7e0df17f"
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "WP08A-QR-R1-001",
+      "status": "closed",
+      "evidence": "The exact candidate replay passed all four reducer/transition closure bindings for the closed twelve-operation trust reducer and nested-record semantics."
+    },
+    {
+      "finding_id": "WP08A-QR-R1-002",
+      "status": "closed",
+      "evidence": "The exact candidate replay passed both selective historical-pin and comparable capability-set bindings."
+    },
+    {
+      "finding_id": "WP08A-QR-R1-003",
+      "status": "closed",
+      "evidence": "The exact candidate replay passed the post-commit matrix and monotonic-or-unprovable security-join bindings."
+    },
+    {
+      "finding_id": "WP08A-QR-R1-004",
+      "status": "closed",
+      "evidence": "The exact candidate replay passed the activation post-publish doctor and restoration binding."
+    },
+    {
+      "finding_id": "WP08A-QR-R1-005",
+      "status": "closed",
+      "evidence": "The exact candidate replay passed the explicit source/build/ingest chronology binding."
+    },
+    {
+      "finding_id": "WP08A-QR-R1-006",
+      "status": "closed",
+      "evidence": "The exact candidate replay passed the optional-but-exact previous source-attestation binding."
+    },
+    {
+      "finding_id": "WP08A-QR-R1-007",
+      "status": "closed",
+      "evidence": "Three bound remedy tests passed in the exact replay, and two independently rerun focused tests confirmed pipe-delivered exact runner/module/callable bytes, authenticated execution records, source-mutation exclusion, launch binding, and all five issuance probes."
+    },
+    {
+      "finding_id": "WP08A-QR-R3-008",
+      "status": "closed",
+      "evidence": "All five bound remedy tests passed both the exact replay and an independent focused rerun, covering packaging 26.3 attestation, protected fields, same-path replacement, closure-return rechecks, physical ZIP members, and whole-closure limits."
+    },
+    {
+      "finding_id": "WP08A-CODE-R4-009",
+      "status": "open",
+      "evidence": "A fresh independent local mutation revoked the exact source-attestation digest of the inactive v1 package in a committed higher-generation trust policy, then requested rollback from active v2 to v1. The transition returned generation 3 and published the revoked v1 activation record instead of E_EXTENSION_REVOKED."
+    }
+  ],
+  "findings": [
+    {
+      "id": "WP08A-CODE-R4-009",
+      "severity": "P1",
+      "status": "open",
+      "summary": "Active-set rollback can republish a package whose provenance is revoked by the current trust policy.",
+      "location": "storage/graph_engineering/storage/extension_activation.py:1466; docs/adr/0004-extension-source-and-capability-trust.md:838",
+      "evidence": "The rollback branch at extension_activation.py:1466-1476 compares the current revocation set only with the target activation record, package identity, and manifest. It loads the ingest record afterward but never compares the ingest, source-attestation, build-attestation, publisher-signature, or production-policy digests used by the initial activation gate at lines 1197-1214. In an independently executed disposable-repository mutation, current policy generation 2 revoked source-attestation sha256-jcs-v1:720cd3db594411757803b2b59ad3d499486ff1c1cfbff2fcb9189377c362d84a; rollback still returned ALLOWED, published generation 3, and selected v1 activation sha256-jcs-v1:1c8bafdb443df8273a8cdf9d2159dfede252fd057514b1ec464255e13a94e7be. ADR-0004 line 838 requires rollback to select only a complete old extension set that still satisfies current trust, revocation, and compatibility.",
+      "required_change": "Before any rollback data-registry, activation-manifest, or pointer write, re-evaluate the target package against the current trust tuple using one shared fail-closed eligibility path. At minimum bind and check the exact activation, ingest, package identity, manifest, source attestation, build attestation, publisher signature, and production-policy subjects; current installed production-policy/key/source/namespace/kind/capability/compatibility/resource rules; the data-only and non-built-in-executable gates; and immutable installed-content doctor results. Return a stable non-disclosing denial with zero active-set mutation when any current requirement fails.",
+      "verification": "Add a production-path rollback matrix that first supersedes v1 with v2, then independently revokes each v1 subject (activation, ingest, package identity, manifest, source attestation, build attestation, publisher signature, and production policy) and proves every rollback is denied before registry/manifest/pointer writes. Add current-policy tightening cases for relevant key, production policy, source, namespace, kind, capability ceiling, compatibility floor, and resource binding; each must deny rollback, while unrelated expansion and an unchanged fully eligible v1 preserve the valid rollback path. Assert restart observes the exact pre-request generation after every denial.",
+      "mechanical_closure_tests": [
+        "Supersede v1 with v2, commit a current source-attestation revocation for v1, request rollback to v1, and assert E_EXTENSION_REVOKED plus byte-identical active pointer, manifest, data registry, and activation ledger.",
+        "Repeat for activation record, ingest record, package identity, manifest, build attestation, publisher signature, and production policy; no subject class may be omitted from the shared rollback check.",
+        "Tighten each relevant current trust and compatibility dimension after v1 activation and prove rollback rejects before publication; retain positive rollback for an unchanged eligible package and for irrelevant authority contraction/expansion cases defined by policy.",
+        "Restart after every rejected rollback and prove the prior active generation and revocation high-water remain authoritative with no orphan registry or manifest row."
+      ]
+    }
+  ],
+  "reviewed_without_open_findings": [
+    "exact 465-row current source manifest and exact 150-file WP-08A delta (123 new, 27 changed)",
+    "exact canonical cross-digests, designated independent actor IDs, and four accepted predecessor PASS tuples",
+    "32 stable, 12 supplemental, 19 reviewer-remedy, and 3 evidence bindings",
+    "76 extension schemas, 32 runtime pins, 12 configuration inputs, and 20 runtime-source inputs",
+    "911 unique passing tests across exactly 915 executions and all six evidence commands",
+    "R1-007 verified-byte execution transaction and R3-008 packaging 26.3 offline physical wheel closure",
+    "data-only category activation, immutable installed-content doctor, active-set CAS/crash restoration, and task-pin currentness outside the rollback eligibility defect",
+    "zero-call denial for non-built-in executable packages and the blocked WP-10 formal release/install-manifest boundary",
+    "offline trust plane with no observed network, user-repository, or real external action"
+  ],
+  "verification": {
+    "candidate_unique_passed_test_count": 911,
+    "candidate_test_execution_count": 915,
+    "candidate_command_count": 6,
+    "evidenced_wheel": {
+      "filename": "graph_engineering_workflow-0.1.0-py3-none-any.whl",
+      "sha256": "c42dcb8b71488da27962a7b4c2f3fb29f258998cb5e8fa5d66cb5cc07d6dd5e3",
+      "independent_rebuild_status": "PASS"
+    },
+    "exact_three_parameter_validator": {
+      "argv": [
+        ".venv/bin/python",
+        "scripts/verify_wp08a_evidence.py",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-08a-source-manifest-r1.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-08a-command-evidence-r1.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-08a-exit-r1.json"
+      ],
+      "status": "PASS",
+      "findings": [],
+      "rebuild": true,
+      "rerun_commands": true
+    },
+    "exact_four_parameter_validator": {
+      "status": "NOT_RUN",
+      "reason": "The independent verdict is REVISE; the exact four-parameter verifier accepts only PASS verdicts, so a four-parameter PASS was not fabricated."
+    },
+    "independent_focused_tests": {
+      "status": "PASS",
+      "tests_run": 7,
+      "failures": 0,
+      "errors": 0,
+      "coverage": [
+        "WP08A-QR-R1-007 verified-byte execution and issuance probes",
+        "WP08A-QR-R3-008 parser attestation, replacement races, closure-return binding, protected fields, physical ZIP and closure limits"
+      ]
+    },
+    "independent_rollback_revocation_mutation": {
+      "status": "FAIL",
+      "expected": "DENIED with E_EXTENSION_REVOKED and zero active-set mutation",
+      "observed": "ALLOWED; generation 3 published the v1 activation after its source-attestation digest was revoked by the current committed policy"
+    },
+    "source_currentness_after_review": {
+      "status": "PASS",
+      "findings": [],
+      "row_count": 465
+    },
+    "network_used": false,
+    "user_repository_used": false,
+    "real_external_actions_used": false
+  }
+}

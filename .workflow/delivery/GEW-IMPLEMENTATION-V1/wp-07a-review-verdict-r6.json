@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.0",
+  "artifact": "wp-07a",
+  "verdict": "PASS",
+  "reviewer_id": "codex:/root/wp07a_reviewer_r5",
+  "scope_changed": false,
+  "change_kinds": [],
+  "source_manifest_digest": "c1cb7956796ed7a0795d09ba15e18d64d6b533fd2d3fb2b5a0acfbfcd83c91e5",
+  "command_evidence_digest": "2edd6cab97b0786a1618345d9825c1eec99d981c01ea407d3fa9be90579d2461",
+  "candidate_exit_digest": "e134798a497c1942622669470c19cf11b8088cc5bed5b5b564d6059925ad40c1",
+  "governing_documents_digest": "178ce8ac2035391a80ef2125e2e984c4da2bcf7ad4e6155301eb04362fcbffee",
+  "wp07a_runtime_digest": "83501f8d804ad679f8143715fa9685f6f98dde4015824e188364261eb2b57c89",
+  "wp07a_sources_digest": "fb09a539e25a7e24072f86e105bb5087211f548f760f00d35a545663059871b3",
+  "external_action_boundary_digest": "68d1f79bc0ac27a9f790b7eba86f2afd655dad15571a2ba7dec922d39a768742",
+  "dependency_verdicts_digest": "682b0eba24210c2ca5cba10ca67d35aa5a45a526ef830cef6d2c38a729bbddc3",
+  "immutable_tuple": {
+    "source_manifest_raw_sha256": "4bc1aa9b6e42e2f977b5fd8be838a201a472246f547d31bf538480d78eb3ba59",
+    "source_manifest_canonical_sha256": "186d1e31b792d867d7a0db238d8da9908376a57c510547c786ba9b594b89497d",
+    "source_manifest_internal_digest": "c1cb7956796ed7a0795d09ba15e18d64d6b533fd2d3fb2b5a0acfbfcd83c91e5",
+    "source_manifest_row_count": 342,
+    "command_evidence_raw_sha256": "51d0fdb131807866ff21c92edf4455157ac9e04ef10386d453b24ae6ec88d3a0",
+    "command_evidence_canonical_sha256": "2edd6cab97b0786a1618345d9825c1eec99d981c01ea407d3fa9be90579d2461",
+    "candidate_exit_raw_sha256": "6232964238e5af58f2f90d69f8ea022706c9f54327b00bd483826ee597ba5646",
+    "candidate_exit_canonical_sha256": "e134798a497c1942622669470c19cf11b8088cc5bed5b5b564d6059925ad40c1"
+  },
+  "verification": {
+    "exact_three_parameter_validator": {
+      "argv": [
+        ".venv/bin/python",
+        "scripts/verify_wp07a_evidence.py",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-source-manifest-r6.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-command-evidence-r6.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-exit-r6.json"
+      ],
+      "status": "PASS",
+      "findings": []
+    },
+    "exact_four_parameter_validator": {
+      "argv": [
+        ".venv/bin/python",
+        "scripts/verify_wp07a_evidence.py",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-source-manifest-r6.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-command-evidence-r6.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-exit-r6.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-review-verdict-r6.json"
+      ],
+      "status": "PASS",
+      "findings": []
+    },
+    "source_currentness_before_verdict": {
+      "status": "PASS",
+      "findings": [],
+      "row_count": 342
+    },
+    "candidate_test_execution_count": 847,
+    "independent_checks": [
+      {
+        "check": "all 342 source-manifest rows and the internal manifest digest",
+        "status": "PASS"
+      },
+      {
+        "check": "13 governing records and WP-05/WP-06/WP-07 predecessor PASS bindings",
+        "status": "PASS"
+      },
+      {
+        "check": "actual author and reviewer identities are exact, distinct and evidence-pinned",
+        "status": "PASS",
+        "evidence": "The r6 gate, command evidence and candidate exit name codex:/root/wp05_evidence_author_r1 and codex:/root/wp07a_reviewer_r5."
+      },
+      {
+        "check": "changed distribution, adapter package and adapter factory runtime modules are present with exact r6 bytes in source and runtime evidence",
+        "status": "PASS"
+      },
+      {
+        "check": "ACT-001B through ACT-001H",
+        "status": "PASS"
+      },
+      {
+        "check": "all 43 WP-07A focused contract, integration, E2E and security tests",
+        "status": "PASS"
+      },
+      {
+        "check": "lint, type and architecture static checks",
+        "status": "PASS"
+      },
+      {
+        "check": "independent rebuild and command replay performed by the exact three-record validator",
+        "status": "PASS",
+        "evidence": "The rebuilt exact wheel matches the evidenced SHA-256 004ad042eb83a6c96190373b822faf5aaf138c39020b1d0b1a0cfbd3f91778c8."
+      },
+      {
+        "check": "one explicit configured checkout control root is required and no alternate path search is used",
+        "status": "PASS"
+      },
+      {
+        "check": "development checkout, clean extracted package and direct archive resolve the same closed implementation tuple and initialize and run all five built-in adapters",
+        "status": "PASS"
+      },
+      {
+        "check": "direct archive uses its native loader, loader bytes match the validated package, and normal, abrupt and restart runs create no adapter staging files",
+        "status": "PASS"
+      },
+      {
+        "check": "incomplete, duplicate, mismatched and ambiguous extracted or direct-archive layouts stop before adapter initialization",
+        "status": "PASS"
+      }
+    ],
+    "external_actions_observed": false,
+    "network_used": false,
+    "user_repository_used": false
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "WP07A-CODE-R1-001",
+      "status": "closed",
+      "evidence": "Fresh post-receipt observation and zero-mutation recovery behavior remain covered and passing."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-002",
+      "status": "closed",
+      "evidence": "Semantic and serialized output sanitation plus secret destruction remain covered and passing."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-003",
+      "status": "closed",
+      "evidence": "The supported checkout requires one explicit installation-control root and does not scan alternate paths. Exact development, extracted and direct-archive layouts resolve and run all five built-ins. The direct archive validates native-loader bytes without staging, including abrupt and restart runs, while incomplete or ambiguous layouts stop before initialization."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-004",
+      "status": "closed",
+      "evidence": "Bounded full-process-group termination remains covered and passing."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-005",
+      "status": "closed",
+      "evidence": "Authenticated query-only recovery without mutation replay remains covered and passing."
+    },
+    {
+      "finding_id": "WP07A-EVIDENCE-R1-001",
+      "status": "closed",
+      "evidence": "The r6 evidence and exit name the actual assigned reviewer codex:/root/wp07a_reviewer_r5, independently from the author."
+    }
+  ],
+  "findings": [],
+  "reviewed_without_open_findings": [
+    "exact r6 source, command and exit evidence binding",
+    "WP-05, WP-06 and WP-07 predecessor PASS binding",
+    "explicit configured development-checkout control identity",
+    "source, extracted-package and direct-archive implementation digest equality",
+    "five built-in adapter initialization and bounded local execution in all supported layouts",
+    "native direct-archive loader byte binding without staging files",
+    "incomplete, mismatched, duplicate and ambiguous package-layout rejection",
+    "prior action recovery, output sanitation and process-group findings"
+  ]
+}

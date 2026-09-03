@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "dependencies": [
+    {
+      "work_package": "WP-02",
+      "revision": 4,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-02-source-manifest-r4.json",
+      "source_manifest_digest": "80a3330dcfd13fa81c90ec6d3b5b75a0307517ca6ae3378d341d740b5e50c40e",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-02-command-evidence-r4.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-02-review-verdict-r4.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-02-exit-r4.json"
+    }
+  ],
+  "commands": [
+    {"id": "GEW-WP-03-LINT-P", "argv": ["{python}", "scripts/check_sources.py", "lint"]},
+    {"id": "GEW-WP-03-TYPE-P", "argv": ["{python}", "scripts/check_sources.py", "type"]},
+    {"id": "GEW-WP-03-SECURITY-P", "argv": ["{python}", "scripts/check_architecture.py"]},
+    {"id": "GEW-WP-03-TEST-P", "argv": ["{python}", "scripts/run_tests.py"]},
+    {"id": "GEW-WP-03-BUILD-P", "argv": ["{python}", "scripts/verify_build.py"]},
+    {"id": "GEW-WP-03-REPRODUCIBILITY-P", "argv": ["{python}", "scripts/verify_reproducible_build.py"]}
+  ],
+  "test_bindings": [
+    {"test_id": "GEW-ADR2-CONNECTION-P", "qualified_test": "test_wp03_connection.ConnectionFactoryTests.test_open_contract_pragmas_roles_modes_and_symlink_fail_closed"},
+    {"test_id": "GEW-ADR2-CONNECTION-R", "qualified_test": "test_wp03_connection.ConnectionFactoryTests.test_policy_and_capability_are_closed_and_fail_on_durability_weakening"},
+    {"test_id": "GEW-ADR2-DOCTOR-P", "qualified_test": "test_wp03_doctor.LiveRepositoryDoctorTests.test_live_supported_filesystem_vfs_and_sync_are_attested_before_open"},
+    {"test_id": "GEW-REP-001-P", "qualified_test": "test_wp03_connection.ConnectionFactoryTests.test_connection_is_thread_and_fork_bound_and_transactions_are_explicit"},
+    {"test_id": "GEW-REP-001-R", "qualified_test": "test_wp03_connection.ConnectionFactoryTests.test_busy_retry_is_finite_and_failed_transaction_has_no_partial_write"},
+    {"test_id": "GEW-ADR2-TRANSACTION-P", "qualified_test": "test_wp03_repository.RepositoryConformanceTests.test_atomic_commit_replay_catalog_cas_and_idempotent_recovery"},
+    {"test_id": "GEW-ADR2-TRANSACTION-R", "qualified_test": "test_wp03_repository.RepositoryConformanceTests.test_real_process_kill_exposes_only_old_before_commit_or_new_after_commit"},
+    {"test_id": "GEW-REP-061-P", "qualified_test": "test_wp03_repository.RepositoryConformanceTests.test_before_commit_fault_is_old_and_after_commit_fault_is_recoverable_new"},
+    {"test_id": "GEW-REP-061-R", "qualified_test": "test_wp03_repository.RepositoryConformanceTests.test_corruption_or_missing_committed_object_blocks_integrity"},
+    {"test_id": "GEW-REP-CHAIN-R", "qualified_test": "test_wp03_repository.RepositoryConformanceTests.test_replay_binds_index_columns_and_transaction_revision_and_head"},
+    {"test_id": "GEW-REQ-FR03-P", "qualified_test": "test_wp03_repository.RepositoryConformanceTests.test_snapshot_is_derived_and_can_only_be_repaired_from_valid_committed_head"},
+    {"test_id": "GEW-ADR2-OBJECT-P", "qualified_test": "test_wp03_objects.ObjectRepositoryConformanceTests.test_verified_publication_deduplicates_and_rejects_digest_or_symlink_tamper"},
+    {"test_id": "GEW-ADR2-OBJECT-R", "qualified_test": "test_wp03_objects.ObjectRepositoryConformanceTests.test_purge_only_deletes_unreferenced_unheld_objects_and_recovers_deleting"},
+    {"test_id": "GEW-ADR2-OBJECT-MUTATION-R", "qualified_test": "test_wp03_objects.ObjectRepositoryConformanceTests.test_fanout_symlink_is_rejected_before_external_or_staging_mutation"},
+    {"test_id": "GEW-ADR2-OBJECT-ANCESTOR-R", "qualified_test": "test_wp03_objects.ObjectRepositoryConformanceTests.test_post_initialization_objects_and_staging_replacement_have_zero_external_effect"},
+    {"test_id": "GEW-ADR2-OBJECT-PUBLICATION-R", "qualified_test": "test_wp03_objects.ObjectRepositoryConformanceTests.test_concurrent_staging_and_final_replacement_cannot_publish_wrong_bytes"},
+    {"test_id": "GEW-ADR2-OBJECT-DEDUP-R", "qualified_test": "test_wp03_objects.ObjectRepositoryConformanceTests.test_deduplicated_replacement_quarantines_preexisting_metadata"},
+    {"test_id": "GEW-ADR2-OBJECT-CLEANUP-ISOLATION-R", "qualified_test": "test_wp03_objects.ObjectRepositoryConformanceTests.test_stale_cleanup_is_serialized_before_a_later_verified_writer"},
+    {"test_id": "GEW-ADR2-OBJECT-LOCK-COMPOSITION-P", "qualified_test": "test_wp03_objects.ObjectRepositoryConformanceTests.test_publication_composes_with_held_call_span_resources"},
+    {"test_id": "GEW-DUR-OBJECT-FILE-P", "qualified_test": "test_wp03_objects.ObjectRepositoryConformanceTests.test_recovery_removes_crash_left_staging_and_physical_orphans"},
+    {"test_id": "GEW-DUR-GC-PURGE-R", "qualified_test": "test_wp03_objects.ObjectRepositoryConformanceTests.test_quarantine_is_not_readable_or_purge_eligible"},
+    {"test_id": "GEW-ADR2-LEASE-P", "qualified_test": "test_wp03_leases.LeaseClaimConformanceTests.test_acquire_many_is_atomic_sorted_and_fencing_is_monotonic"},
+    {"test_id": "GEW-ADR2-LEASE-R", "qualified_test": "test_wp03_leases.LeaseClaimConformanceTests.test_renew_is_revision_bound_and_release_is_exact"},
+    {"test_id": "GEW-ADR2-CLOCK-R", "qualified_test": "test_wp03_leases.LeaseClaimConformanceTests.test_expiry_observation_persists_high_water_and_clock_rollback_cannot_revive"},
+    {"test_id": "GEW-ADR2-CLAIM-P", "qualified_test": "test_wp03_leases.LeaseClaimConformanceTests.test_unresolved_claim_survives_lease_expiry_and_blocks_gc_and_other_task"},
+    {"test_id": "GEW-ADR2-CLAIM-R", "qualified_test": "test_wp03_leases.LeaseClaimConformanceTests.test_claim_and_reconciliation_bind_exact_same_transaction_event_payload"},
+    {"test_id": "GEW-ADR2-LOCK-P", "qualified_test": "test_wp03_locks.LockConformanceTests.test_resource_order_is_canonical_no_partial_and_same_thread_is_nonreentrant"},
+    {"test_id": "GEW-ADR2-LOCK-R", "qualified_test": "test_wp03_locks.LockConformanceTests.test_fork_child_cannot_release_parent_and_independent_process_conflicts"},
+    {"test_id": "GEW-ADR2-LOCK-SEQUENCE-R", "qualified_test": "test_wp03_locks.LockConformanceTests.test_opposing_process_resource_sequence_fails_finitely_before_deadlock"},
+    {"test_id": "GEW-ADR2-LOCK-ANCESTOR-R", "qualified_test": "test_wp03_locks.LockConformanceTests.test_post_initialization_lock_ancestor_replacement_has_zero_external_effect"},
+    {"test_id": "GEW-LOC-001-P", "qualified_test": "test_wp03_locks.LockConformanceTests.test_shared_readers_block_exclusive_until_all_release"},
+    {"test_id": "GEW-LOC-001-R", "qualified_test": "test_wp03_locks.LockConformanceTests.test_global_lock_order_and_reverse_release_are_mechanically_enforced"},
+    {"test_id": "GEW-DUR-SCHEDULE-R", "qualified_test": "test_wp03_fault_schedule.PersistenceFaultScheduleTests.test_schedule_is_closed_complete_and_injection_is_single_deterministic"},
+    {"test_id": "GEW-DUR-MATRIX-P", "qualified_test": "test_wp03_fault_matrix.PersistenceFaultMatrixTests.test_every_declared_step_and_fault_kind_has_old_new_or_recoverable_state"},
+    {"test_id": "GEW-WP-03-EXIT-P", "qualified_test": "test_wp03_evidence_contract.WP03EvidenceContractTests.test_valid_candidate_binding_passes"},
+    {"test_id": "GEW-WP-03-EXIT-R", "qualified_test": "test_wp03_evidence_contract.WP03EvidenceContractTests.test_source_command_runtime_document_and_review_mutations_fail"},
+    {"test_id": "GEW-WP-03-DEPENDENCY-R", "qualified_test": "test_wp03_evidence_contract.WP03EvidenceContractTests.test_wp02_prerequisite_requires_exact_pass_candidate"}
+  ]
+}

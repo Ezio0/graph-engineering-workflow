@@ -1,0 +1,562 @@
+{
+  "schema_version": "1.0",
+  "dependencies": [
+    {
+      "work_package": "WP-05",
+      "revision": 2,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05-source-manifest-r2.json",
+      "source_manifest_digest": "48536f411e6fb6213f049e7136541e69561fac0bb33df8a11bdab722898a7b8b",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05-command-evidence-r2.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05-review-verdict-r2.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05-exit-r2.json"
+    },
+    {
+      "work_package": "WP-06",
+      "revision": 3,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-06-source-manifest-r3.json",
+      "source_manifest_digest": "505e0a62a2c2895f695372444f543e9d4bd71714fa93e3cfc91af0c272bcbb4e",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-06-command-evidence-r3.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-06-review-verdict-r3.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-06-exit-r3.json"
+    },
+    {
+      "work_package": "WP-07",
+      "revision": 3,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07-source-manifest-r3.json",
+      "source_manifest_digest": "229c7d3727975ae0b49ef7aba18a4eca0682817305cabf3389a07b31dec561f4",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07-command-evidence-r3.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07-review-verdict-r3.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07-exit-r3.json"
+    }
+  ],
+  "runtime_pins": [
+    {
+      "path": "config/contracts/action-adapter-schema-registry-v1.json",
+      "sha256": "b7255a58e129b0074a20ff7d3a8eddea022b884c243735113400692b0d42f32c"
+    },
+    {
+      "path": "config/contracts/action-adapter-registry-v1.json",
+      "sha256": "0c3464497ab9a83777181002f5caa575bf1462b1aaf421d0f2ca12082534b834"
+    },
+    {
+      "path": "config/actions/action-policy-local-actions-v1.json",
+      "sha256": "16d405b3ce70d51a9cb8188645dbdc39d7fb1330bdcbb131c575f3d9579ee023"
+    },
+    {
+      "path": "config/actions/concrete-action-policy-v1.json",
+      "sha256": "855c1c3fe816938fd4f62bec0a8464673f10952bd54ddf3e096ab08b5b5f528b"
+    },
+    {
+      "path": "config/actions/connector-registry-v1.json",
+      "sha256": "c159246ece0e32318bb235fce236ed083ebbe8f3591f55127d72c6d984f46ed7"
+    },
+    {
+      "path": "config/security/security-runtime-local-actions-v1.json",
+      "sha256": "8c60fe983eb3cffb74eb191a8a909099644f233a1db82adf8e068465925819f6"
+    },
+    {
+      "path": "config/contracts/schemas/action-adapter-registry-1.0.0.json",
+      "sha256": "ce91ac571476ef20e2f97c2a95b768a52baa5deee1255b5aed2b9b525db83d53"
+    },
+    {
+      "path": "config/contracts/schemas/action-invocation-1.0.0.json",
+      "sha256": "e373ebd2bed28bc9f6dca37be5a6757a24e4e326fc94462714bd81e15a6793ec"
+    },
+    {
+      "path": "config/contracts/schemas/action-receipt-1.0.0.json",
+      "sha256": "70f8eea7903e150b72b5f6d694606b6b14bf6fd7b1d4587eeb41e1d96f437e44"
+    },
+    {
+      "path": "config/contracts/schemas/command-execution-request-1.0.0.json",
+      "sha256": "cf3510ea983de64f31433deb461ee34f1d01cb5945bdb29867cf1718d82bfa3f"
+    },
+    {
+      "path": "config/contracts/schemas/command-execution-result-1.0.0.json",
+      "sha256": "5e200848b609a6c94198305dc656cb20e834336afe1e111d4b1e450d0b81abc9"
+    },
+    {
+      "path": "config/contracts/schemas/command-registry-1.0.0.json",
+      "sha256": "5f44648e74cd2cf83957af12f268432c9d99c788aa1aadd90e665dec51e780e1"
+    },
+    {
+      "path": "config/contracts/schemas/command-runtime-policy-1.0.0.json",
+      "sha256": "609aa5fd9ddc8f07e807ae549da221fdce96f871ed8e3c0c766617daf37d8032"
+    },
+    {
+      "path": "config/contracts/schemas/concrete-action-policy-1.0.0.json",
+      "sha256": "f869f9277acb92609512885cb7ed2c872291fe45c82b6c14f975f8ea033043ae"
+    },
+    {
+      "path": "config/contracts/schemas/connector-capability-mismatch-1.0.0.json",
+      "sha256": "cf44c9ca3b42be2ac64d7bfe329641948ec686fd12509f4f478a62e0312560b2"
+    },
+    {
+      "path": "config/contracts/schemas/connector-registry-1.0.0.json",
+      "sha256": "455fdf022fc011a0dceb7ac47de2ffe4b21b0ffb5a984c51a74d2a2304ae5aad"
+    },
+    {
+      "path": "config/contracts/schemas/git-adapter-configuration-1.0.0.json",
+      "sha256": "c16491fe39afd19ba88d21b4a5a8aa3d6f1e4880bbfbf4e3fb2497d49d3a3210"
+    },
+    {
+      "path": "config/contracts/schemas/git-identity-observation-1.0.0.json",
+      "sha256": "9a8e76d1d01e92478aea3a06bc69806d2936ddd67877b65e0ce5363109d98e4e"
+    },
+    {
+      "path": "config/contracts/schemas/git-ref-mutation-plan-1.0.0.json",
+      "sha256": "f44abb3ae4bce4ce0cd76ad52f7b697cada19ee23fb2d7293334d8af4ec69ab5"
+    },
+    {
+      "path": "config/contracts/schemas/git-target-plan-1.0.0.json",
+      "sha256": "6c3a490924ed594ca2dcd42207cfaf31b74145b0adde40864c4656de3749d43f"
+    },
+    {
+      "path": "config/contracts/schemas/secret-provider-registry-1.0.0.json",
+      "sha256": "30cd95bcabfc99b21e2e75740e96f1bda7565a1d1e256e392e8cdc0417dc6ea6"
+    },
+    {
+      "path": "config/contracts/schemas/target-observation-1.0.0.json",
+      "sha256": "26f506444e944e1dd3ccffde208a2b77db3b77eccce7a13d21d9767720bcc45e"
+    },
+    {
+      "path": "core/graph_engineering/core/action_adapters.py",
+      "sha256": "8e1d8bc2eb0a0df91a680464ad3f622a78c215a5a41a25d9b887652abbf77f32"
+    },
+    {
+      "path": "adapters/graph_engineering/adapters/action_adapters.py",
+      "sha256": "0c9ff34571a54068213c8ce7af9a2bf8207440e66f117e8788b85c137f370506"
+    },
+    {
+      "path": "adapters/graph_engineering/adapters/command_native.py",
+      "sha256": "0cd04bd33e8e190fda56f7025a2179203978824610cd75ab564ef68e73050f8e"
+    },
+    {
+      "path": "adapters/graph_engineering/adapters/connector_unavailable.py",
+      "sha256": "374d346046d4b3fecea91fa5f07e55f1315303271d31507cf26da605f811131a"
+    },
+    {
+      "path": "adapters/graph_engineering/adapters/git_native.py",
+      "sha256": "6a21326b3b719b030d05640db38bf0672ef602c254abd1cd39d7aa52684ea775"
+    },
+    {
+      "path": "application/graph_engineering/application/actions.py",
+      "sha256": "498ae51978ba8df80b6183336fdc45be72e042454533874ce81322be56de954f"
+    },
+    {
+      "path": "storage/graph_engineering/storage/concrete_actions.py",
+      "sha256": "73678c5c81026a154fdca9b3be2f7675647a86a50dbbc555ae28a791e06adfcb"
+    },
+    {
+      "path": "adapters/graph_engineering/adapters/__init__.py",
+      "sha256": "5e0983dff73c76bb01a2092b00c6b4b8a77450edc270a1f202bd0e17faf8df58"
+    },
+    {
+      "path": "scripts/build_backend.py",
+      "sha256": "97fce989d37658df0a73a67147008d16aa3360f25823e3060507625966096668"
+    },
+    {
+      "path": "core/graph_engineering/__init__.py",
+      "sha256": "a3ff3c4b0c7747da0cae14497f5ef3c71335a9ee275719d5486c9e1029923456"
+    },
+    {
+      "path": "core/graph_engineering/core/source_checkout.py",
+      "sha256": "c94e9b04c98c051a8f138d617efaaa36113541d37d418ca55b2454e4a27659aa"
+    }
+  ],
+  "external_action_boundary": {
+    "mode": "disposable-local-only",
+    "real_external_actions_enabled": true,
+    "network_enabled": false,
+    "user_repository_enabled": false,
+    "allowed_adapter_ids": [
+      "connector-unavailable-v1",
+      "git-native-v1",
+      "project-command-v1",
+      "secret-provider-v1",
+      "target-query-v1"
+    ],
+    "mutation_targets": [
+      "temporary-git-fixture"
+    ],
+    "command_launcher": "structured-argv-shell-false"
+  },
+  "governing_document_digests": [
+    {
+      "path": "docs/positioning/baselines/graph-engineering-workflow-v2.md",
+      "sha256": "968d4b574008b53ce79f7fe4c1e1b3d5f71d44bca890425848f388577883f799"
+    },
+    {
+      "path": "docs/positioning/baselines/graph-engineering-workflow-v2.sha256",
+      "sha256": "5929136653e13c91a7801e17e9fb7f73e13718ecbbedc4953b08d637cde1bc38"
+    },
+    {
+      "path": "docs/prd/baselines/graph-engineering-workflow-v2.md",
+      "sha256": "594b4437301853919ce3b4aa93e703a395ed45bff924ea6266b3a8e202a30be7"
+    },
+    {
+      "path": "docs/prd/baselines/graph-engineering-workflow-v2.sha256",
+      "sha256": "01e11ef7a0d89d76927675eec22a4278ff6e0a4f196aecd99910a2a0c615e58b"
+    },
+    {
+      "path": "docs/specs/graph-engineering-workflow.md",
+      "sha256": "72f16ee950a788769fbdf944199764dc7b4f74110da764320d802290b8c1d37a"
+    },
+    {
+      "path": "docs/impact/graph-engineering-workflow.md",
+      "sha256": "5bc9bfcba5057eed9efca07d00dc26775b0c74d8845e2e3cfd17016dbee03df3"
+    },
+    {
+      "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+      "sha256": "3232365b008c25dc4a0f4ca9de3dceaff90309b2266b23e1a4e2cdf266512ac4"
+    },
+    {
+      "path": "docs/test-plans/graph-engineering-workflow.md",
+      "sha256": "168d9b8aae581ad00971a17225f57eea14919b15b98a012ea93ad631a35fe3fc"
+    },
+    {
+      "path": "docs/adr/0001-core-implementation-and-local-packaging.md",
+      "sha256": "d46dbe9216865029ef544ed17809a1252b5f10ea9d837d9b308192e06c19fa34"
+    },
+    {
+      "path": "docs/adr/0002-local-event-repository-and-coordination.md",
+      "sha256": "8a38b1e55b615cd511ac19af92211ffff422ed046821b0d6ebdac3b171ed39d0"
+    },
+    {
+      "path": "docs/adr/0003-deterministic-contract-stack.md",
+      "sha256": "a6a1648bbf8fcccbc5665c7c193cccdab11b3f096f4fb372338093fa4ed4bccf"
+    },
+    {
+      "path": "docs/adr/0005-recovery-claim-compensation.md",
+      "sha256": "51bfa011da6362132b712e9d30902571f41b79ff65da4425621ae0f0ef29bff0"
+    },
+    {
+      "path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/authority-envelope.json",
+      "sha256": "43552de463df28ea44e6fdb7ff28bd56149430b9bdcd006704e4bf8125877035"
+    }
+  ],
+  "binding_groups": [
+    {
+      "prefix": "GEW-ACT",
+      "start": 1,
+      "end": 4,
+      "path": "tests/contract/test_wp07a_action_contracts.py",
+      "module": "test_wp07a_action_contracts",
+      "class": "WP07AActionContractTests"
+    },
+    {
+      "prefix": "GEW-ACT",
+      "start": 5,
+      "end": 5,
+      "path": "tests/integration/test_wp07a_git_readonly.py",
+      "module": "test_wp07a_git_readonly",
+      "class": "WP07AGitReadOnlyTests"
+    },
+    {
+      "prefix": "GEW-ACT",
+      "start": 6,
+      "end": 6,
+      "path": "tests/integration/test_wp07a_command_runtime.py",
+      "module": "test_wp07a_command_runtime",
+      "class": "WP07ACommandRuntimeTests"
+    },
+    {
+      "prefix": "GEW-ACT",
+      "start": 7,
+      "end": 7,
+      "path": "tests/integration/test_wp07a_git_readonly.py",
+      "module": "test_wp07a_git_readonly",
+      "class": "WP07AGitReadOnlyTests"
+    },
+    {
+      "prefix": "GEW-ACT",
+      "start": 8,
+      "end": 8,
+      "path": "tests/integration/test_wp07a_action_coordinator.py",
+      "module": "test_wp07a_action_coordinator",
+      "class": "WP07AConcreteActionCoordinatorTests"
+    },
+    {
+      "prefix": "GEW-ACT",
+      "start": 9,
+      "end": 9,
+      "path": "tests/integration/test_wp07a_connector_unavailable.py",
+      "module": "test_wp07a_connector_unavailable",
+      "class": "WP07AUnavailableConnectorTests"
+    },
+    {
+      "prefix": "GEW-ACT",
+      "start": 10,
+      "end": 10,
+      "path": "tests/e2e/test_wp07a_real_action.py",
+      "module": "test_wp07a_real_action",
+      "class": "WP07ARealActionE2ETests"
+    }
+  ],
+  "supplemental_test_bindings": [
+    {
+      "test_id": "GEW-ACT-001A",
+      "qualified_test": "test_wp07a_action_contract_security.WP07AActionContractSecurityTests.test_gew_act_001a_only_factory_attested_closed_adapter_can_dispatch"
+    },
+    {
+      "test_id": "GEW-ACT-001B",
+      "qualified_test": "test_wp07a_action_contract_security.WP07AActionContractSecurityTests.test_gew_act_001b_installation_anchor_rejects_re_signed_registry_and_provenance_substitutions"
+    },
+    {
+      "test_id": "GEW-ACT-001C",
+      "qualified_test": "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_001c_clean_installed_wheel_resolves_exact_builtin_provenance"
+    },
+    {
+      "test_id": "GEW-ACT-001D",
+      "qualified_test": "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_001d_copied_source_payload_has_no_checkout_authority"
+    },
+    {
+      "test_id": "GEW-ACT-001E",
+      "qualified_test": "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_001e_zip_physical_protected_members_are_unique"
+    },
+    {
+      "test_id": "GEW-ACT-001F",
+      "qualified_test": "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_001f_source_uses_only_explicit_control_identity"
+    },
+    {
+      "test_id": "GEW-ACT-001G",
+      "qualified_test": "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_001g_direct_archive_never_stages_adapter_bytes"
+    },
+    {
+      "test_id": "GEW-ACT-001H",
+      "qualified_test": "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_001h_zip_loader_bytes_must_match_validated_archive"
+    },
+    {
+      "test_id": "GEW-ACT-002A",
+      "qualified_test": "test_wp07a_action_contract_security.WP07AActionContractSecurityTests.test_gew_act_002a_all_re_signed_binding_and_fence_substitutions_are_zero_call_zero_write"
+    },
+    {
+      "test_id": "GEW-ACT-003A",
+      "qualified_test": "test_wp07a_action_contract_security.WP07AActionContractSecurityTests.test_gew_act_003a_valid_dispatch_calls_the_exact_attested_port_once"
+    },
+    {
+      "test_id": "GEW-ACT-004A",
+      "qualified_test": "test_wp07a_action_storage.WP07AActionStorageTests.test_gew_act_004a_storage_reparses_and_commits_exact_invocation_with_started_fact"
+    },
+    {
+      "test_id": "GEW-ACT-004B",
+      "qualified_test": "test_wp07a_action_storage.WP07AActionStorageTests.test_gew_act_004b_storage_fence_substitution_rolls_back_event_claim_journal_and_record"
+    },
+    {
+      "test_id": "GEW-ACT-005A",
+      "qualified_test": "test_wp07a_git_readonly.WP07AGitReadOnlyTests.test_gew_act_005a_path_plan_and_observation_substitution_fail_closed"
+    },
+    {
+      "test_id": "GEW-ACT-006A",
+      "qualified_test": "test_wp07a_command_runtime.WP07ACommandRuntimeTests.test_gew_act_006a_reference_parameter_and_cwd_substitution_reject_before_resolution_or_launch"
+    },
+    {
+      "test_id": "GEW-ACT-006B",
+      "qualified_test": "test_wp07a_command_runtime.WP07ACommandRuntimeTests.test_gew_act_006b_raw_and_encoded_secret_leaks_are_blocked_without_echo"
+    },
+    {
+      "test_id": "GEW-ACT-006C",
+      "qualified_test": "test_wp07a_command_runtime.WP07ACommandRuntimeTests.test_gew_act_006c_timeout_cancel_oversize_and_malformed_have_bounded_safe_results"
+    },
+    {
+      "test_id": "GEW-ACT-006D",
+      "qualified_test": "test_wp07a_command_runtime.WP07ACommandRuntimeTests.test_gew_act_006d_re_signed_unpinned_provider_or_command_registry_is_zero_call"
+    },
+    {
+      "test_id": "GEW-ACT-006E",
+      "qualified_test": "test_wp07a_command_runtime.WP07ACommandRuntimeTests.test_gew_act_006e_semantic_escaped_and_derived_secret_outputs_are_blocked"
+    },
+    {
+      "test_id": "GEW-ACT-006F",
+      "qualified_test": "test_wp07a_command_runtime.WP07ACommandRuntimeTests.test_gew_act_006f_secret_material_is_destroyed_on_every_post_resolution_path"
+    },
+    {
+      "test_id": "GEW-ACT-006G",
+      "qualified_test": "test_wp07a_command_runtime.WP07ACommandRuntimeTests.test_gew_act_006g_timeout_and_output_bound_terminate_and_reap_the_full_process_group"
+    },
+    {
+      "test_id": "GEW-ACT-007A",
+      "qualified_test": "test_wp07a_git_readonly.WP07AGitReadOnlyTests.test_gew_act_007a_forged_target_invocation_and_fences_reject_before_native_mutation"
+    },
+    {
+      "test_id": "GEW-ACT-008A",
+      "qualified_test": "test_wp07a_action_coordinator.WP07AConcreteActionCoordinatorTests.test_gew_act_008a_re_signed_registry_substitution_cannot_enter_real_coordinator"
+    },
+    {
+      "test_id": "GEW-ACT-008B",
+      "qualified_test": "test_wp07a_action_coordinator.WP07AConcreteActionCoordinatorTests.test_gew_act_008b_crash_after_started_commit_retries_without_native_replay"
+    },
+    {
+      "test_id": "GEW-ACT-008C",
+      "qualified_test": "test_wp07a_action_coordinator.WP07AConcreteActionCoordinatorTests.test_gew_act_008c_after_receipt_drift_cannot_consume_the_claim"
+    },
+    {
+      "test_id": "GEW-ACT-009A",
+      "qualified_test": "test_wp07a_connector_unavailable.WP07AUnavailableConnectorTests.test_gew_act_009a_unknown_capability_and_re_signed_unpinned_registry_fail_closed"
+    },
+    {
+      "test_id": "GEW-ACT-010A",
+      "qualified_test": "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_010a_stale_expected_ref_is_zero_additional_mutation"
+    },
+    {
+      "test_id": "GEW-ACT-010B",
+      "qualified_test": "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_010b_unavailable_connector_is_stable_and_never_calls_a_port"
+    },
+    {
+      "test_id": "GEW-ACT-010C",
+      "qualified_test": "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_010c_secret_leak_timeout_and_malformed_output_remain_bounded"
+    }
+  ],
+  "real_e2e_test_bindings": [
+    {
+      "test_id": "GEW-WP-07A-REAL-E2E-P",
+      "qualified_test": "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_010_disposable_git_mutates_once_and_reconciles_with_raw_oracle"
+    },
+    {
+      "test_id": "GEW-WP-07A-ZERO-SIDE-EFFECT-R",
+      "qualified_test": "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_010a_stale_expected_ref_is_zero_additional_mutation"
+    }
+  ],
+  "reviewer_remedy_bindings": [
+    {"finding_id": "WP07A-CODE-R1-001", "qualified_tests": ["test_wp07a_action_coordinator.WP07AConcreteActionCoordinatorTests.test_gew_act_008c_after_receipt_drift_cannot_consume_the_claim"]},
+    {"finding_id": "WP07A-CODE-R1-002", "qualified_tests": ["test_wp07a_command_runtime.WP07ACommandRuntimeTests.test_gew_act_006e_semantic_escaped_and_derived_secret_outputs_are_blocked", "test_wp07a_command_runtime.WP07ACommandRuntimeTests.test_gew_act_006f_secret_material_is_destroyed_on_every_post_resolution_path"]},
+    {"finding_id": "WP07A-CODE-R1-003", "qualified_tests": ["test_wp07a_action_contract_security.WP07AActionContractSecurityTests.test_gew_act_001b_installation_anchor_rejects_re_signed_registry_and_provenance_substitutions", "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_001c_clean_installed_wheel_resolves_exact_builtin_provenance", "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_001d_copied_source_payload_has_no_checkout_authority", "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_001e_zip_physical_protected_members_are_unique", "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_001f_source_uses_only_explicit_control_identity", "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_001g_direct_archive_never_stages_adapter_bytes", "test_wp07a_real_action.WP07ARealActionE2ETests.test_gew_act_001h_zip_loader_bytes_must_match_validated_archive"]},
+    {"finding_id": "WP07A-CODE-R1-004", "qualified_tests": ["test_wp07a_command_runtime.WP07ACommandRuntimeTests.test_gew_act_006g_timeout_and_output_bound_terminate_and_reap_the_full_process_group"]},
+    {"finding_id": "WP07A-CODE-R1-005", "qualified_tests": ["test_wp07a_action_coordinator.WP07AConcreteActionCoordinatorTests.test_gew_act_008c_after_receipt_drift_cannot_consume_the_claim"]}
+  ],
+  "candidate_author_id": "codex:/root/wp05_evidence_author_r1",
+  "designated_reviewer_id": "codex:/root/wp07a_reviewer_r5",
+  "evidence_test_bindings": [
+    {
+      "test_id": "GEW-WP-07A-EXIT-P",
+      "qualified_test": "test_wp07a_evidence_contract.WP07AEvidenceContractTests.test_valid_candidate_binding_passes"
+    },
+    {
+      "test_id": "GEW-WP-07A-EXIT-R",
+      "qualified_test": "test_wp07a_evidence_contract.WP07AEvidenceContractTests.test_source_command_runtime_boundary_document_dependency_and_review_mutations_fail"
+    },
+    {
+      "test_id": "GEW-WP-07A-DEPENDENCY-R",
+      "qualified_test": "test_wp07a_evidence_contract.WP07AEvidenceContractTests.test_prerequisites_require_exact_pass_candidates"
+    }
+  ],
+  "newly_targeted_file_count": 40,
+  "minimum_passed_test_count": 843,
+  "expected_test_execution_count": 847,
+  "source_paths": [
+    "adapters/graph_engineering/adapters/__init__.py",
+    "adapters/graph_engineering/adapters/action_adapters.py",
+    "adapters/graph_engineering/adapters/command_native.py",
+    "adapters/graph_engineering/adapters/connector_unavailable.py",
+    "adapters/graph_engineering/adapters/git_native.py",
+    "application/graph_engineering/application/actions.py",
+    "application/graph_engineering/application/tasks.py",
+    "config/actions/action-policy-local-actions-v1.json",
+    "config/actions/action-policy-v1.json",
+    "config/actions/concrete-action-policy-v1.json",
+    "config/actions/connector-registry-v1.json",
+    "config/contracts/action-adapter-registry-v1.json",
+    "config/contracts/action-adapter-schema-registry-v1.json",
+    "config/contracts/schemas/action-adapter-registry-1.0.0.json",
+    "config/contracts/schemas/action-invocation-1.0.0.json",
+    "config/contracts/schemas/action-policy-1.0.0.json",
+    "config/contracts/schemas/action-receipt-1.0.0.json",
+    "config/contracts/schemas/command-execution-request-1.0.0.json",
+    "config/contracts/schemas/command-execution-result-1.0.0.json",
+    "config/contracts/schemas/command-registry-1.0.0.json",
+    "config/contracts/schemas/command-runtime-policy-1.0.0.json",
+    "config/contracts/schemas/concrete-action-policy-1.0.0.json",
+    "config/contracts/schemas/connector-capability-mismatch-1.0.0.json",
+    "config/contracts/schemas/connector-registry-1.0.0.json",
+    "config/contracts/schemas/git-adapter-configuration-1.0.0.json",
+    "config/contracts/schemas/git-identity-observation-1.0.0.json",
+    "config/contracts/schemas/git-ref-mutation-plan-1.0.0.json",
+    "config/contracts/schemas/git-target-plan-1.0.0.json",
+    "config/contracts/schemas/secret-provider-registry-1.0.0.json",
+    "config/contracts/schemas/target-observation-1.0.0.json",
+    "config/contracts/security-schema-registry-v1.json",
+    "config/security/security-runtime-local-actions-v1.json",
+    "config/security/security-runtime-v1.json",
+    "config/verification/wp-00-targets.json",
+    "config/verification/wp-07a-gate.json",
+    "core/graph_engineering/__init__.py",
+    "core/graph_engineering/core/action_adapters.py",
+    "core/graph_engineering/core/actions.py",
+    "core/graph_engineering/core/security/privacy.py",
+    "core/graph_engineering/core/source_checkout.py",
+    "scripts/build_backend.py",
+    "scripts/collect_wp07a_evidence.py",
+    "scripts/evidence_utils.py",
+    "scripts/run_tests.py",
+    "scripts/run_wp07a_gate.py",
+    "scripts/verify_wp07a_evidence.py",
+    "storage/graph_engineering/storage/concrete_actions.py",
+    "storage/graph_engineering/storage/connection.py",
+    "storage/graph_engineering/storage/migration.py",
+    "storage/graph_engineering/storage/ports.py",
+    "storage/graph_engineering/storage/repository.py",
+    "tests/contract/test_wp05a_contracts.py",
+    "tests/contract/test_wp07a_action_contracts.py",
+    "tests/contract/test_wp07a_evidence_contract.py",
+    "tests/contract/test_wp07a_gate_contract.py",
+    "tests/e2e/test_wp00_installed_wheel.py",
+    "tests/e2e/test_wp07a_real_action.py",
+    "tests/integration/test_wp06_project_scope_repository.py",
+    "tests/integration/test_wp07a_action_coordinator.py",
+    "tests/integration/test_wp07a_action_storage.py",
+    "tests/integration/test_wp07a_command_runtime.py",
+    "tests/integration/test_wp07a_connector_unavailable.py",
+    "tests/integration/test_wp07a_git_readonly.py",
+    "tests/security/test_wp07a_action_contract_security.py",
+    "tests/support/source_checkout_attestation.py",
+    "tests/support/wp05_actions.py",
+    "tests/support/wp05a_security.py",
+    "tests/support/wp07a_actions.py",
+    "tests/support/wp07a_command_child.py"
+  ],
+  "commands": [
+    {
+      "id": "GEW-WP-07A-LINT-P",
+      "argv": [
+        "{python}",
+        "scripts/check_sources.py",
+        "lint"
+      ]
+    },
+    {
+      "id": "GEW-WP-07A-TYPE-P",
+      "argv": [
+        "{python}",
+        "scripts/check_sources.py",
+        "type"
+      ]
+    },
+    {
+      "id": "GEW-WP-07A-ARCHITECTURE-P",
+      "argv": [
+        "{python}",
+        "scripts/check_architecture.py"
+      ]
+    },
+    {
+      "id": "GEW-WP-07A-TEST-P",
+      "argv": [
+        "{python}",
+        "scripts/run_tests.py"
+      ]
+    },
+    {
+      "id": "GEW-WP-07A-BUILD-P",
+      "argv": [
+        "{python}",
+        "scripts/verify_build.py"
+      ]
+    },
+    {
+      "id": "GEW-WP-07A-REPRODUCIBILITY-P",
+      "argv": [
+        "{python}",
+        "scripts/verify_reproducible_build.py"
+      ]
+    }
+  ]
+}

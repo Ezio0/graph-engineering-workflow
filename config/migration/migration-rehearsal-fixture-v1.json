@@ -1,0 +1,155 @@
+{
+  "crash_cases": [
+    {
+      "case_digest": "sha256-jcs-v1:1651f7bec44c1bffe87558753920fcfaea853c74eb919d8abec02af803e12978",
+      "cut_id": "activation.after_active_manifest",
+      "expected_outcome": "new-active",
+      "migration_id": "migration-rehearsal-crash-new",
+      "required_states": [
+        "requested",
+        "upgrade_locked",
+        "quiescence_verified",
+        "exported",
+        "imported_isolated",
+        "replayed",
+        "compatible",
+        "activation_prepared",
+        "verifying_reference",
+        "post_switch_verified"
+      ],
+      "terminal_states": [
+        "recovered_new_active"
+      ]
+    },
+    {
+      "case_digest": "sha256-jcs-v1:87cf4ebf145d852ca59a5760970db2a9931fd7e0b96761cea10217bf9d0ab440",
+      "cut_id": "migration.after_state.compatible",
+      "expected_outcome": "old-active",
+      "migration_id": "migration-rehearsal-crash-old",
+      "required_states": [
+        "requested",
+        "upgrade_locked",
+        "quiescence_verified",
+        "exported",
+        "imported_isolated",
+        "replayed",
+        "compatible"
+      ],
+      "terminal_states": [
+        "recovered_old_active",
+        "recovered_rolled_back"
+      ]
+    }
+  ],
+  "fixture_manifest_digest": "sha256-jcs-v1:35bad66637583e802421bec0ed3d7ddb1d943ce5195d1914b3683de7a3c5ceb0",
+  "fixture_manifest_id": "migration-rehearsal-fixture-v1",
+  "partial_data_cases": [
+    {
+      "case_digest": "sha256-jcs-v1:ee2a36cb3436434ee9de361de0a286ab7915fe794c12fec889ae480d2f9df710",
+      "case_id": "partial-defaulted",
+      "expected_disposition": "defaulted",
+      "field_id": "optional_mode",
+      "owner_route": "none",
+      "row_id": "row-defaulted"
+    },
+    {
+      "case_digest": "sha256-jcs-v1:ea2048a3d467579ba9a5bb7ec3ff18055ae8e065bda9ab7bf87fbc0c6b54835c",
+      "case_id": "partial-owner-route",
+      "expected_disposition": "owner-route",
+      "field_id": "owner_route",
+      "owner_route": "query-reconcile-owner",
+      "row_id": "row-owner-route"
+    },
+    {
+      "case_digest": "sha256-jcs-v1:bfb143dd82c483786fd9edfb90af6ee3f18fe44d255df0a9e79a80e4f517fdde",
+      "case_id": "partial-preserved",
+      "expected_disposition": "preserved",
+      "field_id": "state",
+      "owner_route": "none",
+      "row_id": "row-preserved"
+    },
+    {
+      "case_digest": "sha256-jcs-v1:6a98f341273cb23c13787e1199a626b5fb6f06139af4cdf4e3a2400bb9e9903a",
+      "case_id": "partial-rejected",
+      "expected_disposition": "rejected",
+      "field_id": "unknown_field",
+      "owner_route": "none",
+      "row_id": "row-rejected"
+    }
+  ],
+  "rows": [
+    {
+      "backward_value": "omitted",
+      "disposition": "defaulted",
+      "field_id": "optional_mode",
+      "forward_value": "safe-default",
+      "owner_route": "none",
+      "row_digest": "sha256-jcs-v1:e2062543d87775b106a6be83f80505fdcaba6ff3dc53389e548e9eaa89576cbc",
+      "row_id": "row-defaulted",
+      "source_value": "omitted"
+    },
+    {
+      "backward_value": "legacy-owner",
+      "disposition": "owner-route",
+      "field_id": "owner_route",
+      "forward_value": "current-owner",
+      "owner_route": "query-reconcile-owner",
+      "row_digest": "sha256-jcs-v1:d97f99e6087596fcea3e1156107c36513ee9b0e9df04ed70b8ab21315e99cde8",
+      "row_id": "row-owner-route",
+      "source_value": "legacy-owner"
+    },
+    {
+      "backward_value": "ready-v1",
+      "disposition": "preserved",
+      "field_id": "state",
+      "forward_value": "ready-v2",
+      "owner_route": "none",
+      "row_digest": "sha256-jcs-v1:70c4303bc2eea45cf4c3e96682b080be505873fd6bfcd5647d8d91cdab28dcc9",
+      "row_id": "row-preserved",
+      "source_value": "ready-v1"
+    },
+    {
+      "backward_value": "unsupported",
+      "disposition": "rejected",
+      "field_id": "unknown_field",
+      "forward_value": "unsupported",
+      "owner_route": "none",
+      "row_digest": "sha256-jcs-v1:1efacae9ba848bf3cfd557c7cdd9df5e0ccf1f3ebb0e2df1f82c728baa62e246",
+      "row_id": "row-rejected",
+      "source_value": "unsupported"
+    }
+  ],
+  "schema_version": "1.0.0",
+  "source_contract_id": "repository-contract-v1",
+  "source_rows": [
+    {
+      "field_id": "optional_mode",
+      "present": false,
+      "row_digest": "sha256-jcs-v1:c6c5c52e43a0bb20d342c2dcb3a258139d47b35dabe9b94d5522f23bc870f24a",
+      "row_id": "row-defaulted",
+      "value": null
+    },
+    {
+      "field_id": "owner_route",
+      "present": true,
+      "row_digest": "sha256-jcs-v1:55e8579a71289babd9126c089255cc532d5db86d3721542c217305da34120422",
+      "row_id": "row-owner-route",
+      "value": "legacy-owner"
+    },
+    {
+      "field_id": "state",
+      "present": true,
+      "row_digest": "sha256-jcs-v1:1f1e20411e572bcea582aca2152c7bd913a7c55d2a19af147da91ab5627bbfe6",
+      "row_id": "row-preserved",
+      "value": "ready-v1"
+    },
+    {
+      "field_id": "unknown_field",
+      "present": true,
+      "row_digest": "sha256-jcs-v1:ce3d1ac36ede9734f2214e67b62019d02676840bbdb44595c6b6175146c91a26",
+      "row_id": "row-rejected",
+      "value": "unsupported"
+    }
+  ],
+  "target_contract_id": "repository-contract-v1"
+}

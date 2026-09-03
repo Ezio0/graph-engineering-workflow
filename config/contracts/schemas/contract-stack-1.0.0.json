@@ -1,0 +1,1 @@
+{"$id":"urn:gew:schema:contract-stack:1.0.0","$schema":"https://json-schema.org/draft/2020-12/schema","properties":{"index":{"type":"integer"},"schema_version":{"const":"1.0.0"},"value":{"type":"integer"}},"required":["schema_version"],"type":"object","unevaluatedProperties":false}

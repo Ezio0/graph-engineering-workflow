@@ -1,0 +1,16 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"urn:gew:schema:profile-coverage-task-state:1.0.0",
+  "$defs":{"id":{"type":"string","minLength":1,"maxLength":512},"raw":{"type":"string","pattern":"^[0-9a-f]{64}$"}},
+  "type":"object",
+  "properties":{
+    "schema_version":{"const":"1.0.0"},
+    "task_id":{"$ref":"#/$defs/id"},
+    "snapshot":{"type":"object","minProperties":1,"maxProperties":64},
+    "runner":{"type":"object","minProperties":1,"maxProperties":32},
+    "events":{"type":"array","maxItems":4096,"items":{"type":"object","minProperties":1,"maxProperties":32}},
+    "object_references":{"type":"array","maxItems":4096,"uniqueItems":true,"items":{"type":"object","properties":{"digest":{"$ref":"#/$defs/id"},"bytes_sha256":{"$ref":"#/$defs/raw"}},"required":["digest","bytes_sha256"],"unevaluatedProperties":false}}
+  },
+  "required":["schema_version","task_id","snapshot","runner","events","object_references"],
+  "unevaluatedProperties":false
+}

@@ -1,0 +1,5 @@
+{
+  "schema_version":"1.0","verdict":"PASS","artifact":"test-plan","scope_changed":false,
+  "change_kinds":["clarification","consistency","traceability","testability"],"findings":[],
+  "reviewer_id":"codex:/root/adr_0002_reviewer_r1"
+}

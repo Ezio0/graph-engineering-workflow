@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:data-disclosure-plan:1.0.0",
+  "$defs": {
+    "id": {"type": "string", "format": "gew-id"},
+    "digest": {"type": "string", "minLength": 78, "maxLength": 78},
+    "destination": {"type": "object", "properties": {"identity_ref": {"$ref": "#/$defs/id"}, "kind": {"$ref": "#/$defs/id"}, "trust_boundary": {"$ref": "#/$defs/id"}}, "required": ["identity_ref", "kind", "trust_boundary"], "unevaluatedProperties": false},
+    "data-ref": {"type": "object", "properties": {"ref_id": {"$ref": "#/$defs/id"}, "digest": {"$ref": "#/$defs/digest"}, "sensitivity": {"enum": ["public", "internal", "confidential", "secret"]}}, "required": ["ref_id", "digest", "sensitivity"], "unevaluatedProperties": false},
+    "transform": {"type": "object", "properties": {"path": {"type": "string", "minLength": 1, "maxLength": 1024}, "transform": {"$ref": "#/$defs/id"}}, "required": ["path", "transform"], "unevaluatedProperties": false}
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "disclosure_id": {"$ref": "#/$defs/id"},
+    "destination": {"$ref": "#/$defs/destination"},
+    "purpose": {"$ref": "#/$defs/id"},
+    "data_refs": {"type": "array", "minItems": 1, "maxItems": 128, "uniqueItems": true, "items": {"$ref": "#/$defs/data-ref"}},
+    "maximum_sensitivity": {"enum": ["public", "internal", "confidential", "secret"]},
+    "field_allowlist": {"type": "array", "minItems": 1, "maxItems": 256, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 1024}},
+    "redaction_transforms": {"type": "array", "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/transform"}},
+    "retention_class": {"$ref": "#/$defs/id"},
+    "authority_digest": {"anyOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]},
+    "prepared_action_digest": {"$ref": "#/$defs/digest"},
+    "snapshot_digest": {"$ref": "#/$defs/digest"},
+    "payload_digest": {"$ref": "#/$defs/digest"},
+    "receipt_required": {"type": "boolean"},
+    "plan_digest": {"$ref": "#/$defs/digest"}
+  },
+  "required": ["schema_version", "disclosure_id", "destination", "purpose", "data_refs", "maximum_sensitivity", "field_allowlist", "redaction_transforms", "retention_class", "authority_digest", "prepared_action_digest", "snapshot_digest", "payload_digest", "receipt_required", "plan_digest"],
+  "unevaluatedProperties": false
+}

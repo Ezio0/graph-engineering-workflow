@@ -1,0 +1,9 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"urn:gew:schema:profile-coverage-assessment-reference:1.0.0",
+  "$defs":{"id":{"type":"string","minLength":1,"maxLength":512},"digest":{"type":"string","pattern":"^sha256-jcs-v1:[0-9a-f]{64}$"}},
+  "type":"object",
+  "properties":{"schema_version":{"const":"1.0.0"},"evidence_id":{"$ref":"#/$defs/digest"},"evidence_type":{"const":"category-completion-assessment"},"source_ref":{"$ref":"#/$defs/id"},"digest":{"$ref":"#/$defs/digest"},"trust":{"const":"factory-attested"}},
+  "required":["schema_version","evidence_id","evidence_type","source_ref","digest","trust"],
+  "unevaluatedProperties":false
+}

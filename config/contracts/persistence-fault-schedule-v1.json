@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "schedule_id": "urn:gew:persistence-fault-schedule:local-repository:1.0.0",
+  "steps": [
+    "commit.after_commit",
+    "commit.after_events",
+    "commit.before_commit",
+    "commit.before_transaction",
+    "object.after_file_fsync",
+    "object.after_metadata_commit",
+    "object.after_object_directory_fsync",
+    "object.after_publication",
+    "object.after_staging_directory_fsync",
+    "object.before_metadata_commit",
+    "object.before_staging_open",
+    "purge.after_deleting_commit",
+    "purge.after_directory_fsync"
+  ],
+  "fault_kinds": ["disk-full", "io-error", "process-kill"],
+  "expected_states": ["blocked", "new", "old"]
+}

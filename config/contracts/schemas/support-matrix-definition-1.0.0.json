@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:support-matrix-definition:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "ids": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "binding": {
+      "type": "object",
+      "properties": {
+        "test_id": {
+          "$ref": "#/$defs/id"
+        },
+        "fixture_id": {
+          "$ref": "#/$defs/id"
+        },
+        "oracle_id": {
+          "$ref": "#/$defs/id"
+        },
+        "evidence_type": {
+          "$ref": "#/$defs/id"
+        },
+        "owner_gate": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "test_id",
+        "fixture_id",
+        "oracle_id",
+        "evidence_type",
+        "owner_gate"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "matrix_id": {
+      "$ref": "#/$defs/id"
+    },
+    "version": {
+      "$ref": "#/$defs/id"
+    },
+    "approved_profile_registry_digest": {
+      "$ref": "#/$defs/id"
+    },
+    "coverage_policy_digest": {
+      "$ref": "#/$defs/id"
+    },
+    "profile_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "profile_column_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "risk_path_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "profile_case_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "scenario_case_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "case_bindings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16384,
+      "items": {
+        "$ref": "#/$defs/binding"
+      }
+    },
+    "digest": {
+      "$ref": "#/$defs/id"
+    }
+  },
+  "required": [
+    "schema_version",
+    "matrix_id",
+    "version",
+    "approved_profile_registry_digest",
+    "coverage_policy_digest",
+    "profile_ids",
+    "profile_column_ids",
+    "risk_path_ids",
+    "profile_case_ids",
+    "scenario_case_ids",
+    "case_bindings",
+    "digest"
+  ],
+  "unevaluatedProperties": false
+}

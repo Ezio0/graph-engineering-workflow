@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "artifact": "wp-05",
+  "status": "CANDIDATE",
+  "author_id": "codex:/root/wp05_author_r1",
+  "reviewer_id": "codex:/root/wp05_code_reviewer_r1",
+  "source_manifest_digest": "e8d2266462b0112406a723fa85f0239704bf4f7bb2fb73488b1b84f438f8398f",
+  "command_evidence_digest": "19bb9f5bdd8e51588736af973694be478dc17d66219d933e83b1c30357ca4006",
+  "governing_documents_digest": "eb67c2eaea3781b8a5b554e9fe5f47e26f0818377c1676b01679b20605a1276b",
+  "architecture_review_digest": "aca38beaeb2eae557763d10e5ab57d16402f0dc064030492c792588fd84ec558",
+  "action_runtime_digest": "ef4518db5023b41ca8a1ae9bf4ae3e68edef65f01bddeb495bf573aa3edaa28f",
+  "action_sources_digest": "23a4548a1160f26ef7a592ec2b54e2f633ca4a2701c79ca36015fe9d28f6ffc1",
+  "dependency_verdicts_digest": "d6e59ef91e783c6649af05dabd1deb34291d91c016fc1b4f4fca88d6f1aa7d2a",
+  "real_external_actions_enabled": false,
+  "test_ids": [
+    "GEW-WP-05-EXIT-P",
+    "GEW-WP-05-EXIT-R"
+  ]
+}

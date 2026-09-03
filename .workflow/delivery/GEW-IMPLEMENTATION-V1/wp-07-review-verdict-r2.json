@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "artifact": "wp-07",
+  "verdict": "REVISE",
+  "reviewer_id": "codex:/root/wp06_reviewer_r2",
+  "scope_changed": false,
+  "change_kinds": [
+    "correctness",
+    "security",
+    "testability"
+  ],
+  "source_manifest_digest": "59c1d3c2ec4751444a5d3ec4192c00c16c472405515c5abc375dcfff13d4cb90",
+  "command_evidence_digest": "994e01c80510e3c0f326b2abcc639687f972ea26f04d8ab9787f82b268e9b463",
+  "candidate_exit_digest": "cc23d1972c4962dd077ca0b2c801b2fbbe2faa31e069c85b81007615815b4940",
+  "governing_documents_digest": "1f04b6138db171972c775f448184020ed53f0b9076116b1e5a1dbae7b0523be4",
+  "wp07_runtime_digest": "2036484db1b0a9cf97c3f248ab4c55a2b859247a683dec1321d9f8235e5550f4",
+  "wp07_sources_digest": "1bc7190c4a8b0bc86d59e41df7e57e68b0648f31fae0c1f2a61e98da5a8c8349",
+  "dependency_verdicts_digest": "bb4a68260f3cfe99c3c16c7614e2b1299d94968c53a34cdb6fd5dfaa1d3c1cce",
+  "finding_dispositions": [
+    {
+      "finding_id": "WP07-CODE-R1-001",
+      "status": "open"
+    },
+    {
+      "finding_id": "WP07-CODE-R1-002",
+      "status": "closed"
+    },
+    {
+      "finding_id": "WP07-CODE-R1-003",
+      "status": "closed"
+    },
+    {
+      "finding_id": "WP07-CODE-R1-004",
+      "status": "closed"
+    },
+    {
+      "finding_id": "WP07-CODE-R1-005",
+      "status": "closed"
+    },
+    {
+      "finding_id": "WP07-CODE-R1-006",
+      "status": "open"
+    },
+    {
+      "finding_id": "WP07-CODE-R1-007",
+      "status": "closed"
+    },
+    {
+      "finding_id": "WP07-CODE-R1-008",
+      "status": "closed"
+    }
+  ],
+  "findings": [
+    {
+      "id": "WP07-CODE-R1-001",
+      "severity": "P1",
+      "status": "open",
+      "summary": "The installed Skill entry is a fixed conformance macro rather than a complete per-owner-turn operation surface.",
+      "evidence": "application/graph_engineering/application/owner_turns.py requires the exact nine-operation tuple for every request, unconditionally creates a new task, and synthesizes discover, escalate, and result records instead of dispatching those operations through durable application/runtime paths. adapters/graph_engineering/adapters/owner_turn_local.py binds every external runtime port, including human request and presentation, to an unavailable stub. The isolated-wheel test performs one fresh all-in-one process and checks operation labels; it does not issue later separate same-lineage status/resume/escalate/result turns against the existing durable task. The production application also embeds artifact:prd-candidate, evidence:runtime-compatible, lease-plan:none, and a 1000000000 ns lease TTL instead of governed request/config data.",
+      "required_change": "Replace the fixed macro with a versioned per-owner-turn operation envelope that supports each of discover, create, clarify, approve, run, status, resume, escalate, and result independently. Later same-lineage turns must address an existing durable task and use real application/repository transitions plus exact presentation/result binding. Move PRD/evidence/lease references and lease TTL into validated governed request or configuration data; keep local fixture ports non-networked without placing fixture outcomes in production logic.",
+      "verification": "From an isolated installed wheel and both validated Skills, run separate process/turn invocations for create through interruption, then status, resume, escalation, and result against the same durable task for Codex, Hermes Telegram, and Hermes Discord. Assert exact durable revisions/events, result or presentation bindings and receipts, no background process, and nondisclosing zero-write rejection for foreign owner/runtime/lineage. Add static checks rejecting fixture constants, semantic references, and policy thresholds in production owner-turn logic."
+    },
+    {
+      "id": "WP07-CODE-R1-006",
+      "severity": "P1",
+      "status": "open",
+      "summary": "Reviewer independence attestations can be replayed across different reviewer requests, tasks, runs, and candidates in the same session.",
+      "evidence": "core/graph_engineering/core/runtime.py ReviewerIndependenceAttestation binds author/reviewer/runtime/owner/lineage/session/capability/source but omits ReviewerRequest request_id, task_id, run_id, candidate_ref, candidate_digest, and request_digest. application/graph_engineering/application/runtime.py validates only that reduced tuple. An independent factory-attested adapter repro issued one attestation for review:A/task:A/candidate:A, replayed it for review:B/task:B/candidate:B in the same session, and both invoke_reviewer calls returned PASS. GEW-RT-039 covers same-identity rejection but not cross-request attestation replay.",
+      "required_change": "Bind the exact ReviewerRequest identity and digest into the self-digested independence attestation, including request, task, run, and candidate identity/digest, and compare the complete tuple before invoking the reviewer. A previously valid attestation must not authorize any other request or candidate.",
+      "verification": "Add factory-attested production-path tests for Codex, Hermes Telegram, and Hermes Discord that replay or substitute an attestation across request_id, task_id, run_id, candidate_ref, candidate_digest, and request_digest one field at a time. Every mutation must fail before the reviewer port call with zero writes; the exact matching fresh attestation and independently bound result must pass."
+    }
+  ]
+}

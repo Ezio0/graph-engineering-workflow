@@ -1,0 +1,1222 @@
+# Graph Engineering Workflow — Test Plan
+
+## 1. 文档控制
+
+| 项目 | 内容 |
+|---|---|
+| 版本 | v1，implementation-alignment revision 31 |
+| 状态 | WP-01 r18、WP-02 r4、WP-03 r8、WP-04A r5 independent PASS；WP-04 r3 candidate verification/review；Human-approved ADR-0006 r8 additive offline-v2 provenance decision，docs architecture R3 review pending |
+| 日期 | 2026-08-14 |
+| Author | Codex `/root` |
+| Plan | `docs/plans/2026-08-13-graph-engineering-workflow.md` implementation-alignment revision 21，由当前WP-08双authority docs manifest精确绑定 |
+| Intent Baseline | PRD v2 `594b4437301853919ce3b4aa93e703a395ed45bff924ea6266b3a8e202a30be7` |
+| Spec | v1 implementation-alignment revision 24，由 recovery amendment governing manifest 精确绑定 |
+| Accepted ADRs | 0001 `d46dbe…fa34`；0002 revision 6 `3cd015b6…f6191`；0003 `a6a1648bbf8fcccbc5665c7c193cccdab11b3f096f4fb372338093fa4ed4bccf`；0005 recovery-claim compensation（independent review pending）；0006 revision 8 R3 `73512e3c…fe58986` |
+| Review lineage | revision 4 independent Test Plan PASS；WP-01 r18、WP-02 r4、WP-03 r8、WP-04A r5 findings 全部关闭；revision 29 closed `WP08-MIG-DEP-DOCS-ARCH-R1-001`；revision 30 bound cffi path；revision 31 binds Human-approved additive offline-v2 provenance and revises stable `WP08-DEP-OPTION1-DOCS-ARCH-R1-001` for same reviewer R3 |
+| Authority task | `GEW-PLAN-V1` |
+| 当前授权 | 批准计划内本地测试、实现证据与审核；不授权真实外部副作用或不可逆动作 |
+
+## 2. 质量目标
+
+v1 测试的核心不是证明“代码跑过”，而是证明：
+
+1. 同一合法输入在支持环境中得到 byte-identical contract、state、route 和 decision；
+2. crash、并发、恢复或未知副作用不会制造 partial truth、重复动作或虚假完成；
+3. authority、intent、target、digest、evidence、privacy 任一不匹配都在副作用前 fail closed；
+4. Codex/Hermes Skills 只改变交互适配，不改变确定性安全语义；
+5. 九类任务的完整承诺逐类成立，不能用框架表达力或其他类别代替；
+6. 成功指标/PMF 数据可用且最小化，不泄露源码、prompt 或秘密。
+
+## 3. 范围
+
+### 3.1 In scope
+
+- contract/schema/digest/GEEL/ResourceProfile；
+- graph/reducer/routing/join/fallback/invalidation/completion；
+- SQLite repository、objects、locks、leases/claims、backup/migration；
+- authority/action/reconciliation/privacy/evidence；
+- lifecycle、runtime adapters、Codex/Hermes Skills；
+- 九类 Profiles、full/compact/emergency overlays；
+- packaging/install/upgrade/rollback/supply chain；
+- Candidate/ReleaseCoverage/PMF evidence。
+
+### 3.2 Out of scope
+
+- 多用户协作、跨 runtime 续接、daemon/background execution、远程状态服务；
+- Windows、任意 VCS、任意业务工作流；
+- 未通过 extension trust ADR 的第三方 executable predicates/validators/transforms；
+- 已取得同进程任意产品代码执行能力后的 module/class/metaclass mutation；这是 TCB compromise，
+  由 source/build/install attestation、dependency policy 与进程 sandbox 验证，不伪装成 domain
+  contract immutability case；
+- 未声明厂商集成的“兼容猜测”。
+
+Out-of-scope 能力若被请求，必须明确拒绝；不能静默降级成未测试路径。
+
+## 4. 测试方法与层次
+
+| 层 | 位置 | 主要目的 | 默认外部访问 |
+|---|---|---|---|
+| Unit/model/property | `tests/unit/` | pure contract、reducer、policy、state table | 禁止 |
+| Contract/golden | `tests/contract/` | schema、JCS、GEEL、adapter wire parity | 禁止 |
+| Repository conformance | `tests/conformance/` | backend/lock/crash/migration semantics | 仅隔离 temp root |
+| Integration | `tests/integration/` | application + repository + fake adapters | 禁止 |
+| Security/privacy | `tests/security/` | identity、path、digest、secret、disclosure、extension | 禁止 |
+| E2E fixtures | `tests/e2e/` | installed wheel/CLI/Skill + disposable projects | 默认禁止网络 |
+| Real runtime/target | action-scoped evidence run | Codex/Hermes/Telegram/Discord/真实工具链 | 必须单独授权 |
+
+测试先于对应实现加入：失败用例先证明门禁缺失，再实现直至 PASS。测试自身不能复刻被测
+算法作为 oracle；优先使用冻结 vectors、independent implementation、model/state table、真实
+target query 和 fault injection。
+
+## 5. 环境矩阵
+
+### 5.1 Release-blocking environments
+
+| 维度 | 必须覆盖 |
+|---|---|
+| OS | 当前支持的 macOS latest-1/latest；Linux 两个声明发行版版本 |
+| Architecture | 发布声明中的 macOS arm64/x86_64 与 Linux x86_64；无制品即不声明支持 |
+| Python | 每个支持 minor 的最低与最新 patch；exact managed interpreter |
+| SQLite/VFS | 随 release 绑定/验证的 exact runtime；macOS fullfsync、Linux durability conformance |
+| Install | clean user、upgrade from previous supported candidate、tampered/incompatible inputs |
+| Runtime | Codex；Hermes via Telegram；Hermes via Discord |
+| Risk path | `full-planned`、`compact-planned`、`emergency` |
+| Profile | 九类全部 |
+
+具体版本值由 release configuration/manifest 提供，不写入 engine code或本计划。matrix expansion
+可以增加测试；缩小已冻结 release claim 需要新的产品/发布决定。
+
+### 5.2 Isolation
+
+- 每 case 使用新 temp data/control/project roots、独立 HOME-like test config 和 fake secrets；
+- 禁止读取用户真实仓库、真实消息历史、系统凭据或旧项目；
+- 时间、random、PID、crash point、disk-full、connector result 通过受控 harness 注入；
+- 真实 runtime/target case 使用一次性 fixture account/resource 和独立 action authority；
+- case 完成后先验证 evidence，再清理；unknown action/failed cleanup 保留 quarantine record。
+
+## 6. Test ID 与证据规则
+
+所有 concrete test ID 必须匹配 `^GEW-[A-Z0-9]+(?:-[A-Z0-9]+)*$`；numeric family（例如
+`GEW-CON-001`）和 semantic/cell ID（例如 `GEW-REQ-FR01-P`）都合法。文中的 `<...>` 只表示
+生成模板，不是可登记 ID；generator 将 canonical kebab ID 转成 uppercase kebab 后必须通过
+同一 regex。stable ID 语义不可复用。每次结果至少记录：
+
+- test ID/version、requirements、profile/overlay/runtime/environment manifest；
+- source/build/install artifact digests、Graph/Profile/schema/registry/config digests；
+- isolated target identity、authority/action digest（如适用）；
+- start/end、result、machine-readable assertion/receipt/target-state evidence digest；
+- retry/failure injection seed、redaction/classification、reviewer lineage。
+
+只接受当前 baseline/snapshot/build 的 fresh evidence。rerun 产生新 evidence record，不覆盖失败；
+flaky test 是 blocker，不能以“重跑通过”抹除。
+
+### 6.1 机械追踪矩阵
+
+实现前创建并 schema-lock `config/release-coverage/trace-matrix-v1.json`；本节就是它的 normative
+source。每一 row 必含 `obligation_id`、一个正向 `pass_test_id`、一个拒绝/失败
+`reject_test_id`、`fixture_id`、`oracle_id`、`evidence_type`、`owner_gate`，禁止空值、range、
+placeholder、duplicate test ID 或同义 obligation。coverage validator 对下列 frozen sets 做 exact
+set equality；删除任何 row/cell、增加 unknown row、把 P/R 指向同一 case 或没有 evidence 都 FAIL。
+
+#### Requirement rows
+
+| Obligations | Exact P/R test IDs | Fixture | Oracle ID | Evidence | Owner gate |
+|---|---|---|---|---|---|
+| FR-01 | `GEW-REQ-FR01-P` / `GEW-REQ-FR01-R` | skill-lifecycle | `ORA-ADAPTER-CONTRACT` | runtime transcript/receipt | WP-07 |
+| FR-02 | `GEW-REQ-FR02-P` / `GEW-REQ-FR02-R` | runtime-owner-binding | `ORA-STATE-MODEL` | event/rejection | WP-07 |
+| FR-03 | `GEW-REQ-FR03-P` / `GEW-REQ-FR03-R` | durable-replay | `ORA-REPOSITORY-MODEL` | head/snapshot | WP-03 |
+| FR-04 | `GEW-REQ-FR04-P` / `GEW-REQ-FR04-R` | typed-graph | `ORA-GRAPH-MODEL` | trace/error | WP-02 |
+| FR-05 | `GEW-REQ-FR05-P` / `GEW-REQ-FR05-R` | review-loop | `ORA-CONVERGENCE-MODEL` | finding trace | WP-04 |
+| FR-06 | `GEW-REQ-FR06-P` / `GEW-REQ-FR06-R` | intent-drift | `ORA-DEPENDENCY-MODEL` | invalidation trace | WP-02 |
+| FR-07 | `GEW-REQ-FR07-P` / `GEW-REQ-FR07-R` | authority-mutations | `ORA-EXECUTE-GATE-MODEL` | zero-call/rejection | WP-05 |
+| FR-08 | `GEW-REQ-FR08-P` / `GEW-REQ-FR08-R` | crash-resume | `ORA-PERSISTENCE-FAULT-MODEL` | replay/claim | WP-05 |
+| FR-09 | `GEW-REQ-FR09-P` / `GEW-REQ-FR09-R` | ten-artifacts | `ORA-ARTIFACT-CONTRACT` | artifact records | WP-04A |
+| FR-10 | `GEW-REQ-FR10-P` / `GEW-REQ-FR10-R` | false-completion | `ORA-COMPLETION-MODEL` | completion record | WP-04 |
+| FR-11 | `GEW-REQ-FR11-P` / `GEW-REQ-FR11-R` | privacy-evidence | `ORA-PRIVACY-TAINT` | redacted evidence | WP-05A |
+| FR-12 | `GEW-REQ-FR12-P` / `GEW-REQ-FR12-R` | config-swap | `ORA-ARCHITECTURE-SCAN` | scan/config digest | WP-01 |
+| FR-13 | `GEW-REQ-FR13-P` / `GEW-REQ-FR13-R` | pmf-counterexample | `ORA-PMF-SCHEMA` | PMF report | WP-09 |
+| FR-14 | `GEW-REQ-FR14-P` / `GEW-REQ-FR14-R` | profile-matrix | `ORA-COVERAGE-SET` | coverage record | WP-08 |
+| FR-15 | `GEW-REQ-FR15-P` / `GEW-REQ-FR15-R` | lifecycle-conflict | `ORA-LIFECYCLE-MODEL` | catalog/lease | WP-06 |
+| FR-16 | `GEW-REQ-FR16-P` / `GEW-REQ-FR16-R` | install-upgrade | `ORA-RELEASE-MANIFEST` | install/migration | WP-10 |
+| FR-17 | `GEW-REQ-FR17-P` / `GEW-REQ-FR17-R` | concrete-action | `ORA-AUTHORITATIVE-TARGET` | receipt/state | WP-07A |
+| FR-18 | `GEW-REQ-FR18-P` / `GEW-REQ-FR18-R` | trusted-extension | `ORA-EXTENSION-POLICY` | load/rejection | WP-08A |
+| NFR-01 | `GEW-REQ-NFR01-P` / `GEW-REQ-NFR01-R` | clean-skill-use | `ORA-PROCESS-INSTALL` | UX/process record | WP-10 |
+| NFR-02 | `GEW-REQ-NFR02-P` / `GEW-REQ-NFR02-R` | fail-closed | `ORA-INVARIANT-MODEL` | blocked/completion | WP-04 |
+| NFR-03 | `GEW-REQ-NFR03-P` / `GEW-REQ-NFR03-R` | resume-unknown | `ORA-PERSISTENCE-FAULT-MODEL` | replay/claim | WP-05 |
+| NFR-04 | `GEW-REQ-NFR04-P` / `GEW-REQ-NFR04-R` | adapter-substitution | `ORA-DEPENDENCY-SCAN` | import/contract | WP-07 |
+| NFR-05 | `GEW-REQ-NFR05-P` / `GEW-REQ-NFR05-R` | environment-swap | `ORA-DATA-LOGIC-SCAN` | scan report | WP-00 |
+| NFR-06 | `GEW-REQ-NFR06-P` / `GEW-REQ-NFR06-R` | disclosure-secret | `ORA-PRIVACY-TAINT` | leak scan | WP-05A |
+| NFR-07 | `GEW-REQ-NFR07-P` / `GEW-REQ-NFR07-R` | audit-replay | `ORA-INDEPENDENT-REDUCER` | trace digest | WP-11 |
+| NFR-08 | `GEW-REQ-NFR08-P` / `GEW-REQ-NFR08-R` | compatibility | `ORA-COMPATIBILITY-MATRIX` | compatibility record | WP-10 |
+
+#### Work-package exit rows
+
+exact obligation/test pairs为：`WP-00,01,02,03,04A,04,05A,05,06,07,07A,08A,08,09,10,11`；
+每个 X 必须存在 `obligation_id="WP-X-EXIT"`、`GEW-WP-X-EXIT-P` 与
+`GEW-WP-X-EXIT-R`。fixture 是该 WP §Plan exit fixture manifest；oracle 是对应 contract/state/
+target/independent-review gate；evidence 是 `WorkPackageExitRecord`；owner gate 即 WP-X。validator
+按上面 explicit 16-item set 展开，不接受数字 range 或漏掉带字母的 WP。
+
+#### ADR validation rows
+
+| Obligation IDs | Exact test IDs (`-P`/`-R`) | Fixture/oracle | Evidence | Owner |
+|---|---|---|---|---|
+| `ADR1-NAMESPACE`, `ADR1-INSTALL`, `ADR1-SUPPLY`, `ADR1-SKILL`, `ADR1-UPGRADE` | `GEW-ADR1-NAMESPACE-P/R`, `GEW-ADR1-INSTALL-P/R`, `GEW-ADR1-SUPPLY-P/R`, `GEW-ADR1-SKILL-P/R`, `GEW-ADR1-UPGRADE-P/R` | decoy/import, clean install, tamper, handshake, failure injection / Accepted ADR | build/install evidence | WP-00/10 |
+| `ADR2-CONNECTION`, `ADR2-TRANSACTION`, `ADR2-LOCK`, `ADR2-OBJECT`, `ADR2-EXPORT`, `ADR2-MIGRATION` | `GEW-ADR2-CONNECTION-P/R`, `GEW-ADR2-TRANSACTION-P/R`, `GEW-ADR2-LOCK-P/R`, `GEW-ADR2-OBJECT-P/R`, `GEW-ADR2-EXPORT-P/R`, `GEW-ADR2-MIGRATION-P/R` | repository/fault fixtures / conformance model | crash/state evidence | WP-03/06 |
+| `ADR3-SCHEMA`, `ADR3-REF`, `ADR3-JCS`, `ADR3-DIGEST`, `ADR3-MODEL`, `ADR3-GEEL`, `ADR3-BUDGET`, `ADR3-EXEC`, `ADR3-VERSION` | exact `GEW-ADR3-<suffix>-P/R` for each listed suffix | golden/cross-implementation corpus / ADR algorithms | bytes/result/trace | WP-01 |
+
+#### Cross-product rows
+
+- canonical Profile ID set 不由 Test Plan 自行声明，而从绑定 Tech Spec digest
+  `e632cd2c8b4f13b1455fa1f962491df6603b34d2eef0c46a84b350200e0f8d65` 的 immutable
+  `ApprovedProfileIdentityRegistry` 加载并要求 exact 为 `new-feature,bug-fix,hotfix,refactor-debt,
+  migration,dependency-security,performance,release-operations,incident-response`。matrix、fixture、
+  OracleManifest、evidence 与 registry 做双向 exact equality；不接受任何别名。column set exact 为
+  `normal,boundary,revise,authority,drift,invalidation,recovery,artifacts,review,target,rollback,
+  real-e2e`。每个 Cartesian cell 必须有两个 distinct IDs：
+  `GEW-PRO-<PROFILE>-<COLUMN>-P` 与 `GEW-PRO-<PROFILE>-<COLUMN>-R`，共 216 个 concrete tests；
+  fixture 为对应 versioned Profile fixture，oracle 是 category completion/rollback/target contract，
+  evidence owner WP-08。validator 对两个 explicit sets 的 product × `{P,R}` 做 exact equality；
+- runtime/path exact cells：`GEW-RTP-CODEX-FULL-PLANNED`, `GEW-RTP-CODEX-COMPACT-PLANNED`,
+  `GEW-RTP-CODEX-EMERGENCY`, `GEW-RTP-HERMES-FULL-PLANNED`,
+  `GEW-RTP-HERMES-COMPACT-PLANNED`, `GEW-RTP-HERMES-EMERGENCY`；channel exact cells：
+  `GEW-CH-HERMES-TELEGRAM-CONTRACT`、
+  `GEW-CH-HERMES-DISCORD-CONTRACT`。每 cell另有同 ID `-REJECT` case；fixture 是 disposable
+  runtime/channel identity，oracle 是 RuntimeAdapter/channel contract，evidence owner WP-07；
+- release environment dimension exact set 为 `OS,ARCH,PYTHON,SQLITE-VFS,INSTALL`；对
+  ReleaseInstallManifest 中每个 `(dimension, canonical value)` 计算
+  `value_key = uppercase(first 16 hex SHA-256(UTF-8(dimension + U+0000 + value)))`，concrete IDs 为
+  `GEW-ENV-<DIMENSION>-<VALUEKEY>-P` 与 `...-R`。因此同 dimension 多 values 不复用 ID；row 还
+  保存 exact canonical value。fixture 是 clean image/VM，oracle 是 manifest/capability check，
+  evidence owner WP-10。manifest claim 与 matrix values 必须双向 exact equality。
+
+coverage validator 的 meta-suite `GEW-COV-001` 从完整 matrix PASS；`GEW-COV-002` 对上述每个
+obligation/cell逐一删除；`GEW-COV-003` 删除 P 或 R；`GEW-COV-004` 替换 fixture/oracle/evidence/
+owner 为空；`GEW-COV-005` 注入 duplicate/placeholder/range/unknown。所有 mutation 必须 FAIL。
+
+### 6.2 OracleManifest 与独立性
+
+`config/test-oracles/oracle-manifest-v1.json` 是 versioned、schema/JCS-digested closed registry；
+trace matrix 的 `oracle_id` 必须 exact resolve，不能自由填写 class label。每项包含：
+
+- stable `oracle_id`、version、family、`kind`（`frozen-vector|independent-model|independent-
+  implementation|authoritative-target-observer|architecture-scan`）；
+- authoritative source/standard/Accepted ADR ref 与 digest；oracle artifact/module digest；
+- dependency allowlist、prohibited production import prefixes、build/runtime process boundary；
+- independence method、known-fault corpus、input/output schema、evidence type；
+- target observer 时的 read-only capability、credential/identity、observed raw fields、freshness、
+  separate implementation/process 和与 mutation adapter 不同的 package/module digest。
+
+生成 rows 的 oracle IDs 也完全冻结：WP exits 用 `ORA-WP-<WP>-EXIT`；ADR rows 用
+`ORA-ADR<NUMBER>-<OBLIGATION>`；Profile mandatory/category scenarios 用
+`ORA-PROFILE-<PROFILE>`；runtime/path/channel 用 `ORA-RUNTIME-<RUNTIME>` 或
+`ORA-CHANNEL-<CHANNEL>`；environment 用 `ORA-ENV-<DIMENSION>`；ArtifactContract 用
+`ORA-ARTIFACT-CONTRACT`；Execute Gate 用 `ORA-EXECUTE-GATE-MODEL`。每个生成 ID 都必须在
+OracleManifest 中存在恰好一项。
+
+独立性规则：
+
+1. reducer、route、invalidation、completion、authority、coverage 等 deterministic decisions
+   使用 frozen state table/vector 或独立 model/implementation；oracle dependency graph 禁止导入
+   `graph_engineering.core/application/storage/adapters` 对应被测 decision modules，也不能调用产品
+   CLI 得到 expected value；
+2. schema/JCS/GEEL 使用标准 vectors + 至少一个独立 implementation；oracle artifact digest 不得
+   等于生产 implementation digest；共享第三方 library 时仍必须有 frozen expected bytes/errors；
+3. repository/fault oracle 是 ADR old/new/blocked transition model，不读 production reducer 结果；
+4. real action/Profile E2E 的 mutation receipt 只证明“调用发生”，不能证明 target 达标。另一个
+   read-only observer process 通过目标系统权威接口/原始 Git object/fixture health endpoint 读取
+   raw state，用 frozen acceptance model判断；不能 import/delegate 到 mutation/target-query adapter，
+   不能共享其 implementation digest或只消费其缓存 receipt；
+5. target observer 若无法独立授权、fresh query 或验证 identity，case 为 blocked，不以 adapter
+   self-report PASS。
+
+meta-tests：`GEW-ORA-001` closed registry完整 PASS；`GEW-ORA-002` 注入 production decision import；
+`GEW-ORA-003` 令 oracle/production digest 相同；`GEW-ORA-004` 删除 independence/source digest；
+`GEW-ORA-005` 让 target observer 复用 mutation adapter/receipt；`GEW-ORA-006` 用 known-faulty
+production variants（wrong reducer route、false completion、stale target query）确认 oracle 必须
+逐个检出，同时 golden valid cases PASS。architecture/coverage build 对任一失败均阻止实现 gate。
+
+## 7. Contract 与确定性测试
+
+| ID 范围 | 测试集 | 必须断言 |
+|---|---|---|
+| GEW-CON-001～020 | strict JSON/I-JSON | duplicate/escape/surrogate/number/UTF-8 边界一致拒绝；无 normalization |
+| GEW-CON-021～050 | Schema Profile | allowed/forbidden vocabulary、keyword、format、bounds；两个实现 accept/reject 一致 |
+| GEW-CON-051～070 | Closed registry | exact IDs/digests、refs/pointers/cycle/remote lookup；证明零 network/filesystem retrieval |
+| GEW-CON-071～100 | JCS/formats | RFC vectors、UTF-16 key order、safe int、decimal/time/duration/id、opaque-ref aliases |
+| GEW-CON-101～130 | Digest projection | identity/self-digest candidate/source/body/envelope/preimage；错误 omission/null/placeholder 拒绝 |
+| GEW-CON-131～170 | GEEL | 每 operator/type/path/missing/null/empty/multi-error/eager/order truth table |
+| GEW-CON-171～210 | Budget/cost | exact charge trace、temp peak、limit/budget precedence；每 emitted event 前后 boundary |
+| GEW-CON-211～230 | Immutable model | nested alias/mutation、bool-int、round-trip、iteration/order independence |
+| GEW-CON-231～250 | Version/migration | exact pins、directional compatibility、唯一 transform path 与 byte-identical provenance |
+
+`GEW-ADR3-SCHEMA-FROZEN-R` 必须对同一 schema 的 raw JSON-list 与 registry-frozen tuple 逐 case
+比较 normalized validation failures、完整 canonical charge trace 与余额；覆盖 `required`、至少一个
+combinator、`prefixItems`、`dependentRequired` 的 valid、invalid 与 missing 输入。只断言 event ID
+存在或只比较 accept/reject 不足以关闭该回归。
+
+Release blocker：任一 cross-implementation bytes/result/error/trace divergence。
+
+## 8. Graph Kernel 与 Application 测试
+
+### 8.1 Graph validation
+
+`GEW-GRA-001～060` 覆盖：
+
+- node/edge unique identity、typed input/output、required trust、route、join、fallback；
+- Graph source/digest-input schema structural diff 只允许移除 derived `digest`，source/input
+  schema、projection/domain/registry pin 任一 swap 必须拒绝；
+- Graph create/load trace 必须出现 schema/canonical/digest charges，exact budget 成功、少 1
+  budget 在对应 occurrence 原子拒绝，hard limit 优先；
+- Graph create/load 与 Snapshot create/restore 的完整 charge trace 必须逐 record 锁定
+  `event_ordinal + operation_path + amount/balance/status`；独立 Node 从同一 frozen semantic inputs、
+  schema 与 CostSchedule 自行生成四条 trace，再与 Python canonical bytes/record exact 比较，不能
+  只 hash Python 输出；Node executable/version/binary digest 与 oracle source digest 必须进入
+  command/exit evidence，任一 runtime、oracle、顶层 schema event 或 child-call ordinal 漂移都失败；
+- 每条 frozen trace 的每一个 emitted occurrence 都用 `amount - 1` 初始余额重放，必须产生该
+  event/path 的 atomic `rejected` attempt，不能执行后续工作；
+- unreachable/dead-end/cycle、无 budget loop、ambiguous route/join、missing completion predicate；
+- typed mapping 只接受 resolved source/target schema fragment canonical-identical 的 single-type
+  exact assignability；shared `$ref` 正向通过，disjoint const/enum/range、required object members、
+  array items、带 sibling assertion 的 `$ref` 逐类拒绝；primitive type 相同不能单独证明兼容；
+- normal/failure topology 使用同一 reachability/cycle-budget 语义；closed registry ID/digest
+  pin、completion-policy pin 或实际 registry swap 不得改变已锁定 graph 的行为；
+- Graph 的 exact semantic pins 同时覆盖 complete schema/predicate/error/completion/loop registry
+  manifests、ResourceProfile ID/body digest 与 CostSchedule ID/body digest；无关 schema addition、
+  same-ID body drift、limit/work-budget/coefficients 或 graph content drift 全部在 validation/evaluation
+  前拒绝；
+- Profile + overlay materialization 与安全单调性；
+- config/registry digest swap、unknown version、executable extension injection；
+- 同 inputs materialize byte-identical graph。
+
+### 8.2 Reducer/state model
+
+`GEW-RED-001～120` 从 Spec command/state tables 生成笛卡尔模型：
+
+- 每个 `(state, command, precondition)` 只产生规定 events/target；未列组合拒绝；
+- PRD decision、compatibility/lease、resolution、rollback action/plan/authority、retention/
+  rollback-clearance precondition refs 必须 exact 且进入 event，缺失或空引用拒绝；
+- event replay、snapshot rebuild、transaction idempotency；query 不产生 event；
+- TaskSnapshot source/digest-input schema pair、charged self-digest trace、exact/after budget
+  boundary 与 restore digest mismatch；未提供 attested registry/WorkContext 的构造/恢复拒绝；
+- Snapshot required `contract_pins` 绑定 complete schema registry manifest、ResourceProfile 与
+  CostSchedule exact body digest；restore/replay/command decision 在 schema validation 或 transition
+  前拒绝 registry addition、same-ID manifest、profile/schedule drift；非空 GraphRef exact 绑定
+  `graph_digest`，改变 graph content 必须改变 snapshot digest；
+- NodeRun ready/running/review/revise/pass/blocked/cancelled；run/node/status 只接受 exact string，
+  attempt 只接受 exact positive integer；DependencyRecord、current/baseline drift 与 classify 输入的
+  semantic digest 必须满足 lowercase `sha256-jcs-v1:<64 hex>`，equal malformed digest 也先拒绝；
+- author/reviewer identity 分离、review digest binding；
+- baseline/project scope/artifact/evidence/profile/graph change 的最小 descendant invalidation；
+- executed action 不删除历史，进入 reconcile/compensate route。
+
+### 8.3 Routing/convergence/completion
+
+`GEW-RUN-001～100` 覆盖 routine findings、stable finding IDs、digest progress、重复 finding、
+冲突 review、budget exhaustion、owner routing、runtime stop/resume。Completion tests 逐项删除
+target verification、acceptance、project gate、review、fresh evidence、scope binding 或 current
+snapshot，均必须保持 incomplete；伪造/陈旧/cross-task evidence 拒绝。
+
+WP-04 r3 gate 必须机械执行并绑定以下新增 case，而不是仅依赖范围声明：
+
+- command 的多 domain-event/单 repository-transaction 原子性、两类 revision 不混用、request
+  idempotency、Owner/runtime lineage mismatch 零写入；list/search/show 前后 event stream byte-identical；
+- runtime stop 后 event count 不变；同 lineage resume 完成两节点 route/join；candidate object 必须先
+  durable/reference，validation 与独立 review 后才升级 trust；
+- routine `REVISE` 在 changed body digest 后关闭 stable finding；相同 digest 再次 `REVISE`、finding
+  内容冲突、缺少/耗尽 budget 均稳定升级；REVISE 后 reviewer 对同 body digest 返回 PASS 也必须保留
+  open finding 并升级，不得写 `node.passed`；declared stable error 选择 frozen fallback，unknown error
+  进入 `blocked`；
+- `TaskApplication` public surface 不暴露 reducer-owned transition commit。缺失、stale、错误 scope 或
+  event-types 不匹配的 opaque authority 注入 `node.passed`/`task.completed` 时 event stream byte-identical；
+  stale source、wrong task、wrong scope、event-type mismatch 与 one-use reuse 必须分别具有独立
+  qualified test 和 gate binding；
+- `ApplicationRunner` direct construction 拒绝，注册 channel 不返回 authority，generic channel 禁止
+  review/pass/completion critical events。review result 先以 `node.review_recorded` 单独持久化；即使取得
+  registered channel 并组合 forged PASS runner state，也不能写 `node.passed`。下一事务 PASS 必须精确
+  消费 repository 中 latest review、body digest、独立 actor、trust 与 finding-close events；completion
+  authority 只能由 current Completion Gate PASS 内部产生；在 review-record transaction 后停止并
+  resume 时必须消费 durable record，不得再次调用 reviewer；
+- Completion Gate 正例必须传入 `ArtifactValidator` attested Candidate Review/Completion Record；逐项
+  删除 node、baseline、authority、scope、Must trace、project gate、candidate review、external target、
+  TargetBinding、fresh evidence、unresolved-state clearance 或 completion-record binding 时保持
+  `INCOMPLETE`，repository event count 不变。
+
+route/join/completion/loop-budget condition 必须全部走 GEEL + WorkContext。completion/loop
+registry document 先通过 closed schema，再计算 charged identity digest；schema 明确拒绝的
+version/shape、condition 与 kind 不一致、unknown policy/budget 均不得由 public loader 接受。
+Graph projection digest、四条完整 charge traces 与 completion/join/loop truth table 必须和独立
+Node implementation 一致。trace golden fixture 逐 bytes 绑定所有 23,266 个现行收费事件，不以
+抽样 path 或总预算替代。
+
+### 8.4 十类 ArtifactContract fixtures
+
+logical artifact exact set 为 `positioning,prd,tech-spec,impact,plan,test-plan,implementation,
+verification,candidate-review,completion-record`。每类必须有以下 exact case product：
+
+| Case code | Mutation/oracle |
+|---|---|
+| `GOLD` | valid complete logical artifact 通过对应 ArtifactContract |
+| `SEMANTICS` | 删除/损坏每个 contract-specific required semantic section，逐字段拒绝 |
+| `INPUTS` | missing/stale/wrong-task/wrong-baseline input refs、invented/unknown authoritative target 拒绝；双 current baseline 正例通过，ref 保持 ID/kind/digest 但 swap 到另一 baseline 必须拒绝 |
+| `TRACE` | requirement/decision/dependency trace missing、duplicate、unknown 或不闭合拒绝；多 input/target/requirement 的完整闭包通过 |
+| `DIGEST` | body/extracted/input/contract digest 任一 swap、type confusion、stale digest 拒绝 |
+| `STATUS` | 非法 state transition、虚假 PASS/Approved/Complete 拒绝 |
+| `FINDINGS` | open blocking finding、revision 未关闭 stable ID、digest 无进展拒绝 |
+| `REVIEW` | same author/reviewer、case/whitespace identity alias、wrong digest、missing trust/independence/approval policy 拒绝 |
+| `EXIT` | 删除每个 artifact exit predicate 或所需 evidence，逐项拒绝 |
+| `INVALIDATE` | 上游语义/事实/metadata change 分类后只产生规定 descendant invalidation |
+
+每个 exact ID 为 `GEW-ART-<artifact>-<case-code>`；coverage validator 对上述 explicit 10×10
+set equality，共 100 个 case，不接受范围或缺 cell。fixture 是 `artifact-<artifact>-v1` 的 valid
+golden 加单一 mutation；oracle 是独立 ArtifactContract/schema/dependency model；evidence 是
+`ArtifactValidationRecord`/`InvalidationRecord`；owner gate WP-04A。
+
+merged-body 的额外 exact cases：
+
+- `GEW-ART-MERGED-MANIFEST-GOLD`：full/compact/emergency manifest 与 extracted bodies valid；
+- `GEW-ART-MERGED-SELECTOR-MISSING`、`...-AMBIGUOUS`、`...-OUT-OF-BOUNDS`：selector 拒绝；
+- `GEW-ART-MERGED-OVERLAP`：未声明 shared section 或 overlap 拒绝；
+- `GEW-ART-MERGED-EXTRACTED-DIGEST`：physical file valid 但一个 extracted digest swap 拒绝；
+- `GEW-ART-MERGED-INDEPENDENT-INVALIDATION`：只改一个 logical body，只失效该 body declared
+  descendants，其他 logical artifacts/current reviews 保持；
+- `GEW-ART-MERGED-SHARED-INVALIDATION`：改 declared shared section，精确失效所有 consumers；
+- `GEW-ART-MERGED-REVIEW-BINDING`：每个 logical artifact review 绑定自己的 extracted digest，
+  不能用 physical file aggregate review 替代。
+
+mutation generator 必须逐项删除 ArtifactContract schema 中每个 `required` property，以及十类
+registry 声明的每个 required semantic/trace/review/exit rule；若 schema 新增 required rule 而
+没有自动生成对应 failing fixture，coverage build FAIL。
+
+`config/verification/wp-04a-mutations.json` 另外按 exact set 冻结 30 个 subcases：caller mapping
+single-snapshot、canonical actor
+identity、authoritative target、多 input/target/requirement 正反例、validation/lifecycle direct
+construction、revision predecessor、raw/result/temporary/budget boundary，以及 selector/dependency/
+manifest lineage/unselected-gap invalidation。`GEW-ART-MUTATION-COVERAGE-R` 必须实际执行每组
+probe；每个 concrete assertion 只回报自己实际执行的 subcase，最终对 declared/executed 做 set
+equality。注入没有 dispatcher/oracle 的 declaration 必须得到 `DECLARED_EXECUTION_MISMATCH`；只列
+ID、组测试后批量标记或只跑 10×10 表面 cell 都不算覆盖。
+
+## 9. Repository、并发与恢复测试
+
+### 9.1 Connection/transaction
+
+`GEW-REP-001～060`：错误 path/owner/mode/symlink/filesystem/VFS/SQLite/PRAGMA/PID/thread/fork
+在 transaction 前拒绝；BEGIN IMMEDIATE/CAS/idempotency/busy retry 有限；hot journal 只恢复
+完整 old/new；raw copy/move/unlink API 被阻止。
+
+### 9.2 Crash matrix
+
+`GEW-REP-061～140` 在 event/head/snapshot/catalog/lease/claim/object staging/rename/fsync/ref
+commit/GC deleting/purge 的每个 durable step 之前和之后 kill process，断言：
+
+- committed transaction 全部可见或全部不可见；
+- committed object reference 永不 missing；orphan 不受信任且可安全回收；
+- unresolved claim、rollback/export/legal hold 所需 object 不删除；
+- corruption/missing referenced object 进入 integrity blocked，不重写历史。
+
+这组测试使用 versioned `PersistenceFaultSchedule` 和三层 harness，而不是只 kill process：
+
+1. **Deterministic syscall model**：所有 DB/object/journal/directory/hold/manifest storage ports 在
+   conformance build 中经 fault shim；每个 open/write/truncate/rename/fsync/fdatasync/fullfsync/
+   xSync/close 有 monotonic step ID。seeded schedule 可 drop、delay、reorder 未同步 writes、partial/
+   torn write、ENOSPC/EIO、crash；只有被正确 file+directory sync 的 dependency 可进入 durable
+   image。recovery 从该 image 启动，oracle 是 ADR-0002 old/new/blocked state model；
+2. **SQLite/OS process harness**：真实 SQLite/VFS 在 disposable local filesystem/VM 中逐 durable
+   point SIGKILL 和强制 VM power-cut/restart，使用 journal/integrity/event replay/objects/manifest
+   oracle；seed、step map、pre/post image digest 可重复。不能提供 power-cut runner 的环境不能
+   进入 release support claim；
+3. **Platform capability probes**：macOS 故意关闭/伪报 `fullfsync`，Linux 使用 rejecting/no-op
+   `xSync` test VFS 与 unsupported/network filesystem fixture；doctor 必须在 mutation 前 blocked。
+   release evidence 记录真实 VFS/filesystem/SQLite/OS capability，不以一次成功写入代替证明。
+
+durability exact case IDs：
+
+- `GEW-DUR-PROCESS-CRASH`、`GEW-DUR-OS-POWER-CUT`、`GEW-DUR-DISK-FULL`、
+  `GEW-DUR-IO-ERROR`、`GEW-DUR-REORDER`、`GEW-DUR-TORN-WRITE`；
+- `GEW-DUR-DB-JOURNAL`、`GEW-DUR-OBJECT-FILE`、`GEW-DUR-OBJECT-DIRECTORY`、
+  `GEW-DUR-GC-PURGE`、`GEW-DUR-EXPORT-HOLD`、`GEW-DUR-ACTIVE-MANIFEST`；
+- `GEW-DUR-MACOS-FULLFSYNC-P/R`、`GEW-DUR-LINUX-XSYNC-P/R`、
+  `GEW-DUR-UNSUPPORTED-FS-R`。
+
+前两组 fault-class × durable-unit 做 exact Cartesian coverage；每个 step before/after 与 seed 在
+manifest 中枚举。golden oracle 只允许 complete old、complete new 或 explicit integrity/
+capability blocked。遗漏 directory sync、无效 fullfsync/xSync、接受 torn/reordered image 或相同
+seed 不可复现，均为 blocker。
+
+### 9.3 Locks/concurrency
+
+`GEW-LOC-001～080`：same-thread、multi-thread、two-process、fork-during-call、child unlock/exit、
+exec、process crash、inode replacement、symlink/path attack、相反 multi-resource order、partial
+acquire。断言 process mutex + POSIX lock + durable claim 一致，不死锁、不部分 ownership，child
+不释放/延长 parent，stale generation 命令不跨 activation。
+
+### 9.4 Export/migration
+
+`GEW-MIG-001～100`：public export 与 migration-held export 不递归锁；持续 writes/GC 下 bundle
+内部 DB 导出相同 manifest且 objects 完整；import/replay/integrity/compatibility；每个 manifest
+switch 前后 crash；两进程 activation、command-versus-switch、rollback、restore gap、fencing
+high-water。只允许一个 activation authority，普通命令只看到 verified active 或 blocked。
+
+### 9.5 WP-03 candidate gate 与 release durability 分层
+
+WP-03 candidate gate 必须精确绑定：WP-02 r4 source/commands/exit/PASS verdict、当前 source
+manifest、Spec/Impact/Plan/Test Plan/ADR-0002 的 governing manifest、managed interpreter、SQLite
+library/compile options、repository policy、fault schedule，以及 live filesystem/VFS/sync capability。
+门禁的最低机械用例包括：
+
+- factory-only capability、unsupported filesystem 拒绝、live mount + exact `unix` VFS +
+  DELETE/EXTRA/fullfsync readback，并证明 capability 在每次 open 前复核；初始化与 object fanout
+  必须在任何 mutation 前 no-follow 验证，symlink/unsupported filesystem 拒绝保持外部 target 与
+  repository contents 不变；初始化后将 top-level objects、staging、locks 或 resources 替换为
+  外部 symlink 时，所有 filesystem 动作必须通过原 attested directory descriptor，且在首个 fault
+  hook/创建/open/link 前拒绝；外部 node、bytes、mode、links 精确不变；
+- separate thread/process 在 staging directory fsync 后替换 staging name，或在 publication link 后
+  替换 final name，均必须由 retained staging descriptor、final no-follow descriptor 与重复 digest
+  校验检出；调用必须失败、错误 final 与 staging name 必须清除，fresh candidate 不得存在
+  `available` metadata；同一要求覆盖 `after_object_directory_fsync` 和 transaction 内
+  `before_metadata_commit`。`GEW-ADR2-OBJECT-DEDUP-R` 必须先成功写入同 digest，再在第二次
+  deduplicated put 的两个窗口分别替换 final；当前 transaction 必须回滚，旧 `available` metadata
+  必须由独立 durable transaction 转为 `quarantined`，final/staging 均清理。若 metadata 已提交后
+  检出 mismatch，同样必须转 `quarantined` 后失败；
+- `GEW-ADR2-OBJECT-CLEANUP-ISOLATION-R` 在上述两个窗口分别暂停 writer A 的 stale cleanup，
+  同时让 writer B 通过正常 public `put_verified` 竞争同一 digest；B 在 A 持锁期间必须有限失败或
+  等待而不能越过 cleanup，A 释放后 B 重试必须成功。最终 canonical final 必须是 B 已验证 bytes、
+  metadata 为 `available`、staging 为空；跨进程 object/resource lock 证据必须证明相同排他语义。
+  cleanup 的 unlink 还必须与 mismatch 时及删除前一致的 device/inode 绑定；
+- `GEW-ADR2-OBJECT-LOCK-COMPOSITION-P` 分别预持字典序低于和高于旧 hidden identity 的合法
+  action resources，再通过同一 public `put_verified` durable raw receipt；API 必须复用 outer
+  installation scope、在全部 action resources 后取得独立 publication tier、随后取得 object
+  shared，且 caller 可按逆序正常释放原 locks。publication conflict 的独立进程必须有限失败、
+  不产生 partial ownership；resource ID 拼写不得改变结果；
+- `doctor`/`backup` 同时以 read-only URI、`query_only` 和 authorizer 拒绝 direct write 及
+  `WITH ... UPDATE/DELETE/INSERT`；
+- caller 不能提交 `issued_at`/`validated_at`；TTL 使用 repository-owned wall clock 与持久化
+  non-decreasing high-water，clock rollback 不复活 stale lease；
+- task revision CAS、event/index/transaction/head exact binding、idempotent recovery、snapshot
+  authoritative replay repair、committed object corruption/missing fail closed；event index、
+  transaction revision/head/task 任一 corruption 时 replay 与 recover 均必须 integrity-blocked；
+- atomic acquire-many、monotonic fences、PID/thread/fork lock ownership、canonical lock order、
+  process shared/exclusive semantics；canonical resource ID 升序必须跨同线程所有 held token，
+  并以 two-process `b→a` 对 `a→b` 证明有限失败而非死锁；
+- action claim 绑定同 transaction 的 exact started event type + `action_id` payload；reconciliation
+  绑定 exact outcome event + `claim_id` payload。过期 lease 只能通过同 task/lease/latest-fence 的
+  unresolved claim reconciliation path 推进，不能执行新 action；direct `CommitBatch` 对 missing、
+  extra、empty、stale fence 与 wrong lease claim set 均必须拒绝；
+- versioned high-level fault schedule 的所有 step 可枚举，真实 process SIGKILL 至少覆盖
+  transaction commit 前/后 old/new，object orphan/staging/deleting 可幂等恢复。
+
+这一 candidate gate 不替代 §9.2 的 release matrix。syscall drop/reorder/torn/partial、真实 ENOSPC/
+EIO、VM power-cut/restart、Linux rejecting/no-op `xSync` VFS，以及 export-hold/active-manifest
+durability 仍需在相应 WP 和 release environment 产生 fresh evidence；缺少任何一项时不得声明
+对应平台或 release durability 支持。
+
+## 10. Authority、Action 与 Privacy 测试
+
+### 10.1 Deterministic gate
+
+`GEW-AUT-001～100` 对已准备动作逐一改变 Owner/runtime/lineage/target identity、Intent、scope、
+snapshot/revision、payload/action digest、authority class/target、expiry、revocation、disclosure、
+lease/fence/capability；每个 case 在 adapter/tool call counter 仍为 0 时拒绝。
+
+pre-call mutation exact set 还必须包含：
+
+| Exact test ID | 单一 mutation |
+|---|---|
+| `GEW-AUT-PRECONDITION-CHANGED` | adapter 重新读取的 target precondition 与 prepared value 不同 |
+| `GEW-AUT-PRECONDITION-UNVERIFIABLE` | adapter 无法 fresh query 或 identity/freshness 不可证明 |
+| `GEW-AUT-IDEMPOTENCY-KEY-CHANGED` | action idempotency key 与 authorized record 不同 |
+| `GEW-AUT-IDEMPOTENCY-CLASS-CHANGED` | idempotent/non-idempotent class 改变 |
+| `GEW-AUT-IDEMPOTENCY-DUPLICATE` | journal 已有 prepared/started/succeeded same key 的冲突记录 |
+| `GEW-AUT-IDEMPOTENCY-UNKNOWN` | same key 存在 unknown/unresolved claim |
+| `GEW-AUT-ROLLBACK-MISSING` | action class 要求 rollback 但 plan 缺失 |
+| `GEW-AUT-ROLLBACK-CHANGED` | rollback body/digest/target/capability 与授权后不同 |
+| `GEW-AUT-VERIFY-MISSING` | target verification plan 或 query adapter 缺失 |
+| `GEW-AUT-VERIFY-CHANGED` | verification predicates/target/query digest 改变 |
+| `GEW-AUT-TARGET-EVIDENCE-STALE` | precondition query evidence revision/freshness 超出允许边界 |
+| `GEW-AUT-COMBINED-MUTATION` | 上述每个 pair 的组合；必须按冻结 gate precedence 返回同一 first rejection |
+
+每个 case 的 oracle 是独立 ExecuteGate decision table；断言指定 stable rejection code、没有
+`action.execution_started`、没有新 claim（已有 unknown claim 保持）、所有 adapter/tool side-
+effect counters 为 0。fresh target re-read 本身必须是声明的只读 capability，receipt 绑定当前
+target identity/revision；不能以缓存 evidence 代替。mutation generator 对 PreparedAction/
+Authority/rollback/verification schema 的每个 gate-bound property逐项改变，新增 property 没有
+case 时 coverage FAIL。
+
+### 10.2 Action crash/reconciliation
+
+`GEW-ACT-001～100` 覆盖 prepare、authorize、started commit、tool call before/after、receipt body
+durable、receipt commit、target query、completion 各 crash point；idempotent 与 non-idempotent
+分别验证：
+
+- 未证明未执行的 non-idempotent action 不自动 replay；
+- call-span lock 丢失后 durable claim 仍阻止第二任务；
+- adapter 原生 precondition/fence 失败不伪装 success；
+- `unknown` 只能通过 target reconciliation、compensation 或 Human decision 解除；
+- action success 但 target 不达标不能完成。
+
+ADR-0005 recovery-claim compensation 增加以下 mandatory exact cases；全部只使用 deterministic
+fake target，且 `real_external_actions_enabled=false`：
+
+| Exact test ID | 必须证明 |
+|---|---|
+| `GEW-ACT-RECOVERY-CLAIM-LIVE-P` | live original lease 下复用唯一 unresolved claim；不创建第二 claim |
+| `GEW-ACT-RECOVERY-CLAIM-EXPIRED-P` | expired original lease 仍以 same task/lease、完整 resources/latest fences durable started/receipt/verify/consume |
+| `GEW-ACT-RECOVERY-CLAIM-EXACT-R` | wrong task/lease、missing/extra/reordered-duplicate resource、missing/stale/extra fence 全部 pre-call reject |
+| `GEW-ACT-RECOVERY-AUTHORITY-R` | missing/wrong/revoked/superseded/expired rollback authority，或 authority 的 target/resource/baseline/snapshot/payload/verify/disclosure 任一改变，tool counter 为 0 |
+| `GEW-ACT-RECOVERY-COMPENSATION-ONLY-R` | normal action、original action/payload replay、其他 action kind 与 authority class 全部拒绝 |
+| `GEW-ACT-RECOVERY-NO-NEW-LEASE-CLAIM-R` | normal replacement lease、renewal、second claim 或提前 claim reconciliation 均无法提交 |
+| `GEW-ACT-RECOVERY-LOCK-SPAN-P` | installation shared + 全部 resource locks 覆盖 started durable 到 receipt durable；调用时无 DB transaction |
+| `GEW-ACT-RECOVERY-VERIFY-P` | 独立 fresh read-only target observation 精确证明 rollback postcondition 后，claim 才与 reconciled event 原子消费 |
+| `GEW-ACT-RECOVERY-VERIFY-R` | stale/unverifiable/wrong identity/wrong state observation 保持 original claim unresolved、资源冻结且不完成 |
+| `GEW-ACT-RECOVERY-NO-REPLAY-R` | timeout/crash/ambiguous receipt 后恢复只 query/reconcile/manual，不再次调用 original 或 compensation tool |
+| `GEW-ACT-RECOVERY-ATTEMPT-ID-P` | exact attempt tuple 确定产生相同 attempt ID 与 start/receipt/reconcile transaction IDs；每次 exact replay 返回既有 result |
+| `GEW-ACT-RECOVERY-ATTEMPT-ID-R` | action/authority/claim/lease/resource/fence/expected claim revision 任一改变产生 distinct attempt；复用旧 transaction ID 必须 conflict |
+| `GEW-ACT-RECOVERY-START-REPLAY-R` | start `NOT_COMMITTED` 可重跑；start `COMMITTED` 后同 request 只读回既有 result且 tool-call delta=0，distinct start/action/authority fail closed |
+| `GEW-ACT-RECOVERY-RECEIPT-BINDING-R` | receipt 缺失或改变 attempt/start event、original claim、compensation action、task/target/lease/full fences、source/body digest 任一字段均拒绝且 claim unresolved |
+| `GEW-ACT-RECOVERY-CONCURRENCY-R` | 两进程/线程竞争同 claim：最多一个 fresh start 获得单次 call permission；loser 只读 committed result或 conflict，不能调用 tool/创建 claim/取得 lease |
+| `GEW-ACT-RECOVERY-CLAIM-FREEZE-P` | start/receipt 前后 `claims.state='unresolved'`，acquire-many 对全部原 resources 持续拒绝；只有 verified reconcile transaction 改终态 |
+
+crash matrix 对 compensation gate before/after、started commit before/after、tool effect before/after、
+raw receipt durable before/after、receipt event commit before/after、fresh target query、reconciliation
+commit 和 claim consumption 每个点分别注入真实 process termination/fault。每点必须只恢复为：
+
+- compensation 未调用且 original claim 完整 unresolved；或
+- compensation effect/receipt 状态未知且 claim 完整 unresolved，路由 query/manual；或
+- receipt durable、fresh verification 成功且 reconciliation event 与 claim consumption 同一 commit。
+
+禁止出现 claim 已消费但 target 未验证、部分 resource/fence claim、第二 claim、replacement lease、
+original replay、receipt 无 started binding，或 journal/task/claim 状态分叉。expired path 还必须证明
+unrelated task/action 不能借 recovery assertion 绕过普通 live-lease gate。
+
+attempt/crash oracle 还必须逐点断言 `tool_call_count_delta`：start commit 前 crash 为 0，fresh start
+commit 后至 call boundary crash 为 0 或唯一一次，start committed 的任何恢复 invocation 恒为 0；
+tool effect 后、raw response 前、receipt body durable 前后、receipt event commit 前后都不得产生第二
+次调用。receipt commit crash-replay 使用相同 `<attempt_id>:receipt` + request digest 返回既有 result；
+不同 receipt digest conflict。两个并发 recovery processes 必须在真实 call-span locks 与 repository
+CAS 下证明总 tool-call count 至多 1，且任何时刻 original claim lifecycle state 均为 unresolved。
+
+### 10.3 Security/privacy
+
+`GEW-SEC-001～120`：path traversal、symlink escape、argument/shell injection、prompt injection、
+identity spoof、digest/type confusion、malicious schema/graph/extension、resource exhaustion、
+package/path shadowing。`GEW-PRI-001～080`：secret value scanning、provider refs、redaction、
+classification、retention/purge/quarantine、destination allowlist、payload receipt。任何 secret
+value 出现在 state/log/evidence/PMF/report 都是 release blocker并触发 fixture rotation。
+
+## 11. Lifecycle 与 Runtime Contract 测试
+
+### 11.1 Project/task lifecycle
+
+`GEW-LIF-001～100`：new/existing Git、actual realization、多仓库/服务/环境、non-Git reject、
+canonical duplicate/symlink/allowlist escape、并行资源冲突；create/list/search/show、pause/
+resume/cancel/revoke/archive/rollback；批准后事实更新与语义 scope change 分类。rollback 不能
+删除 audit 或降低 fence。
+
+### 11.2 Codex/Hermes parity
+
+Runtime contract suite `GEW-RT-001～080` 由同一 fixtures 驱动两个 adapter：
+
+- discover/create/clarify/approve/run/status/resume/escalate/result；
+- stable Owner/session/thread lineage，其他用户/会话输入拒绝；
+- independent reviewer identity/capability；
+- runtime 关闭即停止、同 runtime 恢复；另一 runtime continuation 明确拒绝且不泄露；
+- capability/version mismatch 在 mutation 前拒绝；
+- Skills 调用 canonical executable，thin-Skill static scan 无核心门禁逻辑。
+
+Hermes 的 Telegram/Discord 分别执行 pairing/allowlist、channel/thread lineage、长消息分段与
+delivery receipt；真实消息发送属于需单独授权的 action，不由测试计划隐式允许。
+
+## 12. 九类 Profile Release Matrix
+
+每类必须执行同一 mandatory columns，并增加类别专属 cases；exact IDs 和 216-test P/R set 以
+§6.1 Cross-product rows 为准：
+
+| Profile | 专属必须场景 | Completion/rollback 重点 |
+|---|---|---|
+| 新项目/功能 | scaffold、既有项目 feature、multi-target | build/test/acceptance/target realization；可撤销变更 |
+| Bug 修复 | reproducible failing fixture、边界、false reproduction | 修前失败修后通过且无回归；恢复原行为 |
+| Hotfix | emergency baseline、最小 patch、production-like gate | 风险/授权/target health；快速 rollback |
+| 重构/技术债 | behavior characterization、architecture invariant | 行为等价+质量目标；恢复旧 implementation |
+| 数据库/架构迁移 | forward/backward/partial data/crash | integrity/compat window；forward/rollback contract |
+| 依赖/安全修复 | vulnerable graph、transitive、unavailable fix | exposure/remediation/residual risk；version rollback |
+| 性能优化 | stable baseline、noise/outlier、regression | statistically valid target + correctness；config/code rollback |
+| 发布/运维 | artifact provenance、health、partial deploy | exact release/target state；deployment rollback |
+| 事故响应 | detection/contain/recover/unknown effects | service safety and evidence；compensation/follow-up |
+
+对每一行，`GEW-PRO-<PROFILE>-<COLUMN>-P/R` 固定覆盖：normal、category boundary、failed revision、
+authority failure、intent drift、invalidation、runtime recovery、standard artifacts、independent
+review、target verification、rollback 和至少一个 real project/toolchain E2E。12 项全部 PASS；
+不得 waiver，不得以其他 Profile 或 shared-core case 代替。
+
+类别专属 scenario 不是散文说明；以下 frozen set 每项都生成 distinct
+`GEW-PSC-<PROFILE>-<SCENARIO>-P` 与 `...-R`，fixture 使用同名 Profile/scenario manifest，oracle
+是独立 category acceptance/rollback model，evidence owner WP-08：
+
+| Canonical Profile ID | Exact scenario IDs |
+|---|---|
+| `new-feature` | `scaffold`, `existing-feature`, `multi-target` |
+| `bug-fix` | `reproducible-failure`, `false-reproduction`, `regression-boundary` |
+| `hotfix` | `emergency-baseline`, `minimal-patch`, `production-like-gate` |
+| `refactor-debt` | `behavior-characterization`, `architecture-invariant`, `nonfunctional-target` |
+| `migration` | `forward`, `backward`, `partial-data`, `crash-window` |
+| `dependency-security` | `vulnerable-graph`, `transitive-dependency`, `fix-unavailable` |
+| `performance` | `stable-baseline`, `noise-outlier`, `correctness-regression` |
+| `release-operations` | `artifact-provenance`, `health-gate`, `partial-deploy` |
+| `incident-response` | `detection`, `containment`, `recovery`, `unknown-effects` |
+
+coverage validator 对上面 29-scenario explicit set × `{P,R}` 做 exact equality；新增/删除/别名/
+duplicate/missing rejection member 全部 FAIL。category table 的中文标题只是 display label，不能
+成为另一个 identity。
+
+每个 mandatory/scenario P/R stable binding 都有 config-owned、确定性且唯一的 `task_id`；
+exact tuple 为 test ID、Profile、selector kind、column/scenario、overlay、disposition、expected
+result、execution kind、task identity。task identity 必须进入 selector/request/oracle/plan digest
+链；missing/extra/alias/duplicate/reorder、跨 binding task substitution 或 coherent re-sign 均在
+execution/observation/CoverageRecord 之前 FAIL，且 task/event/snapshot/object/ref/target/action 零写。
+
+coverage fixture 可在每 Profile 一个 disposable repository/application stack 内创建独立 task
+rows，以降低 274-case teardown；每个 binding 仍独立签发 current authority 和 record，攻击/
+substitution probe 用后立即关闭，real-E2E Git/project fixture 逐 Profile 隔离。serial 与资源复用
+路径必须产生相同 stable-ID ordered digests/outcomes；最终仍由同一次 combined
+`ReleaseCoverageGate` 对全部 current records 判定，禁止 shard、cache token 或 static evidence
+替代。focused harness 在 `OK` 后 120 秒内自然 exit 0；超时即 FAIL，而不是强制退出隐藏。
+
+同一 existing WP-08 P/R discovery methods 内还要验证 coverage authority lifecycle。先以 RED 证明
+candidate 创建时签发 abort capability 会遗漏随后 registrations，因而不允许。GREEN 中，对尚未产生
+combined gate decision 且未 finalized 的 candidate，factory 仅在调用
+`prepare_abort_uncommitted_candidate` 时于 register/gate/finalize 共用锁内冻结 exact candidate generation、
+plan digest、完整 current issuance/registered-authority projection及其 digest，并把 `abort-prepared` state、
+frozen snapshot/version、one-shot capability identity 作为一个 tuple 原子存入 consumer-local table 后才返回
+capability。调用者不能提交 projection；register 先赢则 identity 进入 frozen
+snapshot，prepare 先赢则 register/gate/finalize 拒绝。canonical exact capability 可令
+`active-uncommitted → abort-prepared → aborting → aborted`，且不调用 gate、不生成 assessment/decision、
+不删除 immutable record documents、不产生
+task/event/snapshot/object/ref/action/target 写。aborted 后 observe/execute/current/restart/factory
+issue/require/gate/finalize/register/reopen 全部拒绝；重复 exact abort 幂等。
+
+abort rejection matrix exact 覆盖 foreign/clone/`object.__new__` capability、wrong factory/candidate、partial/
+missing/extra/duplicate/reorder/substituted caller selection（API 必须拒绝该输入）、coherent re-sign、已
+finalized candidate 与 capability reuse across candidate。所有拒绝都不能撤销正确 candidate 或改变输入；
+还要证明旧 create-time/early capability 不存在，later registrations 全部进入 prepare 时冻结的 exact
+snapshot，且 freeze 后 registration/gate/finalize 全拒绝。in-process exception matrix 覆盖 prepare
+tuple commit 前、tuple commit 后 return 前、committed return 丢失与重复 prepare、`abort-prepared` 后
+capability 消费前、`aborting` 后首个 registry revoke 前、任一 registry/authority cleanup 中间与 terminal
+写后：tuple 前同一对象仍 active 且无 stored cap；tuple 后同一 factory/candidate 重复 prepare 必须返回
+同一个 cap identity、不改变 snapshot/version、不新签 cap；foreign/clone/different snapshot retry拒绝；
+consume 后 prepare拒绝但same-cap abort幂等；
+consume 后永不 reopen，同一对象 exact retry 只继续 frozen snapshot cleanup。独立 process-termination probe
+则证明 local
+factory/capability 不可跨 restart 恢复，immutable durable documents 字节不变且没有 use authority。
+gate consumption/finalize 与 abort 并发时以同一 factory-local lock 的第一个线性化点为唯一赢家；
+gate/finalize 先赢则 abort 拒绝，abort 先赢则 gate/finalize 拒绝。
+
+对已产生 exact combined gate decision 的 candidate，abort 永远拒绝；factory 对 exact decision 的首次
+finalize 才能走 `combined-gate-consumed → closing → finalized` 并撤销全部 execution/observation/
+CoverageRecord identity graph，重复 finalize 幂等。partial/sharded gate、少/多/duplicate/reorder-
+substitution record、foreign/clone decision/factory/authority、coherent re-sign 以及异常切点都不能获得
+finalize capability。函数级、24+24 与 170-record synthetic lifecycle probe 必须分别证明两条 terminal
+branch 的 retained identity/FD 峰值有界、immutable record/legitimate decision digest 与 durable signatures
+保持不变、资源最终回到基线，method `OK` 后 120 秒内自然 exit 0。
+
+### 12.1 Dependency-security offline advisory authority
+
+ADR-0006 的 24 mandatory bindings 必须继续放在 existing WP-08 P/R 两个 discovered methods 内，以
+subtests 保持每个 stable ID、task、request、execution、observation 与 `CoverageRecord` 独立。exact
+column/source/oracle set 为：
+
+| Column | Exact P/R IDs | Authoritative durable source / required outcome | Exact oracle member |
+|---|---|---|---|
+| normal | `GEW-PRO-DEPENDENCY-SECURITY-NORMAL-P`, `GEW-PRO-DEPENDENCY-SECURITY-NORMAL-R` | `runner-execution` / `runner-accepted`，包含 current closure runner output digest | `config/test-oracles/profile-dependency-security-normal-v1.json` |
+| boundary | `GEW-PRO-DEPENDENCY-SECURITY-BOUNDARY-P`, `GEW-PRO-DEPENDENCY-SECURITY-BOUNDARY-R` | `scenario-membership` / `scenario-accepted`，只接受 Profile exact boundary member | `config/test-oracles/profile-dependency-security-boundary-v1.json` |
+| revise | `GEW-PRO-DEPENDENCY-SECURITY-REVISE-P`, `GEW-PRO-DEPENDENCY-SECURITY-REVISE-R` | `revision-lineage` / `revision-accepted`，new body、budget、owner route exact | `config/test-oracles/profile-dependency-security-revise-v1.json` |
+| authority | `GEW-PRO-DEPENDENCY-SECURITY-AUTHORITY-P`, `GEW-PRO-DEPENDENCY-SECURITY-AUTHORITY-R` | `authority-decision` / `authority-current` | `config/test-oracles/profile-dependency-security-authority-v1.json` |
+| drift | `GEW-PRO-DEPENDENCY-SECURITY-DRIFT-P`, `GEW-PRO-DEPENDENCY-SECURITY-DRIFT-R` | `drift-assessment` / `drift-resolved`，target/closure digest current | `config/test-oracles/profile-dependency-security-drift-v1.json` |
+| invalidation | `GEW-PRO-DEPENDENCY-SECURITY-INVALIDATION-P`, `GEW-PRO-DEPENDENCY-SECURITY-INVALIDATION-R` | `invalidation-record` / `invalidation-current` | `config/test-oracles/profile-dependency-security-invalidation-v1.json` |
+| recovery | `GEW-PRO-DEPENDENCY-SECURITY-RECOVERY-P`, `GEW-PRO-DEPENDENCY-SECURITY-RECOVERY-R` | `recovery-record` / `recovered`，unknown 不自动 replay | `config/test-oracles/profile-dependency-security-recovery-v1.json` |
+| artifacts | `GEW-PRO-DEPENDENCY-SECURITY-ARTIFACTS-P`, `GEW-PRO-DEPENDENCY-SECURITY-ARTIFACTS-R` | `artifact-records` / `artifacts-accepted`，包含 advisory/source/closure/regression/residual evidence refs | `config/test-oracles/profile-dependency-security-artifacts-v1.json` |
+| review | `GEW-PRO-DEPENDENCY-SECURITY-REVIEW-P`, `GEW-PRO-DEPENDENCY-SECURITY-REVIEW-R` | `independent-review` / `review-accepted`，author/reviewer 与 reviewed digests exact | `config/test-oracles/profile-dependency-security-review-v1.json` |
+| target | `GEW-PRO-DEPENDENCY-SECURITY-TARGET-P`, `GEW-PRO-DEPENDENCY-SECURITY-TARGET-R` | `target-observation` / `target-matched`，fresh fixed-closure target | `config/test-oracles/profile-dependency-security-target-v1.json` |
+| rollback | `GEW-PRO-DEPENDENCY-SECURITY-ROLLBACK-P`, `GEW-PRO-DEPENDENCY-SECURITY-ROLLBACK-R` | `action-rollback` / `rollback-verified`，ActionCoordinator journal/claim + `dependency-state-restored` | `config/test-oracles/profile-dependency-security-rollback-v1.json` |
+| real-e2e | `GEW-PRO-DEPENDENCY-SECURITY-REAL-E2E-P`, `GEW-PRO-DEPENDENCY-SECURITY-REAL-E2E-R` | `real-toolchain-execution` / `real-toolchain-attested`，current advisory + WP08A closure + regression + residual facts | `config/test-oracles/profile-dependency-security-real-e2e-v1.json` |
+
+每个 oracle exact 绑定 `(oracle_id=ORA-PROFILE-DEPENDENCY-SECURITY, profile_id,
+selector_kind=mandatory, column_id, overlay_id=full-planned, task_ids.P/R)`、registry/source/advisory/
+closure policy digests与 column-specific typed outcome。cross-column/profile/oracle/task/source substitution、
+same-ID different request、alias/duplicate/reorder 或 coherent re-sign 在 execution 前拒绝。
+
+#### Registry/bootstrap/schema matrix
+
+canonical registry 必须由 installation byte pipe 读取并通过 exact source/input schema、self-digest、
+installed distribution RECORD/source checkout attestation。下列每项各有 positive/rejection subcase：
+
+schema registry exact closure包含ADR-0006的10组IDs：
+
+| Stem | Source schema | Digest-input schema |
+|---|---|---|
+| `dependency-advisory-source-record` | `urn:gew:schema:dependency-advisory-source-record:1.0.0` | `urn:gew:schema:dependency-advisory-source-record-input:1.0.0` |
+| `dependency-fixed-closure` | `urn:gew:schema:dependency-fixed-closure:1.0.0` | `urn:gew:schema:dependency-fixed-closure-input:1.0.0` |
+| `dependency-advisory-record` | `urn:gew:schema:dependency-advisory-record:1.0.0` | `urn:gew:schema:dependency-advisory-record-input:1.0.0` |
+| `dependency-advisory-status-high-water` | `urn:gew:schema:dependency-advisory-status-high-water:1.0.0` | `urn:gew:schema:dependency-advisory-status-high-water-input:1.0.0` |
+| `dependency-advisory-registry` | `urn:gew:schema:dependency-advisory-registry:1.0.0` | `urn:gew:schema:dependency-advisory-registry-input:1.0.0` |
+| `dependency-advisory-installation-bootstrap` | `urn:gew:schema:dependency-advisory-installation-bootstrap:1.0.0` | `urn:gew:schema:dependency-advisory-installation-bootstrap-input:1.0.0` |
+| `dependency-offline-closure-observation` | `urn:gew:schema:dependency-offline-closure-observation:1.0.0` | `urn:gew:schema:dependency-offline-closure-observation-input:1.0.0` |
+| `dependency-applicability-observation` | `urn:gew:schema:dependency-applicability-observation:1.0.0` | `urn:gew:schema:dependency-applicability-observation-input:1.0.0` |
+| `dependency-residual-exposure-observation` | `urn:gew:schema:dependency-residual-exposure-observation:1.0.0` | `urn:gew:schema:dependency-residual-exposure-observation-input:1.0.0` |
+| `dependency-security-observation` | `urn:gew:schema:dependency-security-observation:1.0.0` | `urn:gew:schema:dependency-security-observation-input:1.0.0` |
+
+每组source/input member path与raw SHA双向exact；digest-input只删除自身derived digest field，parent仍必须
+包含nested child body/digest。逐层删除/替换child digest、只摘要ID、错误排除nested body、unknown
+projection与coherent parent/child re-sign均拒绝。bootstrap exact pin registry member/raw/semantic/generation、
+10 pairs、Profile schema registry、source/build/distribution/RECORD attestations及protected list/digest。
+
+- root/source/advisory/fixed-closure missing、extra、null、wrong type、unknown enum、unsorted、duplicate、alias；
+- raw SHA、semantic digest、source attestation、source/advisory/closure digest 长度/字符/prefix 错误；
+- genesis非`generation=1`、non-null previous/rollback-of、wrong update kind；forward/rollback downgrade、skip、
+  wrong/null previous、wrong rollback-of；
+- revocation high-water fields/order/identity set mismatch、unsorted/duplicate state、invalid status enum/transition、
+  removed state、revoked resurrection；candidate head `g=current+1`中new identity必须active且
+  `status_generation=g`、unchanged status必须保留prior generation、transition必须使用`g`，且所有row
+  满足`1 <= status_generation <= g`；future/stale/bump/wrong generation全部拒绝；
+- source half-open `not_before <= clock < not_after`边界、expired/revoked/superseded/foreign issuer与repository
+  clock rollback；
+- affected specifier、distribution normalization、advisory/source cross-binding、fixed pin/wheel/RECORD/command
+  substitution，以及完整 coherent registry+bootstrap re-sign但 installation identity不变；new advisory
+  revision可以在candidate head作为new active identity，旧superseded/revoked identity不得复活；
+- registry/schema/source delete、same-path atomic replacement、post-issuance replace、unpacked RECORD tamper、
+  archive duplicate/tamper、PYTHONPATH/project shadow 与 fallback。
+
+任何 rejection 都必须在 factory/observation issuance 前发生，installation loader/current-check counter
+证明实际重读；registry、task/event/snapshot/object/ref/action/Git/inputs 全部不变。
+
+#### Closure/applicability/real-E2E matrix
+
+P fixture 是完全 disposable local Git project + wheelhouse。A commit 包含 registry 当前 advisory 命中的
+affected distribution/version closure；ActionCoordinator prepared→authorized→`git.update-ref` 一次切换
+到 B；B wheelhouse 必须由 WP08A exact preflight 证明 physical ZIP/METADATA/WHEEL/RECORD、normalized
+name/version/requirements、完整 dependency closure 与 closure budgets，且匹配 registry approved fixed
+closure。随后 factory-issued structured security-regression record PASS，residual advisory set empty 或按
+exact policy 明确记录；residual set必须由current registry全部advisory/source evaluation rows deterministic
+派生，不能由fixture/caller提供。fresh observer 证明 target B，restart 重解同一 unique object ref且 zero replay。
+
+R fixture 在相同 registry/advisory 下准备 stale expected A、actual C；native precondition 在 mutation前拒绝，
+Git delta、start/claim/invocation/receipt/observation、task/category assessment/ref/CAS 增量全为零。wrong
+advisory/affected range/fixed closure、missing/unreferenced/duplicate wheel、hidden member、metadata/RECORD/
+parser drift、closure budget exhaustion、security-regression missing/wrong/foreign/stale、residual exposure
+omitted、target post-observation replace 或 unexpected error 均不能签发 execution；只有 exact approved
+rejection error、前后摘要和 oracle 完成后才可签发 R record。
+
+issue、category assessment precommit、restart、coverage observer/factory/gate 的每个 cut 都分别注入
+registry/source/advisory/closure/target replacement并要求 current re-read。foreign factory/authority/record、
+`object.__new__` clone、persisted bytes promotion、equality/hash match、process-global identity table 均拒绝。
+applicability issuer还要逐项攻击same-factory registry/advisory/source与before/after closure identity：caller
+affected/fixed bool、list/mapping、missing source、foreign/clone/cross-advisory/source、before/after swap、coherent
+re-sign与post-observation closure replacement全部zero issuance。residual issuer必须遍历current registry全量；
+evaluation universe exact为high-water中active advisory identity set，必须与rows中非inactive identities双向相等；
+历史superseded/revoked identities保留exact inactive rows，不要求历史source active/time-valid且不进入
+residual set。caller residual bool/list/count、遗漏active或historical identity、duplicate row、伪造inactive
+identity为active、删除/reorder/substitute evaluation row或after closure replacement均拒绝，
+use/precommit/restart每次重算rows/set。
+
+update/revocation probe由existing installation-verification boundary比较current→candidate，证明generation
+exact +1、previous exact、high-water identity append-only；new identity active/status-generation=candidate head，
+unchanged status generation byte-exact不变，transition status-generation=candidate head，且所有row在`1..head`；
+future/stale/bump/wrong generation拒绝，旧revision不改写/不复活；rollback 是current+1并保留全部deny。
+同时断言WP-08未创建registry head DB/pointer/transaction。
+
+所有 preflight/issue/use/restart/rollback 测试包裹 DNS resolver、socket connect、proxy/environment/index
+probe，调用 exact 为零；任何网络尝试直接 FAIL。不得安装/激活 candidate，不生成
+ReleaseInstallManifest，不访问用户 repository/secret/外部系统，也不得把 WP08A preflight success 单独
+计为 dependency-security PASS。
+
+#### Gate, lifecycle and verification order
+
+RED 先证明 exact 24 plan/oracle members 与新 registry/observation authority 缺失；GREEN 顺序为 schema/
+bootstrap → registry/source currentness → WP08A closure wrapper → observation/use/precommit/restart →
+representative NORMAL P/R → REAL-E2E P/R → existing 2 methods。Option C 保持 per-Profile shared repository、
+每 binding unique task/current authority、real-E2E Git/wheelhouse isolation、strict serial/private root。
+
+本 batch 后 exact plan `170`、oracle bindings `85`、production gate
+`170 valid / 104 missing / passed=false`，static evidence `0/274`，不得发行 WP-08 exit。combined gate 前
+finalize拒绝；不进入 combined gate 的 partial P/R candidate 必须用 exact capability abort，且不产生 gate
+decision。exact combined gate后 lifecycle finalize/revoke 清空 local identity graph；aborted/finalized 后所有
+advisory/closure/observation/coverage current/restart/register入口拒绝，immutable records、合法 decision 与
+durable task/action/target不变，两个分支 cleanup 均 <120s自然 exit 0。验证只运行 dependency-security focused、Slice3代表、
+WP08A parser/physical-closure regression、ActionCoordinator/Git/command、contracts/source/package/wheel与
+lint/type/architecture；不跑 full/evidence，不改历史 WP08A tuple/gate/evidence。
+
+### 12.2 Performance offline benchmark authority
+
+ADR-0007 的24 mandatory bindings继续放在existing WP-08 P/R两个discovered methods内。每个stable ID、unique
+task、request、execution、observation与`CoverageRecord`独立；exact column/source/oracle set为：
+
+| Column | Exact P/R IDs | Authoritative durable source / required outcome | Exact oracle member |
+|---|---|---|---|
+| normal | `GEW-PRO-PERFORMANCE-NORMAL-P`, `GEW-PRO-PERFORMANCE-NORMAL-R` | `runner-execution` / `runner-accepted`，绑定current benchmark runner output | `config/test-oracles/profile-performance-normal-v1.json` |
+| boundary | `GEW-PRO-PERFORMANCE-BOUNDARY-P`, `GEW-PRO-PERFORMANCE-BOUNDARY-R` | `scenario-membership` / `scenario-accepted`，只接受performance exact boundary member | `config/test-oracles/profile-performance-boundary-v1.json` |
+| revise | `GEW-PRO-PERFORMANCE-REVISE-P`, `GEW-PRO-PERFORMANCE-REVISE-R` | `revision-lineage` / `revision-accepted`，new body、budget、owner route exact | `config/test-oracles/profile-performance-revise-v1.json` |
+| authority | `GEW-PRO-PERFORMANCE-AUTHORITY-P`, `GEW-PRO-PERFORMANCE-AUTHORITY-R` | `authority-decision` / `authority-current`，benchmark factory consumer-local | `config/test-oracles/profile-performance-authority-v1.json` |
+| drift | `GEW-PRO-PERFORMANCE-DRIFT-P`, `GEW-PRO-PERFORMANCE-DRIFT-R` | `drift-assessment` / `drift-resolved`，source/environment/current target exact | `config/test-oracles/profile-performance-drift-v1.json` |
+| invalidation | `GEW-PRO-PERFORMANCE-INVALIDATION-P`, `GEW-PRO-PERFORMANCE-INVALIDATION-R` | `invalidation-record` / `invalidation-current` | `config/test-oracles/profile-performance-invalidation-v1.json` |
+| recovery | `GEW-PRO-PERFORMANCE-RECOVERY-P`, `GEW-PRO-PERFORMANCE-RECOVERY-R` | `recovery-record` / `recovered`，restart只重读，不replay benchmark | `config/test-oracles/profile-performance-recovery-v1.json` |
+| artifacts | `GEW-PRO-PERFORMANCE-ARTIFACTS-P`, `GEW-PRO-PERFORMANCE-ARTIFACTS-R` | `artifact-records` / `artifacts-accepted`，包含environment/sample/statistics/correctness refs | `config/test-oracles/profile-performance-artifacts-v1.json` |
+| review | `GEW-PRO-PERFORMANCE-REVIEW-P`, `GEW-PRO-PERFORMANCE-REVIEW-R` | `independent-review` / `review-accepted`，reviewed benchmark digests exact | `config/test-oracles/profile-performance-review-v1.json` |
+| target | `GEW-PRO-PERFORMANCE-TARGET-P`, `GEW-PRO-PERFORMANCE-TARGET-R` | `target-observation` / `target-matched`，fresh B source/code identity | `config/test-oracles/profile-performance-target-v1.json` |
+| rollback | `GEW-PRO-PERFORMANCE-ROLLBACK-P`, `GEW-PRO-PERFORMANCE-ROLLBACK-R` | `action-rollback` / `rollback-verified`，restore A + correctness/noise/rollback ratio | `config/test-oracles/profile-performance-rollback-v1.json` |
+| real-e2e | `GEW-PRO-PERFORMANCE-REAL-E2E-P`, `GEW-PRO-PERFORMANCE-REAL-E2E-R` | `real-toolchain-execution` / `real-toolchain-attested`，protected command + parent timing + current statistics | `config/test-oracles/profile-performance-real-e2e-v1.json` |
+
+每个oracle exact绑定`(ORA-PROFILE-PERFORMANCE, performance, mandatory, column_id, full-planned,
+task_ids.P/R)`、benchmark registry/case/environment/statistics/correctness digests与column-specific outcome。
+cross-profile/column/case/oracle/task/source substitution、same-ID different request、alias/duplicate/reorder或
+coherent re-sign在command launch前拒绝。
+
+#### Registry/bootstrap/schema matrix
+
+Profile schema registry exact包含ADR-0007的9组source/input IDs：
+
+| Stem | Source schema | Digest-input schema |
+|---|---|---|
+| `performance-benchmark-case` | `urn:gew:schema:performance-benchmark-case:1.0.0` | `urn:gew:schema:performance-benchmark-case-input:1.0.0` |
+| `performance-benchmark-registry` | `urn:gew:schema:performance-benchmark-registry:1.0.0` | `urn:gew:schema:performance-benchmark-registry-input:1.0.0` |
+| `performance-benchmark-installation-bootstrap` | `urn:gew:schema:performance-benchmark-installation-bootstrap:1.0.0` | `urn:gew:schema:performance-benchmark-installation-bootstrap-input:1.0.0` |
+| `performance-environment-observation` | `urn:gew:schema:performance-environment-observation:1.0.0` | `urn:gew:schema:performance-environment-observation-input:1.0.0` |
+| `performance-correctness-observation` | `urn:gew:schema:performance-correctness-observation:1.0.0` | `urn:gew:schema:performance-correctness-observation-input:1.0.0` |
+| `performance-measurement-sample` | `urn:gew:schema:performance-measurement-sample:1.0.0` | `urn:gew:schema:performance-measurement-sample-input:1.0.0` |
+| `performance-sample-set-observation` | `urn:gew:schema:performance-sample-set-observation:1.0.0` | `urn:gew:schema:performance-sample-set-observation-input:1.0.0` |
+| `performance-statistics-observation` | `urn:gew:schema:performance-statistics-observation:1.0.0` | `urn:gew:schema:performance-statistics-observation-input:1.0.0` |
+| `performance-observation` | `urn:gew:schema:performance-observation:1.0.0` | `urn:gew:schema:performance-observation-input:1.0.0` |
+
+canonical source/input schemas必须closed、strict typed、nested self-digest exact；每个input只删除自身derived
+digest，parent保留child body/digest。逐contract覆盖missing/extra/null/wrong type、bool-int/float/string alias、
+unsorted/duplicate、bad digest pattern、unknown enum、wrong order与coherent child/parent re-sign。bootstrap必须
+固定registry、9 pairs、Profile schema registry、command registry/runtime policy/executable/cwd、fixture/sample、
+distribution/RECORD/source-build attestation及protected ordered closure。same-path replacement、unpacked RECORD
+tamper、archive duplicate/tamper、project/PYTHONPATH shadow或fallback全部在factory issuance前拒绝。
+
+上述9 pairs只计benchmark authority stems；Option B另演进既有category completion assessment contract为exact
+1.1 source/input pair，不删除或重签1.0，也不增加task event/storage schema。1.1只接受performance projection，
+1.0与所有非performance assessment含该字段均拒绝。
+
+#### Clock, environment, samples and statistics matrix
+
+- launcher必须由existing ActionAdapterFactory签发且`require_attested`通过；foreign/clone/`object.__new__`、
+  executable/cwd replacement、request/parameter/result substitution与child extra output均拒绝；
+- 用factory-owned monotonic clock在每次`launcher.execute`完整调用立即前后取exact integer start/end；断言
+  process startup在窗口内、`end > start`、child只返回expected correctness digest。caller clock、wall-clock、
+  persisted timestamps与child elapsed/PASS不能影响duration；
+- config warmup为exact nonnegative integer，repetition为bounded odd integer且至少3；warmup result绑定provenance
+  但不进入statistics。missing/extra/duplicate/reorder iteration、warmup混入、zero/negative/unsafe duration拒绝；
+- baseline/candidate/rollback environment observation覆盖OS/architecture/CPU、Python/distribution/RECORD、command/
+  toolchain、fixture root、locale/timezone与safe env projection，body/digest必须exact相同。逐字段remove/replace、
+  same values foreign issuer、post-observation change与cross-hardware normalization全部拒绝；
+- independent oracle从ordered durations重算sorted vector、odd median、absolute deviations与MAD。逐一攻击caller
+  median/MAD、float/rounding、outlier removal、resample-until-pass、wrong ratio/cross-product和coherent statistics
+  re-sign；
+- exact noise公式为`mad*noise_denominator <= median*noise_numerator`；超限必须
+  `inconclusive-noise`且zero P issuance。target/rollback分别用ADR-0007 integer cross-products；correctness
+  mismatch即使更快也拒绝；
+- issue、每次invocation、final observe、assessment precommit、restart、coverage observer/factory/gate各cut注入
+  registry/schema/fixture/sample/source/command/environment/target replacement；要求actual loader/current counters
+  增加且task/event/snapshot/object/ref/action/target/input零写；
+- DNS resolver、socket connect、proxy、external service与package install调用exact为零；不访问用户repo/secret，
+  不增加benchmark dependency。
+
+#### Baseline, target, rollback and real-E2E
+
+P fixture是disposable local Git/project target。先在A source/code identity运行exact baseline sequence；
+ActionCoordinator prepared→authorized→GitNativeAdapter expected-ref一次mutation到B；再运行candidate sequence。
+两侧exact environment/case/toolchain/fixture/correctness一致，noise通过，candidate target cross-product通过，fresh
+target observer证明B。restart从task唯一object ref重读全部samples/results、重算statistics、重验current
+installation且benchmark replay count为零。
+
+rollback probe使用existing action-scoped flow恢复exact A；unknown只query/reconcile/owner且不replay。fresh A
+target后运行restored sequence，correctness、noise与rollback cross-product全通过才产生rollback PASS；只恢复Git
+而measurement不通过必须保留unresolved owner route。
+
+R fixture使用stale expected A、actual C，在native mutation和benchmark launch前拒绝，Git delta、command
+launch、action journal/claim、task/category/object/ref增量全部为零；只有exact approved rejection error与before/
+after target digests完成后才签发isolated R record。另以negative subtests覆盖noise outlier、correctness
+regression、target miss、environment drift、clock substitution与post-observation replacement，不把它们冒充P。
+
+#### Option B durable assessment, precommit and restart matrix
+
+每个performance binding使用其Option C unique task。现有`task.category_assessed` EvidenceRef必须exact为
+`evidence_id=assessment_digest`、`evidence_type=category-completion-assessment`、
+`source_ref=assessment_object_digest`、`digest=assessment_digest`、`trust=factory-attested`，并唯一指向一个
+referenced assessment CAS object。禁止caller自建EvidenceRef、复用另一binding/task的ref或以相同digest别名。
+
+冻结既有category completion assessment 1.0 pair；新增
+`urn:gew:schema:category-completion-assessment:1.1.0` /
+`urn:gew:schema:category-completion-assessment-input:1.1.0` 的performance-discriminated branch要求exact ordered
+`performance_evidence_projection`：
+
+- task/profile/column/revision/snapshot/epoch与GraphRef six pins；
+- registry/bootstrap/schema registry、distribution root/version、singular RECORD、protected closure、source/build、
+  command/runtime/executable/cwd的installation pins；
+- consumer-local factory seal、environment observation与launcher/command/request/session pins；
+- ordered A→B→A source observations，generation exact `1,2,3`，previous-digest chain exact；
+- baseline/candidate/restored warmup provenance、ordered samples、correctness bodies/digests、statistics bodies/digests；
+- noise、target与rollback exact integer cross-products/outcomes，以及final performance observation；
+- nested bodies/digests与只排除自身derived field的projection digest。
+
+canonical schema/projection roundtrip通过；非performance assessment含该字段、performance缺失字段、extra/null/
+wrong type、bool-int alias、reorder/duplicate、label-only A、同root异bytes、wrong/skip generation、wrong previous、
+cross-task/profile/column/factory/session、nested coherent re-sign与CAS digest alias全部拒绝且输入不变。
+
+assessment issuance probe必须证明只消费same-factory current projection seal，并独立重算sample/statistics/
+comparisons/final observation。precommit cut matrix覆盖projection publish前、publish后但event commit前、全部hooks后
+final reread、DB COMMIT前与commit后：前四类zero task/event/snapshot/reference/action/target write，unreferenced CAS
+只由existing doctor回收；commit后EvidenceRef、assessment与内嵌projection同时可见。target/source/environment/
+installation/session在每个cut的delete/replace/coherent resign均拒绝。
+
+restart probe从current task唯一EvidenceRef以`require_referenced=true`重读CAS，重算object/assessment/projection/
+nested digests、median/MAD/noise及target/rollback products，并重验task revision/snapshot/epoch、profile/column、
+GraphRef与all pins。canonical restart重新签发consumer-local use authority且launcher count=`0`；missing/duplicate/
+foreign/clone/stale EvidenceRef、CAS delete/replace、A/B/A reorder、current pin drift或same-ID different request均
+zero task/object-ref/action/target write。不得新增generic task event、DB/storage schema、GraphRef pin、network或
+外部权限；existing CategoryFacts、combined gate、finalize/revoke与abort regression保持GREEN。
+
+#### Gate, lifecycle and verification order
+
+RED先证明registry/clock/environment/statistics/final observation authority、Option B durable assessment与24 plan/12 oracle members缺失；GREEN
+顺序为schema/bootstrap → registry/environment/clock → samples/statistics/correctness → durable assessment/use/precommit/restart →
+representative NORMAL P/R → REAL-E2E P/R → existing2 methods。严格serial、fresh private roots；Option C只共享
+per-Profile repository/application，unique task/current authority独立，benchmark/Git fixture隔离。
+
+batch后plan exact`194`、oracle bindings`97`、production gate
+`194 valid / 80 missing / passed=false`、static`0/274`，不得发行WP-08 exit。combined gate前finalize拒绝；
+partial candidate只用exact one-shot abort且无gate decision。combined gate后finalize/revoke与pre-gate abort两条
+branch均保持immutable records/durable task/action/target，terminal后benchmark/current/restart/register全部拒绝，
+identity/FD回到baseline且<120s自然exit0。验证只运行performance focused、Slice3代表、runner/StructuredCommand/
+ActionCoordinator/Git、contracts/source/package/wheel与lint/type/architecture；不跑full/evidence、不改WP08A历史
+tuple/gate/evidence。
+
+### 12.3 Migration rehearsal scenario authority
+
+ADR-0002 revision 6只增加四个existing stable scenario pairs，不增加unittest discovery：
+
+| Scenario | Exact IDs | Positive authoritative outcome | Rejection boundary |
+|---|---|---|---|
+| forward | `GEW-PSC-MIGRATION-FORWARD-P/R` | exact A bundle经唯一transform/import/replay/integrity/compatibility成为更高generation/epoch verified B | wrong transform/source/version、partial B、stale A在任何active switch前拒绝 |
+| backward | `GEW-PSC-MIGRATION-BACKWARD-P/R` | B→A作为新migration，generation/epoch/fence继续递增，fresh A target current | old pointer/counter rollback、foreign previous、skipped generation拒绝 |
+| partial-data | `GEW-PSC-MIGRATION-PARTIAL-DATA-P/R` | fixture每row exact `preserved|defaulted|rejected|owner-route`，integrity digest current | omit/duplicate/reorder/alias、caller default、silent drop、unknown owner route拒绝 |
+| crash-window | `GEW-PSC-MIGRATION-CRASH-WINDOW-P/R` | config全部cut各自恢复完整old A或完整verified new B | mixed object/manifest、`verifying` exposure、claim/fence/restore-gap丢失拒绝 |
+
+四oracles分别是`profile-migration-forward-v1.json`、`profile-migration-backward-v1.json`、
+`profile-migration-partial-data-v1.json`与`profile-migration-crash-window-v1.json`；每个exact绑定Profile/scenario/
+boundary/full-planned/disposition/result/contract-test/unique task IDs、registry/bootstrap/fixture/transform digest与
+scenario-specific outcome。P仍是scenario acceptance；R必须exact expected rejection且task/repository/target/input
+zero-write。
+
+schema matrix逐一验证以下7 pairs，full IDs以`urn:gew:schema:`为前缀：
+
+- `migration-rehearsal-fixture-manifest:1.0.0` / `...-input:1.0.0`；
+- `migration-rehearsal-transform-manifest:1.0.0` / `...-input:1.0.0`；
+- `migration-rehearsal-registry:1.0.0` / `...-input:1.0.0`；
+- `migration-rehearsal-installation-bootstrap:1.0.0` / `...-input:1.0.0`；
+- `migration-step-observation:1.0.0` / `...-input:1.0.0`；
+- `migration-crash-recovery-observation:1.0.0` / `...-input:1.0.0`；
+- `migration-rehearsal-observation:1.0.0` / `...-input:1.0.0`。
+
+canonical source/input roundtrip、exact built-in types/order/enums/bounds、nested body/digest、raw/semantic digest、
+registry/fixture/transform sorted uniqueness与bootstrap protected pins全部通过；missing/extra/null/bool-int alias、
+reorder/duplicate、wrong projection、coherent child/parent re-sign、source/unpacked/archive/RECORD replacement拒绝。
+
+`MigrationRehearsalFactory` attacks覆盖bare/foreign/clone/`object.__new__`、same repository foreign factory、wrong
+private root、bundle/manifest/ledger substitution、state omit/reorder、epoch/fence/high-water rollback、transform code/
+fixture replacement、partial-data disposition replacement与每个crash cut before/after。执行/观察/assessment/
+precommit/restart/gate每个cut都要求current reread；reject前后task event/head/snapshot、CAS referenced count、action/
+claim/target、input bytes与active manifest不变。restart从current task唯一assessment ref重读并重算，migration
+execution delta=`0`。
+
+category assessment contract新增exact1.2 pair；migration branch只允许`migration_rehearsal_projection`，绑定task/
+revision/snapshot/epoch/six pins、installation/registry/fixture/transform、A/B/A manifests、ledger/history、partial rows、
+crash results、claims/fences/target及nested digests。dependency branch或dual projection、performance1.1/generic1.0
+携带该字段全部拒绝。precommit异常zero durable writes，commit后event/ref/CAS同时可见；无新event/table/schema。
+
+验证顺序：schemas/bootstrap→factory/forward/backward→partial/crash→assessment use/precommit/restart→四P/R
+targeted selectors→authoritative combined P。完成后plan`216`、oracles`108`、gate
+`216 valid / 58 missing / false`、static`0/274`。Option C per-Profile repository共享但task/current authority独立；
+strict serial/private roots。combined gate后finalize/revoke，未入gate candidate只走same-cap abort；terminal后所有
+rehearsal current/restart/register/gate拒绝、durable state不变、cleanup<120s。不得真实activation、network、
+用户repo、WP10、full/evidence。
+
+### 12.4 Dependency graph and unavailable-fix scenario authority
+
+ADR-0006 revision 8保留revision 7 graph/remediation contract并exact增加config-owned cffi transitive binding：
+
+| Scenario | Exact IDs | Positive authoritative outcome | Rejection boundary |
+|---|---|---|---|
+| transitive dependency | `GEW-PSC-DEPENDENCY-SECURITY-TRANSITIVE-DEPENDENCY-P/R` | exact cffi advisory；root→cryptography→cffi三节点/two-edge physical path、after approved cffi fixed closure、regression/target current | direct packaging substitution、caller advisory/graph、foreign/broken/reordered path或closure mismatch在assessment/observation/record前拒绝 |
+| fix unavailable | `GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-P/R` | affected reachable node + current explicit `approved-unavailable` row + complete residual row/set + nonempty owner route | missing/expired/wrong advisory disposition、caller owner route或missing-fix inference拒绝 |
+
+oracles exact为`profile-dependency-security-transitive-dependency-v1.json`与
+`profile-dependency-security-fix-unavailable-v1.json`，各自绑定P/R unique tasks、advisory/source/graph/remediation/
+bootstrap/policy digests、reachability/disposition outcome。它们不能复用vulnerable-graph oracle或只检查scenario
+membership。
+
+revision 7新增以下5 schema pairs：
+
+| Stem | Source | Digest input |
+|---|---|---|
+| graph policy | `urn:gew:schema:dependency-graph-policy-registry:1.0.0` | `urn:gew:schema:dependency-graph-policy-registry-input:1.0.0` |
+| closure graph | `urn:gew:schema:dependency-closure-graph-observation:1.0.0` | `urn:gew:schema:dependency-closure-graph-observation-input:1.0.0` |
+| remediation dispositions | `urn:gew:schema:dependency-remediation-disposition-registry:1.0.0` | `urn:gew:schema:dependency-remediation-disposition-registry-input:1.0.0` |
+| final observation | `urn:gew:schema:dependency-security-observation:1.1.0` | `urn:gew:schema:dependency-security-observation-input:1.1.0` |
+| installation bootstrap | `urn:gew:schema:dependency-advisory-installation-bootstrap:1.1.0` | `urn:gew:schema:dependency-advisory-installation-bootstrap-input:1.1.0` |
+
+existing10/new5/profile-schema registry exact equality；bootstrap1.1固定两个新增registry、advisory registry、schemas、
+distribution/RECORD/source-build/protected closure。schema attacks覆盖1.0/1.1 cross-use、missing/extra/reorder/
+duplicate/alias、bad digest、nested omission及coherent all-document re-sign。
+
+revision 8 exact只增加第6组bootstrap1.2 source/input pair；revision 7五组加本组累计六组，不允许no-new-schema
+解释或第七组隐式pair。1.2 history rows必须分别使用无alias的
+`config/security/dependency-advisory-registry-v1.json`与
+`config/security/dependency-advisory-registry-v2.json`并双向绑定v1/v2 snapshot+attestation。
+
+graph positive从physical closure每个exact METADATA requirement row重建root/nodes/edges；逐项验证normalized
+name/version、wheel/METADATA/RECORD、parent/child、original/normalized specifier/extras/marker与fixed marker
+environment。closure/path双向exact，direct/transitive不可label替代。attacks覆盖missing/extra/reordered edge、wrong
+parent、duplicate/cycle alias、marker/env substitution、caller graph/list、only-set comparison、foreign/clone/stale
+factory及post-observation METADATA/RECORD replacement。
+
+revision 8 R2 registry fixture先关闭stable finding `WP08-DEP-OPTION1-DOCS-ARCH-R1-001`：generation-1 registry、
+offline-v1 artifact/attestation/bootstrap/schema bytes与digests必须保持baseline exact；generation-2 forward head新增
+`source:dependency-advisory:offline-v2@1`、v2 full snapshot与matching attestation。断言v1 source和packaging revision 1
+为superseded/status-generation 2，v2 source、packaging revision 2与`advisory:cffi:security-v1@1`为active/
+status-generation 2；每个active advisory exact解析到active/time-valid v2 source完整row与v2 artifact/attestation，
+v2 snapshot identity set exact为packaging revision 2+cffi revision 1。source/advisory/high-water identity sets必须
+双向exact，错误genesis/wrong previous、old-source omission、mixed/delta snapshot、artifact-attestation cross-pair、
+history omission/reorder/replacement、same-path replacement及coherent registry/bootstrap re-sign全部在issuance前
+fail closed且task/action/target/input writes=0。cffi advisory exact断言affected `>=2.0.0,<3.0.0`、fixed closure
+`closure:cffi:2.0.0`、唯一`cffi==2.0.0` pin及冻结wheel/RECORD hashes；before affected和after fixed closure
+分别取证，phase/closure bytes/digest不得因相同版本折叠。
+
+bootstrap/schema positive必须通过bootstrap1.2与source/input1.2 pair验证closed ordered history exact为gen1
+registry↔v1 artifact/attestation及gen2
+registry↔v2 full snapshot/attestation，current row=2，并逐项匹配member path、source ID/revision、artifact/
+attestation/registry raw与semantic digests。source/package protected lists和wheel RECORD必须同时包含两代registry、
+artifacts、attestations、bootstrap/schema历史；逐一删除或交换任一member都在factory construction前拒绝。
+
+transitive P的ordered node IDs exact为`distribution:graph-engineering-workflow@0.1.0`、
+`distribution:cryptography@50.0.0`、`distribution:cffi@2.0.0`；edge rows exact对应root
+`cryptography==50.0.0`与cryptography `cffi>=2.0.0`。正向断言path length=3、edges=2、selected advisory=cffi，
+且after graph/applicability/fixed closure/regression/fresh target全部current。负向逐一替换为existing packaging direct
+path、raw/normalized advisory alias、caller advisory/graph、two-node threshold、missing/duplicate/reordered edge、wrong
+parent或phase/pin mismatch；每例都在assessment、observation、CoverageRecord计数前失败，task/event/snapshot/object/
+ref/action/target/input bytes与mutation counters保持零增量。
+
+remediation positive只接受same-advisory/revision current/time-valid registry row；`approved-unavailable`必须explicit
+reason/residual policy/owner route。empty fixed closures、unknown package、command failure、network absence或missing row
+均保持unavailable=false。attacks覆盖wrong status/generation/advisory/source、expired disposition、foreign/clone owner、
+residual omission/route substitution、registry coherent re-sign与after-observation replacement。
+
+assessment1.2 dependency branch只允许`dependency_graph_projection`，保存task/six pins、factory/advisory/bootstrap/
+graph/remediation registry、before/after closures、complete nodes/edges/path、disposition/residual rows/owner route、
+regression/action/target与nested digests。issue/precommit/restart/gate重新byte-pipe读取和重建；restart graph/action
+replay=`0`。所有拒绝task/event/snapshot/object/ref/action/Git/target/input零写，DNS/socket/proxy/index/scanner
+call=`0`。
+
+restart/currentness matrix还必须在fresh attestation root验证generation-2 advisory/high-water/v2 snapshot+
+attestation/bootstrap history、unique
+transitive task CAS ref、before/after graph与final observation的object identity/current projection。重启不得复用
+old factory/token/cache，不得产生resolver/action replay或网络；source/high-water、advisory selection、path、fixed
+closure或target任一post-observation replacement均使旧execution/observation/record fail closed且durable signatures不变。
+
+验证顺序：new schemas/registries/bootstrap→graph construction/currentness→remediation disposition→assessment/
+restart→transitive P/R→fix-unavailable P/R→combined P。migration batch后加入四records，plan`220`、oracles`110`、
+gate`220 valid / 54 missing / false`、static`0/274`；coverage lifecycle/finalize/revoke/abort与<120s teardown不变。
+不安装/激活dependency，不访问用户repo，不运行online resolver/scanner，不改WP08A historical evidence。
+
+## 13. Risk Paths 与组合覆盖
+
+- `full-planned`：完整 artifacts/loops/evidence；
+- `compact-planned`：减少可选表达但不减少 authority/digest/review/verification；
+- emergency：压缩时间与文档表现，保留 intent、action authority、unknown recovery、rollback。
+
+每 runtime 至少完整完成一个 `full-planned`、`compact-planned`、`emergency`；这些可以与九类 real E2E 配对。pairwise
+组合仅减少重复执行，不减少每类 12 个 mandatory case。冻结 coverage manifest 由
+ReleaseCoverageGate 逐项读取，missing/stale/digest mismatch 即 FAIL。
+
+## 14. Packaging、Upgrade 与 Supply Chain
+
+`GEW-PKG-001～100` 覆盖：
+
+- build wheel 内容/namespace/import boundary，仓库内外与 decoy packages；
+- exact interpreter/wheelhouse/dependency hashes/provenance/SBOM/license/vulnerability checks；
+- clean macOS/Linux 两次安装得到相同 ReleaseInstallManifest；
+- no source checkout、no old project、no ambient index/config、offline verified install；
+- Skill install/canonical locator/PATH shadow/duplicate executable/compatibility handshake；
+- staged upgrade 在 install/doctor/compatibility/export/migration/switch/post-switch 每点失败；
+- prior CLI/repository 保持可用，unresolved action/unsupported platform/tamper fail closed；
+- uninstall 不删除未明确选择的数据，owner-only permissions 不弱化。
+
+## 15. Non-functional 与 PMF 验证
+
+| ID | 目标 | 判定方式 |
+|---|---|---|
+| GEW-NFR-001 | 无 daemon/background | runtime exit 后 event/head 不变，无产品常驻进程 |
+| GEW-NFR-002 | 平台中立 | core dependency/import scan；fake third runtime contract |
+| GEW-NFR-003 | 数据逻辑分离 | 改用户/项目/环境只改 config/fixtures；code scan 无路径/port/threshold |
+| GEW-NFR-004 | 可审计重放 | fresh repository 从 events 生成 byte-identical snapshot/completion |
+| GEW-NFR-005 | 用户简单性 | clean user 通过自然语言/Skill 完成代表任务，无 daemon/DB 管理 |
+| GEW-NFR-006 | 诊断性 | capability/blocked/unknown 给稳定 code、evidence、next route，不泄密 |
+| GEW-PMF-001 | interruption quality | 只在定义边界中断；routine findings 无 Human gate |
+| GEW-PMF-002 | outcome trust | Owner 可从摘要定位 intent、actions、tests、target state、residual risk |
+| GEW-PMF-003 | counter-evidence | Agent 主动记录失败假设、非采用证据与下一实验，不只报告成功 |
+| GEW-PMF-004 | data minimization | aggregate 不含 source/prompt/secret/body；task-level consent/retention 生效 |
+
+具体 PMF 目标值由版本化产品实验配置决定；本测试验证采集与判断机制，不把阈值硬编码到
+engine。产品发布还需要 Human 与 Agent 共同审阅 PMF counter-evidence，不能由测试 PASS 代替。
+
+## 16. Entry、Exit 与缺陷策略
+
+### 16.1 Work-package entry
+
+- upstream artifact digests/current authority valid；
+- test IDs、fixtures、oracle 和 failure injection points 已审阅；
+- 外部 action 默认为 disabled；测试数据 classification/cleanup 明确；
+- 依赖 WP 的 release-blocking tests PASS；下游 candidate 必须读取并绑定 prerequisite 的 exact
+  source manifest（path + declared digest + self-digest）、command evidence、candidate exit 与 verdict
+  四元组，验证四者内部 source/command/exit/governing binding 一致、PASS、zero findings、全部
+  disposition closed 与独立 reviewer。该历史 prerequisite 有自己的 source identity；下游候选另行
+  绑定当前 source，禁止错误要求两者整仓 digest 相同，否则 revision pointer 更新会自失效。
+  missing/tampered/REVISE/binding mismatch 均使 verifier fail closed，不能只在未参与证据链的 state
+  metadata 中写 `PASS`。
+
+### 16.2 Work-package exit
+
+- 新增/受影响 unit、contract、integration、failure/security tests 全部 PASS；
+- independent reviewer PASS，blocking finding=0；
+- coverage/trace/evidence/current implementation digest 一致；
+- full regression 没有新增 flaky、skip、xfail 或 waiver；
+- docs/config/schema/fixtures 与实现同步。
+
+### 16.3 Release exit
+
+- 九类 × 12 mandatory cases 全部 PASS，九个 real E2E 均有 fresh evidence；
+- Codex、Hermes Telegram、Hermes Discord contract 与三 risk paths coverage PASS；
+- macOS/Linux install/upgrade、repository crash/migration、action unknown、security/privacy、
+  compatibility 和 Candidate/Completion suites PASS；
+- 所有 FR/NFR trace 到至少一个正向与一个拒绝/失败证据；
+- zero unresolved blocker、zero flaky、zero waiver、zero unapproved external action；
+- independent Candidate Review PASS，Completion Gate 绑定真实 target state。
+
+缺陷 severity：P0 为越权/数据损坏/重复不可逆动作/秘密泄露；P1 为虚假完成/不可恢复/
+determinism divergence/九类核心失败；P2 为 routine 正确性/兼容；P3 为不影响决策的表现。
+P0/P1 必须回到 owning WP 并失效受影响 evidence；不能延期到发布后。
+
+## 17. 停止与升级条件
+
+出现以下任一情况停止自动推进：测试证明批准架构无法满足可靠性；需要新增 daemon/远程服务/
+跨 runtime/multi-user；需要外部资源或凭据但无 action authority；三轮 stable finding 无 digest
+progress；PMF counter-evidence 要求改变产品范围。其余 routine defect 自动修订与复验。
+
+## 18. Test Plan 退出条件
+
+- 测试覆盖全部 FR/NFR、ADRs、WP、九类、三路径、两个 runtime/channel；
+- oracle 不依赖被测实现的同一逻辑；并发/crash/unknown side effect 可重复注入；
+- release matrix 要求“所有必选场景通过”，无抽样或 waiver 漏洞；
+- evidence/identity/privacy/authority 规则可机械验证；
+- 独立 Test Plan Reviewer PASS；
+- 未执行任何尚未授权的测试外部动作。

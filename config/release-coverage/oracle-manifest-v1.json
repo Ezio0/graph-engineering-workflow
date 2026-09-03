@@ -1,0 +1,25 @@
+{
+  "schema_version":"1.0.0",
+  "manifest_id":"gew.wp08a.oracle-manifest",
+  "oracles":[
+    {"oracle_id":"ORA-EXTENSION-POLICY","implementation":"tests.integration.test_wp08a_extension_policy_enforcement","independent_state":"bundle/trust/activation"},
+    {"oracle_id":"ORA-WP08A-EXIT","implementation":"tests.integration.test_wp08a_review_closure","independent_state":"exact-set/fault/network"},
+    {"oracle_id":"ORA-ADR4-GOLDEN","implementation":"tests.unit.test_wp08a_adr4_corpus","independent_state":"golden/rejection-vectors"},
+    {"oracle_id":"ORA-PROFILE-NEW-FEATURE","implementation":"tests.unit.test_wp08_profile_contracts","independent_state":"profile/new-feature"},
+    {"oracle_id":"ORA-PROFILE-BUG-FIX","implementation":"tests.unit.test_wp08_profile_contracts","independent_state":"profile/bug-fix"},
+    {"oracle_id":"ORA-PROFILE-HOTFIX","implementation":"tests.unit.test_wp08_profile_contracts","independent_state":"profile/hotfix"},
+    {"oracle_id":"ORA-PROFILE-REFACTOR-DEBT","implementation":"tests.unit.test_wp08_profile_contracts","independent_state":"profile/refactor-debt"},
+    {"oracle_id":"ORA-PROFILE-MIGRATION","implementation":"tests.unit.test_wp08_profile_contracts","independent_state":"profile/migration"},
+    {"oracle_id":"ORA-PROFILE-DEPENDENCY-SECURITY","implementation":"tests.unit.test_wp08_profile_contracts","independent_state":"profile/dependency-security"},
+    {"oracle_id":"ORA-PROFILE-PERFORMANCE","implementation":"tests.unit.test_wp08_profile_contracts","independent_state":"profile/performance"},
+    {"oracle_id":"ORA-PROFILE-RELEASE-OPERATIONS","implementation":"tests.unit.test_wp08_profile_contracts","independent_state":"profile/release-operations"},
+    {"oracle_id":"ORA-PROFILE-INCIDENT-RESPONSE","implementation":"tests.unit.test_wp08_profile_contracts","independent_state":"profile/incident-response"}
+  ],
+  "fault_schedules":{
+    "trust":["extension-trust.after-commit-durability","extension-trust.before-restoration-publication","extension-trust.after-restoration-durability","extension-trust.after-restoration-reread"],
+    "install":["extension-install.before-content","extension-install.after-content","extension-install.after-ledger","extension-install.after-commit"],
+    "activation":["extension-activation.after-data-registry","extension-activation.after-manifest","extension-activation.after-pointer-cas","extension-activation.after-commit","extension-activation.after-publish-durability","extension-activation.before-restoration-publication","extension-activation.after-restoration-durability","extension-activation.after-restoration-reread"],
+    "rollback":["extension-activation.after-data-registry","extension-activation.after-manifest","extension-activation.after-pointer-cas","extension-activation.after-commit"]
+  },
+  "trust_plane_network_counters":{"dns":0,"socket":0,"proxy":0}
+}

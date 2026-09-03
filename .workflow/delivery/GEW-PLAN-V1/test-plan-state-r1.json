@@ -1,0 +1,8 @@
+{
+  "schema_version":"1.0","task_id":"GEW-PLAN-V1","node":"test-plan-review","artifact":"test-plan",
+  "author_id":"codex:/root","reviewer_id":"codex:/root/adr_0002_reviewer_r1",
+  "targets":["docs/test-plans/graph-engineering-workflow.md"],"revision":1,
+  "artifact_digest":"ff3edd034e6179c66422ead6484a115993f2893d01934d3ce3c12caf34f80de6",
+  "previous_artifact_digest":"94fb7ba5d856aa793c5f38fc771c181bbd5b0ba58d14a699e2754d121119fe25",
+  "open_finding_ids":["GEW-TP-TRACE-001","GEW-TP-ARTIFACT-001","GEW-TP-DURABILITY-001","GEW-TP-ACTION-GATE-001"]
+}

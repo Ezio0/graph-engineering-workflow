@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:completion-policy-registry:1.0.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "registry_id": {"type": "string", "minLength": 1, "maxLength": 255},
+    "policies": {"type": "array", "minItems": 1, "maxItems": 64, "uniqueItems": true, "items": {"$ref": "urn:gew:schema:completion-policy:1.0.0"}}
+  },
+  "required": ["schema_version", "registry_id", "policies"],
+  "unevaluatedProperties": false
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-IMPACT-V1",
+  "goal": "Create and independently review an Impact Analysis for the approved Graph Engineering Workflow Positioning v2, PRD v2, and Tech Spec v1, and determine the complete ADR disposition before implementation planning.",
+  "non_goals": [
+    "Change the approved Positioning, Intent Baseline, or Tech Spec architecture",
+    "Implement code, configuration, Skills, tests, or migrations",
+    "Create the implementation plan or test plan before Impact and required ADRs pass",
+    "Commit, push, merge, deploy, release, or communicate outside the current task"
+  ],
+  "allowed_targets": [
+    "docs/impact/graph-engineering-workflow.md"
+  ],
+  "allowed_change_kinds": [
+    "impact-detail",
+    "clarification",
+    "consistency",
+    "traceability",
+    "testability",
+    "adr-disposition"
+  ],
+  "human_required_change_kinds": [
+    "goal",
+    "non-goal",
+    "target-boundary",
+    "intent-baseline",
+    "authority-expansion",
+    "material-architecture-choice"
+  ],
+  "authorized_actions": [
+    "documentation",
+    "verification",
+    "independent-review"
+  ]
+}

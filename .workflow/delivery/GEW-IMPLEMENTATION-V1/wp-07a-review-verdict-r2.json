@@ -1,0 +1,141 @@
+{
+  "schema_version": "1.0",
+  "artifact": "wp-07a",
+  "verdict": "REVISE",
+  "reviewer_id": "codex:/root/wp07a_reviewer_r1",
+  "scope_changed": false,
+  "change_kinds": [
+    "correctness",
+    "security",
+    "testability",
+    "compatibility"
+  ],
+  "source_manifest_digest": "bed891797dc5fc46e942fa4edccf6c29c71fda7acfca25975589955731c1e35c",
+  "command_evidence_digest": "e4e564f4dd04cd6f6449ed25bcaa525c1b84cf5179583bfd02b7ff354c6dcf80",
+  "candidate_exit_digest": "033698d28acb52e4d931ab923c6dd35bcb197061c260675f51c0e741defb8198",
+  "governing_documents_digest": "178ce8ac2035391a80ef2125e2e984c4da2bcf7ad4e6155301eb04362fcbffee",
+  "wp07a_runtime_digest": "16a878b2ab57924bdf03c7f45f725a23d41fd71ac2d070425589c408382ea129",
+  "wp07a_sources_digest": "eea2933d79ff2deb0d02d815950c802626029f4aa23964ef402727771df70678",
+  "external_action_boundary_digest": "68d1f79bc0ac27a9f790b7eba86f2afd655dad15571a2ba7dec922d39a768742",
+  "dependency_verdicts_digest": "682b0eba24210c2ca5cba10ca67d35aa5a45a526ef830cef6d2c38a729bbddc3",
+  "immutable_tuple": {
+    "source_manifest_raw_sha256": "efaa181a7b889d2878ff8ae3df1b761fe4c2ff5cda155aa7c9c31779ded5e222",
+    "source_manifest_canonical_sha256": "d99062d9c7152c655f1a5a26c62846892acc0a49ce0f70cd7e006a27ee724804",
+    "source_manifest_internal_digest": "bed891797dc5fc46e942fa4edccf6c29c71fda7acfca25975589955731c1e35c",
+    "source_manifest_row_count": 340,
+    "command_evidence_raw_sha256": "18cd58cc235339507405a0e7123dd0ae930dc172c413a7600aa870425c2a2aac",
+    "command_evidence_canonical_sha256": "e4e564f4dd04cd6f6449ed25bcaa525c1b84cf5179583bfd02b7ff354c6dcf80",
+    "candidate_exit_raw_sha256": "b06bd9c378831db14c6346f3859977b0f1a7731e744915a1b1eb60b6e117cca6",
+    "candidate_exit_canonical_sha256": "033698d28acb52e4d931ab923c6dd35bcb197061c260675f51c0e741defb8198"
+  },
+  "verification": {
+    "exact_three_parameter_validator": {
+      "argv": [
+        ".venv/bin/python",
+        "scripts/verify_wp07a_evidence.py",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-source-manifest-r2.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-command-evidence-r2.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-exit-r2.json"
+      ],
+      "status": "PASS",
+      "findings": []
+    },
+    "exact_four_parameter_validator": {
+      "status": "NOT_RUN",
+      "reason": "The review verdict is REVISE; the exact four-parameter validator accepts only PASS verdicts."
+    },
+    "source_currentness_after_validator": {
+      "status": "PASS",
+      "findings": [],
+      "row_count": 340
+    },
+    "candidate_test_execution_count": 841,
+    "independent_checks": [
+      {
+        "check": "five unique code remedy methods plus reviewer-binding contract and ACT-010",
+        "status": "PASS"
+      },
+      {
+        "check": "all 37 WP-07A focused, security and disposable E2E tests",
+        "status": "PASS"
+      },
+      {
+        "check": "lint, type and architecture static checks",
+        "status": "PASS"
+      },
+      {
+        "check": "after-launch cancellation terminates a descendant process group without a delayed write",
+        "status": "PASS"
+      },
+      {
+        "check": "self-consistent implementation-ref substitution is rejected by the source-mode installation anchor",
+        "status": "PASS"
+      },
+      {
+        "check": "clean extracted candidate wheel resolves built-in implementation provenance",
+        "status": "FAIL",
+        "evidence": "Every one of the five built-in implementation refs raised ActionAdapterRejection: built-in action adapter build manifest is unavailable."
+      }
+    ],
+    "external_actions_observed": false,
+    "network_used": false,
+    "user_repository_used": false
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "WP07A-CODE-R1-001",
+      "status": "closed",
+      "evidence": "A newly issued target query now occurs after durable receipt commit; after-receipt drift and crash recovery keep the claim unresolved, perform zero duplicate mutations, and reconcile only from a later matching observation."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-002",
+      "status": "closed",
+      "evidence": "Raw, semantic, JSON-escaped, encoded and digest-derived representations are blocked before result creation, and every post-resolution path destroys SecretMaterial."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-003",
+      "status": "open",
+      "evidence": "Source-checkout attestation and re-sign rejection pass, but the exact shipped wheel contains adapter modules and no pyproject.toml. Its provenance function searches module ancestors for pyproject.toml, so every built-in ref fails before ActionAdapterFactory can initialize."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-004",
+      "status": "closed",
+      "evidence": "Timeout, output-bound and independently probed after-launch cancellation terminate the complete created process group with bounded TERM-to-KILL escalation; descendants cannot perform delayed writes."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-005",
+      "status": "closed",
+      "evidence": "Recovery authenticates owner/runtime/lineage, target, exact resources, lease/fences and disclosure before journal disclosure or query, then uses the factory-attested Git observer without replaying update-ref."
+    },
+    {
+      "finding_id": "WP07A-EVIDENCE-R1-001",
+      "status": "closed",
+      "evidence": "The gate candidate identities, command evidence and r2 exit all bind the actual assigned reviewer codex:/root/wp07a_reviewer_r1, independently from the author."
+    }
+  ],
+  "findings": [
+    {
+      "id": "WP07A-CODE-R1-003",
+      "severity": "P1",
+      "status": "open",
+      "location": "adapters/graph_engineering/adapters/action_adapters.py:55-89; candidate wheel graph_engineering/adapters/action_adapters.py:55-89",
+      "summary": "Built-in implementation provenance depends on a source-tree pyproject.toml that is absent from the shipped wheel, so the installed factory rejects every closed adapter.",
+      "evidence": "The exact candidate wheel was built and extracted to a disposable directory, then imported under python -I with only the extracted wheel on sys.path. builtin_implementation_digest raised 'built-in action adapter build manifest is unavailable' for git-native-v1, project-command-v1, target-query-v1, secret-provider-v1 and connector-unavailable-v1. Wheel listing contains the implementation modules but no pyproject.toml.",
+      "required_change": "Package deterministic implementation/build provenance as an installed resource or derive it from stable packaged metadata such as an embedded manifest bound to wheel RECORD. Provenance must not depend on a source-checkout ancestor and must remain installation-attested and re-sign resistant.",
+      "mechanical_closure_tests": [
+        "Build the candidate wheel, install or extract it into a clean directory, change outside the source checkout, and import with isolated sys.path; every built-in implementation digest must resolve successfully.",
+        "Assert source-checkout and clean-installed provenance values are byte-for-byte identical for every closed adapter entry and exactly match the installed registry.",
+        "From the clean installed artifact, construct the exact installation-attested factory and issue and dispatch every closed adapter through its valid bounded path.",
+        "Retain one-field and fully self-consistent re-sign substitutions for implementation digest/ref, capability, operation, policy and registry; all must reject before adapter issue or external call."
+      ]
+    }
+  ],
+  "reviewed_without_open_findings": [
+    "post-receipt observation ordering, drift handling and crash recovery without duplicate mutation",
+    "semantic and serialized output sanitation plus ephemeral secret destruction",
+    "bounded full-process-group termination for timeout, cancellation and output limits",
+    "authenticated production query-only recovery and unauthorized nondisclosure",
+    "typed invocation, receipt and observation resource/fence closure",
+    "disposable-local-only Git E2E and stable unavailable connector"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "evidence-default",
+  "policies": [
+    {"evidence_type": "incident", "maximum_freshness_seconds": 86400, "minimum_trust": "validated", "maximum_sensitivity": "confidential"},
+    {"evidence_type": "verification", "maximum_freshness_seconds": 3600, "minimum_trust": "independently-reviewed", "maximum_sensitivity": "confidential"}
+  ],
+  "registry_digest": "sha256-jcs-v1:93c46845fb22c01b3b109cd9ad716abbc6f05ca1fbe3490bbd2264caaa7fd6b3"
+}

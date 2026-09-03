@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-TECH-SPEC-V2",
+  "node": "tech-spec-review",
+  "artifact": "tech-spec",
+  "author_id": "codex:/root",
+  "reviewer_id": "codex:/root/tech_spec_reviewer_r2",
+  "targets": [
+    "docs/specs/graph-engineering-workflow.md"
+  ],
+  "revision": 2,
+  "artifact_digest": "591dc746626fc6a8f0324ef9a7ae9c61ca289c61c15480ab6013d30ff2829573",
+  "previous_artifact_digest": "7ad7bf8821233969e7c1a01e4a895a1fbf4bc7c3443ef71f9258ca421d51d953",
+  "open_finding_ids": [
+    "GEW-TS-CONC-001",
+    "GEW-TS-LIFE-001"
+  ]
+}

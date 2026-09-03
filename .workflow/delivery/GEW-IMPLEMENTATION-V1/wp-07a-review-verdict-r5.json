@@ -1,0 +1,157 @@
+{
+  "schema_version": "1.0",
+  "artifact": "wp-07a",
+  "verdict": "REVISE",
+  "reviewer_id": "codex:/root/wp07a_reviewer_r1",
+  "scope_changed": false,
+  "change_kinds": [
+    "correctness",
+    "testability",
+    "compatibility",
+    "reliability"
+  ],
+  "source_manifest_digest": "4cebf0a3f22f619e6f367f02db4ef1eaa1971af1dfd0d84c463eb0c5a37c6193",
+  "command_evidence_digest": "5608efb07b9347854f14eeefc9758001b464ab4ef33fd333d8398fb3322c1351",
+  "candidate_exit_digest": "ee2d500185a4f84481f618ead1ad9cb537402e5b2a9ff20dd8867c50fce19bfb",
+  "governing_documents_digest": "178ce8ac2035391a80ef2125e2e984c4da2bcf7ad4e6155301eb04362fcbffee",
+  "wp07a_runtime_digest": "08d0cc8d7e0ba134ea2209ffca38ea1770b3f84eec5725d6701ea3ca411dd5fd",
+  "wp07a_sources_digest": "98437f6bb7f1a1be5fa8f52029d941cdca712d6c1b4b0e14ef2e5359d08f918d",
+  "external_action_boundary_digest": "68d1f79bc0ac27a9f790b7eba86f2afd655dad15571a2ba7dec922d39a768742",
+  "dependency_verdicts_digest": "682b0eba24210c2ca5cba10ca67d35aa5a45a526ef830cef6d2c38a729bbddc3",
+  "immutable_tuple": {
+    "source_manifest_raw_sha256": "858f71b15275aa78a1d279b330174e30b94bd1915c17d1222411a1c7f105138c",
+    "source_manifest_canonical_sha256": "bec88458a4342ecb04013518e2aa7e2a993fe4ad929708b9b2897b6503fd0689",
+    "source_manifest_internal_digest": "4cebf0a3f22f619e6f367f02db4ef1eaa1971af1dfd0d84c463eb0c5a37c6193",
+    "source_manifest_row_count": 342,
+    "command_evidence_raw_sha256": "6294842c5e0b1783f4d542a16c801fc60197a6e85191a7e23ff5eeec67295590",
+    "command_evidence_canonical_sha256": "5608efb07b9347854f14eeefc9758001b464ab4ef33fd333d8398fb3322c1351",
+    "candidate_exit_raw_sha256": "f2cf83b74f24936a853741923e393172008c86a8780ea69738666a3b000dd1d6",
+    "candidate_exit_canonical_sha256": "ee2d500185a4f84481f618ead1ad9cb537402e5b2a9ff20dd8867c50fce19bfb"
+  },
+  "verification": {
+    "exact_three_parameter_validator": {
+      "argv": [
+        ".venv/bin/python",
+        "scripts/verify_wp07a_evidence.py",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-source-manifest-r5.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-command-evidence-r5.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-exit-r5.json"
+      ],
+      "status": "PASS",
+      "findings": []
+    },
+    "exact_four_parameter_validator": {
+      "status": "NOT_RUN",
+      "reason": "The review verdict is REVISE; the exact four-parameter validator accepts only PASS verdicts."
+    },
+    "source_currentness_after_validator": {
+      "status": "PASS",
+      "findings": [],
+      "row_count": 342
+    },
+    "candidate_test_execution_count": 844,
+    "independent_checks": [
+      {
+        "check": "all 342 source-manifest rows, governing documents and predecessor WP-05/WP-06/WP-07 PASS records",
+        "status": "PASS"
+      },
+      {
+        "check": "ACT-001B, ACT-001C, ACT-001D and ACT-001E",
+        "status": "PASS"
+      },
+      {
+        "check": "all 40 WP-07A focused contract, integration, E2E and security tests",
+        "status": "PASS"
+      },
+      {
+        "check": "lint, type and architecture static checks",
+        "status": "PASS"
+      },
+      {
+        "check": "independent rebuild and command replay performed by the exact three-record validator",
+        "status": "PASS",
+        "evidence": "The rebuilt exact wheel matches the evidenced SHA-256 964f1de3a5783192494448e31aecbb2902eb619186bc5f1bb24a9b1e3e903f93."
+      },
+      {
+        "check": "development checkout, clean extracted package and direct archive resolve the closed implementation tuple; extracted and direct archive factory probes issue and run all five built-in adapters",
+        "status": "PASS"
+      },
+      {
+        "check": "incomplete, mismatched, duplicate and physically ambiguous extracted/archive package layouts stop before adapter issue",
+        "status": "PASS"
+      },
+      {
+        "check": "source checkout identity is selected only from the configured installation control state",
+        "status": "FAIL",
+        "evidence": "With GEW_INSTALLATION_CONTROL_ROOT naming control directory A, a copied checkout initialized successfully when only a different self-consistent control directory B was appended to sys.path. The validator scans sys.path for filenames and never compares the selected root with the configured control reference."
+      },
+      {
+        "check": "direct-archive staging is bounded, verified, cleaned and not reused after restart",
+        "status": "FAIL",
+        "evidence": "The exact direct archive verifies and stages fresh adapter bytes and normally removes them via atexit. After an abrupt post-import process exit, one gew-validated-adapters-* directory remained; a successful restart created and cleaned its own staging but left the prior directory in place. No finite member-count, per-member byte or aggregate-byte bound is enforced before staging."
+      }
+    ],
+    "external_actions_observed": false,
+    "network_used": false,
+    "user_repository_used": false
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "WP07A-CODE-R1-001",
+      "status": "closed",
+      "evidence": "The r5 source and replayed tests preserve fresh post-receipt observation and zero-mutation recovery behavior."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-002",
+      "status": "closed",
+      "evidence": "The r5 source and replayed tests preserve semantic, serialized and derived output sanitation plus secret destruction."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-003",
+      "status": "open",
+      "evidence": "The exact source, extracted and direct-archive happy paths and prior package-layout rejections now pass. Checkout validation still selects an arbitrary matching sys.path control directory instead of the configured installation control state, and direct-archive staging does not remove an orphan after abrupt termination or on the next start and has no explicit finite staging bounds."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-004",
+      "status": "closed",
+      "evidence": "The r5 source and replayed tests preserve bounded full-process-group termination."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-005",
+      "status": "closed",
+      "evidence": "The r5 source and replayed tests preserve authenticated query-only recovery without mutation replay."
+    },
+    {
+      "finding_id": "WP07A-EVIDENCE-R1-001",
+      "status": "closed",
+      "evidence": "The gate, command evidence and r5 exit bind the designated independent reviewer separately from the author."
+    }
+  ],
+  "findings": [
+    {
+      "id": "WP07A-CODE-R1-003",
+      "severity": "P1",
+      "status": "open",
+      "location": "core/graph_engineering/__init__.py:153-167,507-562; tests/e2e/test_wp07a_real_action.py:1049-1051",
+      "summary": "Package provenance still does not bind a source checkout to the configured installation control state, and direct-archive staging is not restart-clean or explicitly bounded.",
+      "evidence": "A disposable copied checkout was given two valid owner-only control directories. GEW_INSTALLATION_CONTROL_ROOT named A, while only B was placed on sys.path; built-in implementation provenance was accepted. Separately, an exact direct archive imported successfully and staged verified adapter bytes, then an abrupt process exit bypassed atexit. A subsequent successful direct-archive run left the original staging directory untouched. Inspection also found no configured finite bound on staged adapter member count, individual size or aggregate bytes.",
+      "required_change": "Resolve source-checkout authority from the one explicit installation-control reference supplied by the supported bootstrap/runtime configuration and bind it to the active installation identity; do not discover authority by scanning arbitrary sys.path entries. For direct archives, apply configured finite count/per-file/aggregate staging limits before allocation, keep byte and identity verification, use a dedicated installation-owned staging namespace, remove abandoned generations deterministically at startup, never reuse a prior generation, and retain cleanup on every normal and exceptional path.",
+      "mechanical_closure_tests": [
+        "Configure installation control A, expose a distinct internally valid control B through sys.path, and assert source provenance, factory issue and all adapter calls reject; the exact A-bound checkout must initialize and run all five built-ins.",
+        "Exercise missing, mismatched and multiple configured control references and assert the checkout stops deterministically before provenance resolution or adapter issue.",
+        "Terminate a direct-archive process after staging without running exit handlers, start a new process, and assert the abandoned generation is removed, never imported or reused, while the new verified generation runs all five built-ins and is cleaned.",
+        "Exceed configured staged member count, per-member bytes and aggregate bytes independently and assert rejection before unbounded allocation or package initialization.",
+        "Retain the exact development-checkout, extracted-package and direct-archive five-adapter happy paths and all existing incomplete/ambiguous package-layout rejections."
+      ]
+    }
+  ],
+  "reviewed_without_open_findings": [
+    "exact r5 source, command and exit evidence binding",
+    "WP-05, WP-06 and WP-07 predecessor PASS binding",
+    "source, extracted-package and direct-archive implementation digest equality",
+    "five built-in adapter issue and bounded local execution in extracted and direct-archive layouts",
+    "incomplete, mismatched and duplicate distribution layout rejection",
+    "unique physical protected archive members",
+    "prior action recovery, output sanitation and process-group findings"
+  ]
+}

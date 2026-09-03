@@ -1,0 +1,360 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:category-execution-policy:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "raw": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "integer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "positiveInteger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "ids": {
+      "type": "array",
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "pins": {
+      "type": "object",
+      "properties": {
+        "base_graph_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "profile_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "overlay_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "project_config_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "support_matrix_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "materialization_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "base_graph_digest",
+        "profile_digest",
+        "overlay_digest",
+        "project_config_digest",
+        "support_matrix_digest",
+        "materialization_digest"
+      ],
+      "unevaluatedProperties": false
+    },
+    "runner": {
+      "type": "object",
+      "properties": {
+        "node_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "edge_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "artifact_contract_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "validator_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "completion_predicate_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "required_invariant_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "budget_limits": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 64,
+          "additionalProperties": {
+            "$ref": "#/$defs/positiveInteger"
+          }
+        }
+      },
+      "required": [
+        "node_ids",
+        "edge_ids",
+        "artifact_contract_ids",
+        "validator_ids",
+        "completion_predicate_ids",
+        "required_invariant_ids",
+        "budget_limits"
+      ],
+      "unevaluatedProperties": false
+    },
+    "state": {
+      "type": "object",
+      "properties": {
+        "generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "profile_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "generation",
+        "profile_id"
+      ],
+      "unevaluatedProperties": false
+    },
+    "identity": {
+      "type": "object",
+      "properties": {
+        "profile_id": {
+          "enum": [
+            "new-feature",
+            "bug-fix",
+            "hotfix",
+            "refactor-debt",
+            "migration",
+            "dependency-security",
+            "performance",
+            "release-operations",
+            "incident-response"
+          ]
+        },
+        "profile_version": {
+          "const": "1.0.0"
+        },
+        "profile_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "profile_id",
+        "profile_version",
+        "profile_digest"
+      ],
+      "unevaluatedProperties": false
+    },
+    "transition": {
+      "type": "object",
+      "properties": {
+        "column_id": {
+          "enum": [
+            "normal",
+            "boundary",
+            "revise",
+            "authority",
+            "drift",
+            "invalidation",
+            "recovery",
+            "artifacts",
+            "review",
+            "target",
+            "rollback"
+            ,"real-e2e"
+          ]
+        },
+        "from_state": {
+          "const": "pending"
+        },
+        "event_type": {
+          "$ref": "#/$defs/id"
+        },
+        "to_state": {
+          "const": "completed"
+        },
+        "evidence_kind": {
+          "enum": [
+            "runner-execution",
+            "scenario-membership",
+            "revision-lineage",
+            "authority-decision",
+            "drift-assessment",
+            "invalidation-record",
+            "recovery-record",
+            "artifact-records",
+            "independent-review",
+            "target-observation",
+            "action-rollback"
+            ,"real-toolchain-execution"
+          ]
+        },
+        "required_outcome": {
+          "enum": [
+            "runner-accepted",
+            "scenario-accepted",
+            "revision-accepted",
+            "authority-current",
+            "drift-resolved",
+            "invalidation-current",
+            "recovered",
+            "artifacts-accepted",
+            "review-accepted",
+            "target-matched",
+            "rollback-verified"
+            ,"real-toolchain-attested"
+          ]
+        },
+        "required_fact_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "owner_route": {
+          "type": ["string", "null"]
+        }
+      },
+      "required": [
+        "column_id",
+        "from_state",
+        "event_type",
+        "to_state",
+        "evidence_kind",
+        "required_outcome",
+        "required_fact_ids",
+        "owner_route"
+      ],
+      "unevaluatedProperties": false
+    },
+    "mapping": {
+      "type": "object",
+      "properties": {
+        "logical_action_kind": {
+          "$ref": "#/$defs/id"
+        },
+        "action_protocol_kind": {
+          "const": "rollback"
+        },
+        "prepared_status": {
+          "const": "prepared"
+        },
+        "authorized_status": {
+          "const": "authorized"
+        },
+        "success_status": {
+          "const": "reconciled-effect-verified"
+        },
+        "unknown_route": {
+          "const": "query-reconcile-owner"
+        },
+        "failure_route": {
+          "const": "unresolved-claim-owner"
+        }
+      },
+      "required": [
+        "logical_action_kind",
+        "action_protocol_kind",
+        "prepared_status",
+        "authorized_status",
+        "success_status",
+        "unknown_route",
+        "failure_route"
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "policy_id": {
+      "$ref": "#/$defs/id"
+    },
+    "profile_identities": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/identity"
+      }
+    },
+    "support_matrix_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "authority_refs": {
+      "$ref": "#/$defs/ids"
+    },
+    "column_ids": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "normal",
+          "boundary",
+          "revise",
+          "authority",
+          "drift",
+          "invalidation",
+          "recovery",
+          "artifacts",
+          "review",
+          "target",
+          "rollback",
+          "real-e2e"
+        ]
+      }
+    },
+    "local_execution_kinds": {
+      "$ref": "#/$defs/ids"
+    },
+    "real_e2e_execution_kinds": {
+      "$ref": "#/$defs/ids"
+    },
+    "rollback_protocol_mappings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/mapping"
+      }
+    },
+    "transition_rules": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/transition"
+      }
+    },
+    "policy_digest": {
+      "$ref": "#/$defs/digest"
+    }
+  },
+  "required": [
+    "schema_version",
+    "policy_id",
+    "profile_identities",
+    "support_matrix_digest",
+    "authority_refs",
+    "column_ids",
+    "local_execution_kinds",
+    "real_e2e_execution_kinds",
+    "rollback_protocol_mappings",
+    "transition_rules",
+    "policy_digest"
+  ],
+  "unevaluatedProperties": false
+}

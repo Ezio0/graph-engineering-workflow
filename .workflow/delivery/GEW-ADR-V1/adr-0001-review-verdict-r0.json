@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "adr-0001",
+  "scope_changed": false,
+  "change_kinds": ["architecture-decision", "clarification", "consistency", "testability"],
+  "findings": [
+    {"id": "ADR1-R0-001", "severity": "blocking", "evidence": "Separate common-name top-level import packages can be shadowed by target projects or dependencies.", "required_change": "Map repository responsibility roots into one collision-resistant distribution-owned namespace and make CLI import the installed distribution.", "verification": "Wheel inspection and decoy-package tests inside and outside the repository.", "status": "open"},
+    {"id": "ADR1-R0-002", "severity": "blocking", "evidence": "A wheel does not consume uv.lock and the install contract did not bind exact artifacts, interpreter, trusted sources, hashes or supply-chain evidence.", "required_change": "Define a reproducible release bundle/install contract with exact verified inputs and fail-closed unsupported cases.", "verification": "Repeated clean macOS/Linux installs match; tampered or incompatible inputs fail before execution.", "status": "open"},
+    {"id": "ADR1-R0-003", "severity": "blocking", "evidence": "Skill installation, executable resolution, PATH shadowing and cross-component compatibility handshake were unspecified.", "required_change": "Define runtime-specific Skill ownership, canonical locator, version source and pre-mutation compatibility handshake.", "verification": "Clean installs resolve the intended executable and reject shadowed or incompatible components.", "status": "open"},
+    {"id": "ADR1-R0-004", "severity": "blocking", "evidence": "Packaging upgrade rollback and failed state-migration recovery were not defined.", "required_change": "Define staged upgrade/cutover/rollback retaining the prior executable and state.", "verification": "Failure injection at install, doctor, migration and cutover preserves the prior usable version.", "status": "open"}
+  ],
+  "reviewer_id": "codex:/root/adr_0001_reviewer_r0"
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "oracle_id": "ORA-PROFILE-BUG-FIX",
+  "oracle_kind": "independent-frozen-vector",
+  "profile_id": "bug-fix",
+  "selector_kind": "mandatory",
+  "column_id": "invalidation",
+  "scenario_id": null,
+  "category_boundary_case_id": null,
+  "overlay_id": "full-planned",
+  "evidence_kind": "invalidation-record",
+  "required_outcome": "invalidation-current",
+  "required_fact_ids": [
+    "invalidation-epoch",
+    "invalidation-status"
+  ],
+  "pass_result": "COMPLETED",
+  "reject_result": "EXPECTED_REJECTION",
+  "reject_error_type": "CategoryExecutionError",
+  "reject_error_message": "typed column evidence does not match authoritative durable facts: invalidation",
+  "reject_state_relation": "exact-equality",
+  "reject_input_relation": "exact-equality",
+  "isolated_runner_raw_sha256": "0f52a04ea53f099c10980d6ef1aa613fcdc8bf9e4022b5ba6079011c7f570d01",
+  "oracle_digest": "sha256-jcs-v1:b0f57a14fb89f7beab4f60f47a13e525b2524f386d0466a7476a7713573696fd",
+  "task_ids": {
+    "P": "task:wp08-coverage:gew-pro-bug-fix-invalidation-p",
+    "R": "task:wp08-coverage:gew-pro-bug-fix-invalidation-r"
+  }
+}

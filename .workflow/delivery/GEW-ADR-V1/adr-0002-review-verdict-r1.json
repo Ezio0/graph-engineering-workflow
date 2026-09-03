@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "adr-0002",
+  "scope_changed": false,
+  "change_kinds": ["architecture-decision", "clarification", "consistency", "testability"],
+  "findings": [
+    {
+      "id": "GEW-ADR2-LOCK-001",
+      "severity": "blocking",
+      "evidence": "The revision did not freeze the exact macOS/Linux advisory-lock primitive or prevent fork-inherited descriptors and registry state from affecting the parent call-span lock.",
+      "required_change": "Freeze platform lock semantics and define PID-bound handles plus at-fork poisoning and reinitialization.",
+      "verification": "Thread, process, fork, child-unlock/exit, exec, crash, lock-order and inode-replacement tests preserve exclusivity.",
+      "status": "open"
+    },
+    {
+      "id": "GEW-ADR2-MIGRATION-001",
+      "severity": "blocking",
+      "evidence": "Activation could split coordination between the old and candidate repository maintenance-lock domains after the active-manifest switch.",
+      "required_change": "Use one installation-scoped activation lock and bind command admission to it and the active-manifest generation.",
+      "verification": "Concurrent migration, command-versus-switch, crash, rollback and stale-generation tests admit one activation authority.",
+      "status": "open"
+    }
+  ],
+  "reviewer_id": "codex:/root/adr_0002_reviewer_r1"
+}

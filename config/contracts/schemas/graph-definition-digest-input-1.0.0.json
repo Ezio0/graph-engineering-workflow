@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:graph-definition-digest-input:1.0.0",
+  "$defs": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 255},
+    "nullable-id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+    "path-token": {"oneOf": [{"type": "string", "maxLength": 255}, {"type": "integer", "minimum": 0}]},
+    "path": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/path-token"}},
+    "input-mapping": {
+      "type": "object",
+      "properties": {
+        "source_path": {"$ref": "#/$defs/path"},
+        "target_path": {"$ref": "#/$defs/path"}
+      },
+      "required": ["source_path", "target_path"],
+      "additionalProperties": false
+    },
+    "join-policy": {
+      "type": "object",
+      "properties": {
+        "kind": {"enum": ["all_required", "any_passed", "quorum", "human_decision"]},
+        "quorum": {"anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]}
+      },
+      "required": ["kind", "quorum"],
+      "additionalProperties": false
+    },
+    "condition-root": {
+      "type": "object",
+      "properties": {
+        "root": {"$ref": "#/$defs/id"},
+        "tokens": {"$ref": "#/$defs/path"},
+        "value_type": {"enum": ["null", "boolean", "integer", "string", "array", "object"]}
+      },
+      "required": ["root", "tokens", "value_type"],
+      "additionalProperties": false
+    },
+    "trust-upgrade": {
+      "type": "object",
+      "properties": {"from": {"$ref": "#/$defs/id"}, "to": {"$ref": "#/$defs/id"}},
+      "required": ["from", "to"],
+      "additionalProperties": false
+    },
+    "trust-policy": {
+      "type": "object",
+      "properties": {
+        "levels": {"type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "upgrades": {"type": "array", "maxItems": 128, "uniqueItems": true, "items": {"$ref": "#/$defs/trust-upgrade"}}
+      },
+      "required": ["levels", "upgrades"],
+      "additionalProperties": false
+    },
+    "registry-pin": {
+      "type": "object",
+      "properties": {
+        "registry_id": {"$ref": "#/$defs/id"},
+        "registry_digest": {"type": "string", "minLength": 78, "maxLength": 78}
+      },
+      "required": ["registry_id", "registry_digest"],
+      "additionalProperties": false
+    },
+    "registry-pins": {
+      "type": "object",
+      "properties": {
+        "schema": {"$ref": "#/$defs/registry-pin"},
+        "predicate": {"$ref": "#/$defs/registry-pin"},
+        "error_rule": {"$ref": "#/$defs/registry-pin"},
+        "completion_policy": {"$ref": "#/$defs/registry-pin"},
+        "loop_budget": {"$ref": "#/$defs/registry-pin"}
+      },
+      "required": ["schema", "predicate", "error_rule", "completion_policy", "loop_budget"],
+      "additionalProperties": false
+    },
+    "resource-pins": {
+      "type": "object",
+      "properties": {
+        "resource_profile": {
+          "type": "object",
+          "properties": {
+            "profile_id": {"$ref": "#/$defs/id"},
+            "body_digest": {"type": "string", "minLength": 78, "maxLength": 78}
+          },
+          "required": ["profile_id", "body_digest"],
+          "additionalProperties": false
+        },
+        "cost_schedule": {
+          "type": "object",
+          "properties": {
+            "schedule_id": {"$ref": "#/$defs/id"},
+            "body_digest": {"type": "string", "minLength": 78, "maxLength": 78}
+          },
+          "required": ["schedule_id", "body_digest"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["resource_profile", "cost_schedule"],
+      "additionalProperties": false
+    },
+    "node": {
+      "type": "object",
+      "properties": {
+        "node_id": {"$ref": "#/$defs/id"},
+        "node_kind": {"enum": ["agent_loop", "deterministic"]},
+        "input_schema_ref": {"$ref": "#/$defs/id"},
+        "output_schema_ref": {"$ref": "#/$defs/id"},
+        "executor_capability": {"$ref": "#/$defs/id"},
+        "authority_requirement": {"$ref": "#/$defs/id"},
+        "side_effect_class": {"$ref": "#/$defs/id"},
+        "review_policy_ref": {"$ref": "#/$defs/id"},
+        "loop_budget_ref": {"$ref": "#/$defs/nullable-id"},
+        "timeout_policy_ref": {"$ref": "#/$defs/id"},
+        "artifact_contract_refs": {"type": "array", "maxItems": 32, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "failure_routes": {"type": "object", "maxProperties": 64, "additionalProperties": {"$ref": "#/$defs/id"}},
+        "invalidation_tags": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "entrypoint": {"type": "boolean"},
+        "completion_eligible": {"type": "boolean"}
+      },
+      "required": ["node_id", "node_kind", "input_schema_ref", "output_schema_ref", "executor_capability", "authority_requirement", "side_effect_class", "review_policy_ref", "loop_budget_ref", "timeout_policy_ref", "artifact_contract_refs", "failure_routes", "invalidation_tags", "entrypoint", "completion_eligible"],
+      "additionalProperties": false
+    },
+    "edge": {
+      "type": "object",
+      "properties": {
+        "edge_id": {"$ref": "#/$defs/id"},
+        "from_node": {"$ref": "#/$defs/id"},
+        "to_node": {"$ref": "#/$defs/id"},
+        "input_mapping": {"type": "array", "minItems": 1, "maxItems": 128, "items": {"$ref": "#/$defs/input-mapping"}},
+        "target_input_schema_ref": {"$ref": "#/$defs/id"},
+        "route_condition": {"type": "object", "minProperties": 1, "maxProperties": 32, "additionalProperties": true},
+        "route_priority": {"type": "integer", "minimum": 0},
+        "required_trust": {"$ref": "#/$defs/id"},
+        "evidence_requirements": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "join_policy": {"$ref": "#/$defs/join-policy"},
+        "invalidation_rule": {"enum": ["propagate", "revalidate", "reconcile"]},
+        "failure_route": {"$ref": "#/$defs/nullable-id"}
+      },
+      "required": ["edge_id", "from_node", "to_node", "input_mapping", "target_input_schema_ref", "route_condition", "route_priority", "required_trust", "evidence_requirements", "join_policy", "invalidation_rule", "failure_route"],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "graph_id": {"$ref": "#/$defs/id"},
+    "graph_version": {"$ref": "#/$defs/id"},
+    "completion_policy_ref": {"$ref": "#/$defs/id"},
+    "trust_policy": {"$ref": "#/$defs/trust-policy"},
+    "registry_pins": {"$ref": "#/$defs/registry-pins"},
+    "resource_pins": {"$ref": "#/$defs/resource-pins"},
+    "condition_roots": {"type": "array", "maxItems": 128, "uniqueItems": true, "items": {"$ref": "#/$defs/condition-root"}},
+    "nodes": {"type": "array", "minItems": 1, "maxItems": 4096, "uniqueItems": true, "items": {"$ref": "#/$defs/node"}},
+    "edges": {"type": "array", "maxItems": 16384, "uniqueItems": true, "items": {"$ref": "#/$defs/edge"}}
+  },
+  "required": ["schema_version", "graph_id", "graph_version", "completion_policy_ref", "trust_policy", "registry_pins", "resource_pins", "condition_roots", "nodes", "edges"],
+  "unevaluatedProperties": false
+}

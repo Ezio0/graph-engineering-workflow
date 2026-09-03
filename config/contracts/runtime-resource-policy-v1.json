@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "urn:gew:runtime-resource-policy:default:1.0.0",
+  "resource_profile_digest": "sha256-jcs-v1:755ba29885c254584d67bb2fa6b2bbb29c00a6f5df8225333e99d82cec47c414",
+  "cost_schedule_digest": "sha256-jcs-v1:cac438dfee24993a238d83deef5524e0c209ee2ad455698082c66d1cc23a01bf",
+  "max_record_bytes": 262144,
+  "max_executable_bytes": 16777216,
+  "max_string_chars": 65536,
+  "max_segments": 1024,
+  "max_items": 16384,
+  "max_depth": 64,
+  "policy_digest": "sha256-jcs-v1:95596837b829d3c9f2b571f3fe07c3f9a118f59c9315695b7c6956c441a93cfd"
+}

@@ -1,0 +1,3 @@
+{
+  "schema_version": "1.0", "task_id": "GEW-ADR-V1", "node": "adr-metadata-revalidation", "artifact": "adr-0003", "author_id": "deterministic-control:/root", "reviewer_id": "codex:/root/adr_0003_reviewer_r1", "targets": ["docs/adr/0003-deterministic-contract-stack.md"], "revision": 5, "artifact_digest": "48a9dfb140f739eb2d604ef294d486cd2308d56c46290f8d2f27a85593995c7c", "previous_artifact_digest": "78d56b16ba23a8f0c53370e0a49105fbee8789c84fc6c7ed9b69cc67aec9ec86", "change_class": "metadata-only"
+}

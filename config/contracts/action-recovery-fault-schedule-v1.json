@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "schedule_id": "wp05-action-recovery-fault-schedule-v1",
+  "points": [
+    "claim.after-consume",
+    "gate.before-start",
+    "query.after-observation",
+    "raw-receipt.before-transaction",
+    "receipt-event.after-commit",
+    "receipt-event.before-commit",
+    "reconcile.after-commit",
+    "reconcile.before-commit",
+    "start.after-commit",
+    "start.before-commit",
+    "tool.after-effect"
+  ]
+}

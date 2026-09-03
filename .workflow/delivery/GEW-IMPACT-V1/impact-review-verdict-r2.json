@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "verdict": "PASS",
+  "artifact": "impact",
+  "artifact_digest": "89899bc93ea09776c1714fa2088810640a476ede57dd82acad495a793fc943a3",
+  "scope_changed": false,
+  "change_kinds": [],
+  "findings": [],
+  "reviewer_id": "codex:/root/impact_reviewer_r1",
+  "review_note": "Metadata-only final revalidation after recording Impact Review PASS."
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "urn:gew:profile-evidence-observation-registry:v1",
+  "oracle_manifest_sha256": "6dbdcda71719ce28fb3ba59ff777c125537c1adae576ad6193c86dac8e77fb97",
+  "observations": [
+    {
+      "test_id": "GEW-PRO-NEW-FEATURE-NORMAL-P",
+      "fixture_id": "profile:new-feature:1.0.0",
+      "oracle_id": "ORA-PROFILE-NEW-FEATURE",
+      "evidence_type": "coverage-record",
+      "owner_gate": "WP-08",
+      "execution_kind": "contract-test",
+      "observer_kind": "independent-fixture-observer",
+      "evidence_member": "wp08-new-feature-normal-p-evidence.json",
+      "evidence_bytes_sha256": "18c09982fe21d347e4c6acaafc54a56aa078ad472dd14ee1406ed1d0ffa1dd35"
+    }
+  ],
+  "registry_digest": "sha256-jcs-v1:282715dcc04d9acff448b5445eaa096ba1b8ee85faab928362c72384747a17a8"
+}

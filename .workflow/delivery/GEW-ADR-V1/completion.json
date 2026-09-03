@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-ADR-V1",
+  "status": "completed",
+  "verdict": "PASS",
+  "accepted_artifacts": {
+    "adr-0001": "d46dbe9216865029ef544ed17809a1252b5f10ea9d837d9b308192e06c19fa34",
+    "adr-0002": "90a3d6f28f7968474a920700da696792e855d614edec4310712a4d41cd4aef73",
+    "adr-0003": "48a9dfb140f739eb2d604ef294d486cd2308d56c46290f8d2f27a85593995c7c"
+  },
+  "independent_review": "PASS",
+  "metadata_revalidation": "PASS",
+  "irreversible_actions": []
+}

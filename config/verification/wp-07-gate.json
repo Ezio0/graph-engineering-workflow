@@ -1,0 +1,175 @@
+{
+  "schema_version": "1.0",
+  "dependencies": [
+    {
+      "work_package": "WP-05",
+      "revision": 2,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05-source-manifest-r2.json",
+      "source_manifest_digest": "48536f411e6fb6213f049e7136541e69561fac0bb33df8a11bdab722898a7b8b",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05-command-evidence-r2.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05-review-verdict-r2.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-05-exit-r2.json"
+    },
+    {
+      "work_package": "WP-06",
+      "revision": 3,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-06-source-manifest-r3.json",
+      "source_manifest_digest": "505e0a62a2c2895f695372444f543e9d4bd71714fa93e3cfc91af0c272bcbb4e",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-06-command-evidence-r3.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-06-review-verdict-r3.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-06-exit-r3.json"
+    }
+  ],
+  "runtime_pins": {
+    "runtime_fixture": {
+      "path": "tests/fixtures/wp07-runtime-adapters.json",
+      "sha256": "3c2c4cbb3235b6f0f3101e9ed57eaea991f12e97953a875ab342a23335e4ffa2",
+      "schema_version": "1.0",
+      "cell_count": 3,
+      "cell_ids": ["codex-native", "hermes-telegram", "hermes-discord"],
+      "runtime_kinds": ["codex", "hermes"],
+      "channel_kinds": ["discord", "native", "telegram"],
+      "capabilities": ["agent.invoke", "human.request", "presentation.deliver", "reviewer.invoke", "tool.invoke"]
+    },
+    "runtime_configuration_contract": {
+      "path": "adapters/graph_engineering/adapters/runtime_config.py",
+      "sha256": "4b638d7055a8ce092ef283a1f63831fe43903a9bb4382a9c7cc7012b901a72bf",
+      "configuration_fields": ["action_protocol_version", "adapter_id", "adapter_version", "allowed_channels", "capabilities", "cell_id", "channel_kind", "configuration_digest", "core_version", "data_root_ref", "graph_contract_version", "overlay_contract_version", "owner_bindings", "profile_contract_version", "protocol_version", "release_id", "release_manifest_digest", "repository_bundle_version", "repository_contract_version", "runtime_instance_id", "runtime_kind", "runtime_local_port_policy_digest", "runtime_resource_policy_digest", "runtime_version", "schema_registry_digest", "schema_version", "skill_id", "skill_version"],
+      "runtime_input_fields": ["channel_kind", "channel_ref", "session_id", "thread_ref", "user_id"],
+      "capability_fields": ["action_protocol_version", "adapter_id", "adapter_version", "canonical_executable", "capabilities", "capability_digest", "cli_protocol_version", "compatibility", "core_version", "data_root_ref", "graph_contract_version", "overlay_contract_version", "package_origin", "profile_contract_version", "release_id", "release_manifest_digest", "repository_bundle_version", "repository_contract_version", "runtime_kind", "schema_registry_digest", "schema_version", "skill_id", "skill_version"]
+    },
+    "runtime_resource_policy": {
+      "path": "config/contracts/runtime-resource-policy-v1.json",
+      "sha256": "7b37e64293fa1b264d91cb5e6335709cee84372bae5d1558cc5a67c974210b29",
+      "schema_version": "1.0.0",
+      "policy_id": "urn:gew:runtime-resource-policy:default:1.0.0",
+      "policy_digest": "sha256-jcs-v1:95596837b829d3c9f2b571f3fe07c3f9a118f59c9315695b7c6956c441a93cfd",
+      "resource_profile_digest": "sha256-jcs-v1:755ba29885c254584d67bb2fa6b2bbb29c00a6f5df8225333e99d82cec47c414",
+      "cost_schedule_digest": "sha256-jcs-v1:cac438dfee24993a238d83deef5524e0c209ee2ad455698082c66d1cc23a01bf",
+      "max_record_bytes": 262144,
+      "max_executable_bytes": 16777216,
+      "max_string_chars": 65536,
+      "max_segments": 1024,
+      "max_items": 16384,
+      "max_depth": 64
+    },
+    "runtime_local_port_policy": {
+      "path": "config/contracts/runtime-local-port-policy-v1.json",
+      "sha256": "4a907f91c83b938319f84299b9afb98909a4898e6991488cd7ec78651ed06481",
+      "schema_version": "1.0",
+      "human_status": "pending",
+      "decision_ref_prefix": "pending:",
+      "presentation_status": "pending",
+      "delivery_ref_prefix": "local:",
+      "policy_digest": "sha256-jcs-v1:e6a529519a011ca5fb7cabe81cd8697c961f937b3488e770d79cb58a742b440f"
+    },
+    "skill_assets": [
+      {"path": "skills/graph-engineering-codex/SKILL.md", "sha256": "9e662825653478c9ec1ca1d560660969ab05b74bc34177b4d3378804c182f5ed"},
+      {"path": "skills/graph-engineering-codex/agents/openai.yaml", "sha256": "0e062ab4a6c122ab6727e2596d9cde9e20d311d30288466cf73e130158988196"},
+      {"path": "skills/graph-engineering-hermes/SKILL.md", "sha256": "46d55a9d7344d6041aa97664cf006fc2f4aad293691fa127d234d1da7003f4f4"},
+      {"path": "skills/graph-engineering-hermes/agents/openai.yaml", "sha256": "0037d95f32e8bfd9f305f93536bd5c674b8260b6e492165ffd4c2655d38af88e"}
+    ]
+  },
+  "governing_document_digests": [
+    {"path": "docs/positioning/baselines/graph-engineering-workflow-v2.md", "sha256": "968d4b574008b53ce79f7fe4c1e1b3d5f71d44bca890425848f388577883f799"},
+    {"path": "docs/positioning/baselines/graph-engineering-workflow-v2.sha256", "sha256": "5929136653e13c91a7801e17e9fb7f73e13718ecbbedc4953b08d637cde1bc38"},
+    {"path": "docs/prd/baselines/graph-engineering-workflow-v2.md", "sha256": "594b4437301853919ce3b4aa93e703a395ed45bff924ea6266b3a8e202a30be7"},
+    {"path": "docs/prd/baselines/graph-engineering-workflow-v2.sha256", "sha256": "01e11ef7a0d89d76927675eec22a4278ff6e0a4f196aecd99910a2a0c615e58b"},
+    {"path": "docs/specs/graph-engineering-workflow.md", "sha256": "72f16ee950a788769fbdf944199764dc7b4f74110da764320d802290b8c1d37a"},
+    {"path": "docs/impact/graph-engineering-workflow.md", "sha256": "5bc9bfcba5057eed9efca07d00dc26775b0c74d8845e2e3cfd17016dbee03df3"},
+    {"path": "docs/plans/2026-08-13-graph-engineering-workflow.md", "sha256": "3232365b008c25dc4a0f4ca9de3dceaff90309b2266b23e1a4e2cdf266512ac4"},
+    {"path": "docs/test-plans/graph-engineering-workflow.md", "sha256": "168d9b8aae581ad00971a17225f57eea14919b15b98a012ea93ad631a35fe3fc"},
+    {"path": "docs/adr/0001-core-implementation-and-local-packaging.md", "sha256": "d46dbe9216865029ef544ed17809a1252b5f10ea9d837d9b308192e06c19fa34"},
+    {"path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/authority-envelope.json", "sha256": "43552de463df28ea44e6fdb7ff28bd56149430b9bdcd006704e4bf8125877035"}
+  ],
+  "binding_groups": [
+    {"prefix": "GEW-RT", "start": 1, "end": 10, "path": "tests/unit/test_wp07_runtime_contract.py", "module": "test_wp07_runtime_contract", "class": "WP07RuntimeContractTests"},
+    {"prefix": "GEW-RT", "start": 11, "end": 20, "path": "tests/integration/test_wp07_runtime_parity.py", "module": "test_wp07_runtime_parity", "class": "WP07RuntimeParityTests"},
+    {"prefix": "GEW-RT", "start": 21, "end": 25, "path": "tests/integration/test_wp07_runtime_hardening.py", "module": "test_wp07_runtime_hardening", "class": "WP07RuntimeHardeningTests"},
+    {"prefix": "GEW-RT", "start": 26, "end": 31, "path": "tests/integration/test_wp07_skill_cli.py", "module": "test_wp07_skill_cli", "class": "WP07SkillCliTests"},
+    {"prefix": "GEW-RT", "start": 32, "end": 32, "path": "tests/integration/test_wp07_runtime_hardening.py", "module": "test_wp07_runtime_hardening", "class": "WP07RuntimeHardeningTests"},
+    {"prefix": "GEW-RT", "start": 33, "end": 41, "path": "tests/integration/test_wp07_runtime_r2.py", "module": "test_wp07_runtime_r2", "class": "WP07RuntimeR2Tests"},
+    {"prefix": "GEW-RT", "start": 42, "end": 43, "path": "tests/integration/test_wp07_skill_cli.py", "module": "test_wp07_skill_cli", "class": "WP07SkillCliTests"},
+    {"prefix": "GEW-RT", "start": 44, "end": 44, "path": "tests/integration/test_wp07_runtime_r2.py", "module": "test_wp07_runtime_r2", "class": "WP07RuntimeR2Tests"},
+    {"prefix": "GEW-RT", "start": 45, "end": 45, "path": "tests/unit/test_wp07_owner_turns.py", "module": "test_wp07_owner_turns", "class": "WP07OwnerTurnTests"}
+  ],
+  "supplemental_test_bindings": [
+    {"test_id": "GEW-RT-022A", "qualified_test": "test_wp07_runtime_hardening.WP07RuntimeHardeningTests.test_gew_rt_022a_callback_context_is_one_use_and_exception_safe"},
+    {"test_id": "GEW-RT-025A", "qualified_test": "test_wp07_runtime_hardening.WP07RuntimeHardeningTests.test_gew_rt_025a_resigned_adapter_result_binding_is_rejected"},
+    {"test_id": "GEW-RT-044A", "qualified_test": "test_wp07_runtime_r2.WP07RuntimeR2Tests.test_gew_rt_044a_resigned_independence_field_substitution_is_zero_call"}
+  ],
+  "required_skill_test_bindings": [
+    {"test_id": "GEW-WP-07-SKILL-QUICK-P", "qualified_test": "test_wp07_skill_cli.WP07SkillCliTests.test_gew_rt_026_codex_and_hermes_skills_are_thin_and_structurally_valid"},
+    {"test_id": "GEW-WP-07-ISOLATED-WHEEL-P", "qualified_test": "test_wp07_skill_cli.WP07SkillCliTests.test_gew_rt_031_isolated_prerelease_wheel_and_skill_fixture_uses_exact_origin"},
+    {"test_id": "GEW-WP-07-ISOLATED-FULL-FLOW-P", "qualified_test": "test_wp07_skill_cli.WP07SkillCliTests.test_gew_rt_043_isolated_wheel_executes_full_owner_turn_surface_for_all_cells"}
+  ],
+  "reviewer_remedy_bindings": [
+    {"finding_id": "WP07-CODE-R1-001", "qualified_tests": ["test_wp07_skill_cli.WP07SkillCliTests.test_gew_rt_043_isolated_wheel_executes_full_owner_turn_surface_for_all_cells", "test_wp07_owner_turns.WP07OwnerTurnTests.test_gew_rt_045_each_owner_turn_is_one_exact_versioned_operation"]},
+    {"finding_id": "WP07-CODE-R1-002", "qualified_tests": ["test_wp07_skill_cli.WP07SkillCliTests.test_gew_rt_042_independent_skill_and_running_executable_handshake_fail_closed", "test_wp07_skill_cli.WP07SkillCliTests.test_gew_rt_031_isolated_prerelease_wheel_and_skill_fixture_uses_exact_origin"]},
+    {"finding_id": "WP07-CODE-R1-003", "qualified_tests": ["test_wp07_runtime_r2.WP07RuntimeR2Tests.test_gew_rt_037_operation_capability_is_rechecked_before_adapter_call", "test_wp07_runtime_r2.WP07RuntimeR2Tests.test_gew_rt_038_foreign_task_rejects_before_runtime_call"]},
+    {"finding_id": "WP07-CODE-R1-004", "qualified_tests": ["test_wp07_runtime_r2.WP07RuntimeR2Tests.test_gew_rt_036_interleaved_channel_sessions_never_cross_delivery", "test_wp07_runtime_r2.WP07RuntimeR2Tests.test_gew_rt_033_arbitrary_duck_adapter_is_not_runtime_authority"]},
+    {"finding_id": "WP07-CODE-R1-005", "qualified_tests": ["test_wp07_runtime_r2.WP07RuntimeR2Tests.test_gew_rt_040_runtime_query_facade_seals_raw_show_search_and_list"]},
+    {"finding_id": "WP07-CODE-R1-006", "qualified_tests": ["test_wp07_runtime_r2.WP07RuntimeR2Tests.test_gew_rt_039_independence_attestation_rejects_before_reviewer_call", "test_wp07_runtime_r2.WP07RuntimeR2Tests.test_gew_rt_044_independence_attestation_cannot_cross_reviewer_request", "test_wp07_runtime_r2.WP07RuntimeR2Tests.test_gew_rt_044a_resigned_independence_field_substitution_is_zero_call"]},
+    {"finding_id": "WP07-CODE-R1-007", "qualified_tests": ["test_wp07_runtime_r2.WP07RuntimeR2Tests.test_gew_rt_041_runtime_resource_policy_rejects_before_port_call"]},
+    {"finding_id": "WP07-CODE-R1-008", "qualified_tests": ["test_wp07_runtime_r2.WP07RuntimeR2Tests.test_gew_rt_034_duplicate_owner_alias_configuration_is_rejected", "test_wp07_runtime_r2.WP07RuntimeR2Tests.test_gew_rt_035_lineage_binds_exact_platform_identity_source"]}
+  ],
+  "evidence_test_bindings": [
+    {"test_id": "GEW-WP-07-EXIT-P", "qualified_test": "test_wp07_evidence_contract.WP07EvidenceContractTests.test_valid_candidate_binding_passes"},
+    {"test_id": "GEW-WP-07-EXIT-R", "qualified_test": "test_wp07_evidence_contract.WP07EvidenceContractTests.test_source_command_runtime_document_dependency_binding_and_review_mutations_fail"},
+    {"test_id": "GEW-WP-07-DEPENDENCY-R", "qualified_test": "test_wp07_evidence_contract.WP07EvidenceContractTests.test_prerequisites_require_exact_pass_candidates"}
+  ],
+  "minimum_passed_test_count": 800,
+  "expected_test_execution_count": 804,
+  "source_paths": [
+    "adapters/graph_engineering/adapters/owner_turn_local.py",
+    "adapters/graph_engineering/adapters/runtime_adapters.py",
+    "adapters/graph_engineering/adapters/runtime_config.py",
+    "adapters/graph_engineering/adapters/runtime_locator.py",
+    "application/graph_engineering/application/cli.py",
+    "application/graph_engineering/application/owner_turns.py",
+    "application/graph_engineering/application/runner.py",
+    "application/graph_engineering/application/runtime.py",
+    "application/graph_engineering/application/tasks.py",
+    "config/contracts/runtime-local-port-policy-v1.json",
+    "config/contracts/runtime-resource-policy-v1.json",
+    "config/verification/wp-00-targets.json",
+    "config/verification/wp-07-gate.json",
+    "core/graph_engineering/core/runtime.py",
+    "scripts/collect_wp07_evidence.py",
+    "scripts/evidence_utils.py",
+    "scripts/run_wp07_gate.py",
+    "scripts/verify_wp07_evidence.py",
+    "skills/graph-engineering-codex/SKILL.md",
+    "skills/graph-engineering-codex/agents/openai.yaml",
+    "skills/graph-engineering-hermes/SKILL.md",
+    "skills/graph-engineering-hermes/agents/openai.yaml",
+    "tests/contract/test_wp07_evidence_contract.py",
+    "tests/contract/test_wp07_gate_contract.py",
+    "tests/fixtures/wp07-runtime-adapters.json",
+    "tests/integration/test_wp04_application.py",
+    "tests/integration/test_wp04_runner.py",
+    "tests/integration/test_wp06_lifecycle_application.py",
+    "tests/integration/test_wp06_project_scope_repository.py",
+    "tests/integration/test_wp07_runtime_hardening.py",
+    "tests/integration/test_wp07_runtime_parity.py",
+    "tests/integration/test_wp07_runtime_r2.py",
+    "tests/integration/test_wp07_skill_cli.py",
+    "tests/support/application_queries.py",
+    "tests/support/runtime.py",
+    "tests/support/runtime_adapter_authority.py",
+    "tests/support/runtime_distribution.py",
+    "tests/support/runtime_locator.py",
+    "tests/support/runtime_resources.py",
+    "tests/support/wp07_runtime_adapter.py",
+    "tests/unit/test_wp07_owner_turns.py",
+    "tests/unit/test_wp07_runtime_contract.py"
+  ],
+  "commands": [
+    {"id": "GEW-WP-07-LINT-P", "argv": ["{python}", "scripts/check_sources.py", "lint"]},
+    {"id": "GEW-WP-07-TYPE-P", "argv": ["{python}", "scripts/check_sources.py", "type"]},
+    {"id": "GEW-WP-07-ARCHITECTURE-P", "argv": ["{python}", "scripts/check_architecture.py"]},
+    {"id": "GEW-WP-07-TEST-P", "argv": ["{python}", "scripts/run_tests.py"]},
+    {"id": "GEW-WP-07-BUILD-P", "argv": ["{python}", "scripts/verify_build.py"]},
+    {"id": "GEW-WP-07-REPRODUCIBILITY-P", "argv": ["{python}", "scripts/verify_reproducible_build.py"]}
+  ]
+}

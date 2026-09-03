@@ -1,0 +1,127 @@
+{
+  "manifest_digest": "sha256-jcs-v1:e5305adc1012d26464ebca7a05f1570e3f13c0b3e8e1ef061d120b17203b16c4",
+  "manifest_id": "migration-rehearsal-transform-manifest-v1",
+  "schema_version": "1.0.0",
+  "transforms": [
+    {
+      "compatibility_digest": "sha256-jcs-v1:e3b4edcd7e21017fade2852155e09b00e1c5c2f3797533c98c07354326eacded",
+      "direction": "backward",
+      "implementation_digest": "sha256-jcs-v1:88f58d9cd99e4a8d167d438009c637318fed0a98cea8924d73ea66fe514c835d",
+      "implementation_id": "installation-migration-repository-v1",
+      "input_projection_digest": "sha256-jcs-v1:a9afbf59e0c8e474be88940ece4b747d85ec2be929ba874b4653c94796f3eeb8",
+      "migration_id": "migration-rehearsal-backward",
+      "output_projection_digest": "sha256-jcs-v1:914f87caf5ea1cdc9a0534a8988199b1430562478a42ca6f053bd022d68ab61b",
+      "row_rules": [
+        {
+          "action": "apply",
+          "field_id": "optional_mode",
+          "input_present": true,
+          "input_value": "safe-default",
+          "output_present": false,
+          "output_value": null,
+          "owner_route": "none",
+          "row_id": "row-defaulted",
+          "rule_digest": "sha256-jcs-v1:82f77a337acc83dd90ce4ae64357df4538a99e26b88f0a416b340d242a895711"
+        },
+        {
+          "action": "apply",
+          "field_id": "owner_route",
+          "input_present": true,
+          "input_value": "current-owner",
+          "output_present": true,
+          "output_value": "legacy-owner",
+          "owner_route": "query-reconcile-owner",
+          "row_id": "row-owner-route",
+          "rule_digest": "sha256-jcs-v1:29bcc147eccb2fdcb7d28a22cb0fe9a256abd522f4f1fb2a9ecd36f2488cead2"
+        },
+        {
+          "action": "apply",
+          "field_id": "state",
+          "input_present": true,
+          "input_value": "ready-v2",
+          "output_present": true,
+          "output_value": "ready-v1",
+          "owner_route": "none",
+          "row_id": "row-preserved",
+          "rule_digest": "sha256-jcs-v1:73e6519f0fb987569a2c4e36115009cb74d0e516d28a8fa006ecc23c0ae3e94d"
+        },
+        {
+          "action": "reject",
+          "field_id": "unknown_field",
+          "input_present": true,
+          "input_value": "unsupported",
+          "output_present": true,
+          "output_value": "unsupported",
+          "owner_route": "none",
+          "row_id": "row-rejected",
+          "rule_digest": "sha256-jcs-v1:3caa4af86556b74541339b1cba41a8a6b92f7fa4f3a0d0d051d2c893a7884727"
+        }
+      ],
+      "source_contract_id": "repository-contract-v1",
+      "source_digest": "sha256-jcs-v1:5f3cb39cdc7d80e2449d7f7432a2565c219ad74a9b6f30bcc42fa84ede8ab3da",
+      "target_contract_id": "repository-contract-v1",
+      "transform_digest": "sha256-jcs-v1:77951d066252386c5d3528a55f18cb7187cdf9e39eb1d0046b17d2e7b7099059",
+      "transform_id": "migration-transform-backward-v1"
+    },
+    {
+      "compatibility_digest": "sha256-jcs-v1:95ee347445fabab24a43f3ec3f220b76332e0a1e0eb600ebbbbd165d793d7f67",
+      "direction": "forward",
+      "implementation_digest": "sha256-jcs-v1:673ddd9f145be5cf28a0c5c299d0f7208f95fe9e3c1e3c05e967b6ac02429325",
+      "implementation_id": "installation-migration-repository-v1",
+      "input_projection_digest": "sha256-jcs-v1:fe90b2b7e301ab5981a4b33441b0a186dd0634ddb0e01c0f776ff50b4adc019f",
+      "migration_id": "migration-rehearsal-forward",
+      "output_projection_digest": "sha256-jcs-v1:3f26253d983e5278c7911a4ae37a70c6c19a84e54568143b81bae9a7526171d5",
+      "row_rules": [
+        {
+          "action": "apply",
+          "field_id": "optional_mode",
+          "input_present": false,
+          "input_value": null,
+          "output_present": true,
+          "output_value": "safe-default",
+          "owner_route": "none",
+          "row_id": "row-defaulted",
+          "rule_digest": "sha256-jcs-v1:3de05ec7808add2c312440a1015f11b67f34aedd76d95dc565e74b2038206256"
+        },
+        {
+          "action": "apply",
+          "field_id": "owner_route",
+          "input_present": true,
+          "input_value": "legacy-owner",
+          "output_present": true,
+          "output_value": "current-owner",
+          "owner_route": "query-reconcile-owner",
+          "row_id": "row-owner-route",
+          "rule_digest": "sha256-jcs-v1:21635653a4ecef553b6dac4d79084543e7ed38f5f75fd7017b6f8303dbc4f16e"
+        },
+        {
+          "action": "apply",
+          "field_id": "state",
+          "input_present": true,
+          "input_value": "ready-v1",
+          "output_present": true,
+          "output_value": "ready-v2",
+          "owner_route": "none",
+          "row_id": "row-preserved",
+          "rule_digest": "sha256-jcs-v1:2f652c135f5c199897a886a294becddde5abcaf40d0dc3c14f6300bbbfee4460"
+        },
+        {
+          "action": "reject",
+          "field_id": "unknown_field",
+          "input_present": true,
+          "input_value": "unsupported",
+          "output_present": true,
+          "output_value": "unsupported",
+          "owner_route": "none",
+          "row_id": "row-rejected",
+          "rule_digest": "sha256-jcs-v1:3caa4af86556b74541339b1cba41a8a6b92f7fa4f3a0d0d051d2c893a7884727"
+        }
+      ],
+      "source_contract_id": "repository-contract-v1",
+      "source_digest": "sha256-jcs-v1:d3559834eb0076ec2503a036e00156359ccb7506a99d746cd1aed5be014a13e0",
+      "target_contract_id": "repository-contract-v1",
+      "transform_digest": "sha256-jcs-v1:89ac021f535dbcc14bcbc1e43a9fe70abb604f93f828c9cbe9572c2132b2abc6",
+      "transform_id": "migration-transform-forward-v1"
+    }
+  ]
+}

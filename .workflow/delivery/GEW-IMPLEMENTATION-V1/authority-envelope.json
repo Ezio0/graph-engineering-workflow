@@ -1,0 +1,23 @@
+{
+  "schema_version":"1.0","task_id":"GEW-IMPLEMENTATION-V1",
+  "authority_source":"approved-prd-post-approval-reversible-delivery",
+  "allowed_targets":[
+    "pyproject.toml","uv.lock","core/**","application/**","storage/**","adapters/**",
+    "config/**","skills/**","scripts/**","tests/**","docs/adr/0004-extension-source-and-capability-trust.md",
+    "docs/verification/**",".workflow/delivery/GEW-IMPLEMENTATION-V1/**"
+  ],
+  "allowed_actions":["author-tests","implement","local-build","local-test","local-static-analysis","independent-review","revise"],
+  "forbidden_actions":["network-download","modify-reference-project","modify-user-project","real-message","commit","push","merge","deploy","release","external-communication"],
+  "upstream_digests":{
+    "prd":"594b4437301853919ce3b4aa93e703a395ed45bff924ea6266b3a8e202a30be7",
+    "spec":"e632cd2c8b4f13b1455fa1f962491df6603b34d2eef0c46a84b350200e0f8d65",
+    "impact":"89899bc93ea09776c1714fa2088810640a476ede57dd82acad495a793fc943a3",
+    "plan":"26fce4fd8efa454b529d6a5589588936f5230b039bebbf8b637c77e257d1287b",
+    "test_plan":"8a82311ae5af79980e77828e11f20232daf50dc481fdee4604628e79308fd1e2",
+    "adr_0001":"d46dbe9216865029ef544ed17809a1252b5f10ea9d837d9b308192e06c19fa34",
+    "adr_0002":"90a3d6f28f7968474a920700da696792e855d614edec4310712a4d41cd4aef73",
+    "adr_0003":"48a9dfb140f739eb2d604ef294d486cd2308d56c46290f8d2f27a85593995c7c"
+  },
+  "first_slice":"WP-00",
+  "real_external_actions_enabled":false
+}

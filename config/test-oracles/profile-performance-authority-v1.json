@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "oracle_id": "ORA-PROFILE-PERFORMANCE",
+  "oracle_kind": "independent-frozen-vector",
+  "profile_id": "performance",
+  "selector_kind": "mandatory",
+  "column_id": "authority",
+  "scenario_id": null,
+  "category_boundary_case_id": null,
+  "overlay_id": "full-planned",
+  "evidence_kind": "authority-decision",
+  "required_outcome": "authority-current",
+  "required_fact_ids": [
+    "authority-ref",
+    "authority-status"
+  ],
+  "pass_result": "COMPLETED",
+  "reject_result": "EXPECTED_REJECTION",
+  "reject_error_type": "CategoryExecutionError",
+  "reject_error_message": "typed column evidence does not match authoritative durable facts: authority",
+  "reject_state_relation": "exact-equality",
+  "reject_input_relation": "exact-equality",
+  "isolated_runner_raw_sha256": "0f52a04ea53f099c10980d6ef1aa613fcdc8bf9e4022b5ba6079011c7f570d01",
+  "task_ids": {
+    "P": "task:wp08-coverage:gew-pro-performance-authority-p",
+    "R": "task:wp08-coverage:gew-pro-performance-authority-r"
+  },
+  "oracle_digest": "sha256-jcs-v1:92ac6a9b680e6e92c74d3e27c2804972bf72010c0fc26acaa1d25d7a4dadaa1e"
+}

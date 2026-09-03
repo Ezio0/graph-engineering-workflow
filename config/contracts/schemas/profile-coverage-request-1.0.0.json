@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:profile-coverage-request:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "request_id": {
+      "$ref": "#/$defs/id"
+    },
+    "task_id": {
+      "$ref": "#/$defs/id"
+    },
+    "column_id": {
+      "enum": [
+        "artifacts",
+        "authority",
+        "boundary",
+        "drift",
+        "invalidation",
+        "normal",
+        "recovery",
+        "review",
+        "revise",
+        "rollback",
+        "target"
+      ]
+    },
+    "scenario_id": {
+      "enum": [
+        "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE",
+        "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE-P",
+        "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE",
+        "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-P",
+        "GEW-PSC-NEW-FEATURE-SCAFFOLD",
+        "GEW-PSC-NEW-FEATURE-SCAFFOLD-P"
+      ]
+    },
+    "target_id": {
+      "$ref": "#/$defs/id"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          }
+        },
+        "required": [
+          "column_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_id": {
+            "enum": [
+              "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE",
+              "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE-P",
+              "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE",
+              "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-P",
+              "GEW-PSC-NEW-FEATURE-SCAFFOLD",
+              "GEW-PSC-NEW-FEATURE-SCAFFOLD-P"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "scenario_id": {
+            "const": "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-P"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          }
+        },
+        "required": [
+          "column_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_id": {
+            "enum": [
+              "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE",
+              "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE-P",
+              "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE",
+              "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-P"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "scenario_id": {
+            "const": "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-P"
+          }
+        }
+      }
+    }
+  ],
+  "required": [
+    "column_id",
+    "request_id",
+    "scenario_id",
+    "schema_version",
+    "target_id",
+    "task_id"
+  ],
+  "unevaluatedProperties": false
+}

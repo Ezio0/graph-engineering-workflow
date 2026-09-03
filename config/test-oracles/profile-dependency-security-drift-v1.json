@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "oracle_id": "ORA-PROFILE-DEPENDENCY-SECURITY",
+  "oracle_kind": "independent-frozen-vector",
+  "profile_id": "dependency-security",
+  "selector_kind": "mandatory",
+  "column_id": "drift",
+  "scenario_id": null,
+  "category_boundary_case_id": null,
+  "overlay_id": "full-planned",
+  "evidence_kind": "drift-assessment",
+  "required_outcome": "drift-resolved",
+  "required_fact_ids": [
+    "drift-status",
+    "target-digest"
+  ],
+  "pass_result": "COMPLETED",
+  "reject_result": "EXPECTED_REJECTION",
+  "reject_error_type": "CategoryExecutionError",
+  "reject_error_message": "typed column evidence does not match authoritative durable facts: drift",
+  "reject_state_relation": "exact-equality",
+  "reject_input_relation": "exact-equality",
+  "isolated_runner_raw_sha256": "0f52a04ea53f099c10980d6ef1aa613fcdc8bf9e4022b5ba6079011c7f570d01",
+  "task_ids": {
+    "P": "task:wp08-coverage:gew-pro-dependency-security-drift-p",
+    "R": "task:wp08-coverage:gew-pro-dependency-security-drift-r"
+  },
+  "oracle_digest": "sha256-jcs-v1:1adc50173e1408b734b98856aadee4fc54ad750fc0aab741ba0579147c9c81c2"
+}

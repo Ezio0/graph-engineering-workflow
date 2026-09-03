@@ -1,0 +1,5342 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:profile-coverage-observation:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "object": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "test_id": {
+      "enum": [
+        "GEW-PRO-BUG-FIX-ARTIFACTS-P",
+        "GEW-PRO-BUG-FIX-ARTIFACTS-R",
+        "GEW-PRO-BUG-FIX-AUTHORITY-P",
+        "GEW-PRO-BUG-FIX-AUTHORITY-R",
+        "GEW-PRO-BUG-FIX-BOUNDARY-P",
+        "GEW-PRO-BUG-FIX-BOUNDARY-R",
+        "GEW-PRO-BUG-FIX-DRIFT-P",
+        "GEW-PRO-BUG-FIX-DRIFT-R",
+        "GEW-PRO-BUG-FIX-INVALIDATION-P",
+        "GEW-PRO-BUG-FIX-INVALIDATION-R",
+        "GEW-PRO-BUG-FIX-NORMAL-P",
+        "GEW-PRO-BUG-FIX-NORMAL-R",
+        "GEW-PRO-BUG-FIX-REAL-E2E-P",
+        "GEW-PRO-BUG-FIX-REAL-E2E-R",
+        "GEW-PRO-BUG-FIX-RECOVERY-P",
+        "GEW-PRO-BUG-FIX-RECOVERY-R",
+        "GEW-PRO-BUG-FIX-REVIEW-P",
+        "GEW-PRO-BUG-FIX-REVIEW-R",
+        "GEW-PRO-BUG-FIX-REVISE-P",
+        "GEW-PRO-BUG-FIX-REVISE-R",
+        "GEW-PRO-BUG-FIX-ROLLBACK-P",
+        "GEW-PRO-BUG-FIX-ROLLBACK-R",
+        "GEW-PRO-BUG-FIX-TARGET-P",
+        "GEW-PRO-BUG-FIX-TARGET-R",
+        "GEW-PRO-HOTFIX-ARTIFACTS-P",
+        "GEW-PRO-HOTFIX-ARTIFACTS-R",
+        "GEW-PRO-HOTFIX-AUTHORITY-P",
+        "GEW-PRO-HOTFIX-AUTHORITY-R",
+        "GEW-PRO-HOTFIX-BOUNDARY-P",
+        "GEW-PRO-HOTFIX-BOUNDARY-R",
+        "GEW-PRO-HOTFIX-DRIFT-P",
+        "GEW-PRO-HOTFIX-DRIFT-R",
+        "GEW-PRO-HOTFIX-INVALIDATION-P",
+        "GEW-PRO-HOTFIX-INVALIDATION-R",
+        "GEW-PRO-HOTFIX-NORMAL-P",
+        "GEW-PRO-HOTFIX-NORMAL-R",
+        "GEW-PRO-HOTFIX-REAL-E2E-P",
+        "GEW-PRO-HOTFIX-REAL-E2E-R",
+        "GEW-PRO-HOTFIX-RECOVERY-P",
+        "GEW-PRO-HOTFIX-RECOVERY-R",
+        "GEW-PRO-HOTFIX-REVIEW-P",
+        "GEW-PRO-HOTFIX-REVIEW-R",
+        "GEW-PRO-HOTFIX-REVISE-P",
+        "GEW-PRO-HOTFIX-REVISE-R",
+        "GEW-PRO-HOTFIX-ROLLBACK-P",
+        "GEW-PRO-HOTFIX-ROLLBACK-R",
+        "GEW-PRO-HOTFIX-TARGET-P",
+        "GEW-PRO-HOTFIX-TARGET-R",
+        "GEW-PRO-NEW-FEATURE-ARTIFACTS-P",
+        "GEW-PRO-NEW-FEATURE-ARTIFACTS-R",
+        "GEW-PRO-NEW-FEATURE-AUTHORITY-P",
+        "GEW-PRO-NEW-FEATURE-AUTHORITY-R",
+        "GEW-PRO-NEW-FEATURE-BOUNDARY-P",
+        "GEW-PRO-NEW-FEATURE-BOUNDARY-R",
+        "GEW-PRO-NEW-FEATURE-DRIFT-P",
+        "GEW-PRO-NEW-FEATURE-DRIFT-R",
+        "GEW-PRO-NEW-FEATURE-INVALIDATION-P",
+        "GEW-PRO-NEW-FEATURE-INVALIDATION-R",
+        "GEW-PRO-NEW-FEATURE-NORMAL-P",
+        "GEW-PRO-NEW-FEATURE-NORMAL-R",
+        "GEW-PRO-NEW-FEATURE-REAL-E2E-P",
+        "GEW-PRO-NEW-FEATURE-REAL-E2E-R",
+        "GEW-PRO-NEW-FEATURE-RECOVERY-P",
+        "GEW-PRO-NEW-FEATURE-RECOVERY-R",
+        "GEW-PRO-NEW-FEATURE-REVIEW-P",
+        "GEW-PRO-NEW-FEATURE-REVIEW-R",
+        "GEW-PRO-NEW-FEATURE-REVISE-P",
+        "GEW-PRO-NEW-FEATURE-REVISE-R",
+        "GEW-PRO-NEW-FEATURE-ROLLBACK-P",
+        "GEW-PRO-NEW-FEATURE-ROLLBACK-R",
+        "GEW-PRO-NEW-FEATURE-TARGET-P",
+        "GEW-PRO-NEW-FEATURE-TARGET-R",
+        "GEW-PRO-REFACTOR-DEBT-ARTIFACTS-P",
+        "GEW-PRO-REFACTOR-DEBT-ARTIFACTS-R",
+        "GEW-PRO-REFACTOR-DEBT-AUTHORITY-P",
+        "GEW-PRO-REFACTOR-DEBT-AUTHORITY-R",
+        "GEW-PRO-REFACTOR-DEBT-BOUNDARY-P",
+        "GEW-PRO-REFACTOR-DEBT-BOUNDARY-R",
+        "GEW-PRO-REFACTOR-DEBT-DRIFT-P",
+        "GEW-PRO-REFACTOR-DEBT-DRIFT-R",
+        "GEW-PRO-REFACTOR-DEBT-INVALIDATION-P",
+        "GEW-PRO-REFACTOR-DEBT-INVALIDATION-R",
+        "GEW-PRO-REFACTOR-DEBT-NORMAL-P",
+        "GEW-PRO-REFACTOR-DEBT-NORMAL-R",
+        "GEW-PRO-REFACTOR-DEBT-REAL-E2E-P",
+        "GEW-PRO-REFACTOR-DEBT-REAL-E2E-R",
+        "GEW-PRO-REFACTOR-DEBT-RECOVERY-P",
+        "GEW-PRO-REFACTOR-DEBT-RECOVERY-R",
+        "GEW-PRO-REFACTOR-DEBT-REVIEW-P",
+        "GEW-PRO-REFACTOR-DEBT-REVIEW-R",
+        "GEW-PRO-REFACTOR-DEBT-REVISE-P",
+        "GEW-PRO-REFACTOR-DEBT-REVISE-R",
+        "GEW-PRO-REFACTOR-DEBT-ROLLBACK-P",
+        "GEW-PRO-REFACTOR-DEBT-ROLLBACK-R",
+        "GEW-PRO-REFACTOR-DEBT-TARGET-P",
+        "GEW-PRO-REFACTOR-DEBT-TARGET-R",
+        "GEW-PSC-BUG-FIX-FALSE-REPRODUCTION-P",
+        "GEW-PSC-BUG-FIX-FALSE-REPRODUCTION-R",
+        "GEW-PSC-BUG-FIX-REGRESSION-BOUNDARY-P",
+        "GEW-PSC-BUG-FIX-REGRESSION-BOUNDARY-R",
+        "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE-P",
+        "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE-R",
+        "GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-P",
+        "GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-R",
+        "GEW-PSC-DEPENDENCY-SECURITY-TRANSITIVE-DEPENDENCY-P",
+        "GEW-PSC-DEPENDENCY-SECURITY-TRANSITIVE-DEPENDENCY-R",
+        "GEW-PSC-DEPENDENCY-SECURITY-VULNERABLE-GRAPH-P",
+        "GEW-PSC-DEPENDENCY-SECURITY-VULNERABLE-GRAPH-R",
+        "GEW-PSC-HOTFIX-MINIMAL-PATCH-P",
+        "GEW-PSC-HOTFIX-MINIMAL-PATCH-R",
+        "GEW-PSC-MIGRATION-BACKWARD-P",
+        "GEW-PSC-MIGRATION-BACKWARD-R",
+        "GEW-PSC-MIGRATION-CRASH-WINDOW-P",
+        "GEW-PSC-MIGRATION-CRASH-WINDOW-R",
+        "GEW-PSC-MIGRATION-FORWARD-P",
+        "GEW-PSC-MIGRATION-FORWARD-R",
+        "GEW-PSC-MIGRATION-PARTIAL-DATA-P",
+        "GEW-PSC-MIGRATION-PARTIAL-DATA-R",
+        "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-P",
+        "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-R",
+        "GEW-PSC-NEW-FEATURE-SCAFFOLD-P",
+        "GEW-PSC-NEW-FEATURE-SCAFFOLD-R",
+        "GEW-PSC-PERFORMANCE-STABLE-BASELINE-P",
+        "GEW-PSC-PERFORMANCE-STABLE-BASELINE-R"
+      ]
+    },
+    "matrix_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "profile_id": {
+      "enum": [
+        "bug-fix",
+        "hotfix",
+        "new-feature",
+        "refactor-debt"
+      ]
+    },
+    "profile_version": {
+      "const": "1.0.0"
+    },
+    "column_id": {
+      "enum": [
+        "artifacts",
+        "authority",
+        "boundary",
+        "drift",
+        "invalidation",
+        "normal",
+        "real-e2e",
+        "recovery",
+        "review",
+        "revise",
+        "rollback",
+        "target"
+      ]
+    },
+    "selector_kind": {
+      "enum": [
+        "mandatory",
+        "scenario"
+      ]
+    },
+    "scenario_id": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "const": "backward"
+        },
+        {
+          "const": "crash-window"
+        },
+        {
+          "const": "existing-feature"
+        },
+        {
+          "const": "false-reproduction"
+        },
+        {
+          "const": "fix-unavailable"
+        },
+        {
+          "const": "forward"
+        },
+        {
+          "const": "minimal-patch"
+        },
+        {
+          "const": "partial-data"
+        },
+        {
+          "const": "regression-boundary"
+        },
+        {
+          "const": "reproducible-failure"
+        },
+        {
+          "const": "scaffold"
+        },
+        {
+          "const": "stable-baseline"
+        },
+        {
+          "const": "transitive-dependency"
+        },
+        {
+          "const": "vulnerable-graph"
+        }
+      ]
+    },
+    "category_boundary_case_id": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "const": "GEW-PSC-BUG-FIX-FALSE-REPRODUCTION-P"
+        },
+        {
+          "const": "GEW-PSC-BUG-FIX-REGRESSION-BOUNDARY-P"
+        },
+        {
+          "const": "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE-P"
+        },
+        {
+          "const": "GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-P"
+        },
+        {
+          "const": "GEW-PSC-DEPENDENCY-SECURITY-TRANSITIVE-DEPENDENCY-P"
+        },
+        {
+          "const": "GEW-PSC-DEPENDENCY-SECURITY-VULNERABLE-GRAPH-P"
+        },
+        {
+          "const": "GEW-PSC-HOTFIX-MINIMAL-PATCH-P"
+        },
+        {
+          "const": "GEW-PSC-MIGRATION-BACKWARD-P"
+        },
+        {
+          "const": "GEW-PSC-MIGRATION-CRASH-WINDOW-P"
+        },
+        {
+          "const": "GEW-PSC-MIGRATION-FORWARD-P"
+        },
+        {
+          "const": "GEW-PSC-MIGRATION-PARTIAL-DATA-P"
+        },
+        {
+          "const": "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-P"
+        },
+        {
+          "const": "GEW-PSC-NEW-FEATURE-SCAFFOLD-P"
+        },
+        {
+          "const": "GEW-PSC-PERFORMANCE-STABLE-BASELINE-P"
+        }
+      ]
+    },
+    "plan_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "plan_selector_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "profile_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "overlay_id": {
+      "const": "full-planned"
+    },
+    "overlay_version": {
+      "const": "1.0.0"
+    },
+    "overlay_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "runtime_kind": {
+      "const": "platform-neutral"
+    },
+    "runtime_lineage_id": {
+      "const": "core-profile-materializer-v1"
+    },
+    "runtime_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "fixture_id": {
+      "const": "profile:new-feature:1.0.0"
+    },
+    "oracle_id": {
+      "enum": [
+        "ORA-PROFILE-BUG-FIX",
+        "ORA-PROFILE-HOTFIX",
+        "ORA-PROFILE-NEW-FEATURE",
+        "ORA-PROFILE-REFACTOR-DEBT"
+      ]
+    },
+    "evidence_type": {
+      "const": "coverage-record"
+    },
+    "owner_gate": {
+      "const": "WP-08"
+    },
+    "evidence_ref": {
+      "type": "string",
+      "pattern": "^profile-coverage-execution:sha256:[0-9a-f]{64}$"
+    },
+    "evidence_digest": {
+      "$ref": "#/$defs/object"
+    },
+    "execution_kind": {
+      "enum": [
+        "contract-test",
+        "real-target"
+      ]
+    },
+    "execution_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "observation_digest": {
+      "$ref": "#/$defs/digest"
+    }
+  },
+  "required": [
+    "category_boundary_case_id",
+    "column_id",
+    "evidence_digest",
+    "evidence_ref",
+    "evidence_type",
+    "execution_digest",
+    "execution_kind",
+    "fixture_id",
+    "matrix_digest",
+    "observation_digest",
+    "oracle_id",
+    "overlay_digest",
+    "overlay_id",
+    "overlay_version",
+    "owner_gate",
+    "plan_digest",
+    "plan_selector_digest",
+    "profile_digest",
+    "profile_id",
+    "profile_version",
+    "runtime_digest",
+    "runtime_kind",
+    "runtime_lineage_id",
+    "scenario_id",
+    "schema_version",
+    "selector_kind",
+    "test_id"
+  ],
+  "unevaluatedProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-ARTIFACTS-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "artifacts"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-ARTIFACTS-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "artifacts"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-AUTHORITY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "authority"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-AUTHORITY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "authority"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-BOUNDARY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-BOUNDARY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-DRIFT-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "drift"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-DRIFT-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "drift"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-INVALIDATION-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "invalidation"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-INVALIDATION-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "invalidation"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-NORMAL-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "normal"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-NORMAL-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "normal"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-REAL-E2E-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "real-e2e"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "real-target"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-REAL-E2E-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "real-e2e"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "real-target"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-RECOVERY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "recovery"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-RECOVERY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "recovery"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-REVIEW-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "review"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-REVIEW-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "review"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-REVISE-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "revise"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-REVISE-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "revise"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-ROLLBACK-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "rollback"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-ROLLBACK-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "rollback"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-TARGET-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "target"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-BUG-FIX-TARGET-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "target"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-ARTIFACTS-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "artifacts"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-ARTIFACTS-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "artifacts"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-AUTHORITY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "authority"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-AUTHORITY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "authority"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-BOUNDARY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-BOUNDARY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-DRIFT-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "drift"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-DRIFT-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "drift"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-INVALIDATION-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "invalidation"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-INVALIDATION-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "invalidation"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-NORMAL-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "normal"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-NORMAL-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "normal"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-REAL-E2E-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "real-e2e"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "real-target"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-REAL-E2E-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "real-e2e"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "real-target"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-RECOVERY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "recovery"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-RECOVERY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "recovery"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-REVIEW-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "review"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-REVIEW-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "review"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-REVISE-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "revise"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-REVISE-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "revise"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-ROLLBACK-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "rollback"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-ROLLBACK-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "rollback"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-TARGET-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "target"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-HOTFIX-TARGET-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "target"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-ARTIFACTS-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "artifacts"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-ARTIFACTS-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "artifacts"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-AUTHORITY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "authority"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-AUTHORITY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "authority"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-BOUNDARY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-BOUNDARY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-DRIFT-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "drift"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-DRIFT-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "drift"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-INVALIDATION-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "invalidation"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-INVALIDATION-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "invalidation"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-NORMAL-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "normal"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-NORMAL-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "normal"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-REAL-E2E-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "real-e2e"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "real-target"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-REAL-E2E-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "real-e2e"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "real-target"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-RECOVERY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "recovery"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-RECOVERY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "recovery"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-REVIEW-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "review"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-REVIEW-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "review"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-REVISE-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "revise"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-REVISE-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "revise"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-ROLLBACK-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "rollback"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-ROLLBACK-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "rollback"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-TARGET-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "target"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-NEW-FEATURE-TARGET-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "target"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-ARTIFACTS-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "artifacts"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-ARTIFACTS-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "artifacts"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-AUTHORITY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "authority"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-AUTHORITY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "authority"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-BOUNDARY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-BOUNDARY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-DRIFT-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "drift"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-DRIFT-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "drift"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-INVALIDATION-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "invalidation"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-INVALIDATION-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "invalidation"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-NORMAL-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "normal"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-NORMAL-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "normal"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-REAL-E2E-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "real-e2e"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "real-target"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-REAL-E2E-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "real-e2e"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "real-target"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-RECOVERY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "recovery"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-RECOVERY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "recovery"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-REVIEW-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "review"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-REVIEW-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "review"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-REVISE-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "revise"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-REVISE-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "revise"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-ROLLBACK-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "rollback"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-ROLLBACK-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "rollback"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-TARGET-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "target"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PRO-REFACTOR-DEBT-TARGET-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "target"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "refactor-debt"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-BUG-FIX-FALSE-REPRODUCTION-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "false-reproduction"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-BUG-FIX-FALSE-REPRODUCTION-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-BUG-FIX-FALSE-REPRODUCTION-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "false-reproduction"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-BUG-FIX-FALSE-REPRODUCTION-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-BUG-FIX-REGRESSION-BOUNDARY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "regression-boundary"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-BUG-FIX-REGRESSION-BOUNDARY-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-BUG-FIX-REGRESSION-BOUNDARY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "regression-boundary"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-BUG-FIX-REGRESSION-BOUNDARY-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "reproducible-failure"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "reproducible-failure"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "bug-fix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "fix-unavailable"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "dependency-security"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-DEPENDENCY-SECURITY"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "fix-unavailable"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "dependency-security"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-DEPENDENCY-SECURITY"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-TRANSITIVE-DEPENDENCY-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "transitive-dependency"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-TRANSITIVE-DEPENDENCY-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "dependency-security"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-DEPENDENCY-SECURITY"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-TRANSITIVE-DEPENDENCY-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "transitive-dependency"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-TRANSITIVE-DEPENDENCY-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "dependency-security"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-DEPENDENCY-SECURITY"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-VULNERABLE-GRAPH-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "vulnerable-graph"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-VULNERABLE-GRAPH-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "dependency-security"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-DEPENDENCY-SECURITY"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-VULNERABLE-GRAPH-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "vulnerable-graph"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-VULNERABLE-GRAPH-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "dependency-security"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-DEPENDENCY-SECURITY"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-HOTFIX-MINIMAL-PATCH-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "minimal-patch"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-HOTFIX-MINIMAL-PATCH-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-HOTFIX-MINIMAL-PATCH-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "minimal-patch"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-HOTFIX-MINIMAL-PATCH-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "hotfix"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-MIGRATION-BACKWARD-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "backward"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-MIGRATION-BACKWARD-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "migration"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-MIGRATION"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-MIGRATION-BACKWARD-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "backward"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-MIGRATION-BACKWARD-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "migration"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-MIGRATION"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-MIGRATION-CRASH-WINDOW-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "crash-window"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-MIGRATION-CRASH-WINDOW-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "migration"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-MIGRATION"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-MIGRATION-CRASH-WINDOW-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "crash-window"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-MIGRATION-CRASH-WINDOW-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "migration"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-MIGRATION"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-MIGRATION-FORWARD-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "forward"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-MIGRATION-FORWARD-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "migration"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-MIGRATION"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-MIGRATION-FORWARD-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "forward"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-MIGRATION-FORWARD-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "migration"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-MIGRATION"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-MIGRATION-PARTIAL-DATA-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "partial-data"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-MIGRATION-PARTIAL-DATA-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "migration"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-MIGRATION"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-MIGRATION-PARTIAL-DATA-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "partial-data"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-MIGRATION-PARTIAL-DATA-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "migration"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-MIGRATION"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "existing-feature"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "existing-feature"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-NEW-FEATURE-SCAFFOLD-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "scaffold"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-NEW-FEATURE-SCAFFOLD-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-NEW-FEATURE-SCAFFOLD-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "scaffold"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-NEW-FEATURE-SCAFFOLD-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "new-feature"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-PERFORMANCE-STABLE-BASELINE-P"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "stable-baseline"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-PERFORMANCE-STABLE-BASELINE-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "performance"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-PERFORMANCE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_id": {
+            "const": "GEW-PSC-PERFORMANCE-STABLE-BASELINE-R"
+          }
+        },
+        "required": [
+          "test_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          },
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "stable-baseline"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-PERFORMANCE-STABLE-BASELINE-P"
+          },
+          "overlay_id": {
+            "const": "full-planned"
+          },
+          "execution_kind": {
+            "const": "contract-test"
+          },
+          "profile_id": {
+            "const": "performance"
+          },
+          "oracle_id": {
+            "const": "ORA-PROFILE-PERFORMANCE"
+          }
+        }
+      }
+    }
+  ]
+}

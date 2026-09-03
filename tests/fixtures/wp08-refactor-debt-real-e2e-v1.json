@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "profile_id": "refactor-debt",
+  "artifact_name": "refactor-debt-contract.json",
+  "baseline_document": {
+    "behavior_baseline": "stable-v1",
+    "behavior_observed": "stable-v1",
+    "debt_target": "open",
+    "quality_proof": "baseline"
+  },
+  "desired_document": {
+    "behavior_baseline": "stable-v1",
+    "behavior_observed": "stable-v1",
+    "debt_target": "proved",
+    "quality_proof": "passed"
+  },
+  "foreign_document": {
+    "behavior_baseline": "foreign-v1",
+    "behavior_observed": "foreign-v1",
+    "debt_target": "open",
+    "quality_proof": "absent"
+  }
+}

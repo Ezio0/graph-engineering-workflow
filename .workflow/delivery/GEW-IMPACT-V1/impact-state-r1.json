@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-IMPACT-V1",
+  "node": "impact-review",
+  "artifact": "impact",
+  "author_id": "codex:/root",
+  "reviewer_id": "codex:/root/impact_reviewer_r1",
+  "targets": [
+    "docs/impact/graph-engineering-workflow.md"
+  ],
+  "revision": 1,
+  "artifact_digest": "b047d419f9973c4f8111059e11263854262aa937687fb6ffb9b4bbce89dacc0e",
+  "previous_artifact_digest": "4d30eed5a9eb7be327db95d4a3e5fb4c014c792070d4183dbef8a5147fca835c",
+  "open_finding_ids": [
+    "IMP-R0-001"
+  ]
+}

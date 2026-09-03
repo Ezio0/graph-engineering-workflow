@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "retention-default",
+  "policies": [
+    {"category": "artifact-body", "max_age_seconds": 2592000, "purge_triggers": ["archive", "cancel", "garbage-collect"], "tombstone_required": true, "purge_after_extraction": false},
+    {"category": "backup", "max_age_seconds": 604800, "purge_triggers": ["garbage-collect", "upgrade"], "tombstone_required": true, "purge_after_extraction": false},
+    {"category": "event-metadata", "max_age_seconds": 31536000, "purge_triggers": ["archive", "garbage-collect"], "tombstone_required": true, "purge_after_extraction": false},
+    {"category": "evidence-body", "max_age_seconds": 604800, "purge_triggers": ["archive", "cancel", "garbage-collect"], "tombstone_required": true, "purge_after_extraction": false},
+    {"category": "pmf-aggregate", "max_age_seconds": 7776000, "purge_triggers": ["garbage-collect"], "tombstone_required": true, "purge_after_extraction": false},
+    {"category": "quarantine", "max_age_seconds": 2592000, "purge_triggers": ["garbage-collect", "resolved"], "tombstone_required": true, "purge_after_extraction": false},
+    {"category": "tool-raw-output", "max_age_seconds": 0, "purge_triggers": ["archive", "cancel", "extracted", "garbage-collect"], "tombstone_required": true, "purge_after_extraction": true}
+  ],
+  "registry_digest": "sha256-jcs-v1:36625b80fd867613618482a45701de2cb65ca2a245b6c616e0fe32b9ff5b458c"
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:loop-budget:1.0.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "budget_id": {"type": "string", "minLength": 1, "maxLength": 255},
+    "version": {"type": "string", "minLength": 1, "maxLength": 64},
+    "max_attempts": {"type": "integer", "minimum": 1},
+    "max_revisions": {"type": "integer", "minimum": 1},
+    "max_total_runs": {"type": "integer", "minimum": 1},
+    "exhausted_route": {"enum": ["awaiting_human", "blocked", "failed"]}
+  },
+  "required": ["schema_version", "budget_id", "version", "max_attempts", "max_revisions", "max_total_runs", "exhausted_route"],
+  "unevaluatedProperties": false
+}

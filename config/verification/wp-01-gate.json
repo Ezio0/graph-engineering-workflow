@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "commands": [
+    {"id": "GEW-WP-01-LINT-P", "argv": ["{python}", "scripts/check_sources.py", "lint"]},
+    {"id": "GEW-WP-01-TYPE-P", "argv": ["{python}", "scripts/check_sources.py", "type"]},
+    {"id": "GEW-WP-01-SECURITY-P", "argv": ["{python}", "scripts/check_architecture.py"]},
+    {"id": "GEW-WP-01-TEST-P", "argv": ["{python}", "scripts/run_tests.py"]},
+    {"id": "GEW-WP-01-CROSS-P", "argv": ["{python}", "scripts/run_wp01_cross.py"]},
+    {"id": "GEW-WP-01-BUILD-P", "argv": ["{python}", "scripts/verify_build.py"]},
+    {"id": "GEW-WP-01-REPRODUCIBILITY-P", "argv": ["{python}", "scripts/verify_reproducible_build.py"]}
+  ],
+  "test_bindings": [
+    {"test_id": "GEW-ADR3-BUDGET-P", "qualified_test": "test_wp01_resources.ResourceContractTests.test_measure_and_inline_compare_trace_are_exact"},
+    {"test_id": "GEW-ADR3-BUDGET-R", "qualified_test": "test_wp01_resources.ResourceContractTests.test_budget_rejection_is_atomic_and_limit_precedes_charge"},
+    {"test_id": "GEW-ADR3-DIGEST-P", "qualified_test": "test_wp01_json_digest.StrictJsonAndDigestTests.test_semantic_digest_is_framed_and_self_projection_is_exact"},
+    {"test_id": "GEW-ADR3-DIGEST-R", "qualified_test": "test_wp01_json_digest.StrictJsonAndDigestTests.test_digest_domain_and_record_mutation_are_rejected"},
+    {"test_id": "GEW-ADR3-EXEC-P", "qualified_test": "test_wp01_geel.GEELContractTests.test_builtin_predicate_is_charged_before_call"},
+    {"test_id": "GEW-ADR3-EXEC-R", "qualified_test": "test_wp01_geel.GEELContractTests.test_unknown_predicate_is_rejected_before_execution"},
+    {"test_id": "GEW-ADR3-GEEL-P", "qualified_test": "test_wp01_geel.GEELContractTests.test_operator_truth_table_and_exact_types"},
+    {"test_id": "GEW-ADR3-GEEL-R", "qualified_test": "test_wp01_geel.GEELContractTests.test_load_phases_fail_closed_for_shape_operator_path_and_type"},
+    {"test_id": "GEW-ADR3-JCS-P", "qualified_test": "test_wp01_cross_implementation.CrossImplementationTests.test_complete_gew_con_001_through_250_matches_frozen_and_independent_results"},
+    {"test_id": "GEW-ADR3-JCS-R", "qualified_test": "test_wp01_json_digest.StrictJsonAndDigestTests.test_strict_json_and_jcs_vectors"},
+    {"test_id": "GEW-ADR3-MODEL-P", "qualified_test": "test_wp01_json_digest.StrictJsonAndDigestTests.test_recursive_freeze_breaks_aliases_and_round_trips"},
+    {"test_id": "GEW-ADR3-MODEL-R", "qualified_test": "test_wp01_json_digest.StrictJsonAndDigestTests.test_mutable_and_non_json_model_inputs_are_rejected"},
+    {"test_id": "GEW-ADR3-REF-P", "qualified_test": "test_wp01_schema_registry.SchemaRegistryTests.test_registry_is_digest_locked_offline_and_resolves_only_registered_pointers"},
+    {"test_id": "GEW-ADR3-REF-R", "qualified_test": "test_wp01_schema_registry.SchemaRegistryTests.test_registry_rejects_remote_relative_unknown_pointer_and_cycles"},
+    {"test_id": "GEW-ADR3-SCHEMA-P", "qualified_test": "test_wp01_schema_registry.SchemaRegistryTests.test_validation_has_exact_types_formats_combinators_and_stable_error_order"},
+    {"test_id": "GEW-ADR3-SCHEMA-R", "qualified_test": "test_wp01_schema_registry.SchemaRegistryTests.test_profile_is_closed_and_rejects_unknown_numeric_and_unbounded_array"},
+    {"test_id": "GEW-ADR3-SCHEMA-FROZEN-R", "qualified_test": "test_wp01_schema_registry.SchemaRegistryTests.test_frozen_schema_arrays_preserve_validation_and_exact_charge_trace"},
+    {"test_id": "GEW-ADR3-VERSION-P", "qualified_test": "test_wp01_versioning.VersioningContractTests.test_exact_declared_reader_writer_pair_passes"},
+    {"test_id": "GEW-ADR3-VERSION-R", "qualified_test": "test_wp01_versioning.VersioningContractTests.test_unknown_or_directionally_undeclared_version_fails"},
+    {"test_id": "GEW-REQ-FR12-P", "qualified_test": "test_wp00_architecture_mutations.SecurityMutationTests.test_equivalent_values_from_configuration_ports_pass"},
+    {"test_id": "GEW-REQ-FR12-R", "qualified_test": "test_wp00_architecture_mutations.SecurityMutationTests.test_architecture_scanner_rejects_forbidden_dependencies_and_data_values"},
+    {"test_id": "GEW-WP-01-EXIT-P", "qualified_test": "test_wp01_evidence_contract.WP01EvidenceContractTests.test_valid_candidate_binding_passes"},
+    {"test_id": "GEW-WP-01-EXIT-R", "qualified_test": "test_wp01_evidence_contract.WP01EvidenceContractTests.test_source_command_runtime_binding_and_independence_mutations_fail"}
+  ]
+}

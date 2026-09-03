@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "profile_id": "hotfix",
+  "artifact_name": "hotfix-health-contract.json",
+  "baseline_document": {
+    "health": "baseline",
+    "hotfix": "absent",
+    "rollback": "ready"
+  },
+  "desired_document": {
+    "health": "passed",
+    "hotfix": "applied",
+    "production_like": true,
+    "rollback": "ready"
+  },
+  "foreign_document": {
+    "health": "unknown",
+    "hotfix": "foreign",
+    "rollback": "unverified"
+  }
+}

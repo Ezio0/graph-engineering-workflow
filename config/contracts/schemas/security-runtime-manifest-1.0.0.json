@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:security-runtime-manifest:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "format": "gew-id"
+    },
+    "digest": {
+      "type": "string",
+      "minLength": 78,
+      "maxLength": 78
+    },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "policy_id": {"$ref": "#/$defs/id"},
+        "policy_digest": {"$ref": "#/$defs/digest"}
+      },
+      "required": ["policy_id", "policy_digest"],
+      "unevaluatedProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "manifest_id": {"$ref": "#/$defs/id"},
+    "schema_registry": {
+      "type": "object",
+      "properties": {
+        "registry_id": {"$ref": "#/$defs/id"},
+        "registry_digest": {"$ref": "#/$defs/digest"}
+      },
+      "required": ["registry_id", "registry_digest"],
+      "unevaluatedProperties": false
+    },
+    "allowed_runtime_kinds": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/id"}
+    },
+    "policies": {
+      "type": "object",
+      "properties": {
+        "action": {"$ref": "#/$defs/policy"},
+        "disclosure": {"$ref": "#/$defs/policy"},
+        "evidence": {"$ref": "#/$defs/policy"},
+        "input-safety": {"$ref": "#/$defs/policy"},
+        "redaction": {"$ref": "#/$defs/policy"},
+        "retention": {"$ref": "#/$defs/policy"}
+      },
+      "required": ["action", "disclosure", "evidence", "input-safety", "redaction", "retention"],
+      "unevaluatedProperties": false
+    },
+    "manifest_digest": {"$ref": "#/$defs/digest"}
+  },
+  "required": [
+    "schema_version",
+    "manifest_id",
+    "schema_registry",
+    "allowed_runtime_kinds",
+    "policies",
+    "manifest_digest"
+  ],
+  "unevaluatedProperties": false
+}

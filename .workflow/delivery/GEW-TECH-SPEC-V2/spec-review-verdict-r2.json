@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "tech-spec",
+  "scope_changed": false,
+  "change_kinds": [
+    "architecture-detail",
+    "consistency",
+    "traceability",
+    "testability"
+  ],
+  "findings": [
+    {
+      "id": "GEW-TS-LIFE-001",
+      "severity": "blocking",
+      "evidence": "§4.3 状态图把 direct/deferred cancel 都画成 canceling；关闭、归档或 rollback 的部分入口只排除 executing/unknown，没有排除所有 UnresolvedActionClaim。",
+      "required_change": "区分 direct/deferred cancel；所有 CLOSED、archived 和 rollback 入口要求无 unresolved claim，或走唯一 reconciliation 路径。",
+      "verification": "完整 state × command/internal-event 测试覆盖 succeeded/failed-unreconciled、unknown、补偿和 claim release。",
+      "status": "open"
+    },
+    {
+      "id": "GEW-TS-PROJ-001",
+      "severity": "blocking",
+      "evidence": "FR-15 的新建/既有 Git 项目、多仓库/服务/环境没有 ProjectScope/TargetBinding 命令、状态、校验和变更规则。",
+      "required_change": "增加版本化 ProjectScope/TargetBinding，定义 canonical identity、Owner/runtime/Authority 校验、重复冲突、绑定变更和失效。",
+      "verification": "fixtures/tests 覆盖新建、既有、多仓库/服务/环境、重复、非 Git、越界、变化和恢复。",
+      "status": "open"
+    }
+  ]
+}

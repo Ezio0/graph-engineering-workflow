@@ -1,0 +1,38 @@
+{
+  "verdict": "REVISE",
+  "binding": {
+    "source_manifest_digest": "832eb31ba2994819f10a5dffd7354b2f9d0ad2f9241a0c5edfcd34ac5467c8bf",
+    "command_evidence_digest": "7a20829a86998dacc3bfb43492bde8bb9abd1f5862622a8e4062ad87ea3e45cd",
+    "candidate_exit_digest": "c78db6b4a36ba7dc8a698805dc7d2a157a12777efec11bf9ea30339ef3102d4a",
+    "governing_documents_digest": "9bb0508b71fb45989a5ea2feead5aebff8fcf6f8a9f15161eb2e8ab18a2e51bd",
+    "identity_independent": true
+  },
+  "finding_dispositions": [
+    {"finding_id": "WP05A-R1-001", "status": "open"},
+    {"finding_id": "WP05A-R1-002", "status": "open"},
+    {"finding_id": "WP05A-R1-003", "status": "open"},
+    {"finding_id": "WP05A-R1-004", "status": "open"},
+    {"finding_id": "WP05A-R1-005", "status": "closed"}
+  ],
+  "findings": [
+    {
+      "finding_id": "WP05A-R2-001",
+      "severity": "major",
+      "summary": "The only production task-security issuer remains directly importable and signs caller-supplied state.",
+      "required_fix": "Move issuance to an application/storage-owned capability rooted in the immutable installed runtime pin and current repository state; ordinary installed-package callers must not mint trusted contexts from raw mappings."
+    },
+    {
+      "finding_id": "WP05A-R2-002",
+      "severity": "major",
+      "summary": "The disclosure journal issuer signs an arbitrary caller-supplied receipt without reading a durable action journal.",
+      "required_fix": "Issue disclosure attestations only from a durable current action-journal entry bound to the action, plan, payload, destination, target receipt, and reconciliation state."
+    },
+    {
+      "finding_id": "WP05A-R2-003",
+      "severity": "major",
+      "summary": "Retention freshness checks trust a caller-selected context instead of rereading current durable state.",
+      "required_fix": "Authorize purge in a repository transaction that rereads the latest subject revision, classification, holds, dependencies, and unresolved claims, then atomically consumes a one-use purge authorization."
+    }
+  ],
+  "reviewer_id": "codex:/root/wp05a_reviewer_r1"
+}

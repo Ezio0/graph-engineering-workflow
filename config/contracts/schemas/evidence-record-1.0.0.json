@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:evidence-record:1.0.0",
+  "$defs": {
+    "id": {"type": "string", "format": "gew-id"},
+    "digest": {"type": "string", "minLength": 78, "maxLength": 78},
+    "target": {"type": "object", "properties": {"target_id": {"$ref": "#/$defs/id"}, "target_digest": {"$ref": "#/$defs/digest"}}, "required": ["target_id", "target_digest"], "unevaluatedProperties": false},
+    "redaction": {"type": "object", "properties": {"status": {"enum": ["applied", "not-required"]}, "transforms": {"type": "array", "maxItems": 256, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 1024}}}, "required": ["status", "transforms"], "unevaluatedProperties": false}
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "evidence_id": {"$ref": "#/$defs/id"},
+    "evidence_type": {"$ref": "#/$defs/id"},
+    "task_id": {"$ref": "#/$defs/id"},
+    "source_ref": {"$ref": "#/$defs/id"},
+    "collection_action_digest": {"$ref": "#/$defs/digest"},
+    "target_refs": {"type": "array", "minItems": 1, "maxItems": 128, "uniqueItems": true, "items": {"$ref": "#/$defs/target"}},
+    "collected_at": {"type": "string", "format": "gew-timestamp"},
+    "result": {"enum": ["PASS", "FAIL", "UNKNOWN"]},
+    "producer_id": {"$ref": "#/$defs/id"},
+    "baseline_digest": {"$ref": "#/$defs/digest"},
+    "snapshot_digest": {"$ref": "#/$defs/digest"},
+    "fresh_until": {"type": "string", "format": "gew-timestamp"},
+    "sensitivity": {"enum": ["public", "internal", "confidential", "secret"]},
+    "redaction": {"$ref": "#/$defs/redaction"},
+    "content_digest": {"$ref": "#/$defs/digest"},
+    "provenance": {"type": "array", "minItems": 1, "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/digest"}},
+    "trust": {"enum": ["untrusted", "validated", "independently-reviewed"]},
+    "status": {"enum": ["valid", "invalidated", "quarantined"]},
+    "record_digest": {"$ref": "#/$defs/digest"}
+  },
+  "required": ["schema_version", "evidence_id", "evidence_type", "task_id", "source_ref", "collection_action_digest", "target_refs", "collected_at", "result", "producer_id", "baseline_digest", "snapshot_digest", "fresh_until", "sensitivity", "redaction", "content_digest", "provenance", "trust", "status", "record_digest"],
+  "unevaluatedProperties": false
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "concrete-action-policy-default",
+  "protocol_version": "1.0.0",
+  "registry_id": "action-adapter-registry-default",
+  "registry_digest": "sha256-jcs-v1:8bdb2be5af0c8a2229951185ba391283c67d105a03b5e188c1af494b4c59f49f",
+  "real_local_actions_enabled": true,
+  "allowed_adapter_ids": [
+    "connector-unavailable-v1",
+    "git-native-v1",
+    "project-command-v1",
+    "secret-provider-v1",
+    "target-query-v1"
+  ],
+  "allowed_operation_ids": [
+    "connector.unavailable",
+    "git.query-ref",
+    "git.resolve-identity",
+    "git.update-ref",
+    "project.run",
+    "secret.resolve",
+    "target.observe"
+  ],
+  "required_invocation_bindings": [
+    "action-id",
+    "adapter-id",
+    "authority-digest",
+    "disclosure-plan-digest",
+    "fencing-tokens",
+    "idempotency-class",
+    "idempotency-key",
+    "lease-id",
+    "operation-id",
+    "payload-digest",
+    "prepared-action-digest",
+    "resources",
+    "target-digest",
+    "target-id",
+    "task-id"
+  ],
+  "secret_handling": "ephemeral-minimal",
+  "launcher_mode": "structured-argv-shell-false",
+  "policy_digest": "sha256-jcs-v1:41b98ee93382d35870b98619a68fab5070008109590f1d917d89399aef2f42f4"
+}

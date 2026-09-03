@@ -1,0 +1,3 @@
+{
+  "schema_version": "1.0", "task_id": "GEW-ADR-V1", "node": "adr-metadata-revalidation", "artifact": "adr-0001", "author_id": "deterministic-control:/root", "reviewer_id": "codex:/root/adr_0001_reviewer_r1", "targets": ["docs/adr/0001-core-implementation-and-local-packaging.md"], "revision": 2, "artifact_digest": "d46dbe9216865029ef544ed17809a1252b5f10ea9d837d9b308192e06c19fa34", "previous_artifact_digest": "7bb271fd75548c9f7c8e5c1023bc52a0a463cb1b314ec4f80b5a855910752f20", "change_class": "metadata-only"
+}

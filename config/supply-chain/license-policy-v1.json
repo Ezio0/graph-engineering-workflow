@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0",
+  "project_license": "LicenseRef-Proprietary",
+  "allowed_runtime_dependency_licenses": ["Apache-2.0", "BSD-3-Clause"],
+  "runtime_dependencies": ["cryptography==50.0.0", "packaging==26.3"]
+}

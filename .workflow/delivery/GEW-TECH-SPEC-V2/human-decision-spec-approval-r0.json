@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-TECH-SPEC-V2",
+  "decision_kind": "tech-spec-approval",
+  "actor": "human-owner",
+  "decision": "approve-and-advance",
+  "decided_at": "2026-08-13",
+  "reviewed_artifact_digest": "35580acdff7cc2347f6096260b263752f94b5ad4556e4ca5da4e11dae4fcea9b",
+  "approved_artifact_digest": "e632cd2c8b4f13b1455fa1f962491df6603b34d2eef0c46a84b350200e0f8d65",
+  "evidence": "Human Owner replied '好的，开始进入下一步' after the independently reviewed Tech Spec was presented as the gate to Impact Analysis.",
+  "authority_effect": "Allows Impact Analysis and ADR work only; does not authorize implementation or irreversible actions."
+}

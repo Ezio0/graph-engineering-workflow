@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "mutation_set_id": "wp-05-execute-gate-exact-v1",
+  "frozen_precedence": [
+    "GEW-AUT-PRECONDITION-CHANGED",
+    "GEW-AUT-PRECONDITION-UNVERIFIABLE",
+    "GEW-AUT-IDEMPOTENCY-KEY-CHANGED",
+    "GEW-AUT-IDEMPOTENCY-CLASS-CHANGED",
+    "GEW-AUT-IDEMPOTENCY-DUPLICATE",
+    "GEW-AUT-IDEMPOTENCY-UNKNOWN",
+    "GEW-AUT-ROLLBACK-MISSING",
+    "GEW-AUT-ROLLBACK-CHANGED",
+    "GEW-AUT-VERIFY-MISSING",
+    "GEW-AUT-VERIFY-CHANGED",
+    "GEW-AUT-TARGET-EVIDENCE-STALE"
+  ],
+  "combined_mutation_id": "GEW-AUT-COMBINED-MUTATION",
+  "all_unordered_pairs_required": true
+}

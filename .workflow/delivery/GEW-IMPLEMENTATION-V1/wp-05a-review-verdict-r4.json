@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "artifact": "wp-05a",
+  "verdict": "PASS",
+  "reviewer_id": "codex:/root/adr_0001_reviewer_r1",
+  "source_manifest_digest": "1c104c5738fea22222914b2dcba8701d0fe6df97f5d9c35bb7aaf68ca66d2219",
+  "command_evidence_digest": "7d7c476029e09ab271e4abab9520e54cdf0472b3458dd6b45d5d62d6fbfcfa56",
+  "candidate_exit_digest": "2cadae84e06432ae19a6a7e8f695009732f6a03353488940d53b75adaae75a99",
+  "governing_documents_digest": "9bb0508b71fb45989a5ea2feead5aebff8fcf6f8a9f15161eb2e8ab18a2e51bd",
+  "finding_dispositions": [
+    {
+      "finding_id": "WP05A-R1-001",
+      "status": "closed",
+      "evidence": "Installed runtime and policy trust roots are durable, immutable, digest-pinned, and schema-validated."
+    },
+    {
+      "finding_id": "WP05A-R1-002",
+      "status": "closed",
+      "evidence": "Task security contexts derive binding, clock, classification, provenance, redaction, and review trust from current durable state."
+    },
+    {
+      "finding_id": "WP05A-R1-003",
+      "status": "closed",
+      "evidence": "Disclosure validation binds the concrete destination, prepared action, payload, authority, and delivered durable receipt."
+    },
+    {
+      "finding_id": "WP05A-R1-004",
+      "status": "closed",
+      "evidence": "Purge authorization transactionally rereads current subjects, holds, dependencies, claims, and consumes one exact authorization."
+    },
+    {
+      "finding_id": "WP05A-R1-005",
+      "status": "closed",
+      "evidence": "Path/symlink handling and recursive redaction fail closed under configured resource limits."
+    },
+    {
+      "finding_id": "WP05A-R2-001",
+      "status": "closed",
+      "evidence": "Raw core issuers are absent; the production application issuer accepts durable record identities only and uses the immutable installed pin."
+    },
+    {
+      "finding_id": "WP05A-R2-002",
+      "status": "closed",
+      "evidence": "Disclosure attestations are issued only from delivered or reconciled durable journal entries with exact digest bindings."
+    },
+    {
+      "finding_id": "WP05A-R2-003",
+      "status": "closed",
+      "evidence": "Retention authorization rereads current durable blockers and enforces one-use transactional consumption."
+    },
+    {
+      "finding_id": "WP05A-R3-001",
+      "status": "closed",
+      "evidence": "Installed-runtime, task-state, and disclosure-journal JSON all use charged bounded parsing; over-depth input returns RepositoryIntegrityError caused by ContractError E_LIMIT, never raw RecursionError."
+    }
+  ],
+  "findings": []
+}

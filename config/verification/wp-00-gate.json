@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "commands": [
+    {"id": "GEW-WP-00-LINT-P", "argv": ["{python}", "scripts/check_sources.py", "lint"]},
+    {"id": "GEW-WP-00-TYPE-P", "argv": ["{python}", "scripts/check_sources.py", "type"]},
+    {"id": "GEW-WP-00-SECURITY-P", "argv": ["{python}", "scripts/check_architecture.py"]},
+    {"id": "GEW-WP-00-LICENSE-P", "argv": ["{python}", "scripts/verify_supply_chain.py", "license"]},
+    {"id": "GEW-WP-00-SBOM-P", "argv": ["{python}", "scripts/verify_supply_chain.py", "sbom"]},
+    {"id": "GEW-WP-00-PLATFORM-P", "argv": ["{python}", "scripts/verify_platform_matrix.py"]},
+    {"id": "GEW-WP-00-TEST-P", "argv": ["{python}", "scripts/run_tests.py"]},
+    {"id": "GEW-WP-00-BUILD-P", "argv": ["{python}", "scripts/verify_build.py"]},
+    {"id": "GEW-WP-00-REPRODUCIBILITY-P", "argv": ["{python}", "scripts/verify_reproducible_build.py"]}
+  ],
+  "test_suites": ["unit", "contract", "integration", "conformance", "security", "e2e"]
+}

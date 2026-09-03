@@ -1,0 +1,14 @@
+{
+  "compatibility_policy_id": "migration-storage-policy-v1",
+  "crash_cut_ids": [
+    "activation.after_active_manifest",
+    "migration.after_state.compatible"
+  ],
+  "fixture_manifest_digest": "sha256-jcs-v1:35bad66637583e802421bec0ed3d7ddb1d943ce5195d1914b3683de7a3c5ceb0",
+  "fixture_manifest_id": "migration-rehearsal-fixture-v1",
+  "registry_digest": "sha256-jcs-v1:78a57ccb3623bc5ddfea6f38e145764352608b209092ccd0bf0da5d5703a03e6",
+  "registry_id": "migration-rehearsal-registry-v1",
+  "schema_version": "1.0.0",
+  "transform_manifest_digest": "sha256-jcs-v1:e5305adc1012d26464ebca7a05f1570e3f13c0b3e8e1ef061d120b17203b16c4",
+  "transform_manifest_id": "migration-rehearsal-transform-manifest-v1"
+}

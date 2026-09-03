@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-ADR-V1",
+  "node": "adr-review",
+  "artifact": "adr-0002",
+  "author_id": "codex:/root",
+  "reviewer_id": "codex:/root/adr_0002_reviewer_r1",
+  "targets": ["docs/adr/0002-local-event-repository-and-coordination.md"],
+  "revision": 1,
+  "artifact_digest": "389a232d77e618ec85124d24717af386e904028760bcea15ad8a4ed72f1bc3f3",
+  "previous_artifact_digest": "59313dae428e829b3284ab42dce07e80fcc79d2153ad70919178828847da37e4",
+  "open_finding_ids": ["GEW-ADR2-OBJ-001", "GEW-ADR2-LOCK-001", "GEW-ADR2-CONNECTION-001", "GEW-ADR2-BACKUP-001", "GEW-ADR2-MIGRATION-001"]
+}

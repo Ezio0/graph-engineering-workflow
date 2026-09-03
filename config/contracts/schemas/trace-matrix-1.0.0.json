@@ -1,0 +1,21 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"urn:gew:schema:trace-matrix:1.0.0",
+  "$defs":{
+    "row":{"type":"object","unevaluatedProperties":false,"required":["obligation_id","pass_test_id","reject_test_id","fixture_id","oracle_id","evidence_type","owner_gate"],"properties":{"obligation_id":{"type":"string","minLength":1},"pass_test_id":{"type":"string","minLength":1},"reject_test_id":{"type":"string","minLength":1},"fixture_id":{"type":"string","minLength":1},"oracle_id":{"type":"string","minLength":1},"evidence_type":{"type":"string","minLength":1},"owner_gate":{"type":"string","minLength":1}}},
+    "vector":{"type":"object","unevaluatedProperties":false,"required":["vector_id","result"],"properties":{"vector_id":{"type":"string","minLength":1},"result":{"type":"string","minLength":1}}},
+    "execution":{"type":"object","unevaluatedProperties":false,"required":["qualified_test","expected_result"],"properties":{"qualified_test":{"type":"string","minLength":1},"expected_result":{"type":"string","minLength":1}}}
+  },
+  "type":"object",
+  "unevaluatedProperties":false,
+  "required":["schema_version","matrix_id","requirement_rows","work_package_rows","adr4_vectors","test_ids","executions"],
+  "properties":{
+    "schema_version":{"const":"1.0.0"},
+    "matrix_id":{"const":"gew.wp08a.trace-matrix"},
+    "requirement_rows":{"type":"array","minItems":1,"maxItems":1,"items":{"$ref":"#/$defs/row"}},
+    "work_package_rows":{"type":"array","minItems":1,"maxItems":1,"items":{"$ref":"#/$defs/row"}},
+    "adr4_vectors":{"type":"array","minItems":11,"maxItems":11,"items":{"$ref":"#/$defs/vector"}},
+    "test_ids":{"type":"array","minItems":15,"maxItems":15,"uniqueItems":true,"items":{"type":"string","minLength":1}},
+    "executions":{"type":"object","minProperties":15,"maxProperties":15,"additionalProperties":{"$ref":"#/$defs/execution"}}
+  }
+}

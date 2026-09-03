@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-ADR-V1",
+  "node": "adr-review",
+  "artifact": "adr-0003",
+  "author_id": "codex:/root",
+  "reviewer_id": "codex:/root/adr_0003_reviewer_r1",
+  "targets": ["docs/adr/0003-deterministic-contract-stack.md"],
+  "revision": 2,
+  "artifact_digest": "758cf7e29a512859ebd24c8701e012f974d6a74c57047a569c055d1c3bc2255b",
+  "previous_artifact_digest": "098e8017ee47074431e49fba588b33cc4dbaf11331b7addbd60c1a00c7a0c9be",
+  "open_finding_ids": ["GEW-ADR3-JCS-001", "GEW-ADR3-DIGEST-001", "GEW-ADR3-GEEL-001", "GEW-ADR3-BUDGET-001"]
+}

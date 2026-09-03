@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0",
+  "claim_status": "planned",
+  "cells": [
+    {"id": "macos-arm64", "os": "macos", "architecture": "arm64", "python": ">=3.12", "required_suite": "full"},
+    {"id": "macos-x86-64", "os": "macos", "architecture": "x86_64", "python": ">=3.12", "required_suite": "full"},
+    {"id": "linux-x86-64", "os": "linux", "architecture": "x86_64", "python": ">=3.12", "required_suite": "full"}
+  ]
+}

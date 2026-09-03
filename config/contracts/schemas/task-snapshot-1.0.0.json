@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:task-snapshot:1.0.0",
+  "$defs": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 255},
+    "digest": {"type": "string", "minLength": 1, "maxLength": 255},
+    "empty-object": {"type": "object", "maxProperties": 0, "additionalProperties": false},
+    "identity": {
+      "type": "object",
+      "properties": {"task_id": {"$ref": "#/$defs/id"}, "owner_id": {"$ref": "#/$defs/id"}, "runtime_kind": {"enum": ["codex", "hermes"]}, "runtime_lineage_id": {"$ref": "#/$defs/id"}},
+      "required": ["task_id", "owner_id", "runtime_kind", "runtime_lineage_id"],
+      "additionalProperties": false
+    },
+    "scope-ref": {
+      "type": "object",
+      "properties": {"scope_id": {"$ref": "#/$defs/id"}, "version": {"type": "integer", "minimum": 1}, "digest": {"$ref": "#/$defs/digest"}, "status": {"$ref": "#/$defs/id"}},
+      "required": ["scope_id", "version", "digest", "status"],
+      "additionalProperties": false
+    },
+    "baseline-ref": {
+      "type": "object",
+      "properties": {"kind": {"$ref": "#/$defs/id"}, "version": {"type": "integer", "minimum": 1}, "digest": {"$ref": "#/$defs/digest"}, "approved_by": {"$ref": "#/$defs/id"}, "approved_at": {"type": "string", "format": "gew-timestamp"}},
+      "required": ["kind", "version", "digest", "approved_by", "approved_at"],
+      "additionalProperties": false
+    },
+    "legacy-graph-ref": {
+      "type": "object",
+      "properties": {"graph_id": {"$ref": "#/$defs/id"}, "graph_version": {"$ref": "#/$defs/id"}, "graph_digest": {"type": "string", "minLength": 78, "maxLength": 78}, "profile_id": {"$ref": "#/$defs/id"}, "profile_version": {"$ref": "#/$defs/id"}, "risk_path": {"enum": ["full-planned", "compact-planned", "emergency"]}},
+      "required": ["graph_id", "graph_version", "graph_digest", "profile_id", "profile_version", "risk_path"],
+      "additionalProperties": false
+    },
+    "materialized-graph-ref": {
+      "type": "object",
+      "properties": {"graph_id": {"$ref": "#/$defs/id"}, "graph_version": {"$ref": "#/$defs/id"}, "graph_digest": {"type": "string", "minLength": 78, "maxLength": 78}, "profile_id": {"$ref": "#/$defs/id"}, "profile_version": {"$ref": "#/$defs/id"}, "risk_path": {"enum": ["full-planned", "compact-planned", "emergency"]}, "profile_digest": {"type": "string", "minLength": 78, "maxLength": 78}, "overlay_id": {"$ref": "#/$defs/id"}, "overlay_version": {"$ref": "#/$defs/id"}, "overlay_digest": {"type": "string", "minLength": 78, "maxLength": 78}, "project_config_digest": {"type": "string", "minLength": 78, "maxLength": 78}, "support_matrix_digest": {"type": "string", "minLength": 78, "maxLength": 78}, "materialization_digest": {"type": "string", "minLength": 78, "maxLength": 78}},
+      "required": ["graph_id", "graph_version", "graph_digest", "profile_id", "profile_version", "risk_path", "profile_digest", "overlay_id", "overlay_version", "overlay_digest", "project_config_digest", "support_matrix_digest", "materialization_digest"],
+      "additionalProperties": false
+    },
+    "graph-ref": {"oneOf": [{"$ref": "#/$defs/legacy-graph-ref"}, {"$ref": "#/$defs/materialized-graph-ref"}]},
+    "contract-pins": {
+      "type": "object",
+      "properties": {
+        "schema_registry": {"type": "object", "properties": {"registry_id": {"$ref": "#/$defs/id"}, "registry_digest": {"type": "string", "minLength": 78, "maxLength": 78}}, "required": ["registry_id", "registry_digest"], "additionalProperties": false},
+        "resource_profile": {"type": "object", "properties": {"profile_id": {"$ref": "#/$defs/id"}, "body_digest": {"type": "string", "minLength": 78, "maxLength": 78}}, "required": ["profile_id", "body_digest"], "additionalProperties": false},
+        "cost_schedule": {"type": "object", "properties": {"schedule_id": {"$ref": "#/$defs/id"}, "body_digest": {"type": "string", "minLength": 78, "maxLength": 78}}, "required": ["schedule_id", "body_digest"], "additionalProperties": false}
+      },
+      "required": ["schema_registry", "resource_profile", "cost_schedule"],
+      "additionalProperties": false
+    },
+    "node-run": {
+      "type": "object",
+      "properties": {"run_id": {"$ref": "#/$defs/id"}, "node_id": {"$ref": "#/$defs/id"}, "attempt": {"type": "integer", "minimum": 1}, "status": {"enum": ["pending", "ready", "leased", "running", "produced", "validating", "reviewing", "awaiting_human", "invalidated", "blocked", "passed", "cancelled"]}},
+      "required": ["run_id", "node_id", "attempt", "status"],
+      "additionalProperties": false
+    },
+    "artifact-ref": {
+      "type": "object",
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/id"},
+        "artifact_type": {"$ref": "#/$defs/id"},
+        "contract_ref": {"$ref": "#/$defs/id"},
+        "revision": {"type": "integer", "minimum": 1},
+        "digest": {"$ref": "#/$defs/digest"},
+        "trust": {"$ref": "#/$defs/id"}
+      },
+      "required": ["artifact_id", "artifact_type", "contract_ref", "revision", "digest", "trust"],
+      "additionalProperties": false
+    },
+    "evidence-ref": {
+      "type": "object",
+      "properties": {
+        "evidence_id": {"$ref": "#/$defs/id"},
+        "evidence_type": {"$ref": "#/$defs/id"},
+        "source_ref": {"$ref": "#/$defs/id"},
+        "digest": {"$ref": "#/$defs/digest"},
+        "trust": {"$ref": "#/$defs/id"}
+      },
+      "required": ["evidence_id", "evidence_type", "source_ref", "digest", "trust"],
+      "additionalProperties": false
+    },
+    "id-array": {"type": "array", "maxItems": 16384, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "task_revision": {"type": "integer", "minimum": 0},
+    "identity": {"anyOf": [{"$ref": "#/$defs/identity"}, {"$ref": "#/$defs/empty-object"}]},
+    "project_scope_ref": {"anyOf": [{"$ref": "#/$defs/scope-ref"}, {"$ref": "#/$defs/empty-object"}]},
+    "baseline_refs": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/baseline-ref"}},
+    "graph_ref": {"anyOf": [{"$ref": "#/$defs/graph-ref"}, {"$ref": "#/$defs/empty-object"}]},
+    "contract_pins": {"$ref": "#/$defs/contract-pins"},
+    "lifecycle": {"enum": ["nonexistent", "discovering", "awaiting_prd_approval", "ready", "running", "paused", "awaiting_human", "blocked", "failed", "canceling", "canceled", "rollback_pending", "rolling_back", "rolled_back", "completing", "completed", "archived"]},
+    "node_runs": {"type": "object", "maxProperties": 16384, "additionalProperties": {"$ref": "#/$defs/node-run"}},
+    "authorities": {"$ref": "#/$defs/id-array"},
+    "artifacts": {"type": "array", "maxItems": 16384, "uniqueItems": true, "items": {"$ref": "#/$defs/artifact-ref"}},
+    "evidence": {"type": "array", "maxItems": 16384, "uniqueItems": true, "items": {"$ref": "#/$defs/evidence-ref"}},
+    "resource_leases": {"$ref": "#/$defs/id-array"},
+    "unresolved_action_claims": {"$ref": "#/$defs/id-array"},
+    "action_claim_authorities": {"type": "object", "maxProperties": 16384, "additionalProperties": {"$ref": "#/$defs/id"}},
+    "open_findings": {"$ref": "#/$defs/id-array"},
+    "invalidation_epoch": {"type": "integer", "minimum": 0},
+    "last_event_seq": {"type": "integer", "minimum": 0},
+    "desired_state": {"anyOf": [{"type": "string", "maxLength": 64}, {"type": "null"}]},
+    "snapshot_digest": {"type": "string", "minLength": 78, "maxLength": 78}
+  },
+  "required": ["schema_version", "task_revision", "identity", "project_scope_ref", "baseline_refs", "graph_ref", "contract_pins", "lifecycle", "node_runs", "authorities", "artifacts", "evidence", "resource_leases", "unresolved_action_claims", "action_claim_authorities", "open_findings", "invalidation_epoch", "last_event_seq", "desired_state", "snapshot_digest"],
+  "unevaluatedProperties": false
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "connector-registry-default",
+  "entries": [
+    {
+      "connector_id": "remote-project-host",
+      "adapter_id": "connector-unavailable-v1",
+      "status": "unavailable",
+      "declared_capabilities": ["remote-read", "remote-write"],
+      "reason_code": "connector-not-installed",
+      "retryable": false
+    }
+  ],
+  "registry_digest": "sha256-jcs-v1:1dc43643c33f9211778b33730a69e0d4f4a3819784062d1b02fb4bba92abe184"
+}

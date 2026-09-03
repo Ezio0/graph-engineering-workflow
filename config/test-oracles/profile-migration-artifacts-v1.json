@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "oracle_id": "ORA-PROFILE-MIGRATION",
+  "oracle_kind": "independent-frozen-vector",
+  "profile_id": "migration",
+  "selector_kind": "mandatory",
+  "column_id": "artifacts",
+  "scenario_id": null,
+  "category_boundary_case_id": null,
+  "overlay_id": "full-planned",
+  "evidence_kind": "artifact-records",
+  "required_outcome": "artifacts-accepted",
+  "required_fact_ids": [
+    "artifact-record-digests"
+  ],
+  "pass_result": "COMPLETED",
+  "reject_result": "EXPECTED_REJECTION",
+  "reject_error_type": "CategoryExecutionError",
+  "reject_error_message": "typed column evidence does not match authoritative durable facts: artifacts",
+  "reject_state_relation": "exact-equality",
+  "reject_input_relation": "exact-equality",
+  "isolated_runner_raw_sha256": "0f52a04ea53f099c10980d6ef1aa613fcdc8bf9e4022b5ba6079011c7f570d01",
+  "task_ids": {
+    "P": "task:wp08-coverage:gew-pro-migration-artifacts-p",
+    "R": "task:wp08-coverage:gew-pro-migration-artifacts-r"
+  },
+  "oracle_digest": "sha256-jcs-v1:db918ac0d00b9b1141e5e32d3ebe3e3a542c595985fac41818a5b9f06da8d989"
+}

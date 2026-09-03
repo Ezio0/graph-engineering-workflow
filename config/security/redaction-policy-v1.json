@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "redaction-default",
+  "allowed_transforms": ["drop", "mask"],
+  "mask_marker": "[REDACTED]",
+  "max_fields": 256,
+  "policy_digest": "sha256-jcs-v1:65868c76b5118ce0a4609097770ac893842c429eaba159e889ec7c50b4931aa8"
+}

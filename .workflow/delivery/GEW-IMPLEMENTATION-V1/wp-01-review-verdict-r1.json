@@ -1,0 +1,23 @@
+{
+  "schema_version":"1.0","verdict":"REVISE","artifact":"wp-01","scope_changed":false,
+  "change_kinds":["implementation","testability","verification"],
+  "source_manifest_digest":"31403d59b692b6d8db14392c52f81350cb80bec658abf846423046402c0578d4",
+  "command_evidence_digest":"0db9258a02f7c85e492aeb6a74ddc1041f8d65ab06e7af87ce55c7c91cad46d1",
+  "candidate_exit_digest":"5b222994295a79cfd914229f841d6599d852822034402a30e75b6071e8cc4fc1",
+  "finding_dispositions":[
+    {"id":"WP01-R0-001","status":"open","evidence":"Sequential sibling container frames are retained until document completion; registry validation lacks WorkContext and stable limit errors."},
+    {"id":"WP01-R0-002","status":"closed","evidence":"Successful applicator and ref annotations now propagate and counterexamples pass."},
+    {"id":"WP01-R0-003","status":"closed","evidence":"Predicate registry is exact, digest/code-bound, built-in-only, immutable, and capability-free."},
+    {"id":"WP01-R0-004","status":"closed","evidence":"ErrorRuleRegistry now validates digest-locked rule/code/phase triples."},
+    {"id":"WP01-R0-005","status":"open","evidence":"Migration accepts arbitrary caller validators before charge and does not verify expected old digest."},
+    {"id":"WP01-R0-006","status":"open","evidence":"Several numbered conformance families execute summary/template algorithms instead of independent production-equivalent contracts."},
+    {"id":"WP01-R0-007","status":"open","evidence":"CompatibilityMatrix.readers is mutable after digest verification."}
+  ],
+  "findings":[
+    {"id":"WP01-R0-001","severity":"blocker","location":"strict_json.py; resources.py; canonical.py; registry.py","claim":"Resource temporary lifetimes and public registry accounting remain non-normative.","evidence":"temporary_units=4 rejects b'[[],[]]' although normative live peak is four; validation has no context.","required_change":"Release frame units at close, retain only container content until freeze, charge canonical work before allocation, and return stable E_LIMIT for registry limits."},
+    {"id":"WP01-R0-005","severity":"blocker","location":"versioning.py; test_wp01_versioning.py","claim":"Migration permits injected validators and omits pinned-old-digest verification.","evidence":"Caller validator runs before executable charge and API only computes source digest.","required_change":"Use closed registry validators, charge before invocation, require constant-time old digest verification, and compare exact provenance/output bytes."},
+    {"id":"WP01-R0-006","severity":"blocker","location":"generate_wp01_corpus.py; test_wp01_cross_implementation.py; wp01_reference.mjs","claim":"The 250 case suite is nominal rather than production-equivalent for several families.","evidence":"Budget cases directly call emit; Node migration omits registry/digest/cost/provenance; schema is a small subset; summaries omit exact records/traces.","required_change":"Replace templates with requirement-specific independent algorithms and exact bytes/errors/traces/provenance plus per-case digests."},
+    {"id":"WP01-R0-007","severity":"blocker","location":"versioning.py","claim":"Compatibility behavior remains mutable without digest change.","evidence":"Replacing a readers map entry makes an undeclared writer pass.","required_change":"Deep-freeze every compatibility and migration registry mapping and test post-load mutation."}
+  ],
+  "reviewer_id":"codex:/root/adr_0003_reviewer_r1"
+}

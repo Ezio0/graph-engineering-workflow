@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "disclosure-default",
+  "rules": [
+    {
+      "destination_kind": "connector",
+      "trust_boundary": "external",
+      "maximum_sensitivity": "confidential",
+      "allowed_purposes": ["external-communication"],
+      "authority_required": true,
+      "receipt_required": true,
+      "redaction_required": true
+    },
+    {
+      "destination_kind": "owner",
+      "trust_boundary": "owner-session",
+      "maximum_sensitivity": "confidential",
+      "allowed_purposes": ["owner-update"],
+      "authority_required": false,
+      "receipt_required": false,
+      "redaction_required": true
+    },
+    {
+      "destination_kind": "runtime-tool",
+      "trust_boundary": "local-runtime",
+      "maximum_sensitivity": "confidential",
+      "allowed_purposes": ["task-execution"],
+      "authority_required": false,
+      "receipt_required": true,
+      "redaction_required": true
+    }
+  ],
+  "policy_digest": "sha256-jcs-v1:f0cf26b04185e961157a147979f3c6608e2d8ba0fc6947318b97a6711186b28e"
+}

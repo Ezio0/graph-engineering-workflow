@@ -1,0 +1,3 @@
+{
+  "schema_version": "1.0", "task_id": "GEW-ADR-V1", "node": "adr-metadata-revalidation", "artifact": "adr-0002", "author_id": "deterministic-control:/root", "reviewer_id": "codex:/root/adr_0002_reviewer_r1", "targets": ["docs/adr/0002-local-event-repository-and-coordination.md"], "revision": 4, "artifact_digest": "90a3d6f28f7968474a920700da696792e855d614edec4310712a4d41cd4aef73", "previous_artifact_digest": "1262a8a167d06ea6cc174c6c151c351423b1e032adc8851640331056338f29cf", "change_class": "metadata-only"
+}

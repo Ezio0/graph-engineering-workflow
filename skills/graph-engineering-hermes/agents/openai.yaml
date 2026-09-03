@@ -1,0 +1,4 @@
+interface:
+  display_name: "Graph Engineering Hermes"
+  short_description: "Run approved graph delivery through Hermes"
+  default_prompt: "Use $graph-engineering-hermes to continue this graph-engineering task."

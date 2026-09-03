@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-TECH-SPEC-V2",
+  "goal": "Create and independently review a Tech Spec candidate that implements the approved Positioning v2 and Intent Baseline v2 without changing product intent.",
+  "non_goals": [
+    "Change the approved Positioning v2 or PRD v2",
+    "Create Impact Analysis, ADRs, implementation plans, or test plans",
+    "Implement code, configuration, runtime Skills, or tests",
+    "Commit, push, merge, deploy, release, or communicate outside the current task"
+  ],
+  "allowed_targets": [
+    "docs/specs/graph-engineering-workflow.md"
+  ],
+  "allowed_change_kinds": [
+    "architecture-detail",
+    "clarification",
+    "consistency",
+    "traceability",
+    "testability"
+  ],
+  "human_required_change_kinds": [
+    "goal",
+    "non-goal",
+    "target-boundary",
+    "intent-baseline",
+    "authority-expansion",
+    "material-architecture-choice"
+  ],
+  "authorized_actions": [
+    "documentation",
+    "verification",
+    "independent-review"
+  ]
+}

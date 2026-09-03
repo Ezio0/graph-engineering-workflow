@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "artifact": "wp-05",
+  "verdict": "PASS",
+  "reviewer_id": "codex:/root/wp05_code_reviewer_r1",
+  "scope_changed": false,
+  "source_manifest_digest": "48536f411e6fb6213f049e7136541e69561fac0bb33df8a11bdab722898a7b8b",
+  "command_evidence_digest": "ac096675fd5710c258929d859c673027864f63674db841d8fd1640d38aa05c0b",
+  "candidate_exit_digest": "3d3f593b10bb3a8648519d9311bd032db5e78768ba7428ce10880f4ffb7fac9d",
+  "governing_documents_digest": "eb67c2eaea3781b8a5b554e9fe5f47e26f0818377c1676b01679b20605a1276b",
+  "architecture_review_digest": "aca38beaeb2eae557763d10e5ab57d16402f0dc064030492c792588fd84ec558",
+  "action_runtime_digest": "bf94b5f6f0fcf33850f5f08ab993ca08cc8e626d1ce9724e1402542238aa98b1",
+  "action_sources_digest": "6caf5b7935fe64e50bcafe9e5e493af7344fa833066467617c0e03328d711d39",
+  "dependency_verdicts_digest": "d6e59ef91e783c6649af05dabd1deb34291d91c016fc1b4f4fca88d6f1aa7d2a",
+  "finding_dispositions": [
+    {"finding_id": "WP05-ADR5-R1-001", "status": "closed"},
+    {"finding_id": "WP05-ADR5-R1-002", "status": "closed"},
+    {"finding_id": "WP05-ADR5-R1-003", "status": "closed"},
+    {"finding_id": "WP05-ADR5-R1-004", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-001", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-002", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-003", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-004", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-005", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-006", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-007", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-008", "status": "closed"},
+    {
+      "finding_id": "WP05-CODE-R1-001",
+      "status": "closed",
+      "evidence": "Repository reconciliation bounded-loads the exact durable PreparedAction in the caller transaction; recomputed wrong-resource and wrong-state CommitBatch probes are zero-write and leave the claim and all resource freezes intact."
+    },
+    {
+      "finding_id": "WP05-CODE-R1-002",
+      "status": "closed",
+      "evidence": "Normal and compensation receipts durably publish and bind the bounded receipt object before receipt event commit; the 13-point v2 SIGKILL matrix and process-shared double-call mutation oracle prove aggregate calls remain at most one."
+    }
+  ],
+  "findings": []
+}

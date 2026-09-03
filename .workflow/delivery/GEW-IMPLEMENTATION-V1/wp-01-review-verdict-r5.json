@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "wp-01",
+  "scope_changed": false,
+  "change_kinds": [
+    "implementation",
+    "configuration",
+    "tests",
+    "verification"
+  ],
+  "source_manifest_digest": "634fbd78e8537bf3a28b40cad9ccf1905bec704657adb1e1dacfc3c1feb7f5d8",
+  "command_evidence_digest": "52774f85490bfd36daef32632cf810c748e999134aac0302f7c174c0201a62f6",
+  "candidate_exit_digest": "f366c425dc252673a352aa0396873d4fee838b46e6fc54b5be29f626cd0d22b5",
+  "finding_dispositions": [
+    {
+      "id": "WP01-R0-001",
+      "status": "closed",
+      "evidence": "Independent r5 counterexamples confirmed invalid lexical units ???, trux, 01, and invalid string escapes emit zero parse.token events. Registry traces begin registry.resource then registry.schema_byte, place parse in a child operation, incrementally charge locations and refs, and charge digest_compare before hashing. build_result_record charges recursive fields, nodes, and each output byte before allocating the returned mapping. All focused resource, registry, GEEL, migration, and boundary tests passed."
+    },
+    {
+      "id": "WP01-R0-002",
+      "status": "closed",
+      "evidence": "No Draft 2020-12 annotation regression was found; successful allOf, contains, and $ref annotation cases and the focused schema suite passed."
+    },
+    {
+      "id": "WP01-R0-003",
+      "status": "open",
+      "evidence": "Although from_dict remains built-in-only and digest-bound, a loaded PredicateRegistry is mutable at the attribute level. Rebinding _values to a MappingProxyType containing a caller-defined PredicateSpec executed the injected callable while registry_digest remained the approved digest."
+    },
+    {
+      "id": "WP01-R0-004",
+      "status": "open",
+      "evidence": "ErrorRuleRegistry.from_dict validates exact triples, but the public dataclass constructor accepts arbitrary rules and an arbitrary digest. A directly constructed registry accepted the illegal triple schema/type, E_BUDGET, runtime."
+    },
+    {
+      "id": "WP01-R0-005",
+      "status": "open",
+      "evidence": "Migration now requires exact schema-registry ID and digest pins, but the attested registry contents are replaceable. After building the approved migration schema registry, rebinding _resources while retaining its ID and digest allowed migration of a rogue-field object that the pinned schemas reject."
+    },
+    {
+      "id": "WP01-R0-006",
+      "status": "closed",
+      "evidence": "GEW-CON-171 through 210 are forty distinct production_boundary scenarios whose union covers all 45 event IDs. Python reruns every emitted occurrence at before, exact, and after balances; all independently executed Node boundary summaries matched the frozen vectors. All 250 IDs and vector digests verified, and GEW-CON-241 through 250 cover success, schema rejection, source digest tamper, migration registry tamper, zero path, wrong schema-registry pins, and an ambiguous two-path graph."
+    },
+    {
+      "id": "WP01-R0-007",
+      "status": "open",
+      "evidence": "Nested input aliases are copied by the revised constructors, but public construction and object-level mutation still break attestation. CompatibilityMatrix directly accepts an arbitrary digest; SchemaResource accepts raw body {} paired with a semantically different schema; and ClosedSchemaRegistry, PredicateRegistry, and MigrationRegistry attributes can be rebound after verification."
+    }
+  ],
+  "findings": [
+    {
+      "id": "WP01-R0-003",
+      "severity": "blocker",
+      "location": "core/graph_engineering/core/contracts/geel.py:108; core/graph_engineering/core/contracts/geel.py:147",
+      "claim": "The executable predicate registry is not immutable after digest verification and still permits callable injection.",
+      "evidence": "Regular assignment to PredicateRegistry._values replaced the approved built-in mapping with an injected PredicateSpec. GEELProgram subsequently invoked the injected callable while the original approved registry_digest was unchanged.",
+      "required_change": "Seal all PredicateRegistry identity, digest, and entry state against reassignment; make PredicateSpec construction trusted-only or re-attest every resolved entry; and add a post-load attribute-rebinding injection test that proves no unapproved callable can execute."
+    },
+    {
+      "id": "WP01-R0-004",
+      "severity": "major",
+      "location": "core/graph_engineering/core/contracts/error_rules.py:19",
+      "claim": "ErrorRuleRegistry has a public unattested construction path that bypasses its exact code-phase-rule contract.",
+      "evidence": "ErrorRuleRegistry('urn:gew:error-rule-registry:forged:1.0.0', zero_digest, frozenset({('schema/type','E_BUDGET','runtime')})) constructs successfully and require() accepts that illegal triple.",
+      "required_change": "Make construction factory-only or perform full triple validation and digest attestation in __post_init__. Add direct-constructor negative tests for invalid triples, forged digests, and post-construction mutation."
+    },
+    {
+      "id": "WP01-R0-005",
+      "severity": "blocker",
+      "location": "core/graph_engineering/core/contracts/registry.py:94; core/graph_engineering/core/contracts/registry.py:113; core/graph_engineering/core/contracts/versioning.py:273",
+      "claim": "Migration's exact schema-registry pin does not attest the registry contents used during validation.",
+      "evidence": "A legitimately built registry retained the exact expected registry_id and registry_digest after _resources was rebound to schemas accepting everything. Migration then returned output for {'schema_version':'1.0.0','rogue':1}, which the pinned source and target schemas reject.",
+      "required_change": "Make ClosedSchemaRegistry identity, digest, and resource state structurally immutable; prevent module-private-token or attribute-rebinding construction bypasses; bind each SchemaResource parsed schema to its exact raw_body; and add migration counterexamples that mutate resources after build while retaining the expected pins."
+    },
+    {
+      "id": "WP01-R0-007",
+      "severity": "blocker",
+      "location": "core/graph_engineering/core/contracts/registry.py:94; core/graph_engineering/core/contracts/registry.py:113; core/graph_engineering/core/contracts/versioning.py:22; core/graph_engineering/core/contracts/versioning.py:162",
+      "claim": "Public production object paths remain unattested or mutable despite immutable/digest-locked semantics.",
+      "evidence": "CompatibilityMatrix directly accepts a zero digest with declared compatibility; SchemaResource accepts raw_body b'{}' with an unrelated {'type':'integer'} schema; registry internal mappings and identity fields can be rebound through ordinary assignment. MappingProxyType protects mutation through the mapping interface but not replacement of the owning attribute.",
+      "required_change": "Use factory-only attested construction or full __post_init__ attestation for every public domain type, freeze owning objects as well as nested mappings, verify raw-body-to-parsed-schema equality, and test ordinary attribute replacement plus direct constructors for profiles, schedules, compatibility, schema resources, and all registries."
+    }
+  ],
+  "reviewer_id": "codex:/root/adr_0003_reviewer_r1"
+}
+

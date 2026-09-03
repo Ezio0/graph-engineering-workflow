@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "oracle_id": "ORA-PROFILE-NEW-FEATURE",
+  "oracle_kind": "independent-frozen-vector",
+  "profile_id": "new-feature",
+  "selector_kind": "mandatory",
+  "column_id": "rollback",
+  "scenario_id": null,
+  "category_boundary_case_id": null,
+  "overlay_id": "full-planned",
+  "evidence_kind": "action-rollback",
+  "required_outcome": "rollback-verified",
+  "required_fact_ids": [
+    "action-id",
+    "action-status",
+    "claim-status"
+  ],
+  "pass_result": "COMPLETED",
+  "reject_result": "EXPECTED_REJECTION",
+  "reject_error_type": "CategoryExecutionError",
+  "reject_error_message": "category durable source changed after issuance",
+  "reject_state_relation": "exact-equality",
+  "reject_input_relation": "exact-equality",
+  "isolated_runner_raw_sha256": "0f52a04ea53f099c10980d6ef1aa613fcdc8bf9e4022b5ba6079011c7f570d01",
+  "oracle_digest": "sha256-jcs-v1:d04965423ea375bcafea8fc6250658645dcc223a46175bd7613f35350c2a5ee5",
+  "task_ids": {
+    "P": "task:wp08-coverage:gew-pro-new-feature-rollback-p",
+    "R": "task:wp08-coverage:gew-pro-new-feature-rollback-r"
+  }
+}

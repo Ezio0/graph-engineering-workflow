@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-PLAN-V1",
+  "node": "plan-review",
+  "artifact": "implementation-plan",
+  "author_id": "codex:/root",
+  "reviewer_id": "codex:/root/adr_0001_reviewer_r1",
+  "targets": ["docs/plans/2026-08-13-graph-engineering-workflow.md"],
+  "revision": 0,
+  "artifact_digest": "a0d61fa5b7146f63bf45b8f71ba83af704227adbbbfa97e19be57fab712e7c73",
+  "upstream_task": "GEW-ADR-V1"
+}

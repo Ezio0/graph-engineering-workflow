@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "matrix_id": "gew.wp08a.trace-matrix",
+  "requirement_rows": [{"obligation_id":"FR-18","pass_test_id":"GEW-REQ-FR18-P","reject_test_id":"GEW-REQ-FR18-R","fixture_id":"trusted-extension","oracle_id":"ORA-EXTENSION-POLICY","evidence_type":"load/rejection","owner_gate":"WP-08A"}],
+  "work_package_rows": [{"obligation_id":"WP-08A-EXIT","pass_test_id":"GEW-WP-08A-EXIT-P","reject_test_id":"GEW-WP-08A-EXIT-R","fixture_id":"wp08a-exit","oracle_id":"ORA-WP08A-EXIT","evidence_type":"WorkPackageExitRecord","owner_gate":"WP-08A"}],
+  "adr4_vectors": [
+    {"vector_id":"ADR4-PKG-P-001","result":"accept"},
+    {"vector_id":"ADR4-PKG-R-001","result":"E_EXTENSION_DIGEST_CYCLE"},
+    {"vector_id":"ADR4-PKG-R-002","result":"E_EXTENSION_DIGEST_CYCLE"},
+    {"vector_id":"ADR4-PKG-R-003","result":"E_EXTENSION_ARCHIVE_PROFILE"},
+    {"vector_id":"ADR4-PKG-R-004","result":"E_EXTENSION_PAYLOAD_ROOT"},
+    {"vector_id":"ADR4-PKG-R-005","result":"E_EXTENSION_PROJECTION"},
+    {"vector_id":"ADR4-PKG-R-006","result":"E_EXTENSION_SIGNATURE_INPUT"},
+    {"vector_id":"ADR4-PKG-R-007","result":"E_EXTENSION_TRUST_ROOT"},
+    {"vector_id":"ADR4-PKG-R-008","result":"E_EXTENSION_SOURCE_CHANGED"},
+    {"vector_id":"ADR4-PKG-R-009","result":"E_EXTENSION_PACKAGE_IDENTITY"},
+    {"vector_id":"ADR4-PKG-R-010","result":"E_EXTENSION_PAYLOAD_ROOT"}
+  ],
+  "test_ids": ["ADR4-PKG-P-001","ADR4-PKG-R-001","ADR4-PKG-R-002","ADR4-PKG-R-003","ADR4-PKG-R-004","ADR4-PKG-R-005","ADR4-PKG-R-006","ADR4-PKG-R-007","ADR4-PKG-R-008","ADR4-PKG-R-009","ADR4-PKG-R-010","GEW-REQ-FR18-P","GEW-REQ-FR18-R","GEW-WP-08A-EXIT-P","GEW-WP-08A-EXIT-R","GEW-WP-08A-TRUST-FAULT-P","GEW-WP-08A-ACTIVATION-FAULT-P","GEW-WP-08A-ROLLBACK-P"],
+  "executions": {
+    "ADR4-PKG-P-001":{"qualified_test":"tests.unit.test_wp08a_adr4_corpus.ExtensionAdr4CorpusTests.test_adr4_pkg_p_001","expected_result":"accept"},
+    "ADR4-PKG-R-001":{"qualified_test":"tests.unit.test_wp08a_adr4_corpus.ExtensionAdr4CorpusTests.test_adr4_pkg_r_001","expected_result":"E_EXTENSION_DIGEST_CYCLE"},
+    "ADR4-PKG-R-002":{"qualified_test":"tests.unit.test_wp08a_adr4_corpus.ExtensionAdr4CorpusTests.test_adr4_pkg_r_002","expected_result":"E_EXTENSION_DIGEST_CYCLE"},
+    "ADR4-PKG-R-003":{"qualified_test":"tests.unit.test_wp08a_adr4_corpus.ExtensionAdr4CorpusTests.test_adr4_pkg_r_003","expected_result":"E_EXTENSION_ARCHIVE_PROFILE"},
+    "ADR4-PKG-R-004":{"qualified_test":"tests.unit.test_wp08a_adr4_corpus.ExtensionAdr4CorpusTests.test_adr4_pkg_r_004","expected_result":"E_EXTENSION_PAYLOAD_ROOT"},
+    "ADR4-PKG-R-005":{"qualified_test":"tests.unit.test_wp08a_adr4_corpus.ExtensionAdr4CorpusTests.test_adr4_pkg_r_005","expected_result":"E_EXTENSION_PROJECTION"},
+    "ADR4-PKG-R-006":{"qualified_test":"tests.unit.test_wp08a_adr4_corpus.ExtensionAdr4CorpusTests.test_adr4_pkg_r_006","expected_result":"E_EXTENSION_SIGNATURE_INPUT"},
+    "ADR4-PKG-R-007":{"qualified_test":"tests.unit.test_wp08a_adr4_corpus.ExtensionAdr4CorpusTests.test_adr4_pkg_r_007","expected_result":"E_EXTENSION_TRUST_ROOT"},
+    "ADR4-PKG-R-008":{"qualified_test":"tests.unit.test_wp08a_adr4_corpus.ExtensionAdr4CorpusTests.test_adr4_pkg_r_008","expected_result":"E_EXTENSION_SOURCE_CHANGED"},
+    "ADR4-PKG-R-009":{"qualified_test":"tests.unit.test_wp08a_adr4_corpus.ExtensionAdr4CorpusTests.test_adr4_pkg_r_009","expected_result":"E_EXTENSION_PACKAGE_IDENTITY"},
+    "ADR4-PKG-R-010":{"qualified_test":"tests.unit.test_wp08a_adr4_corpus.ExtensionAdr4CorpusTests.test_adr4_pkg_r_010","expected_result":"E_EXTENSION_PAYLOAD_ROOT"},
+    "GEW-REQ-FR18-P":{"qualified_test":"tests.integration.test_wp08a_extension_policy_enforcement.ExtensionPolicyEnforcementTests.test_gew_ext_029_signed_production_policy_content_is_required_and_exact","expected_result":"PASS"},
+    "GEW-REQ-FR18-R":{"qualified_test":"tests.integration.test_wp08a_extension_policy_enforcement.ExtensionPolicyEnforcementTests.test_gew_ext_028_exact_key_rules_and_all_target_revocations_precede_install","expected_result":"PASS"},
+    "GEW-WP-08A-EXIT-P":{"qualified_test":"tests.integration.test_wp08a_extension_policy_enforcement.ExtensionPolicyEnforcementTests.test_gew_ext_031_versioned_fault_schedule_recovers_install_activation_and_rollback","expected_result":"PASS"},
+    "GEW-WP-08A-EXIT-R":{"qualified_test":"tests.integration.test_wp08a_extension_policy_enforcement.ExtensionPolicyEnforcementTests.test_gew_ext_032_trust_plane_has_zero_dns_socket_proxy_and_executable_gates","expected_result":"PASS"},
+    "GEW-WP-08A-TRUST-FAULT-P":{"qualified_test":"tests.integration.test_wp08a_extension_trust_repository.ExtensionTrustRepositoryTests.test_gew_ext_005_fault_cuts_are_atomic_and_restart_recovers_exact_old_or_new","expected_result":"PASS"},
+    "GEW-WP-08A-ACTIVATION-FAULT-P":{"qualified_test":"tests.integration.test_wp08a_extension_active_set.ExtensionActiveSetTests.test_gew_ext_022_fault_cuts_restart_to_exact_old_or_new_generation","expected_result":"PASS"},
+    "GEW-WP-08A-ROLLBACK-P":{"qualified_test":"tests.integration.test_wp08a_extension_active_set.ExtensionActiveSetTests.test_gew_ext_021_supersede_rollback_remove_and_owner_ingress_are_deterministic","expected_result":"PASS"}
+  }
+}

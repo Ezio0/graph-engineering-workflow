@@ -1,0 +1,1043 @@
+{
+  "schema_version": "1.0",
+  "dependencies": [
+    {
+      "work_package": "WP-01",
+      "revision": 18,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-01-source-manifest-r18.json",
+      "source_manifest_digest": "8b20c5835bff8c780b0a36a376f002048f8437cb970199159cbfa39deb18c6ed",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-01-command-evidence-r18.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-01-review-verdict-r18.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-01-exit-r18.json"
+    },
+    {
+      "work_package": "WP-03",
+      "revision": 8,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-03-source-manifest-r8.json",
+      "source_manifest_digest": "5dc67d11277eedafc4b9b80236ab38bbc50f008e3aae12d8bdd95c9c5bd9e322",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-03-command-evidence-r8.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-03-review-verdict-r8.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-03-exit-r8.json"
+    }
+  ],
+  "commands": [
+    {
+      "id": "GEW-WP-05A-LINT-P",
+      "argv": [
+        "{python}",
+        "scripts/check_sources.py",
+        "lint"
+      ]
+    },
+    {
+      "id": "GEW-WP-05A-TYPE-P",
+      "argv": [
+        "{python}",
+        "scripts/check_sources.py",
+        "type"
+      ]
+    },
+    {
+      "id": "GEW-WP-05A-SECURITY-P",
+      "argv": [
+        "{python}",
+        "scripts/check_architecture.py"
+      ]
+    },
+    {
+      "id": "GEW-WP-05A-TEST-P",
+      "argv": [
+        "{python}",
+        "scripts/run_tests.py"
+      ]
+    },
+    {
+      "id": "GEW-WP-05A-BUILD-P",
+      "argv": [
+        "{python}",
+        "scripts/verify_build.py"
+      ]
+    },
+    {
+      "id": "GEW-WP-05A-REPRODUCIBILITY-P",
+      "argv": [
+        "{python}",
+        "scripts/verify_reproducible_build.py"
+      ]
+    }
+  ],
+  "test_bindings": [
+    {
+      "test_id": "GEW-SEC-001",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_001"
+    },
+    {
+      "test_id": "GEW-SEC-002",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_002"
+    },
+    {
+      "test_id": "GEW-SEC-003",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_003"
+    },
+    {
+      "test_id": "GEW-SEC-004",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_004"
+    },
+    {
+      "test_id": "GEW-SEC-005",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_005"
+    },
+    {
+      "test_id": "GEW-SEC-006",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_006"
+    },
+    {
+      "test_id": "GEW-SEC-007",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_007"
+    },
+    {
+      "test_id": "GEW-SEC-008",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_008"
+    },
+    {
+      "test_id": "GEW-SEC-009",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_009"
+    },
+    {
+      "test_id": "GEW-SEC-010",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_010"
+    },
+    {
+      "test_id": "GEW-SEC-011",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_011"
+    },
+    {
+      "test_id": "GEW-SEC-012",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_012"
+    },
+    {
+      "test_id": "GEW-SEC-013",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_013"
+    },
+    {
+      "test_id": "GEW-SEC-014",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_014"
+    },
+    {
+      "test_id": "GEW-SEC-015",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_015"
+    },
+    {
+      "test_id": "GEW-SEC-016",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_016"
+    },
+    {
+      "test_id": "GEW-SEC-017",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_017"
+    },
+    {
+      "test_id": "GEW-SEC-018",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_018"
+    },
+    {
+      "test_id": "GEW-SEC-019",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_019"
+    },
+    {
+      "test_id": "GEW-SEC-020",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_020"
+    },
+    {
+      "test_id": "GEW-SEC-021",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_021"
+    },
+    {
+      "test_id": "GEW-SEC-022",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_022"
+    },
+    {
+      "test_id": "GEW-SEC-023",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_023"
+    },
+    {
+      "test_id": "GEW-SEC-024",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_024"
+    },
+    {
+      "test_id": "GEW-SEC-025",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_025"
+    },
+    {
+      "test_id": "GEW-SEC-026",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_026"
+    },
+    {
+      "test_id": "GEW-SEC-027",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_027"
+    },
+    {
+      "test_id": "GEW-SEC-028",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_028"
+    },
+    {
+      "test_id": "GEW-SEC-029",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_029"
+    },
+    {
+      "test_id": "GEW-SEC-030",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_030"
+    },
+    {
+      "test_id": "GEW-SEC-031",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_031"
+    },
+    {
+      "test_id": "GEW-SEC-032",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_032"
+    },
+    {
+      "test_id": "GEW-SEC-033",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_033"
+    },
+    {
+      "test_id": "GEW-SEC-034",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_034"
+    },
+    {
+      "test_id": "GEW-SEC-035",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_035"
+    },
+    {
+      "test_id": "GEW-SEC-036",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_036"
+    },
+    {
+      "test_id": "GEW-SEC-037",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_037"
+    },
+    {
+      "test_id": "GEW-SEC-038",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_038"
+    },
+    {
+      "test_id": "GEW-SEC-039",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_039"
+    },
+    {
+      "test_id": "GEW-SEC-040",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_040"
+    },
+    {
+      "test_id": "GEW-SEC-041",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_041"
+    },
+    {
+      "test_id": "GEW-SEC-042",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_042"
+    },
+    {
+      "test_id": "GEW-SEC-043",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_043"
+    },
+    {
+      "test_id": "GEW-SEC-044",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_044"
+    },
+    {
+      "test_id": "GEW-SEC-045",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_045"
+    },
+    {
+      "test_id": "GEW-SEC-046",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_046"
+    },
+    {
+      "test_id": "GEW-SEC-047",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_047"
+    },
+    {
+      "test_id": "GEW-SEC-048",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_048"
+    },
+    {
+      "test_id": "GEW-SEC-049",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_049"
+    },
+    {
+      "test_id": "GEW-SEC-050",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_050"
+    },
+    {
+      "test_id": "GEW-SEC-051",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_051"
+    },
+    {
+      "test_id": "GEW-SEC-052",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_052"
+    },
+    {
+      "test_id": "GEW-SEC-053",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_053"
+    },
+    {
+      "test_id": "GEW-SEC-054",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_054"
+    },
+    {
+      "test_id": "GEW-SEC-055",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_055"
+    },
+    {
+      "test_id": "GEW-SEC-056",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_056"
+    },
+    {
+      "test_id": "GEW-SEC-057",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_057"
+    },
+    {
+      "test_id": "GEW-SEC-058",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_058"
+    },
+    {
+      "test_id": "GEW-SEC-059",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_059"
+    },
+    {
+      "test_id": "GEW-SEC-060",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_060"
+    },
+    {
+      "test_id": "GEW-SEC-061",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_061"
+    },
+    {
+      "test_id": "GEW-SEC-062",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_062"
+    },
+    {
+      "test_id": "GEW-SEC-063",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_063"
+    },
+    {
+      "test_id": "GEW-SEC-064",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_064"
+    },
+    {
+      "test_id": "GEW-SEC-065",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_065"
+    },
+    {
+      "test_id": "GEW-SEC-066",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_066"
+    },
+    {
+      "test_id": "GEW-SEC-067",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_067"
+    },
+    {
+      "test_id": "GEW-SEC-068",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_068"
+    },
+    {
+      "test_id": "GEW-SEC-069",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_069"
+    },
+    {
+      "test_id": "GEW-SEC-070",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_070"
+    },
+    {
+      "test_id": "GEW-SEC-071",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_071"
+    },
+    {
+      "test_id": "GEW-SEC-072",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_072"
+    },
+    {
+      "test_id": "GEW-SEC-073",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_073"
+    },
+    {
+      "test_id": "GEW-SEC-074",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_074"
+    },
+    {
+      "test_id": "GEW-SEC-075",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_075"
+    },
+    {
+      "test_id": "GEW-SEC-076",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_076"
+    },
+    {
+      "test_id": "GEW-SEC-077",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_077"
+    },
+    {
+      "test_id": "GEW-SEC-078",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_078"
+    },
+    {
+      "test_id": "GEW-SEC-079",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_079"
+    },
+    {
+      "test_id": "GEW-SEC-080",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_080"
+    },
+    {
+      "test_id": "GEW-SEC-081",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_081"
+    },
+    {
+      "test_id": "GEW-SEC-082",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_082"
+    },
+    {
+      "test_id": "GEW-SEC-083",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_083"
+    },
+    {
+      "test_id": "GEW-SEC-084",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_084"
+    },
+    {
+      "test_id": "GEW-SEC-085",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_085"
+    },
+    {
+      "test_id": "GEW-SEC-086",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_086"
+    },
+    {
+      "test_id": "GEW-SEC-087",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_087"
+    },
+    {
+      "test_id": "GEW-SEC-088",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_088"
+    },
+    {
+      "test_id": "GEW-SEC-089",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_089"
+    },
+    {
+      "test_id": "GEW-SEC-090",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_090"
+    },
+    {
+      "test_id": "GEW-SEC-091",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_091"
+    },
+    {
+      "test_id": "GEW-SEC-092",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_092"
+    },
+    {
+      "test_id": "GEW-SEC-093",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_093"
+    },
+    {
+      "test_id": "GEW-SEC-094",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_094"
+    },
+    {
+      "test_id": "GEW-SEC-095",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_095"
+    },
+    {
+      "test_id": "GEW-SEC-096",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_096"
+    },
+    {
+      "test_id": "GEW-SEC-097",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_097"
+    },
+    {
+      "test_id": "GEW-SEC-098",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_098"
+    },
+    {
+      "test_id": "GEW-SEC-099",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_099"
+    },
+    {
+      "test_id": "GEW-SEC-100",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_100"
+    },
+    {
+      "test_id": "GEW-SEC-101",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_101"
+    },
+    {
+      "test_id": "GEW-SEC-102",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_102"
+    },
+    {
+      "test_id": "GEW-SEC-103",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_103"
+    },
+    {
+      "test_id": "GEW-SEC-104",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_104"
+    },
+    {
+      "test_id": "GEW-SEC-105",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_105"
+    },
+    {
+      "test_id": "GEW-SEC-106",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_106"
+    },
+    {
+      "test_id": "GEW-SEC-107",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_107"
+    },
+    {
+      "test_id": "GEW-SEC-108",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_108"
+    },
+    {
+      "test_id": "GEW-SEC-109",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_109"
+    },
+    {
+      "test_id": "GEW-SEC-110",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_110"
+    },
+    {
+      "test_id": "GEW-SEC-111",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_111"
+    },
+    {
+      "test_id": "GEW-SEC-112",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_112"
+    },
+    {
+      "test_id": "GEW-SEC-113",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_113"
+    },
+    {
+      "test_id": "GEW-SEC-114",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_114"
+    },
+    {
+      "test_id": "GEW-SEC-115",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_115"
+    },
+    {
+      "test_id": "GEW-SEC-116",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_116"
+    },
+    {
+      "test_id": "GEW-SEC-117",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_117"
+    },
+    {
+      "test_id": "GEW-SEC-118",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_118"
+    },
+    {
+      "test_id": "GEW-SEC-119",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_119"
+    },
+    {
+      "test_id": "GEW-SEC-120",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_sec_120"
+    },
+    {
+      "test_id": "GEW-PRI-001",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_001"
+    },
+    {
+      "test_id": "GEW-PRI-002",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_002"
+    },
+    {
+      "test_id": "GEW-PRI-003",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_003"
+    },
+    {
+      "test_id": "GEW-PRI-004",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_004"
+    },
+    {
+      "test_id": "GEW-PRI-005",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_005"
+    },
+    {
+      "test_id": "GEW-PRI-006",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_006"
+    },
+    {
+      "test_id": "GEW-PRI-007",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_007"
+    },
+    {
+      "test_id": "GEW-PRI-008",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_008"
+    },
+    {
+      "test_id": "GEW-PRI-009",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_009"
+    },
+    {
+      "test_id": "GEW-PRI-010",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_010"
+    },
+    {
+      "test_id": "GEW-PRI-011",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_011"
+    },
+    {
+      "test_id": "GEW-PRI-012",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_012"
+    },
+    {
+      "test_id": "GEW-PRI-013",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_013"
+    },
+    {
+      "test_id": "GEW-PRI-014",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_014"
+    },
+    {
+      "test_id": "GEW-PRI-015",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_015"
+    },
+    {
+      "test_id": "GEW-PRI-016",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_016"
+    },
+    {
+      "test_id": "GEW-PRI-017",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_017"
+    },
+    {
+      "test_id": "GEW-PRI-018",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_018"
+    },
+    {
+      "test_id": "GEW-PRI-019",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_019"
+    },
+    {
+      "test_id": "GEW-PRI-020",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_020"
+    },
+    {
+      "test_id": "GEW-PRI-021",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_021"
+    },
+    {
+      "test_id": "GEW-PRI-022",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_022"
+    },
+    {
+      "test_id": "GEW-PRI-023",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_023"
+    },
+    {
+      "test_id": "GEW-PRI-024",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_024"
+    },
+    {
+      "test_id": "GEW-PRI-025",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_025"
+    },
+    {
+      "test_id": "GEW-PRI-026",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_026"
+    },
+    {
+      "test_id": "GEW-PRI-027",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_027"
+    },
+    {
+      "test_id": "GEW-PRI-028",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_028"
+    },
+    {
+      "test_id": "GEW-PRI-029",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_029"
+    },
+    {
+      "test_id": "GEW-PRI-030",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_030"
+    },
+    {
+      "test_id": "GEW-PRI-031",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_031"
+    },
+    {
+      "test_id": "GEW-PRI-032",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_032"
+    },
+    {
+      "test_id": "GEW-PRI-033",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_033"
+    },
+    {
+      "test_id": "GEW-PRI-034",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_034"
+    },
+    {
+      "test_id": "GEW-PRI-035",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_035"
+    },
+    {
+      "test_id": "GEW-PRI-036",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_036"
+    },
+    {
+      "test_id": "GEW-PRI-037",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_037"
+    },
+    {
+      "test_id": "GEW-PRI-038",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_038"
+    },
+    {
+      "test_id": "GEW-PRI-039",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_039"
+    },
+    {
+      "test_id": "GEW-PRI-040",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_040"
+    },
+    {
+      "test_id": "GEW-PRI-041",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_041"
+    },
+    {
+      "test_id": "GEW-PRI-042",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_042"
+    },
+    {
+      "test_id": "GEW-PRI-043",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_043"
+    },
+    {
+      "test_id": "GEW-PRI-044",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_044"
+    },
+    {
+      "test_id": "GEW-PRI-045",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_045"
+    },
+    {
+      "test_id": "GEW-PRI-046",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_046"
+    },
+    {
+      "test_id": "GEW-PRI-047",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_047"
+    },
+    {
+      "test_id": "GEW-PRI-048",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_048"
+    },
+    {
+      "test_id": "GEW-PRI-049",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_049"
+    },
+    {
+      "test_id": "GEW-PRI-050",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_050"
+    },
+    {
+      "test_id": "GEW-PRI-051",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_051"
+    },
+    {
+      "test_id": "GEW-PRI-052",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_052"
+    },
+    {
+      "test_id": "GEW-PRI-053",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_053"
+    },
+    {
+      "test_id": "GEW-PRI-054",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_054"
+    },
+    {
+      "test_id": "GEW-PRI-055",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_055"
+    },
+    {
+      "test_id": "GEW-PRI-056",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_056"
+    },
+    {
+      "test_id": "GEW-PRI-057",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_057"
+    },
+    {
+      "test_id": "GEW-PRI-058",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_058"
+    },
+    {
+      "test_id": "GEW-PRI-059",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_059"
+    },
+    {
+      "test_id": "GEW-PRI-060",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_060"
+    },
+    {
+      "test_id": "GEW-PRI-061",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_061"
+    },
+    {
+      "test_id": "GEW-PRI-062",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_062"
+    },
+    {
+      "test_id": "GEW-PRI-063",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_063"
+    },
+    {
+      "test_id": "GEW-PRI-064",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_064"
+    },
+    {
+      "test_id": "GEW-PRI-065",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_065"
+    },
+    {
+      "test_id": "GEW-PRI-066",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_066"
+    },
+    {
+      "test_id": "GEW-PRI-067",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_067"
+    },
+    {
+      "test_id": "GEW-PRI-068",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_068"
+    },
+    {
+      "test_id": "GEW-PRI-069",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_069"
+    },
+    {
+      "test_id": "GEW-PRI-070",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_070"
+    },
+    {
+      "test_id": "GEW-PRI-071",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_071"
+    },
+    {
+      "test_id": "GEW-PRI-072",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_072"
+    },
+    {
+      "test_id": "GEW-PRI-073",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_073"
+    },
+    {
+      "test_id": "GEW-PRI-074",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_074"
+    },
+    {
+      "test_id": "GEW-PRI-075",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_075"
+    },
+    {
+      "test_id": "GEW-PRI-076",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_076"
+    },
+    {
+      "test_id": "GEW-PRI-077",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_077"
+    },
+    {
+      "test_id": "GEW-PRI-078",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_078"
+    },
+    {
+      "test_id": "GEW-PRI-079",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_079"
+    },
+    {
+      "test_id": "GEW-PRI-080",
+      "qualified_test": "test_wp05a_matrix.WP05ASecurityPrivacyMatrixTests.test_gew_pri_080"
+    },
+    {
+      "test_id": "GEW-WP-05A-SCHEMA-P",
+      "qualified_test": "test_wp05a_contracts.WP05ASecurityContractTests.test_security_schema_registry_is_closed_profile_valid_and_digest_locked"
+    },
+    {
+      "test_id": "GEW-WP-05A-POLICY-R",
+      "qualified_test": "test_wp05a_contracts.WP05ASecurityContractTests.test_all_policy_documents_are_schema_and_digest_bound"
+    },
+    {
+      "test_id": "GEW-WP-05A-REGISTRY-R",
+      "qualified_test": "test_wp05a_contracts.WP05ASecurityContractTests.test_registry_body_or_manifest_tamper_is_rejected"
+    },
+    {
+      "test_id": "GEW-WP-05A-IDENTITY-P",
+      "qualified_test": "test_wp05a_identity_and_inputs.IdentityBindingTests.test_binding_is_factory_only_digest_bound_and_current"
+    },
+    {
+      "test_id": "GEW-WP-05A-IDENTITY-R",
+      "qualified_test": "test_wp05a_identity_and_inputs.IdentityBindingTests.test_every_identity_scope_and_digest_mutation_fails_closed"
+    },
+    {
+      "test_id": "GEW-WP-05A-PATH-R",
+      "qualified_test": "test_wp05a_identity_and_inputs.InputSafetyTests.test_path_resolver_rejects_escape_absolute_and_symlink"
+    },
+    {
+      "test_id": "GEW-WP-05A-COMMAND-R",
+      "qualified_test": "test_wp05a_identity_and_inputs.InputSafetyTests.test_command_is_structured_argv_and_shell_fails_closed"
+    },
+    {
+      "test_id": "GEW-WP-05A-PROMPT-R",
+      "qualified_test": "test_wp05a_identity_and_inputs.InputSafetyTests.test_prompt_is_untrusted_data_and_cannot_supply_control_fields"
+    },
+    {
+      "test_id": "GEW-WP-05A-SECRET-P",
+      "qualified_test": "test_wp05a_secrets_and_redaction.SecretAndRedactionTests.test_secret_reference_contains_no_value_and_material_repr_is_safe"
+    },
+    {
+      "test_id": "GEW-WP-05A-REDACTION-P",
+      "qualified_test": "test_wp05a_secrets_and_redaction.SecretAndRedactionTests.test_redactor_keeps_only_allowlisted_fields_and_applies_transforms"
+    },
+    {
+      "test_id": "GEW-WP-05A-REDACTION-R",
+      "qualified_test": "test_wp05a_secrets_and_redaction.SecretAndRedactionTests.test_secret_value_anywhere_in_output_is_blocked_without_echo"
+    },
+    {
+      "test_id": "GEW-WP-05A-INCIDENT-P",
+      "qualified_test": "test_wp05a_secrets_and_redaction.SecretAndRedactionTests.test_incident_is_factory_only_digest_bound_and_never_contains_content"
+    },
+    {
+      "test_id": "GEW-WP-05A-DISCLOSURE-P",
+      "qualified_test": "test_wp05a_disclosure_and_evidence.DisclosureTests.test_external_disclosure_binds_destination_payload_authority_and_receipt"
+    },
+    {
+      "test_id": "GEW-WP-05A-DISCLOSURE-R",
+      "qualified_test": "test_wp05a_disclosure_and_evidence.DisclosureTests.test_undeclared_destination_overclassification_missing_redaction_and_authority_reject"
+    },
+    {
+      "test_id": "GEW-WP-05A-EVIDENCE-P",
+      "qualified_test": "test_wp05a_disclosure_and_evidence.EvidenceTests.test_fresh_independent_redacted_evidence_is_accepted"
+    },
+    {
+      "test_id": "GEW-WP-05A-EVIDENCE-R",
+      "qualified_test": "test_wp05a_disclosure_and_evidence.EvidenceTests.test_stale_wrong_binding_self_review_unredacted_and_digest_tamper_reject"
+    },
+    {
+      "test_id": "GEW-WP-05A-QUARANTINE-P",
+      "qualified_test": "test_wp05a_disclosure_and_evidence.EvidenceTests.test_leakage_incident_quarantines_and_revokes_evidence_trust"
+    },
+    {
+      "test_id": "GEW-WP-05A-RETENTION-P",
+      "qualified_test": "test_wp05a_retention_and_extensions.RetentionTests.test_raw_tool_output_is_purged_after_extraction_with_tombstone"
+    },
+    {
+      "test_id": "GEW-WP-05A-RETENTION-R",
+      "qualified_test": "test_wp05a_retention_and_extensions.RetentionTests.test_holds_and_unresolved_actions_block_purge"
+    },
+    {
+      "test_id": "GEW-WP-05A-EXTENSION-R",
+      "qualified_test": "test_wp05a_retention_and_extensions.ExtensionGateTests.test_builtin_data_descriptor_can_pass_but_non_builtin_executable_is_rejected"
+    },
+    {
+      "test_id": "GEW-WP-05A-PERMISSION-P",
+      "qualified_test": "test_wp03_connection.ConnectionFactoryTests.test_open_contract_pragmas_roles_modes_and_symlink_fail_closed"
+    },
+    {
+      "test_id": "GEW-WP-05A-OBJECT-QUARANTINE-P",
+      "qualified_test": "test_wp03_objects.ObjectRepositoryConformanceTests.test_quarantine_is_not_readable_or_purge_eligible"
+    },
+    {
+      "test_id": "GEW-WP-05A-R1-001-RUNTIME-R",
+      "qualified_test": "test_wp05a_r2_attestations.WP05AR2AttestationTests.test_runtime_manifest_self_recomputation_cannot_replace_installed_pin"
+    },
+    {
+      "test_id": "GEW-WP-05A-R1-001-POLICY-R",
+      "qualified_test": "test_wp05a_r2_attestations.WP05AR2AttestationTests.test_every_policy_recomputed_by_caller_is_rejected_by_runtime_pin"
+    },
+    {
+      "test_id": "GEW-WP-05A-R1-002-EVIDENCE-R",
+      "qualified_test": "test_wp05a_disclosure_and_evidence.EvidenceTests.test_caller_cannot_self_attest_producer_classification_or_redaction"
+    },
+    {
+      "test_id": "GEW-WP-05A-R1-003-DESTINATION-R",
+      "qualified_test": "test_wp05a_disclosure_and_evidence.DisclosureTests.test_concrete_destination_identity_cannot_be_substituted"
+    },
+    {
+      "test_id": "GEW-WP-05A-R1-004-STATE-R",
+      "qualified_test": "test_wp05a_r2_attestations.WP05AR2AttestationTests.test_retention_engine_has_no_raw_hold_or_classification_api"
+    },
+    {
+      "test_id": "GEW-WP-05A-R1-004-REVALIDATE-R",
+      "qualified_test": "test_wp05a_retention_and_extensions.RetentionTests.test_purge_decision_must_be_revalidated_against_current_hold_snapshot"
+    },
+    {
+      "test_id": "GEW-WP-05A-R1-005-RESOURCE-R",
+      "qualified_test": "test_wp05a_secrets_and_redaction.SecretAndRedactionTests.test_deep_selected_payload_fails_with_deterministic_resource_error"
+    },
+    {
+      "test_id": "GEW-WP-05A-R2-001-RAW-ISSUER-R",
+      "qualified_test": "test_wp05a_r3_durable_issuance.WP05AR3DurableIssuanceTests.test_core_has_no_raw_attestation_issuer_and_runtime_pin_is_not_caller_selected"
+    },
+    {
+      "test_id": "GEW-WP-05A-R2-001-INSTALLED-R",
+      "qualified_test": "test_wp00_installed_wheel.InstalledWheelTests.test_installed_security_api_cannot_mint_attestations_from_raw_mappings"
+    },
+    {
+      "test_id": "GEW-WP-05A-R2-001-DURABLE-IDENTITY-P",
+      "qualified_test": "test_wp05a_r3_durable_issuance.WP05AR3DurableIssuanceTests.test_production_issuer_accepts_only_durable_record_identities"
+    },
+    {
+      "test_id": "GEW-WP-05A-R2-001-INSTALL-PIN-R",
+      "qualified_test": "test_wp05a_r3_durable_issuance.WP05AR3DurableIssuanceTests.test_installed_runtime_row_is_single_write_immutable"
+    },
+    {
+      "test_id": "GEW-WP-05A-R2-001-STATE-TAMPER-R",
+      "qualified_test": "test_wp05a_r3_durable_issuance.WP05AR3DurableIssuanceTests.test_state_row_tamper_fails_before_attestation_is_issued"
+    },
+    {
+      "test_id": "GEW-WP-05A-R2-002-JOURNAL-R",
+      "qualified_test": "test_wp05a_r3_durable_issuance.WP05AR3DurableIssuanceTests.test_disclosure_attestation_requires_a_delivered_durable_journal_entry"
+    },
+    {
+      "test_id": "GEW-WP-05A-R2-003-ONE-USE-R",
+      "qualified_test": "test_wp05a_retention_and_extensions.RetentionTests.test_current_purge_is_consumed_exactly_once"
+    },
+    {
+      "test_id": "GEW-WP-05A-R2-003-CLAIM-R",
+      "qualified_test": "test_wp05a_retention_and_extensions.RetentionTests.test_current_unresolved_claim_is_read_from_repository"
+    },
+    {
+      "test_id": "GEW-WP-05A-R3-001-RUNTIME-DEPTH-R",
+      "qualified_test": "test_wp05a_r4_bounded_durable_parsing.WP05AR4BoundedDurableParsingTests.test_deep_installed_runtime_fails_inside_resource_boundary"
+    },
+    {
+      "test_id": "GEW-WP-05A-R3-001-STATE-DEPTH-R",
+      "qualified_test": "test_wp05a_r4_bounded_durable_parsing.WP05AR4BoundedDurableParsingTests.test_deep_task_state_fails_inside_resource_boundary"
+    },
+    {
+      "test_id": "GEW-WP-05A-R3-001-JOURNAL-DEPTH-R",
+      "qualified_test": "test_wp05a_r4_bounded_durable_parsing.WP05AR4BoundedDurableParsingTests.test_deep_disclosure_journal_fails_inside_resource_boundary"
+    },
+    {
+      "test_id": "GEW-WP-05A-EXIT-P",
+      "qualified_test": "test_wp05a_evidence_contract.WP05AEvidenceContractTests.test_valid_candidate_binding_passes"
+    },
+    {
+      "test_id": "GEW-WP-05A-EXIT-R",
+      "qualified_test": "test_wp05a_evidence_contract.WP05AEvidenceContractTests.test_source_command_runtime_document_and_review_mutations_fail"
+    },
+    {
+      "test_id": "GEW-WP-05A-DEPENDENCY-R",
+      "qualified_test": "test_wp05a_evidence_contract.WP05AEvidenceContractTests.test_prerequisites_require_exact_pass_candidates"
+    }
+  ]
+}

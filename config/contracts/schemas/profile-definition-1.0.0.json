@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:profile-definition:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "ids": {
+      "type": "array",
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "properties": {
+        "eligible_action_kinds": {
+          "$ref": "#/$defs/ids"
+        },
+        "precondition_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "compensation_graph_ref": {
+          "$ref": "#/$defs/id"
+        },
+        "authority_requirement": {
+          "$ref": "#/$defs/id"
+        },
+        "verification_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "rollback_not_possible": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "eligible_action_kinds",
+        "precondition_ids",
+        "compensation_graph_ref",
+        "authority_requirement",
+        "verification_ids",
+        "rollback_not_possible"
+      ],
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "owner_gate": {
+          "$ref": "#/$defs/id"
+        },
+        "required_oracle_ids": {
+          "$ref": "#/$defs/ids"
+        }
+      },
+      "required": [
+        "owner_gate",
+        "required_oracle_ids"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "profile_id": {
+      "$ref": "#/$defs/id"
+    },
+    "version": {
+      "$ref": "#/$defs/id"
+    },
+    "approved_profile_registry_digest": {
+      "$ref": "#/$defs/id"
+    },
+    "coverage_policy_digest": {
+      "$ref": "#/$defs/id"
+    },
+    "profile_semantic_policy_digest": {
+      "$ref": "#/$defs/id"
+    },
+    "required_node_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "optional_node_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "required_edge_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "optional_edge_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "route_overrides": {
+      "type": "array",
+      "maxItems": 16384,
+      "items": {}
+    },
+    "artifact_contract_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "validator_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "completion_predicate_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "compatible_risk_paths": {
+      "$ref": "#/$defs/ids"
+    },
+    "rollback_contract": {
+      "$ref": "#/$defs/rollback"
+    },
+    "required_case_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "category_boundary_case_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "real_e2e_requirement_id": {
+      "$ref": "#/$defs/id"
+    },
+    "required_capabilities": {
+      "$ref": "#/$defs/ids"
+    },
+    "unsupported_integrations": {
+      "$ref": "#/$defs/ids"
+    },
+    "evidence_policy": {
+      "$ref": "#/$defs/evidence"
+    },
+    "digest": {
+      "$ref": "#/$defs/id"
+    }
+  },
+  "required": [
+    "schema_version",
+    "profile_id",
+    "version",
+    "approved_profile_registry_digest",
+    "coverage_policy_digest",
+    "profile_semantic_policy_digest",
+    "required_node_ids",
+    "optional_node_ids",
+    "required_edge_ids",
+    "optional_edge_ids",
+    "route_overrides",
+    "artifact_contract_ids",
+    "validator_ids",
+    "completion_predicate_ids",
+    "compatible_risk_paths",
+    "rollback_contract",
+    "required_case_ids",
+    "category_boundary_case_ids",
+    "real_e2e_requirement_id",
+    "required_capabilities",
+    "unsupported_integrations",
+    "evidence_policy",
+    "digest"
+  ],
+  "unevaluatedProperties": false
+}

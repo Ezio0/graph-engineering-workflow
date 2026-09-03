@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "profile_id": "migration",
+  "artifact_name": "migration-contract.json",
+  "baseline_document": {
+    "compatibility": "pending",
+    "data_integrity": "baseline-recorded",
+    "forward_path": "pending",
+    "migration_sequence": "pending",
+    "rollback_rehearsal": "pending",
+    "schema_version": "v1"
+  },
+  "desired_document": {
+    "compatibility": "verified",
+    "data_integrity": "verified",
+    "forward_path": "verified",
+    "migration_sequence": "complete",
+    "rollback_rehearsal": "verified",
+    "schema_version": "v2"
+  },
+  "foreign_document": {
+    "compatibility": "unknown",
+    "data_integrity": "unverified",
+    "forward_path": "unknown",
+    "migration_sequence": "foreign",
+    "rollback_rehearsal": "absent",
+    "schema_version": "v3"
+  }
+}

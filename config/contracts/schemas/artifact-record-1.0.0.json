@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:artifact-record:1.0.0",
+  "$defs": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 255},
+    "digest": {"type": "string", "minLength": 78, "maxLength": 78},
+    "objects": {"type": "array", "maxItems": 128, "uniqueItems": true, "items": {"type": "object", "minProperties": 1, "maxProperties": 8, "additionalProperties": true}}
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "artifact_id": {"$ref": "#/$defs/id"},
+    "artifact_type": {"$ref": "#/$defs/id"},
+    "contract_id": {"$ref": "#/$defs/id"},
+    "contract_digest": {"$ref": "#/$defs/digest"},
+    "task_id": {"$ref": "#/$defs/id"},
+    "revision": {"type": "integer", "minimum": 1},
+    "author_id": {"$ref": "#/$defs/id"},
+    "reviewer_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+    "target_refs": {"$ref": "#/$defs/objects"},
+    "input_refs": {"$ref": "#/$defs/objects"},
+    "baseline_digests": {"type": "object", "minProperties": 1, "maxProperties": 8, "additionalProperties": {"$ref": "#/$defs/digest"}},
+    "requirement_traces": {"$ref": "#/$defs/objects"},
+    "logical_body_ref": {"type": "object", "minProperties": 4, "maxProperties": 4, "additionalProperties": true},
+    "body_digest": {"$ref": "#/$defs/digest"},
+    "semantic_fields": {"type": "object", "minProperties": 1, "maxProperties": 64, "additionalProperties": {"type": "string", "minLength": 1, "maxLength": 4096}},
+    "status": {"$ref": "#/$defs/id"},
+    "findings": {"$ref": "#/$defs/objects"},
+    "validation_records": {"$ref": "#/$defs/objects"},
+    "review_records": {"$ref": "#/$defs/objects"},
+    "approval_records": {"$ref": "#/$defs/objects"},
+    "created_at": {"type": "string", "format": "gew-timestamp"},
+    "supersedes": {"anyOf": [{"type": "object", "minProperties": 3, "maxProperties": 3, "additionalProperties": true}, {"type": "null"}]},
+    "artifact_digest": {"$ref": "#/$defs/digest"}
+  },
+  "required": ["schema_version", "artifact_id", "artifact_type", "contract_id", "contract_digest", "task_id", "revision", "author_id", "reviewer_id", "target_refs", "input_refs", "baseline_digests", "requirement_traces", "logical_body_ref", "body_digest", "semantic_fields", "status", "findings", "validation_records", "review_records", "approval_records", "created_at", "supersedes", "artifact_digest"],
+  "unevaluatedProperties": false
+}

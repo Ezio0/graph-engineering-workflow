@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "adr-0003",
+  "scope_changed": false,
+  "change_kinds": ["architecture-decision", "clarification", "consistency", "testability"],
+  "findings": [
+    {"id": "GEW-ADR3-SCHEMA-001", "severity": "blocking", "evidence": "Draft 2020-12 vocabulary, keyword, format, regex, dynamic-ref and numeric profile was not frozen.", "required_change": "Define GEW Schema Profile v1.", "verification": "Cross-implementation schema corpus produces identical results.", "status": "open"},
+    {"id": "GEW-ADR3-REF-001", "severity": "blocking", "evidence": "Closed registry ID/ref/fragment/cycle/network rules were incomplete.", "required_change": "Define canonical offline registry resolution and bounds.", "verification": "Ref and registry attack corpus is deterministic and offline.", "status": "open"},
+    {"id": "GEW-ADR3-JCS-001", "severity": "blocking", "evidence": "Strict parse, Unicode, number range and canonical string subtype grammar were not frozen.", "required_change": "Define JCS Input Profile v1.", "verification": "RFC and adversarial Unicode/number/string vectors agree across implementations.", "status": "open"},
+    {"id": "GEW-ADR3-DIGEST-001", "severity": "blocking", "evidence": "Domain-separated digest preimage framing was ambiguous.", "required_change": "Define an exact JCS envelope and digest encoding.", "verification": "Published preimage/digest vectors are cross-implementation stable and domain separated.", "status": "open"},
+    {"id": "GEW-ADR3-MODEL-001", "severity": "blocking", "evidence": "Frozen dataclasses did not make nested data or aliases immutable.", "required_change": "Require recursive immutability and strict JSON type codecs.", "verification": "Mutation/alias/bool-int/round-trip property tests pass.", "status": "open"},
+    {"id": "GEW-ADR3-GEEL-001", "severity": "blocking", "evidence": "GEEL AST/operator/type/path/missing/error/evaluation semantics were not normative.", "required_change": "Freeze GEEL v1 normative semantics and error routing.", "verification": "Full operator/type/error truth tables agree across evaluators.", "status": "open"},
+    {"id": "GEW-ADR3-BUDGET-001", "severity": "blocking", "evidence": "Static AST counts did not bound collection, ref, validation or predicate resource costs.", "required_change": "Define deterministic finite resource accounting.", "verification": "Boundary and over-limit fixtures fail with stable errors within bounded resources.", "status": "open"},
+    {"id": "GEW-ADR3-EXT-001", "severity": "blocking", "evidence": "Executable predicate/validator registration could reintroduce arbitrary capabilities before extension trust policy exists.", "required_change": "Limit v1 executable registry to built-in digest-locked IDs.", "verification": "New/overridden/mismatched executable entries are rejected before execution.", "status": "open"},
+    {"id": "GEW-ADR3-VERSION-001", "severity": "blocking", "evidence": "Minor compatibility direction and pure migration transform identity/path were ambiguous.", "required_change": "Define exact version pinning, explicit compatibility and deterministic transform provenance.", "verification": "Compatibility and migration matrices are deterministic with no ambiguous path.", "status": "open"}
+  ],
+  "reviewer_id": "codex:/root/adr_0003_reviewer_r0"
+}

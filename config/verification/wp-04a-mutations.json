@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "probes": [
+    {
+      "probe_id": "ingress-snapshot",
+      "subcases": [
+        "caller-mappings-snapshotted-once"
+      ]
+    },
+    {
+      "probe_id": "identity-independence",
+      "subcases": [
+        "actor-case-alias-rejected",
+        "actor-leading-whitespace-rejected",
+        "actor-unicode-normalization-alias-rejected",
+        "author-reviewer-equality-rejected"
+      ]
+    },
+    {
+      "probe_id": "reference-trace-closure",
+      "subcases": [
+        "cross-baseline-input-swap-rejected",
+        "invented-target-rejected",
+        "multi-baseline-accepted",
+        "multi-input-accepted",
+        "multi-input-missing-edge-rejected",
+        "multi-requirement-accepted",
+        "multi-requirement-missing-edge-rejected",
+        "multi-target-accepted",
+        "multi-target-missing-edge-rejected"
+      ]
+    },
+    {
+      "probe_id": "lifecycle-evidence",
+      "subcases": [
+        "accepted-predecessor-revision-rejected",
+        "direct-lifecycle-event-construction-rejected",
+        "direct-validation-record-construction-rejected",
+        "digest-bound-lifecycle-event-accepted",
+        "invalidated-predecessor-revision-accepted",
+        "lifecycle-record-status-mismatch-rejected"
+      ]
+    },
+    {
+      "probe_id": "manifest-resource-boundaries",
+      "subcases": [
+        "exact-budget-accepted",
+        "insufficient-budget-rejected",
+        "raw-byte-limit-rejected-before-charge",
+        "result-byte-limit-rejected",
+        "temporary-unit-limit-rejected"
+      ]
+    },
+    {
+      "probe_id": "manifest-minimal-invalidation",
+      "subcases": [
+        "dependency-change-invalidates",
+        "manifest-id-change-incomparable",
+        "mode-change-incomparable",
+        "selector-change-invalidates",
+        "unselected-gap-change-preserves-record"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "artifact": "wp-05",
+  "verdict": "REVISE",
+  "reviewer_id": "codex:/root/wp05_code_reviewer_r1",
+  "scope_changed": false,
+  "change_kinds": [
+    "correctness",
+    "testability"
+  ],
+  "source_manifest_digest": "e8d2266462b0112406a723fa85f0239704bf4f7bb2fb73488b1b84f438f8398f",
+  "command_evidence_digest": "19bb9f5bdd8e51588736af973694be478dc17d66219d933e83b1c30357ca4006",
+  "candidate_exit_digest": "ed4d36a1352fd488e707cbdb2f32022722de87009c85772f2e3248f43ba04b12",
+  "finding_dispositions": [
+    {"finding_id": "WP05-ADR5-R1-001", "status": "closed"},
+    {"finding_id": "WP05-ADR5-R1-002", "status": "closed"},
+    {"finding_id": "WP05-ADR5-R1-003", "status": "closed"},
+    {"finding_id": "WP05-ADR5-R1-004", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-001", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-002", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-003", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-004", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-005", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-006", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-007", "status": "closed"},
+    {"finding_id": "WP05-AUTHORLOOP-008", "status": "closed"}
+  ],
+  "findings": [
+    {
+      "id": "WP05-CODE-R1-001",
+      "severity": "P1",
+      "status": "open",
+      "summary": "Repository recovery reconciliation does not bind observation resource or rollback postcondition to the durable compensation PreparedAction.",
+      "required_change": "Bounded-load the exact durable compensation PreparedAction at the repository boundary and reject wrong resource or expected postcondition with zero writes."
+    },
+    {
+      "id": "WP05-CODE-R1-002",
+      "severity": "P1",
+      "status": "open",
+      "summary": "Raw receipt durability and the process-shared at-most-once crash oracle do not satisfy the approved crash matrix.",
+      "required_change": "Publish the bounded receipt object before the receipt event commit, add before/after fault cuts, and persist aggregate cross-process invocation counts with a known-fault oracle."
+    }
+  ]
+}

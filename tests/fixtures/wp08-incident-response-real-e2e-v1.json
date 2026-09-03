@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "profile_id": "incident-response",
+  "artifact_name": "incident-response-contract.json",
+  "baseline_document": {
+    "containment": "pending",
+    "follow_up": "pending",
+    "incident": "detected",
+    "impact": "assessed",
+    "postmortem": "pending",
+    "recovery": "pending",
+    "residual_risk": "open",
+    "service": "degraded"
+  },
+  "desired_document": {
+    "containment": "applied",
+    "follow_up": "owned",
+    "incident": "recovered",
+    "impact": "assessed",
+    "postmortem": "recorded",
+    "recovery": "complete",
+    "residual_risk": "recorded",
+    "service": "verified"
+  },
+  "foreign_document": {
+    "containment": "unverified",
+    "follow_up": "unassigned",
+    "incident": "foreign",
+    "impact": "unknown",
+    "postmortem": "absent",
+    "recovery": "unknown",
+    "residual_risk": "unknown",
+    "service": "unknown"
+  }
+}

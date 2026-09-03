@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "implementation-plan",
+  "scope_changed": false,
+  "change_kinds": ["consistency", "traceability", "testability"],
+  "findings": [
+    {"id":"PLAN-R0-001","severity":"blocking","evidence":"Real Profile E2E preceded privacy/disclosure/evidence controls.","required_change":"Make the complete action-path security foundation precede real invocation.","verification":"Every real path depends on the security gate.","status":"open"},
+    {"id":"PLAN-R0-002","severity":"blocking","evidence":"No WP owned the ten ArtifactContracts and merged logical bodies.","required_change":"Add an artifact lifecycle/contract engine WP.","verification":"All Spec §10.1 requirements trace to deliverables/tests.","status":"open"},
+    {"id":"PLAN-R0-003","severity":"blocking","evidence":"No WP owned concrete Git/project-command/target-query/secret adapters.","required_change":"Add concrete v1 adapter realization before real E2E.","verification":"Authorized disposable action reconciles through concrete adapters.","status":"open"},
+    {"id":"PLAN-R0-004","severity":"blocking","evidence":"FR-18 had neither its required trust ADR nor loader WP.","required_change":"Add ADR-0004 gate and explicit loader work.","verification":"Third-party executable extensions reject before gate and follow accepted policy afterward.","status":"open"},
+    {"id":"PLAN-R0-005","severity":"blocking","evidence":"Runtime/path and Hermes channel evidence could be aggregate rather than complete.","required_change":"Require exact 2×3 runtime/path and separate Telegram/Discord contracts.","verification":"Six cells plus two channel contracts pass independently.","status":"open"},
+    {"id":"PLAN-R0-006","severity":"blocking","evidence":"Horizontal components were called vertical slices without integrated runnable milestones.","required_change":"Define explicit integrated slice milestones.","verification":"Each slice has dependencies, E2E scenario, review, stop and regression evidence.","status":"open"}
+  ],
+  "reviewer_id": "codex:/root/adr_0001_reviewer_r1"
+}

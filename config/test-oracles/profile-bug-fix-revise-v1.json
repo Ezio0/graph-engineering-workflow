@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "oracle_id": "ORA-PROFILE-BUG-FIX",
+  "oracle_kind": "independent-frozen-vector",
+  "profile_id": "bug-fix",
+  "selector_kind": "mandatory",
+  "column_id": "revise",
+  "scenario_id": null,
+  "category_boundary_case_id": null,
+  "overlay_id": "full-planned",
+  "evidence_kind": "revision-lineage",
+  "required_outcome": "revision-accepted",
+  "required_fact_ids": [
+    "budget-remaining",
+    "current-body-digest",
+    "owner-route",
+    "previous-body-digest"
+  ],
+  "pass_result": "COMPLETED",
+  "reject_result": "EXPECTED_REJECTION",
+  "reject_error_type": "CategoryExecutionError",
+  "reject_error_message": "typed column evidence does not match authoritative durable facts: revise",
+  "reject_state_relation": "exact-equality",
+  "reject_input_relation": "exact-equality",
+  "isolated_runner_raw_sha256": "0f52a04ea53f099c10980d6ef1aa613fcdc8bf9e4022b5ba6079011c7f570d01",
+  "oracle_digest": "sha256-jcs-v1:8cca3046facdc188cb13dffdd198176110aad97c781c449ce70f5b137e9c5fdb",
+  "task_ids": {
+    "P": "task:wp08-coverage:gew-pro-bug-fix-revise-p",
+    "R": "task:wp08-coverage:gew-pro-bug-fix-revise-r"
+  }
+}

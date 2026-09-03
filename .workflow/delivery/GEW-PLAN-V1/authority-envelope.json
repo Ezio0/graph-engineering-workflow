@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-PLAN-V1",
+  "authority_source": "approved-prd-and-spec-post-approval-automation",
+  "allowed_targets": [
+    "docs/plans/2026-08-13-graph-engineering-workflow.md",
+    "docs/test-plans/graph-engineering-workflow.md",
+    ".workflow/delivery/GEW-PLAN-V1/**"
+  ],
+  "allowed_actions": ["author", "mechanical-validate", "independent-review", "revise", "accept"],
+  "forbidden_actions": ["implementation", "commit", "push", "merge", "deploy", "release", "external-communication"],
+  "upstream_digests": {
+    "positioning": "968d4b574008b53ce79f7fe4c1e1b3d5f71d44bca890425848f388577883f799",
+    "prd": "594b4437301853919ce3b4aa93e703a395ed45bff924ea6266b3a8e202a30be7",
+    "spec": "e632cd2c8b4f13b1455fa1f962491df6603b34d2eef0c46a84b350200e0f8d65",
+    "impact": "89899bc93ea09776c1714fa2088810640a476ede57dd82acad495a793fc943a3",
+    "adr-0001": "d46dbe9216865029ef544ed17809a1252b5f10ea9d837d9b308192e06c19fa34",
+    "adr-0002": "90a3d6f28f7968474a920700da696792e855d614edec4310712a4d41cd4aef73",
+    "adr-0003": "48a9dfb140f739eb2d604ef294d486cd2308d56c46290f8d2f27a85593995c7c"
+  }
+}

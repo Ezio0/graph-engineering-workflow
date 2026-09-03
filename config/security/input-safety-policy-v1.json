@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "input-safety-default",
+  "max_arguments": 128,
+  "max_argument_chars": 8192,
+  "allow_symlinks": false,
+  "allow_shell": false,
+  "policy_digest": "sha256-jcs-v1:7290c7fed6193fc7e4ab166fa81cf8309c33c9d0278461c0b23acf31c91d31cc"
+}

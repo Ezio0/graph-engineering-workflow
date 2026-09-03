@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:category-execution-state-input:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "raw": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "integer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "positiveInteger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "ids": {
+      "type": "array",
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "pins": {
+      "type": "object",
+      "properties": {
+        "base_graph_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "profile_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "overlay_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "project_config_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "support_matrix_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "materialization_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "base_graph_digest",
+        "profile_digest",
+        "overlay_digest",
+        "project_config_digest",
+        "support_matrix_digest",
+        "materialization_digest"
+      ],
+      "unevaluatedProperties": false
+    },
+    "runner": {
+      "type": "object",
+      "properties": {
+        "node_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "edge_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "artifact_contract_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "validator_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "completion_predicate_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "required_invariant_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "budget_limits": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 64,
+          "additionalProperties": {
+            "$ref": "#/$defs/positiveInteger"
+          }
+        }
+      },
+      "required": [
+        "node_ids",
+        "edge_ids",
+        "artifact_contract_ids",
+        "validator_ids",
+        "completion_predicate_ids",
+        "required_invariant_ids",
+        "budget_limits"
+      ],
+      "unevaluatedProperties": false
+    },
+    "state": {
+      "type": "object",
+      "properties": {
+        "generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "profile_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "generation",
+        "profile_id"
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "task_id": {
+      "$ref": "#/$defs/id"
+    },
+    "profile_id": {
+      "enum": [
+        "new-feature",
+        "bug-fix",
+        "hotfix",
+        "refactor-debt",
+        "migration",
+        "dependency-security",
+        "performance",
+        "release-operations",
+        "incident-response"
+      ]
+    },
+    "column_id": {
+      "enum": [
+        "normal",
+        "boundary",
+        "revise",
+        "authority",
+        "drift",
+        "invalidation",
+        "recovery",
+        "artifacts",
+        "review",
+        "target",
+        "rollback"
+      ]
+    },
+    "lifecycle": {
+      "enum": [
+        "pending",
+        "completed"
+      ]
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "snapshot_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "invalidation_epoch": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "last_event_digest": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/digest"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_id",
+    "profile_id",
+    "column_id",
+    "lifecycle",
+    "revision",
+    "snapshot_digest",
+    "invalidation_epoch",
+    "last_event_digest"
+  ],
+  "unevaluatedProperties": false
+}

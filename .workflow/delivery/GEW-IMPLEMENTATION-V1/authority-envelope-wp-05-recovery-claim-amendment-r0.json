@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-IMPLEMENTATION-V1",
+  "amends": "authority-envelope.json",
+  "authority_source": "human-decision-wp-05-recovery-claim-r0.json",
+  "allowed_targets": [
+    "docs/adr/0005-recovery-claim-compensation.md",
+    "docs/specs/graph-engineering-workflow.md",
+    "docs/impact/graph-engineering-workflow.md",
+    "docs/plans/2026-08-13-graph-engineering-workflow.md",
+    "docs/test-plans/graph-engineering-workflow.md",
+    "core/**",
+    "application/**",
+    "storage/**",
+    "adapters/**",
+    "config/**",
+    "scripts/**",
+    "tests/**",
+    ".workflow/delivery/GEW-IMPLEMENTATION-V1/**"
+  ],
+  "allowed_actions": [
+    "author-architecture-amendment",
+    "independent-review",
+    "author-tests",
+    "implement",
+    "local-build",
+    "local-test",
+    "local-static-analysis",
+    "revise"
+  ],
+  "forbidden_actions": [
+    "network-download",
+    "modify-reference-project",
+    "modify-user-project",
+    "real-message",
+    "commit",
+    "push",
+    "merge",
+    "deploy",
+    "release",
+    "external-communication"
+  ],
+  "real_external_actions_enabled": false
+}

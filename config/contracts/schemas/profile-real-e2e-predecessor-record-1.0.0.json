@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:profile-real-e2e-predecessor-record:1.0.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "record_kind": {
+      "const": "profile-real-e2e-predecessor-v1"
+    },
+    "registry_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "registry_digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "test_id": {
+      "enum": [
+        "GEW-PRO-BUG-FIX-REAL-E2E-P",
+        "GEW-PRO-BUG-FIX-REAL-E2E-R",
+        "GEW-PRO-HOTFIX-REAL-E2E-P",
+        "GEW-PRO-HOTFIX-REAL-E2E-R",
+        "GEW-PRO-NEW-FEATURE-REAL-E2E-P",
+        "GEW-PRO-NEW-FEATURE-REAL-E2E-R",
+        "GEW-PRO-REFACTOR-DEBT-REAL-E2E-P",
+        "GEW-PRO-REFACTOR-DEBT-REAL-E2E-R"
+      ]
+    },
+    "predecessor_id": {
+      "enum": [
+        "GEW-ACT-010",
+        "GEW-ACT-010A"
+      ]
+    },
+    "profile_id": {
+      "enum": [
+        "bug-fix",
+        "hotfix",
+        "new-feature",
+        "refactor-debt"
+      ]
+    },
+    "profile_version": {
+      "const": "1.0.0"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "snapshot_digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "invalidation_epoch": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "materialization_pins": {
+      "type": "object"
+    },
+    "toolchain_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "adapter_id": {
+      "const": "git-native-v1"
+    },
+    "operation_id": {
+      "const": "git.update-ref"
+    },
+    "command_id": {
+      "const": "profile-real-e2e-verifier-v1"
+    },
+    "action_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "prepared_action_digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "invocation_digest": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "receipt_digest": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "action_observation_digest": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "journal_state": {
+      "enum": [
+        "authorized",
+        "reconciled"
+      ]
+    },
+    "claim_state": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reconcile_route": {
+      "enum": [
+        "reconciled-effect-verified",
+        "stale-expected-ref"
+      ]
+    },
+    "command_result_digest": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "command_result": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "before_observation": {
+      "type": "object"
+    },
+    "after_observation": {
+      "type": "object"
+    },
+    "before_oid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40,64}$"
+    },
+    "after_oid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40,64}$"
+    },
+    "mutation_delta": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "result": {
+      "enum": [
+        "COMPLETED",
+        "EXPECTED_REJECTION"
+      ]
+    },
+    "record_digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "schema_version",
+    "record_kind",
+    "registry_id",
+    "registry_digest",
+    "test_id",
+    "predecessor_id",
+    "profile_id",
+    "profile_version",
+    "task_id",
+    "task_revision",
+    "snapshot_digest",
+    "invalidation_epoch",
+    "materialization_pins",
+    "toolchain_id",
+    "adapter_id",
+    "operation_id",
+    "command_id",
+    "action_id",
+    "prepared_action_digest",
+    "invocation_digest",
+    "receipt_digest",
+    "action_observation_digest",
+    "journal_state",
+    "claim_state",
+    "reconcile_route",
+    "command_result_digest",
+    "command_result",
+    "before_observation",
+    "after_observation",
+    "before_oid",
+    "after_oid",
+    "mutation_delta",
+    "result",
+    "record_digest"
+  ],
+  "unevaluatedProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "profile_id": {
+            "const": "bug-fix"
+          }
+        },
+        "required": [
+          "profile_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "test_id": {
+            "enum": [
+              "GEW-PRO-BUG-FIX-REAL-E2E-P",
+              "GEW-PRO-BUG-FIX-REAL-E2E-R"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile_id": {
+            "const": "hotfix"
+          }
+        },
+        "required": [
+          "profile_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "test_id": {
+            "enum": [
+              "GEW-PRO-HOTFIX-REAL-E2E-P",
+              "GEW-PRO-HOTFIX-REAL-E2E-R",
+              "GEW-PRO-REFACTOR-DEBT-REAL-E2E-P",
+              "GEW-PRO-REFACTOR-DEBT-REAL-E2E-R"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile_id": {
+            "const": "new-feature"
+          }
+        },
+        "required": [
+          "profile_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "test_id": {
+            "enum": [
+              "GEW-PRO-NEW-FEATURE-REAL-E2E-P",
+              "GEW-PRO-NEW-FEATURE-REAL-E2E-R"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile_id": {
+            "const": "refactor-debt"
+          }
+        },
+        "required": [
+          "profile_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "test_id": {
+            "enum": [
+              "GEW-PRO-REFACTOR-DEBT-REAL-E2E-P",
+              "GEW-PRO-REFACTOR-DEBT-REAL-E2E-R"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

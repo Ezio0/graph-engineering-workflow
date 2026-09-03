@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-ADR-V1",
+  "node": "adr-review",
+  "artifact": "adr-0002",
+  "author_id": "codex:/root",
+  "reviewer_id": "codex:/root/adr_0002_reviewer_r1",
+  "targets": ["docs/adr/0002-local-event-repository-and-coordination.md"],
+  "revision": 3,
+  "artifact_digest": "1262a8a167d06ea6cc174c6c151c351423b1e032adc8851640331056338f29cf",
+  "previous_artifact_digest": "8b73b5fa88683324c973bb70fbc42e8e3dff2875ad7aa07d9f9e273446987118",
+  "open_finding_ids": ["GEW-ADR2-MIGRATION-001"]
+}

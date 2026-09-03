@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "action-adapter-registry-default",
+  "protocol_version": "1.0.0",
+  "entries": [
+    {
+      "adapter_id": "git-native-v1",
+      "adapter_kind": "git",
+      "adapter_version": "1.0.0",
+      "capabilities": [
+        "fresh-target-query",
+        "native-precondition"
+      ],
+      "operation_ids": [
+        "git.query-ref",
+        "git.resolve-identity",
+        "git.update-ref"
+      ],
+      "implementation_ref": "builtin:git-native-v1",
+      "implementation_digest": "sha256-jcs-v1:9616507a2dd78e4993e994b2da0f1d0e01f261e61688340a55e76f30c6fcc1e0"
+    },
+    {
+      "adapter_id": "project-command-v1",
+      "adapter_kind": "project-command",
+      "adapter_version": "1.0.0",
+      "capabilities": [
+        "cancel",
+        "structured-argv",
+        "timeout"
+      ],
+      "operation_ids": [
+        "project.run"
+      ],
+      "implementation_ref": "builtin:project-command-v1",
+      "implementation_digest": "sha256-jcs-v1:afc4eddfe365991ce0295ff83b3e3b071dcb81826d4c5f9ab725bf5ae3ec429d"
+    },
+    {
+      "adapter_id": "target-query-v1",
+      "adapter_kind": "target-query",
+      "adapter_version": "1.0.0",
+      "capabilities": [
+        "fresh-target-query"
+      ],
+      "operation_ids": [
+        "target.observe"
+      ],
+      "implementation_ref": "builtin:target-query-v1",
+      "implementation_digest": "sha256-jcs-v1:8f60d315630bffc10e58e0ef7aaab1cc9831d58d28167cec5ba2489e9cb58e1e"
+    },
+    {
+      "adapter_id": "secret-provider-v1",
+      "adapter_kind": "secret-provider",
+      "adapter_version": "1.0.0",
+      "capabilities": [
+        "ephemeral-secret-resolution"
+      ],
+      "operation_ids": [
+        "secret.resolve"
+      ],
+      "implementation_ref": "builtin:secret-provider-v1",
+      "implementation_digest": "sha256-jcs-v1:b35eab7c555662f32a20d10326d647967e6d6dc0d6a9bfc3c404c31918b1d6a5"
+    },
+    {
+      "adapter_id": "connector-unavailable-v1",
+      "adapter_kind": "connector",
+      "adapter_version": "1.0.0",
+      "capabilities": [
+        "stable-capability-mismatch"
+      ],
+      "operation_ids": [
+        "connector.unavailable"
+      ],
+      "implementation_ref": "builtin:connector-unavailable-v1",
+      "implementation_digest": "sha256-jcs-v1:ad001364f625d63ecb1ee80764ab29905bc803c12dbb1866a240a7845576b9ae"
+    }
+  ],
+  "registry_digest": "sha256-jcs-v1:8bdb2be5af0c8a2229951185ba391283c67d105a03b5e188c1af494b4c59f49f"
+}

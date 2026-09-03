@@ -1,0 +1,164 @@
+{
+  "schema_version": "1.0",
+  "artifact": "wp-07a",
+  "verdict": "REVISE",
+  "reviewer_id": "codex:/root/wp07a_reviewer_r1",
+  "scope_changed": false,
+  "change_kinds": [
+    "correctness",
+    "security",
+    "testability",
+    "compatibility"
+  ],
+  "source_manifest_digest": "962ebb65a31ca04e7304ea1165a9ce6d6b1669d993b5e6970a0ec3b78e5bd5e9",
+  "command_evidence_digest": "84a1fe7540631ec5eb3597f36b11b72d8aa7386e6bd8d9e1f874e187250ed0f8",
+  "candidate_exit_digest": "5ff1b1cc1a8dac247e25a79c1e82691aa806fd0a9369db147ce063a95ffa1311",
+  "governing_documents_digest": "178ce8ac2035391a80ef2125e2e984c4da2bcf7ad4e6155301eb04362fcbffee",
+  "wp07a_runtime_digest": "387ae47087d60f2548a8345cddc34302f794d8b09168178fc52b6b22f419d919",
+  "wp07a_sources_digest": "d66560fec5d696f2d75e94f3881c7c9bb59b3a93c79c6682702babb0bd9214d9",
+  "external_action_boundary_digest": "68d1f79bc0ac27a9f790b7eba86f2afd655dad15571a2ba7dec922d39a768742",
+  "dependency_verdicts_digest": "682b0eba24210c2ca5cba10ca67d35aa5a45a526ef830cef6d2c38a729bbddc3",
+  "immutable_tuple": {
+    "source_manifest_raw_sha256": "cf0349611b35038588f6758dfcf9b93991ab100f17997aec320f593325a9cf39",
+    "source_manifest_canonical_sha256": "202faabc6996716a7043e4e405417da9d2413938ea7d8bf4f0e9bff63692cc48",
+    "source_manifest_internal_digest": "962ebb65a31ca04e7304ea1165a9ce6d6b1669d993b5e6970a0ec3b78e5bd5e9",
+    "source_manifest_row_count": 340,
+    "command_evidence_raw_sha256": "f6726f32035c63e5a9bae27d53f3874eed1cbedaf5388268dad0e9982f27f9fd",
+    "command_evidence_canonical_sha256": "84a1fe7540631ec5eb3597f36b11b72d8aa7386e6bd8d9e1f874e187250ed0f8",
+    "candidate_exit_raw_sha256": "9feb5c4b2ce4496d07a12d6b3629d841671c677da2d3fa0ce80e2390cfb0b0c5",
+    "candidate_exit_canonical_sha256": "5ff1b1cc1a8dac247e25a79c1e82691aa806fd0a9369db147ce063a95ffa1311"
+  },
+  "verification": {
+    "exact_three_parameter_validator": {
+      "argv": [
+        ".venv/bin/python",
+        "scripts/verify_wp07a_evidence.py",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-source-manifest-r4.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-command-evidence-r4.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-exit-r4.json"
+      ],
+      "status": "PASS",
+      "findings": []
+    },
+    "exact_four_parameter_validator": {
+      "status": "NOT_RUN",
+      "reason": "The review verdict is REVISE; the exact four-parameter validator accepts only PASS verdicts."
+    },
+    "source_currentness_after_validator": {
+      "status": "PASS",
+      "findings": [],
+      "row_count": 340
+    },
+    "candidate_test_execution_count": 842,
+    "independent_checks": [
+      {
+        "check": "ACT-001B and ACT-001C provenance remedy methods",
+        "status": "PASS"
+      },
+      {
+        "check": "all 38 WP-07A focused, security and disposable E2E tests",
+        "status": "PASS"
+      },
+      {
+        "check": "lint, type and architecture static checks",
+        "status": "PASS"
+      },
+      {
+        "check": "independently built exact candidate wheel matches the evidenced wheel digest",
+        "status": "PASS",
+        "evidence": "The independent wheel SHA-256 is 31cd1179c3896b3ab8f6d3f2b6e508a174379f941c9b24988ce83b264b411f2d."
+      },
+      {
+        "check": "core distribution validator is in the exact source manifest, WP-07A source/runtime evidence surfaces, wheel payload and a unique hashed RECORD row",
+        "status": "PASS"
+      },
+      {
+        "check": "legitimate source checkout and clean extracted-wheel provenance resolve identical implementation digests for all five closed adapters; extracted factory issues and dispatches all five",
+        "status": "PASS"
+      },
+      {
+        "check": "extracted installs reject entire dist-info absence, module/distribution-root mismatch, duplicate identities, missing or tampered resource/RECORD data, name/version mismatch and re-sign substitutions",
+        "status": "PASS"
+      },
+      {
+        "check": "direct zip-wheel constructs the factory and issues and dispatches all five closed adapters",
+        "status": "FAIL",
+        "evidence": "Importing graph_engineering.adapters from the exact wheel under python -I raises NotADirectoryError when the adapter package validator applies pathlib.Path.resolve(strict=True) to the zip member path."
+      },
+      {
+        "check": "manufactured or copied source payload with fake .git is rejected",
+        "status": "FAIL",
+        "evidence": "An exact copied core and adapter payload with exact pyproject.toml and build_backend.py plus an empty manufactured .git directory is accepted as a source checkout and resolves the approved git-native implementation digest."
+      },
+      {
+        "check": "duplicate physical provenance or validator members in a zip wheel are rejected",
+        "status": "FAIL",
+        "evidence": "Direct zip wheels with duplicate identical graph_engineering/pyproject.toml or graph_engineering/__init__.py members and one RECORD row import successfully because only RECORD-row multiplicity is checked."
+      }
+    ],
+    "external_actions_observed": false,
+    "network_used": false,
+    "user_repository_used": false
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "WP07A-CODE-R1-001",
+      "status": "closed",
+      "evidence": "A newly issued target query occurs after durable receipt commit; after-receipt drift and crash recovery keep the claim unresolved, perform zero duplicate mutations, and reconcile only from a later matching observation."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-002",
+      "status": "closed",
+      "evidence": "Raw, semantic, serialized or escaped, encoded and digest-derived representations are blocked before persistence, and every post-resolution path destroys SecretMaterial."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-003",
+      "status": "open",
+      "evidence": "The core validator closes prior extracted-install identity gaps and is evidence-bound, but the adapter package is not zip-import-aware, the source predicate accepts an exact copied payload with a fake .git marker, and archive member multiplicity is not checked independently from RECORD rows."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-004",
+      "status": "closed",
+      "evidence": "Timeout, output-bound and after-launch cancellation terminate the complete created process group with bounded TERM-to-KILL escalation; descendants cannot perform delayed writes."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-005",
+      "status": "closed",
+      "evidence": "Recovery authenticates owner/runtime/lineage, target, exact resources, lease/fences and disclosure before journal disclosure or query, then uses the factory-attested Git observer without replaying update-ref."
+    },
+    {
+      "finding_id": "WP07A-EVIDENCE-R1-001",
+      "status": "closed",
+      "evidence": "The gate candidate identities, command evidence and r4 exit bind the assigned reviewer codex:/root/wp07a_reviewer_r1, independently from the author."
+    }
+  ],
+  "findings": [
+    {
+      "id": "WP07A-CODE-R1-003",
+      "severity": "P1",
+      "status": "open",
+      "location": "core/graph_engineering/__init__.py:70-135,151-215; adapters/graph_engineering/adapters/__init__.py:23-31",
+      "summary": "Implementation provenance remains incomplete across direct zip import, positive source-checkout identity and duplicate archive-member validation.",
+      "evidence": "The exact direct wheel passes the new core distribution validator but graph_engineering.adapters import then fails because the adapter validator strictly resolves a zip-member __file__ path. An exact copied source payload outside the repository with the three pinned files and an empty fake .git directory is accepted and resolves an approved implementation digest. Separately, direct zip wheels containing duplicate identical provenance or core-validator members import successfully because _record_resource checks only distribution.files/RECORD multiplicity and not physical archive members.",
+      "required_change": "Make adapter-package provenance validation zip-import-aware while preserving exact archive, member, RECORD, distribution-root and distribution-identity checks. Positively authenticate the legitimate source checkout using a deterministic repository identity proof rather than a copyable .git marker and three file hashes. For archive distributions, enumerate physical members and require exactly one validator and provenance resource as well as exactly one matching RECORD row before factory issue or adapter call.",
+      "mechanical_closure_tests": [
+        "Build the exact candidate wheel and run it directly as a zip path under python -I outside the checkout; assert source, extracted-installed and direct-zip implementation digests are byte-for-byte identical for every closed adapter.",
+        "From the direct zip wheel, construct the installation-attested factory and issue and dispatch all five closed adapters on disposable local fixtures, including the stable unavailable connector path.",
+        "Retain the equivalent clean extracted-wheel factory test that issues and dispatches all five closed adapters.",
+        "Copy the exact source core, adapter, pyproject and build-backend bytes into a manufactured layout with an empty, file-shaped or initialized fake .git marker; every form must reject before implementation provenance, factory issue or adapter call, while the legitimate exact source checkout passes using a positive repository identity proof.",
+        "Create zip wheels with duplicate physical graph_engineering/__init__.py or graph_engineering/pyproject.toml members, including identical-byte duplicates with only one RECORD row; each must reject before implementation provenance, factory issue or adapter call.",
+        "Retain rejection for entire dist-info absence, zero or duplicate matching distributions, module/distribution-root mismatch, missing provenance or validator resources, missing or duplicate RECORD rows, missing RECORD hashes, resource or RECORD tamper, and distribution name or version mismatch in extracted and direct-zip layouts.",
+        "Retain one-field and fully self-consistent re-sign substitutions for implementation digest or ref, capability, operation, policy, registry and installation provenance; all must reject before adapter issue or external call.",
+        "Keep the trust validator itself bound in the exact source manifest, WP-07A runtime and source evidence inputs, wheel payload and unique hashed RECORD entry."
+      ]
+    }
+  ],
+  "reviewed_without_open_findings": [
+    "post-receipt observation ordering, drift handling and crash recovery without duplicate mutation",
+    "semantic and serialized output sanitation plus ephemeral secret destruction",
+    "bounded full-process-group termination for timeout, cancellation and output limits",
+    "authenticated production query-only recovery and unauthorized nondisclosure",
+    "typed invocation, receipt and observation resource/fence closure",
+    "disposable-local-only Git E2E and stable unavailable connector"
+  ]
+}

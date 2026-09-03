@@ -1,0 +1,159 @@
+{
+  "schema_version": "1.0",
+  "artifact": "wp-07a",
+  "verdict": "REVISE",
+  "reviewer_id": "codex:/root/wp07a_reviewer_r1",
+  "scope_changed": false,
+  "change_kinds": [
+    "correctness",
+    "security",
+    "testability",
+    "compatibility"
+  ],
+  "source_manifest_digest": "e4ed0673d033da469b36b2fb6bd22f11bde66c6dadd6688c9d44abbb673fdf6f",
+  "command_evidence_digest": "490cc3ca35ba83ce2f25e70a33982cdcae0567a681294c9b46125356a1c2bdcc",
+  "candidate_exit_digest": "08aa78528eb078919fe4d4ec618978344f573c159fdd575f5584690166c2bf3b",
+  "governing_documents_digest": "178ce8ac2035391a80ef2125e2e984c4da2bcf7ad4e6155301eb04362fcbffee",
+  "wp07a_runtime_digest": "3c0d332292a35821f080712c344999b622f8de3fb41ab65c36d919d3bcb4c228",
+  "wp07a_sources_digest": "f79956adff0ba0b0f38638e0d037c6f5c0b953d3bf8555b507032f4bc64ae681",
+  "external_action_boundary_digest": "68d1f79bc0ac27a9f790b7eba86f2afd655dad15571a2ba7dec922d39a768742",
+  "dependency_verdicts_digest": "682b0eba24210c2ca5cba10ca67d35aa5a45a526ef830cef6d2c38a729bbddc3",
+  "immutable_tuple": {
+    "source_manifest_raw_sha256": "faa25281c2594625f6bdb614f52e5e77c3896be60f1d55cef6014472a6635baf",
+    "source_manifest_canonical_sha256": "87a1dcf390421f807d7fe3977c70351ac194c3fc56c2e34b1d384fb4f07098b5",
+    "source_manifest_internal_digest": "e4ed0673d033da469b36b2fb6bd22f11bde66c6dadd6688c9d44abbb673fdf6f",
+    "source_manifest_row_count": 340,
+    "command_evidence_raw_sha256": "6ac79a154f96e7ca70ad782bcc66f71a396b0c2f93d75be2c92ca61bfa7908a1",
+    "command_evidence_canonical_sha256": "490cc3ca35ba83ce2f25e70a33982cdcae0567a681294c9b46125356a1c2bdcc",
+    "candidate_exit_raw_sha256": "50f6b1a7a3f758f4ff82611b0104786d10ffa847f70dfb7d36861590b1037fab",
+    "candidate_exit_canonical_sha256": "08aa78528eb078919fe4d4ec618978344f573c159fdd575f5584690166c2bf3b"
+  },
+  "verification": {
+    "exact_three_parameter_validator": {
+      "argv": [
+        ".venv/bin/python",
+        "scripts/verify_wp07a_evidence.py",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-source-manifest-r3.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-command-evidence-r3.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-exit-r3.json"
+      ],
+      "status": "PASS",
+      "findings": []
+    },
+    "exact_four_parameter_validator": {
+      "status": "NOT_RUN",
+      "reason": "The review verdict is REVISE; the exact four-parameter validator accepts only PASS verdicts."
+    },
+    "source_currentness_after_validator": {
+      "status": "PASS",
+      "findings": [],
+      "row_count": 340
+    },
+    "candidate_test_execution_count": 842,
+    "independent_checks": [
+      {
+        "check": "ACT-001B and ACT-001C clean installed provenance remedies",
+        "status": "PASS"
+      },
+      {
+        "check": "all 38 WP-07A focused, security and disposable E2E tests",
+        "status": "PASS"
+      },
+      {
+        "check": "lint, type and architecture static checks",
+        "status": "PASS"
+      },
+      {
+        "check": "independently built exact candidate wheel matches the evidenced wheel digest",
+        "status": "PASS",
+        "evidence": "The independent wheel SHA-256 is fdc8a3e32f8cc633aa76083f2828feae78a8c28c84cda9201f84d541fc21c2ab."
+      },
+      {
+        "check": "valid clean wheel source-installed-registry provenance equality and all-five factory issue and dispatch",
+        "status": "PASS"
+      },
+      {
+        "check": "missing resource, missing RECORD, tampered resource, duplicate RECORD and self-consistent registry re-sign rejection",
+        "status": "PASS"
+      },
+      {
+        "check": "entire distribution metadata absent rejects before implementation provenance resolution",
+        "status": "FAIL",
+        "evidence": "An isolated wheel package payload containing graph_engineering/pyproject.toml but no dist-info resolved builtin:git-native-v1 to its approved digest."
+      },
+      {
+        "check": "adapter module and selected distribution root must be identical",
+        "status": "FAIL",
+        "evidence": "With the module loaded from the metadata-free package payload and the matching distribution located in a different root, provenance resolution returned the approved digest."
+      },
+      {
+        "check": "matching installed distribution identity must be unique",
+        "status": "FAIL",
+        "evidence": "Two matching installed distribution identities were discoverable while provenance resolution still returned the approved digest."
+      }
+    ],
+    "external_actions_observed": false,
+    "network_used": false,
+    "user_repository_used": false
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "WP07A-CODE-R1-001",
+      "status": "closed",
+      "evidence": "A newly issued target query occurs after durable receipt commit; after-receipt drift and crash recovery keep the claim unresolved, perform zero duplicate mutations, and reconcile only from a later matching observation."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-002",
+      "status": "closed",
+      "evidence": "Raw, semantic, serialized or escaped, encoded and digest-derived representations are blocked before persistence, and every post-resolution path destroys SecretMaterial."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-003",
+      "status": "open",
+      "evidence": "Valid clean-wheel provenance and prior tamper/re-sign cases pass, but installed provenance is skipped when distribution metadata is absent or when the selected distribution root does not contain the loaded module, and duplicate matching distributions are not rejected."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-004",
+      "status": "closed",
+      "evidence": "Timeout, output-bound and after-launch cancellation terminate the complete created process group with bounded TERM-to-KILL escalation; descendants cannot perform delayed writes."
+    },
+    {
+      "finding_id": "WP07A-CODE-R1-005",
+      "status": "closed",
+      "evidence": "Recovery authenticates owner/runtime/lineage, target, exact resources, lease/fences and disclosure before journal disclosure or query, then uses the factory-attested Git observer without replaying update-ref."
+    },
+    {
+      "finding_id": "WP07A-EVIDENCE-R1-001",
+      "status": "closed",
+      "evidence": "The gate candidate identities, command evidence and r3 exit bind the assigned reviewer codex:/root/wp07a_reviewer_r1, independently from the author."
+    }
+  ],
+  "findings": [
+    {
+      "id": "WP07A-CODE-R1-003",
+      "severity": "P1",
+      "status": "open",
+      "location": "adapters/graph_engineering/adapters/__init__.py:23-31; adapters/graph_engineering/adapters/action_adapters.py:55-89",
+      "summary": "Installed provenance does not fail closed when distribution identity is absent, mismatched to the loaded module, or non-unique.",
+      "evidence": "The exact independently built wheel works in its valid clean layout. In isolated disposable layouts, however, the exact graph_engineering wheel payload with its packaged pyproject.toml but without the entire dist-info directory resolved an approved implementation digest; a module loaded outside the selected distribution root also resolved; and two matching installed distributions were discoverable while resolution still succeeded. The validation returns on PackageNotFoundError and module-root mismatch and selects one distribution without enforcing uniqueness.",
+      "required_change": "Positively identify a legitimate source checkout using repository-owned deterministic provenance. When packaged provenance or an installed module layout is present, absence of distribution metadata must reject. Enumerate exactly one matching distribution identity and require the loaded module and provenance resource to belong to that distribution root; absence, mismatch or duplication must reject before factory issue or adapter call.",
+      "mechanical_closure_tests": [
+        "Build the exact candidate wheel and install or extract it into a clean directory outside the checkout under python -I; assert source, installed and registry implementation digests are byte-for-byte identical and the factory issues and dispatches every one of the five closed adapters on disposable local fixtures.",
+        "Remove the entire dist-info directory while retaining the packaged provenance resource and module layout; implementation provenance, factory issue and adapter call must reject.",
+        "Load the adapter module from a root different from the matching distribution root; implementation provenance, factory issue and adapter call must reject.",
+        "Expose zero or more than one matching installed distribution identity; implementation provenance, factory issue and adapter call must reject unless a positively identified legitimate source checkout is present.",
+        "Retain rejection for missing provenance resource, missing RECORD, missing RECORD hash, tampered resource or RECORD, duplicate provenance resource or RECORD entries, and distribution name or version mismatch.",
+        "Retain one-field and fully self-consistent re-sign substitutions for implementation digest or ref, capability, operation, policy and registry; all must reject before adapter issue or external call.",
+        "Exercise a legitimate source checkout and prove its deterministic source provenance is positively identified rather than inferred only from missing distribution metadata."
+      ]
+    }
+  ],
+  "reviewed_without_open_findings": [
+    "post-receipt observation ordering, drift handling and crash recovery without duplicate mutation",
+    "semantic and serialized output sanitation plus ephemeral secret destruction",
+    "bounded full-process-group termination for timeout, cancellation and output limits",
+    "authenticated production query-only recovery and unauthorized nondisclosure",
+    "typed invocation, receipt and observation resource/fence closure",
+    "disposable-local-only Git E2E and stable unavailable connector"
+  ]
+}

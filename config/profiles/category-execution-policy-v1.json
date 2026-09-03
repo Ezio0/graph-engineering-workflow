@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "urn:gew:category-execution-policy:profiles:v1",
+  "profile_identities": [
+    {"profile_id": "new-feature", "profile_version": "1.0.0", "profile_digest": "sha256-jcs-v1:56f15716bcfe04c98eaf4137da659a35e69f88c1c9586d8a9adf256d098e0cf9"},
+    {"profile_id": "bug-fix", "profile_version": "1.0.0", "profile_digest": "sha256-jcs-v1:5b1b664c3267fa071400ffc558c9b904bcf166899e426d94e9e1be9ab3a559ea"},
+    {"profile_id": "hotfix", "profile_version": "1.0.0", "profile_digest": "sha256-jcs-v1:45624913bf757ca93a1caeebfe4a1f9f24d06d852fbee585ed368dafb2d58060"},
+    {"profile_id": "refactor-debt", "profile_version": "1.0.0", "profile_digest": "sha256-jcs-v1:0d021f6e0e5691e17a99dbe755adb53311d364c04f6b906f6720cd4e03903f05"},
+    {"profile_id": "migration", "profile_version": "1.0.0", "profile_digest": "sha256-jcs-v1:99dce6226ddd21aaa3547e9df2da149ff47b29394c9820b6fcc510e5da0b6315"},
+    {"profile_id": "dependency-security", "profile_version": "1.0.0", "profile_digest": "sha256-jcs-v1:4311fbf8484bebb6eb2a680d16d37dcfc32a8edd3e1dc6a8d9298c0a16ec1dab"},
+    {"profile_id": "performance", "profile_version": "1.0.0", "profile_digest": "sha256-jcs-v1:785ec6b7dca83ef8fd82678168c2b9491f519ea58a55298b6713b4cb61e5136f"},
+    {"profile_id": "release-operations", "profile_version": "1.0.0", "profile_digest": "sha256-jcs-v1:07a3177c65110ad65144b63f401d772074bbd2eef6ca5a031d2b0cc860ffd789"},
+    {"profile_id": "incident-response", "profile_version": "1.0.0", "profile_digest": "sha256-jcs-v1:f724d293c48554adeb52c0c6ec89ee8a53e7d9dbc1d6de0b0a0e05dee9cf74fc"}
+  ],
+  "support_matrix_digest": "sha256-jcs-v1:3a38e5159b08c81413b39fa156f5544eb3d56e0841081413f05d2103af9f7a95",
+  "authority_refs": ["authority:category-current"],
+  "column_ids": ["normal", "boundary", "revise", "authority", "drift", "invalidation", "recovery", "artifacts", "review", "target", "rollback", "real-e2e"],
+  "local_execution_kinds": ["deterministic-disposable-local"],
+  "real_e2e_execution_kinds": ["authoritative-real-e2e-observer"],
+  "rollback_protocol_mappings": [
+    {"logical_action_kind": "profile-change-rollback", "action_protocol_kind": "rollback", "prepared_status": "prepared", "authorized_status": "authorized", "success_status": "reconciled-effect-verified", "unknown_route": "query-reconcile-owner", "failure_route": "unresolved-claim-owner"}
+  ],
+  "transition_rules": [
+    {"column_id": "normal", "from_state": "pending", "event_type": "category.normal.assessed", "to_state": "completed", "evidence_kind": "runner-execution", "required_outcome": "runner-accepted", "required_fact_ids": ["runner-output-digest"], "owner_route": null},
+    {"column_id": "boundary", "from_state": "pending", "event_type": "category.boundary.assessed", "to_state": "completed", "evidence_kind": "scenario-membership", "required_outcome": "scenario-accepted", "required_fact_ids": ["scenario-id"], "owner_route": null},
+    {"column_id": "revise", "from_state": "pending", "event_type": "category.revise.assessed", "to_state": "completed", "evidence_kind": "revision-lineage", "required_outcome": "revision-accepted", "required_fact_ids": ["budget-remaining", "current-body-digest", "owner-route", "previous-body-digest"], "owner_route": "owner-revision"},
+    {"column_id": "authority", "from_state": "pending", "event_type": "category.authority.assessed", "to_state": "completed", "evidence_kind": "authority-decision", "required_outcome": "authority-current", "required_fact_ids": ["authority-ref", "authority-status"], "owner_route": null},
+    {"column_id": "drift", "from_state": "pending", "event_type": "category.drift.assessed", "to_state": "completed", "evidence_kind": "drift-assessment", "required_outcome": "drift-resolved", "required_fact_ids": ["drift-status", "target-digest"], "owner_route": null},
+    {"column_id": "invalidation", "from_state": "pending", "event_type": "category.invalidation.assessed", "to_state": "completed", "evidence_kind": "invalidation-record", "required_outcome": "invalidation-current", "required_fact_ids": ["invalidation-epoch", "invalidation-status"], "owner_route": null},
+    {"column_id": "recovery", "from_state": "pending", "event_type": "category.recovery.assessed", "to_state": "completed", "evidence_kind": "recovery-record", "required_outcome": "recovered", "required_fact_ids": ["recovery-id", "recovery-status"], "owner_route": null},
+    {"column_id": "artifacts", "from_state": "pending", "event_type": "category.artifacts.assessed", "to_state": "completed", "evidence_kind": "artifact-records", "required_outcome": "artifacts-accepted", "required_fact_ids": ["artifact-record-digests"], "owner_route": null},
+    {"column_id": "review", "from_state": "pending", "event_type": "category.review.assessed", "to_state": "completed", "evidence_kind": "independent-review", "required_outcome": "review-accepted", "required_fact_ids": ["author-id", "review-record-digest", "reviewer-id"], "owner_route": null},
+    {"column_id": "target", "from_state": "pending", "event_type": "category.target.assessed", "to_state": "completed", "evidence_kind": "target-observation", "required_outcome": "target-matched", "required_fact_ids": ["expected-state-digest", "target-id"], "owner_route": null},
+    {"column_id": "rollback", "from_state": "pending", "event_type": "category.rollback.assessed", "to_state": "completed", "evidence_kind": "action-rollback", "required_outcome": "rollback-verified", "required_fact_ids": ["action-id", "action-status", "claim-status"], "owner_route": null},
+    {"column_id": "real-e2e", "from_state": "pending", "event_type": "category.real-e2e.assessed", "to_state": "completed", "evidence_kind": "real-toolchain-execution", "required_outcome": "real-toolchain-attested", "required_fact_ids": ["predecessor-record-digest", "predecessor-result", "target-after-digest", "target-before-digest", "toolchain-id"], "owner_route": null}
+  ],
+  "policy_digest": "sha256-jcs-v1:526486bbd185b4b979273fdae4477ecf433678b98605eebe48d0dc56ec9ecb94"
+}

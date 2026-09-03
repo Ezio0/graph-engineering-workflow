@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-ADR-V1",
+  "goal": "Resolve the three implementation-shaping architecture decisions identified by the reviewed Impact Analysis while preserving the approved platform-neutral, Skill-first, local, event-sourced product semantics.",
+  "non_goals": [
+    "Change Positioning, PRD, Tech Spec, or Impact product boundaries",
+    "Introduce a daemon, remote control plane, cross-runtime task transfer, or non-deterministic safety controls",
+    "Implement code, configuration, Skills, tests, or migrations",
+    "Commit, push, merge, deploy, release, or communicate outside the current task"
+  ],
+  "allowed_targets": [
+    "docs/adr/0001-core-implementation-and-local-packaging.md",
+    "docs/adr/0002-local-event-repository-and-coordination.md",
+    "docs/adr/0003-deterministic-contract-stack.md"
+  ],
+  "allowed_change_kinds": [
+    "architecture-decision",
+    "clarification",
+    "consistency",
+    "traceability",
+    "testability"
+  ],
+  "human_required_change_kinds": [
+    "goal",
+    "non-goal",
+    "target-boundary",
+    "intent-baseline",
+    "authority-expansion",
+    "material-architecture-choice-outside-approved-option-set"
+  ],
+  "authorized_actions": [
+    "documentation",
+    "verification",
+    "independent-review"
+  ]
+}

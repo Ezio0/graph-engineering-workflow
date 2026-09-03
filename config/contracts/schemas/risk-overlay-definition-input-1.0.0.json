@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:risk-overlay-definition-input:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "ids": {
+      "type": "array",
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "mergeRule": {
+      "type": "object",
+      "properties": {
+        "operation": {"const": "co-locate"},
+        "logical_contract_ids": {"$ref": "#/$defs/ids"}
+      },
+      "required": ["operation", "logical_contract_ids"],
+      "additionalProperties": false
+    },
+    "compaction": {
+      "type": "object",
+      "properties": {
+        "logical_contract_id": {"$ref": "#/$defs/id"},
+        "physical_group_id": {"$ref": "#/$defs/id"}
+      },
+      "required": ["logical_contract_id", "physical_group_id"],
+      "additionalProperties": false
+    },
+    "budgetOverride": {
+      "type": "object",
+      "properties": {
+        "budget_id": {"$ref": "#/$defs/id"},
+        "maximum": {"type": "integer", "minimum": 1}
+      },
+      "required": ["budget_id", "maximum"],
+      "additionalProperties": false
+    },
+    "budget": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": ["preserve", "tighten"]
+        },
+        "overrides": {
+          "type": "array", "maxItems": 1024,
+          "items": {"$ref": "#/$defs/budgetOverride"}
+        }
+      },
+      "required": [
+        "mode",
+        "overrides"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "overlay_id": {
+      "$ref": "#/$defs/id"
+    },
+    "version": {
+      "$ref": "#/$defs/id"
+    },
+    "approved_profile_registry_digest": {
+      "$ref": "#/$defs/id"
+    },
+    "coverage_policy_digest": {
+      "$ref": "#/$defs/id"
+    },
+    "node_additions": {
+      "$ref": "#/$defs/ids"
+    },
+    "edge_additions": {
+      "$ref": "#/$defs/ids"
+    },
+    "merge_rules": {
+      "type": "array", "maxItems": 16384,
+      "items": {"$ref": "#/$defs/mergeRule"}
+    },
+    "artifact_compaction_mapping": {
+      "type": "array", "maxItems": 16384,
+      "items": {"$ref": "#/$defs/compaction"}
+    },
+    "budget_policy": {
+      "$ref": "#/$defs/budget"
+    },
+    "required_invariant_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "entry_condition_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "exit_condition_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "allowed_profile_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "forbidden_profile_ids": {
+      "$ref": "#/$defs/ids"
+    }
+  },
+  "required": [
+    "schema_version",
+    "overlay_id",
+    "version",
+    "approved_profile_registry_digest",
+    "coverage_policy_digest",
+    "node_additions",
+    "edge_additions",
+    "merge_rules",
+    "artifact_compaction_mapping",
+    "budget_policy",
+    "required_invariant_ids",
+    "entry_condition_ids",
+    "exit_condition_ids",
+    "allowed_profile_ids",
+    "forbidden_profile_ids"
+  ],
+  "unevaluatedProperties": false
+}

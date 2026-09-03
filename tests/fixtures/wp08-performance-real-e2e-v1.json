@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "profile_id": "performance",
+  "artifact_name": "performance-benchmark-result.json",
+  "baseline_document": {
+    "benchmark_case_id": "performance-local-command-v1",
+    "correctness": "verified",
+    "source_identity": "source:performance-baseline-v1",
+    "target_status": "baseline"
+  },
+  "desired_document": {
+    "benchmark_case_id": "performance-local-command-v1",
+    "correctness": "verified",
+    "source_identity": "source:performance-candidate-v1",
+    "target_status": "proved"
+  },
+  "foreign_document": {
+    "benchmark_case_id": "foreign-benchmark",
+    "correctness": "unverified",
+    "source_identity": "source:performance-foreign-v1",
+    "target_status": "unknown"
+  }
+}

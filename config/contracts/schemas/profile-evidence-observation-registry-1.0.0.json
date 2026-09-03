@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:profile-evidence-observation-registry:1.0.0",
+  "$defs": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 255},
+    "observation": {
+      "type": "object",
+      "properties": {
+        "test_id": {"$ref": "#/$defs/id"},
+        "fixture_id": {"$ref": "#/$defs/id"},
+        "oracle_id": {"$ref": "#/$defs/id"},
+        "evidence_type": {"$ref": "#/$defs/id"},
+        "owner_gate": {"$ref": "#/$defs/id"},
+        "execution_kind": {"$ref": "#/$defs/id"},
+        "observer_kind": {"$ref": "#/$defs/id"},
+        "evidence_member": {"$ref": "#/$defs/id"},
+        "evidence_bytes_sha256": {"type": "string", "minLength": 64, "maxLength": 64}
+      },
+      "required": ["test_id", "fixture_id", "oracle_id", "evidence_type", "owner_gate", "execution_kind", "observer_kind", "evidence_member", "evidence_bytes_sha256"],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "registry_id": {"$ref": "#/$defs/id"},
+    "oracle_manifest_sha256": {"type": "string", "minLength": 64, "maxLength": 64},
+    "observations": {"type": "array", "minItems": 1, "maxItems": 274, "uniqueItems": true, "items": {"$ref": "#/$defs/observation"}},
+    "registry_digest": {"$ref": "#/$defs/id"}
+  },
+  "required": ["schema_version", "registry_id", "oracle_manifest_sha256", "observations", "registry_digest"],
+  "unevaluatedProperties": false
+}

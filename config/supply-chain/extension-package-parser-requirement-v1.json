@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "requirement_id": "extension-package-parser-pypa-v1",
+  "distribution_name": "packaging",
+  "distribution_version": "26.3",
+  "python_requires": ">=3.12",
+  "import_prefix": "packaging",
+  "parser_boundary": "build-install-package-verification-only",
+  "network_mode": "offline-only",
+  "fallback": "disabled",
+  "activation_status": "blocked-pending-wp10-release-install-manifest",
+  "required_release_install_pins": [
+    "distribution-metadata-digest",
+    "parser-implementation-digest",
+    "record-digest",
+    "source-artifact-attestation-digest",
+    "source-artifact-raw-digest",
+    "wheel-attestation-digest",
+    "wheel-raw-digest"
+  ],
+  "update_authority": "wp10-owner-authorized-supply-chain-install-manifest"
+}

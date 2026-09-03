@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "extension-bundle-profile-v1",
+  "required_metadata_members": [
+    "META-INF/extension-package-manifest.json",
+    "META-INF/source-attestation.json",
+    "META-INF/build-attestation.json",
+    "META-INF/publisher-signature.json"
+  ],
+  "max_archive_bytes": 16777216,
+  "max_members": 1024,
+  "max_member_bytes": 4194304,
+  "max_metadata_member_bytes": 1048576,
+  "max_total_uncompressed_bytes": 16777216,
+  "allowed_archive_file_modes": [384, 420],
+  "data_member_mode": 33060,
+  "executable_member_mode": 33133,
+  "installed_content_directory": "extension-content-v1",
+  "installed_directory_mode": 320,
+  "installed_file_mode": 256
+}

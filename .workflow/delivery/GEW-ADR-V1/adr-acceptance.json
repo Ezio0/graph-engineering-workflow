@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-ADR-V1",
+  "decision": "accept-reviewed-adrs",
+  "decider": "deterministic-control:/root",
+  "basis": [
+    {"artifact": "adr-0001", "semantic_review_revision": 1, "verdict": "PASS", "accepted_revision": 2, "accepted_digest": "d46dbe9216865029ef544ed17809a1252b5f10ea9d837d9b308192e06c19fa34"},
+    {"artifact": "adr-0002", "semantic_review_revision": 3, "verdict": "PASS", "accepted_revision": 4, "accepted_digest": "90a3d6f28f7968474a920700da696792e855d614edec4310712a4d41cd4aef73"},
+    {"artifact": "adr-0003", "semantic_review_revision": 4, "verdict": "PASS", "accepted_revision": 5, "accepted_digest": "48a9dfb140f739eb2d604ef294d486cd2308d56c46290f8d2f27a85593995c7c"}
+  ],
+  "change_class": "metadata-only",
+  "requires_revalidation": true
+}

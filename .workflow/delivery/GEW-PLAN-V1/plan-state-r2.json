@@ -1,0 +1,8 @@
+{
+  "schema_version":"1.0","task_id":"GEW-PLAN-V1","node":"plan-review","artifact":"implementation-plan",
+  "author_id":"codex:/root","reviewer_id":"codex:/root/adr_0001_reviewer_r1",
+  "targets":["docs/plans/2026-08-13-graph-engineering-workflow.md"],"revision":2,
+  "artifact_digest":"2f793803554ff877fa070f935c63bd75d4b9e95f00814fcd4a978f7921755d8d",
+  "previous_artifact_digest":"deff2b22891824879273d8930a66e9db78d72bf40cab2bbf4bd084952c97cc8b",
+  "open_finding_ids":["PLAN-R0-006","PLAN-R1-007"]
+}

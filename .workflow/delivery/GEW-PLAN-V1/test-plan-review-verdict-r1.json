@@ -1,0 +1,9 @@
+{
+  "schema_version":"1.0","verdict":"REVISE","artifact":"test-plan","scope_changed":false,
+  "change_kinds":["clarification","consistency","traceability","testability"],
+  "findings":[
+    {"id":"GEW-TP-TRACE-001","severity":"blocking","evidence":"Plan binding, ID grammar, profile aliases, P/R cells, environment values and category-specific scenarios were inconsistent or non-exact.","required_change":"Use current plan digest, one ID schema, canonical profiles, distinct P/R IDs, value-keyed environment IDs and exact category scenarios.","verification":"Materialized matrix has no schema errors/duplicates and every single deletion fails.","status":"open"},
+    {"id":"GEW-TP-ORACLE-001","severity":"blocking","evidence":"Free-form oracle labels did not prove independence from production decisions or target-query adapters.","required_change":"Define a closed OracleManifest with dependency boundaries and independent target observation.","verification":"Production imports/shared digests/reused mutation observers fail and known faults are detected.","status":"open"}
+  ],
+  "reviewer_id":"codex:/root/adr_0002_reviewer_r1"
+}

@@ -1,0 +1,8 @@
+{
+  "schema_version":"1.0","verdict":"REVISE","artifact":"test-plan","scope_changed":false,
+  "change_kinds":["consistency","traceability","testability"],
+  "findings":[
+    {"id":"GEW-TP-TRACE-001","severity":"blocking","evidence":"Two declared Profile IDs differed from the exact approved Tech Spec identities.","required_change":"Use migration/performance and bind all identity-bearing records to the approved Profile registry.","verification":"Bidirectional registry equality rejects every alias in matrix, fixtures, oracles and evidence.","status":"open"}
+  ],
+  "reviewer_id":"codex:/root/adr_0002_reviewer_r1"
+}

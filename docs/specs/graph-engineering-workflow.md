@@ -1,0 +1,1696 @@
+# Graph Engineering Workflow — Tech Spec
+
+## 1. 文档控制
+
+| 项目 | 内容 |
+|---|---|
+| 产品 | Graph Engineering Workflow |
+| 版本 | v1 Approved，implementation-alignment revision 24 |
+| 状态 | Approved；WP-04A r5 independent PASS，WP-04 r3 implementation candidate；ADR-0005 review r1 revision |
+| 日期 | 2026-08-14 |
+| Author | Codex `/root` |
+| 批准记录 | Human Owner 于 2026-08-13 同意进入下一步 |
+| 上游定位 | [Positioning v2 Approved](../positioning/graph-engineering-workflow.md) |
+| Intent Baseline | [PRD v2 Approved](../prd/graph-engineering-workflow.md) |
+| Positioning digest | `968d4b574008b53ce79f7fe4c1e1b3d5f71d44bca890425848f388577883f799` |
+| PRD digest | `594b4437301853919ce3b4aa93e703a395ed45bff924ea6266b3a8e202a30be7` |
+| Authority task | `GEW-TECH-SPEC-V2` |
+| 架构决定 | backend-neutral event-sourced contract 已冻结；ADR-0002 已接受 SQLite DELETE/EXTRA + filesystem objects；ADR-0005 已接受 exact recovery-claim compensation |
+| 当前授权 | 已批准计划内的本仓库可逆实现与验证；不授权 commit/push/merge/deploy/release/外部通信 |
+
+本文把已批准产品意图转换为可实现的技术设计，不改变九类任务、三条风险路径、
+单 Owner、单 runtime、关闭即暂停、同 runtime 恢复或 Skill-first 产品边界。
+
+## 2. 设计目标与非目标
+
+### 2.1 设计目标
+
+1. 用一个平台中立、确定性的本地核心执行真正的 Agent Graph；
+2. 让 Codex Skill 与 Hermes Skill 作为完整但轻量的 runtime adapter；
+3. 用持久、可重放、可审计的 typed state 和 append-only events 驱动状态转换；
+4. 确定性执行 intent、authority、digest、schema、budget、invalidation 和完成门禁；
+5. 用共享节点加九类 Profile/子图满足逐类完整验收；
+6. 不依赖 daemon，在 runtime 存活期间同步推进，到达稳定边界后返回；
+7. 安全恢复被中断的任务，不静默重复未知或非幂等副作用；
+8. 保持项目、环境、命令、阈值、拓扑和 adapter 能力配置化。
+
+### 2.2 非目标
+
+- 不设计后台 scheduler、常驻 Graph Core service 或中心数据库；
+- 不设计跨 Codex/Hermes 的任务转移、共享状态或授权复用；
+- 不设计自动 CI、监控或安全事件监听；
+- 不建设九个独立引擎；
+- 不支持多 Owner、非 Git VCS、OpenClaw 或软件工程外业务流；
+- 不在本文决定具体编程语言、数据库库、CLI 框架或打包工具；这些实现选择由 ADR
+  在 Impact 阶段判断并记录；
+- 不授权任何实现、commit、push、merge、deploy、release 或会话外通信。
+
+## 3. 架构概览
+
+### 3.1 组件图
+
+```text
+Codex Skill ──┐
+              ├─ Runtime Adapter ── Application Service ── Graph Kernel
+Hermes Skill ─┘                         │                     │
+                                       │                     ├─ Reducer
+                                       │                     ├─ Policy Engine
+                                       │                     ├─ Validator Registry
+                                       │                     └─ Invalidation Engine
+                                       │
+                                       ├─ Agent/Tool Ports ── runtime tools, subagents,
+                                       │                     project commands, connectors
+                                       │
+                                       └─ Local Repository ── snapshot + event stream +
+                                                             artifacts + evidence
+```
+
+### 3.2 核心决策
+
+| 决策 | 选择 | 理由 |
+|---|---|---|
+| 产品形态 | 薄 Skill + 可调用的本地核心库/CLI | Skill 提供发现和交互，确定性逻辑不依赖提示词 |
+| 执行模型 | runtime 内同步 cooperative runner | 符合关闭即暂停，不引入 daemon |
+| 持久化 | backend-neutral event-sourced repository + 可重建 snapshot + 内容寻址对象 | 冻结一致性与恢复契约；具体文件或 SQLite backend 由 ADR 以可靠性证据选择 |
+| 并发 | backend-neutral task lease + 资源租约 + compare-and-swap revision | 防止同一任务或共享资源被并发破坏 |
+| Graph 定义 | 版本化声明文件，core 按 schema 加载 | 拓扑与数据不写死在引擎逻辑 |
+| 节点执行 | Agent Loop 或 deterministic control node | 保持真正 Graph Engineering 语义 |
+| 外部动作 | prepare → authorize → execute → reconcile | 把副作用、权限和恢复绑定为显式协议 |
+| Reviewer | runtime 提供独立 actor；core 验证身份不同并消费结构化 verdict | 质量判断与权限判断分离 |
+| Runtime 归属 | task metadata 永久绑定 runtime kind 与 instance lineage | v1 明确拒绝跨 runtime 接续 |
+
+Human Owner 已批准冻结 backend-neutral event-sourced repository 语义。ADR 只能在
+满足第 5 节一致性、耐久性、恢复、并发和审计契约的实现中选择具体 backend；该选择
+不改变领域接口。改成非 event-sourced 语义、远程中心服务或后台 daemon 仍属于重大
+架构变化，必须重新获得 Human Owner 决策。
+
+### 3.3 分层与依赖规则
+
+```text
+skills/                    用户交互、能力发现、结果呈现
+adapters/                  Codex/Hermes 与外部工具协议适配
+application/               用例编排、runner、命令处理、查询服务
+core/                      纯 Graph 语义、状态 reducer、policy、validation
+storage/                   event-sourced repository ports 与本地 backend 实现
+config/                    graph、profile、policy、schema、adapter capability
+```
+
+依赖只能从外层指向内层。`core/` 不导入 Codex、Hermes、Telegram、Discord、GitHub
+或云厂商 SDK。用户值、路径、命令、阈值、预算和拓扑只通过配置进入核心。
+
+## 4. 核心领域模型
+
+### 4.1 标识与绑定
+
+| 类型 | 必需字段 | 约束 |
+|---|---|---|
+| `TaskIdentity` | `task_id`, `owner_id`, `runtime_kind`, `runtime_lineage_id` | 创建后不可变；owner/runtime 不匹配即拒绝 |
+| `BaselineRef` | `kind`, `version`, `digest`, `approved_by`, `approved_at` | 语义输入必须绑定 digest |
+| `GraphRef` | `graph_id`, `graph_version`, `graph_digest`, `profile_id`, `profile_version`, `risk_path` | 运行期间不静默漂移；同 ID/version 的内容变化也拒绝 |
+| `ProjectScopeRef` | `scope_id`, `version`, `digest`, `status` | PRD 批准时冻结；变化触发 intent/authority 检查与失效 |
+| `ResourceRef` | `resource_id`, `kind`, `locator_ref` | locator 可脱敏或引用化；不可把秘密放入标识 |
+| `ActorRef` | `actor_id`, `actor_kind`, `runtime_session_ref` | author/reviewer 规范化后必须不同 |
+
+`runtime_kind` v1 为 `codex` 或 `hermes`。`runtime_lineage_id` 标识创建任务的 runtime
+会话谱系，而不是任意新会话；adapter 必须把平台会话解析为稳定 lineage。Hermes
+的 Telegram/Discord channel、thread 和用户 ID 只保存在 adapter binding 中，core
+仅处理不透明引用。
+
+### 4.2 Project Scope 与目标绑定
+
+`ProjectScope` 是版本化、digest-bound 的任务输入：
+
+```json
+{
+  "schema_version": "1.0",
+  "scope_id": "...",
+  "version": 1,
+  "mode": "create-or-attach",
+  "repositories": [],
+  "services": [],
+  "environments": [],
+  "target_bindings": [],
+  "discovery_digest": "...",
+  "scope_digest": "..."
+}
+```
+
+- `RepositoryBinding`：binding ID、`create_new|attach_existing`、VCS=`git`、locator ref、
+  canonical Git common-dir/worktree identity；新项目批准时保存由 canonical parent + basename
+  得出的 `planned_target_id`，`realized_git_identity` 初始为空；另含 allowed path boundary、
+  default branch ref、规范与工程命令 refs；
+- `ServiceBinding`：service ID、所属 repository/component refs、build/test/run capability、
+  dependency refs 和 target-state contract ref；
+- `EnvironmentBinding`：environment ID/kind、adapter locator ref、关联 service、sensitivity、
+  allowed operation classes 和 target-state validator ref；
+- `TargetBinding`：PRD target/acceptance ID 到 repository/service/environment/resource refs、
+  required final state 和 verification contract 的映射。
+
+在 discovery 中，`bind_project_scope` 只做只读解析并产生 `project.scope_drafted`：
+existing repository 必须解析到唯一 Git canonical identity；new repository 只能验证目标
+parent boundary、名称冲突和 Git capability，不能创建目录。非 Git repository、无法解析
+identity、重复 binding ID、同一 canonical target 的不一致声明、symlink 越界、不同 Owner/
+runtime 或超出候选 target allowlist 均拒绝。
+
+`approve_prd` 同一 transaction 冻结 ProjectScope digest、Intent Baseline 和初始 Authority
+Envelope，并产生 `project.scope_frozen`。批准后新增/删除 repository、service、environment
+或改变 target-state/locator 都是 scope semantic change：先生成新 candidate version，停止
+相关节点；新增资源还要求 authority expansion；Human 重新批准后产生
+`project.scope_rebased`，递增 invalidation epoch 并按 TargetBinding 依赖图失效下游。仅
+locator 的等价规范化更新必须由 adapter 证明 canonical identity 未变，仍记录新 metadata
+revision，但不改变 scope digest。
+
+新项目的实际目录、Git 初始化或 scaffold 属于批准后的 Action Journal 动作；既有项目
+接入不迁移目录。多仓库/服务/环境通过一个 ProjectScope 原子冻结，资源 lease 与 action
+始终引用具体 binding IDs。新项目动作后产生 `project.repository_realized`，把实际 Git
+identity 绑定到既有 planned target；实际 path 越界或 identity 冲突则 blocked，这种实现
+事实补充不改变 scope digest。恢复时重算可重算的 canonical identities；不匹配则
+blocked，不能静默重绑定。
+
+### 4.3 Graph 定义
+
+```json
+{
+  "schema_version": "1.0",
+  "graph_id": "software-delivery",
+  "graph_version": "1.0.0",
+  "nodes": [],
+  "edges": [],
+  "completion_policy_ref": "completion/default-v1"
+}
+```
+
+一个 `NodeDefinition` 至少包含：
+
+- `node_id`、`node_kind`：`agent_loop` 或 `deterministic`；
+- `input_schema_ref`、`output_schema_ref`；
+- `executor_capability`；
+- `authority_requirement` 和 `side_effect_class`；
+- `review_policy_ref`、`loop_budget_ref`、`timeout_policy_ref`；
+- `artifact_contract_refs`；
+- `failure_routes` 和 `invalidation_tags`。
+
+一条 `EdgeDefinition` 至少包含：
+
+- `edge_id`、`from_node`、`to_node`；
+- `input_mapping` 和目标 input schema；
+- `route_condition`；
+- `required_trust` 与 evidence requirement；
+- `join_policy`；
+- `invalidation_rule`；
+- `failure_route`。
+
+`GraphDefinition.registry_pins` 还必须逐一绑定 closed schema、predicate、error-rule、
+completion-policy 与 loop-budget registry 的精确 `registry_id + registry_digest`。这些 pin
+属于 graph semantic digest projection；加载时任一实际 registry 不匹配即拒绝，不能让
+同一 graph ID/version/digest 在不同 registry 内容下产生不同 route、validation、budget
+或 completion 语义。
+
+`GraphDefinition.resource_pins` 还必须绑定完整 `ResourceProfile profile_id + body_digest` 与
+`CostSchedule schedule_id + body_digest`。profile 的所有 limits/work budget 和 schedule 的
+全部 coefficients 都进入各自 identity digest；Graph load 及其后 route/join/completion 必须在
+任何收费、验证或求值前比较实际 `WorkContext`。为测试单次余额边界而降低 initial balance
+不改变已安装 ResourceProfile，也不改变 pin。
+
+`GraphDefinition` 的 self-digest 必须使用在 closed registry 中分别登记的 source schema 与
+digest-input schema；registry build 或 load 时结构证明两者只相差顶层 derived `digest` property、
+对应 required entry 与 `$id`。创建与验证都通过同一 `WorkContext` 对 schema、canonicalization
+和 digest input bytes 逐 occurrence 收费，不能先计算未收费摘要再补记 trace。
+public create/load 建立 root frame；input/source schema validation 与 semantic digest 各自在调用点
+分配独立 child frame，semantic digest 再为 canonicalization 和 digest bytes 分配 children。
+create 完成 source validation 后直接进入已验证 semantic loader，不能再次执行一条未嵌套的
+完整 verification path。
+
+completion-policy 与 loop-budget registry 是 schema-validated、identity-digested 的 closed
+configuration；其实际 `registry_digest` 由完整 registry document 通过 charged semantic digest
+产生。route、join、completion 与 loop-budget decision 全部编译为 GEEL 并通过调用方提供的
+`WorkContext` 执行；不得存在直接 Python predicate、未收费 loader 或 schema-bypass public path。
+
+route condition 使用受限、无副作用的表达式 DSL，只能读取已验证状态；不执行任意
+shell 或模型文本。配置加载时检查节点存在、schema 可解析、边类型兼容、起点可达、
+循环具有 budget、终点具有 completion policy。正常 edge、node failure route 与 edge
+failure route 均属于控制拓扑，统一参与 reachability、dead-end 与 cycle-budget 检查。
+
+v1 typed `input_mapping` 使用 fail-closed exact assignability：source/target path 必须解析到
+同一个单一 JSON type，且 `$ref` 完整解析后的 schema fragment canonical-identical。带 sibling
+assertion 的 `$ref`、多类型或不能证明 subset 的不同 fragment 均拒绝；不能只比较 primitive
+`type`。因此 disjoint const/enum/range、required object member 或 array item contract 在 graph
+load 时拒绝。closed registry 中的 schema arrays 冻结为 immutable tuple 后，`required`、
+combinator、`prefixItems`、`dependentRequired` 的验证与收费语义必须与原始 JSON array 完全一致。
+
+### 4.4 任务状态
+
+`TaskSnapshot` 是 committed event stream 的物化视图，至少包含：
+
+```json
+{
+  "schema_version": "1.0",
+  "task_revision": 42,
+  "identity": {},
+  "project_scope_ref": {},
+  "baseline_refs": [],
+  "graph_ref": {},
+  "contract_pins": {
+    "schema_registry": {},
+    "resource_profile": {},
+    "cost_schedule": {}
+  },
+  "lifecycle": "running",
+  "node_runs": {},
+  "authorities": [],
+  "artifacts": [],
+  "evidence": [],
+  "resource_leases": [],
+  "unresolved_action_claims": [],
+  "action_claim_authorities": {},
+  "open_findings": [],
+  "invalidation_epoch": 3,
+  "last_event_seq": 87,
+  "desired_state": null,
+  "snapshot_digest": "sha256-jcs-v1:..."
+}
+```
+
+`TaskSnapshot` 同样使用独立登记的 source/digest-input schema pair 和唯一
+`snapshot_digest` projection。reducer、command dry-run、snapshot restore 与 coordination
+更新必须显式接收 exact `ClosedSchemaRegistry + WorkContext`；每个新物化 snapshot 在发布前
+先验证 digest-input schema、charged canonicalize/hash，再验证完整 source schema。`nonexistent`
+只作为 revision/event sequence 为零的内部初始 snapshot 状态，首次 `task.created` 后进入公开
+生命周期。
+
+`contract_pins` 是 snapshot semantic body 的 required exact member，绑定 closed schema registry
+完整 manifest 的 `registry_id + registry_digest`、ResourceProfile `profile_id + body_digest` 与
+CostSchedule `schedule_id + body_digest`。restore、replay、command decision 和 coordination update
+必须先比较这些 pin；registry 即使只增加无关 schema、同 ID manifest 内容变化、profile limit/
+budget 或 schedule coefficient 变化也拒绝。非空 `graph_ref` 必须包含 GraphDefinition 的
+`graph_digest`，因此同 ID/version graph content drift 会改变 snapshot digest 或被拒绝。
+
+生命周期状态全集是：
+
+```text
+discovering, awaiting_prd_approval, ready, running,
+paused, awaiting_human, blocked, failed,
+canceling, canceled,
+rollback_pending, rolling_back, rolled_back,
+completing, completed,
+archived
+```
+
+规范集合定义为：
+
+- `WAITING = {awaiting_prd_approval, paused, awaiting_human, blocked, failed}`；
+- `RESUMABLE = {paused, awaiting_human, blocked, failed}`；
+- `CANCEL_DIRECT = {discovering, awaiting_prd_approval, ready, paused, awaiting_human,
+  blocked, failed}`，但只适用于无 `UnresolvedActionClaim` 和 node/tool lease；
+- `CANCEL_DEFERRED` 包含所有 `running`，以及 `CANCEL_DIRECT` 中仍存在
+  `UnresolvedActionClaim` 或 node/tool lease 的状态；
+- `ROLLBACKABLE = {paused, awaiting_human, blocked, failed, canceled, completed}`；
+- `CLOSED = {canceled, rolled_back, completed}`；
+- `ARCHIVABLE = {paused, blocked, failed} ∪ CLOSED`；
+- `SCOPE_CHANGE_SOURCE = {ready, paused, awaiting_human, blocked, failed, completed}`；
+- `IMMUTABLE = TERMINAL = {archived}`。
+
+`CLOSED` 和 `archived` 的全局 invariant 是不存在 `UnresolvedActionClaim` 或 live
+node/tool lease。`archived` 无出边。`canceling`、`rollback_pending`、`rolling_back` 和
+`completing` 是内部
+过渡态，不接受通用 resume/cancel/rollback/archive。`completed` 必须由 Completion Gate
+产生。`failed`、`canceled` 和 `rolled_back` 不是伪完成，必须保存真实副作用、未知状态
+及后续路径。`CLOSED` 是交付结果集合而非 terminal：在契约明确列出的 rollback、archive
+或 scope rebase 中仍可离开。Authority 的 `active → revoked/expired/superseded` 是独立
+状态机。
+
+状态主干与下表使用相同集合：
+
+```text
+create → discovering → awaiting_prd_approval → ready → running
+                        ↑          │           │       ├→ awaiting_human/blocked/failed
+                        └──────────┘           └──────→ paused ──resume──→ ready
+                                                       │
+CANCEL_DIRECT ──task.canceled──────────────────────────→ canceled
+CANCEL_DEFERRED ─→ canceling ──reconcile/release claim→ canceled
+ROLLBACKABLE ─→ rollback_pending ─→ rolling_back ─→ rolled_back
+running ─→ completing ─→ completed
+ARCHIVABLE ─→ archived
+SCOPE_CHANGE_SOURCE ──propose_scope_change──→ awaiting_prd_approval
+```
+
+Owner/runtime command contract 的每一行产生一个 repository event；未列出的
+`state × command` 组合全部非法：
+
+| Command | 精确来源与 action 条件 | Event | 唯一直接目标 |
+|---|---|---|---|
+| `create` | task ID 不存在；Owner/runtime lineage 有效 | `task.created` | `discovering` |
+| `bind_project_scope` | `discovering`；ProjectScope schema、canonical identities、target allowlist 和只读规则有效 | `project.scope_drafted` | `discovering` |
+| `request_prd_approval` | `discovering`；ProjectScope candidate 和 PRD candidate 均有效，且无目标项目写入 | `task.prd_approval_requested` | `awaiting_prd_approval` |
+| `revise_discovery` | `awaiting_prd_approval`；Owner 未批准或要求修订 | `task.discovery_reopened` | `discovering` |
+| `approve_prd` | `awaiting_prd_approval`；无已批准 scope；PRD/baseline/envelope/ProjectScope digests 与 Owner decision 有效 | `project.scope_frozen` + `task.prd_approved` | `ready` |
+| `approve_prd` | `awaiting_prd_approval`；存在已批准 scope；新旧 scope diff、PRD/baseline/envelope digests 与 Owner decision 有效 | `project.scope_rebased` + `task.prd_reapproved` | `ready` |
+| `propose_scope_change` | 任一 `SCOPE_CHANGE_SOURCE`；无 `UnresolvedActionClaim` 或 live lease，新 scope candidate 与目标差异有效 | `project.scope_change_proposed` + `task.downstream_invalidated` | `awaiting_prd_approval` |
+| `run` | `ready`；版本兼容、无 `UnresolvedActionClaim`、所需 leases 可获取 | `task.run_started` | `running` |
+| `pause` | `ready`；无 `UnresolvedActionClaim` 或 node/tool lease | `task.paused` | `paused` |
+| `pause` | `running`；无 `UnresolvedActionClaim` 且 node/tool lease 已安全结束 | `task.paused` | `paused` |
+| `pause` | `running`；有 `UnresolvedActionClaim` 或 node/tool lease | `task.pause_deferred` | `awaiting_human`，并记录 `desired_state=paused` |
+| `resume` | 任一 `RESUMABLE`；阻塞/决定已解决、无 `UnresolvedActionClaim`、版本兼容 | `task.resumed` | `ready` |
+| `cancel` | 任一 `CANCEL_DIRECT`；无 `UnresolvedActionClaim` 和 node/tool lease | `task.canceled` | `canceled` |
+| `cancel` | `running`，或 `CANCEL_DIRECT` 中仍有 `UnresolvedActionClaim` 或 node/tool lease 的状态 | `task.cancel_requested` | `canceling` |
+| `revoke` | `ready`；指定 active authority 存在 | `authority.revoked` + `task.paused` | `paused` |
+| `revoke` | `running`；指定 active authority 存在且没有绑定它的 `UnresolvedActionClaim` | `authority.revoked` + `task.paused` | `paused` |
+| `revoke` | `running`；指定 active authority 已绑定 `UnresolvedActionClaim` | `authority.revoked` + `task.authority_reconciliation_required` | `awaiting_human` |
+| `revoke` | `paused/awaiting_human/blocked/failed/canceling`；指定 active authority 存在 | `authority.revoked` | 原状态；禁止后续依赖该 authority 的动作 |
+| `revoke` | `rollback_pending/rolling_back/completing`；指定 active authority 存在 | `authority.revoked` + `task.authority_reconciliation_required` | `awaiting_human`；已开始 action 先协调 |
+| `rollback` | 任一 `ROLLBACKABLE`；有已执行可补偿动作、无 `UnresolvedActionClaim` 或 live lease、计划和所需授权有效 | `task.rollback_requested` | `rollback_pending` |
+| `archive` | 任一 `ARCHIVABLE`；无 `UnresolvedActionClaim` 或 live lease、无需未完成 rollback、retention plan 有效 | `task.archived` | `archived` |
+
+非空 action 条件不能只存在于调用栈中：`request_prd_approval` 事件绑定 PRD candidate ref；
+PRD approval 事件绑定 Owner decision ref；`run` 绑定 compatibility evidence 与 lease plan；
+`resume` 绑定 resolution evidence 与 compatibility evidence；`rollback` 绑定已执行可补偿
+action refs、rollback plan 与 authority ref；`archive` 绑定 retention plan 与 rollback
+clearance。payload 必须 exact，且这些引用随 event durable 保存。Application/Repository 在
+同一 coordination boundary 内解析并验证引用的当前记录；仅提供一个字符串不能形成信任。
+
+内部 reducer transition contract：
+
+| Transition | 精确来源与条件 | Event | 唯一目标 |
+|---|---|---|---|
+| runner 等待 Human 决定 | `running` | `task.human_decision_required` | `awaiting_human` |
+| runner 遇到外部阻塞 | `running` | `task.blocked` | `blocked` |
+| runner 不可自动恢复失败 | `running/rolling_back/completing` | `task.failed` | `failed` |
+| 延迟 pause 已协调 | `awaiting_human` 且 `desired_state=paused`，无 `UnresolvedActionClaim` 或 live lease | `task.paused` | `paused` |
+| cancel 已协调 | `canceling`；所有 node/tool leases 结束且所有 `UnresolvedActionClaim` 已释放 | `task.canceled` | `canceled` |
+| rollback 开始 | `rollback_pending`；补偿 action 通过 Execute Transition Gate | `task.rollback_started` | `rolling_back` |
+| rollback 完成 | `rolling_back`；全部补偿已 reconciled/验证且无 `UnresolvedActionClaim` 或 live lease | `task.rollback_completed` | `rolled_back` |
+| completion 开始 | `running`；无 open blocker、`UnresolvedActionClaim` 或 live lease | `task.completion_started` | `completing` |
+| completion 通过 | `completing`；Completion Gate PASS | `task.completed` | `completed` |
+| completion 需重做 | `completing`；routine invalidation/finding | `task.completion_rejected` | `ready` |
+| completion 外部阻塞 | `completing`；不可在现有权限内解决 | `task.blocked` | `blocked` |
+
+任务进入 `CLOSED` 时，所有未使用 authority 以 `authority.superseded` 失效。`list/search/
+view` 是 TaskCatalog query，不改变 lifecycle；按 Owner/runtime 过滤，敏感 view 另写审计
+event。恢复只从持久事实推导，不相信聊天上下文。所有 transition 都校验 Owner/runtime、
+expected revision；任何未列组合或条件不满足均 fail closed。
+
+### 4.5 Node Run 状态机
+
+```text
+pending → ready → leased → running → produced → validating → reviewing
+   ↑        │        │        │          │           │           │
+   └────────┴────────┴────────┴── retry/revise ◀─────┴───────────┘
+                                  │
+                                  ├→ awaiting_human
+                                  ├→ invalidated
+                                  ├→ blocked
+                                  └→ passed
+```
+
+每次 Node Run 使用稳定 `run_id` 和递增 `attempt`。任何 transition 都由 command 经
+reducer 校验后生成 event；adapter 不直接改 snapshot。Agent 文本只能作为 candidate
+output，经过 schema、policy、evidence 和 review 后才成为 trusted output。
+
+## 5. 事件、持久化与事务
+
+### 5.1 Repository contract 与逻辑命名空间
+
+具体本地 backend、根路径和物理布局由配置与 ADR 决定，不进入领域逻辑。所有 backend
+必须实现同一组 ports：
+
+```text
+TaskRepository       load(task_id), commit(command_batch), replay(task_id)
+TaskCatalog          register(identity), query(owner/runtime/filter), update(index_delta)
+ResourceLeaseRepo    acquire_many(resources), renew(lease), validate_fence(token),
+                     claim_action(action, resources), reconcile_claim(claim, outcome), release(lease),
+                     start_claim_compensation(request),
+                     record_compensation_receipt(request),
+                     reconcile_claim_compensation(request, fresh_observation)
+ObjectRepository     put_verified(bytes, digest), get(digest), quarantine(digest), purge(digest)
+MigrationRepository  export_bundle(scope), validate_bundle(bundle), import_bundle(bundle)
+```
+
+逻辑命名空间包括全局 `catalog`、`resource-leases`、`schema-versions`，每任务 `events`、
+`snapshot`、`runtime-binding`、`actions`、`reviews`、`artifact/evidence metadata`，以及共享
+的 content-addressed `objects`。TaskCatalog 和 ResourceLeaseRepository 必须位于所有
+本地任务共同可见的同一 authority boundary；不能退化为每任务各自判断冲突。
+这些 ports 是领域接口，不表示独立事务库；TaskRepository commit 与 lease/action-claim
+delta 必须由同一 backend coordination unit 原子提交，或通过一个具有同等原子语义的
+repository transaction coordinator 提交。具体实现由 ADR 证明满足该契约。
+
+三个 compensation ports 是 ADR-0005 唯一的 expired-lease mutation surface。每个 request 都含
+repository 派生的 `compensation_attempt_id`、stable transaction ID、expected task revision、
+expected claim revision、original claim/action、compensation action/authority、same lease、完整
+resources/latest fences 与所需 event/payload digest；caller 不能提交时间、删减 claim 或选择替代
+lease。它们必须按 §5.4.1 的唯一 transaction table 校验并与 TaskRepository event/snapshot commit
+原子组合，不是三个可独立绕过 event/reducer 的数据库写 API。
+
+metadata 和 event 使用 canonical JSON 语义，但 backend 不必用 JSON 文件保存。
+artifact/evidence body 以 digest 寻址，metadata 记录媒体类型、来源、敏感级别、
+baseline、producer、freshness 和 retention class。秘密本体不得进入 repository。
+
+### 5.2 Event Envelope
+
+```json
+{
+  "schema_version": "1.0",
+  "task_id": "...",
+  "sequence": 88,
+  "event_id": "...",
+  "event_type": "node.output.validated",
+  "occurred_at": "...",
+  "actor": {},
+  "expected_task_revision": 42,
+  "baseline_digests": [],
+  "payload": {},
+  "previous_event_digest": "...",
+  "event_digest": "..."
+}
+```
+
+`TaskRepository.commit` 接受稳定 `transaction_id`、`expected_task_revision`、一个或多个
+framed events、reducer 计算的新 snapshot、TaskCatalog index delta、引用的 object digests
+和可选 lease delta。协议为：
+
+1. 校验 task lease、CAS revision、event sequence/digest chain、objects 与 schema；
+2. 将 referenced objects 写入不可变 staging，并验证实际 digest；
+3. 在一个 backend 原子事务中发布 event batch、commit record/head、新 snapshot 与索引；
+4. durable commit point 是新 head/commit record 对恢复进程可见且 backend 已保证落盘；
+5. `commit()` 仅在 durable 后返回，并以 `transaction_id` 保证相同请求只提交一次。
+
+崩溃后的 `recover(transaction_id)` 必须只有 `NOT_COMMITTED` 或
+`COMMITTED(revision, head_digest)` 两种确定结果，不允许 partial visible。event stream 是
+权威事实：snapshot 落后时由已提交 events 重建；snapshot 超过 committed head 时丢弃
+未提交 snapshot 并重建。只有 committed record 的 digest 链损坏、缺少已引用 object、
+或同一 revision 出现冲突事实时才进入 `blocked:state_integrity`。
+
+若 ADR 选择文件 backend，必须使用带 length 与 checksum 的不可变 transaction segment：
+写并 `fsync` objects/segment，`fsync` 所在目录，以原子 rename 发布唯一 head，再次
+`fsync` head 目录；只有没有被 committed head 引用且 framing 可证明未提交的 tail 才可
+隔离或清理。若选择 SQLite，events、head、snapshot 和 indexes 必须在一个启用 durable
+同步的数据库事务中提交。两类 backend 都必须通过相同 crash-point conformance suite。
+
+### 5.3 一致性边界
+
+- 单任务写入由 task lease 串行化，`expected_task_revision` 提供 optimistic CAS；读取可并发；
+- `ResourceRef` 由确定性 resolver 规范化：repository 使用解析后的 Git common-dir/worktree
+  identity，文件使用防 symlink escape 的 canonical target，环境和外部系统使用 adapter
+  提供的稳定资源 ID；无法规范化时禁止有副作用的并发执行；
+- `acquire_many` 先按 canonical resource ID 排序，再在 ResourceLeaseRepository 的一个
+  原子事务内检查整组冲突、为每个资源递增 monotonic fencing token 并同时授予；不能
+  获得全组时不保留部分 lease；
+- lease 记录 task、run、operation、resource set、issued/expiry、heartbeat revision 和
+  fencing tokens；不依赖 daemon，runner 在安全检查点显式 renew；
+- Execute Transition Gate 在提交 `action.execution_started` 的同一 repository transaction
+  中，为全部 action resources 创建 durable `UnresolvedActionClaim`。claim 记录 action、
+  task、resources、fencing tokens 和 started event digest，无 TTL；只有
+  `action.reconciled_no_effect`、`action.reconciled_effect_verified` 或
+  `action.compensation_reconciled` event 才能原子释放；
+- `acquire_many` 同时检查 live leases 和 UnresolvedActionClaims。即使原 lease 过期或
+  runtime 崩溃，只要旧 action 仍为 `executing/unknown` 或副作用未协调，相关资源就
+  冻结且不能授予其他任务；lease 过期绝不等于 action claim 过期；
+- action executor 在产生外部副作用前验证最新 fencing token。支持原生 fencing/条件写
+  的 adapter 必须把 token/precondition 传到目标系统；旧、缺失或过期 token 被拒绝；
+- 不支持原生 fencing 的 adapter 必须在本地取得覆盖“execution_started 已 durable →
+  整个外部调用 → raw receipt 已 durable”的 call-span 排他锁。进程崩溃导致 OS 锁丢失
+  时，durable claim 继续冻结资源，直到同 runtime 恢复并完成 action reconciliation；
+  若 adapter 无法提供可靠目标状态查询，或本地 repository 无法保证 call-span 排他，
+  该资源上的并发副作用 fail closed，不允许仅记录风险后继续；
+- 工具返回时若 lease 已过期，receipt 只能作为 reconciliation input 持久化，不能直接
+  触发第二次动作或提升完成状态；必须重新验证目标状态并关闭 claim；
+- lease 过期后的 compensation 只能使用 ADR-0005 的 recovery-claim transition：复用 original
+  exact unresolved claim 的同一 task/lease identity、完整 canonical resource set 与 repository
+  latest fences；它不 renew/grant lease、不创建第二 claim，也不能调用 original action。只有
+  separate exact rollback authority 通过、call-span locks 已覆盖完整 claimed resources、
+  compensation started 已 durable 后才可调用 tool；receipt 在释放 locks 前 durable，原 claim
+  仅在 fresh target verification 证明 compensation outcome 后由 reconciliation event 原子消费；
+- catalog/lease transaction 损坏时重放 task events 重建候选索引，再与未终结 action
+  协调；无法证明唯一持有者时冻结相关资源并升级；
+- event stream 只追加；更正通过补偿 event 表达，不覆写已提交历史。
+
+### 5.4 WP-03 concrete backend alignment
+
+ADR-0002 的 v1 backend 通过 backend-neutral ports 暴露，SQLite schema 和物理 object path
+不是公开 API。当前实现对齐如下：
+
+#### 5.4.1 ADR-0005 唯一 expired-lease transaction table
+
+`compensation_attempt_id` 不是 caller nonce，而是 repository 对下列 exact tuple 的 semantic digest：
+
+```text
+(protocol_version, task_id, original_claim_id, original_action_id,
+ compensation_action_id, compensation_authority_digest,
+ compensation_prepared_action_digest, lease_id,
+ canonical_sorted_full_resources, exact_latest_fencing_tokens,
+ original_started_event_digest, start_expected_claim_revision)
+```
+
+同一 tuple 在所有恢复中得到同一 ID；任一 action、authority、claim、lease、resource、fence 或
+expected claim revision 改变都得到不同 ID，不能继承原 attempt。三个 transaction ID 唯一派生为
+`<attempt_id>:start`、`<attempt_id>:receipt`、`<attempt_id>:reconcile`。backend 对相同 transaction
+ID + 相同 request digest 返回既有 committed result；相同 transaction ID + 不同 request digest
+返回 conflict。application 只能在 fresh start commit 的返回路径调用 compensation tool；读取到
+already-committed start 时不得再次调用，只能 query/reconcile/manual。
+
+下表是 ADR-0005 compensation transition 在 expired lease 下可执行的**全部** repository
+mutations；不存在第四类 compensation recovery commit。既有 exact target reconciliation 与第三行
+同属“fresh-observation reconcile/consume” transaction class，不构成额外 mutation class。除这三类
+外，所有 repository commit 继续要求 live lease 与 latest fence，不能把 recovery assertion 用于
+普通 action、original replay、lease renewal/grant、second claim、authority issuance 或其他 task
+mutation。
+
+| Port / transaction | Expected state 与 revisions | 同 transaction event / payload | Delta、reducer state 与 claim mutation | Exact bindings | Idempotency / recovery | Fail-closed rejection |
+|---|---|---|---|---|---|---|
+| `start_claim_compensation` / `<attempt_id>:start` | task revision 与 claim revision 都等于 request expected values；original action=`executing/unknown`；claim=`unresolved` 且 recovery substate=`none`；rollback authority current | `action.compensation_execution_started`；payload 精确含 attempt ID、original claim/action/started event、compensation action/authority/prepared digest、task、same lease、full resources/latest fences、target/baseline/snapshot/disclosure digests | 原子追加 event、推进 task revision；action reducer `awaiting_compensation → compensation_executing`；claim identity/resources/fences/state 保持不变，只 CAS recovery substate `none → started` 并记录 attempt/start event；不创建/消费 claim，不 grant/renew lease | attempt tuple 全字段、Owner/runtime/lineage、compensation-only kind、rollback payload/verify/disclosure、same target/task/lease、exact full sorted resources 和 repository latest fences | start 未提交或 transaction=`NOT_COMMITTED`：同 exact request 可重跑；已提交：同 transaction/request 返回原 result，但 application 禁止再次 tool call；distinct attempt/action/authority/start transaction conflict | revision/state/authority 不符，wrong task/lease，missing/extra/duplicate resource/fence，stale fence，second claim/new lease，original/normal action 全拒绝 |
+| `record_compensation_receipt` / `<attempt_id>:receipt` | expected task revision 为 committed start 后 revision；expected claim revision 精确匹配；claim lifecycle state 仍为 `unresolved`、recovery-attempt substate=`started`；同 attempt/start event 已 committed | `action.compensation_receipt_recorded`；payload 精确含 attempt ID、start event digest、original claim、compensation action、receipt digest、receipt source（tool return 或 post-crash target query）、target identity、full resources/fences 与 result class | receipt/observation body 先 durable；同 transaction 追加 receipt event、推进 task revision；reducer `compensation_executing → compensation_receipt_recorded` 或 `compensation_unknown`；claim 不消费，只 CAS recovery-attempt substate `started → receipt_recorded` 并绑定 receipt event/body digest | receipt 必须绑定 exact committed attempt/start event、tool target、compensation action、original claim/task/same lease/full fences；不能以 caller receipt 自报 success target state | 相同 receipt transaction/request 返回既有 result；start 后 crash 且无 committed receipt时禁止再次 call，只能 query target，再记录 started-bound query receipt 或 manual；distinct receipt/start/action/authority fail closed | 无 start、wrong attempt/start digest、receipt substitution、revision/state mismatch、claim/resource/fence drift、重复不同 receipt 全拒绝；不得消费 claim |
+| `reconcile_claim_compensation` / `<attempt_id>:reconcile` | expected task/claim revisions 精确匹配；claim lifecycle state 仍为 `unresolved`、recovery-attempt substate=`receipt_recorded`；独立 fresh observation revision 新于 start/receipt evidence并满足 rollback postcondition | `action.compensation_reconciled`；payload 精确含 attempt ID、original claim、compensation action、start/receipt digests、fresh observation digest/revision、verified outcome | 同 transaction 追加 event、推进 task revision；reducer `compensation_receipt_recorded/compensation_unknown → compensated`；仅此行将 original claim `unresolved → reconciled/consumed`，并清除资源冻结；journal/action/claim 一次原子收敛 | fresh read-only observer 的 target identity/digest/resource 与 prepared rollback 完全一致；attempt、authority、claim、same lease/full resources/latest fences 仍精确绑定 | 相同 reconcile transaction/request 返回既有 result；crash 前未提交可在重新 fresh query 后以同 exact observation request 重跑；已提交返回既有 consumed result | stale/unverifiable/wrong target/state observation、missing receipt/start、revision/state drift、不同 outcome 或任何提前 claim consumption 全拒绝并保持 claim unresolved |
+
+reducer 的 authoritative recovery states 只有：
+
+```text
+awaiting_compensation
+  → compensation_executing
+  → compensation_receipt_recorded | compensation_unknown
+  → compensated
+```
+
+`compensation_execution_started` 一旦 committed，任何 process restart 都从
+`compensation_executing/compensation_unknown` 进入 target query；没有返回 execute/call edge。
+manual route 不修改或消费 claim。只有 fresh observation reconcile transaction 能进入
+`compensated`。
+
+`claims.state` 在 start/receipt 阶段始终为 `unresolved`；`acquire_many` 和全部资源冻结查询继续
+只依赖 original claim 的 unresolved lifecycle state。`none/started/receipt_recorded` 属于独立的
+recovery-attempt row/substate，不能替代、掩盖或缩小 claim。只有 reconcile transaction 同时写入
+verified event 时，claim lifecycle state 才原子进入终态。
+
+- `ConnectionFactory` 是唯一数据库入口；构造器和 filesystem capability 均为 factory-only。
+  `RepositoryDoctor` 从 live mount、approved filesystem policy、exact SQLite VFS、macOS
+  `fullfsync` 与 PRAGMA readback 生成 capability，每次 open 重新探测并与初始化 attestation
+  精确比较；调用方不能以配置字典自报“本地且 durable”；
+- 初始化在任何 chmod/open/write 之前以 no-follow descriptor 验证已有 root、database、objects、
+  staging、locks 与 resource/fanout 路径；不支持的 filesystem 在创建 repository 前拒绝。
+  factory 冻结上述目录的 device/inode/owner/mode identity；ObjectRepository 与 lock registry
+  绑定这些 directory descriptors，fanout/staging/lock/resource 的 mkdir/open/link/unlink/fsync
+  全部使用相对 descriptor 操作并在每次操作前复核 attested identity。新路径只在验证父目录后
+  创建，并仅通过已验证 descriptor 执行 `fchmod`；初始化后替换任一 ancestor 为 symlink 也不得
+  改变 repository 外部 target 的 node、mode、bytes 或 links；
+- object publication 保留已写入并 fsync 的 staging descriptor 直到 metadata 完成；hard-link 前
+  staging name 必须仍绑定该 descriptor 的 device/inode，link 后 final no-follow descriptor 必须
+  与 retained inode 一致。final owner/mode/size/digest/name-to-inode binding 在 metadata transaction
+  前、transaction 内的 explicit pre-commit fault boundary 后和返回前复验；上述任一窗口的
+  mismatch 都必须调度错误 final/staging cleanup，不得产生 available metadata。若 digest 已因
+  先前成功 publication 存在 `available` metadata，则 pre-transaction 或 transaction-internal
+  mismatch 必须先回滚当前 transaction，再以独立 durable transaction 将旧 metadata 改为
+  `quarantined`；post-commit mismatch 同样必须持久化 quarantine。任何失败返回都不得留下
+  `available` metadata 指向缺失或未经验证的 final；错误 final/staging 必须安全清除；
+- 每个 digest 的完整 publication、metadata commit、failure cleanup 持有独立 exclusive
+  publication lock；全局顺序固定为 installation shared → 全部 action resource exclusive →
+  digest publication exclusive → object maintenance shared。同 digest 的另一 writer 只能在前一
+  writer 完成 cleanup 并释放后进入。publication identity 是独立 rank/filename namespace，不是
+  隐藏业务 resource，不能依赖 resource ID 字典序；public publication API 在 caller 已持有同一
+  registry 的 installation scope 时复用而不重入 acquisition，因此 raw receipt 可在 call-span
+  resources 释放前 durable；
+  cleanup 还必须记录 mismatch 时观察到的 final device/inode，并只在 cleanup 时 name 仍绑定该
+  inode 时 unlink；不得用陈旧 boolean + filename 删除后来安装的不同 inode；
+- SQLite URI 显式选择 policy 锁定的 `unix` VFS，DELETE/EXTRA/foreign-keys/NORMAL/finite busy
+  timeout 每次设置并回读。Linux 的发布支持仍需 Test Plan 规定的 `xSync`/filesystem
+  durability conformance evidence；当前 macOS candidate 不等于 Linux release evidence；
+- `doctor` 与 `backup` 使用 SQLite `mode=ro`、`query_only=ON` 和 deny-by-default authorizer；
+  `WITH` 前缀的 UPDATE/DELETE/INSERT 与其他 write opcode 必须在 SQLite 执行边界拒绝；
+- lease API 接受 TTL 而不接受 caller-provided `issued_at`/`validated_at`。repository 从系统
+  wall clock 生成时间，并在同一 SQLite authority boundary 保存 non-decreasing
+  `clock_high_water_ns`；系统时间回拨只能延长阻塞，不能复活 stale lease；
+- 普通 task commit 要求 live、latest task lease/fence。expired lease 唯一允许 §5.4.1 的三类
+  transaction：exact compensation start、started-bound receipt、fresh-observation
+  reconcile/consume；既有 exact target reconciliation 是第三类的非 compensation outcome，
+  同样要求 event type、payload `claim_id`、同 task/lease/full resources/latest fences 在一个
+  transaction 精确绑定，不是第四类。任何未列 commit 仍要求 live lease；
+- action claim 在 atomic commit 内必须与 task lease assertion 绑定，并与该 lease 的完整、排序
+  resource/fencing-token 集合精确相等；缺少、额外、空集合、stale token 或不同 lease 均拒绝。
+  resource lock 的 canonical ID 升序覆盖同线程当前持有与新请求的完整序列，不只约束单次调用；
+- event replay 同时验证 canonical body/digest chain、冗余 index columns、transaction identity、
+  transaction revision 与 transaction head。`recover(transaction_id)` 返回 committed 前必须将
+  transaction row 与其 exact event batch、task history 和 authoritative head 完整重放绑定；
+  snapshot 只在 installation exclusive 下、权威 replay 和 head CAS 成功后修复；
+- WP-03 只建立 migration ledger/schema/port foundation。ADR-0002 的完整 export/import/
+  activation state machine、holds 与 restore-gap 实现在 WP-06，不允许在 WP-03 另造简化路径。
+
+## 6. Graph 执行语义
+
+### 6.1 Runner
+
+`ApplicationRunner.run_until_stable(task_id, runtime_context)` 在当前 runtime 请求内循环：
+
+1. 验证 runtime lineage、Owner 和任务 revision；
+2. 恢复或重放 snapshot，协调不确定 action；
+3. 计算所有满足依赖、route、trust 和 authority 的 ready nodes；
+4. 对独立且资源不冲突的节点请求 runtime 并发能力；能力不足时公平串行执行；
+5. 每个输出先持久化为 untrusted candidate，再执行确定性校验和独立审核；
+6. reducer 应用 verdict、finding、retry、fallback、invalidation 或 join；
+7. 到达 `awaiting_human`、`blocked`、`paused`、budget exhausted、无 ready node 或
+   `completed` 时返回稳定结果。
+
+关闭 runtime 不触发新工作。进程被终止时，持久的 lease 与 action journal 让下一次
+同 runtime 调用能够协调；产品不依赖 finally hook 才能正确恢复。
+
+### 6.2 Join 与信任
+
+支持的 v1 join policy：
+
+- `all_required`：全部必需输入有效；
+- `any_passed`：至少一个受信输入通过；
+- `quorum`：仅用于多个独立 Reviewer，数量来自 policy 配置；
+- `human_decision`：等待绑定 Owner 的显式决定。
+
+信任等级按 policy 词汇定义，例如 `candidate`、`validated`、`independently_reviewed`、
+`human_approved`、`executed_verified`。core 只比较词汇及允许的升级边，不把自然语言
+“看起来通过”当作信任提升。
+
+### 6.3 Finding 路由与收敛
+
+Review verdict 必须是 `PASS`、`REVISE`、`ESCALATE` 或 `BLOCKED`，finding 包含稳定
+ID、severity、evidence、required change、verification 和 owning node。规则为：
+
+- routine finding 路由到 owning node，revision 增加且 digest 必须变化；
+- 修订后由不同 canonical actor 重新审核；
+- 同一 finding ID 保留到 verified resolved；
+- revision/时间/token/tool-call budget 任一耗尽即 `awaiting_human:non_convergence`；
+- reviewer 对阻塞结论冲突时升级，不用多数票掩盖冲突；
+- author/reviewer 身份规范化后相同则 fail closed。
+
+### 6.4 Invalidation
+
+每个 artifact/evidence/node output 记录：
+
+- 输入对象 digests；
+- baseline digests；
+- graph/profile/policy versions；
+- producer run 与 validation/review records；
+- semantic tags 与 freshness policy。
+
+输入或 baseline 改变时，Invalidation Engine 从显式依赖索引向下游传播：先标记
+`invalidated` 并递增 epoch，再撤销依赖它的 ready/passed/completion 状态。若已经发生
+外部副作用，不删除事实；创建 reconciliation node，要求复验、补偿或 Human 决策。
+
+### 6.5 完成门禁
+
+Completion Gate 必须确定性证明：
+
+1. 当前 graph/profile/risk path 的所有 required nodes 已通过；
+2. 当前 Intent Baseline 与 Authority digests 有效；
+3. 所有 Must requirement 有有效 trace 和证据；
+4. 项目定义的测试、构建、静态、安全或性能门槛通过；
+5. 独立 Candidate Review 为 PASS；
+6. 必要外部动作已执行并完成 target-state verification；
+7. 当前 ProjectScope digest 有效，全部 TargetBinding 仍匹配 canonical target identity；
+8. 无 open blocking finding、未知副作用、未协调失效、`UnresolvedActionClaim` 或 live
+   node/tool lease；
+9. Completion Record 已生成并绑定当前 snapshot digest。
+
+### 6.6 WP-04 implementation alignment
+
+WP-04 r3 把上述语义落实为以下边界，不改变已批准的产品意图：
+
+- `TaskApplication` 通过 repository/catalog/lease ports 提供封闭 command 与只读 query；一个
+  public command 的多个 domain events 在同一 repository transaction 原子提交。domain revision
+  按 event 递增，repository revision 按 transaction 递增，两者分别持久化、不得混用；command
+  request digest 用作 idempotency identity；list/search/show 不申请写 lease、不生成 event；
+- repository snapshot 包含 self-digest `TaskSnapshot` 与 exact `RunnerSnapshot`。RunnerSnapshot
+  绑定 runtime lineage、Graph digest、candidate object digests、selected edges、failure routes、
+  stable findings 与 review history；恢复时任一 task/Owner/runtime/Graph/snapshot binding 不匹配即拒绝；
+- `ApplicationRunner.run_until_stable` 只在当前调用内推进。它按 ready/join/route 顺序创建 node
+  attempt，先把输出作为 content-addressed candidate 持久化并引用，再进入 deterministic validation
+  与独立 review。正常 route、join、completion、loop budget 继续只调用 WP-02 的 GEEL/WorkContext
+  语义；调用返回后没有 daemon 或后台推进；
+- routine `REVISE` 以 stable finding ID 路由回 owning node；下一 revision 必须产生 body digest
+  progress，PASS review 才能关闭 finding。`REVISE` 后同 body digest 即使 reviewer 返回 PASS，也保持
+  finding open 并进入 `awaiting_human`；重复 digest、同 ID 冲突内容、无 loop budget 或 budget
+  exhaustion 同样升级；author/reviewer canonical identity 相同直接拒绝；
+- runtime 可声明 stable error code。命中 Graph failure route 时持久化 source→fallback 选择并继续
+  fallback；未声明错误 fail closed 为 task `blocked`。WP-04 仍只使用 deterministic fake adapters，
+  真实 runtime/tool/action 等待 WP-05A、WP-05 与 WP-07；
+- completion 使用两阶段边界：Runner 先从真实 `completion_ready` 进入 `completing`，再生成并验证
+  Candidate Review 与 Completion Record。Gate 只接受 WP-04A `ArtifactValidator` 实际加载的封闭
+  `ArtifactRecord`，并逐项绑定 task/baseline/current snapshot/Graph/requirements/project gates/
+  external target verification/TargetBinding/unresolved state。任一缺失返回 `INCOMPLETE` 且不写
+  `task.completed`；
+- reducer-owned transitions 不属于 `TaskApplication` public API。Runner 每次只能取得绑定当前 task、
+  source snapshot、operation 与 exact event types 的 one-use opaque authority，且 authority 永不由
+  issuer API 返回给 caller。`ApplicationRunner` 只能由 `TaskApplication.create_runner` 绑定注册 channel；
+  generic channel 禁止 `node.review_recorded`、`node.passed` 与 `task.completed`；
+- review verdict 先以独立 `node.review_recorded` transaction 持久化。下一 transaction 的
+  `node.passed` 只由 semantic review-pass API 从 repository 中已存在的 current run/attempt/body
+  PASS record 派生 runner state、finding closure 与 routes，不接收 caller 提供的 PASS state；latest
+  review、independent actor、reviewed body digest、trust、digest progress 与 finding-close events
+  任一不一致都零写入；
+- completion 不提供 authority issuer；唯一 public semantic path 在 application boundary 对 current
+  snapshot 重新执行 Completion Gate，只有 PASS 后才在同一路径内部产生一次性 completion authority。
+  普通 caller、generic runner channel 或 direct internal call 注入 `task.completed` 必须零写入。
+
+## 7. 九类 Profile 与三条风险路径
+
+### 7.1 组合模型
+
+最终可执行图由三个版本化层合成：
+
+```text
+base delivery graph
+  + task-category profile
+  + risk-path overlay
+  + project policy/configuration
+  = materialized task graph (digest locked)
+```
+
+合成器使用确定性 precedence 和冲突检查。不可变 `CoreInvariantSet` 包含 authority
+校验、digest 绑定、schema、有限 budget、invalidation、非幂等重放保护、独立审核和
+completion gate；任何 Human 决定、配置、Profile、overlay、Skill、adapter 或 extension
+都不能关闭或弱化它们。
+
+Owner 可以通过显式流程扩大 Authority Envelope 的资源或动作范围，也可以调整非底线
+task policy。project/task override 只能增加节点、提高验证、缩小资源范围或在仍为有限
+值的前提下降低/调整 budget；若请求扩大资源或动作权限则返回 Human authority node，
+若请求弱化 CoreInvariantSet 则无条件拒绝。
+
+### 7.2 Profile 契约
+
+| Profile | 必需的专门节点或验证器 |
+|---|---|
+| `new-feature` | project discovery、目标/验收、实现、回归、目标环境状态 |
+| `bug-fix` | reproduction、root-cause boundary、regression guard |
+| `hotfix` | impact/containment、minimal change、production verify、rollback readiness |
+| `refactor-debt` | behavior baseline、behavior preservation、quality/debt proof |
+| `migration` | compatibility matrix、data integrity、sequencing、forward/rollback rehearsal |
+| `dependency-security` | applicability/exposure、upgrade/fix、security regression、residual exposure |
+| `performance` | repeatable baseline、comparable measurement、correctness/non-target regression |
+| `release-operations` | artifact provenance、environment action、health verify、rollback readiness |
+| `incident-response` | impact、containment、recovery、service verification、residual risk/postmortem |
+
+`ProfileDefinition` 必须包含：
+
+- `profile_id`、semantic `version`、`schema_version`、canonical `digest`；
+- required/optional node 与 edge IDs、route overrides、artifact contract IDs；
+- validator IDs、completion predicates、compatible risk paths；
+- `rollback_contract`：eligible actions、preconditions、compensation graph、authority、
+  verification 和 `rollback_not_possible` 处理；
+- required case IDs、category boundary case IDs、real-E2E requirement ID；
+- required capabilities、known unsupported integrations 和 evidence policy。
+
+`RiskOverlayDefinition` 包含 overlay ID/version/digest、node/edge additions 或合并规则、
+artifact compaction mapping、budget policy、required invariants、entry/exit conditions 和
+适用/禁止 Profile。合成后执行 `SafetyMonotonicityValidator`，确保 overlay 没有删除
+Profile 或 CoreInvariantSet 的 required semantics。
+
+`SupportMatrixDefinition` 是版本化冻结发布数据，包含九个 required profile IDs、每类
+required normal/boundary/failure/authority/drift/invalidation/recovery/artifact/review/
+target-state case IDs、至少一个 `real_e2e=true` case、三条风险路径与两 runtime 的代表
+coverage，以及每个结果的 evidence refs。共享核心通过不代表 Profile 通过。
+
+`ReleaseCoverageGate` 确定性加载冻结 matrix，逐 case 验证 PASS、evidence digest、
+freshness、profile/overlay/runtime version 和真实 E2E 标记。缺一类别、任一 required
+case、逐类 rollback contract、三条 overlay contract 或所需 runtime coverage时均失败；
+发布时不能修改 matrix 来规避失败。
+
+每个冻结 coverage binding 还必须在 versioned execution plan 中拥有确定性、唯一的
+`task_id`。该 identity 是 selector/request/oracle 的一部分，随 plan canonical digest 一起
+重新签名；alias、duplicate、顺序漂移、跨 binding substitution 或一致重签后的错误绑定都在
+执行前拒绝。WP-08 测试/coverage fixture 可以让同一 Profile 的这些独立 task rows 复用一个
+disposable `TaskRepository`/`TaskApplication` 资源栈，但不能复用 task identity、current
+authority、record 或 target；real-E2E Git fixture 仍逐 Profile 隔离。该资源复用不新增生产
+repository lifecycle API，不改变 TaskRepository/GraphRef/DB 边界，也不允许 shard、放宽或
+替代一次性的 combined `ReleaseCoverageGate` currentness/zero-write 验证。
+
+coverage authority 自身使用独立、进程内、consumer-local 的 fail-closed lifecycle。唯一 owner
+是签发 `CoverageRecord` 的 factory；每个 candidate 只能选择一个单调终态：
+`active-uncommitted → abort-prepared → aborting → aborted`，或
+`active-uncommitted → combined-gate-consumed → closing → finalized`（既有 `closed` 语义）。
+两个分支共享 factory-local 线性化锁且互斥；不能重新打开、转移、重新注册或从 bytes/restart
+恢复 authority。
+
+`ReleaseCoverageGate` 只有在 exact matrix 下成功重验该 factory 已签发的完整、无 duplicate 的
+record identity set 后，才把 exact decision identity、assessment digest 和 record projection
+绑定回 factory；partial/sharded assessment、foreign/clone decision、少/多/替换 record 或 pre-gate
+调用都不能获得 finalize capability。factory 随后可以一次性 finalize：先进入 fail-closed
+`closing`，撤销自身 record/observation registry 及每个注册 execution authority 的 issued
+identity graph，再进入 `finalized`。finalize/revoke 重复调用幂等；异常切点保持单调关闭并继续
+best-effort 撤销剩余本地 authority，绝不恢复为可签发状态。
+
+尚未产生 exact combined gate decision、未进入 `closing/finalized` 的 candidate 可以要求 factory 调用
+`prepare_abort_uncommitted_candidate`。factory 在与 register/gate/finalize 共用的锁内冻结 exact current
+candidate generation、plan digest、完整 registered-authority/issued-record identity projection 及其 canonical
+digest，并把 `(state=abort-prepared, frozen generation/projection, one-shot abort-capability identity)` 作为一个
+不可分割 tuple 写入 factory-local closure；只有该 tuple 原子线性化后才向 caller 返回已存 capability。
+从该线性化点起禁止新增、删除、替换 record/authority，也禁止 gate/finalize。capability 以对象 identity
+绑定 exact factory、candidate、
+frozen generation/projection digest；不能序列化、复制、跨 factory/candidate 使用，也不能由 caller
+mapping、相等 dataclass、`object.__new__` clone 或部分 record set 推导。调用者不能向 prepare/abort API
+提交或覆盖 projection。若 register 先线性化则新 identity 必须进入 frozen snapshot；若 prepare 先线性化
+则后续 register 拒绝，因此不存在早期空 projection、可变 capability version 或 caller 选择 partial graph
+的分支。
+
+prepare 在 tuple 线性化前发生 injected exception 时不留下任何 snapshot/capability/state，candidate 保持
+`active-uncommitted`；tuple 线性化后到 return 之间异常或返回丢失时，同一 factory/candidate 重复 prepare
+必须返回 closure 中同一个 capability 对象，不重新签发、不改变 frozen generation/projection，也不生成
+第二个 capability。capability 一旦被 abort 原子消费，prepare 永久拒绝；同一个已消费 capability 的 abort
+重试仍按下述规则幂等。
+
+`abort_uncommitted_candidate` 只能原子消费该 factory 在 `abort-prepared` 保存的 exact one-shot capability
+与 frozen snapshot，并先把状态改为 `aborting`；此后所有 execution/observation/factory/gate/current/restart
+与 register/reopen 入口立即 fail closed；cleanup 只撤销上述 factory-owned snapshot 对应的 local
+capability/issuance tables 和已注册 authority 强引用，最终进入 `aborted`。abort 不调用或伪造
+`ReleaseCoverageGate`，不生成 gate assessment/decision，也不把 partial diagnostic assessment 解释为
+combined decision。
+
+同一 exact abort capability 在同一进程/同一 factory 对象的 `abort-prepared/aborting/aborted` 重试为幂等
+开始/继续/完成
+cleanup；foreign/clone、错误 candidate 或任何 caller-supplied partial selection 始终拒绝且不能撤销正确
+candidate。对 injected exception，prepare 线性化点前保持 `active-uncommitted`；prepare 后、abort 消费前
+保持 `abort-prepared`，同对象只接受已签发 exact capability；abort 消费后保持 `aborting`，同对象重试只
+继续已冻结 snapshot cleanup。真正的 process termination 会销毁
+全部进程内 authority/capability，重启后不得从 immutable bytes、record documents 或 digest 重建、重试
+或恢复 candidate；OS resource teardown 后只有 durable documents 保持原样、且不具 use authority。
+若 exact gate consumption/finalize 与 abort 并发，先取得线性化点者决定唯一分支：gate/finalize 先赢则
+abort 拒绝，abort 先赢则 gate/finalize 拒绝；`finalized` 不能 abort，`aborted` 不能 gate、finalize、
+re-register 或 reopen。
+
+`finalized/aborted` 后所有 execution/observation/factory/gate/current/restart 检查一律拒绝，且不能产生
+新 execution、observation、CoverageRecord 或 gate assessment。已经返回的 immutable record documents
+以及已存在的合法 gate decision 仍可作为非权威审计值读取；abort 分支不存在 gate decision。两个分支
+都不得改写 durable task/event/snapshot/object/ref/action/target 状态。该 lifecycle 只释放 coverage
+authority 的强引用与 capability，不关闭或修改 caller-owned repository/application/target，也不新增
+持久 schema、DB、GraphRef、网络或外部 authority 边界。
+
+#### Dependency-security offline advisory authority
+
+`dependency-security` 的 real-E2E 不能把 fixture label、project command 自报 PASS 或 WP-08A wheel
+preflight 单独解释为 vulnerability/fix truth。依据 Accepted ADR-0006，v1 使用安装固定、完全离线、
+self-digested 的 closed advisory registry，并由 factory-issued、consumer-local opaque authority 把
+advisory truth 与真实 offline wheel closure 绑定。
+
+registry root exact order为 schema/registry ID、generation、update kind、previous digest、rollback-of digest、
+revocation high-water、source records、advisories、registry digest。genesis exact `(1,genesis,null,null)`；
+forward/rollback均只能current+1且previous=current，rollback还必须指向verified historical digest。
+high-water exact包含与source/advisory identity set双向相等、canonical sorted unique的state rows；status enum
+`active|superseded|revoked`只允许active→superseded/revoked、superseded→revoked及identity transition，
+revoked不复活。candidate generation g中，新identity必须active/status_generation=g，unchanged status保留
+prior generation，changed status必须status_generation=g，且所有row满足`1 <= status_generation <= g`。
+source使用repository clock exact验证`not_before <= clock < not_after`；status只存在
+high-water，source/advisory record bytes immutable。
+
+registry/advisory/fixed closure exact绑定source provenance、PyPI distribution、affected specifiers、
+applicability kind、name/version/wheel/RECORD pins、residual policy与security-regression command。业务 IDs、
+versions、sources、policies、pins和expiry均为versioned config data。source/input schema closure exact为
+ADR-0006冻结的10 pairs：source record、fixed closure、advisory record、status high-water、registry、
+installation bootstrap、offline closure observation、applicability observation、residual exposure observation、
+final security observation；每pair的source与`-input` schema IDs/raw hashes双向登记于Profile schema registry。
+每个digest-input只排除自身derived digest，parent仍包含nested child body与child digest，不能只摘要ID。
+
+唯一 registry issuer 从受保护 installation byte pipe 读取 exact bytes，验证 source checkout 或
+installed wheel 的 distribution root/RECORD/source-build attestation，并绑定registry/bootstrap、10 schema
+pairs、protected-member ordered list/digest，不接收caller path/digest/fallback。registry/bootstrap/schema/
+observation member结构或replacement攻击在authority issuance前拒绝。
+
+`DependencyOfflineClosureObservationFactory`位于WP08A build/install/package-verification boundary，复用
+ADR-0004 r6/r7 的 `packaging==26.3`、physical ZIP、singular
+METADATA/WHEEL/RECORD、open-fd/parent-entry recheck 与 closure-wide wheel/byte/edge/depth/requirement
+budgets，并为before/after各签发独立one-use exact closure identity。它只产生package-verification observation，
+绝不产生 install、activation、
+ReleaseInstallManifest 或 executable authority。core/runtime 不 import `packaging`，也不解析 package index。
+
+同一WP08A boundary的`DependencyApplicabilityObservationFactory`只接受same-factory current registry、selected
+advisory/source identities、before/after closure observations与repository clock，以boundary-owned parser计算
+before affected match和after approved fixed-closure match。`DependencyResidualExposureFactory`消费同一registry
+与closures，按canonical order枚举current registry**全部**advisory/source。evaluation universe exact为
+high-water中`status=active`的canonical sorted-unique advisory identity set，必须与rows中非inactive
+identities双向相等；active rows逐行计算`not-applicable|fixed|residual`并导出sorted-unique
+residual set。row identity set必须与registry全部advisory identities双向相等。superseded/revoked历史
+advisory产生`inactive` row、不要求历史source仍active/time-valid且不进入residual set；new
+advisory revision可作为candidate generation的new active identity，旧superseded/revoked identity永不复活。
+active advisory必须引用active/time-valid source，否则issuance拒绝，source失活update还必须同步
+使引用它的active advisories失活。caller bool/list/count/omission、duplicate row、伪造inactive identity
+为active、foreign/clone/cross-advisory/source或coherent resign均拒绝。
+
+`DependencySecurityObservationFactory`只消费上述issued authorities、current TaskSnapshot/GraphRef、durable
+regression record、target observer、ActionCoordinator facts与clock，绑定test/selector/request/oracle/unique
+task、revision/snapshot/epoch/six pins、registry/bootstrap/source/advisory、applicability、fixed closure、完整
+residual rows/set/policy、regression、target/action与所有child digests。caller mapping/bytes/self-digest/equality
+不能获得authority。
+
+P path 在 disposable local Git/wheelhouse fixture 中证明 A closure 命中 current advisory，expected-ref
+mutation 一次切换到 registry 批准的 B fixed closure，security regression PASS，residual exposure empty
+或按 exact policy 记录，fresh target 与 B 一致；R path 使用 stale C expected ref 或 unapproved closure，
+在 Git/tool/task mutation 前拒绝，随后才允许 isolated rejection oracle 签发 R record。两者都不安装/
+激活 dependency，不访问用户 repository，不声称 scanner/deploy/release 能力。
+
+issue、assessment、coverage observe/factory/gate、commit前与restart每次重新读取完整installation bytes，
+重新preflight before/after并重算selected applicability与全registry residual rows/set。same-path replacement、
+expired/revoked/stale/clock rollback、caller omission、alias/duplicate、foreign/clone/cross-advisory、coherent
+re-sign或post-observation replacement均zero issuance/zero mutation。
+
+current→candidate generation/high-water比较归属既有build/install installation-verification boundary；WP-08
+不新增head DB/pointer/update transaction，runtime只读current。boundary拒绝downgrade/skip/wrong previous、
+high-water decrease/removal/resurrection；rollback也必须current+1并合并保留全部deny。WP-10
+ReleaseInstallManifest/activation仍blocked。DNS、socket、proxy、remote advisory/scanner/index fallback永远禁止。
+status-generation future value、用旧generation记录transition或无transition推进generation也在candidate
+installation mutation前拒绝。
+
+该 24-binding batch 复用 Option C unique task/per-Profile shared repository 与 coverage lifecycle；完成后
+plan 为 170、oracle bindings 为 85，combined gate 仍为 `170 valid / 104 missing / passed=false`。只有
+exact combined gate 后才 finalize/revoke；尚未提交给该 gate 的 partial P/R candidate 用 exact
+consumer-local capability abort，不能伪造 gate decision。finalized/aborted 后 registry/closure/observation/
+coverage current/restart 入口全部 fail closed，既有 immutable records 与 durable task/action/target 不变。
+
+#### Performance offline benchmark observation authority
+
+`performance` 的 real-E2E 不能把 fixture label、child elapsed/PASS、ambient benchmark output 或 repository
+wall clock解释为可信性能结论。依据 Accepted ADR-0007，v1 使用 installation-pinned closed benchmark
+registry，并由 parent-owned `PerformanceBenchmarkObservationFactory` 以 `monotonic_ns` 围绕每次
+factory-attested `StructuredCommandLauncher.execute` 的完整调用计时；计时窗口包含 process startup、child
+execution、bounded output collection 与 process reap。child output exact 只有 `correctness_digest`，不得返回
+elapsed、samples、ratio、environment truth 或 verdict。
+
+registry exact绑定 environment policy、statistics policy、benchmark case、command registry/runtime policy、
+fixture/sample、baseline/candidate source identities与 expected correctness digest。warmup/repetition及noise/
+target/rollback ratios全部是versioned config exact integers；repetition count必须是bounded odd integer且至少3。
+engine不含项目阈值、硬件值、路径或样本。Profile schema registry双向exact登记ADR-0007的9组source/
+digest-input pairs：benchmark case、registry、installation bootstrap、environment observation、correctness
+observation、measurement sample、sample-set observation、statistics observation与final performance observation。
+每个input projection只排除自身derived digest，parent保留nested child body/digest；bootstrap固定registry、
+schemas、command、fixture/sample、distribution/RECORD/source-build attestation与protected-member closure。
+
+environment fingerprint exact包含OS、architecture、CPU identity/count、Python implementation/version/cache tag/
+executable hash、installed distribution/RECORD、command/toolchain、fixture root、locale/timezone和safe static env
+projection。baseline、candidate、rollback fingerprints必须byte-exact相等；任何缺失/变化都inconclusive并fail
+closed，禁止cross-hardware normalization、字段子集或caller等价声明。
+
+sequence严格serial。每个warmup与measurement invocation前后都重读current registry/bootstrap/case、command
+executable/cwd、fixture/sample/source和environment；warmup duration只进入provenance，不进入统计。measurement
+sample exact为positive integer nanoseconds并按iteration index `0..n-1`存储。n为odd，因此median取duration
+排序后的中间integer；MAD取`abs(duration-median)`排序后的中间integer。每个sample set先验证：
+
+`mad * noise_ceiling_denominator <= median * noise_ceiling_numerator`。
+
+超限outcome exact为`inconclusive-noise`并fail closed；不能删outlier、重抽直到通过、float rounding或自动扩大
+阈值。lower-is-better target exact为：
+
+`candidate_median * target_ratio_denominator <= baseline_median * target_ratio_numerator`。
+
+rollback restored exact为：
+
+`restored_median * rollback_ratio_denominator <= baseline_median * rollback_ratio_numerator`。
+
+statistics observation绑定ordered/sorted samples、median、deviations、MAD、ratios、cross-products与outcome；
+caller sample/median/MAD/ratio/PASS不能成为input。wire values受safe-integer schema限制，交叉乘积不得
+overflow/truncate/coerce。
+
+baseline/candidate必须same case/fixture/toolchain/policy/correctness/environment，只允许approved A→B source/code
+identity变化。P path在disposable local Git project测A，经ActionCoordinator/GitNativeAdapter一次expected-ref
+mutation到B后测B；correctness、noise、target与fresh B target observation全部通过，restart只重读durable
+evidence/current installation并重算统计，zero benchmark replay。rollback继续走existing action-scoped prepared→
+authorized→execute/reconcile恢复exact A，fresh target后重新测restored sequence并通过rollback ratio，才产生
+`performance-baseline-restored`。R path的stale A/actual C在mutation与benchmark launch前拒绝；noise超限、
+correctness regression、target miss与environment drift另以negative probes证明不能签发P execution。
+
+issue、sequence、assessment、coverage observe/factory/gate、commit前与restart都重读protected installation，
+重算ordered samples/statistics并重验TaskSnapshot revision/snapshot/epoch、GraphRef six pins、command results/
+object refs与fresh target。foreign/clone/cross-case、clock substitution/rollback、sample omit/add/reorder、warmup
+混入、coherent re-sign、post-observation replacement或任何DNS/socket/proxy调用均zero issuance/zero mutation。
+process termination后local clock/launcher authority不可从bytes恢复；restart不能自动重跑benchmark。
+
+Human-approved Option B 把 Slice B final observation 放入现有 category completion durable path。每个
+performance binding继续产生唯一task，`task.category_assessed` event的exact `EvidenceRef`仍为
+`(assessment_digest, category-completion-assessment, assessment_object_digest, assessment_digest,
+factory-attested)`；其 `source_ref` 指向包含完整 performance typed projection 的单一immutable assessment CAS
+object。不得新增 generic task event、DB/storage schema、GraphRef pin或通用 evidence API。
+
+冻结既有category assessment 1.0 pair供非performance使用，并新增exact
+`urn:gew:schema:category-completion-assessment:1.1.0` /
+`urn:gew:schema:category-completion-assessment-input:1.1.0` pair作为profile-discriminated演进：仅
+`profile_id=performance` 时要求closed `performance_evidence_projection`，其他Profile禁止1.1与该字段。它不
+改变ADR-0007的9个benchmark authority schema stems。projection
+exact包含task revision/snapshot/invalidation epoch、GraphRef six pins、factory/install/environment/session pins、
+ordered A→B→A source generations/history、三阶段warmup/sample/correctness bodies、statistics、target/rollback
+comparison与final observation；nested body/digest完整保留，projection自身只排除自身derived digest。A/B/A
+generation exact连续`1,2,3`并以previous-observation digest形成链；label-only、同root异bytes、skip/reorder/
+duplicate/wrong previous或stale restored A拒绝。
+
+assessment issuance必须消费exact consumer-local projection seal并从ordered evidence重算所有digests、median/MAD/
+noise、target/rollback products与outcome。`TaskApplication.complete_category`在现有category transaction/resource
+fence中，于全部hooks后、DB COMMIT前重读current TaskSnapshot、GraphRef、installation、environment、session、
+command与source target，byte-exact重算assessment projection，再原子提交单一既有event与assessment object
+reference。commit前异常zero task/event/snapshot/ref/action/target write；commit后assessment和projection同时可见。
+
+restart只能从current task唯一EvidenceRef以`require_referenced=true`重读assessment CAS，重算CAS digest、
+assessment digest、projection/nested digests与statistics/comparisons，并绑定current task/profile/column/pins。
+它只重新签发consumer-local use authority，launcher count exact为零。caller mapping/bytes/digest、foreign/clone/
+stale、alias、reorder、coherent nested resign、CAS delete/replace或current pin变化全部fail closed。现有
+CategoryFacts、Option C per-binding unique task、combined gate、finalize/revoke与pre-gate abort语义不变。
+
+该24-binding batch继续复用Option C、strict serial/private roots和coverage lifecycle。current170增加后plan为
+194、oracle bindings为97，combined gate仍为`194 valid / 80 missing / passed=false`，static evidence为
+`0/274`。只有exact combined gate后才能finalize/revoke；pre-gate candidate只能走approved one-shot abort。
+本authority不新增dependency、DB、GraphRef、category policy、network、deploy/release或WP-10能力。
+
+#### Migration rehearsal observation authority
+
+Human-approved ADR-0002 revision 6在WP-08只授权disposable rehearsal。`MigrationRehearsalFactory`由current
+installation bootstrap唯一注册，consumer-local strong ledger绑定existing `InstallationMigrationRepository`、
+migration ledger、verified bundle、active manifest、maintenance lock、epoch/fence与fresh target；caller mapping、
+self-digest、clone或fixture label不构成authority。protected config exact为
+`migration-rehearsal-registry-v1.json`、`migration-rehearsal-fixture-v1.json`、
+`migration-rehearsal-transform-manifest-v1.json`与`migration-rehearsal-installation-bootstrap-v1.json`，
+registry/bootstrap IDs分别为
+`urn:gew:migration-rehearsal-registry:v1`与`urn:gew:migration-rehearsal-bootstrap:v1`。
+
+Profile schema registry双向登记7组source/input pairs：
+
+- `migration-rehearsal-fixture-manifest:1.0.0` / `migration-rehearsal-fixture-manifest-input:1.0.0`；
+- `migration-rehearsal-transform-manifest:1.0.0` / `migration-rehearsal-transform-manifest-input:1.0.0`；
+- `migration-rehearsal-registry:1.0.0` / `migration-rehearsal-registry-input:1.0.0`；
+- `migration-rehearsal-installation-bootstrap:1.0.0` /
+  `migration-rehearsal-installation-bootstrap-input:1.0.0`；
+- `migration-step-observation:1.0.0` / `migration-step-observation-input:1.0.0`；
+- `migration-crash-recovery-observation:1.0.0` /
+  `migration-crash-recovery-observation-input:1.0.0`；
+- `migration-rehearsal-observation:1.0.0` / `migration-rehearsal-observation-input:1.0.0`。
+
+上述省略前缀均为`urn:gew:schema:`。每个input只排除自身derived digest；bootstrap exact固定registry/
+fixture/transform、7 pairs、Profile schema registry、distribution/RECORD、source/build attestation与ordered
+protected closure。registry exact固定唯一A→B/B→A transform paths、compatibility、partial-data dispositions与
+crash cut IDs；engine不含fixture值或transform选择。
+
+forward rehearsal从current A生成verified export，在isolated repository执行唯一transform/import/replay/
+integrity/compatibility并只接受更高generation/epoch的verified B。backward是B→A的新monotonic rehearsal，不能
+恢复旧pointer/counter。partial-data逐fixture row产生`preserved|defaulted|rejected|owner-route` exact disposition；
+crash cuts逐ledger state只接受完整old A或完整verified new B，mixed/verifying/epoch rollback/restore-gap unlock
+拒绝。final observation exact绑定task/revision/snapshot/epoch/GraphRef six pins、factory/installation/registry/
+fixture/transform、A/B/A manifests、ordered ledger/history、bundle/object/integrity/compatibility、partial rows、
+crash outcome、claims/fences/high-water与fresh target。
+
+issue/use/precommit/restart/coverage每次重读repository与protected installation并byte-exact重算。restart从task唯一
+referenced assessment CAS恢复local use authority，migration replay count为0。foreign/clone/stale、wrong root/
+transform、history omit/reorder、coherent replace、epoch/fence rollback及post-observation target replacement在commit
+前zero task/event/snapshot/ref/action/target/input。它不新增DB schema、GraphRef pin、network、真实activation或WP-10
+authority。
+
+#### Dependency graph and unavailable-fix disposition authority
+
+Human-approved ADR-0006 revision 7在既有offline advisory/closure authority上增加两个installation-pinned
+registries：`urn:gew:dependency-graph-policy-registry:v1`与
+`urn:gew:dependency-remediation-disposition-registry:v1`。graph factory只从current WP08A-verified closure中每个
+distribution的exact METADATA `Requires-Dist` rows产生canonical nodes/edges；marker/extras/specifier由固定
+environment与`packaging==26.3` boundary求值。nodes exact绑定name/version/wheel/METADATA/RECORD，edges绑定
+parent/child/original requirement/normalized requirement digest；root reachable set与closure双向exact，caller
+graph、node-set equality或label不能授权。
+
+现有dependency 10 pairs之外增加5组source/input pairs：graph-policy registry、closure-graph observation、
+remediation-disposition registry、dependency-security-observation 1.1与dependency-advisory-installation-bootstrap
+1.1；full URNs与digest projection以ADR-0006 §7为准。bootstrap 1.1同时固定existing10/new5 schema members、
+advisory/graph/remediation registry digests、distribution/RECORD/source-build与protected closure，禁止1.0/1.1
+cross-use。
+
+revision 8在上述revision 7五组之外exact只增加bootstrap 1.2 source/input pair，dependency amendment累计六组；
+不存在no-new-schema例外或第七组隐式schema。generation-1/current generation-2 registry members分别exact为
+`config/security/dependency-advisory-registry-v1.json`与
+`config/security/dependency-advisory-registry-v2.json`，两者不得alias。
+
+transitive P要求selected affected distribution由root经长度>1 exact path可达、after closure匹配approved fix、
+regression/target current；fix-unavailable P只接受same-advisory/revision、current/time-valid、config-owned
+`approved-unavailable` disposition及nonempty residual owner route。missing fix、empty fixed closure、command failure、
+network unavailable或caller owner route永远不能推导unavailable。R path在mutation前拒绝broken/foreign path或
+missing/wrong/expired disposition。
+
+两个authority共同演进category assessment为exact
+`urn:gew:schema:category-completion-assessment:1.2.0` / input1.2 closed union。migration只允许
+`migration_rehearsal_projection`；dependency graph scenarios只允许`dependency_graph_projection`；performance
+继续1.1，generic继续1.0。1.2仍只使用既有`task.category_assessed`与单一referenced CAS，无新table/event/API。
+两种projection都绑定unique task与six pins、factory/install registries、全部nested authority bodies/digests和
+fresh target；precommit在hooks后重算，restart从current ref重解且zero action/migration/graph replay。
+
+migration 4 scenario pairs完成后plan/oracle/gate为`216/108/216 valid,58 missing,false`；再完成dependency graph
+2 pairs后combined exact为plan`220`、oracles`110`、gate`220 valid / 54 missing / false`、static`0/274`。
+Option C unique tasks、per-Profile shared repository、strict serial/private roots与combined gate后的finalize/revoke、
+pre-gate one-shot abort保持不变；terminal后all current/restart/register/gate拒绝且durable state不变。
+
+ADR-0006 revision 8 R2（digest
+`73512e3c93020879d8ad0fb7098b75c76fe7bb948bcd00bb18cd1122bfe58986`）进一步关闭transitive advisory
+selection与source provenance history。generation-1
+registry、offline-v1 artifact/attestation、bootstrap/schema bytes保持exact immutable；generation-2 forward head的
+previous digest仍指向该generation-1 registry。新增`source:dependency-advisory:offline-v2@1`及versioned v2
+artifact/attestation，v2 artifact是包含packaging revision 2与cffi revision 1的完整snapshot而非delta。
+generation-2 high-water把v1 source和packaging revision 1转为superseded/status-generation 2；v2 source、
+packaging revision 2与`advisory:cffi:security-v1@1`均active/status-generation 2。每个active advisory必须解析到
+same-registry active/time-valid v2 source完整row与byte-matched v2 artifact+attestation；fix-unavailable随之使用
+packaging revision 2的additive disposition，旧revision 1 records/history只读保留。cffi row exact配置为pypi/cffi、affected
+`>=2.0.0,<3.0.0`、`verified-offline-closure-member`，approved closure `closure:cffi:2.0.0`只固定
+`cffi==2.0.0` wheel/RECORD hashes与既有security-regression/residual policies。
+
+current generation-2使用`dependency-advisory-installation-bootstrap-v1.2.json`与exact
+`dependency-advisory-installation-bootstrap:1.2.0` / input1.2 schema pair，必须带closed ordered
+source-snapshot history，exact映射`config/security/dependency-advisory-registry-v1.json`↔v1
+artifact/attestation与`config/security/dependency-advisory-registry-v2.json`↔v2 full snapshot/attestation，并把两代registry、source artifacts、attestations、
+历史bootstrap/schema和current graph/bootstrap全部加入source/package protected members。old-source omission、mixed
+generation/snapshot、delta v2、artifact-attestation cross-pair、history remove/reorder/replace、same-path replacement或
+coherent re-sign均在任何issuance前fail closed；schema branch不能回写或重新解释generation-1 bootstrap bytes。
+alternate/alias registry path也必须与history及protected closure不匹配。
+
+transitive P必须由factory从current registry选择cffi advisory，并从physical METADATA重建ordered path
+`distribution:graph-engineering-workflow@0.1.0 → distribution:cryptography@50.0.0 →
+distribution:cffi@2.0.0`。两条edge exact来自root `cryptography==50.0.0`与cryptography `cffi>=2.0.0`；
+path最少三节点且与closure graph双向exact。现有packaging direct path、任何raw/normalized alias、caller advisory/
+graph/path、阈值降为两节点都不属于此branch。before independently proves affected；after independently proves
+approved fixed closure、regression PASS与fresh target，即使版本相同也不能合并phase/physical identity/digest。
+
+final observation与category assessment 1.2 exact task-bind上述v2 advisory/source/full snapshot/high-water/bootstrap
+history、before/after closure、
+nodes/edges/path、residual/regression/target及nested digests。use/precommit/restart重新读取安装bytes与task current CAS；
+restart graph/action replay=0且network=0。raw advisory alias、direct substitution、foreign/clone/stale graph、edge
+omit/duplicate/reorder、source/high-water或fixed-closure pin drift必须先于assessment/observation/record失败，并保持
+task/action/target/input zero writes。fix-unavailable仍选择既有packaging advisory/disposition，不得交叉复用cffi row。
+
+### 7.3 Risk overlay
+
+| 路径 | 变化 | 不可删除的底线 |
+|---|---|---|
+| `full-planned` | 完整 discovery、PRD、Spec、Impact、Plan、Test Plan 与 review loops | 全部安全、追踪、验证和审核 |
+| `compact-planned` | 合并低风险产物、减少非必要节点和 budget | 意图、authority、测试、独立审核、证据、完成门禁 |
+| `emergency` | 使用紧急 baseline，先遏制/恢复，再补齐后续分析 | 影响、止损目标、authority、验证、rollback、证据、复盘 |
+
+风险分类器只给出建议；Positioning/PRD 阶段由 Owner 批准最终路径。运行中风险上升
+可以自动收紧为更完整路径；降级或删除门槛视为 intent/authority 变化并升级 Owner。
+
+## 8. Authority 与外部动作协议
+
+### 8.1 Authority Envelope
+
+Envelope 至少包含：task/Owner/runtime、goal/non-goals、target allowlist、allowed change
+kinds、human-required change kinds、resource scopes、authorized action kinds、expiry 和
+baseline digest。缺失权限即拒绝。
+
+PRD 前只允许写产品自身候选文档与 task state；对目标项目和外部资源只读。PRD
+批准冻结初始 Envelope，但 commit、push、merge、deploy、release 和会话外通信仍需
+针对具体动作分别授权。
+
+### 8.2 Action Journal
+
+任何可能产生副作用的 action 使用稳定 `action_id` 和以下状态：
+
+```text
+proposed → prepared → awaiting_authority → authorized → executing
+                                              │             │
+                                              │             ├→ succeeded → reconciled
+                                              │             ├→ failed → reconciled/compensating
+                                              │             └→ unknown → awaiting_human
+                                              └→ denied/expired
+```
+
+`prepared` record 绑定 command/tool、资源、预期前置状态、预期后置状态、idempotency
+class、验证计划、rollback plan、impact、baseline/snapshot digest。授权必须绑定该 record
+digest；record 改变使授权失效。
+
+### 8.3 Execute Transition Gate
+
+首次执行和恢复执行使用同一个 deterministic gate。在调用任何外部 tool 前，core 必须
+在一个 repository transaction 中验证并记录：
+
+1. 请求 actor 与 task 的 Owner、runtime kind 和 lineage 一致；
+2. authority kind 覆盖具体 action/resource，未 revoked/superseded/expired；
+3. authorized `prepared_action_digest` 与当前 action body 完全一致；
+4. 当前 Intent Baseline digest、pre-execution snapshot digest/revision 与授权绑定值一致；
+5. adapter 重新读取的资源前置状态满足 prepared precondition；
+6. 当前 task/resource leases 有效，fencing token 是 repository 最新值；
+7. idempotency class、key 和既有 action journal 不表示已执行或 unknown；
+8. 适用的 DataDisclosurePlan 已验证；
+9. rollback/verification plan 仍可用，所需 capability 未降低。
+
+全部通过后，transaction 追加 `action.execution_started` 并绑定 authority、action、state、
+lease/fence 和 disclosure digests，并创建第 5.3 节的 durable UnresolvedActionClaim；
+只有提交成功，且需要的 call-span 排他锁仍被持有，才调用 tool。任一变化在外部调用
+前产生 `action.execution_rejected`。调用后用新 transaction 写
+`succeeded/failed/unknown` 和 raw receipt digest，再运行 target-state reconciliation；
+只有 reconciliation/compensation event 可释放 claim。adapter 无权绕过该 gate。
+
+### 8.4 恢复规则
+
+- `prepared` 但未 `authorized`：可安全重新展示或放弃；
+- `authorized` 但未 `executing`：重新运行完整 Execute Transition Gate；
+- `executing` 且无终态：查询目标系统；可证明未执行且幂等时才重试；
+- 无法证明：标记 `unknown` 并请求 Owner 协调，禁止自动重放；
+- rollback 若产生新风险、扩大资源范围或本身不可逆，必须单独授权。
+
+#### 8.4.1 Expired-lease recovery-claim compensation
+
+当 original action 为 `executing/unknown`、其唯一 claim unresolved 且原 lease 已过期时，normal
+Execute Transition Gate 继续拒绝任何新 action。只有 ADR-0005 的 compensation-only recovery
+transition 可以使用该 expired lease identity。请求必须精确匹配 claim 的 task、lease、original
+action、完整 sorted resources 和每项 latest fencing token；missing/extra resource、replacement
+lease、renewal、stale fence、second claim 或 original payload replay 一律拒绝。
+
+compensation 必须拥有与 original authority 分离的 current exact rollback authority，并绑定同
+task/target/resources、当前 baseline/snapshot、rollback prepared-action/payload、verification 与
+disclosure digests。expired lease 下唯一允许的 start、receipt、reconcile/consume transactions、
+events、payload bindings、expected revisions、claim mutations 和 rejection conditions，以 §5.4.1
+的三行 transaction table 为唯一权威定义；本节不增加其他 commit 例外。
+
+no-auto-replay 状态机为：
+
+```text
+exact start NOT_COMMITTED
+  └─ same attempt/start transaction + same request digest 可重跑 gate/commit
+
+exact start COMMITTED
+  ├─ same transaction/request → 返回既有 committed result（不得再次调用 tool）
+  ├─ distinct attempt/start/action/authority → fail closed
+  └─ fresh target query → started-bound receipt → fresh verify/reconcile | Human/manual
+```
+
+application 只在刚刚成功提交、此前不存在的 start result 上获得一次 compensation call permission。
+process crash、timeout 或响应丢失后，即使无法判断 tool 是否被调用，也没有返回 call edge；恢复只
+能 query/reconcile/manual。original claim lifecycle state 在 start 与 receipt 后仍为 `unresolved`，
+所以资源冻结保持有效；只有 §5.4.1 第三行的 fresh-observation transaction 能消费 claim。任何
+verification failure/stale/mismatch 都保留 claim，且永不恢复 original action 的 replay 权限。
+
+## 9. Runtime 与 Skill Adapter
+
+### 9.1 Runtime contract
+
+```text
+RuntimeAdapter
+  identity() -> RuntimeIdentity
+  resolve_owner(input) -> OwnerIdentity
+  resolve_lineage(input) -> RuntimeLineage
+  discover_capabilities() -> CapabilitySet
+  invoke_agent(request) -> AgentResult
+  invoke_reviewer(request, independence) -> ReviewResult
+  invoke_tool(prepared_action) -> ToolResult
+  request_human(decision_request) -> HumanDecision | Pending
+  present(status_or_result) -> DeliveryReceipt
+```
+
+adapter 输出都经过 schema 校验。core 不假设 runtime 支持真正并行；没有并发能力时
+按同一依赖图串行运行。runtime 能力变化会在任务恢复时重新协商；缺少 required
+capability 时明确阻塞，不能静默降低安全或跳过节点。
+
+### 9.2 Codex Skill
+
+Codex 入口采用标准 Skill 目录：`SKILL.md` 描述触发条件与交互，`references/` 保存
+工作流说明，`scripts/` 调用本地核心，必要时由 Skill 请求独立 subagent。Skill 不
+自行持有 Graph 真相或权限。官方 OpenAI 文档确认 Skill 可包含这些组成部分并由
+Codex 显式或隐式触发；实现和测试时以当时官方能力为准。
+
+### 9.3 Hermes Skill
+
+Hermes 使用同一工作流 Skill 内容与 Hermes adapter metadata；Telegram/Discord
+gateway 负责消息 transport，pairing/allowlist 提供平台身份输入。adapter 必须：
+
+- 把平台 user ID 映射为 Owner reference，拒绝其他用户的正式输入和授权；
+- 把 channel/thread/session 映射为稳定 runtime lineage；
+- 保证长消息、按钮/文本批准和恢复结果具有明确 delivery receipt；
+- 只允许当前绑定会话中的正常回复；向其他 channel/user/system 发送消息走 action
+  authority 协议；
+- 不把 bot token 或模型凭据写入 Graph State。
+
+Hermes gateway 可以是用户已有的 transport 进程，但 Graph Core 不负责安装或维持
+后台任务执行；gateway 存活不意味着任务会自行继续，只有新的 Owner turn 才调用
+runner。
+
+### 9.4 Runtime 拒绝规则
+
+任务绑定 `runtime_kind + runtime_lineage_id`。不同 runtime kind、不同 Owner 或无合法
+lineage proof 的请求只能获得只读的拒绝说明，不能读取敏感 artifact、继续节点、
+批准或复用 authority。v1 不提供 transfer token。
+
+## 10. Artifact、Evidence 与隐私
+
+### 10.1 Artifact contract
+
+`ArtifactContract` 是版本化配置，包含 `artifact_type`、`contract_version/digest`、
+`content_schema_ref`、required semantic fields、required trace types、validator IDs、
+review policy、approval policy、exit predicate、allowed statuses 和 sensitivity policy。
+
+每个 `ArtifactRecord` 包含 artifact ID/type/contract、revision、author/reviewer、targets、
+input/baseline digests、requirement traces、logical body ref、body digest、status、findings、
+validation/review records、created_at 和 supersedes。通用状态为：
+
+```text
+candidate → validating → under_review → reviewed
+    │            │              │          ├→ awaiting_human → approved
+    │            │              │          └→ accepted_for_next_node
+    └────────────┴──────────────┴────────────→ invalidated
+
+quiescent superseded/invalidated artifact → archived
+```
+
+确定性 validator 负责 schema、必填语义字段、targets、input/baseline digests、trace 完整性
+和 reviewer independence；Reviewer 判断内容质量。缺少任一项都不能满足 exit predicate。
+
+| 逻辑产物 | 必填语义字段 | Review / exit policy |
+|---|---|---|
+| Positioning | 市场背景、用户、问题、类别、价值、替代方案、差异化、边界、成功假设、风险、定位与状态 | 定位变化需独立质量审查和 Human approval |
+| PRD | JTBD、目标、范围/非目标、User Stories、验收、依赖风险、FR/NFR、追踪与状态 | 独立质量审查后 Human approval；批准冻结 baseline/envelope |
+| Tech Spec | 架构、组件、状态数据、接口、流程、安全、可靠性、迁移回滚、替代方案与追踪 | Independent Technical Review PASS 后等待 Human approval |
+| Impact | 受影响模块/用户/数据/依赖、兼容性、安全、运行影响、风险与 ADR 判断 | Independent Review PASS 且 ADR disposition 完整 |
+| Plan | 工作分解、依赖、责任节点、交付物、风险、检查点、退出条件与需求映射 | Independent Plan Review PASS |
+| Test Plan | 策略、追踪、环境、正常/边界/失败/恢复/安全场景、通过标准与证据 | Independent Test Review PASS |
+| Implementation | change manifest、代码/配置/迁移 refs、需求映射、项目规范结论、已知偏差 | 实现 validation 通过且独立 code/change review PASS |
+| Verification | build/test/static/security/performance 结果、目标状态、证据、偏差与残余风险 | required checks 全部有效；verifier 与实现 author 独立 |
+| Candidate Review | 独立 Reviewer、逐项需求结论、findings、意图和证据完整性、交付建议 | 无 open finding 且 verdict PASS |
+| Completion Record | 实际变化、目标状态、authorization、actions、副作用、rollback、遗留与审计入口 | 在 `completing` 阶段生成并绑定 current snapshot；deterministic Completion Gate PASS 后接纳并完成 |
+
+WP-04A 的实现对齐冻结以下机械契约：
+
+- `config/contracts/artifact-contracts-v1.json` 是 exact 10-entry、逐 contract digest 和 registry
+  digest 绑定的 closed registry；Positioning、PRD、Tech Spec 的 exit 是 Human `approved`，其余
+  七类是 Agent `accepted_for_next_node`，十类都要求 author/reviewer 独立；loader 必须接收任务
+  已锁定的 expected registry ID/digest，不能信任 registry 自己声明的 self digest；
+- `ArtifactRecord` 通过 closed schema 后，依次验证 contract、task/baseline/input/target、三类
+  trace、logical-body、semantic fields、findings、validation records、review/approval、status、
+  revision/supersedes 和 self digest；record、manifest 与 caller-supplied baseline/input/target maps
+  必须在首次 ingress 时递归 snapshot，validator 和最终 frozen record 只消费同一 snapshot；exit
+  状态存在任一失败即同时判 `status` failure；
+- logical body 同时绑定 `manifest_id + entry_digest + artifact_id + extracted raw digest`；每个
+  `entry_digest` 绑定 selector、raw digest、shared section 与 dependencies，记录的 semantic body
+  digest 绑定 `{artifact_id, extracted_body_digest, semantic_fields}`。aggregate manifest digest 只证明
+  整份物理 manifest 的完整性，不再让无关 gap/其他 logical entry 的变化失效当前 record；
+- `LogicalBodyManifest` 在读取 physical bytes 前检查 `raw_document_bytes`，抽取前检查
+  `result_bytes`，hash state 受 `temporary_units` 约束，并把 physical/extracted digest 的每个输入
+  byte 计入同一 `WorkContext`。随后验证 canonical sorted selectors；selector 只可不重叠，或在
+  完全相同区间且同一 non-null shared section ID 时共享；依赖必须已知、无环；
+- input refs 以 `ref_id + ref_kind(artifact|evidence) + digest + task/baseline` 绑定，调用方提供的
+  authoritative known-input entry 必须逐字段 pin 同一完整 tuple，不能把 input 重关联到任务中
+  另一个仍 current 的 baseline；三类 trace
+  分别强制每个 requirement→artifact、每个 input→artifact、artifact→每个 target 的 exact closure；
+  targets 必须命中调用方提供的 authoritative ID/digest/task binding，允许同类型多条边但拒绝
+  duplicate、missing 或 invented edge；
+- `ArtifactDependencyIndex` 从已验证 record 的 artifact/evidence input refs 与 requirement traces
+  建立最小 descendants，并复验 index 内 artifact 的 current digest；logical body、dependency 或
+  shared-section 变化只传播到声明的 consumers；
+- actor refs 必须是 ASCII、去空白、case-fold 后不变化的 canonical ID；author 与 reviewer 按
+  canonical identity 比较，禁止大小写、Unicode normalization 或空白别名绕过 independence；
+- lifecycle transition 使用 closed state table，并通过 factory 产生绑定 artifact digest、body
+  digest、revision、前后状态、时间和 event digest 的 immutable audit event，且 bound record 的
+  status 必须等于 event current status；validation evidence
+  同样只能由 validator factory 产生。revision 必须从 `invalidated/archived` predecessor 开始，
+  精确 supersede 前一 revision、产生 body digest progress，并显式关闭上一 revision 的 stable
+  open finding ID；
+- `config/verification/wp-04a-mutations.json` 冻结 identity、authority/trace、lifecycle、resource
+  boundary 与 minimal invalidation 的逐 subcase probes；每个 assertion 只报告自己真实执行的
+  subcase，gate 对 declared/executed 做 exact equality，并拒绝无 dispatcher/oracle 的声明。
+
+上述 registry、schema、manifest、record、lifecycle 和 invalidation 都属于 deterministic core；
+Runner、文件模板、runtime 命令与项目内容不写入这组引擎逻辑。Artifact sensitivity 沿用
+§10.4 的 `public/internal/confidential/secret` vocabulary，v1 built-ins 默认 `confidential`。
+
+阶段模板属于配置/asset，不硬编码篇幅。compact/emergency 可以把多个逻辑 artifact
+放进同一物理文件，但必须提供 `LogicalBodyManifest`：每个 artifact ID 映射到不重叠或
+明确共享的 section selector、canonical extracted-body digest 和独立 metadata。一个
+逻辑 artifact 的输入变化只失效依赖它的 records；不能因为共享文件或另一 artifact
+通过而继承 trust。
+
+### 10.2 Evidence contract
+
+Evidence 必须包含：类型、来源、采集动作、目标资源、时间、结果、producer、
+baseline/snapshot digest、freshness、sensitivity、redaction 和 content digest。
+Completion Gate 只接受当前任务、当前 baseline、未过期且满足 required trust 的证据。
+
+### 10.3 Secret 与泄露处置
+
+- state 仅存 secret provider 与 key reference，不存值；
+- agent request 按最小需要解析 secret，默认不回显、不记录；
+- stdout/stderr 与 tool result 在持久化前执行结构化过滤和可配置 redaction；
+- 发现疑似 secret 时隔离原对象、撤销其 trust、失效下游并生成不复述秘密的报告；
+- 删除、轮换或对外通知可能需要额外 authority；core 不自动假设已处置。
+
+### 10.4 数据分类、披露与留存
+
+数据 sensitivity 为 `public`、`internal`、`confidential`、`secret`；unknown 默认按
+`confidential` 处理，secret 只允许 provider reference。repository 根目录、transaction
+staging、objects、backup 和 export 使用当前 OS 的 owner-only 等效权限；权限无法验证
+时禁止写 confidential/secret metadata 并明确阻塞。
+
+每次向模型、runtime tool、connector、目标系统或诊断导出发送本地数据前，生成
+`DataDisclosurePlan`，至少包含：disclosure ID、destination identity/trust boundary、
+purpose、data/object refs、最高 sensitivity、字段 allowlist、redaction transform、
+retention expectation、applicable Authority Envelope、prepared action/snapshot digest 和
+审计 receipt requirement。Policy Engine 必须在数据离开本地边界前验证：
+
+- destination 与 purpose 已声明，且 adapter capability 允许该分类；
+- 发送内容是完成目的所需最小集合并已经过确定性 redaction；
+- confidential 及以上符合 task disclosure policy；secret value 默认禁止；
+- 会话外第三方/系统通信或扩大既有披露范围具有动作级 Human authority；
+- plan、实际 payload digest 与调用 receipt 可审计绑定。
+
+未经计划的 `invoke_agent`、`invoke_tool`、connector 或 export 一律拒绝。当前任务会话内
+回复 Owner 不需要额外通信授权，但仍执行最小化与 redaction。
+
+`RetentionPolicy` 是配置数据，必须为 event metadata、artifact/evidence body、tool raw
+output、backup、quarantine 和 PMF aggregate 分别声明 retain-until、purge trigger、legal
+hold/rollback dependency 与 tombstone policy。安全默认值为：raw secret 不持久化；原始
+tool output 在提取/脱敏后不保留；任务活动期间保留完成与恢复所需事实；archive/cancel
+时执行或安排受约束 purge，仍保留不含敏感正文的最小审计 tombstone 与 digest。具体
+时长不写死在引擎中。
+
+没有 daemon 时，retention enforcement 在写入、task open/resume、archive/cancel、升级、
+doctor 和显式 garbage-collect 命令时运行。purge 不删除未终结 action、rollback/legal
+hold 所需对象；清理失败记录为 blocking maintenance finding，不虚假报告已删除。
+
+## 11. 配置与扩展
+
+### 11.1 配置层级
+
+```text
+built-in safe defaults
+  < installed product config
+  < project config
+  < task config frozen into GraphRef
+```
+
+低层覆盖高层时必须通过 schema 和 monotonic safety check。以下均为数据：graph/profile
+拓扑、risk overlay、policy 词汇、budget、timeout、evidence freshness、命令、路径、
+平台 capability、模板和集成 locator。
+
+### 11.2 Extension manifest
+
+高级扩展声明：ID/version、node/edge/validator/adapter kind、input/output schemas、所需
+capabilities、authority、side effects、failure semantics、verification、compatibility 和
+package digest。安装时验证 schema 与来源策略，任务开始后锁定版本；扩展不能覆写
+core invariant。在线 marketplace 不在 v1。
+
+ADR-0004 r5 固定 v1 Ed25519 primitive provider 为 PyCA `cryptography==50.0.0`（Python ≥3.12）。core
+仅依赖平台中立 verifier port；provider adapter 的 distribution/origin/version/hash/attestation 由
+ReleaseInstallManifest exact pin。trust plane 不得联网下载或 fallback；正式 dependency artifact pin 与
+升级属于 WP-10 supply-chain/install-manifest transaction。该选择不关闭 ADR-0003 executable gate。
+ADR-0004 r6 同时固定 PyPA `packaging==26.3` 作为 wheel filename/tag/PEP 508 requirement 的标准
+parser，仅在 build/install/package-verification boundary 使用；core 不依赖它。parser 与 dependency
+closure 全程离线，distribution/wheel/source/RECORD/attestation exact pins 仍由 WP-10
+ReleaseInstallManifest 管理，缺失或 mismatch 时 mutation 为零且不得 runtime fallback。
+ADR-0004 r7 要求 verification child 只执行 descriptor/pipe 传入的 manifest-bound runner/module/callable
+bytes，目标代码无 filesystem import fallback，并绑定执行前后 code/source/result digest；wheel preflight
+同时按配置限制整个离线 closure，并逐一核对 local header/data descriptor/central directory/EOCD/RECORD
+物理成员与 singular METADATA/WHEEL fields。任何竞态、隐藏成员或预算耗尽均 zero-record/zero-mutation。
+
+Accepted ADR-0006 在上述 build/install/package-verification 结果之上定义 WP-08
+`dependency-security` 的 offline advisory observation authority。它不改变 ADR-0004 parser boundary：
+advisory registry/source/provenance、affected version、approved fixed closure、residual-exposure 与 security-
+regression facts 由独立 installation-pinned data authority 提供；WP08A preflight 本身仍不能声称漏洞或
+修复结论。registry/currentness/revocation 全程离线，任何 DNS/socket/proxy/index fallback、dependency
+activation 或 ReleaseInstallManifest promotion 均拒绝；正式 install/update 仍由 WP-10 单独授权。
+WP08A-bound applicability/residual factories必须接收same-factory registry/advisory/source与before/after
+closure identity并全量重算current registry residual rows；caller truth/list/omission不得进入结果。
+generation/high-water current→candidate比较只发生在既有installation-verification boundary，WP-08不新增
+registry head DB或activation pointer。
+
+## 12. 安装、升级与迁移
+
+### 12.1 安装模型
+
+产品安装一份本地核心和一个或多个 Skill adapter。Skill 可调用版本探测命令定位
+核心，不依赖旧项目绝对路径。支持 macOS/Linux；Windows 只通过 WSL。安装后运行
+read-only doctor，验证 Git、filesystem owner-only 权限、repository backend contract、
+runtime adapter 与 schema compatibility。
+
+### 12.2 版本兼容
+
+所有持久对象携带 schema version；core、graph/profile、Skill/adapter 分别声明兼容
+范围；Repository backend 另声明 repository contract 与 export bundle 版本。恢复任务前
+先做兼容检查，不兼容即停止并给出迁移计划，不能 best-effort 猜测。
+
+### 12.3 升级事务
+
+升级流程：取得 repository 全局升级租约 → 检查 task/resource leases 和 unknown actions →
+导出并校验 backend-neutral bundle → dry-run migration → 在隔离 repository 导入并重放 →
+全量 integrity/conformance scan → 原子切换 active backend reference → 释放租约。失败时继续
+使用旧 backend 与配置；若旧版本不能读取新格式，切换前必须保留可执行回滚包。
+
+文件与 SQLite 等 backend 间迁移只能通过 MigrationRepository export/import，不复制
+内部物理文件。切换记录 source/target backend IDs、bundle digest、schema transforms、
+验证结果和 rollback reference；进行中任务 graph/profile version 不随 backend 迁移改变。
+
+## 13. 可观测性与 PMF 数据
+
+### 13.1 审计与诊断
+
+本地结构化事件记录状态转换、actor、输入/输出 digest、authority decision、tool action、
+validation、review、invalidation 和 completion。默认不记录 prompt body、secret 或完整
+源码。诊断导出先生成 manifest 和 redaction preview；会话外发送需授权。
+
+### 13.2 PMF 记录
+
+以任务级最小聚合记录：类别、风险路径、完成/放弃、PRD 后 Human 中断次数与原因、
+revision、耗时区间、失败/恢复、重复使用和用户主动授权到达的阶段。产品指标配置与
+原始用户内容分离。Agent 可以生成假设与反证报告，不能自行改变产品方向。
+
+## 14. 可靠性与失败处理
+
+| 失败 | 确定性处理 |
+|---|---|
+| runtime 崩溃或关闭 | 停止推进；下次同 runtime 重放并协调 lease/action |
+| snapshot 与 event stream 不一致 | 以 committed head 重建；仅 committed digest/object 损坏时 fail closed |
+| Agent 输出 schema 错误 | 不提升 trust；在 budget 内修订 |
+| Reviewer 不独立或 verdict 无效 | 拒绝 verdict，重新分配或升级 |
+| tool timeout | 查询 action 状态；无法证明时标记 unknown |
+| 权限拒绝/过期/digest 变化 | 阻止动作并废弃旧授权；必要时重新请求 |
+| 资源冲突 | 排队、暂停或升级；不抢占未知副作用 |
+| graph/profile/config 不兼容 | 任务 blocked，提供兼容或迁移路径 |
+| evidence 过期或来源失效 | 失效依赖节点并重新验证 |
+| budget 耗尽 | 保留全部事实并升级 non-convergence |
+
+## 15. 安全威胁与控制
+
+| 威胁 | 控制 |
+|---|---|
+| prompt injection 要求绕过权限 | deterministic policy 只接受结构化 command 与有效 authority |
+| 伪造 Owner 或跨会话批准 | runtime identity、pairing/allowlist、lineage 和 decision digest 绑定 |
+| 路径穿越或越界写入 | canonical target resolver、allowlist、symlink policy、sandbox capability |
+| shell 注入 | argv 结构化 action；需要 shell 时显式声明并二次 policy 校验 |
+| artifact/evidence 篡改 | content digest、event chain、immutable object、trust invalidation |
+| author 自审 | canonical actor independence 和 reviewer policy |
+| 恢复时重复外部动作 | action journal、idempotency key、reconciliation、unknown fail closed |
+| 恶意扩展 | manifest/schema/source 校验、capability isolation、core invariant 不可覆写 |
+| secret 泄露 | provider reference、最小注入、redaction、quarantine 与 evidence invalidation |
+| 陈旧 lease 或双任务写同一资源 | 全局 ResourceLeaseRepository、atomic acquire-many、monotonic fencing 与 execute gate |
+| 模型或 connector 过度外发 | DataDisclosurePlan、字段 allowlist、redaction、分类 policy 与 payload receipt digest |
+
+## 16. 需求追踪
+
+| PRD | 设计章节 | 主要验证方向 |
+|---|---|---|
+| FR-01 Skill 入口 | §9 | Codex/Hermes 创建、发现、批准、执行、恢复、结果契约 |
+| FR-02 任务归属 | §4.1、§9.4 | runtime/Owner mismatch 拒绝与数据隔离 |
+| FR-03 本地状态 | §4.4、§5 | committed event stream/snapshot 重放、损坏检测与恢复 |
+| FR-04 图执行 | §4.3、§6 | typed edge、routing、join、fallback、budget |
+| FR-05 自动收敛 | §6.3 | finding 回路、digest progress、冲突与 budget |
+| FR-06 意图保持 | §4.1、§6.4 | baseline binding、依赖失效、外部副作用协调 |
+| FR-07 权限门禁 | §8、§15 | PRD 前只读、action authority、过期和 digest mismatch |
+| FR-08 中断恢复 | §5、§6.1、§8.3～8.4 | crash points、execute revalidation、unknown action、non-idempotent replay |
+| FR-09 标准产物 | §10.1 | artifact contract、合并产物的逻辑追踪 |
+| FR-10 可信完成 | §6.5 | 所有 completion predicates 与虚假完成拒绝 |
+| FR-11 隐私证据 | §10、§15 | classification、retention、secret reference、quarantine、disclosure gate |
+| FR-12 配置分离 | §3.3、§11 | 不同用户/项目仅改配置；安全单调性 |
+| FR-13 产品学习 | §13.2 | 最小指标、反证报告、无内容泄露 |
+| FR-14 九类 Profile | §7 | Profile/overlay/matrix schema、rollback 与 ReleaseCoverageGate |
+| FR-15 项目与任务生命周期 | §4.2、§4.4、§5.3 | 新建/既有、多仓库/服务/环境绑定；command/query、并发、全局 lease、暂停、取消、撤权、归档、回滚 |
+| FR-16 安装升级 | §12 | macOS/Linux、备份、兼容检查、失败回退 |
+| FR-17 真实操作 | §6.5、§8 | prepare/authorize/execute/reconcile/target verify |
+| FR-18 高级扩展 | §11.2 | manifest、compatibility、malicious extension 拒绝 |
+| NFR-01 简单性 | §3、§9、§12 | 无 daemon 的 Skill-first 安装与运行 |
+| NFR-02 可靠性 | §6.5、§14 | fail closed、真实完成与明确阻塞 |
+| NFR-03 可恢复性 | §5、§8、§14 | 重放、lease/action 协调与未知副作用 |
+| NFR-04 平台中立 | §3.3、§9.1 | core dependency scan 与 adapter contract |
+| NFR-05 数据逻辑分离 | §3.3、§11 | engine 无环境/用户硬编码扫描 |
+| NFR-06 隐私 | §10、§13、§15 | 最小留存、秘密引用、redaction 与隔离 |
+| NFR-07 可审计性 | §5、§6、§13 | digest chain、状态重放和决策追踪 |
+| NFR-08 兼容性 | §9.1、§12 | capability/schema mismatch 明确阻塞 |
+
+九类发布矩阵与三条风险路径的具体测试用例属于后续 Test Plan，但测试数据结构、
+门槛和逐类全部通过语义已由 §7 与 Completion Gate 约束。
+
+## 17. 验证策略
+
+### 17.1 确定性验证
+
+- schema/property tests：Graph、edge、state、event、authority、artifact/evidence、Profile、
+  overlay、Support Matrix、DataDisclosurePlan 与 RetentionPolicy；
+- reducer model tests：由 §4.4 的状态与 command/transition tables 生成完整笛卡尔测试；
+  每个合法组合只产生规定 event 和唯一目标，每个未列组合 fail closed；查询不改变状态；
+- project-scope fixtures/application tests：单个新项目及 actual Git realization、既有 Git、
+  多仓库、多服务、多环境、重复 binding/canonical target、非 Git、symlink/allowlist 越界、
+  不同 Owner/runtime、批准后 scope change/reapproval/invalidation 和恢复 identity mismatch；
+- repository conformance：同一 suite 验证任一 backend 的 atomic commit、transaction
+  idempotency、old/new 二态恢复、snapshot rebuild、committed corruption fail-closed；
+- replay/crash tests：repository 和 action 每个步骤注入崩溃，验证无 partial visible；
+- concurrency tests：task lease、atomic acquire-many、相反资源顺序、CAS conflict、lease
+  expiry、stale fencing、catalog/lease rebuild；在无原生 fencing adapter 注入长调用、
+  TTL 到期、runner 崩溃及 executing/unknown，第二任务必须被 durable action claim 阻止，
+  直到第一动作证明未执行、已验证或已补偿；
+- action tests：授权后分别改变 action、baseline、snapshot、resource、lease、revocation、
+  expiry 和 disclosure plan，必须在 tool call 前拒绝；
+- artifact contract fixtures：十类逻辑产物逐项删除必填语义、trace、digest 或 review，
+  以及合并文件中单个逻辑 artifact 独立 invalidation；
+- release coverage fixtures：九类逐类 rollback、required cases、real E2E、三 overlay 和
+  runtime coverage 缺一即失败；
+- privacy tests：owner-only permission、retention/purge、archive/cancel、quarantine，及
+  未声明 destination、超分类、缺授权或未 redacted 的 disclosure 拒绝；
+- security tests：path traversal、shell injection、identity spoof、digest swap、secret leak；
+- compatibility tests：core/Skill/adapter/graph/profile/schema 版本矩阵；
+- golden trace tests：给定 events 必须产生唯一 snapshot 与 completion decision。
+
+### 17.2 Runtime contract
+
+- Codex：显式/隐式 Skill 触发、项目规范读取、独立 reviewer、恢复和权限拒绝；
+- Hermes：Telegram 与 Discord 分别验证 pairing/allowlist、thread lineage、批准、长消息
+  delivery receipt、恢复和他人输入拒绝；
+- 两 runtime 各自完成 full/compact/emergency 代表任务；
+- 尝试跨 runtime 接续必须明确失败且不泄露状态或复用 authority。
+
+### 17.3 九类矩阵
+
+每类 Profile 必须通过正常、类别边界、失败修订、authority failure、intent drift、
+invalidation、runtime recovery、标准产物、独立 review、target-state verification 和
+真实项目 E2E。共享节点测试只能复用底层证据，不能替代类别完成语义测试。
+
+## 18. 迁移、回滚与兼容
+
+v1 没有已发布运行时，因此首次实现不需要用户数据迁移；但从第一个可运行版本开始，
+所有 schema 与 repository bundle 都必须提供 version 和迁移契约。配置、状态或 backend
+迁移前必须导出可验证的 backend-neutral bundle，并在隔离 repository 完成 import、重放
+和 integrity scan 后才能原子切换。失败时继续使用原 backend；任务 graph/profile version
+在完成或显式迁移前保持锁定。
+
+旧项目 `/Users/ezio/Documents/MyProjects/agent-engineering-workflow` 仅可作为只读设计
+参考；安装、测试和运行时都必须在其不可访问时仍完整工作。
+
+## 19. 替代方案与取舍
+
+| 方案 | 结论 | 原因 |
+|---|---|---|
+| 纯 Skill / prompt 实现全部逻辑 | 拒绝 | 无法可信强制 authority、digest、replay 和 completion |
+| 常驻 daemon + 中心数据库 | v1 拒绝 | 与关闭即暂停及简单安装的已批准边界冲突 |
+| backend-neutral event-sourced repository | 采用 | Human Owner 已批准；冻结一致性、事务与恢复语义，具体 backend 由 ADR 以 conformance 证据选择 |
+| SQLite DELETE/EXTRA + filesystem objects | ADR-0002 采用 | 统一 transaction authority、成熟 recovery、短事务；由 capability/crash conformance 控制风险 |
+| 纯文件 backend | ADR-0002 v1 拒绝 | 需要自建 transaction coordinator、全局 lease/index/recovery；仍保留 backend-neutral ports |
+| 每类任务一个引擎 | 拒绝 | 重复安全语义并增加漂移；共享核心 + Profile 更符合基线 |
+| Codex/Hermes 共享任务库 | v1 拒绝 | 与单 runtime 归属冲突，扩大身份与并发复杂度 |
+| runtime 自由解释自然语言 graph | 拒绝 | route、trust、budget 和 invalidation 无法确定性复验 |
+| 后台 gateway 自动继续 Hermes 任务 | 拒绝 | gateway 仅 transport，不能成为隐藏 scheduler |
+
+## 20. Implementation alignment decisions
+
+ADR-0001 已选 Python distribution/四责任 roots；ADR-0002 已选 SQLite DELETE/EXTRA、filesystem
+objects 与 POSIX lock 协议；ADR-0003 已冻结 canonical JSON、schema、GEEL、digest 和 resource
+accounting。Codex/Hermes adapter compatibility、secret provider priority 与 extension package
+trust 仍由后续 WP/ADR 收敛。若任何后续选择改变无 daemon、单 runtime、本地状态、九类范围、
+三条路径、确定性安全底线或 Skill-first 入口，必须返回 Human Owner。
+
+## 21. Candidate 退出条件
+
+本文只有在以下条件满足后才能请求 Human Owner 批准：
+
+- 所有 FR/NFR 有设计映射，无遗漏或与 PRD 冲突；
+- 图节点、typed edge、routing、trust、fallback、join、budget 和 invalidation 已定义；
+- 本地持久化、runtime 中断恢复、外部副作用和并发语义可测试；
+- 九类 Profile 与三条风险路径均有实现契约；
+- Codex/Hermes Skill-first 入口不承担确定性安全职责；
+- 独立 Technical Reviewer 返回 PASS，或只剩需要 Human 决策的明确事项；
+- 本文没有扩大 Authority Envelope 或授权实现。
+
+## 22. 批准状态
+
+本文已通过独立 Technical Review，Human Owner 于 2026-08-13 同意进入下一步，因而
+成为 Impact Analysis、ADR 与批准 Plan 的输入。计划内可逆实现由后续批准链授权；本文自身
+不授权 commit、push、merge、deploy、release 或会话外通信。

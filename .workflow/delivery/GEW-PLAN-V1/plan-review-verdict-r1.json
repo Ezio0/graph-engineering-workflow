@@ -1,0 +1,9 @@
+{
+  "schema_version":"1.0","verdict":"REVISE","artifact":"implementation-plan","scope_changed":false,
+  "change_kinds":["consistency","testability"],
+  "findings":[
+    {"id":"PLAN-R0-006","severity":"blocking","evidence":"S1 omitted WP-03 even though WP-04 depended on it.","required_change":"Make graph, WP dependencies and slice entry closure identical.","verification":"S1 dependency closure contains every WP-04 prerequisite.","status":"open"},
+    {"id":"PLAN-R1-007","severity":"blocking","evidence":"WP-07 exit depended backward on WP-08 overlays and WP-10 formal installation.","required_change":"Keep WP-07 to pre-release runtime/channel contracts and move 2x3/install gates downstream.","verification":"Exit dependency graph is acyclic while downstream release gates remain mandatory.","status":"open"}
+  ],
+  "reviewer_id":"codex:/root/adr_0001_reviewer_r1"
+}

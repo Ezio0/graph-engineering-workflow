@@ -1,0 +1,122 @@
+{
+  "schema_version": "1.0",
+  "dependencies": [
+    {
+      "work_package": "WP-02",
+      "revision": 4,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-02-source-manifest-r4.json",
+      "source_manifest_digest": "80a3330dcfd13fa81c90ec6d3b5b75a0307517ca6ae3378d341d740b5e50c40e",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-02-command-evidence-r4.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-02-review-verdict-r4.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-02-exit-r4.json"
+    },
+    {
+      "work_package": "WP-03",
+      "revision": 8,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-03-source-manifest-r8.json",
+      "source_manifest_digest": "5dc67d11277eedafc4b9b80236ab38bbc50f008e3aae12d8bdd95c9c5bd9e322",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-03-command-evidence-r8.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-03-review-verdict-r8.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-03-exit-r8.json"
+    },
+    {
+      "work_package": "WP-04A",
+      "revision": 5,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-04a-source-manifest-r5.json",
+      "source_manifest_digest": "a79252bfae03066a394d2f9b1e359d37f29930c90f44195663672019c6dfd6e7",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-04a-command-evidence-r5.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-04a-review-verdict-r5.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-04a-exit-r5.json"
+    }
+  ],
+  "commands": [
+    {"id": "GEW-WP-04-LINT-P", "argv": ["{python}", "scripts/check_sources.py", "lint"]},
+    {"id": "GEW-WP-04-TYPE-P", "argv": ["{python}", "scripts/check_sources.py", "type"]},
+    {"id": "GEW-WP-04-SECURITY-P", "argv": ["{python}", "scripts/check_architecture.py"]},
+    {"id": "GEW-WP-04-TEST-P", "argv": ["{python}", "scripts/run_tests.py"]},
+    {"id": "GEW-WP-04-BUILD-P", "argv": ["{python}", "scripts/verify_build.py"]},
+    {"id": "GEW-WP-04-REPRODUCIBILITY-P", "argv": ["{python}", "scripts/verify_reproducible_build.py"]}
+  ],
+  "test_bindings": [
+    {
+      "test_id": "GEW-RUN-FINDING-STATE-P",
+      "qualified_test": "test_wp02_reducer.ReducerTests.test_finding_events_are_replayable_and_fail_closed"
+    },
+    {
+      "test_id": "GEW-RUN-COMMAND-TRANSACTION-P",
+      "qualified_test": "test_wp04_application.TaskApplicationIntegrationTests.test_command_transaction_query_and_idempotent_recovery"
+    },
+    {
+      "test_id": "GEW-RUN-LINEAGE-R",
+      "qualified_test": "test_wp04_application.TaskApplicationIntegrationTests.test_wrong_owner_or_runtime_lineage_fails_before_mutation"
+    },
+    {
+      "test_id": "GEW-RUN-RESUME-P",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_runner_resumes_and_converges_two_nodes_without_background_work"
+    },
+    {
+      "test_id": "GEW-RUN-DURABLE-REVIEW-RESUME-P",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_durable_review_resume_does_not_call_reviewer_twice"
+    },
+    {
+      "test_id": "GEW-RUN-NO-PROGRESS-R",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_repeated_revise_without_digest_progress_escalates_stably"
+    },
+    {
+      "test_id": "GEW-RUN-PASS-NO-PROGRESS-R",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_revise_then_pass_without_digest_progress_escalates_stably"
+    },
+    {
+      "test_id": "GEW-RUN-PROGRESS-P",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_routine_finding_closes_after_digest_progress_and_independent_review"
+    },
+    {
+      "test_id": "GEW-RUN-INTERNAL-AUTHORITY-R",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_internal_node_pass_and_task_completion_injection_write_nothing"
+    },
+    {
+      "test_id": "GEW-RUN-AUTHORITY-STALE-R",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_transition_authority_stale_source_is_zero_write"
+    },
+    {
+      "test_id": "GEW-RUN-AUTHORITY-TASK-R",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_transition_authority_wrong_task_is_zero_write"
+    },
+    {
+      "test_id": "GEW-RUN-AUTHORITY-SCOPE-R",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_transition_authority_wrong_scope_is_zero_write"
+    },
+    {
+      "test_id": "GEW-RUN-AUTHORITY-EVENT-R",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_transition_authority_event_type_mismatch_is_zero_write"
+    },
+    {
+      "test_id": "GEW-RUN-AUTHORITY-ONE-USE-R",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_transition_authority_is_consumed_once"
+    },
+    {
+      "test_id": "GEW-RUN-GRAPH-BINDING-R",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_graph_digest_mismatch_rejects_before_node_execution"
+    },
+    {
+      "test_id": "GEW-RUN-FAILURE-ROUTE-P",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_declared_runtime_failure_selects_fallback_and_unlisted_failure_blocks"
+    },
+    {
+      "test_id": "GEW-RUN-COMPLETION-R",
+      "qualified_test": "test_wp04_runner.ApplicationRunnerIntegrationTests.test_completion_gate_rejects_each_missing_binding_before_completion"
+    },
+    {
+      "test_id": "GEW-WP-04-EXIT-P",
+      "qualified_test": "test_wp04_evidence_contract.WP04EvidenceContractTests.test_valid_candidate_binding_passes"
+    },
+    {
+      "test_id": "GEW-WP-04-EXIT-R",
+      "qualified_test": "test_wp04_evidence_contract.WP04EvidenceContractTests.test_source_command_runtime_document_and_review_mutations_fail"
+    },
+    {
+      "test_id": "GEW-WP-04-DEPENDENCY-R",
+      "qualified_test": "test_wp04_evidence_contract.WP04EvidenceContractTests.test_all_prerequisites_require_exact_pass_candidates"
+    }
+  ]
+}

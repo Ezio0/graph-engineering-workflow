@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "policy_id": "urn:gew:migration-storage-policy:local-v1",
+  "initial_release_id": "initial-local-repository",
+  "repository_contract_id": "repository-contract-1",
+  "control_lock_filename": "installation-maintenance.lock",
+  "active_manifest_filename": "active-repository-manifest.json",
+  "repository_locator_registry_filename": "repository-locators.json",
+  "manifest_history_directory": "manifest-history",
+  "bundle_manifest_filename": "bundle-manifest.json",
+  "bundle_records_filename": "repository-records.json",
+  "bundle_objects_directory": "objects",
+  "max_bundle_member_bytes": 67108864,
+  "max_bundle_objects": 100000,
+  "max_bundle_total_bytes": 268435456,
+  "max_json_depth": 64,
+  "max_json_nodes": 2000000,
+  "root_mode": 448,
+  "file_mode": 384
+}

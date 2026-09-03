@@ -1,0 +1,44 @@
+{
+  "verdict": "REVISE",
+  "binding": {
+    "source_manifest_digest": "e26d8820b222cd7963426ec3cb0010e5f95a368c976445eb49e6970a7b6ae5c8",
+    "command_evidence_digest": "7b8542ecc13a8dd35d29c2d610c123fe8030ee6fb65baf1c61ac61af8ce6926c",
+    "candidate_exit_digest": "0be7d7dc1e13dd6658caf6051665b930d8f278b136a60e0c7daafee42f01d1f0",
+    "governing_documents_digest": "9bb0508b71fb45989a5ea2feead5aebff8fcf6f8a9f15161eb2e8ab18a2e51bd",
+    "identity_independent": true
+  },
+  "finding_dispositions": [],
+  "findings": [
+    {
+      "id": "WP05A-R1-001",
+      "severity": "major",
+      "summary": "Security bindings and policies authenticate only caller-computed self-digests, not authoritative task or runtime state.",
+      "required_fix": "Pin bindings and policies to the durable task snapshot and installed security-runtime manifest."
+    },
+    {
+      "id": "WP05A-R1-002",
+      "severity": "major",
+      "summary": "Evidence provenance, classification, redaction, freshness and independent-review trust can be self-attested by the caller.",
+      "required_fix": "Consume clock, bindings, classification, producer trust and review receipts through attested state."
+    },
+    {
+      "id": "WP05A-R1-003",
+      "severity": "major",
+      "summary": "Disclosure validation does not authorize the concrete destination, authority object or delivery receipt.",
+      "required_fix": "Bind concrete destination and authority state and accept only action-journal-issued receipts."
+    },
+    {
+      "id": "WP05A-R1-004",
+      "severity": "major",
+      "summary": "Retention can authorize purge from caller assertions instead of durable holds and object metadata.",
+      "required_fix": "Evaluate and revalidate purge against a repository-issued immutable subject snapshot."
+    },
+    {
+      "id": "WP05A-R1-005",
+      "severity": "major",
+      "summary": "Redaction and path handling do not consistently fail closed under resource exhaustion and symlink races.",
+      "required_fix": "Bound recursive ingress and bind path use through no-follow descriptors."
+    }
+  ],
+  "reviewer_id": "codex:/root/wp05a_reviewer_r1"
+}

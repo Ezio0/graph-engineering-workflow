@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:completion-policy:1.0.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "policy_id": {"type": "string", "minLength": 1, "maxLength": 255},
+    "version": {"type": "string", "minLength": 1, "maxLength": 64},
+    "kind": {"enum": ["all_required", "any_passed", "quorum"]},
+    "quorum": {"anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]},
+    "condition": {"type": "object", "minProperties": 1, "maxProperties": 8, "additionalProperties": true}
+  },
+  "required": ["schema_version", "policy_id", "version", "kind", "quorum", "condition"],
+  "unevaluatedProperties": false
+}

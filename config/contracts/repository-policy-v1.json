@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "policy_id": "urn:gew:repository-policy:sqlite-delete-extra:1.0.0",
+  "database_filename": "repository.sqlite3",
+  "objects_directory": "objects",
+  "staging_directory": "staging",
+  "locks_directory": "locks",
+  "resources_directory": "resources",
+  "journal_mode": "DELETE",
+  "synchronous": "EXTRA",
+  "foreign_keys": true,
+  "locking_mode": "NORMAL",
+  "busy_timeout_ms": 250,
+  "busy_retry_delays_ms": [0, 2, 5, 10],
+  "root_mode": 448,
+  "file_mode": 384,
+  "lock_mode": 384,
+  "object_fanout_chars": 2,
+  "approved_filesystem_types": ["apfs", "btrfs", "ext4", "xfs"],
+  "required_sqlite_vfs": "unix",
+  "connection_roles": ["application", "backup", "doctor", "migration"]
+}

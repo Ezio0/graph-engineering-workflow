@@ -1,0 +1,542 @@
+{
+  "schema_version": "1.0",
+  "dependencies": [
+    {
+      "work_package": "WP-02",
+      "revision": 4,
+      "source_manifest_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-02-source-manifest-r4.json",
+      "source_manifest_digest": "80a3330dcfd13fa81c90ec6d3b5b75a0307517ca6ae3378d341d740b5e50c40e",
+      "command_evidence_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-02-command-evidence-r4.json",
+      "verdict_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-02-review-verdict-r4.json",
+      "exit_path": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-02-exit-r4.json"
+    }
+  ],
+  "commands": [
+    {
+      "id": "GEW-WP-04A-LINT-P",
+      "argv": [
+        "{python}",
+        "scripts/check_sources.py",
+        "lint"
+      ]
+    },
+    {
+      "id": "GEW-WP-04A-TYPE-P",
+      "argv": [
+        "{python}",
+        "scripts/check_sources.py",
+        "type"
+      ]
+    },
+    {
+      "id": "GEW-WP-04A-SECURITY-P",
+      "argv": [
+        "{python}",
+        "scripts/check_architecture.py"
+      ]
+    },
+    {
+      "id": "GEW-WP-04A-TEST-P",
+      "argv": [
+        "{python}",
+        "scripts/run_tests.py"
+      ]
+    },
+    {
+      "id": "GEW-WP-04A-BUILD-P",
+      "argv": [
+        "{python}",
+        "scripts/verify_build.py"
+      ]
+    },
+    {
+      "id": "GEW-WP-04A-REPRODUCIBILITY-P",
+      "argv": [
+        "{python}",
+        "scripts/verify_reproducible_build.py"
+      ]
+    }
+  ],
+  "test_bindings": [
+    {
+      "test_id": "GEW-ART-candidate-review-DIGEST",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_candidate_review_digest"
+    },
+    {
+      "test_id": "GEW-ART-candidate-review-EXIT",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_candidate_review_exit"
+    },
+    {
+      "test_id": "GEW-ART-candidate-review-FINDINGS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_candidate_review_findings"
+    },
+    {
+      "test_id": "GEW-ART-candidate-review-GOLD",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_candidate_review_gold"
+    },
+    {
+      "test_id": "GEW-ART-candidate-review-INPUTS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_candidate_review_inputs"
+    },
+    {
+      "test_id": "GEW-ART-candidate-review-INVALIDATE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_candidate_review_invalidate"
+    },
+    {
+      "test_id": "GEW-ART-candidate-review-REVIEW",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_candidate_review_review"
+    },
+    {
+      "test_id": "GEW-ART-candidate-review-SEMANTICS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_candidate_review_semantics"
+    },
+    {
+      "test_id": "GEW-ART-candidate-review-STATUS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_candidate_review_status"
+    },
+    {
+      "test_id": "GEW-ART-candidate-review-TRACE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_candidate_review_trace"
+    },
+    {
+      "test_id": "GEW-ART-completion-record-DIGEST",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_completion_record_digest"
+    },
+    {
+      "test_id": "GEW-ART-completion-record-EXIT",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_completion_record_exit"
+    },
+    {
+      "test_id": "GEW-ART-completion-record-FINDINGS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_completion_record_findings"
+    },
+    {
+      "test_id": "GEW-ART-completion-record-GOLD",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_completion_record_gold"
+    },
+    {
+      "test_id": "GEW-ART-completion-record-INPUTS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_completion_record_inputs"
+    },
+    {
+      "test_id": "GEW-ART-completion-record-INVALIDATE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_completion_record_invalidate"
+    },
+    {
+      "test_id": "GEW-ART-completion-record-REVIEW",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_completion_record_review"
+    },
+    {
+      "test_id": "GEW-ART-completion-record-SEMANTICS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_completion_record_semantics"
+    },
+    {
+      "test_id": "GEW-ART-completion-record-STATUS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_completion_record_status"
+    },
+    {
+      "test_id": "GEW-ART-completion-record-TRACE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_completion_record_trace"
+    },
+    {
+      "test_id": "GEW-ART-impact-DIGEST",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_impact_digest"
+    },
+    {
+      "test_id": "GEW-ART-impact-EXIT",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_impact_exit"
+    },
+    {
+      "test_id": "GEW-ART-impact-FINDINGS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_impact_findings"
+    },
+    {
+      "test_id": "GEW-ART-impact-GOLD",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_impact_gold"
+    },
+    {
+      "test_id": "GEW-ART-impact-INPUTS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_impact_inputs"
+    },
+    {
+      "test_id": "GEW-ART-impact-INVALIDATE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_impact_invalidate"
+    },
+    {
+      "test_id": "GEW-ART-impact-REVIEW",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_impact_review"
+    },
+    {
+      "test_id": "GEW-ART-impact-SEMANTICS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_impact_semantics"
+    },
+    {
+      "test_id": "GEW-ART-impact-STATUS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_impact_status"
+    },
+    {
+      "test_id": "GEW-ART-impact-TRACE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_impact_trace"
+    },
+    {
+      "test_id": "GEW-ART-implementation-DIGEST",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_implementation_digest"
+    },
+    {
+      "test_id": "GEW-ART-implementation-EXIT",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_implementation_exit"
+    },
+    {
+      "test_id": "GEW-ART-implementation-FINDINGS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_implementation_findings"
+    },
+    {
+      "test_id": "GEW-ART-implementation-GOLD",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_implementation_gold"
+    },
+    {
+      "test_id": "GEW-ART-implementation-INPUTS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_implementation_inputs"
+    },
+    {
+      "test_id": "GEW-ART-implementation-INVALIDATE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_implementation_invalidate"
+    },
+    {
+      "test_id": "GEW-ART-implementation-REVIEW",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_implementation_review"
+    },
+    {
+      "test_id": "GEW-ART-implementation-SEMANTICS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_implementation_semantics"
+    },
+    {
+      "test_id": "GEW-ART-implementation-STATUS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_implementation_status"
+    },
+    {
+      "test_id": "GEW-ART-implementation-TRACE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_implementation_trace"
+    },
+    {
+      "test_id": "GEW-ART-plan-DIGEST",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_plan_digest"
+    },
+    {
+      "test_id": "GEW-ART-plan-EXIT",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_plan_exit"
+    },
+    {
+      "test_id": "GEW-ART-plan-FINDINGS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_plan_findings"
+    },
+    {
+      "test_id": "GEW-ART-plan-GOLD",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_plan_gold"
+    },
+    {
+      "test_id": "GEW-ART-plan-INPUTS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_plan_inputs"
+    },
+    {
+      "test_id": "GEW-ART-plan-INVALIDATE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_plan_invalidate"
+    },
+    {
+      "test_id": "GEW-ART-plan-REVIEW",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_plan_review"
+    },
+    {
+      "test_id": "GEW-ART-plan-SEMANTICS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_plan_semantics"
+    },
+    {
+      "test_id": "GEW-ART-plan-STATUS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_plan_status"
+    },
+    {
+      "test_id": "GEW-ART-plan-TRACE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_plan_trace"
+    },
+    {
+      "test_id": "GEW-ART-positioning-DIGEST",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_positioning_digest"
+    },
+    {
+      "test_id": "GEW-ART-positioning-EXIT",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_positioning_exit"
+    },
+    {
+      "test_id": "GEW-ART-positioning-FINDINGS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_positioning_findings"
+    },
+    {
+      "test_id": "GEW-ART-positioning-GOLD",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_positioning_gold"
+    },
+    {
+      "test_id": "GEW-ART-positioning-INPUTS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_positioning_inputs"
+    },
+    {
+      "test_id": "GEW-ART-positioning-INVALIDATE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_positioning_invalidate"
+    },
+    {
+      "test_id": "GEW-ART-positioning-REVIEW",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_positioning_review"
+    },
+    {
+      "test_id": "GEW-ART-positioning-SEMANTICS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_positioning_semantics"
+    },
+    {
+      "test_id": "GEW-ART-positioning-STATUS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_positioning_status"
+    },
+    {
+      "test_id": "GEW-ART-positioning-TRACE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_positioning_trace"
+    },
+    {
+      "test_id": "GEW-ART-prd-DIGEST",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_prd_digest"
+    },
+    {
+      "test_id": "GEW-ART-prd-EXIT",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_prd_exit"
+    },
+    {
+      "test_id": "GEW-ART-prd-FINDINGS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_prd_findings"
+    },
+    {
+      "test_id": "GEW-ART-prd-GOLD",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_prd_gold"
+    },
+    {
+      "test_id": "GEW-ART-prd-INPUTS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_prd_inputs"
+    },
+    {
+      "test_id": "GEW-ART-prd-INVALIDATE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_prd_invalidate"
+    },
+    {
+      "test_id": "GEW-ART-prd-REVIEW",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_prd_review"
+    },
+    {
+      "test_id": "GEW-ART-prd-SEMANTICS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_prd_semantics"
+    },
+    {
+      "test_id": "GEW-ART-prd-STATUS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_prd_status"
+    },
+    {
+      "test_id": "GEW-ART-prd-TRACE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_prd_trace"
+    },
+    {
+      "test_id": "GEW-ART-tech-spec-DIGEST",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_tech_spec_digest"
+    },
+    {
+      "test_id": "GEW-ART-tech-spec-EXIT",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_tech_spec_exit"
+    },
+    {
+      "test_id": "GEW-ART-tech-spec-FINDINGS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_tech_spec_findings"
+    },
+    {
+      "test_id": "GEW-ART-tech-spec-GOLD",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_tech_spec_gold"
+    },
+    {
+      "test_id": "GEW-ART-tech-spec-INPUTS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_tech_spec_inputs"
+    },
+    {
+      "test_id": "GEW-ART-tech-spec-INVALIDATE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_tech_spec_invalidate"
+    },
+    {
+      "test_id": "GEW-ART-tech-spec-REVIEW",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_tech_spec_review"
+    },
+    {
+      "test_id": "GEW-ART-tech-spec-SEMANTICS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_tech_spec_semantics"
+    },
+    {
+      "test_id": "GEW-ART-tech-spec-STATUS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_tech_spec_status"
+    },
+    {
+      "test_id": "GEW-ART-tech-spec-TRACE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_tech_spec_trace"
+    },
+    {
+      "test_id": "GEW-ART-test-plan-DIGEST",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_test_plan_digest"
+    },
+    {
+      "test_id": "GEW-ART-test-plan-EXIT",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_test_plan_exit"
+    },
+    {
+      "test_id": "GEW-ART-test-plan-FINDINGS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_test_plan_findings"
+    },
+    {
+      "test_id": "GEW-ART-test-plan-GOLD",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_test_plan_gold"
+    },
+    {
+      "test_id": "GEW-ART-test-plan-INPUTS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_test_plan_inputs"
+    },
+    {
+      "test_id": "GEW-ART-test-plan-INVALIDATE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_test_plan_invalidate"
+    },
+    {
+      "test_id": "GEW-ART-test-plan-REVIEW",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_test_plan_review"
+    },
+    {
+      "test_id": "GEW-ART-test-plan-SEMANTICS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_test_plan_semantics"
+    },
+    {
+      "test_id": "GEW-ART-test-plan-STATUS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_test_plan_status"
+    },
+    {
+      "test_id": "GEW-ART-test-plan-TRACE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_test_plan_trace"
+    },
+    {
+      "test_id": "GEW-ART-verification-DIGEST",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_verification_digest"
+    },
+    {
+      "test_id": "GEW-ART-verification-EXIT",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_verification_exit"
+    },
+    {
+      "test_id": "GEW-ART-verification-FINDINGS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_verification_findings"
+    },
+    {
+      "test_id": "GEW-ART-verification-GOLD",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_verification_gold"
+    },
+    {
+      "test_id": "GEW-ART-verification-INPUTS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_verification_inputs"
+    },
+    {
+      "test_id": "GEW-ART-verification-INVALIDATE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_verification_invalidate"
+    },
+    {
+      "test_id": "GEW-ART-verification-REVIEW",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_verification_review"
+    },
+    {
+      "test_id": "GEW-ART-verification-SEMANTICS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_verification_semantics"
+    },
+    {
+      "test_id": "GEW-ART-verification-STATUS",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_verification_status"
+    },
+    {
+      "test_id": "GEW-ART-verification-TRACE",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_gew_art_verification_trace"
+    },
+    {
+      "test_id": "GEW-ART-MERGED-MANIFEST-GOLD",
+      "qualified_test": "test_wp04a_manifests.LogicalBodyManifestTests.test_gew_art_merged_manifest_gold"
+    },
+    {
+      "test_id": "GEW-ART-MERGED-SELECTOR-MISSING",
+      "qualified_test": "test_wp04a_manifests.LogicalBodyManifestTests.test_gew_art_merged_selector_missing"
+    },
+    {
+      "test_id": "GEW-ART-MERGED-SELECTOR-AMBIGUOUS",
+      "qualified_test": "test_wp04a_manifests.LogicalBodyManifestTests.test_gew_art_merged_selector_ambiguous"
+    },
+    {
+      "test_id": "GEW-ART-MERGED-SELECTOR-OUT-OF-BOUNDS",
+      "qualified_test": "test_wp04a_manifests.LogicalBodyManifestTests.test_gew_art_merged_selector_out_of_bounds"
+    },
+    {
+      "test_id": "GEW-ART-MERGED-OVERLAP",
+      "qualified_test": "test_wp04a_manifests.LogicalBodyManifestTests.test_gew_art_merged_overlap"
+    },
+    {
+      "test_id": "GEW-ART-MERGED-EXTRACTED-DIGEST",
+      "qualified_test": "test_wp04a_manifests.LogicalBodyManifestTests.test_gew_art_merged_extracted_digest"
+    },
+    {
+      "test_id": "GEW-ART-MERGED-INDEPENDENT-INVALIDATION",
+      "qualified_test": "test_wp04a_manifests.LogicalBodyManifestTests.test_gew_art_merged_independent_invalidation"
+    },
+    {
+      "test_id": "GEW-ART-MERGED-SHARED-INVALIDATION",
+      "qualified_test": "test_wp04a_manifests.LogicalBodyManifestTests.test_gew_art_merged_shared_invalidation"
+    },
+    {
+      "test_id": "GEW-ART-MERGED-REVIEW-BINDING",
+      "qualified_test": "test_wp04a_manifests.LogicalBodyManifestTests.test_gew_art_merged_review_binding"
+    },
+    {
+      "test_id": "GEW-ART-CONTRACT-REGISTRY-P",
+      "qualified_test": "test_wp04a_contracts.ArtifactContractTests.test_contract_registry_contains_exact_ten_types_and_validator_set"
+    },
+    {
+      "test_id": "GEW-ART-CONTRACT-REGISTRY-R",
+      "qualified_test": "test_wp04a_contracts.ArtifactContractTests.test_contract_registry_tamper_unknown_and_construction_bypasses_fail_closed"
+    },
+    {
+      "test_id": "GEW-ART-SCHEMA-P",
+      "qualified_test": "test_wp04a_contracts.ArtifactContractTests.test_artifact_schema_registry_is_exact_profile_valid_and_digest_locked"
+    },
+    {
+      "test_id": "GEW-ART-SCHEMA-REQUIRED-R",
+      "qualified_test": "test_wp04a_contracts.ArtifactContractTests.test_every_declared_required_property_has_a_failing_mutation"
+    },
+    {
+      "test_id": "GEW-ART-DEPENDENCY-P",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_dependency_index_propagates_artifact_and_requirement_changes_minimally"
+    },
+    {
+      "test_id": "GEW-ART-LIFECYCLE-P",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_lifecycle_transition_emits_digest_bound_audit_event"
+    },
+    {
+      "test_id": "GEW-ART-COVERAGE-P",
+      "qualified_test": "test_wp04a_artifacts.WP04AArtifactMatrixTests.test_exact_case_id_product_is_complete"
+    },
+    {
+      "test_id": "GEW-ART-MUTATION-COVERAGE-R",
+      "qualified_test": "test_wp04a_mutation_coverage.WP04AMutationCoverageTests.test_declared_mutations_are_executable_and_fail_closed"
+    },
+    {
+      "test_id": "GEW-WP-04A-EXIT-P",
+      "qualified_test": "test_wp04a_evidence_contract.WP04AEvidenceContractTests.test_valid_candidate_binding_passes"
+    },
+    {
+      "test_id": "GEW-WP-04A-EXIT-R",
+      "qualified_test": "test_wp04a_evidence_contract.WP04AEvidenceContractTests.test_source_command_runtime_document_and_review_mutations_fail"
+    },
+    {
+      "test_id": "GEW-WP-04A-DEPENDENCY-R",
+      "qualified_test": "test_wp04a_evidence_contract.WP04AEvidenceContractTests.test_wp02_prerequisite_requires_exact_pass_candidate"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-TECH-SPEC-V2",
+  "decision_id": "GEW-TS-ARCH-001-DECISION",
+  "decided_by": "human-owner",
+  "decided_at": "2026-08-13",
+  "decision": "backend-neutral-event-sourced-repository",
+  "approved_boundary": "Freeze backend-neutral event-sourced repository semantics in the Tech Spec. Select the concrete v1 backend through an ADR using reliability evidence.",
+  "rejected_boundary": "Freeze canonical JSON snapshot plus append-only JSONL as the v1 persistence backend in the Tech Spec.",
+  "authority_effect": "Resolves the material architecture choice in GEW-TS-ARCH-001; does not authorize implementation or irreversible actions."
+}

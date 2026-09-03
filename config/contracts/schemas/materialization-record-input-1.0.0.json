@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:materialization-record-input:1.0.0",
+  "$defs": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 255},
+    "digest": {"type": "string", "minLength": 78, "maxLength": 78},
+    "graphRef": {
+      "type": "object",
+      "properties": {
+        "graph_id": {"$ref": "#/$defs/id"},
+        "graph_version": {"$ref": "#/$defs/id"},
+        "graph_digest": {"$ref": "#/$defs/digest"},
+        "profile_id": {"$ref": "#/$defs/id"},
+        "profile_version": {"$ref": "#/$defs/id"},
+        "risk_path": {"enum": ["full-planned", "compact-planned", "emergency"]},
+        "profile_digest": {"$ref": "#/$defs/digest"},
+        "overlay_id": {"$ref": "#/$defs/id"},
+        "overlay_version": {"$ref": "#/$defs/id"},
+        "overlay_digest": {"$ref": "#/$defs/digest"},
+        "project_config_digest": {"$ref": "#/$defs/digest"},
+        "support_matrix_digest": {"$ref": "#/$defs/digest"},
+        "materialization_digest": {"$ref": "#/$defs/digest"}
+      },
+      "required": ["graph_id", "graph_version", "graph_digest", "profile_id", "profile_version", "risk_path", "profile_digest", "overlay_id", "overlay_version", "overlay_digest", "project_config_digest", "support_matrix_digest", "materialization_digest"],
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "node_ids": {"type": "array", "maxItems": 16384, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "edge_ids": {"type": "array", "maxItems": 16384, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "artifact_contract_ids": {"type": "array", "maxItems": 16384, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "validator_ids": {"type": "array", "maxItems": 16384, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "completion_predicate_ids": {"type": "array", "maxItems": 16384, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "required_invariant_ids": {"type": "array", "maxItems": 16384, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "budget_limits": {"type": "object"}
+      },
+      "required": ["node_ids", "edge_ids", "artifact_contract_ids", "validator_ids", "completion_predicate_ids", "required_invariant_ids", "budget_limits"],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "graph_ref": {"$ref": "#/$defs/graphRef"},
+    "output": {"$ref": "#/$defs/output"},
+    "loop_budget_registry_id": {"$ref": "#/$defs/id"},
+    "loop_budget_registry_digest": {"$ref": "#/$defs/digest"}
+  },
+  "required": ["schema_version", "graph_ref", "output", "loop_budget_registry_id", "loop_budget_registry_digest"],
+  "unevaluatedProperties": false
+}

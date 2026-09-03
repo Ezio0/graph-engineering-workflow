@@ -1,0 +1,13 @@
+{
+  "schema_version":"1.0","task_id":"GEW-IMPLEMENTATION-V1","node":"wp-00-review",
+  "work_package":"WP-00","author_id":"codex:/root","reviewer_id":"codex:/root/adr_0001_reviewer_r1",
+  "revision":0,
+  "targets":["pyproject.toml","uv.lock","core/**","application/**","storage/**","adapters/**","scripts/**","tests/unit/test_wp00_packaging.py","tests/integration/test_wp00_installed_wheel.py"],
+  "evidence":{
+    "python":"3.12.12","unit_and_integration":"PASS:6","architecture_scan":"PASS","uv_lock_offline_check":"PASS",
+    "wheel_sha256":"b1e4928caac2a8775939144666c5352689ff6746b82342b7c3b45f91fd285c5f",
+    "wheel_install_decoy_import":"PASS","wheel_reproducibility":"PASS","git_diff_check":"PASS"
+  },
+  "upstream_plan_digest":"26fce4fd8efa454b529d6a5589588936f5230b039bebbf8b637c77e257d1287b",
+  "authority_envelope":".workflow/delivery/GEW-IMPLEMENTATION-V1/authority-envelope.json"
+}

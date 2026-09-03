@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "adr-0002",
+  "scope_changed": false,
+  "change_kinds": ["architecture-decision", "clarification", "consistency", "testability"],
+  "findings": [
+    {"id": "GEW-ADR2-OBJ-001", "severity": "blocking", "evidence": "Final object publication before metadata commit allowed concurrent GC to delete an about-to-be-referenced object.", "required_change": "Unify object publication, pinning and GC/purge coordination.", "verification": "Concurrent writer/commit/GC crash matrix never leaves a committed missing object.", "status": "open"},
+    {"id": "GEW-ADR2-LOCK-001", "severity": "blocking", "evidence": "Call-span OS lock ownership, identity, ordering and exact lifecycle were underspecified.", "required_change": "Freeze macOS/Linux lock primitive, process-local coordination, canonical multi-lock order and DB ordering.", "verification": "Same-process/two-process/deadlock/crash/attack tests preserve exclusivity and claims.", "status": "open"},
+    {"id": "GEW-ADR2-CONNECTION-001", "severity": "blocking", "evidence": "Connection-level PRAGMA, VFS, fork/thread and raw-file bypass rules were incomplete.", "required_change": "Define one fail-closed connection factory and platform durability contract for every connection kind.", "verification": "Bad PRAGMA/VFS/path/inherited connections fail before transactions.", "status": "open"},
+    {"id": "GEW-ADR2-BACKUP-001", "severity": "blocking", "evidence": "Database backup, object manifest and object copy could represent different logical snapshots.", "required_change": "Bind export to one verified backup snapshot and durable retention hold before atomic bundle publication.", "verification": "Concurrent writes/GC/crash cannot produce a successful mixed bundle.", "status": "open"},
+    {"id": "GEW-ADR2-MIGRATION-001", "severity": "blocking", "evidence": "Upgrade lease, quiescence, atomic activation, rollback and fencing high-water protection were incomplete.", "required_change": "Define import/migration activation state machine and prevent older state from unlocking unknown actions or reusing fences.", "verification": "Crash at each activation step yields complete old/new state and stale bundle activation remains action-blocked.", "status": "open"}
+  ],
+  "reviewer_id": "codex:/root/adr_0002_reviewer_r0"
+}

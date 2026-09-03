@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "adr-0003",
+  "scope_changed": false,
+  "change_kinds": ["clarification", "consistency", "testability"],
+  "findings": [
+    {"id": "GEW-ADR3-DIGEST-001", "severity": "blocking", "evidence": "The exact envelope omitted mandatory projection_id and creation ambiguously deleted a required field from an incomplete record.", "required_change": "Use one authoritative envelope and separate exact creation and verification algorithms.", "verification": "Identity and self-digest vectors reproduce candidate, source, projection, envelope and digest.", "status": "open"},
+    {"id": "GEW-ADR3-GEEL-001", "severity": "blocking", "evidence": "Keyword ordering and the exact error-result schema remained unspecified.", "required_change": "Define deterministic error selection and an exact canonical result/error record.", "verification": "Multiple failures and permuted inputs produce byte-identical records.", "status": "open"},
+    {"id": "GEW-ADR3-BUDGET-001", "severity": "blocking", "evidence": "Cost unit counts, coefficient domains, arithmetic and temporary lifetimes were not executable across implementations.", "required_change": "Define an exact CostSchedule schema, events, counts, ordering, arithmetic and abstract temporary lifetimes.", "verification": "Independent charge traces and boundary outcomes match; invalid schedules reject before input.", "status": "open"}
+  ],
+  "reviewer_id": "codex:/root/adr_0003_reviewer_r1"
+}

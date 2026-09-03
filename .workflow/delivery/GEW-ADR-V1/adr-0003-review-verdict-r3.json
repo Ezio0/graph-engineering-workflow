@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "adr-0003",
+  "scope_changed": false,
+  "change_kinds": ["clarification", "consistency", "testability"],
+  "findings": [
+    {
+      "id": "GEW-ADR3-BUDGET-001",
+      "severity": "blocking",
+      "evidence": "Counts were defined but nested operation boundaries and the actual event stream remained ambiguous, producing different exhaustion locations.",
+      "required_change": "Freeze recursive per-occurrence event emission, nesting, zero-count, trace record and limit/charge sequencing.",
+      "verification": "Nested golden traces and every-event budget cuts agree across implementations.",
+      "status": "open"
+    }
+  ],
+  "reviewer_id": "codex:/root/adr_0003_reviewer_r1"
+}

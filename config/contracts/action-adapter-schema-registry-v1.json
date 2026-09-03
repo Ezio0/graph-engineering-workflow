@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "urn:gew:schema-registry:action-adapters:1.0.0",
+  "resources": [
+    {"schema_id": "urn:gew:schema:action-adapter-registry:1.0.0", "body_digest": "sha256-raw-v1:ce91ac571476ef20e2f97c2a95b768a52baa5deee1255b5aed2b9b525db83d53"},
+    {"schema_id": "urn:gew:schema:action-invocation:1.0.0", "body_digest": "sha256-raw-v1:e373ebd2bed28bc9f6dca37be5a6757a24e4e326fc94462714bd81e15a6793ec"},
+    {"schema_id": "urn:gew:schema:action-receipt:1.0.0", "body_digest": "sha256-raw-v1:70f8eea7903e150b72b5f6d694606b6b14bf6fd7b1d4587eeb41e1d96f437e44"},
+    {"schema_id": "urn:gew:schema:command-execution-request:1.0.0", "body_digest": "sha256-raw-v1:cf3510ea983de64f31433deb461ee34f1d01cb5945bdb29867cf1718d82bfa3f"},
+    {"schema_id": "urn:gew:schema:command-execution-result:1.0.0", "body_digest": "sha256-raw-v1:5e200848b609a6c94198305dc656cb20e834336afe1e111d4b1e450d0b81abc9"},
+    {"schema_id": "urn:gew:schema:command-registry:1.0.0", "body_digest": "sha256-raw-v1:5f44648e74cd2cf83957af12f268432c9d99c788aa1aadd90e665dec51e780e1"},
+    {"schema_id": "urn:gew:schema:command-runtime-policy:1.0.0", "body_digest": "sha256-raw-v1:609aa5fd9ddc8f07e807ae549da221fdce96f871ed8e3c0c766617daf37d8032"},
+    {"schema_id": "urn:gew:schema:concrete-action-policy:1.0.0", "body_digest": "sha256-raw-v1:f869f9277acb92609512885cb7ed2c872291fe45c82b6c14f975f8ea033043ae"},
+    {"schema_id": "urn:gew:schema:connector-capability-mismatch:1.0.0", "body_digest": "sha256-raw-v1:cf44c9ca3b42be2ac64d7bfe329641948ec686fd12509f4f478a62e0312560b2"},
+    {"schema_id": "urn:gew:schema:connector-registry:1.0.0", "body_digest": "sha256-raw-v1:455fdf022fc011a0dceb7ac47de2ffe4b21b0ffb5a984c51a74d2a2304ae5aad"},
+    {"schema_id": "urn:gew:schema:git-adapter-configuration:1.0.0", "body_digest": "sha256-raw-v1:c16491fe39afd19ba88d21b4a5a8aa3d6f1e4880bbfbf4e3fb2497d49d3a3210"},
+    {"schema_id": "urn:gew:schema:git-identity-observation:1.0.0", "body_digest": "sha256-raw-v1:9a8e76d1d01e92478aea3a06bc69806d2936ddd67877b65e0ce5363109d98e4e"},
+    {"schema_id": "urn:gew:schema:git-ref-mutation-plan:1.0.0", "body_digest": "sha256-raw-v1:f44abb3ae4bce4ce0cd76ad52f7b697cada19ee23fb2d7293334d8af4ec69ab5"},
+    {"schema_id": "urn:gew:schema:git-target-plan:1.0.0", "body_digest": "sha256-raw-v1:6c3a490924ed594ca2dcd42207cfaf31b74145b0adde40864c4656de3749d43f"},
+    {"schema_id": "urn:gew:schema:secret-provider-registry:1.0.0", "body_digest": "sha256-raw-v1:30cd95bcabfc99b21e2e75740e96f1bda7565a1d1e256e392e8cdc0417dc6ea6"},
+    {"schema_id": "urn:gew:schema:target-observation:1.0.0", "body_digest": "sha256-raw-v1:26f506444e944e1dd3ccffde208a2b77db3b77eccce7a13d21d9767720bcc45e"}
+  ],
+  "registry_digest": "sha256-jcs-v1:26da6daa65594e6b85635f63df033db3e4b1a0a36f1eb7b4bec36403ba294d9a"
+}

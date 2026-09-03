@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "verdict": "ESCALATE",
+  "artifact": "tech-spec",
+  "scope_changed": false,
+  "change_kinds": [
+    "material-architecture-choice",
+    "architecture-detail",
+    "consistency",
+    "traceability",
+    "testability"
+  ],
+  "findings": [
+    {
+      "id": "GEW-TS-ARCH-001",
+      "severity": "blocking",
+      "evidence": "§3.2 将每任务 canonical JSON snapshot + append-only JSONL event log 列为核心决策，并声明更换持久化模型属于重大架构变化；§19 和 §20 又称 SQLite 尚未排除，文件 event store 与 SQLite 留待后续比较。当前 Candidate 同时锁定并推迟同一持久化边界。",
+      "required_change": "请 Human Owner 明确选择并授权以下架构边界之一：冻结文件 event-store 作为 v1 持久化模型；或冻结 backend-neutral 的 event-sourced repository 语义，把具体 backend 留给 ADR。随后统一修改 §3、§5、§12、§18、§19 和 §20，消除相互矛盾的承诺。",
+      "verification": "全文只能保留一个明确的持久化架构决定；该决定具有 Human 决策记录或已批准 ADR 引用，且事务、恢复、迁移和测试章节均与之相符。",
+      "status": "open"
+    },
+    {
+      "id": "GEW-TS-STORE-001",
+      "severity": "blocking",
+      "evidence": "§5.2 的写事务没有定义 JSONL append 的原子提交边界、目录 fsync、commit marker 或 snapshot/event 双写恢复规则；正常崩溃可能形成无法自动恢复的完整性故障。",
+      "required_change": "在选定持久化模型后定义 durable commit point、record framing、fsync 顺序、snapshot 落后/超前、未提交尾记录、合法截尾及损坏 fail-closed 规则。",
+      "verification": "对每个持久化步骤注入崩溃；恢复必须唯一得到旧状态或新状态，不重复、不静默丢失且不因正常中断永久 blocked。",
+      "status": "open"
+    },
+    {
+      "id": "GEW-TS-CONC-001",
+      "severity": "blocking",
+      "evidence": "§5.3 要求跨任务 ResourceLease，但没有定义所有任务共同访问的权威 lease repository、原子多资源获取或崩溃恢复索引。",
+      "required_change": "定义本地、非 daemon 的 TaskCatalog/ResourceLeaseRepository、规范化资源、锁位置、多资源协议、fencing、过期协调和损坏恢复。",
+      "verification": "两个任务争用相同及相反顺序资源时最多一个持有有效 token，旧 token 被拒绝且恢复不双持有或死锁。",
+      "status": "open"
+    },
+    {
+      "id": "GEW-TS-LIFE-001",
+      "severity": "blocking",
+      "evidence": "§4.3 未完整定义 failed、revoked、archived、controlled rollback，也没有 create/list/search/view 的命令与查询契约。",
+      "required_change": "补充所有任务命令、查询、事件和状态机，明确 Owner/runtime、合法来源状态、进行中节点和未知副作用规则。",
+      "verification": "所有生命周期命令具有合法/非法转换模型测试；撤权、取消、归档和回滚行为满足安全约束。",
+      "status": "open"
+    },
+    {
+      "id": "GEW-TS-AUTH-001",
+      "severity": "blocking",
+      "evidence": "§8.3 对 authorized 但未 executing 的恢复只检查有效期，没有重新验证撤权、action digest、baseline/snapshot、资源前置状态、lease 和 fencing。",
+      "required_change": "定义统一 execute gate，每次首次或恢复执行前原子重验身份、权限、撤权/过期、action digest、当前状态、资源、lease/fencing 和幂等约束。",
+      "verification": "授权后改变任一绑定输入，必须在调用外部工具前拒绝并审计。",
+      "status": "open"
+    },
+    {
+      "id": "GEW-TS-PROFILE-001",
+      "severity": "blocking",
+      "evidence": "§7 未完整定义逐类 rollback contract、版本化支持矩阵及九类全部通过的聚合发布门禁。",
+      "required_change": "定义 ProfileDefinition、RiskOverlayDefinition、SupportMatrixDefinition 和 deterministic ReleaseCoverageGate。",
+      "verification": "缺失任一类别、rollback、必选测试或真实 E2E 时发布门禁失败，overlay 不能删除底线。",
+      "status": "open"
+    },
+    {
+      "id": "GEW-TS-ART-001",
+      "severity": "blocking",
+      "evidence": "§10.1 只有 artifact metadata，没有 PRD §8 各阶段的语义 schema、必填追踪、validator 与退出转换。",
+      "required_change": "定义 ArtifactContract 及所有标准阶段的最低语义、基线、追踪、review、validator、退出谓词和合并文件映射。",
+      "verification": "每种产物有 schema fixture；删去任一必填项即失败，合并文件中的逻辑产物独立失效。",
+      "status": "open"
+    },
+    {
+      "id": "GEW-TS-SAFE-001",
+      "severity": "blocking",
+      "evidence": "§7.1 暗示 Human authority 可放宽安全底线，与 PRD FR-12 和 §9 的不可绕过要求冲突。",
+      "required_change": "分离不可变 core invariants 与 Owner 可调 task policy；Human 只能扩大明确资源/动作权限或调整非底线策略。",
+      "verification": "即使有 Human 决策记录，任何绕过 core invariant 的配置、profile、overlay 或 extension 也必须拒绝。",
+      "status": "open"
+    },
+    {
+      "id": "GEW-TS-PRIV-001",
+      "severity": "blocking",
+      "evidence": "§10 和 §13 未定义最小留存、归档数据生命周期、本地权限或模型/工具/connector 的统一外发门禁。",
+      "required_change": "定义 sensitivity、retention/purge、本地权限、归档/取消保留规则和 DataDisclosurePlan。",
+      "verification": "未声明目标、超出数据分类、缺少授权或绕过 redaction 的请求必须在离开本地边界前拒绝。",
+      "status": "open"
+    }
+  ]
+}

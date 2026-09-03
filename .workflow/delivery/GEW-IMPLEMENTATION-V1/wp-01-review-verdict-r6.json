@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "wp-01",
+  "scope_changed": false,
+  "change_kinds": [
+    "implementation",
+    "tests",
+    "verification"
+  ],
+  "source_manifest_digest": "a8aac3fd748508c7d1faae408166bdcb6048a99892df8520b1abac8eb528c8fb",
+  "command_evidence_digest": "64f4f797498c4bae68f57557cf0abde9b89c4cbfafacdd4f4233963c40e66816",
+  "candidate_exit_digest": "d5daade0ec6b368dac6dde0f82d095602d524f53b2d74525c9b66066b83e4535",
+  "finding_dispositions": [
+    {
+      "id": "WP01-R0-001",
+      "status": "closed",
+      "evidence": "r6 resource-accounting regression passed: invalid lexical units produce zero parse.token charges; registry resource/schema-byte charges precede child parsing and later location/ref/pointer/digest events; result work is charged recursively before construction. The full 66-test suite passed."
+    },
+    {
+      "id": "WP01-R0-002",
+      "status": "closed",
+      "evidence": "Draft 2020-12 annotation propagation for allOf, contains, unevaluatedProperties, unevaluatedItems, and closed refs passed with no regression found."
+    },
+    {
+      "id": "WP01-R0-003",
+      "status": "open",
+      "evidence": "Instance-field reassignment is blocked, but PredicateRegistry.from_dict constructs cls and accepts subclasses. A subclass overriding resolve returned an unattested callable; GEELProgram loaded an unknown predicate and executed it while the registry retained the approved digest. An installed built-in function's __code__ is also normally assignable, changing behavior without changing stored implementation ID/digest."
+    },
+    {
+      "id": "WP01-R0-004",
+      "status": "open",
+      "evidence": "Exact triple validation works for the base class, but ErrorRuleRegistry.from_dict constructs cls. A subclass overriding require accepted the illegal triple ('schema/type','E_BUDGET','runtime') while retaining the approved registry digest. All init=False registry classes also permit zero-argument base construction."
+    },
+    {
+      "id": "WP01-R0-005",
+      "status": "open",
+      "evidence": "A ClosedSchemaRegistry subclass built through the public build factory retained the exact approved migration registry ID and digest but overrode validate to accept every object. Migration's isinstance and exact-pin checks accepted it, and {'schema_version':'1.0.0','rogue':1} migrated successfully."
+    },
+    {
+      "id": "WP01-R0-006",
+      "status": "closed",
+      "evidence": "Independent regression confirmed exact GEW-CON-001..250 IDs and per-vector digests. GEW-CON-171..210 contain 40 distinct production scenarios covering the union of all 45 emitted event IDs with before/exact/after observations; Python and the separately executed Node oracle matched. The full cross-implementation suite exited successfully."
+    },
+    {
+      "id": "WP01-R0-007",
+      "status": "open",
+      "evidence": "Ordinary assignment to loaded base instances is blocked, but factory-only construction is not enforced. Every init=False dataclass reviewed can be instantiated with zero arguments and subclassed. CompatibilityMatrix.from_dict, MigrationRegistry.from_dict, PredicateRegistry.from_dict, ErrorRuleRegistry.from_dict, and ClosedSchemaRegistry.build preserve cls, allowing behavior overrides with approved attestations. SchemaResource subclasses can expose raw_body for one schema and a different parsed schema, and GEELProgram's public constructor accepts an unvalidated non-boolean expression."
+    }
+  ],
+  "findings": [
+    {
+      "id": "WP01-R0-003",
+      "severity": "blocker",
+      "location": "core/graph_engineering/core/contracts/geel.py:114; core/graph_engineering/core/contracts/geel.py:142; core/graph_engineering/core/contracts/geel.py:181; core/graph_engineering/core/contracts/geel.py:374",
+      "claim": "The closed executable predicate boundary still permits an unattested callable to execute.",
+      "evidence": "PredicateRegistry.from_dict returns object.__new__(cls), and GEELProgram accepts any PredicateRegistry subclass without exact-type or sealed-instance attestation. A ForgedPredicates subclass overriding resolve executed an unknown extension callable while carrying the approved registry digest. The stored callable object is additionally mutable through ordinary __code__ assignment.",
+      "required_change": "Make attested registry/spec types non-subclassable in the production contract or always construct and require the exact base type; validate registry identity and resolved specification provenance at GEEL load/evaluation; bind execution to an immutable internal dispatcher rather than a mutable callable object; add subclass, zero-constructor, factory-subclass, and callable-code mutation negatives."
+    },
+    {
+      "id": "WP01-R0-004",
+      "severity": "major",
+      "location": "core/graph_engineering/core/contracts/error_rules.py:19; core/graph_engineering/core/contracts/error_rules.py:55",
+      "claim": "ErrorRuleRegistry still has an unattested construction/behavior-override path.",
+      "evidence": "ErrorRuleRegistry() succeeds as an uninitialized instance, and ErrorRuleRegistry.from_dict invoked on a subclass returns that subclass. Overriding require allowed an illegal code-phase-rule triple despite the approved manifest digest.",
+      "required_change": "Reject direct and subclass construction, construct the exact sealed base type in from_dict, and require exact attested registry objects at consumers. Add zero-argument, subclass-factory, method-override, forged-digest, and illegal-triple tests."
+    },
+    {
+      "id": "WP01-R0-005",
+      "severity": "blocker",
+      "location": "core/graph_engineering/core/contracts/registry.py:91; core/graph_engineering/core/contracts/registry.py:99; core/graph_engineering/core/contracts/registry.py:108; core/graph_engineering/core/contracts/versioning.py:264",
+      "claim": "Migration's schema pin can still name approved attestations while executing forged schema validation behavior.",
+      "evidence": "ClosedSchemaRegistry.build uses cls and migration only checks isinstance plus ID/digest fields. A subclass built from the approved manifest and bodies overrode validate to return no failures; the exact pinned ID/digest checks passed and a rogue-field source migrated successfully.",
+      "required_change": "Seal ClosedSchemaRegistry and SchemaResource construction, make build return the exact base implementation, reject subclasses at migration ingress, and ensure validation is performed by immutable attested resource state rather than overridable methods. Add the demonstrated build-through-subclass rogue migration counterexample."
+    },
+    {
+      "id": "WP01-R0-007",
+      "severity": "blocker",
+      "location": "core/graph_engineering/core/contracts/geel.py:114; core/graph_engineering/core/contracts/geel.py:374; core/graph_engineering/core/contracts/error_rules.py:19; core/graph_engineering/core/contracts/registry.py:91; core/graph_engineering/core/contracts/registry.py:99; core/graph_engineering/core/contracts/versioning.py:22; core/graph_engineering/core/contracts/versioning.py:108; core/graph_engineering/core/contracts/versioning.py:159",
+      "claim": "Attested production objects are field-frozen but not construction- or behavior-sealed.",
+      "evidence": "PredicateSpec, PredicateRegistry, ErrorRuleRegistry, SchemaResource, ClosedSchemaRegistry, CompatibilityMatrix, and MigrationRegistry all permit zero-argument construction because init=False inherits object.__init__. Subclass overrides survive their class factories. This accepted zero-digest compatibility, mismatched SchemaResource raw/schema state, injected migration resolution with an approved registry digest, and overridden validation/error behavior. GEELProgram can also be constructed directly with an unvalidated integer literal declared boolean and returns value 1.",
+      "required_change": "Define a single enforceable sealed-construction contract for every attested registry/resource/spec/program type: reject direct incomplete construction and subclassing, have factories instantiate exact implementation types, perform exact-type checks at trust boundaries, and make GEELProgram construction loader-only. Add normal Python constructor/subclass/factory/method-override tests for every listed type and prove raw_body, parsed schema, IDs, digests, programs, and executable implementations remain inseparable."
+    }
+  ],
+  "reviewer_id": "codex:/root/adr_0003_reviewer_r1"
+}
+

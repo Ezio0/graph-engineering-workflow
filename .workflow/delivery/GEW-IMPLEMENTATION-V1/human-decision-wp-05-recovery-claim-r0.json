@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-IMPLEMENTATION-V1",
+  "decision_id": "GEW-WP05-RECOVERY-CLAIM-DECISION",
+  "decided_by": "human-owner",
+  "decided_at": "2026-08-14",
+  "decision": "recovery-claim-compensation-transition",
+  "approved_boundary": "Add a narrowly scoped recovery transition that reuses the original exact unresolved action claim, same task and lease identity, complete claimed resource set, and latest fencing tokens. It may durably record a separately authorized compensation start and receipt after lease expiry, while holding the existing call-span resource locks. It may consume the original claim only after fresh target verification proves the compensation outcome.",
+  "rejected_boundaries": [
+    "Release the original unresolved claim before compensation target verification.",
+    "Acquire a normal replacement lease or create a second claim for the same unresolved action resources.",
+    "Use the transition to replay the original action or execute a non-compensation action.",
+    "Enable real external actions or grant commit, push, merge, deploy, release, or external-communication authority."
+  ],
+  "authority_effect": "Authorizes the minimum ADR, Spec, Impact, Plan, Test Plan, repository protocol, deterministic fake adapter, tests, evidence, and independent review changes needed for this recovery-claim compensation transition. All other Authority Envelope restrictions remain unchanged."
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:coverage-record-input:1.0.0",
+  "$defs": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 512},
+    "digest": {"type":"string","pattern":"^sha256-jcs-v1:[0-9a-f]{64}$"},
+    "object": {"type":"string","pattern":"^sha256:[0-9a-f]{64}$"},
+    "executionRef": {"type":"string","pattern":"^profile-coverage-execution:sha256:[0-9a-f]{64}$"},
+    "diagnosticRef": {"type":"string","pattern":"^evidence-bytes-sha256:[0-9a-f]{64}$"}
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "test_id": {"$ref": "#/$defs/id"},
+    "matrix_digest": {"$ref": "#/$defs/digest"},
+    "profile_id": {"$ref": "#/$defs/id"},
+    "profile_version": {"$ref": "#/$defs/id"},
+    "profile_digest": {"$ref": "#/$defs/digest"},
+    "overlay_id": {"$ref": "#/$defs/id"},
+    "overlay_version": {"$ref": "#/$defs/id"},
+    "overlay_digest": {"$ref": "#/$defs/digest"},
+    "runtime_kind": {"$ref": "#/$defs/id"},
+    "runtime_lineage_id": {"$ref": "#/$defs/id"},
+    "runtime_digest": {"$ref": "#/$defs/digest"},
+    "fixture_id": {"$ref": "#/$defs/id"},
+    "oracle_id": {"$ref": "#/$defs/id"},
+    "evidence_type": {"$ref": "#/$defs/id"},
+    "owner_gate": {"$ref": "#/$defs/id"},
+    "evidence_ref": {"anyOf":[{"$ref":"#/$defs/executionRef"},{"$ref":"#/$defs/diagnosticRef"}]},
+    "evidence_digest": {"$ref": "#/$defs/object"},
+    "execution_kind": {"$ref": "#/$defs/id"}
+  },
+  "required": ["schema_version", "test_id", "matrix_digest", "profile_id", "profile_version", "profile_digest", "overlay_id", "overlay_version", "overlay_digest", "runtime_kind", "runtime_lineage_id", "runtime_digest", "fixture_id", "oracle_id", "evidence_type", "owner_gate", "evidence_ref", "evidence_digest", "execution_kind"],
+  "unevaluatedProperties": false
+}

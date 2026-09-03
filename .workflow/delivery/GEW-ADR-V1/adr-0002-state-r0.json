@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-ADR-V1",
+  "node": "adr-review",
+  "artifact": "adr-0002",
+  "author_id": "codex:/root",
+  "reviewer_id": "codex:/root/adr_0002_reviewer_r0",
+  "targets": [
+    "docs/adr/0002-local-event-repository-and-coordination.md"
+  ],
+  "revision": 0,
+  "artifact_digest": "59313dae428e829b3284ab42dce07e80fcc79d2153ad70919178828847da37e4",
+  "previous_artifact_digest": null,
+  "open_finding_ids": []
+}

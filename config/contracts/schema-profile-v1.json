@@ -1,0 +1,5 @@
+{
+  "profile_id": "urn:gew:schema-profile:default:1.0.0",
+  "schema_version": "1.0.0",
+  "dialect_id": "https://json-schema.org/draft/2020-12/schema"
+}

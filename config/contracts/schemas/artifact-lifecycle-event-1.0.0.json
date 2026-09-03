@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:artifact-lifecycle-event:1.0.0",
+  "$defs": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 255},
+    "digest": {"type": "string", "minLength": 78, "maxLength": 78}
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "artifact_id": {"$ref": "#/$defs/id"},
+    "artifact_digest": {"$ref": "#/$defs/digest"},
+    "body_digest": {"$ref": "#/$defs/digest"},
+    "revision": {"type": "integer", "minimum": 1},
+    "previous_status": {"$ref": "#/$defs/id"},
+    "current_status": {"$ref": "#/$defs/id"},
+    "occurred_at": {"type": "string", "format": "gew-timestamp"},
+    "event_digest": {"$ref": "#/$defs/digest"}
+  },
+  "required": ["schema_version", "artifact_id", "artifact_digest", "body_digest", "revision", "previous_status", "current_status", "occurred_at", "event_digest"],
+  "unevaluatedProperties": false
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "verdict": "PASS",
+  "artifact": "impact",
+  "artifact_digest": "b047d419f9973c4f8111059e11263854262aa937687fb6ffb9b4bbce89dacc0e",
+  "scope_changed": false,
+  "change_kinds": [],
+  "findings": [],
+  "reviewer_id": "codex:/root/impact_reviewer_r1"
+}

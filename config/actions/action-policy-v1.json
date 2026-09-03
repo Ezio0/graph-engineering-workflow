@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "action-policy-default",
+  "real_external_actions_enabled": false,
+  "separately_authorized_action_kinds": [
+    "commit",
+    "deploy",
+    "external-communication",
+    "merge",
+    "push",
+    "release",
+    "rollback"
+  ],
+  "enabled_adapter_capabilities": [
+    "deterministic-fake-target-v1"
+  ],
+  "required_gate_capabilities": [
+    "fresh-target-query"
+  ],
+  "unknown_routes": [
+    "compensation",
+    "manual-reconciliation",
+    "target-reconciliation"
+  ],
+  "concrete_action_authority": {
+    "policy_id": "concrete-action-policy-default",
+    "policy_digest": "sha256-jcs-v1:41b98ee93382d35870b98619a68fab5070008109590f1d917d89399aef2f42f4",
+    "registry_id": "action-adapter-registry-default",
+    "registry_digest": "sha256-jcs-v1:8bdb2be5af0c8a2229951185ba391283c67d105a03b5e188c1af494b4c59f49f",
+    "schema_registry_id": "urn:gew:schema-registry:action-adapters:1.0.0",
+    "schema_registry_digest": "sha256-jcs-v1:26da6daa65594e6b85635f63df033db3e4b1a0a36f1eb7b4bec36403ba294d9a"
+  },
+  "policy_digest": "sha256-jcs-v1:6ee5df645f42eca7aee1fe855b35b4d074d1ccc34aad369489cf1e71115d1178"
+}

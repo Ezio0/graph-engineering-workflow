@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "oracle_id": "ORA-PROFILE-PERFORMANCE",
+  "oracle_kind": "independent-frozen-vector",
+  "profile_id": "performance",
+  "selector_kind": "mandatory",
+  "column_id": "normal",
+  "scenario_id": null,
+  "category_boundary_case_id": null,
+  "overlay_id": "full-planned",
+  "evidence_kind": "runner-execution",
+  "required_outcome": "runner-accepted",
+  "required_fact_ids": [
+    "runner-output-digest"
+  ],
+  "pass_result": "COMPLETED",
+  "reject_result": "EXPECTED_REJECTION",
+  "reject_error_type": "CategoryExecutionError",
+  "reject_error_message": "typed column evidence does not match authoritative durable facts: normal",
+  "reject_state_relation": "exact-equality",
+  "reject_input_relation": "exact-equality",
+  "isolated_runner_raw_sha256": "0f52a04ea53f099c10980d6ef1aa613fcdc8bf9e4022b5ba6079011c7f570d01",
+  "task_ids": {
+    "P": "task:wp08-coverage:gew-pro-performance-normal-p",
+    "R": "task:wp08-coverage:gew-pro-performance-normal-r"
+  },
+  "oracle_digest": "sha256-jcs-v1:c96929e2c3b5db4e367bb10565fea27ec45b4c8850ff4730bbbc7f21347c9311"
+}

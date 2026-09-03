@@ -1,0 +1,405 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:category-completion-assessment:1.1.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "raw": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "integer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "positiveInteger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "ids": {
+      "type": "array",
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "pins": {
+      "type": "object",
+      "properties": {
+        "base_graph_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "profile_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "overlay_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "project_config_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "support_matrix_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "materialization_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "base_graph_digest",
+        "profile_digest",
+        "overlay_digest",
+        "project_config_digest",
+        "support_matrix_digest",
+        "materialization_digest"
+      ],
+      "unevaluatedProperties": false
+    },
+    "runner": {
+      "type": "object",
+      "properties": {
+        "node_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "edge_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "artifact_contract_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "validator_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "completion_predicate_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "required_invariant_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "budget_limits": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 64,
+          "additionalProperties": {
+            "$ref": "#/$defs/positiveInteger"
+          }
+        }
+      },
+      "required": [
+        "node_ids",
+        "edge_ids",
+        "artifact_contract_ids",
+        "validator_ids",
+        "completion_predicate_ids",
+        "required_invariant_ids",
+        "budget_limits"
+      ],
+      "unevaluatedProperties": false
+    },
+    "state": {
+      "type": "object",
+      "properties": {
+        "generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "profile_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "generation",
+        "profile_id"
+      ],
+      "unevaluatedProperties": false
+    },
+    "performanceEvidence": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "evidence_kind": {
+          "const": "performance-benchmark-evidence-v1"
+        },
+        "task_id": {
+          "$ref": "#/$defs/id"
+        },
+        "task_revision": {
+          "$ref": "#/$defs/integer"
+        },
+        "snapshot_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "invalidation_epoch": {
+          "$ref": "#/$defs/integer"
+        },
+        "profile_id": {
+          "const": "performance"
+        },
+        "profile_version": {
+          "const": "1.0.0"
+        },
+        "column_id": {
+          "$ref": "#/$defs/id"
+        },
+        "graph_ref_pins": {
+          "$ref": "#/$defs/pins"
+        },
+        "installation_pins": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 64,
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/id"
+              },
+              {
+                "$ref": "#/$defs/digest"
+              },
+              {
+                "$ref": "#/$defs/raw"
+              }
+            ]
+          }
+        },
+        "benchmark_case_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "factory_seal_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "environment_observation": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 64
+        },
+        "session_pins": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 16
+        },
+        "source_history": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 16
+          }
+        },
+        "sample_sets": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 16
+          }
+        },
+        "statistics_observations": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 16
+          }
+        },
+        "comparisons": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 16
+          }
+        },
+        "final_observation": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 16
+        },
+        "projection_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_kind",
+        "task_id",
+        "task_revision",
+        "snapshot_digest",
+        "invalidation_epoch",
+        "profile_id",
+        "profile_version",
+        "column_id",
+        "graph_ref_pins",
+        "installation_pins",
+        "benchmark_case_digest",
+        "factory_seal_digest",
+        "environment_observation",
+        "session_pins",
+        "source_history",
+        "sample_sets",
+        "statistics_observations",
+        "comparisons",
+        "final_observation",
+        "projection_digest"
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.1.0"
+    },
+    "request_id": {
+      "$ref": "#/$defs/id"
+    },
+    "request_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "task_id": {
+      "$ref": "#/$defs/id"
+    },
+    "task_revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "snapshot_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "invalidation_epoch": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "profile_id": {
+      "enum": [
+        "new-feature",
+        "bug-fix",
+        "hotfix",
+        "refactor-debt",
+        "migration",
+        "dependency-security",
+        "performance",
+        "release-operations",
+        "incident-response"
+      ]
+    },
+    "profile_version": {
+      "const": "1.0.0"
+    },
+    "profile_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "overlay_id": {
+      "$ref": "#/$defs/id"
+    },
+    "column_id": {
+      "enum": [
+        "normal",
+        "boundary",
+        "revise",
+        "authority",
+        "drift",
+        "invalidation",
+        "recovery",
+        "artifacts",
+        "review",
+        "target",
+        "rollback"
+      ]
+    },
+    "scenario_id": {
+      "$ref": "#/$defs/id"
+    },
+    "category_boundary_case_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "status": {
+      "const": "PASS"
+    },
+    "materialization_pins": {
+      "$ref": "#/$defs/pins"
+    },
+    "runner_outputs": {
+      "$ref": "#/$defs/runner"
+    },
+    "artifact_contract_ids": {
+      "$ref": "#/$defs/ids"
+    },
+    "authority_refs": {
+      "$ref": "#/$defs/ids"
+    },
+    "review_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "target_observation_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "rollback_assessment_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "state_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "column_evidence_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "assessment_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "performance_evidence_projection": {
+      "$ref": "#/$defs/performanceEvidence"
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "request_digest",
+    "task_id",
+    "task_revision",
+    "snapshot_digest",
+    "invalidation_epoch",
+    "profile_id",
+    "profile_version",
+    "profile_digest",
+    "overlay_id",
+    "column_id",
+    "scenario_id",
+    "category_boundary_case_ids",
+    "status",
+    "materialization_pins",
+    "runner_outputs",
+    "artifact_contract_ids",
+    "authority_refs",
+    "review_digest",
+    "target_observation_digest",
+    "rollback_assessment_digest",
+    "state_digest",
+    "column_evidence_digest",
+    "performance_evidence_projection",
+    "assessment_digest"
+  ],
+  "unevaluatedProperties": false
+}

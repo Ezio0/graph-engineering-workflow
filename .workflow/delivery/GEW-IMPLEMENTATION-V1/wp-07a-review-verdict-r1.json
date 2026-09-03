@@ -1,0 +1,166 @@
+{
+  "schema_version": "1.0",
+  "artifact": "wp-07a",
+  "verdict": "REVISE",
+  "reviewer_id": "codex:/root/wp07a_reviewer_r1",
+  "scope_changed": false,
+  "change_kinds": [
+    "correctness",
+    "security",
+    "testability",
+    "traceability"
+  ],
+  "source_manifest_digest": "b955c49d7f6adf5299ba6a9b6606d2826dd0da4336a42376b5b1745b0e106062",
+  "command_evidence_digest": "9f11eece5f76c3915e743aa0794e0232f14464daecab50f4dc6b99e3eb636a64",
+  "candidate_exit_digest": "0507b3a024b448c292f255d346fffa4fc0170174c37eaba900bfb4d347e172e6",
+  "governing_documents_digest": "178ce8ac2035391a80ef2125e2e984c4da2bcf7ad4e6155301eb04362fcbffee",
+  "wp07a_runtime_digest": "78dcdf45bc3ff9f2b3da07c94eb8f4b868c77a0032b85ffc1a59b7190acf6aca",
+  "wp07a_sources_digest": "3a785e2f5845136b755114a8162f4e0b6a8876407a6f684474783bf4ddbb1c8d",
+  "external_action_boundary_digest": "68d1f79bc0ac27a9f790b7eba86f2afd655dad15571a2ba7dec922d39a768742",
+  "dependency_verdicts_digest": "682b0eba24210c2ca5cba10ca67d35aa5a45a526ef830cef6d2c38a729bbddc3",
+  "immutable_tuple": {
+    "source_manifest_raw_sha256": "38a7f0cfe8dc815f361d48946ff676d68950e1169f3c9d1471e6ef6ce278bbac",
+    "source_manifest_canonical_sha256": "d01f5d76e4e2c13d6535d758f94affc2db5639ac56f21bbfba48e173977bab11",
+    "source_manifest_internal_digest": "b955c49d7f6adf5299ba6a9b6606d2826dd0da4336a42376b5b1745b0e106062",
+    "source_manifest_row_count": 340,
+    "command_evidence_raw_sha256": "6c878325350fba4d016cade235e6a942eeca1957c1727e87e1381761797c2843",
+    "command_evidence_canonical_sha256": "9f11eece5f76c3915e743aa0794e0232f14464daecab50f4dc6b99e3eb636a64",
+    "candidate_exit_raw_sha256": "8b406086d3c766f33c73fbe35bae789914e94798a8534a066b0e40cc8f6a2b19",
+    "candidate_exit_canonical_sha256": "0507b3a024b448c292f255d346fffa4fc0170174c37eaba900bfb4d347e172e6"
+  },
+  "verification": {
+    "exact_validator": {
+      "argv": [
+        ".venv/bin/python",
+        "scripts/verify_wp07a_evidence.py",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-source-manifest-r1.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-command-evidence-r1.json",
+        ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-exit-r1.json"
+      ],
+      "status": "PASS",
+      "findings": []
+    },
+    "source_currentness_after_validator": {
+      "status": "PASS",
+      "findings": [],
+      "row_count": 340
+    },
+    "predecessors": [
+      {
+        "artifact": "wp-05",
+        "revision": "r2",
+        "verdict": "PASS"
+      },
+      {
+        "artifact": "wp-06",
+        "revision": "r3",
+        "verdict": "PASS"
+      },
+      {
+        "artifact": "wp-07",
+        "revision": "r3",
+        "verdict": "PASS"
+      }
+    ],
+    "external_actions_observed": false,
+    "network_used": false,
+    "user_repository_used": false
+  },
+  "reviewer_binding": {
+    "candidate_nominated_reviewer_id": "codex:/root/wp06_reviewer_r2",
+    "actual_reviewer_id": "codex:/root/wp07a_reviewer_r1",
+    "resolution": "The verdict records the actual independent reviewer. The candidate reviewer binding and PASS verifier must be regenerated to name the assigned reviewer before a PASS can validate."
+  },
+  "finding_dispositions": [],
+  "findings": [
+    {
+      "id": "WP07A-CODE-R1-001",
+      "severity": "P1",
+      "status": "open",
+      "location": "application/graph_engineering/application/actions.py:860-989",
+      "summary": "Concrete Git completion reuses the target observation obtained inside the mutation call before receipt persistence instead of obtaining a new post-receipt observation.",
+      "evidence": "The receipt commits at lines 916-935, the after-receipt fault boundary runs at line 936, and reconciliation then consumes git_observation captured by update_ref at lines 860-867. A ref change after receipt commit can therefore be falsely reconciled.",
+      "required_change": "Persist the receipt first, then perform a newly issued read-only target query and bind its target identity, revision, ordering and observed state to the durable receipt. Reconcile and consume the claim only from that fresh post-receipt observation; recovery after receipt commit must query without replaying the mutation.",
+      "mechanical_closure_tests": [
+        "At the after-receipt-commit fault boundary, change the ref before verification and assert no reconciled event or claim consumption.",
+        "Crash after receipt commit, retry, and assert one or more new target queries, zero additional mutations, and reconciliation only when the newly observed state matches.",
+        "Assert the observation revision/query acquisition is durably ordered after receipt persistence."
+      ]
+    },
+    {
+      "id": "WP07A-CODE-R1-002",
+      "severity": "P0",
+      "status": "open",
+      "location": "adapters/graph_engineering/adapters/command_native.py:591-603,858-878",
+      "summary": "Secret leakage detection scans process bytes before JSON decoding but does not rescan the semantic output before returning and serializing it.",
+      "evidence": "Independent table-driven probing confirmed that a secret whose serialized representation differs from its semantic value can survive the byte scan, be decoded into an allowed output field, and produce a succeeded result.",
+      "required_change": "Before any result construction, persistence, log or evidence serialization, recursively scan and redact or block every semantic output value and every configured serialized or escaped representation of each ephemeral secret. Destruction of secret material must remain guaranteed on every path.",
+      "mechanical_closure_tests": [
+        "Exercise secrets containing quote, backslash, control/newline and Unicode characters across allowed stdout fields and stderr, including every configured encoding and serialized representation.",
+        "Assert every matching case is blocked or redacted and that no raw value, semantic value, configured encoding, escaped representation or secret-derived digest appears in the result, durable state, logs or evidence.",
+        "Retain normal non-secret structured output and verify secret material destruction on success and every failure class."
+      ]
+    },
+    {
+      "id": "WP07A-CODE-R1-003",
+      "severity": "P1",
+      "status": "open",
+      "location": "adapters/graph_engineering/adapters/action_adapters.py:90-125,250-256; config/contracts/action-adapter-registry-v1.json:6-49",
+      "summary": "A fully self-consistent re-signed policy, adapter registry and factory tuple is accepted because factory trust has no independent installed anchor and declared implementation digests are not checked against implementation provenance.",
+      "evidence": "Independent substitution rebuilt the policy and registry self-digests together, constructed a new factory, issued a Git adapter and entered the coordinator successfully. The registry implementation digests are placeholder repeated digits and are not compared with the built-in code.",
+      "required_change": "Construct the factory only from installation-attested expected policy and registry identities/digests, and bind every built-in adapter entry to verified implementation provenance. Coordinator admission must validate that independent installation attestation rather than identity among caller-presented objects.",
+      "mechanical_closure_tests": [
+        "Re-sign and consistently substitute registry, policy and factory after changing implementation digest/ref, capability or operation; each case must reject before adapter issue or coordinator entry with zero query and mutation counts.",
+        "Assert each non-placeholder implementation digest is mechanically derived from and matches the installed implementation/build provenance.",
+        "Assert the exact installation-attested tuple still issues and dispatches each closed adapter."
+      ]
+    },
+    {
+      "id": "WP07A-CODE-R1-004",
+      "severity": "P2",
+      "status": "open",
+      "location": "adapters/graph_engineering/adapters/command_native.py:721-768,846-855",
+      "summary": "Timeout, cancellation and output-bound handling kills only the launched process leader even though the command is placed in a new process session, so descendants can survive or retain result pipes.",
+      "evidence": "All bounded-failure branches call process.kill() and no process-group termination exists. A descendant inheriting stdout or stderr can continue after the leader exits and can prevent the collector from reaching EOF within the declared bound.",
+      "required_change": "Terminate the entire launcher-created process group on every bounded failure, use a finite graceful-to-forceful escalation, reap the leader, and prove no descendant or inherited pipe remains before returning the bounded result.",
+      "mechanical_closure_tests": [
+        "Run a disposable registered command that starts a descendant, then separately trigger timeout, cancellation and output bound; assert leader and descendant are gone within the configured bound.",
+        "Assert no post-return writes or mutations occur and stdout/stderr collection remains bounded even when descendants inherit both pipes.",
+        "Retain a normal structured command case proving successful process-group cleanup does not change valid results."
+      ]
+    },
+    {
+      "id": "WP07A-CODE-R1-005",
+      "severity": "P1",
+      "status": "open",
+      "location": "application/graph_engineering/application/actions.py:683-737,996-1030",
+      "summary": "Concrete Git recovery returns started or receipt state before revalidating owner, runtime, authority, target and lease, and no production concrete query-only recovery path exists.",
+      "evidence": "The executing/succeeded/failed/unknown shortcut at lines 684-692 precedes all identity and authority checks and returns receipt metadata. The separate reconcile_unknown path accepts only an observer marked as a test double, so a crashed concrete Git action cannot perform the required production fresh query/reconcile recovery.",
+      "required_change": "Authenticate and bind every recovery request to current owner/runtime lineage, durable prepared action, target, full ordered resources and valid/latest fences before disclosing state. Provide a factory-attested production read-only concrete recovery path that queries and reconciles or routes manual without ever replaying the mutation.",
+      "mechanical_closure_tests": [
+        "After a committed start and after a committed receipt, mutate owner, runtime, lineage, target, lease, each resource and each fence one field at a time; assert rejection before state disclosure, query, mutation or write.",
+        "For the exact authorized recovery tuple, assert start-only and receipt-committed crashes use a production read-only adapter, never call update_ref again, and reconcile only from a newly obtained valid observation.",
+        "Assert wrong or unverifiable recovery observations keep the claim unresolved and route manual deterministically."
+      ]
+    },
+    {
+      "id": "WP07A-EVIDENCE-R1-001",
+      "severity": "P2",
+      "status": "open",
+      "location": ".workflow/delivery/GEW-IMPLEMENTATION-V1/wp-07a-exit-r1.json:1; scripts/verify_wp07a_evidence.py:154-175",
+      "summary": "The candidate exit nominates a different reviewer from the actually assigned independent reviewer, while the exact verifier requires a PASS verdict to use the nominated identity.",
+      "evidence": "The exit binds codex:/root/wp06_reviewer_r2, this review is performed by codex:/root/wp07a_reviewer_r1, and the verifier compares verdict reviewer_id directly with the exit field. The actual reviewer cannot truthfully produce a validator-accepted PASS for this candidate.",
+      "required_change": "Regenerate the next candidate exit with the actual assigned independent reviewer identity and retain exact author/reviewer independence and immutable tuple binding. Do not copy a predecessor reviewer identity into a new candidate.",
+      "mechanical_closure_tests": [
+        "Run the exact verifier with the actual assigned reviewer's PASS verdict and assert acceptance only when exit and verdict identities match and remain independent from the author.",
+        "Mutate the author, nominated reviewer and verdict reviewer independently and assert each substitution fails with no ambiguity."
+      ]
+    }
+  ],
+  "reviewed_without_open_findings": [
+    "typed invocation, receipt and target-observation contracts bind exact ordered resources and full fence tuples",
+    "native Git identity query and compare-and-swap ref update remain local and bounded to the disposable fixture",
+    "stable unavailable connector output is closed and does not call a connector port",
+    "the declared real-action E2E boundary disables network and user repositories and mutates only temporary Git fixtures"
+  ]
+}

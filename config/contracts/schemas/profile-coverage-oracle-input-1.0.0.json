@@ -1,0 +1,1354 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:profile-coverage-oracle-input:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "raw": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "oracle_id": {
+      "enum": [
+        "ORA-PROFILE-BUG-FIX",
+        "ORA-PROFILE-HOTFIX",
+        "ORA-PROFILE-NEW-FEATURE",
+        "ORA-PROFILE-REFACTOR-DEBT"
+      ]
+    },
+    "oracle_kind": {
+      "const": "independent-frozen-vector"
+    },
+    "profile_id": {
+      "enum": [
+        "bug-fix",
+        "hotfix",
+        "new-feature",
+        "refactor-debt"
+      ]
+    },
+    "selector_kind": {
+      "enum": [
+        "mandatory",
+        "scenario"
+      ]
+    },
+    "column_id": {
+      "enum": [
+        "artifacts",
+        "authority",
+        "boundary",
+        "drift",
+        "invalidation",
+        "normal",
+        "real-e2e",
+        "recovery",
+        "review",
+        "revise",
+        "rollback",
+        "target"
+      ]
+    },
+    "scenario_id": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "const": "backward"
+        },
+        {
+          "const": "crash-window"
+        },
+        {
+          "const": "existing-feature"
+        },
+        {
+          "const": "false-reproduction"
+        },
+        {
+          "const": "fix-unavailable"
+        },
+        {
+          "const": "forward"
+        },
+        {
+          "const": "minimal-patch"
+        },
+        {
+          "const": "partial-data"
+        },
+        {
+          "const": "regression-boundary"
+        },
+        {
+          "const": "reproducible-failure"
+        },
+        {
+          "const": "scaffold"
+        },
+        {
+          "const": "stable-baseline"
+        },
+        {
+          "const": "transitive-dependency"
+        },
+        {
+          "const": "vulnerable-graph"
+        }
+      ]
+    },
+    "category_boundary_case_id": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "const": "GEW-PSC-BUG-FIX-FALSE-REPRODUCTION-P"
+        },
+        {
+          "const": "GEW-PSC-BUG-FIX-REGRESSION-BOUNDARY-P"
+        },
+        {
+          "const": "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE-P"
+        },
+        {
+          "const": "GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-P"
+        },
+        {
+          "const": "GEW-PSC-DEPENDENCY-SECURITY-TRANSITIVE-DEPENDENCY-P"
+        },
+        {
+          "const": "GEW-PSC-DEPENDENCY-SECURITY-VULNERABLE-GRAPH-P"
+        },
+        {
+          "const": "GEW-PSC-HOTFIX-MINIMAL-PATCH-P"
+        },
+        {
+          "const": "GEW-PSC-MIGRATION-BACKWARD-P"
+        },
+        {
+          "const": "GEW-PSC-MIGRATION-CRASH-WINDOW-P"
+        },
+        {
+          "const": "GEW-PSC-MIGRATION-FORWARD-P"
+        },
+        {
+          "const": "GEW-PSC-MIGRATION-PARTIAL-DATA-P"
+        },
+        {
+          "const": "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-P"
+        },
+        {
+          "const": "GEW-PSC-NEW-FEATURE-SCAFFOLD-P"
+        },
+        {
+          "const": "GEW-PSC-PERFORMANCE-STABLE-BASELINE-P"
+        }
+      ]
+    },
+    "overlay_id": {
+      "const": "full-planned"
+    },
+    "evidence_kind": {
+      "enum": [
+        "action-rollback",
+        "artifact-records",
+        "authority-decision",
+        "drift-assessment",
+        "independent-review",
+        "invalidation-record",
+        "real-toolchain-execution",
+        "recovery-record",
+        "revision-lineage",
+        "runner-execution",
+        "scenario-membership",
+        "target-observation"
+      ]
+    },
+    "required_outcome": {
+      "enum": [
+        "artifacts-accepted",
+        "authority-current",
+        "drift-resolved",
+        "invalidation-current",
+        "real-toolchain-attested",
+        "recovered",
+        "review-accepted",
+        "revision-accepted",
+        "rollback-verified",
+        "runner-accepted",
+        "scenario-accepted",
+        "target-matched"
+      ]
+    },
+    "required_fact_ids": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "action-id",
+          "action-status",
+          "artifact-record-digests",
+          "author-id",
+          "authority-ref",
+          "authority-status",
+          "budget-remaining",
+          "claim-status",
+          "current-body-digest",
+          "drift-status",
+          "expected-state-digest",
+          "invalidation-epoch",
+          "invalidation-status",
+          "owner-route",
+          "predecessor-record-digest",
+          "predecessor-result",
+          "previous-body-digest",
+          "recovery-id",
+          "recovery-status",
+          "review-record-digest",
+          "reviewer-id",
+          "runner-output-digest",
+          "scenario-id",
+          "target-after-digest",
+          "target-before-digest",
+          "target-digest",
+          "target-id",
+          "toolchain-id"
+        ]
+      }
+    },
+    "pass_result": {
+      "const": "COMPLETED"
+    },
+    "reject_result": {
+      "const": "EXPECTED_REJECTION"
+    },
+    "reject_error_type": {
+      "const": "CategoryExecutionError"
+    },
+    "reject_error_message": {
+      "$ref": "#/$defs/id"
+    },
+    "reject_state_relation": {
+      "const": "exact-equality"
+    },
+    "reject_input_relation": {
+      "const": "exact-equality"
+    },
+    "isolated_runner_raw_sha256": {
+      "$ref": "#/$defs/raw"
+    },
+    "task_ids": {
+      "type": "object",
+      "properties": {
+        "P": {
+          "type": "string",
+          "pattern": "^task:wp08-coverage:gew-(?:pro|psc)-[a-z0-9-]+-[pr]$"
+        },
+        "R": {
+          "type": "string",
+          "pattern": "^task:wp08-coverage:gew-(?:pro|psc)-[a-z0-9-]+-[pr]$"
+        }
+      },
+      "required": [
+        "P",
+        "R"
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "required": [
+    "category_boundary_case_id",
+    "column_id",
+    "evidence_kind",
+    "isolated_runner_raw_sha256",
+    "oracle_id",
+    "oracle_kind",
+    "overlay_id",
+    "pass_result",
+    "profile_id",
+    "reject_error_message",
+    "reject_error_type",
+    "reject_input_relation",
+    "reject_result",
+    "reject_state_relation",
+    "required_fact_ids",
+    "required_outcome",
+    "scenario_id",
+    "schema_version",
+    "selector_kind",
+    "task_ids"
+  ],
+  "unevaluatedProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "artifacts"
+          }
+        },
+        "required": [
+          "column_id",
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "evidence_kind": {
+            "const": "artifact-records"
+          },
+          "required_outcome": {
+            "const": "artifacts-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "artifact-record-digests"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "authority"
+          }
+        },
+        "required": [
+          "column_id",
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "evidence_kind": {
+            "const": "authority-decision"
+          },
+          "required_outcome": {
+            "const": "authority-current"
+          },
+          "required_fact_ids": {
+            "const": [
+              "authority-ref",
+              "authority-status"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "boundary"
+          }
+        },
+        "required": [
+          "column_id",
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "drift"
+          }
+        },
+        "required": [
+          "column_id",
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "evidence_kind": {
+            "const": "drift-assessment"
+          },
+          "required_outcome": {
+            "const": "drift-resolved"
+          },
+          "required_fact_ids": {
+            "const": [
+              "drift-status",
+              "target-digest"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "invalidation"
+          }
+        },
+        "required": [
+          "column_id",
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "evidence_kind": {
+            "const": "invalidation-record"
+          },
+          "required_outcome": {
+            "const": "invalidation-current"
+          },
+          "required_fact_ids": {
+            "const": [
+              "invalidation-epoch",
+              "invalidation-status"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "normal"
+          }
+        },
+        "required": [
+          "column_id",
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "evidence_kind": {
+            "const": "runner-execution"
+          },
+          "required_outcome": {
+            "const": "runner-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "runner-output-digest"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "column_id": {
+            "const": "real-e2e"
+          }
+        },
+        "required": [
+          "column_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "evidence_kind": {
+            "const": "real-toolchain-execution"
+          },
+          "required_outcome": {
+            "const": "real-toolchain-attested"
+          },
+          "required_fact_ids": {
+            "const": [
+              "predecessor-record-digest",
+              "predecessor-result",
+              "target-after-digest",
+              "target-before-digest",
+              "toolchain-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "recovery"
+          }
+        },
+        "required": [
+          "column_id",
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "evidence_kind": {
+            "const": "recovery-record"
+          },
+          "required_outcome": {
+            "const": "recovered"
+          },
+          "required_fact_ids": {
+            "const": [
+              "recovery-id",
+              "recovery-status"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "review"
+          }
+        },
+        "required": [
+          "column_id",
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "evidence_kind": {
+            "const": "independent-review"
+          },
+          "required_outcome": {
+            "const": "review-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "author-id",
+              "review-record-digest",
+              "reviewer-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "revise"
+          }
+        },
+        "required": [
+          "column_id",
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "evidence_kind": {
+            "const": "revision-lineage"
+          },
+          "required_outcome": {
+            "const": "revision-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "budget-remaining",
+              "current-body-digest",
+              "owner-route",
+              "previous-body-digest"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "rollback"
+          }
+        },
+        "required": [
+          "column_id",
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "evidence_kind": {
+            "const": "action-rollback"
+          },
+          "required_outcome": {
+            "const": "rollback-verified"
+          },
+          "required_fact_ids": {
+            "const": [
+              "action-id",
+              "action-status",
+              "claim-status"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "column_id": {
+            "const": "target"
+          }
+        },
+        "required": [
+          "column_id",
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          },
+          "evidence_kind": {
+            "const": "target-observation"
+          },
+          "required_outcome": {
+            "const": "target-matched"
+          },
+          "required_fact_ids": {
+            "const": [
+              "expected-state-digest",
+              "target-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile_id": {
+            "const": "bug-fix"
+          }
+        },
+        "required": [
+          "profile_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "oracle_id": {
+            "const": "ORA-PROFILE-BUG-FIX"
+          },
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile_id": {
+            "const": "hotfix"
+          }
+        },
+        "required": [
+          "profile_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "oracle_id": {
+            "const": "ORA-PROFILE-HOTFIX"
+          },
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile_id": {
+            "const": "new-feature"
+          }
+        },
+        "required": [
+          "profile_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "oracle_id": {
+            "const": "ORA-PROFILE-NEW-FEATURE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile_id": {
+            "const": "refactor-debt"
+          }
+        },
+        "required": [
+          "profile_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "oracle_id": {
+            "const": "ORA-PROFILE-REFACTOR-DEBT"
+          },
+          "selector_kind": {
+            "const": "mandatory"
+          },
+          "scenario_id": {
+            "type": "null"
+          },
+          "category_boundary_case_id": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "backward"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-MIGRATION-BACKWARD-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "crash-window"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-MIGRATION-CRASH-WINDOW-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "existing-feature"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-NEW-FEATURE-EXISTING-FEATURE-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "false-reproduction"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-BUG-FIX-FALSE-REPRODUCTION-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "fix-unavailable"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "forward"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-MIGRATION-FORWARD-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "minimal-patch"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-HOTFIX-MINIMAL-PATCH-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "partial-data"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-MIGRATION-PARTIAL-DATA-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "regression-boundary"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-BUG-FIX-REGRESSION-BOUNDARY-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "reproducible-failure"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-BUG-FIX-REPRODUCIBLE-FAILURE-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "scaffold"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-NEW-FEATURE-SCAFFOLD-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "stable-baseline"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-PERFORMANCE-STABLE-BASELINE-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "transitive-dependency"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-TRANSITIVE-DEPENDENCY-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selector_kind": {
+            "const": "scenario"
+          }
+        },
+        "required": [
+          "selector_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "column_id": {
+            "const": "boundary"
+          },
+          "scenario_id": {
+            "const": "vulnerable-graph"
+          },
+          "category_boundary_case_id": {
+            "const": "GEW-PSC-DEPENDENCY-SECURITY-VULNERABLE-GRAPH-P"
+          },
+          "evidence_kind": {
+            "const": "scenario-membership"
+          },
+          "required_outcome": {
+            "const": "scenario-accepted"
+          },
+          "required_fact_ids": {
+            "const": [
+              "scenario-id"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:project-profile-configuration-input:1.0.0",
+  "$defs": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 255},
+    "ids": {"type": "array", "maxItems": 16384, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "budget": {
+      "type": "object",
+      "properties": {"budget_id": {"$ref": "#/$defs/id"}, "maximum": {"type": "integer", "minimum": 1}},
+      "required": ["budget_id", "maximum"],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "required_node_additions": {"$ref": "#/$defs/ids"},
+    "required_edge_additions": {"$ref": "#/$defs/ids"},
+    "validator_additions": {"$ref": "#/$defs/ids"},
+    "completion_predicate_additions": {"$ref": "#/$defs/ids"},
+    "artifact_contract_additions": {"$ref": "#/$defs/ids"},
+    "required_invariant_additions": {"$ref": "#/$defs/ids"},
+    "budget_tightenings": {"type": "array", "maxItems": 1024, "items": {"$ref": "#/$defs/budget"}}
+  },
+  "required": ["schema_version", "required_node_additions", "required_edge_additions", "validator_additions", "completion_predicate_additions", "artifact_contract_additions", "required_invariant_additions", "budget_tightenings"],
+  "unevaluatedProperties": false
+}

@@ -1,0 +1,1 @@
+{"schema_version":"1.0.0","registry_id":"extension-built-in-identities-v1","protected_identities":[{"kind":"node","id":"core.task-runner"},{"kind":"policy","id":"core.authority"},{"kind":"schema","id":"urn:gew:schema:graph-definition:1.0.0"}],"registry_digest":"sha256-jcs-v1:b6a743735ffc0d9a6382fb7adaa47b682936d89004e30a7d89a4b5316ba83a10"}

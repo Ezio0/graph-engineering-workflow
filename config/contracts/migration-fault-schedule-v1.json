@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "schedule_id": "wp06-migration-fault-schedule-v1",
+  "points": [
+    "activation.after_active_manifest",
+    "activation.after_verifying_manifest",
+    "activation.before_active_manifest",
+    "activation.before_verifying_manifest",
+    "export.after_backup",
+    "export.after_bundle_manifest",
+    "export.after_hold",
+    "export.after_objects",
+    "export.before_backup",
+    "export.before_bundle_manifest",
+    "export.before_hold_clear",
+    "export.before_objects"
+  ]
+}

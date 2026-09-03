@@ -1,0 +1,1 @@
+{"budgets":[{"budget_id":"loop:bounded-v1","exhausted_route":"awaiting_human","max_attempts":8,"max_revisions":8,"max_total_runs":32,"schema_version":"1.0.0","version":"1.0.0"}],"registry_id":"urn:gew:loop-budget-registry:default:1.0.0","schema_version":"1.0.0"}

@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "shared": {
+    "adapter_version": "1.0.0",
+    "runtime_version": "fixture-1.0.0",
+    "protocol_version": "1.0.0",
+    "skill_version": "1.0.0",
+    "release_id": "release:fixture-v1",
+    "release_manifest_digest": "sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111",
+    "runtime_resource_policy_digest": "sha256-jcs-v1:95596837b829d3c9f2b571f3fe07c3f9a118f59c9315695b7c6956c441a93cfd",
+    "runtime_local_port_policy_digest": "sha256-jcs-v1:e6a529519a011ca5fb7cabe81cd8697c961f937b3488e770d79cb58a742b440f",
+    "core_version": "0.1.0",
+    "repository_contract_version": "1.0.0",
+    "repository_bundle_version": "1.0.0",
+    "schema_registry_digest": "sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111",
+    "graph_contract_version": "1.0.0",
+    "profile_contract_version": "1.0.0",
+    "overlay_contract_version": "1.0.0",
+    "action_protocol_version": "1.0.0",
+    "data_root_ref": "data-root:fixture",
+    "capabilities": [
+      "agent.invoke",
+      "human.request",
+      "presentation.deliver",
+      "reviewer.invoke",
+      "tool.invoke"
+    ]
+  },
+  "cells": [
+    {
+      "cell_id": "codex-native",
+      "runtime_kind": "codex",
+      "adapter_id": "adapter:codex:fixture-v1",
+      "runtime_instance_id": "runtime:codex:fixture",
+      "skill_id": "skill:codex:graph-engineering",
+      "channel_kind": "native",
+      "owner_bindings": {"codex-user": "owner-fixture"},
+      "allowed_channels": ["codex-channel"]
+    },
+    {
+      "cell_id": "hermes-telegram",
+      "runtime_kind": "hermes",
+      "adapter_id": "adapter:hermes:fixture-v1",
+      "runtime_instance_id": "runtime:hermes:fixture",
+      "skill_id": "skill:hermes:graph-engineering",
+      "channel_kind": "telegram",
+      "owner_bindings": {"telegram-user": "owner-fixture"},
+      "allowed_channels": ["telegram-channel"]
+    },
+    {
+      "cell_id": "hermes-discord",
+      "runtime_kind": "hermes",
+      "adapter_id": "adapter:hermes:fixture-v1",
+      "runtime_instance_id": "runtime:hermes:fixture",
+      "skill_id": "skill:hermes:graph-engineering",
+      "channel_kind": "discord",
+      "owner_bindings": {"discord-user": "owner-fixture"},
+      "allowed_channels": ["discord-channel"]
+    }
+  ]
+}
