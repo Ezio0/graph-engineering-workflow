@@ -228,6 +228,26 @@ class ProfileRealE2EAuthority:
         "project_config_digest", "support_matrix_digest",
         "materialization_digest",
     )
+    _CURRENT_OBSERVATION_FIELDS = (
+        "schema_version", "plan_id", "plan_digest", "target_id",
+        "target_digest", "worktree_path", "worktree_device",
+        "worktree_inode", "common_dir_path", "common_dir_device",
+        "common_dir_inode", "head_ref", "head_oid", "fresh",
+    )
+
+    @classmethod
+    def _same_current_observation(
+        cls, current: GitIdentityObservation, expected: Mapping[str, object],
+    ) -> bool:
+        current_document = current.to_dict()
+        try:
+            reparsed = GitIdentityObservation.from_dict(current_document)
+        except Exception:
+            return False
+        return reparsed == current and all(
+            current_document.get(field) == expected.get(field)
+            for field in cls._CURRENT_OBSERVATION_FIELDS
+        )
 
     def __init__(
         self,
@@ -289,6 +309,10 @@ class ProfileRealE2EAuthority:
         self._launcher = launcher
         self._before = before
         self._mutation_baseline = adapter.mutation_count
+        self._adapter_phase_mutation_baseline = adapter.mutation_count
+        self._cumulative_mutation_count = 0
+        self._launcher_phase_launch_baseline = launcher.launch_count
+        self._cumulative_launch_count = 0
         self._action_id: str | None = None
         self._execution: dict[str, object] | None = None
         self._record: ProfileRealE2EPredecessorRecord | None = None
@@ -460,6 +484,10 @@ class ProfileRealE2EAuthority:
             "after": after.to_dict(),
             "mutation_delta": self._adapter.mutation_count - self._mutation_baseline,
         }
+        self._cumulative_mutation_count = int(self._execution["mutation_delta"])
+        self._adapter_phase_mutation_baseline = self._adapter.mutation_count
+        self._cumulative_launch_count = self._launcher.launch_count
+        self._launcher_phase_launch_baseline = self._launcher.launch_count
 
     def capture_stale_rejection(self, *, action_id: str) -> None:
         if self.disposition != "R" or self._execution is not None:
@@ -489,6 +517,111 @@ class ProfileRealE2EAuthority:
             "after": after.to_dict(),
             "mutation_delta": 0,
         }
+        self._cumulative_mutation_count = 0
+        self._adapter_phase_mutation_baseline = self._adapter.mutation_count
+        self._cumulative_launch_count = self._launcher.launch_count
+        self._launcher_phase_launch_baseline = self._launcher.launch_count
+
+    def reattach_current(
+        self,
+        *,
+        coordinator: ActionCoordinator,
+        action_repository: TaskRepository,
+        adapter: GitNativeAdapter,
+        launcher: StructuredCommandLauncher,
+        task_application: TaskApplication,
+        task_repository: TaskRepository,
+        objects: ObjectRepository,
+        runtime: RuntimeContext,
+    ) -> None:
+        """Atomically attach fresh handles to the exact retained root state."""
+
+        record = self._record
+        self._require_installation_current()
+        self._require_record_identity(record)  # type: ignore[arg-type]
+        if (
+            type(coordinator) is not ActionCoordinator
+            or type(action_repository) is not TaskRepository
+            or coordinator._repository is not action_repository
+            or type(adapter) is not GitNativeAdapter
+            or ActionAdapterFactory.require_attested(adapter) is not adapter
+            or type(launcher) is not StructuredCommandLauncher
+            or StructuredCommandLauncher.require_attested(launcher) is not launcher
+            or type(task_application) is not TaskApplication
+            or type(task_repository) is not TaskRepository
+            or task_application._repository is not task_repository
+            or type(objects) is not ObjectRepository
+            or task_application._materialization_objects is not objects
+            or type(runtime) is not RuntimeContext
+            or record is None
+            or self._execution is None
+            or self._record_object_digest is None
+            or adapter.mutation_count != 0
+            or launcher.launch_count != 0
+        ):
+            raise ProfileRealE2EError(
+                "Profile real-E2E reopened authority inputs are foreign"
+            )
+        runtime.require_issued()
+        task_id = str(record.body["task_id"])
+        try:
+            snapshot = task_application.runtime_show(task_id, runtime).snapshot
+            references = task_repository.referenced_objects(task_id)
+            body = record.to_bytes()
+            audit = action_repository.concrete_action_audit(
+                str(record.body["action_id"])
+            )
+            current = adapter.observe(
+                self._target_plan_document, expected=self._expected_target,
+            )
+        except Exception as error:
+            raise ProfileRealE2EError(
+                "Profile real-E2E retained root could not be reopened"
+            ) from error
+        graph_ref = snapshot.graph_ref
+        current_pins = {
+            "base_graph_digest": graph_ref.get("graph_digest"),
+            "profile_digest": graph_ref.get("profile_digest"),
+            "overlay_digest": graph_ref.get("overlay_digest"),
+            "project_config_digest": graph_ref.get("project_config_digest"),
+            "support_matrix_digest": graph_ref.get("support_matrix_digest"),
+            "materialization_digest": graph_ref.get("materialization_digest"),
+        }
+        if (
+            snapshot.task_revision not in {
+                record.body["task_revision"], int(record.body["task_revision"]) + 1,
+            }
+            or snapshot.invalidation_epoch != record.body["invalidation_epoch"]
+            or current_pins != thaw(record.body["materialization_pins"])
+            or objects.get(
+                self._record_object_digest, require_referenced=False,
+            ) != body
+            or tuple(item for item in references if item == (
+                self._record_object_digest, body,
+            )) != ((self._record_object_digest, body),)
+            or audit.get("journal_state") != record.body["journal_state"]
+            or audit.get("claim_state") != record.body["claim_state"]
+            or audit.get("records") != self._execution["records"]
+            or not self._same_current_observation(
+                current, self._execution["after"],
+            )
+            or self._cumulative_mutation_count != record.body["mutation_delta"]
+            or self._cumulative_launch_count
+            != int(bool(self._binding["command_required"]))
+        ):
+            raise ProfileRealE2EError(
+                "Profile real-E2E retained root is stale or substituted"
+            )
+        self._coordinator = coordinator
+        self._action_repository = action_repository
+        self._adapter = adapter
+        self._launcher = launcher
+        self._task_application = task_application
+        self._task_repository = task_repository
+        self._objects = objects
+        self._runtime = runtime
+        self._adapter_phase_mutation_baseline = adapter.mutation_count
+        self._launcher_phase_launch_baseline = launcher.launch_count
 
     def stage_task(self, snapshot: TaskSnapshot) -> ProfileRealE2EPredecessorRecord:
         self._require_installation_current()
@@ -748,9 +881,15 @@ class ProfileRealE2EAuthority:
             or audit.get("journal_state") != record.body["journal_state"]
             or audit.get("claim_state") != record.body["claim_state"]
             or audit.get("records") != self._execution["records"]
-            or current.head_oid != record.body["after_oid"]
-            or self._adapter.mutation_count - self._mutation_baseline
-            != record.body["mutation_delta"]
+            or not self._same_current_observation(
+                current, record.body["after_observation"],
+            )
+            or self._adapter.mutation_count
+            != self._adapter_phase_mutation_baseline
+            or self._launcher.launch_count != self._launcher_phase_launch_baseline
+            or self._cumulative_mutation_count != record.body["mutation_delta"]
+            or self._cumulative_launch_count
+            != int(bool(self._binding["command_required"]))
         ):
             raise ProfileRealE2EError("Profile real-E2E predecessor is stale or substituted")
         if require_success and record.body["result"] != "COMPLETED":

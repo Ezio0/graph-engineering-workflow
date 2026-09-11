@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-REMAINING54-V1",
+  "amendment_id": "GEW-REMAINING54-F1-DEPENDENCY-SECURITY-REHYDRATE",
+  "review_scope": "F1 dependency Observation current-seal/rehydrate and existing coverage lifecycle wiring. Not Remaining54 completion or Candidate closure.",
+  "record_slot": "Existing authorized p2-foundation-r1 slot; initial implementation artifact revision is zero.",
+  "files": [
+    {
+      "path": "application/graph_engineering/application/dependency_security.py",
+      "sha256": "325ff748015c2c5eb62a1dc1a85abebcce1c35afecf7dd25fb857c3413cef2e5"
+    },
+    {
+      "path": "application/graph_engineering/application/profile_coverage.py",
+      "sha256": "8288307cea620625a64c21402d1ee5295b0dd023faf7e2aa6080e95fb3583ba3"
+    },
+    {
+      "path": "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+      "sha256": "cb2de1a14c03997288244558c254f3cdcea79beaa3b564ea359d613d8d576399"
+    },
+    {
+      "path": "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+      "sha256": "a8baecdd18ba97e42246ede3f1b8e433475afed0c1e5acede18bf2717980dc5a"
+    },
+    {
+      "path": "core/graph_engineering/__init__.py",
+      "sha256": "e7a15020527881dea498a1f3b21aaad2c16a860aedc014f48087d16e70a139f1"
+    },
+    {
+      "path": "core/graph_engineering/core/profile_coverage.py",
+      "sha256": "e43c9ea93000ce909fecbcdd38b1bb5e25caf84b16d416dd113e78daaad4e98f"
+    },
+    {
+      "path": "core/graph_engineering/core/source_checkout.py",
+      "sha256": "6cf5556741f6ba7ca3133898fb766545afa436e51917f634cce03ab123e744f9"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "107fde6ade89b62a07d5baeb7e70348b471af4608eeaa0224485429daa8f7891"
+    },
+    {
+      "path": "tests/integration/test_wp08_scenario_truth.py",
+      "sha256": "f1c9350ceb3c78c1faf3bed79eb315c8bfaba8176464dea8f61e55dedeb57098"
+    },
+    {
+      "path": "tests/security/test_wp08_remaining54_authority.py",
+      "sha256": "ea8f2e63879578ae2b89e502774a617d4ff713e2ed302460d902d61c6aa7d8df"
+    },
+    {
+      "path": "tests/support/source_checkout_attestation.py",
+      "sha256": "9adab139b9335f961e6a07540f4d6f4cc109e5d6e18023d5126f8c44d430aa9f"
+    },
+    {
+      "path": "tests/support/wp08_release_coverage.py",
+      "sha256": "15f48551dc72afd3ba288307fceeddf0ad00c6f8034233fbd357a69c2e9eb697"
+    },
+    {
+      "path": "tests/support/wp08_scenario_truth.py",
+      "sha256": "703672f098bd21c1d506ff62ac33a524698bb59e8d7be9c75bda15719638457a"
+    }
+  ],
+  "ordered_raw_aggregate_sha256": "887066caf28bf74ddeddc665826159534b93dfdd9991fcf0bcb4db07b934453d"
+}

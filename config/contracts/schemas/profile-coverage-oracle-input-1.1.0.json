@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:profile-coverage-oracle-input:1.1.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {"const": "1.1.0"},
+    "oracle_id": {"const": "ORA-PROFILE-PERFORMANCE"},
+    "oracle_kind": {"const": "independent-frozen-vector"},
+    "profile_id": {"const": "performance"},
+    "selector_kind": {"const": "scenario"},
+    "column_id": {"const": "boundary"},
+    "scenario_id": {"const": "noise-outlier"},
+    "category_boundary_case_id": {"const": "GEW-PSC-PERFORMANCE-NOISE-OUTLIER-P"},
+    "overlay_id": {"const": "full-planned"},
+    "evidence_kind": {"const": "scenario-membership"},
+    "required_outcome": {"const": "scenario-accepted"},
+    "required_fact_ids": {
+      "const": ["scenario-id"],
+      "type": "array",
+      "maxItems": 1,
+      "items": {"const": "scenario-id"}
+    },
+    "pass_result": {"const": "COMPLETED"},
+    "reject_result": {"const": "EXPECTED_REJECTION"},
+    "reject_error_type": {"const": "CategoryExecutionError"},
+    "reject_error_message": {"type": "string", "minLength": 1, "maxLength": 512},
+    "reject_state_relation": {"const": "exact-equality"},
+    "reject_input_relation": {"const": "exact-equality"},
+    "isolated_runner_raw_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "task_ids": {
+      "type": "object",
+      "properties": {
+        "P": {"const": "task:wp08-coverage:gew-psc-performance-noise-outlier-p"},
+        "R": {"const": "task:wp08-coverage:gew-psc-performance-noise-outlier-r"}
+      },
+      "required": ["P", "R"],
+      "unevaluatedProperties": false
+    },
+    "rejection_input": {
+      "type": "object",
+      "properties": {
+        "kind": {"const": "integer-vector"},
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          }
+        }
+      },
+      "required": ["kind", "values"],
+      "unevaluatedProperties": false
+    }
+  },
+  "required": [
+    "category_boundary_case_id",
+    "column_id",
+    "evidence_kind",
+    "isolated_runner_raw_sha256",
+    "oracle_id",
+    "oracle_kind",
+    "overlay_id",
+    "pass_result",
+    "profile_id",
+    "reject_error_message",
+    "reject_error_type",
+    "reject_input_relation",
+    "reject_result",
+    "reject_state_relation",
+    "rejection_input",
+    "required_fact_ids",
+    "required_outcome",
+    "scenario_id",
+    "schema_version",
+    "selector_kind",
+    "task_ids"
+  ],
+  "unevaluatedProperties": false
+}

@@ -65,7 +65,7 @@ class WP07AActionContractSecurityTests(unittest.TestCase):
         baseline = _action_build_manifest_digest(manifest)
         self.assertEqual(
             baseline,
-            "b9e8e75bca0436651a723da05d9bcea27f06768666c8c1d9f9fc6b9b80707944",
+            "29a9c70362f54779b52266701de1147813b9c8a42ecae42253dd4ffe3c1fa577",
         )
         registry_document = json.loads(
             (ROOT / "config" / "contracts" / "action-adapter-registry-v1.json").read_text()

@@ -697,6 +697,59 @@ class PerformanceBenchmarkRegistryFactory:
             raise PerformanceBenchmarkError("performance benchmark authority is foreign or stale")
         return authority
 
+    def _profile_coverage_rejection_message(
+        self,
+        authority: object,
+        oracle: object,
+    ) -> str | None:
+        """Recompute an optional installed performance rejection vector."""
+
+        current = self.require_current(authority)
+        if not isinstance(oracle, Mapping):
+            raise PerformanceBenchmarkError(
+                "performance coverage rejection oracle is invalid"
+            )
+        rejection_input = oracle.get("rejection_input")
+        if rejection_input is None:
+            return None
+        if (
+            not isinstance(rejection_input, Mapping)
+            or set(rejection_input) != {"kind", "values"}
+            or rejection_input["kind"] != "integer-vector"
+            or type(rejection_input["values"]) is not tuple
+        ):
+            raise PerformanceBenchmarkError(
+                "performance coverage rejection input changed"
+            )
+        benchmark_case = current.registry.benchmark_cases[0]
+        policies = tuple(
+            policy for policy in current.registry.statistics_policies
+            if policy.statistics_policy_id == benchmark_case.statistics_policy_id
+        )
+        if len(policies) != 1:
+            raise PerformanceBenchmarkError(
+                "performance coverage statistics authority is ambiguous"
+            )
+        median, mad, quiet = integer_statistics(
+            rejection_input["values"], policies[0],
+        )
+        left, right = comparison_products(
+            mad,
+            median,
+            policies[0].noise_ceiling_numerator,
+            policies[0].noise_ceiling_denominator,
+        )
+        if quiet or left <= right:
+            raise PerformanceBenchmarkError(
+                "performance coverage rejection vector is not noisy"
+            )
+        message = oracle.get("reject_error_message")
+        if type(message) is not str or not message:
+            raise PerformanceBenchmarkError(
+                "performance coverage rejection diagnostic is invalid"
+            )
+        return message
+
     def observation_factory(
         self, authority: object, session: object,
     ) -> "PerformanceBenchmarkObservationFactory":
@@ -1328,6 +1381,83 @@ class PerformanceBenchmarkRegistryFactory:
         self._profile_coverage_ledger.issue(registration)
         return registration
 
+    def _rehydrate_quiescent_profile_coverage_rejection(
+        self,
+        registration: object,
+        authority: object,
+        restarted_factory: object,
+        restarted_authority: object,
+    ) -> PerformanceBenchmarkEvidenceAuthority:
+        """Move only sealed rejection evidence across a quiescent restart."""
+
+        if (
+            type(restarted_factory) is not PerformanceBenchmarkRegistryFactory
+            or restarted_factory is self
+        ):
+            raise PerformanceBenchmarkError(
+                "restarted performance coverage factory is foreign"
+            )
+        restarted_factory.require_current(restarted_authority)
+        if (
+            type(registration) is not _PerformanceProfileCoverageRegistration
+            or registration._owner is not self
+            or registration._authority is not authority
+            or not self._profile_coverage_ledger.contains(registration)
+        ):
+            raise PerformanceBenchmarkError(
+                "quiescent performance coverage registration is foreign"
+            )
+        self.require_current(registration._registry_authority)
+        evidence = self.require_performance_evidence_current(
+            registration._evidence
+        )
+        current_bindings = tuple(
+            binding
+            for binding in registration._plan.bindings.values()
+            if binding["task_id"] == registration._task_id
+        )
+        if (
+            evidence.projection is not registration._evidence_projection
+            or self._task_evidence.get(registration._task_id) is not evidence
+            or registration._application._oracle._performance_registry_factory
+            is not self
+            or registration._application._oracle._performance_registry_authority
+            is not registration._registry_authority
+            or registration._application._facts._coverage_task_identity()
+            != registration._task_id
+            or registration._plan.plan_digest != registration._plan_digest
+            or len(current_bindings) != 1
+            or current_bindings[0] is not registration._plan_binding
+            or registration._plan_binding["profile_id"] != "performance"
+            or registration._plan_binding["expected_result"]
+            != "EXPECTED_REJECTION"
+            or registration._assessment_digest is not None
+            or evidence.projection["task_id"] != registration._task_id
+        ):
+            raise PerformanceBenchmarkError(
+                "quiescent performance coverage rejection binding changed"
+            )
+        session = registration._session
+        closed_session = (
+            type(session) is BenchmarkCommandSessionAuthority
+            and session._owner is self
+            and self._session_ledger.contains(session)
+            and session._closed
+            and thaw(session._issued_snapshot)
+            == thaw(evidence.projection["session_pins"])
+        )
+        launcher_free_rehydration = (
+            session is None
+            and self._rehydrated_evidence_ledger.contains(evidence)
+        )
+        if not closed_session and not launcher_free_rehydration:
+            raise PerformanceBenchmarkError(
+                "quiescent performance coverage retained a live launcher"
+            )
+        return restarted_factory.rehydrate_performance_evidence(
+            restarted_authority, thaw(evidence.projection),
+        )
+
     def _require_profile_coverage_registration(
         self,
         registration: object,
@@ -1666,6 +1796,29 @@ def _validate_performance_evidence_document(
             _self_digest(
                 correctness, "performance-correctness-observation", "correctness_digest",
             )
+        correctness_fields = {
+            "schema_version", "benchmark_case_id", "iteration_kind",
+            "iteration_index", "invocation_digest", "result_digest",
+            "expected_correctness_digest", "observed_correctness_digest",
+            "correctness_digest",
+        }
+        for iteration, correctness in enumerate(warmups):
+            if (
+                set(correctness) != correctness_fields
+                or correctness.get("schema_version") != "1.0.0"
+                or correctness.get("benchmark_case_id") != case.benchmark_case_id
+                or correctness.get("iteration_kind") != "warmup"
+                or correctness.get("iteration_index") != iteration
+                or correctness.get("expected_correctness_digest")
+                != case.expected_correctness_digest
+                or correctness.get("observed_correctness_digest")
+                != case.expected_correctness_digest
+            ):
+                raise PerformanceBenchmarkError(
+                    "performance warmup correctness changed"
+                )
+            _digest(correctness.get("invocation_digest"), "invocation digest")
+            _digest(correctness.get("result_digest"), "result digest")
         durations: list[int] = []
         for iteration, sample in enumerate(samples):
             if type(sample) is not dict or sample.get("iteration_index") != iteration:
@@ -1677,6 +1830,22 @@ def _validate_performance_evidence_document(
             _self_digest(
                 correctness, "performance-correctness-observation", "correctness_digest",
             )
+            if (
+                set(correctness) != correctness_fields
+                or correctness.get("schema_version") != "1.0.0"
+                or correctness.get("benchmark_case_id") != case.benchmark_case_id
+                or correctness.get("iteration_kind") != "measurement"
+                or correctness.get("iteration_index") != iteration
+                or correctness.get("expected_correctness_digest")
+                != case.expected_correctness_digest
+                or correctness.get("observed_correctness_digest")
+                != case.expected_correctness_digest
+            ):
+                raise PerformanceBenchmarkError(
+                    "performance measurement correctness changed"
+                )
+            _digest(correctness.get("invocation_digest"), "invocation digest")
+            _digest(correctness.get("result_digest"), "result digest")
             duration = sample.get("duration_ns")
             if type(duration) is not int or duration < 1:
                 raise PerformanceBenchmarkError("performance sample duration changed")
@@ -1718,6 +1887,11 @@ def _validate_performance_evidence_document(
         ):
             raise PerformanceBenchmarkError("performance statistics evidence changed")
         computed_statistics.append((median, mad, quiet, stats))
+
+    if any(not quiet for _median, _mad, quiet, _stats in computed_statistics):
+        raise PerformanceBenchmarkError(
+            "performance evidence contains inconclusive noise"
+        )
 
     comparisons = document["comparisons"]
     if type(comparisons) is not list or len(comparisons) != 2:

@@ -6,7 +6,9 @@ import hashlib
 import hmac
 import json
 import re
+import threading
 import tomllib
+from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
@@ -24,6 +26,353 @@ _RAW = re.compile(r"[0-9a-f]{64}\Z")
 
 class ProfileCoverageError(ValueError):
     """A production Profile coverage authority check failed closed."""
+
+
+class BindingLifecycleError(ProfileCoverageError):
+    """A process-local binding lifecycle transition failed closed."""
+
+
+_BINDING_LIFECYCLE_PURPOSES = ("issue", "use", "precommit", "gate")
+_BINDING_LIFECYCLE_STATES = frozenset({
+    "OPEN", "SEALED", "QUIESCED", "REOPENED", "PERMANENTLY_CLOSED",
+})
+
+
+class RuntimeBindingReopenPort(ABC):
+    """Platform-neutral port for runtime-owned binding handle lifecycles."""
+
+    @abstractmethod
+    def seal_current(
+        self,
+        lifecycle: object,
+        handle: object,
+        capability: object,
+    ) -> tuple[object, str]:
+        """Return one opaque state snapshot and its exact semantic digest."""
+
+    @abstractmethod
+    def quiesce(
+        self,
+        lifecycle: object,
+        handle: object,
+        capability: object,
+    ) -> None:
+        """Release every live handle while retaining the private root bytes."""
+
+    @abstractmethod
+    def reopen(
+        self,
+        lifecycle: object,
+        sealed_snapshot: object,
+        purpose: str,
+        capability: object,
+    ) -> object:
+        """Reopen and fully validate the exact sealed binding for one purpose."""
+
+    @abstractmethod
+    def terminate(
+        self,
+        lifecycle: object,
+        handle: object | None,
+        terminal_action: str,
+        capability: object,
+    ) -> None:
+        """Permanently release the binding root and all runtime authority."""
+
+
+class _BindingLifecycleCapability:
+    __slots__ = ()
+
+    def __new__(cls) -> _BindingLifecycleCapability:
+        del cls
+        raise TypeError("binding lifecycle capability is authority-issued")
+
+    def __reduce_ex__(self, protocol: int) -> object:
+        del self, protocol
+        raise TypeError("binding lifecycle capability is not serializable")
+
+
+class BindingLifecycleSeal:
+    """Opaque, process-local, single-generation binding seal."""
+
+    __slots__ = (
+        "__authority", "__binding_digest", "__capability", "__generation",
+        "__projection_digest", "__snapshot",
+    )
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise TypeError("binding lifecycle seal is authority-issued")
+
+    def __copy__(self) -> object:
+        raise TypeError("binding lifecycle seal is not cloneable")
+
+    def __deepcopy__(self, memo: object) -> object:
+        del memo
+        raise TypeError("binding lifecycle seal is not cloneable")
+
+    def __reduce_ex__(self, protocol: int) -> object:
+        del protocol
+        raise TypeError("binding lifecycle seal is not serializable")
+
+    def __getstate__(self) -> object:
+        raise TypeError("binding lifecycle seal is not serializable")
+
+    @property
+    def generation(self) -> int:
+        return self.__generation
+
+    def _matches(
+        self,
+        *,
+        authority: object,
+        capability: object,
+        generation: int,
+        binding_digest: str,
+    ) -> bool:
+        return (
+            self.__authority is authority
+            and self.__capability is capability
+            and self.__generation == generation
+            and self.__binding_digest == binding_digest
+        )
+
+    def _projection_digest_for(self, capability: object) -> str:
+        if capability is not self.__capability:
+            raise BindingLifecycleError("binding lifecycle seal capability is foreign")
+        return self.__projection_digest
+
+    def _snapshot_for(self, capability: object) -> object:
+        if capability is not self.__capability:
+            raise BindingLifecycleError("binding lifecycle seal capability is foreign")
+        return self.__snapshot
+
+
+class ProcessLocalBindingLifecycle:
+    """Monotonic process-local state machine around one private binding root."""
+
+    __slots__ = (
+        "__binding_digest", "__capability", "__expected_purpose_index",
+        "__generation", "__handle", "__lock", "__owner", "__port", "__seal",
+        "__state",
+    )
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise TypeError("binding lifecycle is authority-issued")
+
+    @classmethod
+    def _issue(
+        cls,
+        *,
+        port: RuntimeBindingReopenPort,
+        binding_digest: object,
+        opened_handle: object,
+        owner: object,
+    ) -> ProcessLocalBindingLifecycle:
+        if not isinstance(port, RuntimeBindingReopenPort):
+            raise BindingLifecycleError("binding reopen port is missing or foreign")
+        if owner is None:
+            raise BindingLifecycleError("binding lifecycle owner is missing")
+        result = object.__new__(cls)
+        result.__binding_digest = _digest(
+            binding_digest, "binding lifecycle identity digest",
+        )
+        result.__capability = object.__new__(_BindingLifecycleCapability)
+        result.__expected_purpose_index = 0
+        result.__generation = 0
+        result.__handle = opened_handle
+        result.__lock = threading.RLock()
+        result.__owner = owner
+        result.__port = port
+        result.__seal = None
+        result.__state = "OPEN"
+        return result
+
+    def _require_owner(self, owner: object) -> None:
+        if owner is not self.__owner:
+            raise BindingLifecycleError("binding lifecycle owner is foreign")
+
+    @property
+    def state(self) -> str:
+        with self.__lock:
+            if self.__state not in _BINDING_LIFECYCLE_STATES:
+                raise BindingLifecycleError("binding lifecycle state is invalid")
+            return self.__state
+
+    @property
+    def generation(self) -> int:
+        with self.__lock:
+            return self.__generation
+
+    @property
+    def expected_purpose(self) -> str | None:
+        with self.__lock:
+            if self.__expected_purpose_index == len(_BINDING_LIFECYCLE_PURPOSES):
+                return None
+            return _BINDING_LIFECYCLE_PURPOSES[self.__expected_purpose_index]
+
+    def _issue_seal(self, snapshot: object, projection_digest: object) -> BindingLifecycleSeal:
+        digest = _digest(projection_digest, "binding lifecycle projection digest")
+        seal = object.__new__(BindingLifecycleSeal)
+        for field, value in (
+            ("_BindingLifecycleSeal__generation", self.__generation),
+            ("_BindingLifecycleSeal__binding_digest", self.__binding_digest),
+            ("_BindingLifecycleSeal__projection_digest", digest),
+            ("_BindingLifecycleSeal__authority", self),
+            ("_BindingLifecycleSeal__capability", self.__capability),
+            ("_BindingLifecycleSeal__snapshot", snapshot),
+        ):
+            object.__setattr__(seal, field, value)
+        self.__seal = seal
+        return seal
+
+    def _require_current_seal(self, seal: object) -> BindingLifecycleSeal:
+        if (
+            type(seal) is not BindingLifecycleSeal
+            or seal is not self.__seal
+            or not seal._matches(
+                authority=self,
+                capability=self.__capability,
+                generation=self.__generation,
+                binding_digest=self.__binding_digest,
+            )
+        ):
+            raise BindingLifecycleError("binding lifecycle seal is stale or foreign")
+        _digest(
+            seal._projection_digest_for(self.__capability),
+            "binding lifecycle projection digest",
+        )
+        return seal
+
+    def seal_and_quiesce(self, owner: object) -> BindingLifecycleSeal:
+        with self.__lock:
+            self._require_owner(owner)
+            if self.__state != "OPEN" or self.__seal is not None:
+                raise BindingLifecycleError("binding lifecycle cannot be initially sealed")
+            handle = self.__handle
+            try:
+                snapshot, projection_digest = self.__port.seal_current(
+                    self, handle, self.__capability,
+                )
+                seal = self._issue_seal(snapshot, projection_digest)
+                self.__state = "SEALED"
+                self.__port.quiesce(self, handle, self.__capability)
+            except Exception as error:
+                try:
+                    self.__port.terminate(
+                        self, handle, "revoke", self.__capability,
+                    )
+                except Exception:
+                    pass
+                self.__state = "PERMANENTLY_CLOSED"
+                self.__handle = None
+                self.__seal = None
+                if isinstance(error, BindingLifecycleError):
+                    raise
+                raise BindingLifecycleError(
+                    "binding lifecycle initial seal failed closed"
+                ) from error
+            self.__handle = None
+            self.__state = "QUIESCED"
+            return seal
+
+    def run_phase(
+        self,
+        seal: object,
+        purpose: object,
+        phase: object,
+        owner: object,
+    ) -> tuple[object, BindingLifecycleSeal]:
+        with self.__lock:
+            self._require_owner(owner)
+            if self.__state != "QUIESCED":
+                raise BindingLifecycleError("binding lifecycle is not quiesced")
+            current = self._require_current_seal(seal)
+            expected = self.expected_purpose
+            if type(purpose) is not str or purpose != expected:
+                raise BindingLifecycleError("binding lifecycle purpose is out of order")
+            if not callable(phase):
+                raise BindingLifecycleError("binding lifecycle phase is not callable")
+            try:
+                handle = self.__port.reopen(
+                    self,
+                    current._snapshot_for(self.__capability),
+                    purpose,
+                    self.__capability,
+                )
+                if handle is None:
+                    raise BindingLifecycleError(
+                        "binding lifecycle reopened handle is absent"
+                    )
+                # A seal is consumed only after its full reopen validation succeeds.
+                self.__seal = None
+                self.__handle = handle
+                self.__state = "REOPENED"
+                value = phase(handle)
+                snapshot, projection_digest = self.__port.seal_current(
+                    self, handle, self.__capability,
+                )
+                self.__generation += 1
+                next_seal = self._issue_seal(snapshot, projection_digest)
+                self.__state = "SEALED"
+                self.__port.quiesce(self, handle, self.__capability)
+            except Exception as error:
+                handle = self.__handle
+                self.__handle = None
+                if self.__state == "QUIESCED":
+                    # Reopen failed before a handle or state transition existed. The
+                    # same seal remains current and no action was replayed.
+                    self.__seal = current
+                else:
+                    try:
+                        self.__port.terminate(
+                            self, handle, "revoke", self.__capability,
+                        )
+                    except Exception:
+                        pass
+                    self.__state = "PERMANENTLY_CLOSED"
+                    self.__seal = None
+                if isinstance(error, BindingLifecycleError):
+                    raise
+                raise BindingLifecycleError(
+                    "binding lifecycle phase failed closed"
+                ) from error
+            self.__handle = None
+            self.__state = "QUIESCED"
+            self.__expected_purpose_index += 1
+            return value, next_seal
+
+    def terminate(
+        self,
+        seal: object | None,
+        terminal_action: object,
+        owner: object,
+    ) -> None:
+        with self.__lock:
+            self._require_owner(owner)
+            if self.__state == "PERMANENTLY_CLOSED":
+                raise BindingLifecycleError("binding lifecycle is permanently closed")
+            if terminal_action not in ("finalize", "revoke"):
+                raise BindingLifecycleError(
+                    "binding lifecycle terminal action is unsupported"
+                )
+            if self.__state == "QUIESCED":
+                self._require_current_seal(seal)
+            elif self.__state == "REOPENED":
+                if seal is not None:
+                    raise BindingLifecycleError(
+                        "binding lifecycle terminal seal is foreign"
+                    )
+            elif seal is not None:
+                raise BindingLifecycleError("binding lifecycle terminal seal is foreign")
+            handle = self.__handle
+            self.__port.terminate(
+                self, handle, terminal_action, self.__capability,
+            )
+            self.__handle = None
+            self.__seal = None
+            self.__state = "PERMANENTLY_CLOSED"
 
 
 def _text(value: object, label: str) -> str:
@@ -87,6 +436,7 @@ def _self_digest(
     field: str,
     contract: str,
     schema: str,
+    schema_version: str = "1.0.0",
 ) -> str:
     body = dict(value)
     claimed = _digest(body.pop(field, None), f"{contract} digest")
@@ -94,7 +444,7 @@ def _self_digest(
         body,
         contract_type=f"urn:gew:contract:{contract}",
         projection_id=f"urn:gew:digest-projection:{contract}:1.0.0",
-        schema_id=f"urn:gew:schema:{schema}:1.0.0",
+        schema_id=f"urn:gew:schema:{schema}:{schema_version}",
     )
     if not hmac.compare_digest(claimed, expected):
         raise ProfileCoverageError(f"{contract} digest mismatch")
@@ -218,7 +568,7 @@ class ProfileCoverageExecutionPlan:
             or len(bootstrap_oracles) != len(oracle_bodies)
         ):
             raise ProfileCoverageError("coverage oracle vector is absent")
-        oracle_fields = frozenset({
+        oracle_fields_v1 = frozenset({
             "schema_version", "oracle_id", "oracle_kind", "profile_id",
             "selector_kind", "column_id", "scenario_id",
             "category_boundary_case_id", "overlay_id",
@@ -228,6 +578,7 @@ class ProfileCoverageExecutionPlan:
             "reject_state_relation", "reject_input_relation", "oracle_digest",
             "isolated_runner_raw_sha256", "task_ids",
         })
+        oracle_fields_v1_1 = oracle_fields_v1 | {"rejection_input"}
         oracle_binding_fields = frozenset({
             "oracle_id", "profile_id", "selector_kind", "column_id",
             "scenario_id", "category_boundary_case_id", "overlay_id", "oracle_member",
@@ -247,11 +598,39 @@ class ProfileCoverageExecutionPlan:
         for body, raw_binding, raw_bootstrap in zip(
             oracle_bodies, raw_oracle_bindings, bootstrap_oracles, strict=True,
         ):
-            oracle = _exact(
-                _strict_json(body, "Profile coverage oracle"),
-                oracle_fields,
-                "Profile coverage oracle",
-            )
+            oracle = _strict_json(body, "Profile coverage oracle")
+            oracle_version = oracle.get("schema_version")
+            if oracle_version == "1.0.0":
+                _exact(oracle, oracle_fields_v1, "Profile coverage oracle")
+            elif oracle_version == "1.1.0":
+                _exact(oracle, oracle_fields_v1_1, "Profile coverage oracle")
+                rejection_input = _exact(
+                    oracle["rejection_input"],
+                    frozenset({"kind", "values"}),
+                    "Profile coverage oracle rejection input",
+                )
+                if rejection_input["kind"] != "integer-vector":
+                    raise ProfileCoverageError(
+                        "Profile coverage oracle rejection input kind is unsupported"
+                    )
+                rejection_values = rejection_input["values"]
+                if (
+                    type(rejection_values) is not list
+                    or not rejection_values
+                    or len(rejection_values) > 4096
+                    or any(
+                        type(item) is not int
+                        or not 1 <= item <= 9_007_199_254_740_991
+                        for item in rejection_values
+                    )
+                ):
+                    raise ProfileCoverageError(
+                        "Profile coverage oracle rejection values are invalid"
+                    )
+            else:
+                raise ProfileCoverageError(
+                    "Profile coverage oracle version is unsupported"
+                )
             binding = _exact(
                 raw_binding, oracle_binding_fields, "coverage oracle binding",
             )
@@ -259,15 +638,12 @@ class ProfileCoverageExecutionPlan:
                 raw_bootstrap, bootstrap_oracle_fields,
                 "coverage bootstrap oracle vector",
             )
-            if oracle["schema_version"] != "1.0.0":
-                raise ProfileCoverageError(
-                    "Profile coverage oracle version is unsupported"
-                )
             oracle_digest = _self_digest(
                 oracle,
                 field="oracle_digest",
                 contract="profile-coverage-oracle",
                 schema="profile-coverage-oracle-input",
+                schema_version=oracle_version,
             )
             fact_ids = oracle["required_fact_ids"]
             if (
@@ -691,13 +1067,25 @@ class ProfileCoverageAuthorityRegistration:
         self,
         authority: object,
         observation: object,
+        *,
+        purpose: str = "use",
     ) -> ProfileCoverageObservation:
         if authority is not self._authority:
             raise ProfileCoverageError("Profile coverage consumer authority is foreign")
-        require = getattr(self._authority, "_require_observation", None)
-        if not callable(require):
-            raise ProfileCoverageError("Profile coverage observer authority is unavailable")
-        result = require(observation)
+        if purpose not in _BINDING_LIFECYCLE_PURPOSES[1:]:
+            raise ProfileCoverageError("Profile coverage use purpose is invalid")
+        phase_require = getattr(
+            self._authority, "_require_observation_for_phase", None,
+        )
+        if callable(phase_require):
+            result = phase_require(observation, purpose)
+        else:
+            require = getattr(self._authority, "_require_observation", None)
+            if purpose != "use" or not callable(require):
+                raise ProfileCoverageError(
+                    "Profile coverage observer authority is unavailable"
+                )
+            result = require(observation)
         if type(result) is not ProfileCoverageObservation:
             raise ProfileCoverageError("Profile coverage observation is substituted")
         return result
@@ -723,6 +1111,7 @@ class ProfileCoverageAuthorityRegistration:
         authority: object,
         factory: object,
         capability: object,
+        terminal_action: str,
     ) -> None:
         from graph_engineering.core.profiles import CoverageRecordFactory
 
@@ -731,7 +1120,11 @@ class ProfileCoverageAuthorityRegistration:
         revoke = getattr(authority, "_revoke_from_factory", None)
         if not callable(revoke):
             raise ProfileCoverageError("Profile coverage lifecycle authority is unavailable")
-        closed = revoke(self, factory, capability)
+        if terminal_action not in {"finalize", "revoke"}:
+            raise ProfileCoverageError(
+                "Profile coverage terminal action is invalid"
+            )
+        closed = revoke(self, factory, capability, terminal_action)
         if type(closed) is not bool:
             raise ProfileCoverageError(
                 "Profile coverage lifecycle result is invalid"
@@ -756,8 +1149,12 @@ def profile_coverage_digest(
 
 
 __all__ = [
+    "BindingLifecycleError",
+    "BindingLifecycleSeal",
+    "ProcessLocalBindingLifecycle",
     "ProfileCoverageError",
     "ProfileCoverageExecutionPlan",
     "ProfileCoverageExecutionRecord",
     "ProfileCoverageObservation",
+    "RuntimeBindingReopenPort",
 ]

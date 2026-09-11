@@ -1,0 +1,396 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-REMAINING54-V1",
+  "records": [
+    {
+      "record_id": "p2a-verification-r0",
+      "reviewer_id": "/root/remaining54_local_verification_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "artifact": "verification",
+        "verdict": "PASS",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P2A-VERIFY-R0-001",
+            "severity": "advisory",
+            "evidence": "Independently verified all 38 manifest members, 7 evidence files and 3 preserved out-of-scope hashes. The 39-target state digest is 87face6d529dbe955374f0a09ba49bb2d36490d92417cb73790ccb9b4683ec1e; every target is unique and inside the exact174 Envelope. All 24 prior non-administrative members and 278 run-attested source members remain unchanged. The Envelope changes only authorized_actions by adding candidate and review; the Human record only adds local_acceptance_amendment.",
+            "required_change": "None for this checkpoint; exact-source and authority-lineage checks are satisfied.",
+            "verification": "Recomputed sorted path/NUL/raw-bytes/NUL aggregates and individual SHA-256 values, compared preserved prior authority records, and reproduced the upstream implementation decision's three canonical input digests. Rechecked the state digest after independent tests with no change.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-VERIFY-R0-002",
+            "severity": "advisory",
+            "evidence": "run.log SHA-256 f1125c8556916f8c697190631cd0839599ebd0e7db44b7987d3b892fd4b6c8e1 matches the packet. Its final JSON equals final-receipt.json and the manifest receipt. Preserved heartbeat tails contain all 226 binding-start, binding-executed, binding-observed, record-start and record-done events in exact current-plan order. Receipt results are dynamic 226 valid/48 missing/false and static 0 valid/274 missing/false, with invalid/stale/duplicate zero, 2 new records, 224 retained records and 113 oracle bindings. P1 sibling receipt preserves restart-zero and negative-only median/MAD 100/99 noise rejection.",
+            "required_change": "None for completed-checkpoint verification; these results do not establish Remaining54 completion.",
+            "verification": "Parsed all 212 log lines, checked contiguous 211 heartbeat sequences and exact event IDs against the current plan, and compared both receipt copies. launch-authority.json binds the one authorized rerun to the prior reviewed source; completion-verification.json records coordinator-observed session 72241 exit 0. No cumulative rerun was performed during this review.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-VERIFY-R0-003",
+            "severity": "advisory",
+            "evidence": "Source inspection at tests/support/wp08_release_coverage.py:5790-6058 confirms four-phase requiescence, unique binding identities, strict serial reopen, terminal closure and zero-handle/FD-baseline assertions precede receipt return; lines 6715-6751 reject child failure before accepting its JSON. Final child teardown logs and a measured teardown duration are not preserved, matching the packet's stated limitation. Independent native CPython tests passed: 63 tests in 8.014 seconds, exit 0; git diff --check also passed.",
+            "required_change": "None for this verification node. Candidate findings GEW-REMAINING54-P2A-CAND-R1-001 through -005 and the pending repository-isolation finding are unchanged by this verdict.",
+            "verification": "Ran tests.unit.test_wp08_scenario_truth, tests.security.test_wp08_remaining54_authority, tests.contract.test_wp01_charge_traces and tests.contract.test_wp01_resources using .venv/bin/python -B, the supplied source-attestation control root, matching -X control-root option and required PYTHONPATH. Lifecycle conclusions are control-flow/receipt inferences, not direct final teardown observations; no teardown-duration, full-suite, Candidate-closure or irreversible-authority claim is made.",
+            "status": "resolved"
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "p2a-candidate-r0",
+      "reviewer_id": "/root/remaining54_local_candidate_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "ESCALATE",
+        "artifact": "candidate",
+        "scope_changed": true,
+        "change_kinds": [
+          "budget",
+          "traceability",
+          "testability"
+        ],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-R1-001",
+            "severity": "blocking",
+            "evidence": "The original finding was recovered verbatim. application/graph_engineering/application/scenario_truth.py:520 now rereads and compares the complete installation projection; authority access, observer issuance/use, observation currentness, projection and restart call this check. core/graph_engineering/__init__.py:2072 rereads attested source or installed distribution resources. Existing same-path/coherently replaced closure tests passed independently. All 278 run-attested source members remain unchanged.",
+            "required_change": "No further change for this original installation-currentness finding; preserve full rereads and fail-closed comparisons.",
+            "verification": "Independently checked source control flow, reran ScenarioTruthAuthorityTests, and passed the integration precommit/gate closure-tamper test. Recomputed all 38 manifest member hashes and the 39-target Candidate digest 87face6d529dbe955374f0a09ba49bb2d36490d92417cb73790ccb9b4683ec1e.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-R1-002",
+            "severity": "blocking",
+            "evidence": "application/graph_engineering/application/scenario_truth.py observation_factory now requires branch_id == 'branch:' + task_id and ref_id == 'ref:' + task_id. The independently rerun foreign-same-suffix test rejects cross-task branch/ref values before creating target files; exact task-derived positive bindings pass.",
+            "required_change": "No further change for the original suffix-only issuance defect; preserve exact complete-task namespace comparison.",
+            "verification": "test_foreign_same_suffix_branch_and_ref_are_rejected_before_write passed, together with positive multi-target authority and integration tests.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-R1-003",
+            "severity": "blocking",
+            "evidence": "application/graph_engineering/application/scenario_truth.py:295-336 derives assertion facts from observed baseline/candidate bytes and target state. core/graph_engineering/core/scenario_truth.py:103 compares exact ordered boolean facts against expectations; registry parsing binds required_fact_ids to the fixture assertion order. These replace unconditional configured PASS labels.",
+            "required_change": "No further change for this original assertion-evaluation finding; preserve observed-fact derivation and exact fact closure.",
+            "verification": "Independent tests passed for genuine positives, altered expectations, false regression/fresh-target facts, missing/reordered facts, stale targets, caller assertion claims and reordered required_fact_ids.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-R1-004",
+            "severity": "blocking",
+            "evidence": "The executable cumulative selector now exists. The exact-source completed receipt establishes plan226/oracle113, dynamic226 valid/48 missing/false, static0 valid/274 missing/false, and zero invalid/stale/duplicate IDs. Preserved heartbeats contain all 226 execution/observation/record sequences. Runner assertions enforce four-phase requiescence, terminal closure and resource-baseline return before receipt emission, although final teardown logs and teardown duration are not retained. Closure remains pending because the E1-extended acceptance uses an unresolved runtime-authority limit and the R-record evidence defect in R1-005 remains reproducible.",
+            "required_change": "Resolve R1-005 and the runtime-authority finding, then independently reassess the affected cumulative evidence. Do not automatically rerun, infer full Remaining54 completion, or use an irreversible action as verification.",
+            "verification": "Require authority-consistent exact-source evidence for the unchanged 226/113/48/static0 checkpoint, lifecycle gates and semantically valid records. Existing receipt is partial-checkpoint evidence, not 274/274 acceptance.",
+            "status": "open"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-R1-005",
+            "severity": "blocking",
+            "evidence": "The runner now executes eight distinct-root scenario attacks, but tests/support/wp08_release_coverage.py:2985-2996 only compares context test_id/task_id/oracle_digest strings. The rejection receipts are absent from execution and lifecycle currentness projections; application/graph_engineering/application/profile_coverage.py:1325-1346 still records null typed evidence and the generic boundary error. An independent bounded unittest deleted all eight receipts after legitimate R execution; observation, record issuance and gate evaluation still accepted GEW-PSC-NEW-FEATURE-MULTI-TARGET-R with invalid=0, stale=0 and missing=273.",
+            "required_change": "Bind the precise, complete factory-owned multi-target rejection evidence to R execution, observation, CoverageRecord and oracle validation. Missing, substituted, reordered, stale or foreign rejection evidence must fail closed; string-label equality and the generic category error are insufficient.",
+            "verification": "The corrected-cleanup regression completed in 10.420 seconds and failed solely because deleted receipts remained accepted. Add permanent negative tests for receipt omission/replacement/reordering and P/R substitution through issue/use/precommit/gate, requiring zero unauthorized writes or replay.",
+            "status": "open"
+          },
+          {
+            "id": "GEW-REMAINING54-E1-REPOSITORY-ISOLATION-TRACE-R1-001",
+            "severity": "blocking",
+            "evidence": "Both original E1 verdicts were recovered verbatim, including its historical independent resolution. Current governing documents explicitly make pre-E1 shared-repository wording historical and require private roots per binding. tests/support/wp08_release_coverage.py:5858-5887 mechanically asserts cardinality226 separately for repository-root, task, target, branch/ref, action-root and command-root, and for their combined tuple. The completed exact-source receipt is emitted only after these assertions.",
+            "required_change": "No further change for this traceability finding; preserve the corrected historical scoping and six-dimensional per-binding isolation assertions.",
+            "verification": "Independently inspected the governing text, original review lineage, runtime assertions and cross-binding lifecycle tests. Candidate source and all preserved out-of-scope hashes remained unchanged after review.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-LOCAL-R0-001",
+            "severity": "blocking",
+            "evidence": "application/graph_engineering/application/scenario_truth.py:371 resolves the target before checking is_symlink(), so an in-root symlink is no longer visible to that check. An independent bounded unittest renamed targets/component-a.state to a sibling backing file and replaced the original path with a symlink to that sibling. execute(observer.request()) succeeded with mutation_count=2, backing_changed=true and symlink_remains=true. The existing security test covers only an out-of-root symlink.",
+            "required_change": "Reject substituted target symlinks and symlinked path components before mutation, while preserving the exact private-root/target binding. Apply consistent protection to restored/current target validation.",
+            "verification": "Add permanent in-root and out-of-root symlink substitution regressions before execution and during currentness/restart validation. Every rejection must preserve target/backing bytes and report zero additional mutations; ordinary direct-file positives must continue passing.",
+            "status": "open"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-LOCAL-R0-002",
+            "severity": "blocking",
+            "evidence": "The persisted Human F1 record names cumulative_runtime_limit_seconds=12600, while current policy, tests and governing documents use86400. Recovered history shows assistant-authored increases, including43200→86400, without a verified explicit Human budget amendment. Later memory-repair and local-acceptance amendments explicitly do not change budgets. The completed run contains heartbeat211 at elapsed_seconds12660, so it cannot demonstrate completion within the persisted12600-second limit. Classifying the new value as routine in agent-authored documents does not resolve the authority contradiction.",
+            "required_change": "Obtain the Human owner's explicit decision on the applicable cumulative runtime limit and reconcile the authority/evidence lineage without rewriting historical approvals. Do not retroactively describe the existing run as satisfying12600 seconds, silently approve86400, or launch another run without separate authority.",
+            "verification": "Require a preserved explicit decision naming the accepted limit and its applicability to this checkpoint. Mechanically compare that decision with configuration, tests and run elapsed evidence while retaining all lifecycle/currentness gates and historical records.",
+            "status": "open"
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "candidate-defect-repair-implementation-r1",
+      "reviewer_id": "/root/remaining54_candidate_repair_r1",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "REVISE",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [
+          "testability"
+        ],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-R1-005",
+            "severity": "blocking",
+            "evidence": "Receipt identity, ordering, current targets and typed execution-digest binding pass the selected negative regressions. However, the existing bounded test tests.integration.test_wp08_scenario_truth.ScenarioTruthIntegrationTests.test_multi_target_positive_uses_quiescent_binding_lifecycle fails in disposition R at result.observe_current() (line 1399). On first reopen, application/profile_coverage.py:1234-1242 obtains the restarted category's scenario factory and rejects the preserved legitimate evidence with 'scenario rejection evidence crossed selector boundary'; this becomes BindingLifecycleError during lifecycle projection. The test completed in 24.867 seconds with one error. The selected 81-test suite omitted this normal quiescent P/R lifecycle test.",
+            "required_change": "Preserve or rehydrate the exact factory-owned R rejection authority across seal/quiesce/reopen so legitimate evidence remains usable through issue, use, precommit and gate. Preserve complete currentness checks, receipt identity, private-root binding and zero replay; do not bypass validation when the restarted scenario factory is absent. Include the existing failing lifecycle test in the bounded regression selection.",
+            "verification": "Require test_multi_target_positive_uses_quiescent_binding_lifecycle to pass for both P and R through generation 4 and terminal closure, with unchanged R state and receipts. Rerun the receipt-corruption four-phase tests and the 81-test bounded selection. No cumulative run is required or authorized for this correction.",
+            "status": "open"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-LOCAL-R0-001",
+            "severity": "blocking",
+            "evidence": "application/scenario_truth.py:_private_target walks relative components using O_DIRECTORY/O_NOFOLLOW and opens targets with O_NOFOLLOW, checking ownership, root identity, regular-file type and link count. Execution, currentness and restored currentness use these checks. All 16 permanent file/directory, in-root/out-of-root, four-phase symlink subcases passed. Eight additional independent private-root-symlink/hardlink checks also rejected with unchanged bytes and zero additional mutations.",
+            "required_change": "No further change for this bounded symlink defect; preserve the descriptor-based checks and regression coverage.",
+            "verification": "The independent 81-test selection passed in 76.861 seconds. Architecture checks and git diff --check passed. After testing, the 52-target artifact digest remained 0447818aaff144e07f40b57581fd4eed6694c8ea1edbda1d9152341eedd86241.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-LOCAL-R0-002",
+            "severity": "blocking",
+            "evidence": "The latest Human amendment explicitly approves 14400 seconds only for future separately authorized cumulative runs, retains heartbeat 60 seconds, rejects retrospective approval of 86400 seconds and prohibits automatic rerun or monitoring restoration. Current configuration, tests and five document supplements agree. Independent checks verified the prior Human content is unchanged, historical manifest raw bytes match their preserved SHA256, prior state/verdict/decision records remain intact, all 51 current manifest members and 278 attested source members match, and the three forbidden edit targets retain their recorded hashes.",
+            "required_change": "No further budget reconciliation is needed for this bounded implementation review. Keep R1-004 and cumulative/Candidate acceptance separately pending; do not reinterpret the historical run as current or within-budget acceptance.",
+            "verification": "The config-owned 14400/60 assertion passed. Raw historical and current source bindings were independently recomputed. No cumulative run, monitoring restoration or irreversible action was performed.",
+            "status": "resolved"
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "candidate-defect-repair-implementation-r2",
+      "reviewer_id": "/root/remaining54_candidate_repair_r2",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-R1-005",
+            "severity": "blocking",
+            "evidence": "application/graph_engineering/application/profile_coverage.py retains the exact scenario rejection issuer independently of restarted category state and validates receipt identity, installation closure, current task binding and target bytes through execution issuance and record currentness. tests/support/wp08_scenario_truth.py gives R evidence a separately owned process-local issuer with terminal cleanup. The previously failing test_multi_target_positive_uses_quiescent_binding_lifecycle now passes for P and R through generation 4 and terminal closure, preserving R receipts and durable state. Receipt omission, reordering, cloning, replacement, foreign binding, stale targets, P substitution and absent issuer fail closed.",
+            "required_change": "No further change for this bounded implementation defect. Preserve exact issuer ownership, complete currentness checks and zero-replay behavior. Cumulative and Candidate acceptance remain separate.",
+            "verification": "Independently ran the exact final-regression selection: 84 tests passed in 192.991 seconds, exit 0, including normal quiescent P/R lifecycle and receipt corruption at issue, use, precommit and gate.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-LOCAL-R0-001",
+            "severity": "blocking",
+            "evidence": "application/graph_engineering/application/scenario_truth.py:_private_target retains descriptor-based O_NOFOLLOW validation for root, relative directory components and target files, with ownership, root identity, regular-file and link-count checks. Execute, currentness and restored-currentness use these checks. The permanent in-root/out-of-root file/directory symlink matrix passed without additional mutations.",
+            "required_change": "No further change for the bounded symlink defect; preserve descriptor-based validation and regression coverage.",
+            "verification": "The independent 84-test selection passed. After testing, the frozen 52-target digest remained dad3bc833f0df5b9da686894eb37b54fd3eeb65eb6999f667a4961f186587b30.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-LOCAL-R0-002",
+            "severity": "blocking",
+            "evidence": "The latest Human amendment, five document supplements and tested configuration consistently authorize 14400 seconds with heartbeat 60 only for future separately authorized cumulative runs. Historical 86400-second changes and run 72241 are not ratified. Independent checks verified all 51 manifest members, 278 source-attested members, both preserved raw manifests, prior reducer input bindings and three forbidden-target hashes. Durable inverse patches reconstruct rejected r1 digest 0447818aaff144e07f40b57581fd4eed6694c8ea1edbda1d9152341eedd86241.",
+            "required_change": "No further budget reconciliation is needed for this implementation review. Keep R1-004 and cumulative/Candidate acceptance pending; do not launch a cumulative rerun or restore monitoring without separate authorization.",
+            "verification": "Config-owned 14400/60 assertions passed; both pin recomputations produced empty patches; architecture checks and git diff --check passed. No cumulative run, monitoring restoration, source edit or irreversible action was performed.",
+            "status": "resolved"
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "candidate-defect-repair-implementation-r2-state-reconciled",
+      "reviewer_id": "/root/remaining54_candidate_repair_r2",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-R1-005",
+            "severity": "blocking",
+            "evidence": "application/graph_engineering/application/profile_coverage.py retains the exact scenario rejection issuer independently of restarted category state and validates receipt identity, installation closure, current task binding and target bytes through execution issuance and record currentness. tests/support/wp08_scenario_truth.py gives R evidence a separately owned process-local issuer with terminal cleanup. The previously failing test_multi_target_positive_uses_quiescent_binding_lifecycle now passes for P and R through generation 4 and terminal closure, preserving R receipts and durable state. Receipt omission, reordering, cloning, replacement, foreign binding, stale targets, P substitution and absent issuer fail closed.",
+            "required_change": "No further change for this bounded implementation defect. Preserve exact issuer ownership, complete currentness checks and zero-replay behavior. Cumulative and Candidate acceptance remain separate.",
+            "verification": "Independently ran the exact final-regression selection: 84 tests passed in 192.991 seconds, exit 0, including normal quiescent P/R lifecycle and receipt corruption at issue, use, precommit and gate.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-LOCAL-R0-001",
+            "severity": "blocking",
+            "evidence": "application/graph_engineering/application/scenario_truth.py:_private_target retains descriptor-based O_NOFOLLOW validation for root, relative directory components and target files, with ownership, root identity, regular-file and link-count checks. Execute, currentness and restored-currentness use these checks. The permanent in-root/out-of-root file/directory symlink matrix passed without additional mutations.",
+            "required_change": "No further change for the bounded symlink defect; preserve descriptor-based validation and regression coverage.",
+            "verification": "The independent 84-test selection passed. After testing, the frozen 52-target digest remained dad3bc833f0df5b9da686894eb37b54fd3eeb65eb6999f667a4961f186587b30.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-LOCAL-R0-002",
+            "severity": "blocking",
+            "evidence": "The latest Human amendment, five document supplements and tested configuration consistently authorize 14400 seconds with heartbeat 60 only for future separately authorized cumulative runs. Historical 86400-second changes and run 72241 are not ratified. Independent checks verified all 51 manifest members, 278 source-attested members, both preserved raw manifests, prior reducer input bindings and three forbidden-target hashes. Durable inverse patches reconstruct rejected r1 digest 0447818aaff144e07f40b57581fd4eed6694c8ea1edbda1d9152341eedd86241.",
+            "required_change": "No further budget reconciliation is needed for this implementation review. Keep R1-004 and cumulative/Candidate acceptance pending; do not launch a cumulative rerun or restore monitoring without separate authorization.",
+            "verification": "Config-owned 14400/60 assertions passed; both pin recomputations produced empty patches; architecture checks and git diff --check passed. No cumulative run, monitoring restoration, source edit or irreversible action was performed.",
+            "status": "resolved"
+          }
+        ]
+      },
+      "audit_binding": {
+        "source_verdict_record_id": "candidate-defect-repair-implementation-r2",
+        "relationship": "Exact unchanged independent R2 verdict paired with post-review reconciled state; not a new reviewer verdict or artifact revision."
+      }
+    },
+    {
+      "record_id": "p2a-post-repair-verification-2026-09-11-r0",
+      "reviewer_id": "/root/p2a_post_repair_verification_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "verification",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      },
+      "reviewer_execution_evidence": {
+        "bounded_tests": 61,
+        "elapsed_seconds": 157.044,
+        "exit_code": 0,
+        "source_artifact_digest_after_tests": "6ffdac401556134b38193b7f4eb7daf50a1f5cb1cfa40e7485a2fd0a5b8aed29",
+        "checks": "Independent archive roundtrip, attestation HMAC/root identity and278 members,174-target scope, protected hashes, five226-event traces,212 heartbeats, real exit/receipt/budget, source lifecycle inspection and post-exit process checks. Architecture PASS and git diff --check clean. Final child stderr/counter limitation retained; no Candidate closure inferred."
+      }
+    },
+    {
+      "record_id": "p2a-post-repair-candidate-2026-09-11-r0-post-review",
+      "reviewer_id": "/root/p2a_post_repair_candidate_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "candidate",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-R1-001",
+            "severity": "blocking",
+            "evidence": "application/scenario_truth.py:_require_installation_current rereads the complete installation projection; authority issuance, receipt validation, observation currentness and restoration retain this check. core/graph_engineering/__init__.py:_scenario_truth_installation_resources rereads attested source or installed resources. No regression of the previously resolved finding was found.",
+            "required_change": "None for this checkpoint.",
+            "verification": "Independent native regression selection passed 62 tests in 126.626 seconds, exit 0, including installation replacement and precommit/gate closure-tamper regressions.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-R1-002",
+            "severity": "blocking",
+            "evidence": "Scenario observer issuance requires branch_id and ref_id to equal the complete task-derived namespaces. Foreign values sharing only the task suffix remain rejected before target creation.",
+            "required_change": "None for this checkpoint.",
+            "verification": "The foreign-same-suffix rejection and genuine multi-target positive tests passed in the independent 62-test selection.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-R1-003",
+            "severity": "blocking",
+            "evidence": "Scenario execution derives acceptance, freshness and regression facts from observed target bytes and transitions. The core evaluator compares exact ordered boolean facts against configured expectations, with required_fact_ids bound to fixture assertion order.",
+            "required_change": "None for this checkpoint.",
+            "verification": "Independent tests passed for genuine positives, altered expectations, false facts, missing/reordered facts, caller assertion claims and required-fact ordering.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-R1-004",
+            "severity": "blocking",
+            "evidence": "The separately authorized repaired-source run returned exit 0 in 12777.699721291 seconds. Its exact receipt establishes plan226/oracle113, dynamic226 valid/48 missing/false, static0 valid/274 missing/false, zero invalid/stale/duplicate, 2 new and 224 retained records, and current P1 sibling evidence. All 212 heartbeats and five ordered 226-entry execution/record traces match the plan. The frozen runner requires four-phase requiescence, serial reopen, terminal closure and FD/handle baseline return before returning this receipt. Final teardown stderr and counter snapshots are not directly retained; those conclusions are control-flow-backed.",
+            "required_change": "None for local P2a acceptance. This verdict does not establish Remaining54 274/274 completion or irreversible authority.",
+            "verification": "Independently verified all 23 embedded raw artifacts against SHA256, length and originals; recomputed current52 digest 6ffdac401556134b38193b7f4eb7daf50a1f5cb1cfa40e7485a2fd0a5b8aed29 and prior52 digest dad3bc833f0df5b9da686894eb37b54fd3eeb65eb6999f667a4961f186587b30; verified 278 attested members and reproduced upstream standard reducer decisions. Bounded lifecycle regressions passed; no cumulative rerun was performed.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-R1-005",
+            "severity": "blocking",
+            "evidence": "R execution now carries the complete factory-owned, ordered eight-receipt rejection aggregate, bound to current task, installation, scenario, test and oracle. Its digest participates in execution and downstream coverage digests. Original issuer identity survives category reopen; receipt identity and target bytes are revalidated at subsequent phases. Rejected repair R1 and accepted repair R2 remain preserved.",
+            "required_change": "None for this checkpoint.",
+            "verification": "Independent tests passed for omission, reorder, clone, replacement, false boolean, foreign binding, stale targets, P substitution and absent issuer. Four-phase rejection regressions and normal quiescent P/R progression through generation4 and terminal closure passed. Reconstructed rejected R1 digest 0447818aaff144e07f40b57581fd4eed6694c8ea1edbda1d9152341eedd86241 from preserved raw manifest and seven inverse patches.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-E1-REPOSITORY-ISOLATION-TRACE-R1-001",
+            "severity": "blocking",
+            "evidence": "Historical shared-repository wording remains explicitly inapplicable to E1/current cumulative execution. The frozen cumulative runner requires each repository-root, task, target, branch/ref, action-root and command-root identity set, and their combined tuple, to have cardinality226 before receipt completion. Original rejection and independent resolution records remain intact.",
+            "required_change": "None for this checkpoint.",
+            "verification": "Verified historical verdict hashes, inspected isolation assertions and reran private-root/cross-binding lifecycle regressions. The exact174 Envelope and three protected-file hashes remain unchanged.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-LOCAL-R0-001",
+            "severity": "blocking",
+            "evidence": "The shared _private_target helper uses no-follow descriptors for the private root, relative directory components and target file, checking root identity, ownership, regular-file type and link count. Execute, snapshots, currentness and restored-currentness use these checks.",
+            "required_change": "None for this checkpoint.",
+            "verification": "All permanent in-root/out-of-root file/directory symlink cases across execute, currentness, restore and restored-currentness passed with unchanged bytes and no additional mutations. Ordinary direct-file positives also passed.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P2A-CAND-LOCAL-R0-002",
+            "severity": "blocking",
+            "evidence": "The preserved Human repair amendment explicitly approves14400 seconds for future separately authorized runs. The subsequent persisted Human authorization permits exactly this one repaired-source run with60-second heartbeats. Configuration and tests agree, and actual elapsed time is below14400 seconds. Historical12600/86400 values and run72241 are neither rewritten nor retroactively accepted.",
+            "required_change": "None for this checkpoint; no additional run or authority is inferred.",
+            "verification": "Compared the exact persisted launch authorization, source digest, supervisor, exit status, receipt hashes and configuration. Budget assertions passed. Final post-test artifact digest and protected-file hashes remained unchanged.",
+            "status": "resolved"
+          }
+        ]
+      },
+      "pre_review_state_record_id": "p2a-post-repair-candidate-2026-09-11-r0"
+    },
+    {
+      "record_id": "p2a-post-repair-technical-2026-09-11-r0",
+      "reviewer_id": "/root/p2a_post_repair_technical_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "review",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      },
+      "independent_check_evidence": {
+        "native_tests": 60,
+        "elapsed_seconds": 140.735,
+        "exit_code": 0,
+        "architecture_check": "PASS",
+        "git_diff_check": "PASS",
+        "post_test_artifact_digest": "6ffdac401556134b38193b7f4eb7daf50a1f5cb1cfa40e7485a2fd0a5b8aed29",
+        "reviewer_report": "Independent native regression: 60 tests passed in 140.735 seconds, exit 0 (unit scenario-truth module, remaining54 authority security module, rejection four-phase tamper, normal multi-target P/R quiescent lifecycle, receipt omission, F2 performance rejection no-replay). Architecture check PASS, git diff --check PASS. Reconstructed rejected R1 digest 0447818aaff144e07f40b57581fd4eed6694c8ea1edbda1d9152341eedd86241 purely in memory from seven inverse patches plus raw historical manifest. Receipt-based terminal/resource conclusions remain control-flow-backed rather than final counter snapshots; packet states this accurately.",
+        "raw_artifacts_checked": 23,
+        "attested_source_members_checked": 278,
+        "protected_files_checked": 3,
+        "current_source_members_checked": 51,
+        "historical_manifest_hashes_checked": 3,
+        "heartbeat_range": [
+          1,
+          212
+        ],
+        "ordered_trace_entries_per_stage": 226
+      }
+    }
+  ],
+  "historical_records": [
+    {
+      "record_id": "historical-p2a-candidate-r1",
+      "reviewer_id": "/root/dep_graph_sliceb_candidate_reviewer_r1",
+      "source_path": "/Users/ezio/.codex/sessions/2026/09/02/rollout-2026-09-02T16-21-41-01a06135-a802-7980-81ce-fd075a827031.jsonl",
+      "source_line": 406,
+      "source_message_id": "msg_082eef5cb2587a4f016a9a1f52872087d1aa5f5a91efd08296",
+      "verbatim_verdict": "VERDICT: REVISE\n\nmanifest_identity:\n- Candidate: `/private/tmp/gew-remaining54-p2a-candidate-r1.manifest`\n- Independently verified: `61 lines / 7348 bytes`\n- SHA-256: `9cfef435fdfbe282d88634be9fd7650a37f93d9b709d7cc4d97b29411df460c8`\n- Sorted/unique/current: `true / true / 61 of 61`\n- Dirty paths: exactly `61`, equal to manifest\n- Authority: all paths within exact166; outside paths `[]`\n- Docs manifest: `9/9` current, SHA-256 `67ee2bf05668a6a59ecd676736b4d4a7a3146eb5f85f80cb8cef153e641aae2b`\n- P1 baseline: all 33 paths retained, but old P1 manifest has only `9/33` current hashes after the cumulative cascade.\n\nfindings:\n\n1. `GEW-REMAINING54-P2A-CAND-R1-001`\n   - status: OPEN / blocking\n   - evidence: `from_installation()` records `_installation_projection` once at `application/.../scenario_truth.py:473-481`, but it is never subsequently read. `require_current()` at `:584-614` checks only factory-local identity, observation digest, and disposable target bytes; it does not reread policy, fixture, bootstrap, schemas, package/RECORD, protected source, or provenance.\n   - independent attack: after issuing a valid two-target observation in a source-attested private clone, same-path replacement of `scenario-truth-policy-registry-v1.json` was followed by:\n     `registry_accepted_after_policy_replacement=true`,\n     `observation_accepted_after_policy_replacement=true`.\n   - required_change: make issue/use/precommit/coverage reread and compare the full installed byte closure, failing before durable/task/target writes on stale, same-path, or coherently re-signed replacement.\n   - verification: policy/fixture/bootstrap/schema/pyproject/wheel/RECORD/source replacement matrix at issue, use, precommit, and restart; all stale cases reject with zero additional writes, while fresh restart restores without replay.\n   - scope_changed: false\n   - change_kinds: implementation, tests, config/digest cascade\n\n2. `GEW-REMAINING54-P2A-CAND-R1-002`\n   - status: OPEN / blocking\n   - evidence: branch/ref validation at `application/.../scenario_truth.py:512-515` merely requires the final task-ID token (`p` or `r`) to occur in each string.\n   - independent attack: task `task:wp08-scenario:new-feature:multi-target:p` accepted `branch:foreign:p` and `ref:foreign:p`; probe result `foreign_branch_ref_accepted=true`.\n   - required_change: derive and compare branch/ref against the complete exact task namespace/current ref, not suffix substring membership.\n   - verification: foreign/cross-task branch and ref values sharing `p`/`r` must reject before mutation with `mutation_count=0`; exact task-derived values must pass.\n   - scope_changed: false\n   - change_kinds: implementation, tests\n\n3. `GEW-REMAINING54-P2A-CAND-R1-003`\n   - status: OPEN / blocking\n   - evidence: the factory converts every configured assertion to `{\"passed\": True}` unconditionally at `application/.../scenario_truth.py:561-564`; execution only checks those prefilled booleans at `:290-292`. Fixture `kind` and `expected` receive only scalar type validation at `core/.../scenario_truth.py:255-264`; no acceptance/regression/fresh-target evaluator consumes them or binds `required_fact_ids`.\n   - impact: the six asserted checks are installation labels/static PASS, not independently observed scenario truth.\n   - required_change: compute generic assertion outcomes from observed A→B transitions, fresh target state, and regression/acceptance facts against config-owned expectations; bind the exact required fact set.\n   - verification: genuine positive observations pass; altered expected facts, regression failure, stale/non-fresh targets, omitted/reordered facts, and caller PASS claims cannot issue the P assessment/record.\n   - scope_changed: false\n   - change_kinds: implementation, tests, config/schema cascade\n\n4. `GEW-REMAINING54-P2A-CAND-R1-004`\n   - status: OPEN / blocking\n   - evidence: the only P2a integration test asserts `len(plan.bindings)==226`, `len(plan.oracle_bindings)==113`, then runs one P and one R. No executable Candidate assertion proves cumulative dynamic gate `226 valid / 48 missing / false` or static-only `0/274/false`; those values occur only in docs.\n   - required_change: add a strict-serial, fresh/current P2a selector that preserves and revalidates prior records, issues the two P2a records, evaluates the exact cumulative and static gates, and includes the current P1 sibling.\n   - verification: exact `226/113/226 valid/48 missing/false`, static `0 valid/274 missing/false`, unique tasks/oracles, current records, no invalid/stale/duplicate IDs.\n   - scope_changed: false\n   - change_kinds: tests, verification\n\n5. `GEW-REMAINING54-P2A-CAND-R1-005`\n   - status: OPEN / blocking\n   - evidence: the R candidate only changes scenario ID to the generic non-`-P` boundary value; R never creates or executes a scenario observer. `execute_rejection()` therefore records the generic category error `typed column evidence does not match authoritative durable facts: boundary`.\n   - impact: the R CoverageRecord is not bound to missing/extra/alias role, one-target-only, cross-branch, partial success, stale target, or wrong rollback semantics. The unit request attacks do not substitute for task/request/execution/observation/CoverageRecord-level R evidence.\n   - required_change: execute a distinct task/factory/root-based scenario rejection and bind its precise fail-closed result to the R record and independent oracle.\n   - verification: required multi-target rejection vectors produce exact expected rejection, unchanged input/durable state, zero unauthorized mutations, and no P/R authority sharing.\n   - scope_changed: false\n   - change_kinds: implementation, tests, oracle/config cascade\n\nverified_nonblocking_evidence:\n- Historical oracle-input 1.0 SHA: `5dfd2ce59af685b92bcc5b79a48ec1130c310ff701e65fdc6162f5eee8c96e98`\n- Historical dependency bootstrap 1.1 SHA: `fb343c66de46daca5438aca54745492e637cfc558fc217b5818bb620b9920b76`\n- Plan/oracle structure: `226/113`\n- Exact ten schema-vector closure and registry raw digests present.\n- Dual default/local action-runtime provenance tests passed; direct read-only `evidence_utils.security_runtime()` returned current default action-policy/runtime and external actions disabled.\n- `scripts/evidence_utils.py` and `scripts/build_backend.py` are outside Candidate changes.\n- Generic scenario core contained no profile/scenario/component/count hardcoding found by focused scan.\n\nvalid_commands/results:\n- Scenario unit: `4/4`\n- Remaining54 security: `9/9`\n- Scenario integration: `1/1`\n- Selected P1 contract checks: `3/3`\n- Packaging: `9/9`\n- Installed wheel: `2/2`\n- Architecture mutations: `5/5`\n- Source lint/type: both clean\n- In-memory compile: `21` Candidate Python files\n- Private-clone attack probe: rc0, reproduced findings 001/002\n\ninvalid_invocations:\n- System Python probe could not import `tests.support`; no semantic execution.\n- First venv probe used an unresolved temporary control path and was rejected by installation safety checks; no semantic execution.\n- Three contract selectors used a misspelled test class and executed zero tests; corrected selectors passed.\n- One exploratory count command used guessed JSON paths/fields; corrected audits produced the values above.\n- One manifest comparison omitted `-uall`, collapsing an untracked directory; corrected audit confirmed exact `61==61`.\n\nexclusions:\n- No long P1 selector was started: blocking semantic findings triggered stop-on-first, and the old P1 receipt is not current for this tree.\n- No monolithic gate/full/evidence suite, network, WP10, real environment, DB/GraphRef/dependency changes, or irreversible action.\n- Workspace remained unedited; probe artifacts exist only under `/private/tmp`.",
+      "verbatim_sha256": "4901f66043945fb406a9e1d7094c3b11d27fa54774ce08c5f663f81ae346a9ed"
+    },
+    {
+      "record_id": "historical-e1-repository-isolation-revise",
+      "reviewer_id": "/root/remaining54_docs_reviewer_r1",
+      "source_path": "/Users/ezio/.codex/sessions/2026/08/14/rollout-2026-08-14T17-54-48-019fffb2-136f-7dc1-aa70-9484168067f4.jsonl",
+      "source_line": 28069,
+      "verbatim_verdict": "{\n  \"schema_version\": \"1.0\",\n  \"verdict\": \"REVISE\",\n  \"artifact\": \"test_plan\",\n  \"scope_changed\": false,\n  \"change_kinds\": [\n    \"clarification\",\n    \"traceability\",\n    \"testability\"\n  ],\n  \"findings\": [\n    {\n      \"id\": \"GEW-REMAINING54-E1-REPOSITORY-ISOLATION-TRACE-R1-001\",\n      \"severity\": \"blocking\",\n      \"evidence\": \"Manifest SHA-256 0238f9cc835da4cb9b78fa8e3451e0c7c5f2cafd9733ec21a0ba854128249852 independently rehashes to 9 lines, 1084 bytes and 520681 current source bytes with zero entry mismatches. The unchanged Envelope SHA-256 4cba7870f7c2b092bd6c527647e1c3d6c30c35e8c9c9ff3401af1897b5617634 contains exactly 167 unique relative no-glob targets, so E1 adds no target. The Human E1 record requires a fresh private repository root per binding and forbids cross-binding/profile repository sharing; the current E1 sections repeat that contract. However, unqualified governing text still permits per-Profile shared repository/application stacks: Spec lines 812-816, 952-956 and 1162-1163; Impact lines 177-180 and risk IMP-R11 at line 451; Plan lines 379-381 and 396; Test Plan lines 679-684, 837-838, 993-994 and 1049-1050; and ADR-0008 lines 216-218. These statements are not marked as historical or superseded and directly conflict with E1's per-binding isolation rule. Test Plan E1 item 7 also asserts 226 bindings and unique oracles but does not positively assert exact uniqueness of every repository root, task, target, branch/ref, action root and command root.\",\n      \"required_change\": \"Revise every current-sounding per-Profile shared-repository/application statement so it is either explicitly historical and inapplicable to E1/current cumulative execution, or replaced by the Human-approved per-binding fresh-private-root contract. Add a mechanical 226-binding positive assertion that repository-root, task, target, branch/ref, action-root and command-root identities are each unique and never shared across bindings or profiles. Preserve the exact 167-target boundary and all other E1 lifecycle, currentness, negative-test, D-order, count and non-goal contracts.\",\n      \"verification\": \"Independently rehash the revised nine-file manifest; confirm the Envelope remains byte-identical with 167 targets; search all seven governing documents for unqualified per-Profile shared repository/application claims and require none to govern E1; verify the E1 positive matrix asserts 226-way uniqueness for every approved binding-isolation identity and retains cross-binding/profile substitution rejection with zero writes, mutations and replays.\",\n      \"status\": \"open\"\n    }\n  ]\n}",
+      "verbatim_sha256": "022199b5dfd7fa75d8d06737cbc11520effa6ebcbc6bbaa7cc30aad48a22ffe7"
+    },
+    {
+      "record_id": "historical-e1-repository-isolation-pass",
+      "reviewer_id": "/root/remaining54_docs_reviewer_r1",
+      "source_path": "/Users/ezio/.codex/sessions/2026/08/14/rollout-2026-08-14T17-54-48-019fffb2-136f-7dc1-aa70-9484168067f4.jsonl",
+      "source_line": 28141,
+      "verbatim_verdict": "{\n  \"schema_version\": \"1.0\",\n  \"verdict\": \"PASS\",\n  \"artifact\": \"test_plan\",\n  \"scope_changed\": false,\n  \"change_kinds\": [],\n  \"findings\": [\n    {\n      \"id\": \"GEW-REMAINING54-E1-REPOSITORY-ISOLATION-TRACE-R1-001\",\n      \"severity\": \"blocking\",\n      \"evidence\": \"Manifest SHA-256 f60633ae6e3537762b1ac0927f036d0606e1ba033525513668411a0ecc9062ff independently rehashes to 9 lines, 1084 bytes and 528740 current source bytes with zero mismatches. The Authority Envelope remains byte-identical at SHA-256 4cba7870f7c2b092bd6c527647e1c3d6c30c35e8c9c9ff3401af1897b5617634 and contains exactly 167 unique relative no-glob targets; E1 adds zero targets. Every previously cited per-Profile shared repository/application statement is now explicitly Historical pre-E1 and inapplicable to E1/current cumulative execution, or replaced by the per-binding fresh-private-root rule. No unqualified current conflict remains across the seven governing documents. Spec revision 34, Impact revision 28, Plan revision 33 and Test Plan revision 41 require six identity sets—repository-root, task, target, branch/ref, action-root and command-root—to each have cardinality exactly 226, require the combined binding tuple to have cardinality 226, and forbid sharing in every dimension across bindings and Profiles. The cross-binding/profile substitution matrix retains fail-closed zero-write, zero-mutation and zero-replay outcomes. The process-local opaque sealed/quiesced/reopened lifecycle, full currentness reread before issue/use/precommit/gate, one-binding reopen exclusivity, nonserializable/nonportable seal rules, terminal finalize/revoke behavior, deterministic resource counters, diagnostic-only FD return, D verification order, 226/113/48/static-0 counts and all non-goals remain intact. Candidate findings GEW-REMAINING54-P2A-CAND-R1-001 through -005 remain open, with R1-004 requiring E1 closure.\",\n      \"required_change\": \"No further change is required; preserve the corrected historical scoping and exact 226-way identity-isolation assertions during implementation.\",\n      \"verification\": \"Rehash the nine-file manifest and unchanged Envelope; search all seven governing documents for unqualified per-Profile repository sharing; mechanically verify the six identity-set cardinalities and combined tuple are each 226, then execute the specified cross-binding/profile substitution negatives and require zero writes, mutations and replays.\",\n      \"status\": \"resolved\"\n    }\n  ]\n}",
+      "verbatim_sha256": "b6f3b23387e2a7ad7b4b5d49842ee04d0e6b85786a2937c0a3c94ec89ce451d1"
+    }
+  ]
+}

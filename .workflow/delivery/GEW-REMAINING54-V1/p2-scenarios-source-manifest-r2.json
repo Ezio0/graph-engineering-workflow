@@ -1,0 +1,211 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-REMAINING54-V1",
+  "amendment_id": "GEW-REMAINING54-LOSSLESS-TRACE-MEMORY-REPAIR",
+  "review_scope": "Approved lossless trace-memory and action-fixture context-lifetime hotfix, plus inherited F2 implementation findings. Not Remaining54 completion or Candidate closure. Prior cumulative run owner-aborted; monitoring PAUSED; no cumulative rerun.",
+  "previous_artifact_digest": "42f09f9399aeda2a747ac7d44a9e89216395168972f3dd0f83c014a9f25ef9cc",
+  "aggregate_algorithm": "SHA256 of each sorted UTF-8 project-relative path, NUL, raw file bytes, NUL, concatenated in files order.",
+  "files": [
+    {
+      "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+      "sha256": "9d2c5da3097168d6be2d81a42b55779204618b79d0f29ff229b29564899d3878"
+    },
+    {
+      "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+      "sha256": "119dbbfeb5da1c21fc5ed3d488bb564ebecfe62ba4ff92bf1c52adf9244077cc"
+    },
+    {
+      "path": "application/graph_engineering/application/dependency_security.py",
+      "sha256": "6ee839bd943d2b409222dd2b707dfe89085a8186d475f401b8d7836e9d012880"
+    },
+    {
+      "path": "application/graph_engineering/application/profile_coverage.py",
+      "sha256": "1b07dad43c537af336ee6b52e6488075ed1e129bf2bbb7f9df38402e95ea6f5c"
+    },
+    {
+      "path": "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+      "sha256": "65d4cb2f14a93c73d5c862af02fc4d738d244dcb2a9073a3613a2422c0b14edb"
+    },
+    {
+      "path": "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+      "sha256": "a8baecdd18ba97e42246ede3f1b8e433475afed0c1e5acede18bf2717980dc5a"
+    },
+    {
+      "path": "core/graph_engineering/__init__.py",
+      "sha256": "e7a15020527881dea498a1f3b21aaad2c16a860aedc014f48087d16e70a139f1"
+    },
+    {
+      "path": "core/graph_engineering/core/contracts/resources.py",
+      "sha256": "4a193a63f90a18147cb2c58171b3d7892a24934198b5aa465dab1570afe127e7"
+    },
+    {
+      "path": "core/graph_engineering/core/profile_coverage.py",
+      "sha256": "e43c9ea93000ce909fecbcdd38b1bb5e25caf84b16d416dd113e78daaad4e98f"
+    },
+    {
+      "path": "core/graph_engineering/core/source_checkout.py",
+      "sha256": "6cf5556741f6ba7ca3133898fb766545afa436e51917f634cce03ab123e744f9"
+    },
+    {
+      "path": "docs/adr/0007-offline-performance-benchmark-authority.md",
+      "sha256": "045c4a4a2af2b887dcdc8a38413034e2c2a6cce605f418b456e65558f889b184"
+    },
+    {
+      "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+      "sha256": "c8db93dd23e51120f8d0646cf1b5b101d47d35ccc9c6d1f96b11b13ba508f006"
+    },
+    {
+      "path": "docs/adr/0009-offline-release-operations-simulator-authority.md",
+      "sha256": "03aff594c757f338c3dddf4b95234714ea9a118fa25c40aaa441edaeedce63ac"
+    },
+    {
+      "path": "docs/impact/graph-engineering-workflow.md",
+      "sha256": "d46b2258ef9288a303d86ec77870a55176c0349baa32262271c165956c8cb602"
+    },
+    {
+      "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+      "sha256": "287cb337d477ece2b807319bc6126350c445ad397b2852dc0206007d206e435b"
+    },
+    {
+      "path": "docs/specs/graph-engineering-workflow.md",
+      "sha256": "6346d062cfaa25951072bf94ec0449c290912d2f5e9d7eae395017d2e5a564ed"
+    },
+    {
+      "path": "docs/test-plans/graph-engineering-workflow.md",
+      "sha256": "d8c0302a4003f3c48e54c3f35c178806bc1321373e88770e876eef01daf7e34b"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "ec0e46a5526ae6fe92b344dd06ccdec330edca3c707c4b093c8b2da224f19a54"
+    },
+    {
+      "path": "tests/integration/test_wp08_scenario_truth.py",
+      "sha256": "710ac3d8d3c33bf724ec765079ae2f6ec7c6e3fc117c5f5e0c9cdca695045c6c"
+    },
+    {
+      "path": "tests/security/test_wp08_remaining54_authority.py",
+      "sha256": "12b4b467114fc24dc6aaa02ae8f1d00f27d9ad714b404c5a7635a75c51be5603"
+    },
+    {
+      "path": "tests/support/source_checkout_attestation.py",
+      "sha256": "9adab139b9335f961e6a07540f4d6f4cc109e5d6e18023d5126f8c44d430aa9f"
+    },
+    {
+      "path": "tests/support/wp05_actions.py",
+      "sha256": "effda34b50a1cda4dae638211b2e267093ae63329768936074cf472a4be00109"
+    },
+    {
+      "path": "tests/support/wp08_category_execution.py",
+      "sha256": "555bba00905f3d81042ffd53d15080cae7c34145ec9564a6899d4337f9672388"
+    },
+    {
+      "path": "tests/support/wp08_release_coverage.py",
+      "sha256": "d4d51a2e87668e4c694434ce34e765d18423cb5fb37dbd770e4f74f9f01ca523"
+    },
+    {
+      "path": "tests/support/wp08_scenario_truth.py",
+      "sha256": "3b28d4b4af589d89b4b1fc77276b60fb80130a144c9188172ddd5404ee0b2cc7"
+    },
+    {
+      "path": "tests/unit/test_wp08_scenario_truth.py",
+      "sha256": "6a4300da1e17c6e963de49e8299eab117857059b3014ca999f275f4cda7f78f1"
+    }
+  ],
+  "ordered_raw_aggregate_sha256": "bc5500351faf00be7e57d5f0919c49cd8d0da8e7690f4bcc9f3664665928d356",
+  "upstream_records": [
+    ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-review-verdict-r1.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-decision-r1.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r1.json"
+  ],
+  "inherited_finding_ids": [
+    "GEW-REMAINING54-F1-SEAL-TERMINAL-R0-001",
+    "GEW-REMAINING54-F1-QUIESCENT-TEST-R0-002",
+    "GEW-REMAINING54-F1-TERMINAL-CLEANUP-R0-003"
+  ],
+  "verification": [
+    {
+      "kind": "red-before-implementation",
+      "selection": "WorkTraceMemoryRepairTests (initial five tests)",
+      "result": "3 failed, 2 passed, 2 subtests passed; compact-storage and operation-local-context regressions failed on pre-repair implementation"
+    },
+    {
+      "command": "PYTHONPATH=core:application:storage:adapters:. GEW_INSTALLATION_CONTROL_ROOT=/private/tmp/gew-memory-repair.SdJhm0/control /opt/homebrew/opt/python@3.11/bin/python3.11 -B -X gew_installation_control_root=/private/tmp/gew-memory-repair.SdJhm0/control -m pytest -q -p no:cacheprovider tests/unit/test_wp08_scenario_truth.py tests/security/test_wp08_remaining54_authority.py tests/contract/test_wp01_charge_traces.py tests/contract/test_wp01_resources.py",
+      "exit_code": 0,
+      "result": "63 passed, 130 subtests passed in 9.20s"
+    },
+    {
+      "command": "PYTHONPATH=core:application:storage:adapters:. GEW_INSTALLATION_CONTROL_ROOT=/private/tmp/gew-memory-repair.SdJhm0/control /opt/homebrew/opt/python@3.11/bin/python3.11 -B -X gew_installation_control_root=/private/tmp/gew-memory-repair.SdJhm0/control -m pytest -q -p no:cacheprovider tests/contract/test_wp01_*.py tests/contract/test_wp02_*.py tests/conformance/test_wp01_cross_implementation.py tests/conformance/test_wp02_cross_implementation.py tests/unit/test_wp02_*.py tests/contract/test_wp05_actions.py tests/integration/test_wp05_action_protocol.py tests/integration/test_wp05_recovery_claim.py tests/security/test_wp05_action_gate.py tests/security/test_wp05_exact_gate_mutations.py tests/security/test_wp05a_r4_bounded_durable_parsing.py",
+      "exit_code": 0,
+      "result": "208 passed, 899 subtests passed in 154.44s"
+    },
+    {
+      "command": "PYTHONPATH=core:application:storage:adapters:. GEW_INSTALLATION_CONTROL_ROOT=/private/tmp/gew-memory-repair.SdJhm0/control .venv/bin/python -B -X gew_installation_control_root=/private/tmp/gew-memory-repair.SdJhm0/control -m unittest -q tests.unit.test_wp08_scenario_truth.WorkTraceMemoryRepairTests tests.contract.test_wp01_charge_traces tests.contract.test_wp01_resources",
+      "exit_code": 0,
+      "result": "16 tests, OK, 0.093s"
+    },
+    {
+      "command": "PYTHONPATH=core:application:storage:adapters:. GEW_INSTALLATION_CONTROL_ROOT=/private/tmp/gew-memory-repair.SdJhm0/control .venv/bin/python -B -X gew_installation_control_root=/private/tmp/gew-memory-repair.SdJhm0/control -m unittest -q tests.unit.test_wp08_scenario_truth.WorkTraceMemoryRepairTests tests.integration.test_wp08_scenario_truth.ScenarioTruthIntegrationTests.test_f2_reentrant_terminal_revoke_cannot_issue_seal tests.integration.test_wp08_scenario_truth.ScenarioTruthIntegrationTests.test_f1_generic_dependency_failed_runtime_rebind_requiesces tests.integration.test_wp08_scenario_truth.ScenarioTruthIntegrationTests.test_ordinary_positive_and_rejection_use_distinct_quiescent_roots tests.integration.test_wp08_scenario_truth.ScenarioTruthIntegrationTests.test_representative_binding_is_quiesced_before_coverage_use",
+      "exit_code": 0,
+      "result": "9 tests, OK, 303.220s; test process imported initial five trace tests before the two supplemental trace cases were added; all final seven are separately covered by the 16-test run"
+    },
+    {
+      "command": ".venv/bin/python -B scripts/check_architecture.py",
+      "exit_code": 0,
+      "result": {
+        "findings": [],
+        "status": "PASS"
+      }
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "no output"
+    },
+    {
+      "command": "PYTHONPATH=core:application:storage:adapters:. GEW_INSTALLATION_CONTROL_ROOT=/private/tmp/gew-memory-repair.SdJhm0/control .venv/bin/python -B -X gew_installation_control_root=/private/tmp/gew-memory-repair.SdJhm0/control -m unittest -v tests.integration.test_wp08_scenario_truth.ScenarioTruthIntegrationTests.test_dependency_graph_positive_reopens_without_resolver_replay",
+      "exit_code": 0,
+      "result": "1 test, OK, 344.212s",
+      "completion_chunk": "20908e"
+    }
+  ],
+  "memory_diagnostics": {
+    "scope": "Bounded isolated document construction and schema loading only; no Actions/database/cumulative run. Tracemalloc retained bytes are not an OS process memory ceiling and do not attribute the full aborted-run heap.",
+    "document_command": "PYTHONPATH=core:application:storage:adapters:. GEW_INSTALLATION_CONTROL_ROOT=/private/tmp/gew-memory-repair.SdJhm0/control .venv/bin/python -B -X gew_installation_control_root=/private/tmp/gew-memory-repair.SdJhm0/control /private/tmp/gew-f2-readonly-diagnosis.oe0IvO/trace-retention-probe.py",
+    "document_before": {
+      "retained_bytes": 12719384,
+      "global_trace_events": 19134
+    },
+    "document_after": {
+      "retained_bytes": 23852,
+      "global_trace_events": 0
+    },
+    "schema_command": "PYTHONPATH=core:application:storage:adapters:. GEW_INSTALLATION_CONTROL_ROOT=/private/tmp/gew-memory-repair.SdJhm0/control .venv/bin/python -B -X gew_installation_control_root=/private/tmp/gew-memory-repair.SdJhm0/control /private/tmp/gew-memory-repair.SdJhm0/registry-probe.py",
+    "schema_before": {
+      "retained_bytes": 55292697,
+      "events": 83158
+    },
+    "schema_after": {
+      "retained_bytes": 1900496,
+      "runs": 12845,
+      "logical_events": 83158,
+      "decoded_events": 83158,
+      "bytes_after_context_drop_and_gc": 38760
+    },
+    "inspection_caveat": "Explicit trace access materializes the full mutable list and retains the full O(events) memory cost."
+  },
+  "preserved_out_of_scope_files": [
+    {
+      "path": "config/verification/wp-07a-gate.json",
+      "sha256": "9ad860356b1d3e47f5f885be87bdf7cb77ccd2d888b5fb51a990b5f3ecc170bf"
+    },
+    {
+      "path": "tests/support/wp08_dependency_security.py",
+      "sha256": "a4c2bb367d2383e7ba11c611e8c9f4a4c4501448286e8542339397d2cd669c5f"
+    },
+    {
+      "path": "tests/support/wp08_migration_rehearsal.py",
+      "sha256": "bbf46d735dcfc84fabb089aad751a0db09409915a3db353e5e9f76dfee6272f8"
+    }
+  ]
+}

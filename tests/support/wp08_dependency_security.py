@@ -886,7 +886,7 @@ def _candidate_document() -> dict[str, object]:
 
 @dataclass(slots=True)
 class DependencySecurityCoverageContext:
-    """One repository-bound offline authority graph shared by exact task rows."""
+    """One binding-local offline authority graph with replay-free rehydration."""
 
     temporary: tempfile.TemporaryDirectory[str]
     registry_factory: object
@@ -898,6 +898,250 @@ class DependencySecurityCoverageContext:
     applicabilities: tuple[object, ...]
     residual_factory: object
     residual: object
+    _sealed_graph_projection: object | None = None
+    _sealed_fixture_projection: object | None = None
+    _resolver_observation_count: int = 1
+    _rehydration_count: int = 0
+
+    @staticmethod
+    def _wheel_record_digest(path: pathlib.Path) -> str:
+        with zipfile.ZipFile(path, "r") as archive:
+            records = tuple(
+                name for name in archive.namelist()
+                if name.endswith(".dist-info/RECORD")
+            )
+            if len(records) != 1:
+                raise AssertionError("dependency fixture wheel RECORD is not exact")
+            return hashlib.sha256(archive.read(records[0])).hexdigest()
+
+    def _fixture_projection(self) -> object:
+        root = pathlib.Path(self.temporary.name).resolve(strict=True)
+        root_metadata = root.lstat()
+        members: list[dict[str, object]] = []
+        wheel_digests: list[list[str]] = []
+        for path in sorted(root.rglob("*"), key=lambda item: item.as_posix()):
+            if path.is_symlink():
+                raise AssertionError("dependency fixture contains a symlink")
+            metadata = path.lstat()
+            relative = path.relative_to(root).as_posix()
+            identity = [
+                int(metadata.st_dev), int(metadata.st_ino), int(metadata.st_uid),
+            ]
+            if path.is_dir():
+                members.append({
+                    "identity": identity,
+                    "kind": "directory",
+                    "path": relative,
+                })
+                continue
+            if not path.is_file():
+                raise AssertionError("dependency fixture member kind is foreign")
+            body = path.read_bytes()
+            raw_sha256 = hashlib.sha256(body).hexdigest()
+            members.append({
+                "identity": identity,
+                "kind": "file",
+                "length": len(body),
+                "path": relative,
+                "raw_sha256": raw_sha256,
+            })
+            if path.suffix == ".whl":
+                wheel_digests.append([
+                    raw_sha256, self._wheel_record_digest(path),
+                ])
+        return freeze({
+            "members": members,
+            "root_identity": [
+                int(root_metadata.st_dev), int(root_metadata.st_ino),
+                int(root_metadata.st_uid),
+            ],
+            "wheel_digests": sorted(wheel_digests),
+        })
+
+    @staticmethod
+    def _projection_wheel_digests(projection: dict[str, object]) -> list[list[str]]:
+        pairs: list[list[str]] = []
+        for field in ("before_closure", "after_closure"):
+            closure = projection.get(field)
+            if type(closure) is not dict or type(closure.get("members")) is not list:
+                raise AssertionError("dependency graph closure projection is malformed")
+            for member in closure["members"]:
+                if (
+                    type(member) is not dict
+                    or type(member.get("wheel_raw_sha256")) is not str
+                    or type(member.get("record_raw_sha256")) is not str
+                ):
+                    raise AssertionError(
+                        "dependency graph closure member digest is malformed"
+                    )
+                pairs.append([
+                    member["wheel_raw_sha256"], member["record_raw_sha256"],
+                ])
+        return sorted(pairs)
+
+    @staticmethod
+    def _require_category_projection_current(
+        category_application: object,
+        evidence: object,
+        *,
+        task_id: str,
+        scenario_id: str,
+    ) -> dict[str, object]:
+        assessment = category_application.current_assessment(
+            task_id, expected_profile_id="dependency-security",
+        )
+        category_projection = getattr(
+            assessment, "dependency_graph_projection", None,
+        )
+        if assessment is None:
+            raise AssertionError("dependency graph category assessment is absent")
+        projection = thaw(category_projection)
+        evidence_projection = evidence.to_dict()
+        application = importlib.import_module(
+            "graph_engineering.application.dependency_security"
+        )
+        if type(projection) is not dict:
+            raise AssertionError("dependency graph category projection is malformed")
+        if type(evidence) is application.DependencySecurityObservation:
+            exact_evidence = projection.get("observation") == evidence_projection
+        elif type(evidence) is application.DependencyGraphAssessmentEvidence:
+            exact_evidence = projection == evidence_projection
+        else:
+            exact_evidence = False
+        mismatches = tuple(
+            label for label, valid in (
+                ("evidence-projection", exact_evidence),
+                ("evidence-task", evidence.task_id == task_id),
+                ("evidence-scenario", evidence.scenario_id == scenario_id),
+                ("projection-task", projection.get("task_id") == assessment.task_id),
+                (
+                    "task-revision",
+                    projection.get("task_revision") == assessment.task_revision,
+                ),
+                (
+                    "snapshot",
+                    projection.get("snapshot_digest") == assessment.snapshot_digest,
+                ),
+                (
+                    "invalidation",
+                    projection.get("invalidation_epoch")
+                    == assessment.invalidation_epoch,
+                ),
+                (
+                    "graph-ref-pins",
+                    projection.get("graph_ref_pins")
+                    == thaw(assessment.materialization_pins),
+                ),
+            )
+            if not valid
+        )
+        if mismatches:
+            raise AssertionError(
+                "dependency graph assessment is not current for its exact task: "
+                + ",".join(mismatches)
+            )
+        return projection
+
+    def seal_graph_assessment(
+        self,
+        authority: object,
+        category_application: object,
+        *,
+        task_id: str,
+        scenario_id: str,
+    ) -> dict[str, object]:
+        if type(authority) is not tuple or len(authority) != 2:
+            raise AssertionError("dependency graph assessment authority is unavailable")
+        factory, evidence = authority
+        current = factory.require_current(evidence)
+        if current is not evidence or getattr(evidence, "_authority", None) is not factory:
+            raise AssertionError("dependency graph assessment owner is foreign")
+        projection_body = self._require_category_projection_current(
+            category_application, evidence,
+            task_id=task_id, scenario_id=scenario_id,
+        )
+        projection = freeze(copy.deepcopy(projection_body))
+        fixture = self._fixture_projection()
+        fixture_body = thaw(fixture)
+        if (
+            type(fixture_body) is not dict
+            or type(projection_body) is not dict
+            or fixture_body["wheel_digests"]
+            != self._projection_wheel_digests(projection_body)
+        ):
+            raise AssertionError(
+                "dependency fixture wheel bytes do not match the frozen projection"
+            )
+        if self._sealed_graph_projection is None:
+            self._sealed_graph_projection = projection
+            self._sealed_fixture_projection = fixture
+        elif (
+            projection != self._sealed_graph_projection
+            or fixture != self._sealed_fixture_projection
+        ):
+            raise AssertionError("dependency graph binding seal changed")
+        return {
+            "assessment_projection": thaw(projection),
+            "fixture_projection": fixture_body,
+        }
+
+    def quiesce_graph_assessment(
+        self,
+        authority: object,
+        category_application: object,
+        *,
+        task_id: str,
+        scenario_id: str,
+    ) -> None:
+        self.seal_graph_assessment(
+            authority, category_application,
+            task_id=task_id, scenario_id=scenario_id,
+        )
+        for field in (
+            "registry_factory", "registry", "closure_factory", "before", "after",
+            "applicability_factory", "applicabilities", "residual_factory", "residual",
+        ):
+            object.__setattr__(self, field, None)
+
+    def rehydrate_graph_assessment(
+        self,
+        repository: object,
+        category_application: object,
+        *,
+        task_id: str,
+        scenario_id: str,
+    ) -> tuple[object, object]:
+        projection = self._sealed_graph_projection
+        fixture = self._sealed_fixture_projection
+        if projection is None or fixture is None or self._fixture_projection() != fixture:
+            raise AssertionError("dependency graph binding seal is absent or stale")
+        application = importlib.import_module(
+            "graph_engineering.application.dependency_security"
+        )
+        factory = application.DependencyGraphAssessmentFactory.from_installation(
+            repository,
+        )
+        evidence = factory.rehydrate_projection(thaw(projection))
+        if (
+            getattr(factory, "_repository", None) is not repository
+            or getattr(evidence, "_authority", None) is not factory
+            or factory.require_current(evidence) is not evidence
+        ):
+            raise AssertionError("rehydrated dependency graph owner is foreign")
+        self._require_category_projection_current(
+            category_application, evidence,
+            task_id=task_id, scenario_id=scenario_id,
+        )
+        self._rehydration_count += 1
+        return factory, evidence
+
+    @property
+    def resolver_observation_count(self) -> int:
+        return self._resolver_observation_count
+
+    @property
+    def rehydration_count(self) -> int:
+        return self._rehydration_count
 
     def observe(self, category_application: object, task_id: str) -> tuple[object, object]:
         api = load_slice_b_api()
@@ -993,6 +1237,8 @@ class DependencySecurityCoverageContext:
             "applicability_factory", "applicabilities", "residual_factory", "residual",
         ):
             object.__setattr__(self, field, None)
+        self._sealed_graph_projection = None
+        self._sealed_fixture_projection = None
 
 
 def dependency_security_coverage_context(

@@ -1,0 +1,977 @@
+"""Consumer-local installed ADR-0008 scenario-truth authority."""
+
+from __future__ import annotations
+
+import copy
+import hashlib
+import hmac
+import json
+import os
+import pathlib
+import stat
+import tomllib
+from collections.abc import Mapping
+from contextlib import contextmanager
+from dataclasses import dataclass
+
+from graph_engineering.core.contracts.digest import SEMANTIC_DIGEST, semantic_digest
+from graph_engineering.core.contracts.immutable import FrozenMap, freeze, thaw
+from graph_engineering.core.contracts.schema import validate_instance
+from graph_engineering.core.scenario_truth import (
+    SCENARIO_TRUTH_SCHEMA_IDS,
+    ScenarioTruthError,
+    ScenarioTruthObservation,
+    ScenarioTruthRegistry,
+    evaluate_scenario_assertions,
+    issue_scenario_truth_observation,
+    parse_scenario_truth_registries,
+)
+
+
+def _strict_json(body: bytes, label: str) -> dict[str, object]:
+    def pairs(values: list[tuple[str, object]]) -> dict[str, object]:
+        result: dict[str, object] = {}
+        for key, value in values:
+            if key in result:
+                raise ScenarioTruthError(f"{label} has a duplicate key")
+            result[key] = value
+        return result
+
+    try:
+        value = json.loads(body, object_pairs_hook=pairs)
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ScenarioTruthError(f"{label} is malformed") from error
+    if type(value) is not dict:
+        raise ScenarioTruthError(f"{label} root is not an object")
+    return value
+
+
+def _raw(value: object, label: str) -> str:
+    if (
+        type(value) is not str or len(value) != 64
+        or any(character not in "0123456789abcdef" for character in value)
+    ):
+        raise ScenarioTruthError(f"{label} is not a raw SHA-256")
+    return value
+
+
+def _digest(value: object, label: str) -> str:
+    if type(value) is not str or SEMANTIC_DIGEST.fullmatch(value) is None:
+        raise ScenarioTruthError(f"{label} is not a semantic digest")
+    return value
+
+
+def _text(value: object, label: str) -> str:
+    if (
+        type(value) is not str or not value or value != value.strip()
+        or not value.isascii() or "\x00" in value
+    ):
+        raise ScenarioTruthError(f"{label} is not exact text")
+    return value
+
+
+def _semantic(document: Mapping[str, object], name: str) -> str:
+    return semantic_digest(
+        freeze(document),
+        contract_type=f"urn:gew:contract:{name}",
+        projection_id=f"urn:gew:digest-projection:{name}:1.0.0",
+        schema_id=f"urn:gew:schema:{name}-input:1.0.0",
+    )
+
+
+def _self_digest(document: Mapping[str, object], name: str, field: str) -> str:
+    expected = _digest(document.get(field), field)
+    body = copy.deepcopy(dict(document))
+    del body[field]
+    if not hmac.compare_digest(expected, _semantic(body, name)):
+        raise ScenarioTruthError(f"{name} self digest changed")
+    return expected
+
+
+_BOOTSTRAP_FIELDS = (
+    "schema_version", "bootstrap_id", "policy_registry_id",
+    "policy_registry_digest", "policy_registry_raw_sha256", "fixture_registry_id",
+    "fixture_registry_digest", "fixture_registry_raw_sha256",
+    "profile_schema_registry_digest", "profile_schema_registry_raw_sha256",
+    "schema_vectors", "protected_resources", "protected_closure_digest",
+    "bootstrap_digest",
+)
+_SCHEMA_VECTOR_FIELDS = ("schema_id", "raw_sha256")
+_PROTECTED_FIELDS = ("path", "raw_sha256")
+_BINDING_FIELDS = (
+    "task_id", "task_revision", "snapshot_digest", "invalidation_epoch",
+    "profile_id", "profile_version", "scenario_id", "graph_ref_pins",
+    "branch_id", "ref_id",
+)
+_PIN_FIELDS = (
+    "base_graph_digest", "profile_digest", "overlay_digest",
+    "project_config_digest", "support_matrix_digest", "materialization_digest",
+)
+_REQUEST_FIELDS = (
+    "branch_id", "ref_id", "targets", "ordered_phase_ids",
+    "rollback_or_compensation",
+)
+_REQUEST_TARGET_FIELDS = (
+    "role_id", "path_id", "expected_before_state_id", "expected_after_state_id",
+    "expected_rollback_state_id", "apply",
+)
+
+
+def _validate_bootstrap(
+    document: object,
+    *,
+    policy_bytes: bytes,
+    fixture_bytes: bytes,
+    schema_registry_bytes: bytes,
+    schema_bodies: tuple[bytes, ...],
+    protected_bodies: tuple[bytes, ...],
+) -> FrozenMap:
+    if type(document) is not dict or tuple(document) != _BOOTSTRAP_FIELDS:
+        raise ScenarioTruthError("scenario bootstrap fields/order are not exact")
+    if document["schema_version"] != "1.0.0":
+        raise ScenarioTruthError("scenario bootstrap version changed")
+    _text(document["bootstrap_id"], "scenario bootstrap ID")
+    vectors = document["schema_vectors"]
+    if type(vectors) is not list or len(vectors) != len(SCENARIO_TRUTH_SCHEMA_IDS):
+        raise ScenarioTruthError("scenario schema vectors are incomplete")
+    vector_ids: list[str] = []
+    for row, body in zip(vectors, schema_bodies, strict=True):
+        if type(row) is not dict or tuple(row) != _SCHEMA_VECTOR_FIELDS:
+            raise ScenarioTruthError("scenario schema vector is not exact")
+        vector_ids.append(_text(row["schema_id"], "scenario schema ID"))
+        if not hmac.compare_digest(_raw(row["raw_sha256"], "schema raw digest"), hashlib.sha256(body).hexdigest()):
+            raise ScenarioTruthError("scenario schema bytes changed")
+        schema = _strict_json(body, "scenario schema")
+        if schema.get("$id") != row["schema_id"]:
+            raise ScenarioTruthError("scenario schema identity changed")
+    if tuple(vector_ids) != SCENARIO_TRUTH_SCHEMA_IDS:
+        raise ScenarioTruthError("scenario schema set/order changed")
+    protected = document["protected_resources"]
+    if type(protected) is not list or len(protected) != len(protected_bodies):
+        raise ScenarioTruthError("scenario protected closure is incomplete")
+    protected_projection: list[dict[str, object]] = []
+    paths: list[str] = []
+    for row, body in zip(protected, protected_bodies, strict=True):
+        if type(row) is not dict or tuple(row) != _PROTECTED_FIELDS:
+            raise ScenarioTruthError("scenario protected member is not exact")
+        path = _text(row["path"], "scenario protected path")
+        paths.append(path)
+        raw = _raw(row["raw_sha256"], "protected raw digest")
+        if not hmac.compare_digest(raw, hashlib.sha256(body).hexdigest()):
+            raise ScenarioTruthError("scenario protected bytes changed")
+        protected_projection.append({"path": path, "raw_sha256": raw})
+    if tuple(paths) != tuple(sorted(set(paths))):
+        raise ScenarioTruthError("scenario protected paths are not canonical")
+    if not hmac.compare_digest(
+        _digest(document["protected_closure_digest"], "protected closure digest"),
+        _semantic({"protected_resources": protected_projection}, "scenario-truth-protected-closure"),
+    ):
+        raise ScenarioTruthError("scenario protected closure digest changed")
+    policy = _strict_json(policy_bytes, "scenario policy")
+    fixture = _strict_json(fixture_bytes, "scenario fixture")
+    schema_registry = _strict_json(schema_registry_bytes, "Profile schema registry")
+    pin_values = (
+        ("policy_registry_id", policy.get("registry_id")),
+        ("policy_registry_digest", policy.get("registry_digest")),
+        ("policy_registry_raw_sha256", hashlib.sha256(policy_bytes).hexdigest()),
+        ("fixture_registry_id", fixture.get("registry_id")),
+        ("fixture_registry_digest", fixture.get("registry_digest")),
+        ("fixture_registry_raw_sha256", hashlib.sha256(fixture_bytes).hexdigest()),
+        ("profile_schema_registry_digest", schema_registry.get("registry_digest")),
+        ("profile_schema_registry_raw_sha256", hashlib.sha256(schema_registry_bytes).hexdigest()),
+    )
+    for field, actual in pin_values:
+        expected = document[field]
+        if type(expected) is not str or not hmac.compare_digest(expected, str(actual)):
+            raise ScenarioTruthError(f"scenario bootstrap {field} changed")
+    _self_digest(document, "scenario-truth-installation-bootstrap", "bootstrap_digest")
+    return freeze(document)
+
+
+@dataclass(frozen=True, slots=True, eq=False)
+class _RegistryAuthority:
+    _factory: object
+    registry: ScenarioTruthRegistry
+
+    @property
+    def profile_ids(self) -> tuple[str, ...]:
+        return self.registry.profile_ids
+
+    @property
+    def scenario_pairs(self) -> tuple[tuple[str, str], ...]:
+        return self.registry.scenario_pairs
+
+    @property
+    def testability(self) -> FrozenMap:
+        return self.registry.testability
+
+
+@dataclass(frozen=True, slots=True, eq=False)
+class _RestoredScenarioEvidence:
+    _factory: object
+    projection: FrozenMap
+    root_identity: tuple[int, int, int]
+
+
+@dataclass(frozen=True, slots=True, eq=False, init=False)
+class ScenarioTruthRejectionReceipt:
+    """Opaque receipt of one actual, registry-observed zero-write rejection."""
+
+    attack_id: str
+    root_path: str
+    mutation_count: int
+    request_unchanged: bool
+    target_bytes_unchanged: bool
+    projection: FrozenMap
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        raise TypeError("scenario rejection receipts are registry-issued")
+
+
+@dataclass(frozen=True, slots=True, eq=False, init=False)
+class ScenarioTruthRejectionEvidence:
+    """Process-local identity for a complete installed rejection closure."""
+
+    receipts: tuple[ScenarioTruthRejectionReceipt, ...]
+    projection: FrozenMap
+    evidence_digest: str
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        raise TypeError("scenario rejection evidence is registry-issued")
+
+
+def _identity(metadata: os.stat_result) -> tuple[int, int, int]:
+    return metadata.st_dev, metadata.st_ino, metadata.st_uid
+
+
+@contextmanager
+def _private_target(root: pathlib.Path, path_id: str, *, write: bool = False,
+                    root_identity: tuple[int, int, int] | None = None):
+    """Walk below the private root using no-follow descriptors, never resolve links."""
+    relative = pathlib.PurePosixPath(path_id)
+    if (not path_id or relative.is_absolute() or "\\" in path_id
+            or any(part in {"", ".", ".."} for part in path_id.split("/"))):
+        raise ScenarioTruthError("scenario target path is unsafe")
+    descriptors: list[int] = []
+    try:
+        directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        directory = os.open(root, directory_flags)
+        descriptors.append(directory)
+        metadata = os.fstat(directory)
+        if (metadata.st_uid != os.getuid() or stat.S_IMODE(metadata.st_mode) & 0o077
+                or (root_identity is not None and _identity(metadata) != root_identity)):
+            raise ScenarioTruthError("scenario private root identity changed")
+        for part in relative.parts[:-1]:
+            directory = os.open(part, directory_flags, dir_fd=directory)
+            descriptors.append(directory)
+            if os.fstat(directory).st_uid != os.getuid():
+                raise ScenarioTruthError("scenario target directory is foreign")
+        descriptor = os.open(relative.name, (os.O_RDWR if write else os.O_RDONLY)
+                             | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=directory)
+        descriptors.append(descriptor)
+        metadata = os.fstat(descriptor)
+        if (not stat.S_ISREG(metadata.st_mode) or metadata.st_uid != os.getuid()
+                or metadata.st_nlink != 1):
+            raise ScenarioTruthError("scenario target is not a private regular file")
+        yield descriptor
+    except OSError as error:
+        raise ScenarioTruthError("scenario target path is stale or unsafe") from error
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+
+
+def _read_private_target(root: pathlib.Path, path_id: str, *, root_identity=None) -> bytes:
+    with _private_target(root, path_id, root_identity=root_identity) as descriptor:
+        with os.fdopen(os.dup(descriptor), "rb") as stream:
+            return stream.read()
+
+
+class ScenarioTruthObservationFactory:
+    """One opaque task/profile/scenario observer over a private local root."""
+
+    __slots__ = (
+        "_owner", "_binding", "_policy_row", "_fixture_row", "_root",
+        "_mutation_count", "_executed", "_request", "_root_identity",
+    )
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise TypeError("ScenarioTruthObservationFactory is registry-issued")
+
+    def request(self) -> dict[str, object]:
+        return copy.deepcopy(self._request)
+
+    @property
+    def mutation_count(self) -> int:
+        return self._mutation_count
+
+    def target_bytes(self) -> tuple[tuple[str, bytes], ...]:
+        result: list[tuple[str, bytes]] = []
+        for target in self._fixture_row["target_roles"]:
+            result.append((target["role_id"], self._read_target(target["path_id"])))
+        return tuple(result)
+
+    def _read_target(self, path_id: str) -> bytes:
+        return _read_private_target(self._root, path_id, root_identity=self._root_identity)
+
+    def reject(self, attack_id: str, request: object) -> ScenarioTruthRejectionReceipt:
+        self._owner.require_observer(self)
+        if self._executed or self._mutation_count:
+            raise ScenarioTruthError("scenario rejection observer is one-shot")
+        if attack_id not in self._fixture_row.get("rejection_attack_ids", ()):
+            raise ScenarioTruthError("scenario rejection attack is not installed")
+        before_request = copy.deepcopy(request)
+        before_targets = self.target_bytes()
+        if not self._matches_rejection(attack_id, request, before_targets):
+            raise ScenarioTruthError("scenario rejection attack label is false")
+        try:
+            self.execute(request)
+        except ScenarioTruthError as error:
+            error_message = str(error)
+        else:
+            raise ScenarioTruthError("scenario rejection unexpectedly succeeded")
+        if (request != before_request or self.target_bytes() != before_targets
+                or self._mutation_count != 0 or self._executed):
+            raise ScenarioTruthError("scenario rejection changed state or input")
+        self._executed = True
+        projection = freeze({
+            "attack_id": attack_id, "binding": thaw(self._binding),
+            "root_path": os.fspath(self._root),
+            "root_identity": list(self._root_identity),
+            "request": before_request, "error_message": error_message,
+            "targets": [{"role_id": role, "sha256": hashlib.sha256(body).hexdigest()}
+                        for role, body in before_targets],
+            "mutation_count": 0, "request_unchanged": True,
+            "target_bytes_unchanged": True,
+        })
+        receipt = object.__new__(ScenarioTruthRejectionReceipt)
+        for name in ("attack_id", "root_path", "mutation_count", "request_unchanged",
+                     "target_bytes_unchanged"):
+            object.__setattr__(receipt, name, projection[name])
+        object.__setattr__(receipt, "projection", projection)
+        self._owner._issued_rejections[id(receipt)] = (
+            receipt, self, projection, before_targets,
+        )
+        return receipt
+
+    def _matches_rejection(self, attack_id: str, request: object, targets: object) -> bool:
+        """Recognize universal structural failure classes, not caller labels."""
+        if type(request) is not dict or type(request.get("targets")) is not list:
+            return False
+        rows = request["targets"]
+        if any(type(row) is not dict for row in rows):
+            return False
+        expected = self._request["targets"]
+        roles = [row.get("role_id") for row in rows]
+        if attack_id == "missing-role":
+            return len(rows) == len(expected) and any("role_id" not in row for row in rows)
+        if attack_id == "extra-role":
+            return len(rows) > len(expected) and len(set(roles)) == len(rows)
+        if attack_id == "aliased-role":
+            return len(rows) == len(expected) and len(set(roles)) < len(rows)
+        if attack_id == "one-target-only":
+            return len(rows) == 1 and len(expected) > 1
+        if attack_id == "cross-branch":
+            return request.get("branch_id") != self._request["branch_id"]
+        if attack_id == "partial-success":
+            return len(rows) == len(expected) and any(row.get("apply") is False for row in rows)
+        if attack_id == "stale-target":
+            baseline = tuple((row["role_id"], row["baseline_value"].encode("ascii"))
+                             for row in self._fixture_row["target_roles"])
+            return request == self._request and targets != baseline
+        if attack_id == "wrong-rollback":
+            return request.get("rollback_or_compensation") != self._request["rollback_or_compensation"]
+        return False
+
+    def _validate_request(self, request: object) -> Mapping[str, object]:
+        if type(request) is not dict or tuple(request) != _REQUEST_FIELDS:
+            raise ScenarioTruthError("scenario request fields/order are not exact")
+        if freeze(request) != freeze(self._request):
+            raise ScenarioTruthError("scenario request differs from installed policy")
+        targets = request["targets"]
+        if type(targets) is not list:
+            raise ScenarioTruthError("scenario target request is not exact")
+        paths: list[str] = []
+        roles: list[str] = []
+        for value in targets:
+            if type(value) is not dict or tuple(value) != _REQUEST_TARGET_FIELDS:
+                raise ScenarioTruthError("scenario target request row is not exact")
+            roles.append(_text(value["role_id"], "scenario target request role"))
+            paths.append(_text(value["path_id"], "scenario target request path"))
+            if type(value["apply"]) is not bool or not value["apply"]:
+                raise ScenarioTruthError("scenario target transition is partial")
+        if len(roles) != len(set(roles)) or len(paths) != len(set(paths)):
+            raise ScenarioTruthError("scenario target request aliases a role or path")
+        return request
+
+    def execute(self, request: object) -> ScenarioTruthObservation:
+        value = self._validate_request(request)
+        self._owner.require_observer(self)
+        if self._executed:
+            raise ScenarioTruthError("scenario observer is one-shot")
+        before: list[dict[str, object]] = []
+        transitions: list[dict[str, object]] = []
+        after: list[dict[str, object]] = []
+        fixture_targets = self._fixture_row["target_roles"]
+        # All validation and all reads precede the first scenario mutation.
+        current_bodies: list[bytes] = []
+        for target in fixture_targets:
+            body = self._read_target(target["path_id"])
+            expected = target["baseline_value"].encode("ascii")
+            if body != expected:
+                raise ScenarioTruthError("scenario target baseline is stale")
+            current_bodies.append(body)
+            before.append(self._target_observation(target, body, target["baseline_state_id"]))
+        for target, old_body in zip(fixture_targets, current_bodies, strict=True):
+            new_body = target["candidate_value"].encode("ascii")
+            with _private_target(self._root, target["path_id"], write=True,
+                                 root_identity=self._root_identity) as descriptor:
+                with os.fdopen(os.dup(descriptor), "r+b") as stream:
+                    if stream.read() != old_body:
+                        raise ScenarioTruthError("scenario target changed before mutation")
+                    stream.seek(0)
+                    stream.write(new_body)
+                    stream.truncate()
+            self._mutation_count += 1
+            transitions.append({
+                "phase_id": self._fixture_row["phase_expectations"][0]["phase_id"],
+                "role_id": target["role_id"],
+                "before_digest": "sha256:" + hashlib.sha256(old_body).hexdigest(),
+                "after_digest": "sha256:" + hashlib.sha256(new_body).hexdigest(),
+            })
+            observed = self._read_target(target["path_id"])
+            if observed != new_body:
+                raise ScenarioTruthError("scenario target did not reach candidate state")
+            after.append(self._target_observation(target, observed, target["candidate_state_id"]))
+        fact_values: dict[str, bool] = {}
+        target_by_role = {
+            str(target["role_id"]): (target, old_body, observed_row)
+            for target, old_body, observed_row in zip(
+                fixture_targets, current_bodies, after, strict=True,
+            )
+        }
+        for expectation in self._fixture_row["assertion_expectations"]:
+            assertion_id = str(expectation["assertion_id"])
+            kind = str(expectation["kind"])
+            matches = tuple(
+                role_id for role_id in target_by_role
+                if assertion_id == kind + ":" + role_id
+            )
+            if len(matches) != 1:
+                raise ScenarioTruthError("scenario assertion role binding changed")
+            target, old_body, observed_row = target_by_role[matches[0]]
+            candidate_body = str(target["candidate_value"]).encode("ascii")
+            baseline_body = str(target["baseline_value"]).encode("ascii")
+            if kind == "acceptance":
+                actual = (
+                    observed_row["state_id"] == target["candidate_state_id"]
+                    and self._read_target(str(target["path_id"]))
+                    == candidate_body
+                )
+            elif kind == "fresh-target":
+                actual = old_body == baseline_body and baseline_body != candidate_body
+            elif kind == "regression":
+                actual = (
+                    old_body != candidate_body
+                    and observed_row["state_id"] == target["candidate_state_id"]
+                    and self._read_target(str(target["path_id"]))
+                    == candidate_body
+                )
+            else:
+                raise ScenarioTruthError("scenario assertion kind is unsupported")
+            fact_values["fact:" + assertion_id] = actual
+        assertion_results = list(evaluate_scenario_assertions(
+            self._fixture_row["assertion_expectations"], fact_values,
+        ))
+        body: dict[str, object] = {
+            "schema_version": "1.0.0",
+            "evidence_kind": "scenario-truth-observation-v1",
+            "task_id": self._binding["task_id"],
+            "task_revision": self._binding["task_revision"],
+            "snapshot_digest": self._binding["snapshot_digest"],
+            "invalidation_epoch": self._binding["invalidation_epoch"],
+            "profile_id": self._binding["profile_id"],
+            "profile_version": self._binding["profile_version"],
+            "scenario_id": self._binding["scenario_id"],
+            "graph_ref_pins": thaw(self._binding["graph_ref_pins"]),
+            "installation_pins": thaw(self._owner.installation_pins),
+            "policy_row": thaw(self._policy_row),
+            "fixture_row": thaw(self._fixture_row),
+            "branch_binding": {
+                "branch_id": self._binding["branch_id"],
+                "ref_id": self._binding["ref_id"],
+                "root_path": os.fspath(self._root),
+            },
+            "before_targets": before,
+            "ordered_transitions": transitions,
+            "after_targets": after,
+            "assertion_results": assertion_results,
+            "rollback_or_compensation": copy.deepcopy(value["rollback_or_compensation"]),
+            "owner_route": self._policy_row["owner_route_policy"],
+            "scenario_outcome": self._policy_row["success_outcome"],
+        }
+        observation = issue_scenario_truth_observation(body, authority=self)
+        self._executed = True
+        self._owner.register_observation(self, observation)
+        return observation
+
+    def _safe_target_path(self, path_id: str) -> pathlib.Path:
+        with _private_target(self._root, path_id, root_identity=self._root_identity):
+            return self._root / path_id
+
+    @staticmethod
+    def _target_observation(target: Mapping[str, object], body: bytes, state_id: str) -> dict[str, object]:
+        return {
+            "role_id": target["role_id"],
+            "path_id": target["path_id"],
+            "state_id": state_id,
+            "value_digest": "sha256:" + hashlib.sha256(body).hexdigest(),
+        }
+
+
+class ScenarioTruthRegistryFactory:
+    """Unique current installation issuer for scenario registries and observers."""
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise TypeError("use ScenarioTruthRegistryFactory.from_installation()")
+
+    @classmethod
+    def from_installation(cls) -> ScenarioTruthRegistryFactory:
+        from graph_engineering import (
+            DistributionIdentityError,
+            _scenario_truth_installation_resources,
+        )
+
+        try:
+            resources = _scenario_truth_installation_resources()
+            provenance_bytes, policy_bytes, fixture_bytes, bootstrap_bytes, schema_registry_bytes = resources[:5]
+            schema_bodies = tuple(resources[5:5 + len(SCENARIO_TRUTH_SCHEMA_IDS)])
+            bootstrap_document = _strict_json(bootstrap_bytes, "scenario bootstrap")
+            protected_count = len(bootstrap_document.get("protected_resources", ()))
+            protected_bodies = tuple(resources[5 + len(SCENARIO_TRUTH_SCHEMA_IDS):])
+            if len(protected_bodies) != protected_count:
+                raise ScenarioTruthError("scenario installation resource closure is incomplete")
+            provenance = tomllib.loads(provenance_bytes.decode("utf-8", errors="strict"))
+            pin = provenance["tool"]["gew"]["profile"]["scenario-truth"]
+        except (DistributionIdentityError, KeyError, TypeError, UnicodeError, tomllib.TOMLDecodeError) as error:
+            raise ScenarioTruthError("scenario installation bootstrap is unavailable") from error
+        expected_pin_fields = {
+            "bootstrap-id", "bootstrap-digest", "bootstrap-raw-sha256", "bootstrap-source",
+            "bootstrap-resource", "policy-source", "policy-resource", "fixture-source",
+            "fixture-resource", "profile-schema-registry-source",
+            "profile-schema-registry-resource", "schema-sources", "schema-resources",
+            "protected-sources", "protected-resources", "distribution-name",
+            "distribution-version",
+        }
+        if type(pin) is not dict or set(pin) != expected_pin_fields:
+            raise ScenarioTruthError("scenario independent installation pin is not exact")
+        if not hmac.compare_digest(
+            _raw(pin["bootstrap-raw-sha256"], "scenario bootstrap raw digest"),
+            hashlib.sha256(bootstrap_bytes).hexdigest(),
+        ):
+            raise ScenarioTruthError("scenario bootstrap bytes changed")
+        bootstrap = _validate_bootstrap(
+            bootstrap_document,
+            policy_bytes=policy_bytes,
+            fixture_bytes=fixture_bytes,
+            schema_registry_bytes=schema_registry_bytes,
+            schema_bodies=schema_bodies,
+            protected_bodies=protected_bodies,
+        )
+        if pin["bootstrap-id"] != bootstrap["bootstrap_id"] or pin["bootstrap-digest"] != bootstrap["bootstrap_digest"]:
+            raise ScenarioTruthError("scenario bootstrap provenance pin changed")
+        schema_documents = {
+            str(document["$id"]): document
+            for document in (
+                _strict_json(body, "scenario schema") for body in schema_bodies
+            )
+        }
+
+        def resolve_schema(current_id: str, reference: str) -> tuple[object, str]:
+            target_text, separator, fragment = reference.partition("#")
+            target_id = current_id if not target_text else target_text
+            if target_id not in schema_documents:
+                raise ScenarioTruthError("scenario schema reference is not closed")
+            target: object = schema_documents[target_id]
+            if separator and fragment:
+                if not fragment.startswith("/"):
+                    raise ScenarioTruthError("scenario schema pointer is invalid")
+                for encoded in fragment[1:].split("/"):
+                    token = encoded.replace("~1", "/").replace("~0", "~")
+                    if type(target) is not dict or token not in target:
+                        raise ScenarioTruthError(
+                            "scenario schema pointer is unresolved"
+                        )
+                    target = target[token]
+            return target, target_id
+
+        for name, body, derived in (
+            ("scenario-truth-policy-registry", policy_bytes, "registry_digest"),
+            ("scenario-truth-fixture-registry", fixture_bytes, "registry_digest"),
+            (
+                "scenario-truth-installation-bootstrap",
+                bootstrap_bytes,
+                "bootstrap_digest",
+            ),
+        ):
+            document = _strict_json(body, f"{name} installed document")
+            source_id = f"urn:gew:schema:{name}:1.0.0"
+            input_id = f"urn:gew:schema:{name}-input:1.0.0"
+            if validate_instance(
+                schema_documents[source_id], document, source_id=source_id,
+                resolver=resolve_schema,
+            ):
+                raise ScenarioTruthError(
+                    "scenario installed document failed its source schema"
+                )
+            unsigned = copy.deepcopy(document)
+            unsigned.pop(derived, None)
+            if validate_instance(
+                schema_documents[input_id], unsigned, source_id=input_id,
+                resolver=resolve_schema,
+            ):
+                raise ScenarioTruthError(
+                    "scenario installed projection failed its input schema"
+                )
+        registry = parse_scenario_truth_registries(
+            _strict_json(policy_bytes, "scenario policy"),
+            _strict_json(fixture_bytes, "scenario fixture"),
+        )
+        result = object.__new__(cls)
+        result._registry = registry
+        result._authority = _RegistryAuthority(result, registry)
+        result._issued_observers: dict[int, ScenarioTruthObservationFactory] = {}
+        result._issued_observations: dict[int, tuple[ScenarioTruthObservationFactory, ScenarioTruthObservation]] = {}
+        result._restored_evidence: dict[int, tuple] = {}
+        result._issued_rejections: dict[int, tuple] = {}
+        result._rejection_evidence: dict[int, tuple] = {}
+        result._closed = False
+        result.installation_pins = freeze({
+            "bootstrap_id": bootstrap["bootstrap_id"],
+            "bootstrap_digest": bootstrap["bootstrap_digest"],
+            "policy_registry_digest": bootstrap["policy_registry_digest"],
+            "fixture_registry_digest": bootstrap["fixture_registry_digest"],
+            "profile_schema_registry_digest": bootstrap["profile_schema_registry_digest"],
+            "protected_closure_digest": bootstrap["protected_closure_digest"],
+            "distribution_name": pin["distribution-name"],
+            "distribution_version": pin["distribution-version"],
+        })
+        result._installation_projection = tuple(
+            hashlib.sha256(body).hexdigest() for body in resources
+        )
+        return result
+
+    def _require_installation_current(self) -> None:
+        from graph_engineering import (
+            DistributionIdentityError,
+            _scenario_truth_installation_resources,
+        )
+
+        try:
+            current = _scenario_truth_installation_resources()
+        except (DistributionIdentityError, OSError) as error:
+            raise ScenarioTruthError(
+                "scenario installation closure is unavailable"
+            ) from error
+        if type(current) is not tuple or any(type(body) is not bytes for body in current):
+            raise ScenarioTruthError("scenario installation closure is malformed")
+        observed = tuple(hashlib.sha256(body).hexdigest() for body in current)
+        if len(observed) != len(self._installation_projection) or any(
+            not hmac.compare_digest(actual, expected)
+            for actual, expected in zip(
+                observed, self._installation_projection, strict=True,
+            )
+        ):
+            raise ScenarioTruthError("scenario installation closure changed")
+
+    def registry(self) -> _RegistryAuthority:
+        self.require_current(self._authority)
+        return self._authority
+
+    def observation_factory(
+        self,
+        authority: object,
+        *,
+        binding: object,
+        private_root: str | os.PathLike[str],
+    ) -> ScenarioTruthObservationFactory:
+        self.require_current(authority)
+        if type(binding) is not dict or tuple(binding) != _BINDING_FIELDS:
+            raise ScenarioTruthError("scenario binding fields/order are not exact")
+        task_id = _text(binding["task_id"], "scenario task ID")
+        if type(binding["task_revision"]) is not int or binding["task_revision"] < 1:
+            raise ScenarioTruthError("scenario task revision is invalid")
+        if type(binding["invalidation_epoch"]) is not int or binding["invalidation_epoch"] < 0:
+            raise ScenarioTruthError("scenario invalidation epoch is invalid")
+        _digest(binding["snapshot_digest"], "scenario snapshot digest")
+        profile_id = _text(binding["profile_id"], "scenario profile ID")
+        profile_version = _text(binding["profile_version"], "scenario profile version")
+        scenario_id = _text(binding["scenario_id"], "scenario ID")
+        pins = binding["graph_ref_pins"]
+        if type(pins) is not dict or tuple(pins) != _PIN_FIELDS:
+            raise ScenarioTruthError("scenario GraphRef pins are not exact")
+        for field in _PIN_FIELDS:
+            _digest(pins[field], f"scenario GraphRef {field}")
+        branch_id = _text(binding["branch_id"], "scenario branch ID")
+        ref_id = _text(binding["ref_id"], "scenario ref ID")
+        if branch_id != "branch:" + task_id or ref_id != "ref:" + task_id:
+            raise ScenarioTruthError("scenario branch/ref namespace is foreign")
+        policy_row = self._registry.policy_row(profile_id, scenario_id)
+        if policy_row["profile_version"] != profile_version:
+            raise ScenarioTruthError("scenario Profile version changed")
+        fixture_row = self._registry.fixture_row(policy_row["fixture_id"])
+        raw_root = pathlib.Path(private_root)
+        metadata = os.lstat(raw_root)
+        if not stat.S_ISDIR(metadata.st_mode) or metadata.st_uid != os.getuid() or stat.S_IMODE(metadata.st_mode) & 0o077:
+            raise ScenarioTruthError("scenario root is not private")
+        root = raw_root.resolve(strict=True)
+        if tuple(root.iterdir()):
+            raise ScenarioTruthError("scenario root is not fresh")
+        marker = root / ".scenario-truth-root"
+        marker.write_text(task_id, encoding="ascii")
+        os.chmod(marker, 0o600)
+        for target in fixture_row["target_roles"]:
+            relative = pathlib.PurePosixPath(target["path_id"])
+            if relative.is_absolute() or ".." in relative.parts or "\\" in target["path_id"]:
+                raise ScenarioTruthError("scenario fixture path is unsafe")
+            path = root / relative
+            path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+            path.write_bytes(target["baseline_value"].encode("ascii"))
+            os.chmod(path, 0o600)
+        result = object.__new__(ScenarioTruthObservationFactory)
+        result._owner = self
+        result._binding = freeze(binding)
+        result._policy_row = policy_row
+        result._fixture_row = fixture_row
+        result._root = root
+        result._root_identity = _identity(metadata)
+        result._mutation_count = 0
+        result._executed = False
+        targets = [
+            {
+                "role_id": row["role_id"],
+                "path_id": row["path_id"],
+                "expected_before_state_id": row["baseline_state_id"],
+                "expected_after_state_id": row["candidate_state_id"],
+                "expected_rollback_state_id": row["rollback_state_id"],
+                "apply": True,
+            }
+            for row in fixture_row["target_roles"]
+        ]
+        result._request = {
+            "branch_id": branch_id,
+            "ref_id": ref_id,
+            "targets": targets,
+            "ordered_phase_ids": list(policy_row["ordered_phase_ids"]),
+            "rollback_or_compensation": thaw(fixture_row["rollback_or_compensation"]),
+        }
+        self._issued_observers[id(result)] = result
+        return result
+
+    def require_observer(self, value: object) -> ScenarioTruthObservationFactory:
+        if (
+            self._closed or type(value) is not ScenarioTruthObservationFactory
+            or self._issued_observers.get(id(value)) is not value
+        ):
+            raise ScenarioTruthError("scenario observer is missing, cloned, or foreign")
+        self._require_installation_current()
+        return value
+
+    def register_observation(
+        self, observer: ScenarioTruthObservationFactory, observation: ScenarioTruthObservation,
+    ) -> None:
+        self.require_observer(observer)
+        self._issued_observations[id(observation)] = (observer, observation)
+
+    def rejection_attack_ids(self, profile_id: str, scenario_id: str) -> tuple[str, ...]:
+        self.require_current(self._authority)
+        if (profile_id, scenario_id) not in self._registry.scenario_pairs:
+            return ()
+        policy = self._registry.policy_row(profile_id, scenario_id)
+        fixture = self._registry.fixture_row(policy["fixture_id"])
+        return tuple(fixture.get("rejection_attack_ids", ()))
+
+    def _require_rejection_receipt(self, value: object) -> tuple:
+        issued = self._issued_rejections.get(id(value))
+        if (type(value) is not ScenarioTruthRejectionReceipt or issued is None
+                or issued[0] is not value):
+            raise ScenarioTruthError("scenario rejection receipt is missing, cloned, or foreign")
+        _, observer, projection, targets = issued
+        self.require_observer(observer)
+        if (value.projection != projection
+                or type(value.mutation_count) is not int
+                or value.request_unchanged is not True
+                or value.target_bytes_unchanged is not True
+                or any(getattr(value, field) != projection[field] for field in (
+                    "attack_id", "root_path", "mutation_count", "request_unchanged",
+                    "target_bytes_unchanged"))
+                or observer._binding != projection["binding"]
+                or observer.mutation_count != 0 or not observer._executed
+                or observer.target_bytes() != targets):
+            raise ScenarioTruthError("scenario rejection receipt is stale or altered")
+        return issued
+
+    def bind_rejections(self, receipts: object, *, test_id: str,
+                        oracle_digest: str) -> ScenarioTruthRejectionEvidence:
+        self.require_current(self._authority)
+        if type(receipts) is not tuple or not receipts:
+            raise ScenarioTruthError("scenario rejection closure is absent")
+        issued = [self._require_rejection_receipt(receipt) for receipt in receipts]
+        binding = issued[0][1]._binding
+        expected = self.rejection_attack_ids(binding["profile_id"], binding["scenario_id"])
+        if (tuple(receipt.attack_id for receipt in receipts) != expected
+                or len({receipt.root_path for receipt in receipts}) != len(receipts)
+                or any(item[1]._binding != binding for item in issued)):
+            raise ScenarioTruthError("scenario rejection closure is incomplete or foreign")
+        projection = freeze({
+            "binding": thaw(binding), "test_id": _text(test_id, "scenario rejection test"),
+            "oracle_digest": _digest(oracle_digest, "scenario rejection oracle"),
+            "installation_pins": thaw(self.installation_pins),
+            "receipts": [thaw(receipt.projection) for receipt in receipts],
+        })
+        # This is an internal process-local projection, not a new persistent schema.
+        digest = "sha256:" + hashlib.sha256(json.dumps(
+            thaw(projection), ensure_ascii=True, sort_keys=True,
+            separators=(",", ":"),
+        ).encode("ascii")).hexdigest()
+        result = object.__new__(ScenarioTruthRejectionEvidence)
+        for name, value in (("receipts", receipts), ("projection", projection),
+                            ("evidence_digest", digest)):
+            object.__setattr__(result, name, value)
+        self._rejection_evidence[id(result)] = (result, receipts, projection, digest)
+        return result
+
+    def require_rejections(self, value: object, *, binding: Mapping[str, object],
+                           test_id: str, oracle_digest: str) -> str:
+        self.require_current(self._authority)
+        issued = self._rejection_evidence.get(id(value))
+        if (type(value) is not ScenarioTruthRejectionEvidence or issued is None
+                or issued[0] is not value or value.receipts != issued[1]
+                or value.projection != issued[2] or value.evidence_digest != issued[3]):
+            raise ScenarioTruthError("scenario rejection evidence is missing, altered, or foreign")
+        projection = issued[2]
+        if (projection["binding"] != freeze(dict(binding))
+                or projection["test_id"] != test_id or projection["oracle_digest"] != oracle_digest
+                or projection["installation_pins"] != self.installation_pins):
+            raise ScenarioTruthError("scenario rejection evidence binding is stale or foreign")
+        for receipt in value.receipts:
+            self._require_rejection_receipt(receipt)
+        return issued[3]
+
+    def require_current(self, value: object) -> object:
+        if self._closed:
+            raise ScenarioTruthError("scenario authority is closed")
+        self._require_installation_current()
+        if type(value) is _RegistryAuthority:
+            if value is not self._authority:
+                raise ScenarioTruthError("scenario registry authority is missing, cloned, or foreign")
+            return value
+        if type(value) is _RestoredScenarioEvidence:
+            issued = self._restored_evidence.get(id(value))
+            if (
+                value._factory is not self
+                or issued is None or issued[0] is not value
+                or issued[1] != value.projection or issued[2] != value.root_identity
+            ):
+                raise ScenarioTruthError("scenario restored evidence is cloned or foreign")
+            self._validate_restored_targets(thaw(value.projection), value.root_identity)
+            return value
+        if type(value) is not ScenarioTruthObservation:
+            raise ScenarioTruthError("scenario observation is missing, cloned, or foreign")
+        issued = self._issued_observations.get(id(value))
+        if issued is None or issued[1] is not value or value._authority is not issued[0]:
+            raise ScenarioTruthError("scenario observation is missing, cloned, or foreign")
+        observer = issued[0]
+        if tuple(row["state_id"] for row in value.after_targets) != tuple(
+            row["candidate_state_id"] for row in observer._fixture_row["target_roles"]
+        ):
+            raise ScenarioTruthError("scenario observation target states changed")
+        expected = value.body()
+        if not hmac.compare_digest(
+            value.observation_digest, _semantic(expected, "scenario-truth-observation")
+        ):
+            raise ScenarioTruthError("scenario observation digest changed")
+        for target in observer._fixture_row["target_roles"]:
+            if observer._read_target(target["path_id"]) != target["candidate_value"].encode("ascii"):
+                raise ScenarioTruthError("scenario target changed after observation")
+        return value
+
+    def projection(self, value: object) -> FrozenMap:
+        evidence = self.require_current(value)
+        if type(evidence) is _RestoredScenarioEvidence:
+            return evidence.projection
+        return freeze(evidence.to_dict())
+
+    def restore_projection(self, value: object) -> _RestoredScenarioEvidence:
+        if self._closed:
+            raise ScenarioTruthError("scenario authority is closed")
+        self._require_installation_current()
+        if type(value) is not dict:
+            raise ScenarioTruthError("scenario projection is not an object")
+        digest = value.get("observation_digest")
+        body = copy.deepcopy(value)
+        body.pop("observation_digest", None)
+        if type(digest) is not str or not hmac.compare_digest(
+            digest, _semantic(body, "scenario-truth-observation")
+        ):
+            raise ScenarioTruthError("scenario projection digest changed")
+        if freeze(body.get("installation_pins")) != self.installation_pins:
+            raise ScenarioTruthError("scenario projection installation changed")
+        root_identity = self._validate_restored_targets(value)
+        projection = freeze(value)
+        if not isinstance(projection, FrozenMap):
+            raise ScenarioTruthError("scenario projection did not freeze")
+        result = _RestoredScenarioEvidence(self, projection, root_identity)
+        self._restored_evidence[id(result)] = (result, projection, root_identity)
+        return result
+
+    def _validate_restored_targets(self, body: dict[str, object], root_identity=None):
+        branch = body.get("branch_binding")
+        fixture = body.get("fixture_row")
+        task_id = body.get("task_id")
+        if (
+            type(branch) is not dict or set(branch) != {"branch_id", "ref_id", "root_path"}
+            or type(fixture) is not dict or type(fixture.get("target_roles")) is not list
+            or type(task_id) is not str
+        ):
+            raise ScenarioTruthError("scenario projection branch binding changed")
+        root = pathlib.Path(_text(branch["root_path"], "scenario projection root"))
+        metadata = os.lstat(root)
+        if (
+            not stat.S_ISDIR(metadata.st_mode) or metadata.st_uid != os.getuid()
+            or stat.S_IMODE(metadata.st_mode) & 0o077
+            or (root_identity is not None and _identity(metadata) != root_identity)
+            or _read_private_target(root, ".scenario-truth-root").decode("ascii") != task_id
+        ):
+            raise ScenarioTruthError("scenario projection root is stale or foreign")
+        after = body.get("after_targets")
+        if type(after) is not list or len(after) != len(fixture["target_roles"]):
+            raise ScenarioTruthError("scenario projection target set changed")
+        for target, observed in zip(fixture["target_roles"], after, strict=True):
+            if type(target) is not dict or type(observed) is not dict:
+                raise ScenarioTruthError("scenario projection target row changed")
+            expected = str(target["candidate_value"]).encode("ascii")
+            if (
+                _read_private_target(root, str(target["path_id"]),
+                                     root_identity=_identity(metadata)) != expected
+                or observed.get("value_digest")
+                != "sha256:" + hashlib.sha256(expected).hexdigest()
+            ):
+                raise ScenarioTruthError("scenario projection target is stale")
+        return _identity(metadata)
+
+    def close(self) -> None:
+        self._closed = True
+        self._issued_observers.clear()
+        self._issued_observations.clear()
+        self._restored_evidence.clear()
+        self._issued_rejections.clear()
+        self._rejection_evidence.clear()
+
+
+__all__ = (
+    "ScenarioTruthObservationFactory",
+    "ScenarioTruthRegistryFactory",
+)

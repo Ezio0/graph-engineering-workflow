@@ -1,0 +1,506 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "urn:gew:scenario-truth-fixture-registry:v1",
+  "fixtures": [
+    {
+      "fixture_id": "fixture:hotfix:emergency-baseline:v1",
+      "profile_id": "hotfix",
+      "scenario_id": "emergency-baseline",
+      "target_roles": [
+        {
+          "role_id": "primary-target",
+          "path_id": "targets/primary-target.state",
+          "baseline_state_id": "A",
+          "baseline_value": "hotfix:emergency-baseline:primary-target:A\n",
+          "candidate_state_id": "B",
+          "candidate_value": "hotfix:emergency-baseline:primary-target:B\n",
+          "rollback_state_id": "A",
+          "rollback_value": "hotfix:emergency-baseline:primary-target:A\n"
+        }
+      ],
+      "phase_expectations": [
+        {
+          "phase_id": "apply-candidate",
+          "from_state_id": "A",
+          "to_state_id": "B"
+        }
+      ],
+      "assertion_expectations": [
+        {
+          "assertion_id": "acceptance:primary-target",
+          "kind": "acceptance",
+          "expected": true
+        },
+        {
+          "assertion_id": "fresh-target:primary-target",
+          "kind": "fresh-target",
+          "expected": true
+        },
+        {
+          "assertion_id": "regression:primary-target",
+          "kind": "regression",
+          "expected": true
+        }
+      ],
+      "rollback_or_compensation": {
+        "kind": "rollback",
+        "expected_state_id": "A",
+        "required": true
+      },
+      "fixture_digest": "sha256-jcs-v1:cd5f94d540bbad94bed7085dcf1743ed00564e6dd536d4a1028b5e751d83bb62"
+    },
+    {
+      "fixture_id": "fixture:hotfix:production-like-gate:v1",
+      "profile_id": "hotfix",
+      "scenario_id": "production-like-gate",
+      "target_roles": [
+        {
+          "role_id": "primary-target",
+          "path_id": "targets/primary-target.state",
+          "baseline_state_id": "A",
+          "baseline_value": "hotfix:production-like-gate:primary-target:A\n",
+          "candidate_state_id": "B",
+          "candidate_value": "hotfix:production-like-gate:primary-target:B\n",
+          "rollback_state_id": "A",
+          "rollback_value": "hotfix:production-like-gate:primary-target:A\n"
+        }
+      ],
+      "phase_expectations": [
+        {
+          "phase_id": "apply-candidate",
+          "from_state_id": "A",
+          "to_state_id": "B"
+        }
+      ],
+      "assertion_expectations": [
+        {
+          "assertion_id": "acceptance:primary-target",
+          "kind": "acceptance",
+          "expected": true
+        },
+        {
+          "assertion_id": "fresh-target:primary-target",
+          "kind": "fresh-target",
+          "expected": true
+        },
+        {
+          "assertion_id": "regression:primary-target",
+          "kind": "regression",
+          "expected": true
+        }
+      ],
+      "rollback_or_compensation": {
+        "kind": "rollback",
+        "expected_state_id": "A",
+        "required": true
+      },
+      "fixture_digest": "sha256-jcs-v1:bb9548d8260a92bb5bae1d6a729afedba773ea7df7aee09e86d13b714e5a29e1"
+    },
+    {
+      "fixture_id": "fixture:incident-response:containment:v1",
+      "profile_id": "incident-response",
+      "scenario_id": "containment",
+      "target_roles": [
+        {
+          "role_id": "primary-target",
+          "path_id": "targets/primary-target.state",
+          "baseline_state_id": "A",
+          "baseline_value": "incident-response:containment:primary-target:A\n",
+          "candidate_state_id": "B",
+          "candidate_value": "incident-response:containment:primary-target:B\n",
+          "rollback_state_id": "A",
+          "rollback_value": "incident-response:containment:primary-target:A\n"
+        }
+      ],
+      "phase_expectations": [
+        {
+          "phase_id": "apply-candidate",
+          "from_state_id": "A",
+          "to_state_id": "B"
+        }
+      ],
+      "assertion_expectations": [
+        {
+          "assertion_id": "acceptance:primary-target",
+          "kind": "acceptance",
+          "expected": true
+        },
+        {
+          "assertion_id": "fresh-target:primary-target",
+          "kind": "fresh-target",
+          "expected": true
+        },
+        {
+          "assertion_id": "regression:primary-target",
+          "kind": "regression",
+          "expected": true
+        }
+      ],
+      "rollback_or_compensation": {
+        "kind": "rollback",
+        "expected_state_id": "A",
+        "required": true
+      },
+      "fixture_digest": "sha256-jcs-v1:899507bacaa5199eb8798248233feb5a71e0aff6474c994fbf76a4c28753aa16"
+    },
+    {
+      "fixture_id": "fixture:incident-response:detection:v1",
+      "profile_id": "incident-response",
+      "scenario_id": "detection",
+      "target_roles": [
+        {
+          "role_id": "primary-target",
+          "path_id": "targets/primary-target.state",
+          "baseline_state_id": "A",
+          "baseline_value": "incident-response:detection:primary-target:A\n",
+          "candidate_state_id": "B",
+          "candidate_value": "incident-response:detection:primary-target:B\n",
+          "rollback_state_id": "A",
+          "rollback_value": "incident-response:detection:primary-target:A\n"
+        }
+      ],
+      "phase_expectations": [
+        {
+          "phase_id": "apply-candidate",
+          "from_state_id": "A",
+          "to_state_id": "B"
+        }
+      ],
+      "assertion_expectations": [
+        {
+          "assertion_id": "acceptance:primary-target",
+          "kind": "acceptance",
+          "expected": true
+        },
+        {
+          "assertion_id": "fresh-target:primary-target",
+          "kind": "fresh-target",
+          "expected": true
+        },
+        {
+          "assertion_id": "regression:primary-target",
+          "kind": "regression",
+          "expected": true
+        }
+      ],
+      "rollback_or_compensation": {
+        "kind": "rollback",
+        "expected_state_id": "A",
+        "required": true
+      },
+      "fixture_digest": "sha256-jcs-v1:937f47a35118bfd9b7cffe51338fc422c5ecfda47c89500fd8bc7cb80199821e"
+    },
+    {
+      "fixture_id": "fixture:incident-response:recovery:v1",
+      "profile_id": "incident-response",
+      "scenario_id": "recovery",
+      "target_roles": [
+        {
+          "role_id": "primary-target",
+          "path_id": "targets/primary-target.state",
+          "baseline_state_id": "A",
+          "baseline_value": "incident-response:recovery:primary-target:A\n",
+          "candidate_state_id": "B",
+          "candidate_value": "incident-response:recovery:primary-target:B\n",
+          "rollback_state_id": "A",
+          "rollback_value": "incident-response:recovery:primary-target:A\n"
+        }
+      ],
+      "phase_expectations": [
+        {
+          "phase_id": "apply-candidate",
+          "from_state_id": "A",
+          "to_state_id": "B"
+        }
+      ],
+      "assertion_expectations": [
+        {
+          "assertion_id": "acceptance:primary-target",
+          "kind": "acceptance",
+          "expected": true
+        },
+        {
+          "assertion_id": "fresh-target:primary-target",
+          "kind": "fresh-target",
+          "expected": true
+        },
+        {
+          "assertion_id": "regression:primary-target",
+          "kind": "regression",
+          "expected": true
+        }
+      ],
+      "rollback_or_compensation": {
+        "kind": "rollback",
+        "expected_state_id": "A",
+        "required": true
+      },
+      "fixture_digest": "sha256-jcs-v1:d25b5df80dd8d1321314a22ac6a5901c457f27edbc9241b250ff49d5969023c4"
+    },
+    {
+      "fixture_id": "fixture:incident-response:unknown-effects:v1",
+      "profile_id": "incident-response",
+      "scenario_id": "unknown-effects",
+      "target_roles": [
+        {
+          "role_id": "primary-target",
+          "path_id": "targets/primary-target.state",
+          "baseline_state_id": "A",
+          "baseline_value": "incident-response:unknown-effects:primary-target:A\n",
+          "candidate_state_id": "B",
+          "candidate_value": "incident-response:unknown-effects:primary-target:B\n",
+          "rollback_state_id": "A",
+          "rollback_value": "incident-response:unknown-effects:primary-target:A\n"
+        }
+      ],
+      "phase_expectations": [
+        {
+          "phase_id": "apply-candidate",
+          "from_state_id": "A",
+          "to_state_id": "B"
+        }
+      ],
+      "assertion_expectations": [
+        {
+          "assertion_id": "acceptance:primary-target",
+          "kind": "acceptance",
+          "expected": true
+        },
+        {
+          "assertion_id": "fresh-target:primary-target",
+          "kind": "fresh-target",
+          "expected": true
+        },
+        {
+          "assertion_id": "regression:primary-target",
+          "kind": "regression",
+          "expected": true
+        }
+      ],
+      "rollback_or_compensation": {
+        "kind": "rollback",
+        "expected_state_id": "A",
+        "required": true
+      },
+      "fixture_digest": "sha256-jcs-v1:430a5535815862551e82769bec267aa1fc086d5662e4ae1f7546f2e0fbd8f1f7"
+    },
+    {
+      "fixture_id": "fixture:new-feature:multi-target:v1",
+      "profile_id": "new-feature",
+      "scenario_id": "multi-target",
+      "target_roles": [
+        {
+          "role_id": "component-a",
+          "path_id": "targets/component-a.state",
+          "baseline_state_id": "A",
+          "baseline_value": "new-feature:multi-target:component-a:A\n",
+          "candidate_state_id": "B",
+          "candidate_value": "new-feature:multi-target:component-a:B\n",
+          "rollback_state_id": "A",
+          "rollback_value": "new-feature:multi-target:component-a:A\n"
+        },
+        {
+          "role_id": "component-b",
+          "path_id": "targets/component-b.state",
+          "baseline_state_id": "A",
+          "baseline_value": "new-feature:multi-target:component-b:A\n",
+          "candidate_state_id": "B",
+          "candidate_value": "new-feature:multi-target:component-b:B\n",
+          "rollback_state_id": "A",
+          "rollback_value": "new-feature:multi-target:component-b:A\n"
+        }
+      ],
+      "phase_expectations": [
+        {
+          "phase_id": "apply-candidate",
+          "from_state_id": "A",
+          "to_state_id": "B"
+        }
+      ],
+      "assertion_expectations": [
+        {
+          "assertion_id": "acceptance:component-a",
+          "kind": "acceptance",
+          "expected": true
+        },
+        {
+          "assertion_id": "acceptance:component-b",
+          "kind": "acceptance",
+          "expected": true
+        },
+        {
+          "assertion_id": "fresh-target:component-a",
+          "kind": "fresh-target",
+          "expected": true
+        },
+        {
+          "assertion_id": "fresh-target:component-b",
+          "kind": "fresh-target",
+          "expected": true
+        },
+        {
+          "assertion_id": "regression:component-a",
+          "kind": "regression",
+          "expected": true
+        },
+        {
+          "assertion_id": "regression:component-b",
+          "kind": "regression",
+          "expected": true
+        }
+      ],
+      "rollback_or_compensation": {
+        "kind": "rollback",
+        "expected_state_id": "A",
+        "required": true
+      },
+      "rejection_attack_ids": [
+        "missing-role", "extra-role", "aliased-role", "one-target-only",
+        "cross-branch", "partial-success", "stale-target", "wrong-rollback"
+      ],
+      "fixture_digest": "sha256-jcs-v1:0536fd15c99669d90b6967716e499c4ccf1d06707facdc2037af7fd50068d83d"
+    },
+    {
+      "fixture_id": "fixture:refactor-debt:architecture-invariant:v1",
+      "profile_id": "refactor-debt",
+      "scenario_id": "architecture-invariant",
+      "target_roles": [
+        {
+          "role_id": "primary-target",
+          "path_id": "targets/primary-target.state",
+          "baseline_state_id": "A",
+          "baseline_value": "refactor-debt:architecture-invariant:primary-target:A\n",
+          "candidate_state_id": "B",
+          "candidate_value": "refactor-debt:architecture-invariant:primary-target:B\n",
+          "rollback_state_id": "A",
+          "rollback_value": "refactor-debt:architecture-invariant:primary-target:A\n"
+        }
+      ],
+      "phase_expectations": [
+        {
+          "phase_id": "apply-candidate",
+          "from_state_id": "A",
+          "to_state_id": "B"
+        }
+      ],
+      "assertion_expectations": [
+        {
+          "assertion_id": "acceptance:primary-target",
+          "kind": "acceptance",
+          "expected": true
+        },
+        {
+          "assertion_id": "fresh-target:primary-target",
+          "kind": "fresh-target",
+          "expected": true
+        },
+        {
+          "assertion_id": "regression:primary-target",
+          "kind": "regression",
+          "expected": true
+        }
+      ],
+      "rollback_or_compensation": {
+        "kind": "rollback",
+        "expected_state_id": "A",
+        "required": true
+      },
+      "fixture_digest": "sha256-jcs-v1:dc2fa9c3a9b6c25236912d80dfb869b3f0ddd1c8885539a518cb75edac732f8c"
+    },
+    {
+      "fixture_id": "fixture:refactor-debt:behavior-characterization:v1",
+      "profile_id": "refactor-debt",
+      "scenario_id": "behavior-characterization",
+      "target_roles": [
+        {
+          "role_id": "primary-target",
+          "path_id": "targets/primary-target.state",
+          "baseline_state_id": "A",
+          "baseline_value": "refactor-debt:behavior-characterization:primary-target:A\n",
+          "candidate_state_id": "B",
+          "candidate_value": "refactor-debt:behavior-characterization:primary-target:B\n",
+          "rollback_state_id": "A",
+          "rollback_value": "refactor-debt:behavior-characterization:primary-target:A\n"
+        }
+      ],
+      "phase_expectations": [
+        {
+          "phase_id": "apply-candidate",
+          "from_state_id": "A",
+          "to_state_id": "B"
+        }
+      ],
+      "assertion_expectations": [
+        {
+          "assertion_id": "acceptance:primary-target",
+          "kind": "acceptance",
+          "expected": true
+        },
+        {
+          "assertion_id": "fresh-target:primary-target",
+          "kind": "fresh-target",
+          "expected": true
+        },
+        {
+          "assertion_id": "regression:primary-target",
+          "kind": "regression",
+          "expected": true
+        }
+      ],
+      "rollback_or_compensation": {
+        "kind": "rollback",
+        "expected_state_id": "A",
+        "required": true
+      },
+      "fixture_digest": "sha256-jcs-v1:339dfa7ce29c310e8e852564db9815fa527c84dee7203f4740288be987e7f8ff"
+    },
+    {
+      "fixture_id": "fixture:refactor-debt:nonfunctional-target:v1",
+      "profile_id": "refactor-debt",
+      "scenario_id": "nonfunctional-target",
+      "target_roles": [
+        {
+          "role_id": "primary-target",
+          "path_id": "targets/primary-target.state",
+          "baseline_state_id": "A",
+          "baseline_value": "refactor-debt:nonfunctional-target:primary-target:A\n",
+          "candidate_state_id": "B",
+          "candidate_value": "refactor-debt:nonfunctional-target:primary-target:B\n",
+          "rollback_state_id": "A",
+          "rollback_value": "refactor-debt:nonfunctional-target:primary-target:A\n"
+        }
+      ],
+      "phase_expectations": [
+        {
+          "phase_id": "apply-candidate",
+          "from_state_id": "A",
+          "to_state_id": "B"
+        }
+      ],
+      "assertion_expectations": [
+        {
+          "assertion_id": "acceptance:primary-target",
+          "kind": "acceptance",
+          "expected": true
+        },
+        {
+          "assertion_id": "fresh-target:primary-target",
+          "kind": "fresh-target",
+          "expected": true
+        },
+        {
+          "assertion_id": "regression:primary-target",
+          "kind": "regression",
+          "expected": true
+        }
+      ],
+      "rollback_or_compensation": {
+        "kind": "rollback",
+        "expected_state_id": "A",
+        "required": true
+      },
+      "fixture_digest": "sha256-jcs-v1:c0f3f936fa603c26809eaed090c83802e2765ec0655e27137159f04513557cb2"
+    }
+  ],
+  "registry_digest": "sha256-jcs-v1:65732c0195c7ff0913a5ff83716ac30fd0149560cbaddbcbc36fed98b77b5e16"
+}

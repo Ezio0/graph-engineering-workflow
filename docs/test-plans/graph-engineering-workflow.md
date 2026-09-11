@@ -1,20 +1,62 @@
 # Graph Engineering Workflow — Test Plan
 
+## 2026-09-10 approved memory-repair regression supplement
+
+The exact174 amendment `GEW-REMAINING54-LOSSLESS-TRACE-MEMORY-REPAIR`
+governs this repair; prior revision history below is unchanged. Before coding,
+add regressions in the already authorized WP-08 unit test file for: repeated
+events stored without per-event dictionaries; complete decoded trace equivalence
+including every run boundary/count/multiplier/path, rejection, zero-count no-op
+and external balance change; retained live-list references, mutation, assignment,
+JSON and frozen serialization; and action-document helpers using fresh contexts
+by default while retaining explicit caller-owned audit/budget behavior.
+
+Run existing WP-01 charge/resource/schema/digest/versioning and WP-02 contract
+and cross-implementation tests to compare logical trace bytes and budget cutoffs.
+Run bounded scenario-truth unit, authority, action and lifecycle regressions;
+exclude cumulative selectors. Reproduce document/schema memory measurements in
+isolated processes, measuring unread compact storage before materialization and
+release after dropping the context. Distinguish diagnostic byte measurements from
+acceptance evidence: no invented full-run receipt, performance PASS or Candidate
+closure. Independent reviewer validates the exact source manifest and findings;
+the deterministic reducer alone decides the next authorized reversible node.
+
+Repair verification record (2026-09-10, not cumulative evidence): new regressions
+first failed on old code (3 failed / 2 passed), then the final WP-08 unit/authority
+plus WP-01 charge/resource selection passed 63 tests / 130 subtests on Python
+3.11.14. Broader WP-01/02 contracts and independent Node conformance, WP-02 units,
+WP-05 action/recovery/security and bounded parsing passed 208 tests / 899 subtests
+in 154.44 seconds. Python 3.12.12 passed the final seven memory regressions plus
+WP-01 charge/resource tests (16 tests), and the initial five memory regressions
+plus four lifecycle regressions (9 tests, 303.220 seconds). Source architecture
+scan and diff whitespace checks passed. Command details and remaining focused
+verification belong in the r2 source manifest, followed by independent review.
+
+Isolated diagnostics: three discarded compensation documents previously retained
+12,719,384 traced bytes / 19,134 events in the global fixture context; after the
+repair the same probe retained 23,852 bytes with zero global events. Combined
+security/action schema loading previously retained 55,292,697 bytes for 83,158
+events; now it retains 1,900,496 bytes in 12,845 runs, decodes all 83,158 events,
+and retains 38,760 bytes after dropping the context and collecting garbage.
+These are local tracemalloc observations, not a universal memory ceiling. Full
+decode intentionally still costs O(events) memory. No full-run result is claimed.
+
 ## 1. 文档控制
 
 | 项目 | 内容 |
 |---|---|
-| 版本 | v1，implementation-alignment revision 31 |
-| 状态 | WP-01 r18、WP-02 r4、WP-03 r8、WP-04A r5 independent PASS；WP-04 r3 candidate verification/review；Human-approved ADR-0006 r8 additive offline-v2 provenance decision，docs architecture R3 review pending |
-| 日期 | 2026-08-14 |
+| 版本 | v1，implementation-alignment revision 43 |
+| 状态 | Historical reviews preserved；remaining54 F1 routine source/observation traceability R1 candidate |
+| 日期 | 2026-09-06 |
 | Author | Codex `/root` |
-| Plan | `docs/plans/2026-08-13-graph-engineering-workflow.md` implementation-alignment revision 21，由当前WP-08双authority docs manifest精确绑定 |
+| Plan | current governing `docs/plans/2026-08-13-graph-engineering-workflow.md` implementation-alignment revision 35 |
 | Intent Baseline | PRD v2 `594b4437301853919ce3b4aa93e703a395ed45bff924ea6266b3a8e202a30be7` |
-| Spec | v1 implementation-alignment revision 24，由 recovery amendment governing manifest 精确绑定 |
-| Accepted ADRs | 0001 `d46dbe…fa34`；0002 revision 6 `3cd015b6…f6191`；0003 `a6a1648bbf8fcccbc5665c7c193cccdab11b3f096f4fb372338093fa4ed4bccf`；0005 recovery-claim compensation（independent review pending）；0006 revision 8 R3 `73512e3c…fe58986` |
-| Review lineage | revision 4 independent Test Plan PASS；WP-01 r18、WP-02 r4、WP-03 r8、WP-04A r5 findings 全部关闭；revision 29 closed `WP08-MIG-DEP-DOCS-ARCH-R1-001`；revision 30 bound cffi path；revision 31 binds Human-approved additive offline-v2 provenance and revises stable `WP08-DEP-OPTION1-DOCS-ARCH-R1-001` for same reviewer R3 |
+| Spec | current governing v1 implementation-alignment revision 36 |
+| Impact | current governing implementation-alignment revision 30 |
+| Accepted ADRs | 0001～0006 historical；current remaining54 suite为0007 revision 13、0008 revision 12、0009 revision 12 |
+| Review lineage | Historical Test Plan reviews preserved；revision 32 historically froze P1/P2/P3；revision 33 historically added `pyproject.toml`/R2 links；revision 34 historically tested R3 exact159/noise authority；revision 35 historically tested Human-approved `GEW-REMAINING54-ORACLE-REJECTION-INPUT-A` exact164 typed rejection input；revision 36 historically closed `GEW-REMAINING54-ORACLE-CASCADE-A-R1-001`；revision 37 historically tested Human-approved `GEW-REMAINING54-ACTION-PROVENANCE-B` exact165 directed action provenance/currentness closure；revision 38 historically tested Human-approved `GEW-REMAINING54-ACTION-RUNTIME-C` exact166 dual-runtime closure and closed `GEW-REMAINING54-ACTION-RUNTIME-CASCADE-B-R1-001`；revision 39 historically tested Human-approved `GEW-REMAINING54-WP07A-BUILD-BASELINE-D` exact167 test-only repair authority；revision 40 historically tested initial Human-approved `GEW-REMAINING54-PROCESS-LOCAL-QUIESCENT-REOPEN-E1` lifecycle authority；revision 41 historically addressed `GEW-REMAINING54-E1-REPOSITORY-ISOLATION-TRACE-R1-001` pending independent review；revision 42 is the independently accepted Human-approved `GEW-REMAINING54-F1-DEPENDENCY-SECURITY-REHYDRATE` exact168 one-target authority；current revision 43 tests routine `GEW-REMAINING54-F1-SOURCE-CLOSURE-TRACE-R1-001` and `GEW-REMAINING54-F1-OBSERVATION-VERSION-TRACE-R1-002` corrections with no authority/API/schema/target change |
 | Authority task | `GEW-PLAN-V1` |
-| 当前授权 | 批准计划内本地测试、实现证据与审核；不授权真实外部副作用或不可逆动作 |
+| 当前授权 | `GEW-REMAINING54-V1` 仅授权本仓库本地/离线测试、实现证据与审核；不授权真实deploy/release、network、WP-10、commit/push/merge/外部通信 |
 
 ## 2. 质量目标
 
@@ -675,10 +717,10 @@ result、execution kind、task identity。task identity 必须进入 selector/re
 链；missing/extra/alias/duplicate/reorder、跨 binding task substitution 或 coherent re-sign 均在
 execution/observation/CoverageRecord 之前 FAIL，且 task/event/snapshot/object/ref/target/action 零写。
 
-coverage fixture 可在每 Profile 一个 disposable repository/application stack 内创建独立 task
-rows，以降低 274-case teardown；每个 binding 仍独立签发 current authority 和 record，攻击/
-substitution probe 用后立即关闭，real-E2E Git/project fixture 逐 Profile 隔离。serial 与资源复用
-路径必须产生相同 stable-ID ordered digests/outcomes；最终仍由同一次 combined
+Historical pre-E1 Option C曾允许coverage fixture在每Profile一个disposable repository/application stack内创建独立task
+rows；该历史优化不适用于Human-approved E1或current cumulative。E1要求每binding独占fresh private repository root、
+task、target、branch/ref、action root与command root，攻击/substitution probe用后立即关闭，real-E2E Git/project fixture
+也不得跨binding/profile共享。strict-serial路径必须产生相同stable-ID ordered digests/outcomes；最终仍由同一次combined
 `ReleaseCoverageGate` 对全部 current records 判定，禁止 shard、cache token 或 static evidence
 替代。focused harness 在 `OK` 后 120 秒内自然 exit 0；超时即 FAIL，而不是强制退出隐藏。
 
@@ -833,8 +875,9 @@ ReleaseInstallManifest，不访问用户 repository/secret/外部系统，也不
 
 RED 先证明 exact 24 plan/oracle members 与新 registry/observation authority 缺失；GREEN 顺序为 schema/
 bootstrap → registry/source currentness → WP08A closure wrapper → observation/use/precommit/restart →
-representative NORMAL P/R → REAL-E2E P/R → existing 2 methods。Option C 保持 per-Profile shared repository、
-每 binding unique task/current authority、real-E2E Git/wheelhouse isolation、strict serial/private root。
+representative NORMAL P/R → REAL-E2E P/R → existing 2 methods。Historical pre-E1 Option C的per-Profile shared repository
+只保留为lineage且不适用于E1/current cumulative；E1要求每binding fresh private repository root及unique
+task/target/branch-ref/action-root/command-root，real-E2E Git/wheelhouse不跨binding/profile共享并strict serial。
 
 本 batch 后 exact plan `170`、oracle bindings `85`、production gate
 `170 valid / 104 missing / passed=false`，static evidence `0/274`，不得发行 WP-08 exit。combined gate 前
@@ -915,6 +958,15 @@ tamper、archive duplicate/tamper、project/PYTHONPATH shadow或fallback全部�
 - exact noise公式为`mad*noise_denominator <= median*noise_numerator`；超限必须
   `inconclusive-noise`且zero P issuance。target/rollback分别用ADR-0007 integer cross-products；correctness
   mismatch即使更快也拒绝；
+- R3 exact断言current registry的noise numerator/denominator为`1/2`，且core/source中不存在scenario-specific
+  threshold或sample literal。P必须由真实parent `monotonic_ns`围绕完整`launcher.execute`采样并满足noise、
+  correctness、target、fresh B与current environment；任何oracle vector注入P都拒绝；
+- A `noise-outlier` R必须从oracle 1.1 exact typed `rejection_input.values`读取真正numeric
+  `[1,2,100,200,201]`，独立断言sorted
+  `[1,2,100,200,201]`、median `100`、deviations `[99,98,0,100,101]`、sorted deviations
+  `[0,98,99,100,101]`、MAD `99`及`99*2=198 > 100*1=100`。唯一允许outcome是
+  `inconclusive-noise`/fail-closed；不得产生P observation、target PASS或CoverageRecord success；vector不得出现在
+  `reject_error_message`，且从message解析/恢复input必须失败；
 - issue、每次invocation、final observe、assessment precommit、restart、coverage observer/factory/gate各cut注入
   registry/schema/fixture/sample/source/command/environment/target replacement；要求actual loader/current counters
   增加且task/event/snapshot/object/ref/action/target/input零写；
@@ -980,8 +1032,9 @@ zero task/object-ref/action/target write。不得新增generic task event、DB/s
 
 RED先证明registry/clock/environment/statistics/final observation authority、Option B durable assessment与24 plan/12 oracle members缺失；GREEN
 顺序为schema/bootstrap → registry/environment/clock → samples/statistics/correctness → durable assessment/use/precommit/restart →
-representative NORMAL P/R → REAL-E2E P/R → existing2 methods。严格serial、fresh private roots；Option C只共享
-per-Profile repository/application，unique task/current authority独立，benchmark/Git fixture隔离。
+representative NORMAL P/R → REAL-E2E P/R → existing2 methods。Historical pre-E1 Option C曾共享per-Profile
+repository/application，但该历史优化不适用于E1/current cumulative；E1严格serial且每binding使用fresh private
+repository root及unique task/target/branch-ref/action-root/command-root，benchmark/Git fixture不跨binding/profile共享。
 
 batch后plan exact`194`、oracle bindings`97`、production gate
 `194 valid / 80 missing / passed=false`、static`0/274`，不得发行WP-08 exit。combined gate前finalize拒绝；
@@ -1036,8 +1089,9 @@ crash results、claims/fences/target及nested digests。dependency branch或dual
 
 验证顺序：schemas/bootstrap→factory/forward/backward→partial/crash→assessment use/precommit/restart→四P/R
 targeted selectors→authoritative combined P。完成后plan`216`、oracles`108`、gate
-`216 valid / 58 missing / false`、static`0/274`。Option C per-Profile repository共享但task/current authority独立；
-strict serial/private roots。combined gate后finalize/revoke，未入gate candidate只走same-cap abort；terminal后所有
+`216 valid / 58 missing / false`、static`0/274`。Historical pre-E1 Option C的per-Profile repository共享不适用于
+E1/current cumulative；E1每binding独占fresh private repository root与unique task/target/branch-ref/action-root/
+command-root，并strict serial。combined gate后finalize/revoke，未入gate candidate只走same-cap abort；terminal后所有
 rehearsal current/restart/register/gate拒绝、durable state不变、cleanup<120s。不得真实activation、network、
 用户repo、WP10、full/evidence。
 
@@ -1055,7 +1109,7 @@ oracles exact为`profile-dependency-security-transitive-dependency-v1.json`与
 bootstrap/policy digests、reachability/disposition outcome。它们不能复用vulnerable-graph oracle或只检查scenario
 membership。
 
-revision 7新增以下5 schema pairs：
+Historical revision 7新增以下5 schema pairs：
 
 | Stem | Source | Digest input |
 |---|---|---|
@@ -1065,7 +1119,7 @@ revision 7新增以下5 schema pairs：
 | final observation | `urn:gew:schema:dependency-security-observation:1.1.0` | `urn:gew:schema:dependency-security-observation-input:1.1.0` |
 | installation bootstrap | `urn:gew:schema:dependency-advisory-installation-bootstrap:1.1.0` | `urn:gew:schema:dependency-advisory-installation-bootstrap-input:1.1.0` |
 
-existing10/new5/profile-schema registry exact equality；bootstrap1.1固定两个新增registry、advisory registry、schemas、
+Historical existing10/new5/profile-schema registry exact equality；bootstrap1.1固定两个新增registry、advisory registry、schemas、
 distribution/RECORD/source-build/protected closure。schema attacks覆盖1.0/1.1 cross-use、missing/extra/reorder/
 duplicate/alias、bad digest、nested omission及coherent all-document re-sign。
 
@@ -1073,6 +1127,8 @@ revision 8 exact只增加第6组bootstrap1.2 source/input pair；revision 7五�
 解释或第七组隐式pair。1.2 history rows必须分别使用无alias的
 `config/security/dependency-advisory-registry-v1.json`与
 `config/security/dependency-advisory-registry-v2.json`并双向绑定v1/v2 snapshot+attestation。
+Current A仍以bootstrap1.2为dependency current authority；historical bootstrap1.1 bytes/digest保持不变，A只补齐
+Envelope、source/package与wheel/RECORD的current pin闭包。
 
 graph positive从physical closure每个exact METADATA requirement row重建root/nodes/edges；逐项验证normalized
 name/version、wheel/METADATA/RECORD、parent/child、original/normalized specifier/extras/marker与fixed marker
@@ -1127,6 +1183,319 @@ closure或target任一post-observation replacement均使旧execution/observation
 restart→transitive P/R→fix-unavailable P/R→combined P。migration batch后加入四records，plan`220`、oracles`110`、
 gate`220 valid / 54 missing / false`、static`0/274`；coverage lifecycle/finalize/revoke/abort与<120s teardown不变。
 不安装/激活dependency，不访问用户repo，不运行online resolver/scanner，不改WP08A historical evidence。
+
+### 12.5 Remaining54 P1 performance scenarios
+
+先在existing discovered WP-08 tests中加入四stable IDs与两个oracle members的absence RED，断言production plan仍
+220/110。GREEN复用ADR-0007现有authority，只新增Human-approved oracle input 1.1 schema、不新增registry/action；
+threshold/sample仍只来自config/oracle：
+
+| Scenario | P assertions | R/attack assertions |
+|---|---|---|
+| `noise-outlier` | parent `monotonic_ns`真实测量每次完整`StructuredCommand`（含startup），全部odd repetitions保留；independent重算后baseline/candidate满足config `1/2`，correctness/target/fresh B/current environment全部通过；P拒绝任何`rejection_input`替代 | 从oracle 1.1 typed `rejection_input.values`取numeric `[1,2,100,200,201]`；median100、MAD99、`99*2 > 100*1`必须得`inconclusive-noise`且无PASS issuance；message encoding/parsing、drop/reorder/duplicate/resample、warmup混入、threshold替换、vector注入P、float/rounding、caller MAD/outcome、coherent re-sign全部拒绝 |
+| `correctness-regression` | 同environment/case中candidate全部invocation correctness exact，noise/target/fresh B通过 | 任一candidate mismatch在statistics/target success前fail closed；expected digest替换、忽略iteration、duration-only、wrong phase/case、caller correct、coherent re-sign全部拒绝 |
+
+每对另测P/R task/request/observation identity分离、cross-scenario substitution、foreign/clone/stale factory、source/
+environment/target post-observation replacement；restart launcher invocation delta=0。每次拒绝task/event/snapshot/object/
+ref/action/target/input零写，network=0。P1 focused selector在fresh source-attested root strict serial运行；完成后plan224/
+oracle112/gate`224 valid,50 missing,false`，static-only仍0/274。
+
+#### Oracle input 1.0/1.1 and cascade contract
+
+1. 固定1.0 schema pre-A raw SHA-256并断言文件byte-identical、registry row unchanged、existing 1.0 oracle digests不变；
+2. 1.1 schema必须closed：top-level exact fields为1.0 digest input fields加required `rejection_input`；该object exact
+   `kind,values`，kind仅`integer-vector`，values non-empty ordered positive safe JSON integers。逐项拒绝stringified array、
+   CSV/JSON message、boolean、float、zero、negative、unsafe integer、null、object、nested array、missing/extra fields；
+3. 1.1 current conditional tuple exact为performance/noise-outlier/scenario/boundary及对应oracle/case IDs；其他tuple、
+   1.0带`rejection_input`、1.1缺field、cross-version schema/digest projection全部拒绝；
+4. core tests证明只按1.0/1.1 version执行exact field/schema/digest/safe-integer验证，且没有`performance` scenario
+   dispatch、`[1,2,100,200,201]`或`1/2` literals；`PROFILE_DOMAIN_SCHEMA_IDS` registry构造必须接受exact 1.0+1.1
+   schema IDs，并分别拒绝missing 1.1、extra ID和1.1 version alias；application tests证明只有noise-outlier R消费vector并
+   重算，P仍只消费actual parent timing；
+5. `reject_error_message`只断言stable diagnostic；把vector塞入message、删除typed field后靠message恢复、同时提供冲突
+   message/vector或coherent re-sign均fail closed且zero writes；
+6. exact source/package cascade tests依次验证new schema→profile domain/schema registries→generic core/source checkout→
+   `config/verification/wp-00-targets.json` exact set→source manifest→noise oracle→oracle manifest/coverage plan/application→
+   performance bootstrap、dependency current v1.2、migration current v1→pyproject→wheel archive/unpacked/RECORD。
+   `source_manifest` positive必须接受更新后的exact target set并包含1.1 schema path/bytes/digest；missing 1.1、extra target与
+   version-alias path均拒绝。每层raw/semantic/nested/protected-closure digest均重算；dependency v1.1和oracle schema1.0
+   pre-A bytes必须不变。
+
+#### Historical Human-approved B action provenance and P1 sibling contract
+
+1. Envelope必须exact165 unique relative/no-glob；相对Historical A exact164仅新增
+   `config/actions/action-policy-v1.json`，删除该唯一B项必须exact恢复164；builder仍不在allowlist，任何第166项拒绝；
+2. controlled P2 packaged-source addition必须改变final `pyproject.toml` builtin action implementation build projection和
+   affected implementation digests。测试冻结final upstream projection一次，并断言downstream profile/package pin fields
+   被projection排除；若downstream digest反馈上游、需要fixed-point或第二次改变upstream digest则失败；
+3. 从builtin refs/module bytes/build projection重算全部implementation digests；
+   `config/contracts/action-adapter-registry-v1.json`必须exact匹配，逐项拒绝
+   stale/missing/extra implementation row、wrong ref/module、old build digest、reorder/duplicate和coherent partial re-sign；
+4. `config/actions/concrete-action-policy-v1.json`必须绑定current adapter registry ID/digest及closed adapter/operation sets。
+   default `config/actions/action-policy-v1.json`与local
+   `config/actions/action-policy-local-actions-v1.json`必须分别绑定同一current concrete/registry authority并
+   各自重算self digest；两policy互不互引，拒绝cross-policy digest、旧pin、capability/operation/action-kind变化或额外edge；
+5. `config/security/security-runtime-local-actions-v1.json`只按既有语义绑定local policy current ID/digest。保留default
+   policy旧pin的negative fixture必须让P1
+   verified child在installation/currentness gate fail closed且零benchmark/action/target write；测试不得通过skip factory、
+   remove/relax pin、caller override、ambient checkout、alias或fake coherent chain获得PASS；
+6. source/package positive按拓扑验证`core/graph_engineering/__init__.py`、source checkout、test attestation、wp-00 exact set、
+   performance/dependency-v1.2/migration/scenario-truth/release-operations current bootstraps、pyproject package/resource pins、
+   read-only builder digest、wheel archive/unpacked resources与`RECORD`。每层source/resource/raw hash/size/semantic/nested digest
+   正向重算并反向exact；stale/omit/extra/reorder、只正向、archive/installed mismatch全部拒绝；
+7. action semantics regression必须证明B前后adapter IDs、capabilities、operation IDs、policy action kinds、external-action gates、
+   P1/P2 expected outcomes均不变；oracle input1.0、dependency bootstrap1.1及其它historical no-change files保持pre-B bytes；
+8. P2a packaged sources恢复并冻结后，测试强制事件顺序为B chain re-sign完成→P1 currentness sibling rerun PASS→P2a
+   scenario issuance。省略、交换、复用pre-B P1结果或P1仍fail时继续P2a均拒绝且P2a records保持missing。
+
+#### Historical Human-approved C dual-runtime and P1 sibling contract
+
+1. Envelope必须exact166 unique relative/no-glob；相对Historical B exact165只新增
+   `config/security/security-runtime-v1.json`，删除该唯一C项必须exact恢复165，任何第167项拒绝；
+2. exact graph shared prefix必须是`pyproject.toml` builtin implementation provenance→
+   `config/contracts/action-adapter-registry-v1.json`→`config/actions/concrete-action-policy-v1.json`，随后default branch
+   必须是`config/actions/action-policy-v1.json`→`config/security/security-runtime-v1.json`，local branch必须是
+   `config/actions/action-policy-local-actions-v1.json`→`config/security/security-runtime-local-actions-v1.json`；
+3. 两runtime分别重算并验证current policy ID/digest/self digest；测试逐项拒绝default/local runtime互换、cross-policy pin、
+   runtime互引、旧policy digest、missing/extra edge、cycle、fixed-point、caller override及coherent partial re-sign；
+4. default policy已重签而default runtime仍保留旧pin的negative fixture必须让`scripts/evidence_utils.py` currentness与P1
+   verified child在任何evidence/benchmark/action/target write前fail closed；不得通过skip factory、remove/relax pin、
+   ambient checkout或consumer rewrite取得PASS；
+5. `scripts/evidence_utils.py`必须保持read-only consumer：验证它加载default runtime并exact核验default-policy ID/digest，
+   同时断言该path不在166项allowlist、实施diff中未修改且在C当时无法成为第167项。`scripts/build_backend.py`同样保持只读且不在
+   allowlist；
+6. 两runtime current后，source/package positive必须把两个分支都纳入source checkout、wp-00 exact set、performance、
+   dependency-v1.2、migration、scenario-truth、release-operations current bootstraps、pyproject package/resource pins、
+   read-only builder、wheel archive/unpacked resources与`RECORD`。逐层正向重算且反向exact校验source/resource/raw
+   SHA-256/size/semantic/nested/RECORD binding；stale/omit/extra/reorder或single-direction-only均拒绝；
+7. 事件顺序必须是P2a packaged sources恢复并冻结→shared prefix及两policy重签→两runtime拓扑重签→
+   `evidence_utils` currentness PASS→P1 currentness sibling PASS→P2a scenario issuance。省略、交换或复用pre-C结果均拒绝；
+8. regression证明C只关闭`GEW-REMAINING54-ACTION-RUNTIME-CASCADE-B-R1-001`，不改变adapter IDs、capabilities、
+   operation IDs、policy action kinds、external-action gates、P1/P2 expected outcomes或历史bytes；无pin bypass/weakening。
+
+#### Historical Human-approved D WP07A exact build baseline contract
+
+1. Historical D revision的Envelope必须exact167 unique relative/no-glob；相对Historical C exact166只新增
+   `tests/security/test_wp07a_action_contract_security.py`，删除该唯一D项必须exact恢复166，且D revision拒绝第168项；
+2. 先保存D前失败证据：获批P2a sources/`pyproject.toml`、C action chain、factory/WP08 currentness、package/wheel均current，
+   扩大security run exact 17/18 PASS，唯一失败为
+   `WP07AActionContractSecurityTests.test_gew_act_001b_installation_anchor_rejects_re_signed_registry_and_provenance_substitutions`
+   仍期待`b9e8e75bca0436651a723da05d9bcea27f06768666c8c1d9f9fc6b9b80707944`；
+3. 用与runtime-under-test分离的mechanical projection重算current `pyproject.toml`完整SHA-256，并只把该预计算literal替换
+   historical expected。diff必须证明该WP07A文件除exact constant外byte-identical，implementation/config/其它tests无D change；
+4. 禁止让assertion用同一次`_action_build_manifest_digest`调用派生expected、接受ambient/caller value、只比prefix、loose
+   compare或skip/delete baseline assertion；这些negative mutations必须被meta-test或source inspection拒绝；
+5. named method必须继续执行并通过dependency add/replace/remove、declared-import add/replace/remove、build-mapping change、
+   entrypoint change及registry implementation/capability/operation/provenance substitution attacks，不能删case或放宽exception；
+6. 严格顺序执行named WP07A method→WP08 security→evidence currentness→package/archive/unpacked/`RECORD`→clean wheel→
+   P1 currentness sibling；任一失败即不得运行`p2a-cumulative-r2`。全部通过后才恢复该cumulative selector；
+7. `p2a-cumulative-r2`必须保持P2a exact plan226/oracle113/dynamic `226 valid / 48 missing / passed=false`，static-only
+   `0 valid / 274 missing / passed=false`；D不能新增、删除、替换或waive任何CoverageRecord/oracle；
+8. `GEW-REMAINING54-P2A-CAND-R1-001` full installed closure、`GEW-REMAINING54-P2A-CAND-R1-002` exact task
+   namespace/branch/ref、`GEW-REMAINING54-P2A-CAND-R1-003` generic assertion evaluator/`required_fact_ids`、
+   `GEW-REMAINING54-P2A-CAND-R1-004` executable cumulative selector counts、
+   `GEW-REMAINING54-P2A-CAND-R1-005` R task/factory/root attack binding全部保持OPEN；001/002/003/005 focused GREEN只作为
+   新review输入，004等待本D与cumulative-r2。仅独立Candidate reviewer的fresh verdict可关闭这些stable IDs。
+
+#### Historical E1 sealed/quiescent/reopen contract retained by F1
+
+1. Historical E1 revision的Envelope为exact167 unique relative/no-glob，E1新增target count exact0；D仍是相对C唯一新增
+   `tests/security/test_wp07a_action_contract_security.py`，删除D恢复166，且E1 revision拒绝第168项；Current F1另增一个
+   dependency-security application source形成exact168；
+2. RED使用valid current API而非人工leak：执行代表binding的current execution/observation与现有close路径，证明stale context
+   拒绝但live handles未被逐binding释放；扩大到226时deterministic active-handle/lifecycle counters单调累积。保存trigger
+   evidence：first cumulative 4.086s C provenance fail-closed后修复；second exact7200s `TimeoutExpired`无receipt；FD4→885/
+   maxRSS7.20GB/teardown FD4；same-root plan0.546s/base7.801s/authorities4.904s/observations226.608s/
+   factory1.085ms/issuance114.974s/dynamic>545.166s/timeout900s；
+3. unit state-machine tests断言exact transitions `OPEN→SEALED(g)→QUIESCED(g)→REOPENED(g,purpose)→SEALED(g+1)→
+   QUIESCED(g+1)`，purpose exact为issue/use/precommit/gate，finalize/revoke只到`PERMANENTLY_CLOSED`。missing transition、
+   wrong purpose、old generation、double/out-of-order/terminal transition均拒绝；
+4. seal tests验证process-local opaque identity，不存在dict/JSON/pickle/export/reconstruct API；caller mapping、copy/deepcopy、
+   forged object、clone、share、serialized bytes、other process token、old/replayed seal均拒绝。seal exact绑定current
+   installation/provenance/source/package/wheel/`RECORD`、runtime-attested root identity、task/object/target/action/command状态、
+   record/observation digests及profile/scenario/oracle identity；core/source scan不得含机器absolute root path；
+5. quiesce正向逐类证明repository/object/action/Git/launcher/session handles与live FD关闭、deterministic active handle count=0，
+   private-root bytes/hash与root identity保持；不得通过删除/复制/recreate root假装释放。FD baseline-return作为diagnostic，
+   不把FD4/885或7.20GB写成engine threshold；
+6. runtime-owned reopen port每次只打开seal绑定的same root，同一时刻`active_reopened_binding_count`只允许0或1。每个
+   issue/use/precommit/gate在业务验证前都全量重读closure/state，phase结束必须生成下一generation、撤销旧seal并quiesce。
+   并发barrier测试证明第二binding不能同时reopen，释放后可有限继续，无deadlock或共享repository；
+7. 226-binding positive按strict serial执行execute→seal/quiesce→lazy reopen issue→requiesce→reopen use→requiesce→
+   reopen precommit→requiesce→reopen gate→requiesce。断言113 oracle identities unique/current、P1 sibling current、dynamic
+   `226 valid / 48 missing / passed=false`、static `0 valid / 274 missing / passed=false`。机械构造repository-root、task、
+   target、branch/ref、action-root、command-root六个identity集合并分别断言cardinality exact226；六维combined binding tuple
+   cardinality也须exact226，任意两个bindings（包括跨Profile）在每一维均不得共享identity；action/mutation/launcher replay=0；
+8. tamper matrix逐项覆盖root/installation/provenance/source/package/wheel/RECORD/task/object/target/action/command/record/
+   observation same-path/coherent replacement、wrong root/ref、missing/extra、symlink、cross-binding/profile seal/root。
+   所有attack必须先于issue/use/precommit/gate write失败，task/event/snapshot/object/ref/action/target/input mutation与replay均0；
+9. replay/concurrency matrix覆盖reopen同一seal两次、concurrent reopen两个bindings、purpose reorder、reopen后不quiesce、
+   prior-generation replay、action/mutation/launcher replay及finalize/revoke后reopen；全部fail closed并回到handle baseline；
+10. resource acceptance只使用deterministic lifecycle/active-handle counters与FD baseline-return诊断。total runtime与heartbeat
+    limit来自`config/profiles/scenario-truth-policy-registry-v1.json` testability data；测试必须证明提高limit不能替代RED→GREEN，
+    engine不得硬编码机器RSS/FD阈值；
+11. exact affected selectors覆盖`tests/unit/test_wp08_scenario_truth.py`、
+    `tests/contract/test_wp08_remaining54_contracts.py`、`tests/integration/test_wp08_scenario_truth.py`、
+    `tests/integration/test_wp08_release_coverage.py`与`tests/security/test_wp08_remaining54_authority.py`，并重跑source/package/
+    installed wheel currentness。D的WP07A→WP08 security/evidence/package/wheel/P1顺序必须先完成；
+12. 五个Candidate findings继续OPEN，001/002/003/005 focused GREEN仅作fresh inputs；
+    `GEW-REMAINING54-P2A-CAND-R1-004`须增加E1 lifecycle/counters/226 cumulative evidence。只有独立Candidate reviewer可关闭。
+13. stable finding `GEW-REMAINING54-E1-REPOSITORY-ISOLATION-TRACE-R1-001`在本author artifact中只标记
+    **ADDRESSED / pending independent reviewer resolution**；测试/author不得标记resolved或closed。
+
+#### Current Human-approved F1 dependency-security rehydrate/current-seal contract
+
+1. Envelope必须current exact168 unique relative/no-glob；F1相对Historical E1 exact167只新增
+   `application/graph_engineering/application/dependency_security.py`，删除F1项恢复167，任何第169项拒绝；
+2. generic typed seal/reopen authority由product/runtime owner拥有且opaque、process-local，并覆盖existing exact
+   `DependencySecurityObservation` 1.0与1.1。factory必须从current issued observation机械提取descriptor与immutable snapshot；
+   1.0当且仅当source factory `_graph is None`，1.1当且仅当`_graph`为same-binding exact
+   `DependencyGraphObservationFactory`；quiesced state不持有live repository/category；
+   caller mapping/bytes/equality不能构造seal或current authority；
+3. `DependencySecurityObservationFactory`、typed observation与downstream graph/category assessment必须类型和identity分离。
+   1.1 seal必须从issued frozen graph inputs保存唯一advisory selector、graph policy/remediation/installation、before/after graph及
+   disposition bodies；rehydrate用fresh registry/physical closures/applicability/residual与fresh graph factory重算，执行
+   `from_graph_authorities`→`observe_graph`并全投影exact compare后才原子`LIVE`。`DependencyGraphAssessmentFactory`/Evidence仍是
+   distinct downstream consumer，不能替代ObservationFactory、Observation、seal或issuer；same-path/slot-tamper继续由
+   strict source-seal negatives fail closed，不新增target或security exception；
+4. P/R正向均绑定same private root/task/category/current installed closure。每次issue/use/precommit/gate都按fresh registry→
+   physical closure parser reread→applicability/residual→generic observe顺序exact比较后才签发下一current seal；resolver/network
+   count必须exact0，但physical closure reread count必须存在且不能被0次resolver断言替代；
+5. P↔R、forged/cloned/serialized/stale seal、wrong factory/observation、cross-root/task/category/installation、same-path/
+   coherent replacement、missing/extra closure、finalize/revoke后rehydrate全部fail closed；task/event/snapshot/object/ref/action/
+   target/input zero-write、zero-mutation、resolver/network/action/command replay exact0；
+6. source/currentness必须断言new application source属于`core/graph_engineering/__init__.py::_SOURCE_FILES`与
+   source-checkout attestation exact set，并由`pyproject.toml` package/protected-source mapping进入archive/unpacked wheel与
+   `RECORD`；dependency bootstrap1.2不含application source protected-member字段，只对其actual
+   schema/registry/source-artifact/source-attestation/history inputs验真且输入不变时bytes/digest不变；performance bootstrap
+   只在其actual protected files（含`application/graph_engineering/application/profile_coverage.py`）变化时重算；pyproject、
+   C双runtime与D baseline均验证currentness，但只有对应actual projection变化才重签。action build projection剔除
+   dependency-advisory/performance-benchmark tables；测试不得强制制造C/D hash变化，也不得接受任何真实stale pin；
+7. 校验当前 config-owned `cumulative_runtime_limit_seconds=14400`、`heartbeat_interval_seconds=60` 与2026-09-10 Human批准一致；旧agent-only86400不获追认；
+   提高limit不得替代seal/quiesce/reopen、four-phase reread、exclusive reopen、active-handle归零或zero-replay gate；
+8. **Agent audit assertion（无Human authority effect）：**index25只由plan顺序+stack context推定且没有完整last-binding日志；
+   evidence/report不得称其为direct observation。`tests/support/wp08_dependency_security.py`与
+   `tests/support/wp08_migration_rehearsal.py`是pre-existing dirty且未授权，本轮diff必须不包含它们。
+9. Routine finding `GEW-REMAINING54-F1-SOURCE-CLOSURE-TRACE-R1-001`只由independent reviewer决定是否resolved；author artifact
+   必须保持**ADDRESSED / pending independent reviewer resolution**，并机械证明Envelope仍byte-identical exact168。
+10. 原mandatory/scenario/real-E2E candidates、scenario/plan/oracle不得因rehydrate实现而变化；特别机械断言
+    `GEW-PRO-DEPENDENCY-SECURITY-ARTIFACTS-R`仍选择`GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-P`，且
+    `request_digest`保持`sha256-jcs-v1:e9315eb7ced2072939c95533b7f8aeb53e11e1e1c137d5e462c69c5130a9b938`；
+    substitute candidate/digest必须拒绝。既有`_task_projection` profile/category/task revision/snapshot/invalidation
+    discriminator与schemas/graph contract不放宽。
+11. Routine finding `GEW-REMAINING54-F1-OBSERVATION-VERSION-TRACE-R1-002`只由independent reviewer决定是否resolved；author
+    artifact保持**ADDRESSED / pending independent reviewer resolution**且`authority_effect=none`。
+
+### 12.6 Remaining54 P2 local scenario truth
+
+#### Schema/config/factory RED→GREEN
+
+先为ADR-0008 exact 5 schema pairs、policy/fixture/bootstrap与assessment1.3建立contract tests。正向验证所有nested
+digests、protected paths/raw hashes、Profile/scenario exact sets、task/six pins；反向逐一覆盖missing/extra/reorder/
+duplicate/alias、unknown row、same-path replacement、coherent re-sign、RECORD/archive/unpacked/source mismatch。factory
+construction前失败，durable与target零写。
+
+authority tests覆盖consumer-local `eq=False` identity、foreign/clone/`object.__new__`、cross-task/profile/scenario、
+closed factory、old token与non-serializable authority。每binding fresh private root/branch/ref/targets；symlink escape、target
+alias、共享mutable root、wrong expected ref与branch substitution在mutation前拒绝。
+
+assessment1.3 tests断言只存在`scenario_truth_projection`，不与1.1/1.2 projections并存；generic/unsupported Profile/
+mandatory column使用1.3均拒绝。issue/precommit hooks后重算policy/fixture/branch/target/nested body；crash-before-commit最多
+留下unreferenced CAS，不写task event/ref；restart从唯一current referenced CAS+fresh factory恢复，mutation/action replay=0。
+
+#### Exact P2 scenario matrix
+
+| Profile/scenario | Positive oracle | Required rejection vectors |
+|---|---|---|
+| new-feature / multi-target | two exact roles各自A→B、acceptance/regression/fresh target全通过 | missing/extra/alias role、one-target-only、cross-branch、partial success、stale/wrong rollback |
+| hotfix / emergency-baseline | emergency authority+impact/containment+A baseline均早于patch，B minimal且rollback-ready | late/missing/B baseline、authority stale、impact/rollback omission |
+| hotfix / production-like-gate | local-production-like fixture完整impact/health/rollback gate通过 | production flag提升、自报health、gate omission、environment/target alias |
+| refactor / behavior-characterization | ordered A/B output/error/side-effect vectors exact | case omit/add/reorder、expected alias、behavior delta |
+| refactor / architecture-invariant | behavior先通过，B required/forbidden edges exact | forbidden/missing edge、path alias、count/set-only比较、skip behavior |
+| refactor / nonfunctional-target | behavior通过且config integer comparator满足、fresh B | hardcoded/float threshold、environment drift、metric miss、behavior regression |
+| incident / detection | injected signal与impact scope exact | missing/stale/wrong signal、scope/severity substitution |
+| incident / containment | affected隔离、unaffected byte-exact、residual+owner current | over/under containment、unaffected mutation、authority/fence/target stale |
+| incident / recovery | known+contained effect经authorized compensation和fresh service verify恢复 | unknown/uncontained、original action replay、partial/stale service、follow-up omission |
+| incident / unknown-effects | inner exact=`blocked-owner-route`、unknown claim保留、no replay/recovery/service-restored | replay/recovery、consume claim、empty/foreign owner、fabricated restored state |
+
+`unknown-effects` P的outer result仅证明correct block；test必须显式断言没有incident completion/recovery success。
+incident scenario recovery oracle file exact为`profile-incident-response-scenario-recovery-v1.json`，并做mandatory recovery
+member byte-identical unchanged/dual-path no-alias test。
+
+四个selectors依次运行，数量门逐步断言226/113/48、230/115/44、236/118/38、244/122/30。每批前做RED，批后做
+source/package/currentness与previous-record regression；不得并行运行mutable target，不得为通过修改Support Matrix。
+
+### 12.7 Remaining54 P3 offline release operations
+
+#### Schema, artifact and simulator contract
+
+先对ADR-0009 exact 8 schema pairs、policy/fixture/bootstrap、assessment1.4与adapter registration做RED。artifact positive
+从current installed wheel bytes重算raw hash/size/RECORD/source/build/protected closure；negative覆盖label-only、wrong
+RECORD/source/build、member omit/add/reorder、same-path replacement与coherent re-sign。
+
+local simulator contract tests只允许private-root apply/query/restore。验证stage write、durability、active pointer CAS、
+generation与manifest一致；path escape/symlink/user root、unknown operation、foreign claim/fence/receipt、wrong generation/
+artifact在mutation前拒绝。DNS/socket/proxy/HTTP/subprocess probe exact=0。
+
+fault matrix在`before-stage-write`, `after-stage-durable`, `before-active-switch`, `after-active-switch-durable`,
+`before-health-observe`逐点crash/return-loss。query只接受完整A、staged-B+active-A、active-B；mixed/corrupt拒绝。unknown
+不replay apply；same claim query/reconcile后才能authorized restore，fresh artifact+health exact A。每cut断言journal/claim/
+receipt与target mutation delta，重复query/reconcile/restore按现有idempotency contract。
+
+assessment1.4仅release-operations使用且只带`release_operations_projection`。precommit hooks后final query/health；restart
+用fresh factory从唯一referenced CAS重验，apply/restore replay=0，允许只读query/health。foreign/clone/stale、CAS/config/
+artifact/target replacement均fail closed且durable/target不再变化。
+
+#### Mandatory24 and scenario30
+
+mandatory 12 columns × P/R各自unique task。每列继续断言existing typed evidence rules，并加release policy/artifact/target
+currentness。recovery/rollback必须same claim/receipt+restored A；real-E2E P实际执行一次local apply/query/health且mutation
+delta=1，R wrong expected generation在apply前delta=0。所有evidence标记`authoritative-local-release-simulator`，assert
+`production/staging/released` promotion path不存在。完成门exact为268/134/6 missing。
+
+scenario test：artifact-provenance闭合installed bytes；health-gate只接受active-B后的完整local predicates；partial-deploy
+先证明不能完成release，再query/reconcile/restore A+fresh health，outer P只表示处理正确。R逐一覆盖caller digest/PASS、
+stale health、predicate subset、staged-as-active、apply replay、wrong claim/generation、missing rollback authority、partial
+restore与 fabricated success。完成后plan274/oracle137。
+
+#### Final Candidate sequence
+
+先执行build-authority/resource closure gate：Envelope必须current exact168 unique relative/no-glob targets。Historical A相对
+historical159只新增Spec列出的五项并形成164；Historical B只新增`config/actions/action-policy-v1.json`并形成165；
+Historical C只新增`config/security/security-runtime-v1.json`并形成166；Historical D只新增
+`tests/security/test_wp07a_action_contract_security.py`并形成167；Historical E1不新增target并保持167，删除D项仍
+exact恢复166，且D/E1 revisions未授权第168项。Current F1只新增dependency-security application source形成168；删除F1
+恢复167，任何第169项拒绝。1.0 schema与
+dependency v1.1 pre-A raw hashes保持不变；
+dependency current v1.2和migration current v1 pins必须更新。验证1.1 schema/oracle→
+`core/graph_engineering/core/profiles.py`的profile domain registry→profile schema registry→generic core/source checkout→
+`config/verification/wp-00-targets.json` exact set/source manifest→oracle manifest/plan/application→performance/dependency/
+migration current bootstraps→`pyproject.toml`对27 oracle
+vectors、13 schema pairs、新1.1 input schema及相关resources的选择→只读builder current raw digest→wheel archive/unpacked/
+RECORD完整级联与双向exact。分别注入stale/missing/extra/reorder、version alias、message-encoded vector、
+schema/oracle/bootstrap/pyproject/builder replacement、archive/unpacked mismatch及checkout fallback，全部必须在factory/
+record issuance前拒绝。
+
+随后验证C graph：final P2 packaged sources/pyproject builtin build projection→adapter registry→concrete policy→
+default policy→default runtime，以及local policy→local runtime；两runtime再进入source/wp-00/all current bootstraps→
+pyproject package pins→read-only builder→wheel/RECORD。default old-runtime-pin negative必须同时复现`evidence_utils`
+currentness与P1 verified child正确fail-closed；两runtime整链重签后必须先通过`evidence_utils` currentness，再复跑P1
+currentness sibling PASS，之后才允许P2a继续。任意pin bypass/weakening、digest cycle、extra edge、stale intermediate或
+single-direction-only验证均失败。`scripts/evidence_utils.py`与`scripts/build_backend.py`明确不在allowlist且不得修改。
+
+然后执行D exact baseline repair及上述WP07A→WP08 security/evidence/package/wheel/P1 sibling序列；只在全部PASS后进入
+E1 RED→state machine/typed port→runtime adapter→226 lazy-reopen GREEN与negative/resource gates。E1全部PASS后才运行
+`p2a-cumulative-r2`，并把五个OPEN Candidate findings与fresh evidence提交独立review。不得由本author自行关闭finding、
+复用D前17/18结果代替fresh 18/18、复用pre-E1 contexts或提高timeout掩盖resource lifecycle失败。
+
+在fresh source-attested root严格串行生成274 distinct records，检查274 unique task IDs、137 independent oracle identities、
+all current。dynamic gate exact `274 valid / 0 missing / passed=true`，invalid/stale/duplicate为空；static-only candidate
+exact `0 valid / 274 missing / passed=false`。随后测试gate-consumed finalize/revoke、pre-gate abort、foreign/clone decision、
+terminal拒绝、immutable records与durable signatures不变，method `OK`后120秒内自然退出。
+
+最后依次运行affected unit/contract/integration/security/E2E、existing migration/dependency/performance selectors、package
+resources、clean installed wheel、lint、type与architecture scan；全部strict serial、stop-on-first、无network、无用户repo、
+无真实deploy/release、无WP-10、无DB/GraphRef变化。独立Candidate reviewer必须重哈希exact source manifest并返回zero
+open findings，才可报告可逆交付完成；commit/push/merge/deploy/release仍需另行授权。
 
 ## 13. Risk Paths 与组合覆盖
 
@@ -1220,3 +1589,18 @@ progress；PMF counter-evidence 要求改变产品范围。其余 routine defect
 - evidence/identity/privacy/authority 规则可机械验证；
 - 独立 Test Plan Reviewer PASS；
 - 未执行任何尚未授权的测试外部动作。
+
+
+## 2026-09-10 approved Candidate defect repair
+
+Regression matrix: in-root/out-of-root file and directory symlinks before execute, after P observation, at restore and after restore must reject without new mutations; normal files remain valid. Actual R receipts must reject omission, replacement/clone, reordering, stale target, foreign task/factory/installation and P substitution. Exercise issue/use/precommit/gate, assert unchanged durable state and no issuance or replay on rejection; valid P and R remain distinct. Assert future config limit 14400 and heartbeat 60, with source-attestation/bootstrap currentness intact. Run focused unit/security/contract/integration suites only; a bounded regression PASS is not a cumulative gate PASS.
+
+Current governing budget: **14400 seconds (4 hours)** for future separately authorized cumulative runs; heartbeat remains 60 seconds. Historical 12600/86400 values and old receipts are retained as history, not current authority. Monitoring remains PAUSED and no automatic rerun is authorized.
+
+Revision 2 regression selection additionally requires the existing
+`test_multi_target_positive_uses_quiescent_binding_lifecycle` for both P and R:
+generation 0 through all four phases to generation 4 and terminal closure, with
+unchanged R receipts/state and zero replay. The R coverage authority must retain
+its exact process-local scenario issuer independently of restarted category
+assessment state; no missing-factory shortcut is permitted. The revision 1
+independent review and its failing normal-R reopen result remain preserved.

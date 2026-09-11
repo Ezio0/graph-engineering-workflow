@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "verdict": "PASS",
+  "artifact": "implementation",
+  "scope_changed": false,
+  "change_kinds": [],
+  "findings": []
+}

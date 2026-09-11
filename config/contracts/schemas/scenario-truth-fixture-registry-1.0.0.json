@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:scenario-truth-fixture-registry:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "raw": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "integer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "registry_id": {
+      "$ref": "#/$defs/id"
+    },
+    "fixtures": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "properties": {
+          "fixture_id": {
+            "$ref": "#/$defs/id"
+          },
+          "profile_id": {
+            "$ref": "#/$defs/id"
+          },
+          "scenario_id": {
+            "$ref": "#/$defs/id"
+          },
+          "rejection_attack_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/id" }
+          },
+          "target_roles": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 16,
+            "items": {
+              "type": "object",
+              "properties": {
+                "role_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "path_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "baseline_state_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "baseline_value": {
+                  "$ref": "#/$defs/id"
+                },
+                "candidate_state_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "candidate_value": {
+                  "$ref": "#/$defs/id"
+                },
+                "rollback_state_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "rollback_value": {
+                  "$ref": "#/$defs/id"
+                }
+              },
+              "required": [
+                "role_id",
+                "path_id",
+                "baseline_state_id",
+                "baseline_value",
+                "candidate_state_id",
+                "candidate_value",
+                "rollback_state_id",
+                "rollback_value"
+              ],
+              "unevaluatedProperties": false
+            }
+          },
+          "phase_expectations": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 32,
+            "items": {
+              "type": "object",
+              "properties": {
+                "phase_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "from_state_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "to_state_id": {
+                  "$ref": "#/$defs/id"
+                }
+              },
+              "required": [
+                "phase_id",
+                "from_state_id",
+                "to_state_id"
+              ],
+              "unevaluatedProperties": false
+            }
+          },
+          "assertion_expectations": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 64,
+            "items": {
+              "type": "object",
+              "properties": {
+                "assertion_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "kind": {
+                  "$ref": "#/$defs/id"
+                },
+                "expected": {
+                  "type": [
+                    "string",
+                    "integer",
+                    "boolean"
+                  ]
+                }
+              },
+              "required": [
+                "assertion_id",
+                "kind",
+                "expected"
+              ],
+              "unevaluatedProperties": false
+            }
+          },
+          "rollback_or_compensation": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "$ref": "#/$defs/id"
+              },
+              "expected_state_id": {
+                "$ref": "#/$defs/id"
+              },
+              "required": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "kind",
+              "expected_state_id",
+              "required"
+            ],
+            "unevaluatedProperties": false
+          },
+          "fixture_digest": {
+            "$ref": "#/$defs/digest"
+          }
+        },
+        "required": [
+          "fixture_id",
+          "profile_id",
+          "scenario_id",
+          "target_roles",
+          "phase_expectations",
+          "assertion_expectations",
+          "rollback_or_compensation",
+          "fixture_digest"
+        ],
+        "unevaluatedProperties": false
+      }
+    },
+    "registry_digest": {
+      "$ref": "#/$defs/digest"
+    }
+  },
+  "required": [
+    "schema_version",
+    "registry_id",
+    "fixtures",
+    "registry_digest"
+  ],
+  "unevaluatedProperties": false
+}

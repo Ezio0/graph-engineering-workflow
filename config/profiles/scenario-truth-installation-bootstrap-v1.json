@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.0",
+  "bootstrap_id": "urn:gew:scenario-truth-installation-bootstrap:1.0.0",
+  "policy_registry_id": "urn:gew:scenario-truth-policy-registry:v1",
+  "policy_registry_digest": "sha256-jcs-v1:1cfb1292572d4f92aebd36665b3f46172ba77d1c9a83bcce03c77307f911e119",
+  "policy_registry_raw_sha256": "29ac384e341b585c650c21897cfbe3bef6ed37944b21586f5ce0b4d0ba31c10a",
+  "fixture_registry_id": "urn:gew:scenario-truth-fixture-registry:v1",
+  "fixture_registry_digest": "sha256-jcs-v1:65732c0195c7ff0913a5ff83716ac30fd0149560cbaddbcbc36fed98b77b5e16",
+  "fixture_registry_raw_sha256": "2960916d3e3eff6bb024ec512de26f9f7538e9e8ffbc591300a2c9a55c3055ca",
+  "profile_schema_registry_digest": "sha256-jcs-v1:c1b0446b8cfe3ab0380e33e62c596f270c1eb0bb315717a49bd0b3d82fc760eb",
+  "profile_schema_registry_raw_sha256": "f2e18fb2b92898b46f900d648f9786ad2c123ed566a0912a6adfd54147ac9a08",
+  "schema_vectors": [
+    {
+      "schema_id": "urn:gew:schema:category-completion-assessment-input:1.3.0",
+      "raw_sha256": "b573f084e26f21c4eb28b6f5d7e01c5d087bafeb36589329ab354e4289ff34e9"
+    },
+    {
+      "schema_id": "urn:gew:schema:category-completion-assessment:1.3.0",
+      "raw_sha256": "dd5d50079f71408370f1f49ae7e6918d374256eff01b43cbcdbe6728791deaa4"
+    },
+    {
+      "schema_id": "urn:gew:schema:scenario-truth-fixture-registry-input:1.0.0",
+      "raw_sha256": "caa72e9f891db0255a61762e91f2ec1005df89a725aed35c8c3d7532b7ad7848"
+    },
+    {
+      "schema_id": "urn:gew:schema:scenario-truth-fixture-registry:1.0.0",
+      "raw_sha256": "85c4cc690bc1b059670479396cca027165657b6ebe72c80c4bdf44c6437e26e5"
+    },
+    {
+      "schema_id": "urn:gew:schema:scenario-truth-installation-bootstrap-input:1.0.0",
+      "raw_sha256": "c0ed53a5296a2200ac09786eff2cb455fd6ee5871aab88cb28f6b3a4ce891455"
+    },
+    {
+      "schema_id": "urn:gew:schema:scenario-truth-installation-bootstrap:1.0.0",
+      "raw_sha256": "1f35b1d5b1781e906f73a24b241cfba059d37f2f3d0d8384191b54bb575ef44e"
+    },
+    {
+      "schema_id": "urn:gew:schema:scenario-truth-observation-input:1.0.0",
+      "raw_sha256": "7e1c3e98f8d5793991006ef8db7b862831aed15df30a622e3da639d7f73d17b4"
+    },
+    {
+      "schema_id": "urn:gew:schema:scenario-truth-observation:1.0.0",
+      "raw_sha256": "2140a11db9702a78855371f93ee8cb9bd9f0cbbf7e859172b055bc1d4ac850d0"
+    },
+    {
+      "schema_id": "urn:gew:schema:scenario-truth-policy-registry-input:1.0.0",
+      "raw_sha256": "706c5e6d9ad96a94c527352d435dd64c92915d3f49c588e107b041751b53b5a9"
+    },
+    {
+      "schema_id": "urn:gew:schema:scenario-truth-policy-registry:1.0.0",
+      "raw_sha256": "60c27d5dfe89830690acff8df161511608e5729ccefc54684e995e8bf9bfaa07"
+    }
+  ],
+  "protected_resources": [
+    {
+      "path": "application/graph_engineering/application/profile_execution.py",
+      "raw_sha256": "259d35a4a2eea5c1ef78604711a3c97bc0f1bcebec9d046e73747ea617d60df5"
+    },
+    {
+      "path": "application/graph_engineering/application/scenario_truth.py",
+      "raw_sha256": "a2d11c53a28bec90c7f487d3fcb7876b0a2e938946d5779b630726b0348231ec"
+    },
+    {
+      "path": "core/graph_engineering/__init__.py",
+      "raw_sha256": "e7a15020527881dea498a1f3b21aaad2c16a860aedc014f48087d16e70a139f1"
+    },
+    {
+      "path": "core/graph_engineering/core/profile_execution.py",
+      "raw_sha256": "3e46f301b7d0865e8b5150b96a026e102e3609c61c11cc6ad1051c90f8c05aed"
+    },
+    {
+      "path": "core/graph_engineering/core/profiles.py",
+      "raw_sha256": "7ba107db943f3e6dfb675e3aa38bfae397de4c7bac820ef175d09a585c325c2f"
+    },
+    {
+      "path": "core/graph_engineering/core/scenario_truth.py",
+      "raw_sha256": "c63bcae4b4280a8dc83dbe71f99d5b7f50a90e5b77d0d1a941b340b28dd219f3"
+    },
+    {
+      "path": "scripts/build_backend.py",
+      "raw_sha256": "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b"
+    }
+  ],
+  "protected_closure_digest": "sha256-jcs-v1:d12421135fe2ccaf36a738b0e3c12a5a345d77c8fa8f833015006c3c38be96cb",
+  "bootstrap_digest": "sha256-jcs-v1:62f79ac273d826bccb4541e4deef3543139360cf15c510fff50e242499173c1a"
+}

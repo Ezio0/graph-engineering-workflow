@@ -42,10 +42,13 @@ _SOURCE_FILES = (
     "pyproject.toml",
     "scripts/build_backend.py",
     "core/graph_engineering/core/source_checkout.py",
+    "config/actions/action-policy-local-actions-v1.json",
+    "config/actions/action-policy-v1.json",
     "config/actions/concrete-action-policy-v1.json",
     "config/contracts/action-adapter-registry-v1.json",
     "config/contracts/action-adapter-schema-registry-v1.json",
     "config/security/security-runtime-local-actions-v1.json",
+    "config/security/security-runtime-v1.json",
     "config/profiles/category-execution-policy-registry-v1.json",
     "config/profiles/category-execution-policy-v1.json",
     "core/graph_engineering/core/dependency_security.py",
@@ -54,6 +57,8 @@ _SOURCE_FILES = (
     "application/graph_engineering/application/performance_benchmark.py",
     "core/graph_engineering/core/migration_rehearsal.py",
     "application/graph_engineering/application/migration_rehearsal.py",
+    "core/graph_engineering/core/scenario_truth.py",
+    "application/graph_engineering/application/scenario_truth.py",
     "storage/graph_engineering/storage/migration.py",
     "config/migration/migration-rehearsal-registry-v1.json",
     "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
@@ -73,6 +78,19 @@ _SOURCE_FILES = (
     "config/contracts/schemas/migration-rehearsal-transform-manifest-input-1.0.0.json",
     "config/contracts/schemas/migration-step-observation-1.0.0.json",
     "config/contracts/schemas/migration-step-observation-input-1.0.0.json",
+    "config/profiles/scenario-truth-policy-registry-v1.json",
+    "config/profiles/scenario-truth-fixture-registry-v1.json",
+    "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+    "config/contracts/schemas/category-completion-assessment-1.3.0.json",
+    "config/contracts/schemas/category-completion-assessment-input-1.3.0.json",
+    "config/contracts/schemas/scenario-truth-policy-registry-1.0.0.json",
+    "config/contracts/schemas/scenario-truth-policy-registry-input-1.0.0.json",
+    "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
+    "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
+    "config/contracts/schemas/scenario-truth-observation-1.0.0.json",
+    "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
+    "config/contracts/schemas/scenario-truth-installation-bootstrap-1.0.0.json",
+    "config/contracts/schemas/scenario-truth-installation-bootstrap-input-1.0.0.json",
     "config/performance/performance-benchmark-registry-v1.json",
     "config/performance/performance-benchmark-installation-bootstrap-v1.json",
     "config/performance/performance-benchmark-fixture-v1.json",
@@ -235,6 +253,7 @@ _SOURCE_FILES = (
     "config/test-oracles/profile-new-feature-boundary-v1.json",
     "config/test-oracles/profile-new-feature-drift-v1.json",
     "config/test-oracles/profile-new-feature-existing-feature-v1.json",
+    "config/test-oracles/profile-new-feature-multi-target-v1.json",
     "config/test-oracles/profile-new-feature-invalidation-v1.json",
     "config/test-oracles/profile-new-feature-normal-v1.json",
     "config/test-oracles/profile-new-feature-recovery-v1.json",
@@ -247,8 +266,10 @@ _SOURCE_FILES = (
     "config/test-oracles/profile-performance-artifacts-v1.json",
     "config/test-oracles/profile-performance-authority-v1.json",
     "config/test-oracles/profile-performance-boundary-v1.json",
+    "config/test-oracles/profile-performance-correctness-regression-v1.json",
     "config/test-oracles/profile-performance-drift-v1.json",
     "config/test-oracles/profile-performance-invalidation-v1.json",
+    "config/test-oracles/profile-performance-noise-outlier-v1.json",
     "config/test-oracles/profile-performance-normal-v1.json",
     "config/test-oracles/profile-performance-real-e2e-v1.json",
     "config/test-oracles/profile-performance-recovery-v1.json",
@@ -279,6 +300,7 @@ _SOURCE_FILES = (
     "config/contracts/schemas/profile-coverage-execution-record-1.0.0.json",
     "config/contracts/schemas/profile-coverage-observation-1.0.0.json",
     "config/contracts/schemas/profile-coverage-oracle-input-1.0.0.json",
+    "config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json",
     "config/contracts/schemas/profile-coverage-plan-selector-1.0.0.json",
     "config/contracts/schemas/profile-coverage-request-1.0.0.json",
     "config/contracts/schemas/profile-coverage-task-state-1.0.0.json",
@@ -1996,6 +2018,89 @@ def _dependency_advisory_preflight_observation(
     ):
         raise DistributionIdentityError("dependency closure preflight output changed")
     return body
+
+
+def _scenario_truth_locations(
+    provenance: bytes,
+    *,
+    location_kind: str,
+) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
+    """Resolve the exact installed ADR-0008 scenario-truth member closure."""
+
+    try:
+        document = tomllib.loads(provenance.decode("utf-8", errors="strict"))
+        value = document["tool"]["gew"]["profile"]["scenario-truth"]
+    except (KeyError, TypeError, UnicodeError, tomllib.TOMLDecodeError) as error:
+        raise DistributionIdentityError("scenario truth bootstrap is malformed") from error
+    expected = {
+        "bootstrap-id", "bootstrap-digest", "bootstrap-raw-sha256",
+        "bootstrap-source", "bootstrap-resource", "policy-source",
+        "policy-resource", "fixture-source", "fixture-resource",
+        "profile-schema-registry-source", "profile-schema-registry-resource",
+        "schema-sources", "schema-resources", "protected-sources",
+        "protected-resources", "distribution-name", "distribution-version",
+    }
+    if type(value) is not dict or set(value) != expected:
+        raise DistributionIdentityError("scenario truth independent pin is not exact")
+
+    def safe(item: object) -> str:
+        if (
+            type(item) is not str or not item
+            or pathlib.PurePosixPath(item).is_absolute()
+            or ".." in pathlib.PurePosixPath(item).parts or "\\" in item
+        ):
+            raise DistributionIdentityError("scenario truth path is unsafe")
+        return pathlib.PurePosixPath(item).as_posix()
+
+    fixed = tuple(safe(value[f"{name}-{location_kind}"]) for name in (
+        "policy", "fixture", "bootstrap", "profile-schema-registry",
+    ))
+    schemas = value[f"schema-{location_kind}s"]
+    protected = value[f"protected-{location_kind}s"]
+    if (
+        type(schemas) is not list or len(schemas) != 10
+        or type(protected) is not list or not protected
+    ):
+        raise DistributionIdentityError("scenario truth member vectors are incomplete")
+    schema_paths = tuple(safe(item) for item in schemas)
+    protected_paths = tuple(safe(item) for item in protected)
+    if len(set(schema_paths)) != len(schema_paths) or len(set(protected_paths)) != len(protected_paths):
+        raise DistributionIdentityError("scenario truth member vectors are not unique")
+    return fixed, schema_paths, protected_paths
+
+
+def _scenario_truth_installation_resources() -> tuple[bytes, ...]:
+    """Re-read the complete current ADR-0008 installed/source projection."""
+
+    module_path = pathlib.Path(__file__).resolve(strict=True)
+    source_root = _source_checkout_root(module_path)
+    if source_root is None:
+        provenance = _current_distribution_resource(_PROVENANCE_RESOURCE)
+        fixed, schemas, protected = _scenario_truth_locations(
+            provenance, location_kind="resource",
+        )
+        return (
+            provenance,
+            *(_current_distribution_resource(item) for item in fixed),
+            *(_current_distribution_resource(item) for item in schemas),
+            *(_current_distribution_resource(item) for item in protected),
+        )
+    _validate_source_checkout_attestation(source_root)
+    owner = os.lstat(source_root).st_uid
+    provenance = _attested_source_member(source_root, "pyproject.toml", owner)
+    fixed, schemas, protected = _scenario_truth_locations(
+        provenance, location_kind="source",
+    )
+    locations = (*fixed, *schemas, *protected)
+    if any(relative not in _SOURCE_FILES for relative in locations):
+        raise DistributionIdentityError(
+            "scenario truth source is outside the installation attestation"
+        )
+    bodies = tuple(
+        _attested_source_member(source_root, relative, owner) for relative in locations
+    )
+    _validate_source_checkout_attestation(source_root)
+    return provenance, *bodies
 
 
 def _profile_real_e2e_installation_resource() -> tuple[bytes, bytes]:

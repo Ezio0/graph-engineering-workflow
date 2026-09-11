@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:scenario-truth-installation-bootstrap-input:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "raw": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "integer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "bootstrap_id": {
+      "$ref": "#/$defs/id"
+    },
+    "policy_registry_id": {
+      "$ref": "#/$defs/id"
+    },
+    "policy_registry_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "policy_registry_raw_sha256": {
+      "$ref": "#/$defs/raw"
+    },
+    "fixture_registry_id": {
+      "$ref": "#/$defs/id"
+    },
+    "fixture_registry_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "fixture_registry_raw_sha256": {
+      "$ref": "#/$defs/raw"
+    },
+    "profile_schema_registry_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "profile_schema_registry_raw_sha256": {
+      "$ref": "#/$defs/raw"
+    },
+    "schema_vectors": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "properties": {
+          "schema_id": {
+            "$ref": "#/$defs/id"
+          },
+          "raw_sha256": {
+            "$ref": "#/$defs/raw"
+          }
+        },
+        "required": [
+          "schema_id",
+          "raw_sha256"
+        ],
+        "unevaluatedProperties": false
+      }
+    },
+    "protected_resources": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "$ref": "#/$defs/id"
+          },
+          "raw_sha256": {
+            "$ref": "#/$defs/raw"
+          }
+        },
+        "required": [
+          "path",
+          "raw_sha256"
+        ],
+        "unevaluatedProperties": false
+      }
+    },
+    "protected_closure_digest": {
+      "$ref": "#/$defs/digest"
+    }
+  },
+  "required": [
+    "schema_version",
+    "bootstrap_id",
+    "policy_registry_id",
+    "policy_registry_digest",
+    "policy_registry_raw_sha256",
+    "fixture_registry_id",
+    "fixture_registry_digest",
+    "fixture_registry_raw_sha256",
+    "profile_schema_registry_digest",
+    "profile_schema_registry_raw_sha256",
+    "schema_vectors",
+    "protected_resources",
+    "protected_closure_digest"
+  ],
+  "unevaluatedProperties": false
+}

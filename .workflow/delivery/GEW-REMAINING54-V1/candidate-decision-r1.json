@@ -1,0 +1,890 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-REMAINING54-V1",
+  "records": [
+    {
+      "record_id": "p2a-verification-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "verification",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "candidate",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "verification",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:17322c1d0d54ee0c08757dbd76771dc03d54de7eb10147b4880631f869bbc7dc",
+          "verdict": "sha256:95b03680fb183b43bc5ca57704e13dc98e8f351a647545dc1833b0b36f137e25"
+        }
+      }
+    },
+    {
+      "record_id": "p2a-candidate-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "candidate",
+        "decision": "ESCALATE",
+        "code": "E_SCOPE",
+        "message": "human decision required for change kinds: budget",
+        "next_node": "candidate",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "candidate",
+        "input_verdict": "ESCALATE",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:19c0dfacad719e4db47935e9b446306d63dc481ba6ef3998cea5369f9cae1bb1",
+          "verdict": "sha256:8022a52ac112fdaaf83ada0e256b79b53f5b013f2613b0fcc20cdc2567240e31"
+        }
+      }
+    },
+    {
+      "record_id": "candidate-defect-repair-implementation-r1",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "REVISE",
+        "code": "OK_REVISE",
+        "message": "apply routine findings and request a new independent review",
+        "next_node": "implementation",
+        "revision": 2,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "REVISE",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:e62cbff7e6bfc23d6868ffaac5bb96687bbb9c3d641f7d3b008b51bca42d2069",
+          "verdict": "sha256:b5f8d7841c1f7d854a13b8372b8fd9263b28308b28f1b2540b9378f95e5d38e7"
+        }
+      }
+    },
+    {
+      "record_id": "candidate-defect-repair-implementation-r2",
+      "decision": {
+        "decision": "INVALID",
+        "code": "E_FINDINGS",
+        "message": "PASS cannot contain unresolved findings"
+      },
+      "handoff": "Bounded repair and its independent review are complete. Next graph node is verification; affected cumulative verification / R1-004 and Candidate acceptance remain pending. Latest Human amendment explicitly forbids automatic cumulative rerun and monitoring restoration, so stop at that boundary. No commit, push, merge, deploy, release, network or WP10 authority is inferred."
+    },
+    {
+      "record_id": "candidate-defect-repair-implementation-r2-state-reconciled",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 2,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:edefb3b9947ab6795409230ea6b407f5f5c62075d4c6adfd51116f8d6f26e0a3",
+          "verdict": "sha256:b79ca8aa00e6ba08833d6fb803c9a0aac0b1e728a8180c73f40349767fceaaa7"
+        }
+      },
+      "handoff": "Bounded defect repair passed independent implementation review and the standard reducer. Verification is the next graph node, but the latest explicit Human amendment forbids automatic cumulative rerun and monitoring restoration; no such work has been started. Separately pending R1-004 and Candidate acceptance remain open. The 14400-second ceiling applies only to future separately authorized cumulative runs, not retroactive acceptance. Commit, push, merge, deploy, release, network and WP10 remain forbidden."
+    },
+    {
+      "record_id": "p2a-post-repair-verification-2026-09-11-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "verification",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "candidate",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "verification",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:27fb6d7b4c6dc627ea608cb8a47e833cc9ffe8961684b662cb23fb8de3a6fd6b",
+          "verdict": "sha256:2e96c498fc38c51e050ce95c9fd7288252e096d93a1c9db5739399d0ec8b373a"
+        }
+      }
+    },
+    {
+      "record_id": "p2a-post-repair-candidate-2026-09-11-r0-post-review",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "candidate",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "independent-review",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "candidate",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:805f15d241ff7654d7cc7174ec2c648ff56ce11a9f451ad193eaa06b5e9d47b3",
+          "verdict": "sha256:a8fe26d6f1d1d9eb69c7fbbc1d43576ee75dd77d4fdc6157b5bf16d0cdc92e3e"
+        }
+      }
+    },
+    {
+      "record_id": "p2a-post-repair-technical-2026-09-11-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "review",
+        "decision": "ESCALATE",
+        "code": "E_AUTHORITY",
+        "message": "next node requires separate authority: commit",
+        "next_node": "commit",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "independent-review",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:fd7ff75df04e458314c5e1a3613f3afa3e2d73414baeef5bff925a9a4e3b2cfc",
+          "verdict": "sha256:71550fc856392fab9b72eaa0fae8e4b21e5a9df913b275775b253b89e3de8955"
+        }
+      },
+      "handoff": "The final independent Technical Review returned PASS for this single local P2a checkpoint. The standard reducer stops at ESCALATE/E_AUTHORITY because the successor commit requires separate Human authority. This is not a technical failure, does not authorize commit, and does not establish whole-project completion. No successor action, new cumulative run or P2b/P3 work is performed. Stop this run's monitoring as already approved."
+    }
+  ],
+  "audit_corrections": [
+    {
+      "record_id": "candidate-defect-repair-implementation-r2-invalid-handoff-correction",
+      "affected_record_id": "candidate-defect-repair-implementation-r2",
+      "reason": "The recorded reducer decision is INVALID/E_FINDINGS and did not advance the graph. Its sibling handoff text prematurely described advancement and is not authoritative. Preserve both as historical evidence; only a separately validated decision with exact reconciled input digests may advance. No cumulative run, monitoring restoration or irreversible action occurred."
+    }
+  ],
+  "run_authorizations": [
+    {
+      "schema_version": "1.0",
+      "record_id": "p2a-post-repair-cumulative-2026-09-11-r0",
+      "task_id": "GEW-REMAINING54-V1",
+      "human_approval": "批准",
+      "approval_observed_at_utc": "2026-09-11 02:24:45 UTC",
+      "approved_request": "启动一轮 P2a 累计重跑，恢复本轮监控，并完成独立验收；累计运行硬上限4小时，每60秒记录心跳，失败或超时停止、不自动反复重跑。验收完成后停止本轮监控；不推进剩余P2/P3功能，不执行不可逆操作。",
+      "authority_effect": "Supersedes only the temporary cumulative-rerun/restore-monitoring prohibition in the 2026-09-10 repair amendment for this single fresh run and its independent verification/Candidate review. The exact 174-target Envelope, 14400-second ceiling and all other boundaries remain unchanged. Prior approvals, reviews, rejected revisions and run 72241 are not rewritten or ratified.",
+      "source_artifact_digest": "dad3bc833f0df5b9da686894eb37b54fd3eeb65eb6999f667a4961f186587b30",
+      "artifact_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        "application/graph_engineering/application/dependency_security.py",
+        "application/graph_engineering/application/profile_coverage.py",
+        "application/graph_engineering/application/scenario_truth.py",
+        "config/actions/action-policy-local-actions-v1.json",
+        "config/actions/action-policy-v1.json",
+        "config/actions/concrete-action-policy-v1.json",
+        "config/contracts/action-adapter-registry-v1.json",
+        "config/contracts/profile-schema-registry-v1.json",
+        "config/contracts/schemas/category-completion-assessment-1.3.0.json",
+        "config/contracts/schemas/category-completion-assessment-input-1.3.0.json",
+        "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
+        "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
+        "config/contracts/schemas/scenario-truth-observation-1.0.0.json",
+        "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-registry-v1.json",
+        "config/profiles/profile-coverage-execution-plan-v1.json",
+        "config/profiles/scenario-truth-fixture-registry-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/profiles/scenario-truth-policy-registry-v1.json",
+        "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+        "config/security/security-runtime-local-actions-v1.json",
+        "config/security/security-runtime-v1.json",
+        "config/test-oracles/profile-new-feature-multi-target-v1.json",
+        "config/test-oracles/profile-performance-correctness-regression-v1.json",
+        "config/test-oracles/profile-performance-noise-outlier-v1.json",
+        "core/graph_engineering/__init__.py",
+        "core/graph_engineering/core/contracts/resources.py",
+        "core/graph_engineering/core/profile_coverage.py",
+        "core/graph_engineering/core/scenario_truth.py",
+        "core/graph_engineering/core/source_checkout.py",
+        "docs/adr/0007-offline-performance-benchmark-authority.md",
+        "docs/adr/0008-local-profile-scenario-truth-authority.md",
+        "docs/adr/0009-offline-release-operations-simulator-authority.md",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "tests/contract/test_wp08_remaining54_contracts.py",
+        "tests/integration/test_wp08_scenario_truth.py",
+        "tests/security/test_wp08_remaining54_authority.py",
+        "tests/support/source_checkout_attestation.py",
+        "tests/support/wp05_actions.py",
+        "tests/support/wp08_category_execution.py",
+        "tests/support/wp08_release_coverage.py",
+        "tests/support/wp08_scenario_truth.py",
+        "tests/unit/test_wp08_scenario_truth.py"
+      ],
+      "implementation_review_record_id": "candidate-defect-repair-implementation-r2-state-reconciled",
+      "implementation_review_decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 2,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:edefb3b9947ab6795409230ea6b407f5f5c62075d4c6adfd51116f8d6f26e0a3",
+          "verdict": "sha256:b79ca8aa00e6ba08833d6fb803c9a0aac0b1e728a8180c73f40349767fceaaa7"
+        }
+      },
+      "selector": "p2a-cumulative-r2",
+      "runtime_limit_seconds": 14400,
+      "heartbeat_interval_seconds": 60,
+      "maximum_launch_count": 1,
+      "project_root": "/Users/ezio/Documents/MyProjects/graph-engineering-workflow",
+      "run_directory": "/private/tmp/gew-p2a-approved-rerun.3uEOew",
+      "run_log": "/private/tmp/gew-p2a-approved-rerun.3uEOew/run.log",
+      "receipt_stdout": "/private/tmp/gew-p2a-approved-rerun.3uEOew/receipt-stdout.json",
+      "exit_status": "/private/tmp/gew-p2a-approved-rerun.3uEOew/exit-status.json",
+      "parent_control_root": "/private/tmp/gew-p2a-approved-rerun.3uEOew/parent-control",
+      "reviewed_control_root": "/private/tmp/gew-candidate-repair.Zv4T1r/r2-final-control",
+      "command": [
+        "/Users/ezio/Documents/MyProjects/graph-engineering-workflow/.venv/bin/python",
+        "-B",
+        "-u",
+        "-X",
+        "gew_installation_control_root=/private/tmp/gew-p2a-approved-rerun.3uEOew/parent-control",
+        "-m",
+        "tests.support.wp08_release_coverage",
+        "p2a-cumulative-r2"
+      ],
+      "environment": {
+        "PYTHONPATH": "/Users/ezio/Documents/MyProjects/graph-engineering-workflow/core:/Users/ezio/Documents/MyProjects/graph-engineering-workflow/adapters:/Users/ezio/Documents/MyProjects/graph-engineering-workflow/application:/Users/ezio/Documents/MyProjects/graph-engineering-workflow/storage:/Users/ezio/Documents/MyProjects/graph-engineering-workflow",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "GEW_INSTALLATION_CONTROL_ROOT": "/private/tmp/gew-p2a-approved-rerun.3uEOew/parent-control"
+      },
+      "monitor": {
+        "id": "gew-f2",
+        "interval_minutes": 15,
+        "target_thread_id": "019fffb2-136f-7dc1-aa70-9484168067f4",
+        "notify_on": "meaningful change, completion, failure, material resource risk or required user action; quiet otherwise",
+        "stop_after": "failure, timeout, or completed independent local acceptance"
+      },
+      "expected_partial_coverage": {
+        "plan_bindings": 226,
+        "oracle_bindings": 113,
+        "dynamic": {
+          "valid": 226,
+          "missing": 48,
+          "passed": false
+        },
+        "static": {
+          "valid": 0,
+          "missing": 274,
+          "passed": false
+        },
+        "invalid": 0,
+        "stale": 0,
+        "duplicate": 0,
+        "new_records": 2,
+        "retained_records": 224
+      },
+      "acceptance": "Verify actual process exit and exact final receipt, source currentness, P1 sibling, per-binding isolation, issue/use/precommit/gate lifecycle, terminal cleanup and resource-return evidence. Require independent verification and Candidate review with standard reducer; keep 274/274 full-project acceptance separate.",
+      "prohibited": [
+        "commit",
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "automatic-rerun",
+        "concurrent-cumulative-run",
+        "new-P2b-or-P3-work",
+        "source-or-policy-modification",
+        "gate-bypass"
+      ],
+      "persistent_authorization_location": ".workflow/delivery/GEW-REMAINING54-V1/candidate-decision-r1.json#run_authorizations",
+      "record_storage_reason": "Append the Human execution authorization outside the frozen 52-target artifact so the independently reviewed source/manifest/repair approval bytes remain exact."
+    }
+  ],
+  "run_executions": [
+    {
+      "record_id": "p2a-post-repair-cumulative-2026-09-11-r0-launch",
+      "authorization_record_id": "p2a-post-repair-cumulative-2026-09-11-r0",
+      "status_at_snapshot": "RUNNING",
+      "snapshot_at_utc": "2026-09-11 02:27:39 UTC",
+      "execution_session_id": 15305,
+      "process_identity": {
+        "record_id": "p2a-post-repair-cumulative-2026-09-11-r0",
+        "started_at_utc": "2026-09-11T02:26:20.420134+00:00",
+        "started_monotonic_ns": 470133445814125,
+        "supervisor_pid": 72823,
+        "source_artifact_digest": "dad3bc833f0df5b9da686894eb37b54fd3eeb65eb6999f667a4961f186587b30",
+        "runtime_limit_seconds": 14400,
+        "command": [
+          "/Users/ezio/Documents/MyProjects/graph-engineering-workflow/.venv/bin/python",
+          "-B",
+          "-u",
+          "-X",
+          "gew_installation_control_root=/private/tmp/gew-p2a-approved-rerun.3uEOew/parent-control",
+          "-m",
+          "tests.support.wp08_release_coverage",
+          "p2a-cumulative-r2"
+        ],
+        "authorization_raw_sha256": "c7babf58e96e3bb36be6e27cf50aa9877d1e852126db44c07f50f1241be0f15b",
+        "runner_parent_pid": 72824,
+        "owned_process_group_id": 72824
+      },
+      "initial_child_pid": 72825,
+      "initial_process_snapshot": {
+        "observed_elapsed_seconds": 53,
+        "supervisor_rss_kib": 22560,
+        "runner_parent_rss_kib": 49936,
+        "runner_child_rss_kib": 125360,
+        "runner_child_cpu_percent": 97.2,
+        "note": "Read-only system ps initial observation; revalidate exact command, ancestry and lifetime before any future PID use."
+      },
+      "initial_memory_query": {
+        "system_memory_bytes": 17179869184,
+        "system_wide_memory_free_percentage": 73,
+        "source": "memory_pressure -Q",
+        "swap_usage": "unavailable in restricted environment"
+      },
+      "initial_progress": {
+        "heartbeat_count": 1,
+        "latest_heartbeat": {
+          "elapsed_seconds": 60,
+          "heartbeat_sequence": 1,
+          "last_child_stderr": "{\"delta_ns\":458,\"elapsed_ns\":458,\"stage\":\"p1-sibling-start\"}\n",
+          "selector": "p2a-cumulative-r2"
+        },
+        "other_lines": [],
+        "receipt_bytes": 0,
+        "exit_status_exists": false
+      },
+      "supervisor": {
+        "path": "/private/tmp/gew-p2a-approved-rerun.3uEOew/launch_once.py",
+        "raw_sha256": "2cbb51e576019ee8ad15d30404a191ebf1206185a99c2bd191d62775a3427c2b",
+        "contract": "One-shot exclusive launch marker, unmodified reviewed entry point, fresh source attestation, owned-process-group 14400-second bound, real wait returncode and receipt/log hashes. No retry or gate changes."
+      },
+      "monitor": {
+        "id": "gew-f2",
+        "status": "ACTIVE",
+        "interval_minutes": 15,
+        "heartbeat_seconds": 60,
+        "stop_after": "failure/timeout or completed independent local acceptance"
+      },
+      "deadline_utc": "2026-09-11T06:26:20.420134+00:00",
+      "source_artifact_digest": "dad3bc833f0df5b9da686894eb37b54fd3eeb65eb6999f667a4961f186587b30",
+      "source_unchanged_at_preflight": true,
+      "independent_acceptance_status": "pending actual exit and receipt; no acceptance claim at launch",
+      "next_action": "Continue only this run's monitor and independently review its bounded verification/Candidate evidence when complete. No automatic rerun, P2b/P3 work or irreversible actions."
+    },
+    {
+      "record_id": "p2a-post-repair-cumulative-2026-09-11-r0-completion",
+      "authorization_record_id": "p2a-post-repair-cumulative-2026-09-11-r0",
+      "status": "COMPLETED_PENDING_CANDIDATE_REVIEW",
+      "execution_session_id": 15305,
+      "actual_tool_exit_code": 0,
+      "exit_status": {
+        "record_id": "p2a-post-repair-cumulative-2026-09-11-r0",
+        "event": "exited",
+        "started_at_utc": "2026-09-11T02:26:20.420134+00:00",
+        "finished_at_utc": "2026-09-11T05:59:18.342290+00:00",
+        "elapsed_ns": 12777699721291,
+        "runner_returncode": 0,
+        "timed_out": false,
+        "failure": null,
+        "source_artifact_digest": "dad3bc833f0df5b9da686894eb37b54fd3eeb65eb6999f667a4961f186587b30",
+        "runtime_limit_seconds": 14400,
+        "receipt_sha256": "3778f95d0d8b0d748ebb6e30a7e9366ed716d891c1d43de48c8a90db2bff63e4",
+        "run_log_sha256": "2bc9f9ceee7cd6451e835693246b94356f6d8abb5727dd11c7bcd994d89bcb20",
+        "interpretation": "Observed process exit only; independent receipt/currentness/Candidate acceptance is still required."
+      },
+      "evidence_packet_record_id": "p2a-post-repair-verification-2026-09-11-r0",
+      "verification_artifact_digest": "6ffdac401556134b38193b7f4eb7daf50a1f5cb1cfa40e7485a2fd0a5b8aed29",
+      "process_check": {
+        "observed_at_utc": "2026-09-11 06:12:33 UTC",
+        "original_pids_present": false,
+        "owned_group_descendants_present": false,
+        "read_only_checks": "ps specific PIDs and system process list filtered by original PPIDs/PGID; empty results after header."
+      },
+      "independent_verification_record_id": "p2a-post-repair-verification-2026-09-11-r0",
+      "current_review": {
+        "node": "candidate",
+        "reviewer_id": "/root/p2a_post_repair_candidate_r0",
+        "state_record_id": "p2a-post-repair-candidate-2026-09-11-r0"
+      },
+      "scope": "No final Candidate or full-project acceptance inferred; no rerun or new implementation authorized."
+    },
+    {
+      "record_id": "p2a-post-repair-cumulative-2026-09-11-r0-local-acceptance",
+      "authorization_record_id": "p2a-post-repair-cumulative-2026-09-11-r0",
+      "recorded_at_utc": "2026-09-11 06:42:29 UTC",
+      "status": "LOCAL_P2A_ACCEPTED_STOPPED_AT_COMMIT_AUTHORITY",
+      "cumulative_run": {
+        "execution_session_id": 15305,
+        "exit_code": 0,
+        "finished_at_utc": "2026-09-11T05:59:18.342290+00:00",
+        "elapsed_seconds": 12777.699721291,
+        "runtime_limit_seconds": 14400,
+        "timed_out": false,
+        "failure": null
+      },
+      "independent_acceptance": [
+        {
+          "node": "verification",
+          "record_id": "p2a-post-repair-verification-2026-09-11-r0",
+          "reviewer_id": "/root/p2a_post_repair_verification_r0",
+          "verdict": "PASS",
+          "decision": "ADVANCE",
+          "next_node": "candidate"
+        },
+        {
+          "node": "candidate",
+          "record_id": "p2a-post-repair-candidate-2026-09-11-r0-post-review",
+          "reviewer_id": "/root/p2a_post_repair_candidate_r0",
+          "verdict": "PASS",
+          "decision": "ADVANCE",
+          "next_node": "independent-review"
+        },
+        {
+          "node": "independent-review",
+          "record_id": "p2a-post-repair-technical-2026-09-11-r0",
+          "reviewer_id": "/root/p2a_post_repair_technical_r0",
+          "verdict": "PASS",
+          "decision": "ESCALATE",
+          "code": "E_AUTHORITY",
+          "next_node": "commit",
+          "next_node_executed": false
+        }
+      ],
+      "artifact_digest": "6ffdac401556134b38193b7f4eb7daf50a1f5cb1cfa40e7485a2fd0a5b8aed29",
+      "source_currentness": "Exact 52-target artifact remains unchanged after independent review and bounded regressions. The 51 non-manifest members, reconstructed launch-source digest and 23 raw runtime artifacts were independently checked. Three protected outside-target files remain unchanged.",
+      "coverage": {
+        "plan_bindings": 226,
+        "oracle_bindings": 113,
+        "dynamic": {
+          "valid": 226,
+          "missing": 48,
+          "invalid": 0,
+          "stale": 0,
+          "duplicate": 0,
+          "passed": false
+        },
+        "static": {
+          "valid": 0,
+          "missing": 274,
+          "invalid": 0,
+          "stale": 0,
+          "duplicate": 0,
+          "passed": false
+        },
+        "new_records": 2,
+        "retained_records": 224
+      },
+      "evidence_limits": [
+        "Final teardown stderr and resource-counter snapshots were not directly retained. Terminal cleanup and resource-baseline conclusions rely on the unchanged assertion-bearing successful runner control flow, exact receipt and real exit.",
+        "The frozen R median100/MAD99 negative vector proves fail-closed rejection only, not a genuine performance pass.",
+        "This is local P2a checkpoint acceptance only; Remaining54 274/274 and whole-project completion are not established."
+      ],
+      "monitor": {
+        "id": "gew-f2",
+        "status": "PAUSED",
+        "target_thread_id": "019fffb2-136f-7dc1-aa70-9484168067f4",
+        "pause_observed_at_utc": "2026-09-11 06:42:29 UTC",
+        "reason": "All authorized independent local acceptance is complete; stopped according to the one-run Human authorization.",
+        "automation_update_result": "PAUSED"
+      },
+      "next_authority_boundary": "Commit requires separate explicit Human authority and remains prohibited. No commit, push, merge, deploy, release, network, WP10, external communication, new cumulative run, P2b/P3 implementation, code, threshold, budget or target-boundary modification performed.",
+      "prior_history": "All previous run snapshots, rejected revisions, invalid reducer attempt, audit correction, approvals and review bindings preserved append-only."
+    }
+  ],
+  "commit_preflights": [
+    {
+      "record_id": "p2a-local-commit-scope-preflight-2026-09-11-r0",
+      "observed_at_utc": "2026-09-11 06:50:23 UTC",
+      "human_approval": "批准",
+      "approved_request": "先核对提交范围，再仅对已验收的 P2a 变更做一次本地 commit；不 push、不重跑、不启动 P2b/P3。",
+      "status": "STOPPED_PENDING_PREDECESSOR_COMMIT_SCOPE_AUTHORITY",
+      "head_before": "cdedf2d461de94b814aa005afbbe1458d1860125",
+      "reviewed_artifact_digest": "6ffdac401556134b38193b7f4eb7daf50a1f5cb1cfa40e7485a2fd0a5b8aed29",
+      "index_was_empty": true,
+      "commit_performed": false,
+      "source_modified": false,
+      "finding": "The latest 52-target repair/acceptance artifact is not a standalone Git delta from HEAD. Eighteen additional product/test files have uncommitted prerequisite or related changes. The accepted pyproject/build and runtime source projection references several of these exact current source bytes; omitting them would not reproduce the accepted checkpoint. Two required test-support files are explicitly outside the existing exact174 target allowlist.",
+      "proposed_additional_commit_files": [
+        {
+          "path": "application/graph_engineering/application/performance_benchmark.py",
+          "raw_sha256": "7608f06360739353f012dbcef151049c4c053df54591fbe76787c728ad825976",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "application/graph_engineering/application/profile_execution.py",
+          "raw_sha256": "259d35a4a2eea5c1ef78604711a3c97bc0f1bcebec9d046e73747ea617d60df5",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "application/graph_engineering/application/profile_real_e2e.py",
+          "raw_sha256": "d37202fee99cf44482230c6d4bc0241d97d9754f547ea3ff54511dcaee8f258e",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json",
+          "raw_sha256": "1450ed1f3cfa6313b14d0aa2a57b270bcd022e02a5cc34bbb86320df19fb8aca",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-installation-bootstrap-1.0.0.json",
+          "raw_sha256": "1f35b1d5b1781e906f73a24b241cfba059d37f2f3d0d8384191b54bb575ef44e",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-installation-bootstrap-input-1.0.0.json",
+          "raw_sha256": "c0ed53a5296a2200ac09786eff2cb455fd6ee5871aab88cb28f6b3a4ce891455",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-policy-registry-1.0.0.json",
+          "raw_sha256": "60c27d5dfe89830690acff8df161511608e5729ccefc54684e995e8bf9bfaa07",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-policy-registry-input-1.0.0.json",
+          "raw_sha256": "706c5e6d9ad96a94c527352d435dd64c92915d3f49c588e107b041751b53b5a9",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "config/verification/wp-00-targets.json",
+          "raw_sha256": "213edb37a96c92b662b7be8591eabf168fe0a2d59a16799eacb16c4d5b713df1",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "core/graph_engineering/core/profile_execution.py",
+          "raw_sha256": "3e46f301b7d0865e8b5150b96a026e102e3609c61c11cc6ad1051c90f8c05aed",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "core/graph_engineering/core/profiles.py",
+          "raw_sha256": "7ba107db943f3e6dfb675e3aa38bfae397de4c7bac820ef175d09a585c325c2f",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "tests/e2e/test_wp00_installed_wheel.py",
+          "raw_sha256": "ac506db4754724f35a51215793a8f398067548395521cd83d850d28284008108",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "tests/integration/test_wp08_release_coverage.py",
+          "raw_sha256": "24280566a384e15421cd5250ec722de48425ca2644d928de67819c70426b100a",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "tests/security/test_wp07a_action_contract_security.py",
+          "raw_sha256": "a443df98eef0ce6d32d16ce0eeb33de70a385f16ac813e9b3508fc83c0bdf6a5",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "tests/support/wp08_dependency_security.py",
+          "raw_sha256": "a4c2bb367d2383e7ba11c611e8c9f4a4c4501448286e8542339397d2cd669c5f",
+          "in_existing_target_allowlist": false
+        },
+        {
+          "path": "tests/support/wp08_migration_rehearsal.py",
+          "raw_sha256": "bbf46d735dcfc84fabb089aad751a0db09409915a3db353e5e9f76dfee6272f8",
+          "in_existing_target_allowlist": false
+        },
+        {
+          "path": "tests/unit/test_wp00_packaging.py",
+          "raw_sha256": "619284a8bede0abefdd4e0a77a5d430cd2b7b5a8848049f85f739035e20a137c",
+          "in_existing_target_allowlist": true
+        },
+        {
+          "path": "tests/unit/test_wp08_profile_contracts.py",
+          "raw_sha256": "f39b98bbeb16db7ec93e8e0b29f61060748bfb2130fc5262289ab6c30cfaecda",
+          "in_existing_target_allowlist": true
+        }
+      ],
+      "proposed_authority": "Include only the listed existing file bytes as prerequisite/test content in the one authorized local checkpoint commit, subject to scope/integrity checks. For the two outside-allowlist paths, grant commit-only inclusion, not source-edit authority. Preserve all prior approvals/reviews and source bytes. No push, rerun, P2b/P3 or other action authority.",
+      "resolution": "Human decision required before staging or committing the expanded set. No files staged, no commit created; monitoring remains stopped."
+    }
+  ],
+  "commit_authorizations": [
+    {
+      "schema_version": "1.0",
+      "record_id": "p2a-local-commit-authority-2026-09-11-r0",
+      "observed_at_utc": "2026-09-11 07:47:08 UTC",
+      "human_approval": "批准",
+      "initial_commit_approval": "先核对提交范围，再仅对已验收的 P2a 变更做一次本地 commit；不 push、不重跑、不启动 P2b/P3。",
+      "additional_scope_approval": "将 commit_preflights[p2a-local-commit-scope-preflight-2026-09-11-r0] 中18个前置/测试文件的现有版本一并纳入本次本地 commit；仅授权提交、不修改源码，仍不 push、不重跑。",
+      "scope_preflight_record_id": "p2a-local-commit-scope-preflight-2026-09-11-r0",
+      "authority_effect": "Separately authorizes exactly one local Git stage/commit of the accepted checkpoint, its explicitly approved 18 existing prerequisite/test files, and its existing approval/evidence history. Supersedes the prior commit prohibition only for this operation. Does not edit or broaden the preserved source-edit Authority Envelope; the two outside-allowlist support paths gain commit-only inclusion, not source-edit authority.",
+      "head_before": "cdedf2d461de94b814aa005afbbe1458d1860125",
+      "branch": "main",
+      "maximum_commit_count": 1,
+      "authorized_actions": [
+        "stage",
+        "commit"
+      ],
+      "exact_commit_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-state-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-state-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r1.json",
+        "application/graph_engineering/application/dependency_security.py",
+        "application/graph_engineering/application/performance_benchmark.py",
+        "application/graph_engineering/application/profile_coverage.py",
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/profile_real_e2e.py",
+        "application/graph_engineering/application/scenario_truth.py",
+        "config/actions/action-policy-local-actions-v1.json",
+        "config/actions/action-policy-v1.json",
+        "config/actions/concrete-action-policy-v1.json",
+        "config/contracts/action-adapter-registry-v1.json",
+        "config/contracts/profile-schema-registry-v1.json",
+        "config/contracts/schemas/category-completion-assessment-1.3.0.json",
+        "config/contracts/schemas/category-completion-assessment-input-1.3.0.json",
+        "config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json",
+        "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
+        "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
+        "config/contracts/schemas/scenario-truth-installation-bootstrap-1.0.0.json",
+        "config/contracts/schemas/scenario-truth-installation-bootstrap-input-1.0.0.json",
+        "config/contracts/schemas/scenario-truth-observation-1.0.0.json",
+        "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
+        "config/contracts/schemas/scenario-truth-policy-registry-1.0.0.json",
+        "config/contracts/schemas/scenario-truth-policy-registry-input-1.0.0.json",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-registry-v1.json",
+        "config/profiles/profile-coverage-execution-plan-v1.json",
+        "config/profiles/scenario-truth-fixture-registry-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/profiles/scenario-truth-policy-registry-v1.json",
+        "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+        "config/security/security-runtime-local-actions-v1.json",
+        "config/security/security-runtime-v1.json",
+        "config/test-oracles/profile-new-feature-multi-target-v1.json",
+        "config/test-oracles/profile-performance-correctness-regression-v1.json",
+        "config/test-oracles/profile-performance-noise-outlier-v1.json",
+        "config/verification/wp-00-targets.json",
+        "core/graph_engineering/__init__.py",
+        "core/graph_engineering/core/contracts/resources.py",
+        "core/graph_engineering/core/profile_coverage.py",
+        "core/graph_engineering/core/profile_execution.py",
+        "core/graph_engineering/core/profiles.py",
+        "core/graph_engineering/core/scenario_truth.py",
+        "core/graph_engineering/core/source_checkout.py",
+        "docs/adr/0007-offline-performance-benchmark-authority.md",
+        "docs/adr/0008-local-profile-scenario-truth-authority.md",
+        "docs/adr/0009-offline-release-operations-simulator-authority.md",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "tests/contract/test_wp08_remaining54_contracts.py",
+        "tests/e2e/test_wp00_installed_wheel.py",
+        "tests/integration/test_wp08_release_coverage.py",
+        "tests/integration/test_wp08_scenario_truth.py",
+        "tests/security/test_wp07a_action_contract_security.py",
+        "tests/security/test_wp08_remaining54_authority.py",
+        "tests/support/source_checkout_attestation.py",
+        "tests/support/wp05_actions.py",
+        "tests/support/wp08_category_execution.py",
+        "tests/support/wp08_dependency_security.py",
+        "tests/support/wp08_migration_rehearsal.py",
+        "tests/support/wp08_release_coverage.py",
+        "tests/support/wp08_scenario_truth.py",
+        "tests/unit/test_wp00_packaging.py",
+        "tests/unit/test_wp08_profile_contracts.py",
+        "tests/unit/test_wp08_scenario_truth.py"
+      ],
+      "product_file_count": 67,
+      "audit_record_file_count": 28,
+      "reviewed_artifact_digest": "6ffdac401556134b38193b7f4eb7daf50a1f5cb1cfa40e7485a2fd0a5b8aed29",
+      "frozen_non_authorization_file_sha256": {
+        ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json": "e11a939b7719b56c5955567faf6d9bfeb93dee2e3f1fd34a024d1f324a215554",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-review-verdict-r1.json": "74835f2d121a5dbac5f5343401675761b1c6b830a4830881ba4ba79196df9d37",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json": "b56e90f91f47cc380b2be2535c8edd64bc58569b51f9d8931a699686078c7b23",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-state-r1.json": "31c51027de460e2d6e61adac24f37aefe263d5a66f3dd03327516684bc25c329",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r0.json": "8874b006d2ee8c3634e20eff89181a4fbf1af9e0b8b9163ee0fd286f9ea87e49",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json": "042b04b613945990e720f30675f914c1ca5ce767d38ac5be846a337abdcbe69e",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r0.json": "319937235ac7e3df04cf1f479fee1f262de481e24332955d4adc8b222e76f681",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json": "f14291e8c4637f5cf85804347ebda771bf581bbed26f4d4c0ef49aeb6f8b4964",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r0.json": "38ea926719545aef9a92ef29fef02438ce6764da04599cb824bad3687d7c18a0",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json": "930bf6314f2c1b8b46447d04a31fc8831cb6e4c66a213466d7c362af74aeac04",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r0.json": "20774ecb12792bc6a306d3c93fc3f48bd13ed863013df5efed2b8313acdc5acd",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json": "c07dde4f56e3356e36e8f9b049c516d2ae6f70c91dad8ea222f650e00ba5cfff",
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json": "a58d9a53ac7faaa2fdc0b2b393ebdebf03d0c94de05ffe8a82cc025441d5f8fa",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-decision-r1.json": "545848de82d6b5bb9021f07c4011eed2d7dcfd60c8a046bce3594418bcdcd332",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-review-verdict-r1.json": "2692168a0ac9cb16eb8cf8033fec60eb4b202d15bac3ec424312020cad68ea8c",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-source-manifest-r1.json": "9f9d89a17e578fef31b624a3f2adf86cf6fc2e48beba8e1f49f0f0145169ca08",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-state-r1.json": "343b7617ecc485294174229e1a43faeea55ff42944fa24f40af9751aec6ff2ec",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r2.json": "f5652869c551bacff23f687f60081804b14c387bd07599e65cdc4521e4c79c4f",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r2.json": "4ab65c4e2406f826f658e3d0fe80ec3e1bee780728da5b15c54b9c5072313585",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r1.json": "341a749c88736e5f0db9e0904dc923f4145d7e4f66f2387ddc2e95c7aa80669e",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json": "261ec60d6986e27647eff3f890600dc56daf6f58ba0bf9a2fe9f5ae4af9c6b93",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r1.json": "d4c7085d1b65a1f97cd1b28b6f30cff5ea1aa0174bc107edac008ac99f0a95b8",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r2.json": "e80c50100f7dfe77c6bf266a903b59ba3a500457021cf8b73df266a12bd16354",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r1.json": "1a147700a398be01dc6ba54ecb2b5e473b4db4cd241e440dfb38f148da5bd2a0",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r1.json": "ed429fa94e2b63eea3f20b1f77c35a712d4ecb9d86f348e6b07f5bf8fd9d2988",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r1.json": "341a749c88736e5f0db9e0904dc923f4145d7e4f66f2387ddc2e95c7aa80669e",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r1.json": "1531f2bcc967b6a2079fd69ea7b112276979e9638cac5566b5ecbf1f8855353d",
+        "application/graph_engineering/application/dependency_security.py": "6ee839bd943d2b409222dd2b707dfe89085a8186d475f401b8d7836e9d012880",
+        "application/graph_engineering/application/performance_benchmark.py": "7608f06360739353f012dbcef151049c4c053df54591fbe76787c728ad825976",
+        "application/graph_engineering/application/profile_coverage.py": "7f584debcd9b0b9e7d955aca1554aa300210ee8b77cdbf17cb697c3ba416be4c",
+        "application/graph_engineering/application/profile_execution.py": "259d35a4a2eea5c1ef78604711a3c97bc0f1bcebec9d046e73747ea617d60df5",
+        "application/graph_engineering/application/profile_real_e2e.py": "d37202fee99cf44482230c6d4bc0241d97d9754f547ea3ff54511dcaee8f258e",
+        "application/graph_engineering/application/scenario_truth.py": "a2d11c53a28bec90c7f487d3fcb7876b0a2e938946d5779b630726b0348231ec",
+        "config/actions/action-policy-local-actions-v1.json": "925c68af10d3584d785e2e37af8305cbf57010944449f5a5b424b291e3ece68c",
+        "config/actions/action-policy-v1.json": "fe939d0fd00510a3804b83c2afe09b1339f1e2d455a636cf489dfdc52fd5f7b7",
+        "config/actions/concrete-action-policy-v1.json": "b46dad12ba697e0e99541a2b0ef06cc559476ca8c0bf22e466f1fb9be27a6364",
+        "config/contracts/action-adapter-registry-v1.json": "78f0bb67566c79254db1e53adc6c6154383e42c96fb18810e67faed1a35d2606",
+        "config/contracts/profile-schema-registry-v1.json": "f2e18fb2b92898b46f900d648f9786ad2c123ed566a0912a6adfd54147ac9a08",
+        "config/contracts/schemas/category-completion-assessment-1.3.0.json": "dd5d50079f71408370f1f49ae7e6918d374256eff01b43cbcdbe6728791deaa4",
+        "config/contracts/schemas/category-completion-assessment-input-1.3.0.json": "b573f084e26f21c4eb28b6f5d7e01c5d087bafeb36589329ab354e4289ff34e9",
+        "config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json": "1450ed1f3cfa6313b14d0aa2a57b270bcd022e02a5cc34bbb86320df19fb8aca",
+        "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json": "85c4cc690bc1b059670479396cca027165657b6ebe72c80c4bdf44c6437e26e5",
+        "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json": "caa72e9f891db0255a61762e91f2ec1005df89a725aed35c8c3d7532b7ad7848",
+        "config/contracts/schemas/scenario-truth-installation-bootstrap-1.0.0.json": "1f35b1d5b1781e906f73a24b241cfba059d37f2f3d0d8384191b54bb575ef44e",
+        "config/contracts/schemas/scenario-truth-installation-bootstrap-input-1.0.0.json": "c0ed53a5296a2200ac09786eff2cb455fd6ee5871aab88cb28f6b3a4ce891455",
+        "config/contracts/schemas/scenario-truth-observation-1.0.0.json": "2140a11db9702a78855371f93ee8cb9bd9f0cbbf7e859172b055bc1d4ac850d0",
+        "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json": "7e1c3e98f8d5793991006ef8db7b862831aed15df30a622e3da639d7f73d17b4",
+        "config/contracts/schemas/scenario-truth-policy-registry-1.0.0.json": "60c27d5dfe89830690acff8df161511608e5729ccefc54684e995e8bf9bfaa07",
+        "config/contracts/schemas/scenario-truth-policy-registry-input-1.0.0.json": "706c5e6d9ad96a94c527352d435dd64c92915d3f49c588e107b041751b53b5a9",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json": "11aeaba3c933f177191dc4dc252897ee4ca4b1425d01e025b1aa29a6a5a15bb6",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json": "71d3c5ebfc628f39b0896a6c13ccc435ff4428cdb55aebb0c6dc61271d35b821",
+        "config/performance/performance-benchmark-registry-v1.json": "132f11c3d7f09da0989e5130e612ee0784dc744d08d030ece3db61c40a415e2a",
+        "config/profiles/profile-coverage-execution-plan-v1.json": "d79f1e4b54e9afb7c6dd2873631e709537e336d666845c3c2630a0a301f77ce7",
+        "config/profiles/scenario-truth-fixture-registry-v1.json": "2960916d3e3eff6bb024ec512de26f9f7538e9e8ffbc591300a2c9a55c3055ca",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json": "21925d9253707e07a3ae8f9e6a32be4e6e3baf6476d2e01f8a1feeeb04099aea",
+        "config/profiles/scenario-truth-policy-registry-v1.json": "29ac384e341b585c650c21897cfbe3bef6ed37944b21586f5ce0b4d0ba31c10a",
+        "config/security/dependency-advisory-installation-bootstrap-v1.2.json": "65de915df7c6e8118654cfb983ee0f60f461788de3048434bf2552d313a5ba48",
+        "config/security/security-runtime-local-actions-v1.json": "d645641b34827a0f3e4fa07dc8659f42aa99b9bda13d8fe96aeb0afedbd141ea",
+        "config/security/security-runtime-v1.json": "3365c2b95a16dab5e04d589aa33471512a8258902d9f611f21bb056808207f86",
+        "config/test-oracles/profile-new-feature-multi-target-v1.json": "d0da5ccdd2ebefb7d604babef46655af84f109bd2d742de3ede06a520dedbb7a",
+        "config/test-oracles/profile-performance-correctness-regression-v1.json": "a1982d72e335da97625fc507a1d409f5f24b0a99455b4342e7b0645861b2cd20",
+        "config/test-oracles/profile-performance-noise-outlier-v1.json": "e4e0bbde2eee754d9b4872be4311e8a8a556e9ed43490651bb075a8153892873",
+        "config/verification/wp-00-targets.json": "213edb37a96c92b662b7be8591eabf168fe0a2d59a16799eacb16c4d5b713df1",
+        "core/graph_engineering/__init__.py": "e7a15020527881dea498a1f3b21aaad2c16a860aedc014f48087d16e70a139f1",
+        "core/graph_engineering/core/contracts/resources.py": "4a193a63f90a18147cb2c58171b3d7892a24934198b5aa465dab1570afe127e7",
+        "core/graph_engineering/core/profile_coverage.py": "e43c9ea93000ce909fecbcdd38b1bb5e25caf84b16d416dd113e78daaad4e98f",
+        "core/graph_engineering/core/profile_execution.py": "3e46f301b7d0865e8b5150b96a026e102e3609c61c11cc6ad1051c90f8c05aed",
+        "core/graph_engineering/core/profiles.py": "7ba107db943f3e6dfb675e3aa38bfae397de4c7bac820ef175d09a585c325c2f",
+        "core/graph_engineering/core/scenario_truth.py": "c63bcae4b4280a8dc83dbe71f99d5b7f50a90e5b77d0d1a941b340b28dd219f3",
+        "core/graph_engineering/core/source_checkout.py": "6cf5556741f6ba7ca3133898fb766545afa436e51917f634cce03ab123e744f9",
+        "docs/adr/0007-offline-performance-benchmark-authority.md": "045c4a4a2af2b887dcdc8a38413034e2c2a6cce605f418b456e65558f889b184",
+        "docs/adr/0008-local-profile-scenario-truth-authority.md": "3d920bebfc0d97adb8cabd3e7e8ba71058950f5109c58bf3c235220799a05add",
+        "docs/adr/0009-offline-release-operations-simulator-authority.md": "03aff594c757f338c3dddf4b95234714ea9a118fa25c40aaa441edaeedce63ac",
+        "docs/impact/graph-engineering-workflow.md": "d7bc7e773b7aadaee214b161ab3a55f4328abed2762cfc9c7a3dce61e3c2ebc5",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md": "8335130bec25f115eb4f47ba6260f7f3d5b89f5c90c629409df372b53edf6257",
+        "docs/specs/graph-engineering-workflow.md": "0d0df2c2efc33ec9b4b6dacac65052c77a3a1a4b514ba9f3ba39711c023ccb27",
+        "docs/test-plans/graph-engineering-workflow.md": "dfbd667a732dacf6650288288798c65c0546bed56a4e8afe0ad8e0fc24a88fa9",
+        "pyproject.toml": "85c94bc93ef0ba1707f9d3af25398bd7f6ebae8b95396e2c7cf08b180dc3bf46",
+        "tests/contract/test_wp08_remaining54_contracts.py": "f45409c9233f42f74d852279a64e75b64523452f2d122829c33cf0da724e0f25",
+        "tests/e2e/test_wp00_installed_wheel.py": "ac506db4754724f35a51215793a8f398067548395521cd83d850d28284008108",
+        "tests/integration/test_wp08_release_coverage.py": "24280566a384e15421cd5250ec722de48425ca2644d928de67819c70426b100a",
+        "tests/integration/test_wp08_scenario_truth.py": "88a9bc5dd33fe1b35bc1ab1f0ca72abcf6b368432c945676b23cdf1379d99c0e",
+        "tests/security/test_wp07a_action_contract_security.py": "a443df98eef0ce6d32d16ce0eeb33de70a385f16ac813e9b3508fc83c0bdf6a5",
+        "tests/security/test_wp08_remaining54_authority.py": "12b4b467114fc24dc6aaa02ae8f1d00f27d9ad714b404c5a7635a75c51be5603",
+        "tests/support/source_checkout_attestation.py": "9adab139b9335f961e6a07540f4d6f4cc109e5d6e18023d5126f8c44d430aa9f",
+        "tests/support/wp05_actions.py": "effda34b50a1cda4dae638211b2e267093ae63329768936074cf472a4be00109",
+        "tests/support/wp08_category_execution.py": "555bba00905f3d81042ffd53d15080cae7c34145ec9564a6899d4337f9672388",
+        "tests/support/wp08_dependency_security.py": "a4c2bb367d2383e7ba11c611e8c9f4a4c4501448286e8542339397d2cd669c5f",
+        "tests/support/wp08_migration_rehearsal.py": "bbf46d735dcfc84fabb089aad751a0db09409915a3db353e5e9f76dfee6272f8",
+        "tests/support/wp08_release_coverage.py": "7970328391f675e6aa0320c105527bfc7059f8add6c4a912fca1079572059593",
+        "tests/support/wp08_scenario_truth.py": "302831fba9d83925e7f92475582bcda6b618c87c57d5c1a9b28304d79a150202",
+        "tests/unit/test_wp00_packaging.py": "619284a8bede0abefdd4e0a77a5d430cd2b7b5a8848049f85f739035e20a137c",
+        "tests/unit/test_wp08_profile_contracts.py": "f39b98bbeb16db7ec93e8e0b29f61060748bfb2130fc5262289ab6c30cfaecda",
+        "tests/unit/test_wp08_scenario_truth.py": "23225094b7411262caa756b36c0100b237a7cb6b6e9d39b35112462378943e1f"
+      },
+      "authorization_file": "Append this Human decision to candidate-decision-r1.json while preserving every existing field and record; stage its resulting exact bytes. A post-commit receipt is separate from the committed authorization to avoid self-referential commit hashes.",
+      "independent_review_record_id": "p2a-post-repair-technical-2026-09-11-r0",
+      "predecessor_review_decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "review",
+        "decision": "ESCALATE",
+        "code": "E_AUTHORITY",
+        "message": "next node requires separate authority: commit",
+        "next_node": "commit",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "independent-review",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:fd7ff75df04e458314c5e1a3613f3afa3e2d73414baeef5bff925a9a4e3b2cfc",
+          "verdict": "sha256:71550fc856392fab9b72eaa0fae8e4b21e5a9df913b275775b253b89e3de8955"
+        }
+      },
+      "precommit_integrity": {
+        "source_attestation_members": 278,
+        "raw_runtime_artifacts": 23,
+        "reviewed_target_count": 52,
+        "approved_additional_file_count": 18,
+        "source_changes": false,
+        "index_was_empty": true,
+        "git_diff_check": "PASS"
+      },
+      "commit_message": "feat: checkpoint accepted P2a local coverage\n\nFreeze the independently accepted P2a checkpoint and its approved existing\nprerequisite/test files with complete local approval and evidence history.\n\nCoverage: 226 valid, 48 missing; this is not full-project completion.\nCumulative run: exit 0 in 12777.699721291 seconds, below the 14400-second limit.\nIndependent verification, Candidate and Technical Review: PASS.\nReviewed 52-target SHA256:\n6ffdac401556134b38193b7f4eb7daf50a1f5cb1cfa40e7485a2fd0a5b8aed29\n\nWorkflow exception: prior Human-approved bounded hotfixes are included;\nimpact analysis, rejected revisions and regression evidence are retained.\nTerminal/resource conclusions remain control-flow-backed, not final counters.\n\nAuthority: one local commit only, including the separately approved 18\nexisting prerequisite/test files. No push, rerun, P2b/P3, network or release.",
+      "prohibited": [
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "new-cumulative-run",
+        "monitoring-restoration",
+        "P2b",
+        "P3",
+        "source-modification",
+        "amend-existing-commit",
+        "additional-commit"
+      ],
+      "workflow_disposition": "Execute the separately authorized Human action; do not synthesize an artifact PASS for the commit node or rewrite the historical ESCALATE/E_AUTHORITY decision."
+    }
+  ]
+}

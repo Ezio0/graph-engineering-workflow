@@ -12,6 +12,7 @@ from graph_engineering.application.actions import ActionCoordinator
 from graph_engineering.application.security import SecurityContextIssuer
 from graph_engineering.core.actions import ActionPolicy, AuthorityEnvelope, PreparedAction
 from graph_engineering.core.contracts.digest import semantic_digest
+from graph_engineering.core.contracts.resources import WorkContext
 from graph_engineering.core.security.disclosure import DataDisclosurePlan, DisclosurePolicy
 from graph_engineering.core.security.identity import SecurityBinding
 from graph_engineering.core.security.privacy import RedactionPolicy, Redactor
@@ -39,6 +40,8 @@ from tests.support.wp07a_actions import action_adapter_schema_registry
 
 
 IDENTITY = "urn:gew:digest-projection:identity:1.0.0"
+# Compatibility for callers explicitly importing this context. Internal fixture
+# operations must own their contexts instead of accumulating into this global.
 ACTION_DOCUMENT_CONTEXT = security_context()
 
 
@@ -51,13 +54,14 @@ def digest(label: str) -> str:
     )
 
 
-def prepared_document() -> dict[str, object]:
+def prepared_document(*, context: WorkContext | None = None) -> dict[str, object]:
+    context = security_context() if context is None else context
     payload = {"set": {"version": 2}}
     value: dict[str, object] = {
         "schema_version": "1.0.0", "action_id": "action-wp05", "task_id": "task-wp05",
         "action_kind": "commit", "target_id": "target-project", "target_digest": digest("target"),
         "resources": ["target:project", "task:task-wp05"], "payload": payload,
-        "payload_digest": PreparedAction.payload_digest_for(payload, ACTION_DOCUMENT_CONTEXT), "precondition": {"version": 1},
+        "payload_digest": PreparedAction.payload_digest_for(payload, context), "precondition": {"version": 1},
         "expected_postcondition": {"version": 2}, "idempotency_class": "non-idempotent",
         "idempotency_key": "idempotency-wp05",
         "verification_plan": {"capability": "fresh-target-query", "predicate": "exact"},
@@ -65,11 +69,15 @@ def prepared_document() -> dict[str, object]:
         "required_capabilities": ["deterministic-fake-target-v1", "fresh-target-query"],
         "baseline_digest": digest("intent"), "snapshot_digest": digest("snapshot"),
     }
-    value["prepared_action_digest"] = PreparedAction.digest_document(value, ACTION_DOCUMENT_CONTEXT)
+    value["prepared_action_digest"] = PreparedAction.digest_document(value, context)
     return value
 
 
-def authority_document(prepared: PreparedAction, *, action_kind: str | None = None) -> dict[str, object]:
+def authority_document(
+    prepared: PreparedAction, *, action_kind: str | None = None,
+    context: WorkContext | None = None,
+) -> dict[str, object]:
+    context = security_context() if context is None else context
     value: dict[str, object] = {
         "schema_version": "1.0.0",
         "authority_id": "authority-wp05-rollback" if prepared.action_kind == "rollback" else "authority-wp05",
@@ -80,12 +88,15 @@ def authority_document(prepared: PreparedAction, *, action_kind: str | None = No
         "baseline_digest": prepared.baseline_digest, "snapshot_digest": prepared.snapshot_digest,
         "issued_at": "2026-08-14T00:00:00Z", "expires_at": "2026-08-14T01:00:00Z", "status": "active",
     }
-    value["authority_digest"] = AuthorityEnvelope.digest_document(value, ACTION_DOCUMENT_CONTEXT)
+    value["authority_digest"] = AuthorityEnvelope.digest_document(value, context)
     return value
 
 
-def compensation_prepared_document(*, snapshot_digest: str | None = None) -> dict[str, object]:
-    value = prepared_document()
+def compensation_prepared_document(
+    *, snapshot_digest: str | None = None, context: WorkContext | None = None,
+) -> dict[str, object]:
+    context = security_context() if context is None else context
+    value = prepared_document(context=context)
     value.update({
         "action_id": "action-wp05-rollback",
         "action_kind": "rollback",
@@ -97,8 +108,8 @@ def compensation_prepared_document(*, snapshot_digest: str | None = None) -> dic
     })
     if snapshot_digest is not None:
         value["snapshot_digest"] = snapshot_digest
-    value["payload_digest"] = PreparedAction.payload_digest_for(value["payload"], ACTION_DOCUMENT_CONTEXT)
-    value["prepared_action_digest"] = PreparedAction.digest_document(value, ACTION_DOCUMENT_CONTEXT)
+    value["payload_digest"] = PreparedAction.payload_digest_for(value["payload"], context)
+    value["prepared_action_digest"] = PreparedAction.digest_document(value, context)
     return value
 
 
@@ -130,7 +141,7 @@ class JournalFixture:
                 value = json.loads(row[0])
                 if mutation == "expiry":
                     value["expires_at"] = "2026-08-14T00:00:01Z"
-                value["authority_digest"] = AuthorityEnvelope.digest_document(value, ACTION_DOCUMENT_CONTEXT)
+                value["authority_digest"] = AuthorityEnvelope.digest_document(value, security_context())
                 connection.execute(
                     "UPDATE action_journal SET authority_json=?,authority_digest=? WHERE action_id=?",
                     (canonical_json(value), value["authority_digest"], action_id),
@@ -166,7 +177,7 @@ class TestOnlyTrustedCoordinator:
         return getattr(self._coordinator, name)
 
     def authorize(self, value: dict[str, object]) -> AuthorityEnvelope:
-        authority = AuthorityEnvelope.from_dict(value, context=ACTION_DOCUMENT_CONTEXT)
+        authority = AuthorityEnvelope.from_dict(value, context=security_context())
         with self._factory.open("application") as connection:
             with connection.transaction():
                 row = connection.execute(
@@ -273,9 +284,12 @@ def action_stack(
             "targets": [{"target_id": "target-project", "target_kind": "project", "canonical_identity": "project-main", "target_digest": digest("target")}],
         })
         binding["binding_digest"] = SecurityBinding.digest_document(binding)
-        prepared = PreparedAction.from_dict(prepared_document(), context=ACTION_DOCUMENT_CONTEXT)
+        document_context = security_context()
+        prepared = PreparedAction.from_dict(
+            prepared_document(context=document_context), context=document_context,
+        )
         compensation_prepared = PreparedAction.from_dict(
-            compensation_prepared_document(), context=ACTION_DOCUMENT_CONTEXT,
+            compensation_prepared_document(context=document_context), context=document_context,
         )
         destinations = {"owner-wp05": {"kind": "owner", "trust_boundary": "owner-session", "target_digest": digest("owner-session"), "prepared_action_digest": prepared.prepared_action_digest}}
         state = task_security_state_document(binding=binding, destinations=destinations)

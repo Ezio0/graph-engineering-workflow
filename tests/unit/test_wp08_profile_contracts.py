@@ -123,6 +123,8 @@ PROFILE_DOMAIN_SCHEMA_IDS = frozenset({
     "urn:gew:schema:category-completion-assessment:1.0.0",
     "urn:gew:schema:category-completion-assessment-input:1.1.0",
     "urn:gew:schema:category-completion-assessment:1.1.0",
+    "urn:gew:schema:category-completion-assessment-input:1.3.0",
+    "urn:gew:schema:category-completion-assessment:1.3.0",
     "urn:gew:schema:category-execution-policy-input:1.0.0",
     "urn:gew:schema:category-execution-policy:1.0.0",
     "urn:gew:schema:category-execution-state-input:1.0.0",
@@ -141,6 +143,7 @@ PROFILE_DOMAIN_SCHEMA_IDS = frozenset({
     "urn:gew:schema:profile-coverage-execution-record:1.0.0",
     "urn:gew:schema:profile-coverage-observation:1.0.0",
     "urn:gew:schema:profile-coverage-oracle-input:1.0.0",
+    "urn:gew:schema:profile-coverage-oracle-input:1.1.0",
     "urn:gew:schema:profile-coverage-plan-selector:1.0.0",
     "urn:gew:schema:profile-coverage-policy-input:1.0.0",
     "urn:gew:schema:profile-coverage-policy:1.0.0",
@@ -161,6 +164,14 @@ PROFILE_DOMAIN_SCHEMA_IDS = frozenset({
     "urn:gew:schema:release-coverage-assessment:1.0.0",
     "urn:gew:schema:risk-overlay-definition-input:1.0.0",
     "urn:gew:schema:risk-overlay-definition:1.0.0",
+    "urn:gew:schema:scenario-truth-fixture-registry-input:1.0.0",
+    "urn:gew:schema:scenario-truth-fixture-registry:1.0.0",
+    "urn:gew:schema:scenario-truth-installation-bootstrap-input:1.0.0",
+    "urn:gew:schema:scenario-truth-installation-bootstrap:1.0.0",
+    "urn:gew:schema:scenario-truth-observation-input:1.0.0",
+    "urn:gew:schema:scenario-truth-observation:1.0.0",
+    "urn:gew:schema:scenario-truth-policy-registry-input:1.0.0",
+    "urn:gew:schema:scenario-truth-policy-registry:1.0.0",
     "urn:gew:schema:support-matrix-definition-input:1.0.0",
     "urn:gew:schema:support-matrix-definition:1.0.0",
 }) | frozenset(DEPENDENCY_SECURITY_SCHEMA_IDS) | frozenset(DEPENDENCY_GRAPH_SCHEMA_IDS) | frozenset(PERFORMANCE_BENCHMARK_SCHEMA_IDS) | frozenset(MIGRATION_REHEARSAL_SCHEMA_IDS)
@@ -758,6 +769,13 @@ class WP08ProfileContractTests(unittest.TestCase):
         missing = copy.deepcopy(schema_manifest)
         missing["resources"].pop()
         registry_mutations.append(("missing", missing, complete_bodies))
+        missing_v11 = copy.deepcopy(schema_manifest)
+        missing_v11["resources"] = [
+            row for row in missing_v11["resources"]
+            if row["schema_id"]
+            != "urn:gew:schema:profile-coverage-oracle-input:1.1.0"
+        ]
+        registry_mutations.append(("missing-oracle-input-v1.1", missing_v11, complete_bodies))
         duplicate = copy.deepcopy(schema_manifest)
         duplicate["resources"].append(copy.deepcopy(duplicate["resources"][0]))
         registry_mutations.append(("duplicate", duplicate, complete_bodies))
@@ -772,6 +790,23 @@ class WP08ProfileContractTests(unittest.TestCase):
         registry_mutations.append((
             "extra", extra,
             {**complete_bodies, "urn:gew:schema:unknown-profile-domain:1.0.0": b"{}"},
+        ))
+        alias = copy.deepcopy(schema_manifest)
+        alias_id = "urn:gew:schema:profile-coverage-oracle-input:1.1.1"
+        for row in alias["resources"]:
+            if row["schema_id"] == "urn:gew:schema:profile-coverage-oracle-input:1.1.0":
+                row["schema_id"] = alias_id
+                break
+        alias["resources"].sort(key=lambda row: row["schema_id"].encode("utf-8"))
+        registry_mutations.append((
+            "oracle-input-version-alias",
+            alias,
+            {
+                **complete_bodies,
+                alias_id: complete_bodies[
+                    "urn:gew:schema:profile-coverage-oracle-input:1.1.0"
+                ],
+            },
         ))
         for label, manifest, bodies in registry_mutations:
             manifest["registry_digest"] = semantic_digest(

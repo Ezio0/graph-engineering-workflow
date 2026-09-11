@@ -1,0 +1,293 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "urn:gew:scenario-truth-policy-registry:v1",
+  "testability": {
+    "cumulative_runtime_limit_seconds": 14400,
+    "heartbeat_interval_seconds": 60
+  },
+  "profiles": [
+    {
+      "profile_id": "hotfix",
+      "profile_version": "1.0.0"
+    },
+    {
+      "profile_id": "incident-response",
+      "profile_version": "1.0.0"
+    },
+    {
+      "profile_id": "new-feature",
+      "profile_version": "1.0.0"
+    },
+    {
+      "profile_id": "refactor-debt",
+      "profile_version": "1.0.0"
+    }
+  ],
+  "scenarios": [
+    {
+      "profile_id": "hotfix",
+      "profile_version": "1.0.0",
+      "scenario_id": "emergency-baseline",
+      "fixture_id": "fixture:hotfix:emergency-baseline:v1",
+      "fixture_digest": "sha256-jcs-v1:cd5f94d540bbad94bed7085dcf1743ed00564e6dd536d4a1028b5e751d83bb62",
+      "required_target_roles": [
+        "primary-target"
+      ],
+      "ordered_phase_ids": [
+        "apply-candidate"
+      ],
+      "required_fact_ids": [
+        "fact:acceptance:primary-target",
+        "fact:fresh-target:primary-target",
+        "fact:regression:primary-target"
+      ],
+      "success_outcome": "scenario-completed",
+      "blocked_outcome": null,
+      "owner_route_policy": "owner:hotfix:emergency-baseline",
+      "branch_isolation_policy": "task-private-branch-ref-targets",
+      "mutation_budget": 1,
+      "rollback_required": true,
+      "compensation_required": false,
+      "row_digest": "sha256-jcs-v1:eb6659b79ccfe49de5b03b73daa8c15fbc49e7d6e089ca2ba87a9a90a337781c"
+    },
+    {
+      "profile_id": "hotfix",
+      "profile_version": "1.0.0",
+      "scenario_id": "production-like-gate",
+      "fixture_id": "fixture:hotfix:production-like-gate:v1",
+      "fixture_digest": "sha256-jcs-v1:bb9548d8260a92bb5bae1d6a729afedba773ea7df7aee09e86d13b714e5a29e1",
+      "required_target_roles": [
+        "primary-target"
+      ],
+      "ordered_phase_ids": [
+        "apply-candidate"
+      ],
+      "required_fact_ids": [
+        "fact:acceptance:primary-target",
+        "fact:fresh-target:primary-target",
+        "fact:regression:primary-target"
+      ],
+      "success_outcome": "scenario-completed",
+      "blocked_outcome": null,
+      "owner_route_policy": "owner:hotfix:production-like-gate",
+      "branch_isolation_policy": "task-private-branch-ref-targets",
+      "mutation_budget": 1,
+      "rollback_required": true,
+      "compensation_required": false,
+      "row_digest": "sha256-jcs-v1:c85b8c2ccb64850dc1c6b9704d48385bf6db7be7672dd95641c2f8d687a46817"
+    },
+    {
+      "profile_id": "incident-response",
+      "profile_version": "1.0.0",
+      "scenario_id": "containment",
+      "fixture_id": "fixture:incident-response:containment:v1",
+      "fixture_digest": "sha256-jcs-v1:899507bacaa5199eb8798248233feb5a71e0aff6474c994fbf76a4c28753aa16",
+      "required_target_roles": [
+        "primary-target"
+      ],
+      "ordered_phase_ids": [
+        "apply-candidate"
+      ],
+      "required_fact_ids": [
+        "fact:acceptance:primary-target",
+        "fact:fresh-target:primary-target",
+        "fact:regression:primary-target"
+      ],
+      "success_outcome": "scenario-completed",
+      "blocked_outcome": null,
+      "owner_route_policy": "owner:incident-response:containment",
+      "branch_isolation_policy": "task-private-branch-ref-targets",
+      "mutation_budget": 1,
+      "rollback_required": true,
+      "compensation_required": true,
+      "row_digest": "sha256-jcs-v1:0af78a9ad9c07da8fd87c28ec4bde55975da6c086216c7a68ea90c5e459383ef"
+    },
+    {
+      "profile_id": "incident-response",
+      "profile_version": "1.0.0",
+      "scenario_id": "detection",
+      "fixture_id": "fixture:incident-response:detection:v1",
+      "fixture_digest": "sha256-jcs-v1:937f47a35118bfd9b7cffe51338fc422c5ecfda47c89500fd8bc7cb80199821e",
+      "required_target_roles": [
+        "primary-target"
+      ],
+      "ordered_phase_ids": [
+        "apply-candidate"
+      ],
+      "required_fact_ids": [
+        "fact:acceptance:primary-target",
+        "fact:fresh-target:primary-target",
+        "fact:regression:primary-target"
+      ],
+      "success_outcome": "scenario-completed",
+      "blocked_outcome": null,
+      "owner_route_policy": "owner:incident-response:detection",
+      "branch_isolation_policy": "task-private-branch-ref-targets",
+      "mutation_budget": 1,
+      "rollback_required": true,
+      "compensation_required": false,
+      "row_digest": "sha256-jcs-v1:2507d2374cb5dead9d0ce757379b56dfcaf22f51aa98bbb56fcdc8e633a721db"
+    },
+    {
+      "profile_id": "incident-response",
+      "profile_version": "1.0.0",
+      "scenario_id": "recovery",
+      "fixture_id": "fixture:incident-response:recovery:v1",
+      "fixture_digest": "sha256-jcs-v1:d25b5df80dd8d1321314a22ac6a5901c457f27edbc9241b250ff49d5969023c4",
+      "required_target_roles": [
+        "primary-target"
+      ],
+      "ordered_phase_ids": [
+        "apply-candidate"
+      ],
+      "required_fact_ids": [
+        "fact:acceptance:primary-target",
+        "fact:fresh-target:primary-target",
+        "fact:regression:primary-target"
+      ],
+      "success_outcome": "scenario-completed",
+      "blocked_outcome": null,
+      "owner_route_policy": "owner:incident-response:recovery",
+      "branch_isolation_policy": "task-private-branch-ref-targets",
+      "mutation_budget": 1,
+      "rollback_required": true,
+      "compensation_required": true,
+      "row_digest": "sha256-jcs-v1:7c23ce13413787d7ff75618547af3207ffe051815b23b44b70c8135b8f68457e"
+    },
+    {
+      "profile_id": "incident-response",
+      "profile_version": "1.0.0",
+      "scenario_id": "unknown-effects",
+      "fixture_id": "fixture:incident-response:unknown-effects:v1",
+      "fixture_digest": "sha256-jcs-v1:430a5535815862551e82769bec267aa1fc086d5662e4ae1f7546f2e0fbd8f1f7",
+      "required_target_roles": [
+        "primary-target"
+      ],
+      "ordered_phase_ids": [
+        "apply-candidate"
+      ],
+      "required_fact_ids": [
+        "fact:acceptance:primary-target",
+        "fact:fresh-target:primary-target",
+        "fact:regression:primary-target"
+      ],
+      "success_outcome": "scenario-completed",
+      "blocked_outcome": "blocked-owner-route",
+      "owner_route_policy": "owner:incident-response:unknown-effects",
+      "branch_isolation_policy": "task-private-branch-ref-targets",
+      "mutation_budget": 1,
+      "rollback_required": true,
+      "compensation_required": false,
+      "row_digest": "sha256-jcs-v1:e422da6e8d28e3f2f26eb25ab373f62264d6d8df452a879b45a31f59a98a26bf"
+    },
+    {
+      "profile_id": "new-feature",
+      "profile_version": "1.0.0",
+      "scenario_id": "multi-target",
+      "fixture_id": "fixture:new-feature:multi-target:v1",
+      "fixture_digest": "sha256-jcs-v1:0536fd15c99669d90b6967716e499c4ccf1d06707facdc2037af7fd50068d83d",
+      "required_target_roles": [
+        "component-a",
+        "component-b"
+      ],
+      "ordered_phase_ids": [
+        "apply-candidate"
+      ],
+      "required_fact_ids": [
+        "fact:acceptance:component-a",
+        "fact:acceptance:component-b",
+        "fact:fresh-target:component-a",
+        "fact:fresh-target:component-b",
+        "fact:regression:component-a",
+        "fact:regression:component-b"
+      ],
+      "success_outcome": "scenario-completed",
+      "blocked_outcome": null,
+      "owner_route_policy": "owner:new-feature:multi-target",
+      "branch_isolation_policy": "task-private-branch-ref-targets",
+      "mutation_budget": 2,
+      "rollback_required": true,
+      "compensation_required": false,
+      "row_digest": "sha256-jcs-v1:290ea38bcf08ec2c9b5412ba44580100be8cf4a88d4560a2e7bd528d04f335a6"
+    },
+    {
+      "profile_id": "refactor-debt",
+      "profile_version": "1.0.0",
+      "scenario_id": "architecture-invariant",
+      "fixture_id": "fixture:refactor-debt:architecture-invariant:v1",
+      "fixture_digest": "sha256-jcs-v1:dc2fa9c3a9b6c25236912d80dfb869b3f0ddd1c8885539a518cb75edac732f8c",
+      "required_target_roles": [
+        "primary-target"
+      ],
+      "ordered_phase_ids": [
+        "apply-candidate"
+      ],
+      "required_fact_ids": [
+        "fact:acceptance:primary-target",
+        "fact:fresh-target:primary-target",
+        "fact:regression:primary-target"
+      ],
+      "success_outcome": "scenario-completed",
+      "blocked_outcome": null,
+      "owner_route_policy": "owner:refactor-debt:architecture-invariant",
+      "branch_isolation_policy": "task-private-branch-ref-targets",
+      "mutation_budget": 1,
+      "rollback_required": true,
+      "compensation_required": false,
+      "row_digest": "sha256-jcs-v1:d3492f781af3ed92d6e73a370c9bde3b8a9579f5b761f433438a74ad5b8f1a4c"
+    },
+    {
+      "profile_id": "refactor-debt",
+      "profile_version": "1.0.0",
+      "scenario_id": "behavior-characterization",
+      "fixture_id": "fixture:refactor-debt:behavior-characterization:v1",
+      "fixture_digest": "sha256-jcs-v1:339dfa7ce29c310e8e852564db9815fa527c84dee7203f4740288be987e7f8ff",
+      "required_target_roles": [
+        "primary-target"
+      ],
+      "ordered_phase_ids": [
+        "apply-candidate"
+      ],
+      "required_fact_ids": [
+        "fact:acceptance:primary-target",
+        "fact:fresh-target:primary-target",
+        "fact:regression:primary-target"
+      ],
+      "success_outcome": "scenario-completed",
+      "blocked_outcome": null,
+      "owner_route_policy": "owner:refactor-debt:behavior-characterization",
+      "branch_isolation_policy": "task-private-branch-ref-targets",
+      "mutation_budget": 1,
+      "rollback_required": true,
+      "compensation_required": false,
+      "row_digest": "sha256-jcs-v1:822065e8b516060ea7cbd0438988c502826d60e6d82134d3ca52b2eab84309df"
+    },
+    {
+      "profile_id": "refactor-debt",
+      "profile_version": "1.0.0",
+      "scenario_id": "nonfunctional-target",
+      "fixture_id": "fixture:refactor-debt:nonfunctional-target:v1",
+      "fixture_digest": "sha256-jcs-v1:c0f3f936fa603c26809eaed090c83802e2765ec0655e27137159f04513557cb2",
+      "required_target_roles": [
+        "primary-target"
+      ],
+      "ordered_phase_ids": [
+        "apply-candidate"
+      ],
+      "required_fact_ids": [
+        "fact:acceptance:primary-target",
+        "fact:fresh-target:primary-target",
+        "fact:regression:primary-target"
+      ],
+      "success_outcome": "scenario-completed",
+      "blocked_outcome": null,
+      "owner_route_policy": "owner:refactor-debt:nonfunctional-target",
+      "branch_isolation_policy": "task-private-branch-ref-targets",
+      "mutation_budget": 1,
+      "rollback_required": true,
+      "compensation_required": false,
+      "row_digest": "sha256-jcs-v1:c8f7da52a2e01fcf9328df16405fff52748ee0cca5bc30389c04d7abe8b56eea"
+    }
+  ],
+  "registry_digest": "sha256-jcs-v1:1cfb1292572d4f92aebd36665b3f46172ba77d1c9a83bcce03c77307f911e119"
+}

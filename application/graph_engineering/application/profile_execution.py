@@ -683,6 +683,9 @@ class CategoryCompletionOracle:
     _DEPENDENCY_SOURCE_FIELDS = _SOURCE_FIELDS | frozenset({
         "dependency_graph_projection",
     })
+    _SCENARIO_SOURCE_FIELDS = _SOURCE_FIELDS | frozenset({
+        "scenario_truth_projection",
+    })
 
     def __init__(
         self,
@@ -694,6 +697,7 @@ class CategoryCompletionOracle:
         migration_rehearsal_factory: object | None = None,
         migration_rehearsal_authority: object | None = None,
         dependency_graph_factory: object | None = None,
+        scenario_truth_factory: object | None = None,
     ) -> None:
         if (
             type(policy) is not CategoryExecutionPolicy
@@ -755,6 +759,7 @@ class CategoryCompletionOracle:
                     performance_registry_factory,
                     migration_rehearsal_factory,
                     dependency_graph_factory,
+                    scenario_truth_factory,
                 )
             ) > 1
         ):
@@ -777,6 +782,21 @@ class CategoryCompletionOracle:
                 raise CategoryExecutionError(
                     "dependency graph assessment authority is invalid"
                 ) from error
+        if scenario_truth_factory is not None:
+            try:
+                from graph_engineering.application.scenario_truth import (
+                    ScenarioTruthRegistryFactory,
+                )
+
+                if type(scenario_truth_factory) is not ScenarioTruthRegistryFactory:
+                    raise CategoryExecutionError(
+                        "scenario truth assessment factory is foreign"
+                    )
+                scenario_truth_factory.registry()
+            except (ImportError, ValueError) as error:
+                raise CategoryExecutionError(
+                    "scenario truth assessment authority is invalid"
+                ) from error
         self._policy = policy
         self._target_authority = target_authority
         self._performance_registry_factory = performance_registry_factory
@@ -784,6 +804,7 @@ class CategoryCompletionOracle:
         self._migration_rehearsal_factory = migration_rehearsal_factory
         self._migration_rehearsal_authority = migration_rehearsal_authority
         self._dependency_graph_factory = dependency_graph_factory
+        self._scenario_truth_factory = scenario_truth_factory
         self.__issued: dict[int, CategoryCompletionAssessment] = {}
 
     def _issue(
@@ -793,6 +814,7 @@ class CategoryCompletionOracle:
         performance_evidence: object | None = None,
         migration_rehearsal_evidence: object | None = None,
         dependency_graph_evidence: object | None = None,
+        scenario_truth_evidence: object | None = None,
     ) -> CategoryCompletionAssessment:
         assessment_digest = _value_digest(body, "category-completion-assessment")
         result = object.__new__(CategoryCompletionAssessment)
@@ -802,6 +824,7 @@ class CategoryCompletionOracle:
                 "performance_evidence_projection",
                 "migration_rehearsal_projection",
                 "dependency_graph_projection",
+                "scenario_truth_projection",
             }:
                 frozen = freeze(item)
                 if not isinstance(frozen, FrozenMap):
@@ -818,6 +841,8 @@ class CategoryCompletionOracle:
             object.__setattr__(result, "migration_rehearsal_projection", None)
         if "dependency_graph_projection" not in body:
             object.__setattr__(result, "dependency_graph_projection", None)
+        if "scenario_truth_projection" not in body:
+            object.__setattr__(result, "scenario_truth_projection", None)
         object.__setattr__(result, "assessment_digest", assessment_digest)
         object.__setattr__(result, "_authority", self)
         object.__setattr__(result, "_performance_evidence", performance_evidence)
@@ -827,6 +852,7 @@ class CategoryCompletionOracle:
         object.__setattr__(
             result, "_dependency_graph_evidence", dependency_graph_evidence,
         )
+        object.__setattr__(result, "_scenario_truth_evidence", scenario_truth_evidence)
         object.__setattr__(result, "object_digest", "")
         object.__setattr__(result, "object_digest", category_object_digest(result.to_bytes()))
         self.__issued[id(result)] = result
@@ -845,6 +871,7 @@ class CategoryCompletionOracle:
         performance_evidence: object | None = None,
         migration_rehearsal_evidence: object | None = None,
         dependency_graph_evidence: object | None = None,
+        scenario_truth_evidence: object | None = None,
     ) -> CategoryCompletionAssessment:
         value = self._policy.require_candidate(candidate)
         self._target_authority.require_issued(observation)
@@ -1014,9 +1041,44 @@ class CategoryCompletionOracle:
             raise CategoryExecutionError(
                 "dependency graph evidence crossed scenario boundary"
             )
+        scenario_projection: dict[str, object] | None = None
+        if self._scenario_truth_factory is not None:
+            try:
+                evidence = self._scenario_truth_factory.require_current(
+                    scenario_truth_evidence
+                )
+                scenario_projection = thaw(
+                    self._scenario_truth_factory.projection(evidence)
+                )
+            except Exception as error:
+                raise CategoryExecutionError(
+                    "scenario truth evidence is absent, stale, or foreign"
+                ) from error
+            expected_boundary_case = (
+                "GEW-PSC-" + str(scenario_projection.get("profile_id", "")).upper()
+                + "-" + str(scenario_projection.get("scenario_id", "")).upper() + "-P"
+            )
+            if (
+                scenario_projection.get("task_id") != value["task_id"]
+                or scenario_projection.get("task_revision") != value["task_revision"]
+                or scenario_projection.get("snapshot_digest") != value["snapshot_digest"]
+                or scenario_projection.get("invalidation_epoch")
+                != value["invalidation_epoch"]
+                or scenario_projection.get("profile_id") != value["profile_id"]
+                or scenario_projection.get("profile_version") != value["profile_version"]
+                or value["scenario_id"] != expected_boundary_case
+                or freeze(scenario_projection.get("graph_ref_pins"))
+                != freeze(value["digest_pins"])
+            ):
+                raise CategoryExecutionError(
+                    "scenario truth evidence does not match the current task"
+                )
+        elif scenario_truth_evidence is not None:
+            raise CategoryExecutionError("scenario truth authority is not installed")
         body = {
             "schema_version": (
-                "1.2.0"
+                "1.3.0" if scenario_projection is not None
+                else "1.2.0"
                 if migration_projection is not None or dependency_projection is not None
                 else "1.1.0" if performance_projection is not None
                 else "1.0.0"
@@ -1055,11 +1117,14 @@ class CategoryCompletionOracle:
             body["migration_rehearsal_projection"] = migration_projection
         if dependency_projection is not None:
             body["dependency_graph_projection"] = dependency_projection
+        if scenario_projection is not None:
+            body["scenario_truth_projection"] = scenario_projection
         return self._issue(
             body,
             performance_evidence=performance_evidence,
             migration_rehearsal_evidence=migration_rehearsal_evidence,
             dependency_graph_evidence=dependency_evidence,
+            scenario_truth_evidence=scenario_truth_evidence,
         )
 
     def require_issued(self, assessment: CategoryCompletionAssessment) -> None:
@@ -1100,6 +1165,17 @@ class CategoryCompletionOracle:
             raise CategoryExecutionError(
                 "dependency graph assessment authority is absent"
             )
+        if self._scenario_truth_factory is not None:
+            evidence = self._scenario_truth_factory.require_current(
+                assessment._scenario_truth_evidence
+            )
+            projection = self._scenario_truth_factory.projection(evidence)
+            if projection != assessment.scenario_truth_projection:
+                raise CategoryExecutionError(
+                    "scenario truth assessment evidence changed"
+                )
+        elif assessment.scenario_truth_projection is not None:
+            raise CategoryExecutionError("scenario truth assessment authority is absent")
         if (
             assessment.status != "PASS"
             or not hmac.compare_digest(
@@ -1119,6 +1195,11 @@ class CategoryCompletionOracle:
         source_fields = (
             self._PERFORMANCE_SOURCE_FIELDS
             if source.get("schema_version") == "1.1.0"
+            else self._SCENARIO_SOURCE_FIELDS
+            if (
+                source.get("schema_version") == "1.3.0"
+                and "scenario_truth_projection" in source
+            )
             else self._DEPENDENCY_SOURCE_FIELDS
             if (
                 source.get("schema_version") == "1.2.0"
@@ -1219,11 +1300,26 @@ class CategoryCompletionOracle:
                 raise CategoryExecutionError(
                     "stored dependency graph projection is stale or foreign"
                 ) from error
+        scenario_evidence = None
+        if source.get("schema_version") == "1.3.0":
+            if self._scenario_truth_factory is None:
+                raise CategoryExecutionError(
+                    "stored scenario truth assessment has no current authority"
+                )
+            projection = source.get("scenario_truth_projection")
+            if type(projection) is not dict:
+                raise CategoryExecutionError(
+                    "stored scenario truth projection is malformed"
+                )
+            scenario_evidence = self._scenario_truth_factory.restore_projection(
+                projection
+            )
         result = self._issue(
             source,
             performance_evidence=performance_evidence,
             migration_rehearsal_evidence=migration_evidence,
             dependency_graph_evidence=dependency_evidence,
+            scenario_truth_evidence=scenario_evidence,
         )
         if not hmac.compare_digest(result.assessment_digest, expected):
             raise CategoryExecutionError("stored category assessment did not restore exactly")
@@ -1285,6 +1381,11 @@ class CategoryAssessmentResolver:
         source_fields = (
             CategoryCompletionOracle._PERFORMANCE_SOURCE_FIELDS
             if source.get("schema_version") == "1.1.0"
+            else CategoryCompletionOracle._SCENARIO_SOURCE_FIELDS
+            if (
+                source.get("schema_version") == "1.3.0"
+                and "scenario_truth_projection" in source
+            )
             else CategoryCompletionOracle._DEPENDENCY_SOURCE_FIELDS
             if (
                 source.get("schema_version") == "1.2.0"
@@ -2659,6 +2760,7 @@ class CategoryExecutionApplication:
         performance_evidence: object | None = None,
         migration_rehearsal_evidence: object | None = None,
         dependency_graph_evidence: object | None = None,
+        scenario_truth_evidence: object | None = None,
     ) -> CategoryAssessmentReceipt:
         selector = _category_selector(candidate)
         if observer is not self._target_observer:
@@ -2715,6 +2817,7 @@ class CategoryExecutionApplication:
             performance_evidence=performance_evidence,
             migration_rehearsal_evidence=migration_rehearsal_evidence,
             dependency_graph_evidence=dependency_graph_evidence,
+            scenario_truth_evidence=scenario_truth_evidence,
         )
         event, successor = self._reducer.transition(
             state,
@@ -2916,6 +3019,7 @@ class CategoryExecutionApplication:
         current_assessment_body = resolver.current_body(restart_task_id)
         migration_projection: dict[str, object] | None = None
         dependency_projection: dict[str, object] | None = None
+        scenario_projection: dict[str, object] | None = None
         if current_assessment_body is not None:
             _current_snapshot, current_assessment_bytes = current_assessment_body
             current_assessment = _strict_json(current_assessment_bytes)
@@ -2952,6 +3056,29 @@ class CategoryExecutionApplication:
                     raise CategoryExecutionError(
                         "category assessment 1.2 crossed Profile boundary"
                     )
+            elif current_assessment.get("schema_version") == "1.3.0":
+                if current_assessment.get("profile_id") != self._policy.profile_id:
+                    raise CategoryExecutionError(
+                        "current scenario assessment projection is foreign"
+                    )
+                candidate_projection = current_assessment.get(
+                    "scenario_truth_projection"
+                )
+                if (
+                    type(candidate_projection) is not dict
+                    or any(
+                        field in current_assessment
+                        for field in (
+                            "performance_evidence_projection",
+                            "migration_rehearsal_projection",
+                            "dependency_graph_projection",
+                        )
+                    )
+                ):
+                    raise CategoryExecutionError(
+                        "current scenario truth projection is invalid"
+                    )
+                scenario_projection = candidate_projection
         performance_factory = None
         performance_authority = None
         if self._policy.profile_id == "performance":
@@ -2987,6 +3114,13 @@ class CategoryExecutionApplication:
             dependency_factory = DependencyGraphAssessmentFactory.from_installation(
                 repository
             )
+        scenario_factory = None
+        if scenario_projection is not None:
+            from graph_engineering.application.scenario_truth import (
+                ScenarioTruthRegistryFactory,
+            )
+
+            scenario_factory = ScenarioTruthRegistryFactory.from_installation()
         target_authority = CategoryTargetObservationAuthority(self._policy)
         restarted = CategoryExecutionApplication(
             repository=repository,
@@ -3001,6 +3135,7 @@ class CategoryExecutionApplication:
                 migration_rehearsal_factory=migration_factory,
                 migration_rehearsal_authority=migration_authority,
                 dependency_graph_factory=dependency_factory,
+                scenario_truth_factory=scenario_factory,
             ),
             rollback_bridge=CategoryRollbackBridge(
                 self._policy, self._rollback._coordinator
@@ -3038,6 +3173,21 @@ class CategoryExecutionApplication:
             ):
                 raise CategoryExecutionError(
                     "current dependency graph assessment did not restart"
+                )
+        if scenario_projection is not None:
+            restored_assessment = restarted.current_assessment(
+                restart_task_id,
+                expected_profile_id=self._policy.profile_id,
+            )
+            if (
+                restored_assessment is None
+                or restored_assessment.scenario_truth_projection is None
+                or restored_assessment.performance_evidence_projection is not None
+                or restored_assessment.migration_rehearsal_projection is not None
+                or restored_assessment.dependency_graph_projection is not None
+            ):
+                raise CategoryExecutionError(
+                    "current scenario truth assessment did not restart"
                 )
         return restarted
 

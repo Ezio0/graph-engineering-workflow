@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "verdict": "PASS",
+  "artifact": "test_plan",
+  "scope_changed": false,
+  "change_kinds": [
+    "traceability",
+    "testability"
+  ],
+  "findings": [
+    {
+      "id": "GEW-REMAINING54-F1-SOURCE-CLOSURE-TRACE-R1-001",
+      "severity": "blocking",
+      "evidence": "Spec revision 36 lines 1506-1518, Plan revision 35 lines 705-714, Impact revision 30 lines 778-790, and Test Plan revision 43 F1 item 6 now distinguish source-checkout/package/wheel/RECORD closure from each bootstrap's actual input projection. Read-only inspection confirms dependency_security.py is in core/graph_engineering/__init__.py::_SOURCE_FILES and tests/support/source_checkout_attestation.py::SOURCE_FILES, with pyproject source/package mappings; dependency bootstrap 1.2 has no application-source protected-member field; performance bootstrap protects application/profile_coverage.py; action_adapters.py::_action_build_manifest_digest excludes dependency-advisory and performance-benchmark tables.",
+      "required_change": "None for this documentation finding. Preserve actual-input-only digest cascades and all currentness gates during implementation; this does not approve implementation or close Candidate findings.",
+      "verification": "All 9 raw file hashes match manifest 5399d8a1a750a9f32e8748e0eee0ae26f61ee72f09a973df0d20c6a272fb4861; state/manifest targets match and are all allowed. Envelope is unchanged from reviewed F1 R0 at raw SHA-256 25d6ba058f2b92b14a306443ab9186051571eb4ef4d1a4804cfee62fa0b6fa68, contains 168 unique targets, and removing only dependency_security.py leaves 167. git diff --check passes.",
+      "status": "resolved"
+    },
+    {
+      "id": "GEW-REMAINING54-F1-OBSERVATION-VERSION-TRACE-R1-002",
+      "severity": "blocking",
+      "evidence": "Spec revision 36 lines 1485-1504 and Test Plan revision 43 F1 items 2-5 and 10 require both existing exact Observation 1.0/1.1 branches, issued-input-derived graph selection, fresh graph-policy/remediation/closure/disposition reconstruction, full comparison before atomic LIVE, unchanged task projection, and distinct downstream GraphAssessment authority. Existing from_graph_authorities/observe_graph APIs and 1.1 schema support this contract. candidate_document selects the first positive configured dependency scenario, FIX-UNAVAILABLE-P; the ARTIFACTS-R plan row retains its original request digest.",
+      "required_change": "None for this documentation finding. Implement and verify the documented two-version contract without changing original candidates, scenarios, plan, oracle, schemas, task discriminator, or rejection guarantees. Implementation remains unreviewed and all five existing Candidate findings remain OPEN.",
+      "verification": "Independently reconstructed the ARTIFACTS-R request from current candidate-selector logic, profile data and plan task ID, framed the existing semantic-digest domain, and obtained SHA-256 e9315eb7ced2072939c95533b7f8aeb53e11e1e1c137d5e462c69c5130a9b938. ADR-0008, Spec, Impact, Plan, Test Plan and the authority-neutral audit correction agree on this value and no version/schema/target expansion.",
+      "status": "resolved"
+    }
+  ]
+}

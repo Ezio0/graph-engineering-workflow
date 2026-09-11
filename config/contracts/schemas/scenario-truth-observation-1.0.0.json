@@ -1,0 +1,564 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:scenario-truth-observation:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "raw": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "integer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "evidence_kind": {
+      "const": "scenario-truth-observation-v1"
+    },
+    "task_id": {
+      "$ref": "#/$defs/id"
+    },
+    "task_revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "snapshot_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "invalidation_epoch": {
+      "$ref": "#/$defs/integer"
+    },
+    "profile_id": {
+      "$ref": "#/$defs/id"
+    },
+    "profile_version": {
+      "$ref": "#/$defs/id"
+    },
+    "scenario_id": {
+      "$ref": "#/$defs/id"
+    },
+    "graph_ref_pins": {
+      "type": "object",
+      "properties": {
+        "base_graph_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "profile_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "overlay_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "project_config_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "support_matrix_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "materialization_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "base_graph_digest",
+        "profile_digest",
+        "overlay_digest",
+        "project_config_digest",
+        "support_matrix_digest",
+        "materialization_digest"
+      ],
+      "unevaluatedProperties": false
+    },
+    "installation_pins": {
+      "type": "object",
+      "properties": {
+        "bootstrap_id": {
+          "$ref": "#/$defs/id"
+        },
+        "bootstrap_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "policy_registry_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "fixture_registry_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "profile_schema_registry_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "protected_closure_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "distribution_name": {
+          "$ref": "#/$defs/id"
+        },
+        "distribution_version": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "bootstrap_id",
+        "bootstrap_digest",
+        "policy_registry_digest",
+        "fixture_registry_digest",
+        "profile_schema_registry_digest",
+        "protected_closure_digest",
+        "distribution_name",
+        "distribution_version"
+      ],
+      "unevaluatedProperties": false
+    },
+    "policy_row": {
+      "type": "object",
+      "properties": {
+        "profile_id": {
+          "$ref": "#/$defs/id"
+        },
+        "profile_version": {
+          "$ref": "#/$defs/id"
+        },
+        "scenario_id": {
+          "$ref": "#/$defs/id"
+        },
+        "fixture_id": {
+          "$ref": "#/$defs/id"
+        },
+        "fixture_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "required_target_roles": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "ordered_phase_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "required_fact_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "success_outcome": {
+          "$ref": "#/$defs/id"
+        },
+        "blocked_outcome": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/id"
+            }
+          ]
+        },
+        "owner_route_policy": {
+          "$ref": "#/$defs/id"
+        },
+        "branch_isolation_policy": {
+          "$ref": "#/$defs/id"
+        },
+        "mutation_budget": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64
+        },
+        "rollback_required": {
+          "type": "boolean"
+        },
+        "compensation_required": {
+          "type": "boolean"
+        },
+        "row_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "profile_id",
+        "profile_version",
+        "scenario_id",
+        "fixture_id",
+        "fixture_digest",
+        "required_target_roles",
+        "ordered_phase_ids",
+        "required_fact_ids",
+        "success_outcome",
+        "blocked_outcome",
+        "owner_route_policy",
+        "branch_isolation_policy",
+        "mutation_budget",
+        "rollback_required",
+        "compensation_required",
+        "row_digest"
+      ],
+      "unevaluatedProperties": false
+    },
+    "fixture_row": {
+      "type": "object",
+      "properties": {
+        "fixture_id": {
+          "$ref": "#/$defs/id"
+        },
+        "profile_id": {
+          "$ref": "#/$defs/id"
+        },
+        "scenario_id": {
+          "$ref": "#/$defs/id"
+        },
+        "rejection_attack_ids": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "target_roles": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "properties": {
+              "role_id": {
+                "$ref": "#/$defs/id"
+              },
+              "path_id": {
+                "$ref": "#/$defs/id"
+              },
+              "baseline_state_id": {
+                "$ref": "#/$defs/id"
+              },
+              "baseline_value": {
+                "$ref": "#/$defs/id"
+              },
+              "candidate_state_id": {
+                "$ref": "#/$defs/id"
+              },
+              "candidate_value": {
+                "$ref": "#/$defs/id"
+              },
+              "rollback_state_id": {
+                "$ref": "#/$defs/id"
+              },
+              "rollback_value": {
+                "$ref": "#/$defs/id"
+              }
+            },
+            "required": [
+              "role_id",
+              "path_id",
+              "baseline_state_id",
+              "baseline_value",
+              "candidate_state_id",
+              "candidate_value",
+              "rollback_state_id",
+              "rollback_value"
+            ],
+            "unevaluatedProperties": false
+          }
+        },
+        "phase_expectations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "type": "object",
+            "properties": {
+              "phase_id": {
+                "$ref": "#/$defs/id"
+              },
+              "from_state_id": {
+                "$ref": "#/$defs/id"
+              },
+              "to_state_id": {
+                "$ref": "#/$defs/id"
+              }
+            },
+            "required": [
+              "phase_id",
+              "from_state_id",
+              "to_state_id"
+            ],
+            "unevaluatedProperties": false
+          }
+        },
+        "assertion_expectations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "properties": {
+              "assertion_id": {
+                "$ref": "#/$defs/id"
+              },
+              "kind": {
+                "$ref": "#/$defs/id"
+              },
+              "expected": {
+                "type": [
+                  "string",
+                  "integer",
+                  "boolean"
+                ]
+              }
+            },
+            "required": [
+              "assertion_id",
+              "kind",
+              "expected"
+            ],
+            "unevaluatedProperties": false
+          }
+        },
+        "rollback_or_compensation": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "$ref": "#/$defs/id"
+            },
+            "expected_state_id": {
+              "$ref": "#/$defs/id"
+            },
+            "required": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "expected_state_id",
+            "required"
+          ],
+          "unevaluatedProperties": false
+        },
+        "fixture_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "fixture_id",
+        "profile_id",
+        "scenario_id",
+        "target_roles",
+        "phase_expectations",
+        "assertion_expectations",
+        "rollback_or_compensation",
+        "fixture_digest"
+      ],
+      "unevaluatedProperties": false
+    },
+    "branch_binding": {
+      "type": "object",
+      "properties": {
+        "branch_id": {
+          "$ref": "#/$defs/id"
+        },
+        "ref_id": {
+          "$ref": "#/$defs/id"
+        },
+        "root_path": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "branch_id",
+        "ref_id",
+        "root_path"
+      ],
+      "unevaluatedProperties": false
+    },
+    "before_targets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "properties": {
+          "role_id": {
+            "$ref": "#/$defs/id"
+          },
+          "path_id": {
+            "$ref": "#/$defs/id"
+          },
+          "state_id": {
+            "$ref": "#/$defs/id"
+          },
+          "value_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "role_id",
+          "path_id",
+          "state_id",
+          "value_digest"
+        ],
+        "unevaluatedProperties": false
+      }
+    },
+    "ordered_transitions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "properties": {
+          "phase_id": {
+            "$ref": "#/$defs/id"
+          },
+          "role_id": {
+            "$ref": "#/$defs/id"
+          },
+          "before_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "after_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "phase_id",
+          "role_id",
+          "before_digest",
+          "after_digest"
+        ],
+        "unevaluatedProperties": false
+      }
+    },
+    "after_targets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "properties": {
+          "role_id": {
+            "$ref": "#/$defs/id"
+          },
+          "path_id": {
+            "$ref": "#/$defs/id"
+          },
+          "state_id": {
+            "$ref": "#/$defs/id"
+          },
+          "value_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "role_id",
+          "path_id",
+          "state_id",
+          "value_digest"
+        ],
+        "unevaluatedProperties": false
+      }
+    },
+    "assertion_results": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "properties": {
+          "assertion_id": {
+            "$ref": "#/$defs/id"
+          },
+          "passed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "assertion_id",
+          "passed"
+        ],
+        "unevaluatedProperties": false
+      }
+    },
+    "rollback_or_compensation": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/id"
+        },
+        "expected_state_id": {
+          "$ref": "#/$defs/id"
+        },
+        "required": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "expected_state_id",
+        "required"
+      ],
+      "unevaluatedProperties": false
+    },
+    "owner_route": {
+      "$ref": "#/$defs/id"
+    },
+    "scenario_outcome": {
+      "$ref": "#/$defs/id"
+    },
+    "observation_digest": {
+      "$ref": "#/$defs/digest"
+    }
+  },
+  "required": [
+    "schema_version",
+    "evidence_kind",
+    "task_id",
+    "task_revision",
+    "snapshot_digest",
+    "invalidation_epoch",
+    "profile_id",
+    "profile_version",
+    "scenario_id",
+    "graph_ref_pins",
+    "installation_pins",
+    "policy_row",
+    "fixture_row",
+    "branch_binding",
+    "before_targets",
+    "ordered_transitions",
+    "after_targets",
+    "assertion_results",
+    "rollback_or_compensation",
+    "owner_route",
+    "scenario_outcome",
+    "observation_digest"
+  ],
+  "unevaluatedProperties": false
+}

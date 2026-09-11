@@ -1,0 +1,514 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-REMAINING54-V1",
+  "decision_id": "GEW-REMAINING54-P1-P2-P3-LOCAL-OFFLINE",
+  "decided_by": "human-owner",
+  "decided_at": "2026-09-03",
+  "decision": "approve-p1-p2-p3-local-offline-remaining54",
+  "amendment_id": "GEW-REMAINING54-PYPROJECT-TARGET-R1",
+  "amended_at": "2026-09-03",
+  "approved_target_boundary_addition": [
+    "pyproject.toml"
+  ],
+  "r3_amendment_id": "GEW-REMAINING54-PERFORMANCE-NOISE-AUTHORITY-R3",
+  "r3_amended_at": "2026-09-03",
+  "r3_approved_target_boundary_additions": [
+    "config/performance/performance-benchmark-registry-v1.json",
+    "config/performance/performance-benchmark-installation-bootstrap-v1.json"
+  ],
+  "r3_performance_noise_authority": {
+    "noise_ceiling_numerator": 1,
+    "noise_ceiling_denominator": 2,
+    "positive_measurement_authority": "real-parent-monotonic-ns-full-structured-command",
+    "positive_required_outcome": "complete-performance-success",
+    "negative_oracle_vector": [
+      1,
+      2,
+      100,
+      200,
+      201
+    ],
+    "negative_vector_median": 100,
+    "negative_vector_mad": 99,
+    "negative_noise_left_product": 198,
+    "negative_noise_right_product": 100,
+    "negative_required_outcome": "fail-closed-only"
+  },
+  "a_amendment": {
+    "amendment_id": "GEW-REMAINING54-ORACLE-REJECTION-INPUT-A",
+    "amended_at": "2026-09-03",
+    "decision": "approve-recommended-a-profile-coverage-oracle-input-1.1",
+    "approved_target_boundary_addition": [
+      "config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json",
+      "core/graph_engineering/core/profile_coverage.py",
+      "core/graph_engineering/core/source_checkout.py",
+      "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+      "config/migration/migration-rehearsal-installation-bootstrap-v1.json"
+    ],
+    "schema_authority": {
+      "historical_schema_version": "1.0.0-byte-identical-read-only",
+      "current_schema_version": "1.1.0",
+      "rejection_input": {
+        "kind": "integer-vector",
+        "values": [
+          1,
+          2,
+          100,
+          200,
+          201
+        ]
+      },
+      "reject_error_message_role": "diagnostic-only-no-encoded-input",
+      "core_role": "generic-exact-version-digest-schema-validation-only",
+      "performance_application_role": "interpret-integer-vector-and-recompute-median-mad",
+      "positive_path": "real-parent-monotonic-ns-complete-performance-success",
+      "negative_path": "deterministic-fail-closed-only"
+    },
+    "bootstrap_lineage": {
+      "dependency_current": "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+      "dependency_historical_unchanged": "config/security/dependency-advisory-installation-bootstrap-v1.1.json",
+      "migration_current": "config/migration/migration-rehearsal-installation-bootstrap-v1.json"
+    }
+  },
+  "b_amendment": {
+    "amendment_id": "GEW-REMAINING54-ACTION-PROVENANCE-B",
+    "amended_at": "2026-09-04",
+    "decision": "approve-action-policy-default-current-provenance-target",
+    "approved_target_boundary_addition": [
+      "config/actions/action-policy-v1.json"
+    ],
+    "provenance_authority": {
+      "directed_chain": [
+        "pyproject.toml#builtin-action-implementation-provenance",
+        "config/contracts/action-adapter-registry-v1.json",
+        "config/actions/concrete-action-policy-v1.json",
+        "config/actions/action-policy-v1.json",
+        "config/actions/action-policy-local-actions-v1.json",
+        "config/security/security-runtime-local-actions-v1.json",
+        "source-wp00-bootstrap-package-wheel-record-current-pins"
+      ],
+      "directed_edges": [
+        "pyproject-builtin-provenance->action-adapter-registry",
+        "action-adapter-registry->concrete-action-policy",
+        "concrete-action-policy->action-policy-default",
+        "concrete-action-policy->action-policy-local-actions",
+        "action-policy-local-actions->security-runtime-local-actions",
+        "current-action-chain->source-wp00-bootstrap-package-wheel-record-pins"
+      ],
+      "cause": "p2-packaged-source-additions-change-builtin-action-implementation-provenance",
+      "stale_default_policy_outcome": "p1-verified-child-fails-closed-correctly",
+      "required_resolution": "topological-one-way-current-config-resign-and-full-currentness-recheck",
+      "forbidden_resolution": "bypass-weaken-or-remove-installation-pins",
+      "digest_cycle": "forbidden",
+      "p2a_resume_order": "resign-current-chain-then-rerun-p1-currentness-sibling-before-p2a"
+    }
+  },
+  "c_amendment": {
+    "amendment_id": "GEW-REMAINING54-ACTION-RUNTIME-C",
+    "amended_at": "2026-09-04",
+    "decision": "approve-default-security-runtime-current-provenance-target",
+    "approved_target_boundary_addition": [
+      "config/security/security-runtime-v1.json"
+    ],
+    "closes_finding_id": "GEW-REMAINING54-ACTION-RUNTIME-CASCADE-B-R1-001",
+    "provenance_authority": {
+      "shared_prefix": [
+        "pyproject.toml#builtin-action-implementation-provenance",
+        "config/contracts/action-adapter-registry-v1.json",
+        "config/actions/concrete-action-policy-v1.json"
+      ],
+      "default_runtime_branch": [
+        "config/actions/action-policy-v1.json",
+        "config/security/security-runtime-v1.json"
+      ],
+      "local_runtime_branch": [
+        "config/actions/action-policy-local-actions-v1.json",
+        "config/security/security-runtime-local-actions-v1.json"
+      ],
+      "branch_join": "source-wp00-bootstrap-package-wheel-record-current-pins",
+      "readonly_default_runtime_consumer": "scripts/evidence_utils.py",
+      "readonly_consumer_target_authority": "not-authorized-for-modification",
+      "stale_default_runtime_outcome": "fail-closed-after-default-policy-resign",
+      "required_resume_order": "p2a-packaged-sources-then-topological-two-runtime-resign-then-evidence-utils-currentness-then-p1-sibling",
+      "digest_cycle": "forbidden",
+      "pin_bypass_or_weakening": "forbidden"
+    }
+  },
+  "d_amendment": {
+    "amendment_id": "GEW-REMAINING54-WP07A-BUILD-BASELINE-D",
+    "amended_at": "2026-09-04",
+    "decision": "approve-exact-wp07a-build-projection-baseline-test-target",
+    "approved_target_boundary_addition": [
+      "tests/security/test_wp07a_action_contract_security.py"
+    ],
+    "authorized_test_change": {
+      "method": "WP07AActionContractSecurityTests.test_gew_act_001b_installation_anchor_rejects_re_signed_registry_and_provenance_substitutions",
+      "old_stale_expected_digest": "b9e8e75bca0436651a723da05d9bcea27f06768666c8c1d9f9fc6b9b80707944",
+      "new_expected_authority": "exact-current-_action_build_manifest_digest-of-pyproject.toml-after-approved-p2a-build-projection",
+      "allowed_delta": "replace-only-the-stale-exact-expected-build-projection-baseline",
+      "must_preserve": [
+        "dependency-substitution-attacks",
+        "declared-import-substitution-attacks",
+        "build-mapping-substitution-attacks",
+        "entrypoint-substitution-attacks",
+        "registry-and-provenance-substitution-attacks"
+      ],
+      "forbidden_resolutions": [
+        "skip-or-remove-the-baseline-assertion",
+        "derive-the-expected-value-from-the-same-runtime-call-under-test",
+        "use-a-loose-or-prefix-only-comparison",
+        "accept-ambient-or-caller-supplied-expected-values",
+        "weaken-or-remove-any-substitution-attack"
+      ]
+    },
+    "trigger_evidence": {
+      "cause": "approved-p2a-scenario-sources-and-pyproject-build-projection-changed",
+      "c_chain_state": "current-action-chain-factory-wp08-package-and-wheel-pass",
+      "expanded_security_result": "17-of-18-pass",
+      "sole_failure": "historical-wp07a-stale-expected-build-projection-constant"
+    },
+    "required_resume_order": [
+      "update-only-the-exact-wp07a-baseline",
+      "run-the-named-wp07a-method",
+      "run-wp08-security-evidence-package-wheel-and-p1-sibling",
+      "resume-p2a-cumulative-r2"
+    ],
+    "candidate_findings": [
+      {"id": "GEW-REMAINING54-P2A-CAND-R1-001", "status": "open", "focused_state": "green", "scope": "full-installed-closure-currentness"},
+      {"id": "GEW-REMAINING54-P2A-CAND-R1-002", "status": "open", "focused_state": "green", "scope": "exact-full-task-namespace-branch-ref"},
+      {"id": "GEW-REMAINING54-P2A-CAND-R1-003", "status": "open", "focused_state": "green", "scope": "generic-assertion-evaluator-and-required-fact-ids"},
+      {"id": "GEW-REMAINING54-P2A-CAND-R1-004", "status": "open", "focused_state": "awaiting-d-baseline-and-cumulative-r2", "scope": "executable-p2a-cumulative-selector-exact-226-48-static-0-of-274"},
+      {"id": "GEW-REMAINING54-P2A-CAND-R1-005", "status": "open", "focused_state": "green", "scope": "r-task-factory-root-attack-evidence-bound-to-r-record-and-oracle"}
+    ],
+    "candidate_finding_disposition_authority": "independent-candidate-reviewer-only"
+  },
+  "e1_amendment": {
+    "amendment_id": "GEW-REMAINING54-PROCESS-LOCAL-QUIESCENT-REOPEN-E1",
+    "amended_at": "2026-09-05",
+    "decision": "approve-recommended-e1-process-local-sealed-quiescent-reopen-authority",
+    "approved_target_boundary_addition": [],
+    "allowed_target_count": 167,
+    "binding_isolation": {
+      "fresh_private_repository_root_per_binding": true,
+      "unique_task_target_branch_ref_action_command_roots": true,
+      "cross_binding_or_profile_repository_sharing": "forbidden",
+      "simultaneously_reopened_bindings_maximum": 1
+    },
+    "authority_lifecycle": {
+      "states": [
+        "open",
+        "sealed",
+        "quiesced",
+        "reopened",
+        "permanently-closed"
+      ],
+      "seal_after": "execution-or-observation",
+      "seal_binds": [
+        "current-installation-provenance-source-package-wheel-record-closure",
+        "runtime-attested-root-identity-without-hardcoded-absolute-path",
+        "task-objects-target-action-command-state",
+        "record-and-observation-digests"
+      ],
+      "quiesce_releases": [
+        "repository-handles",
+        "object-handles",
+        "action-handles",
+        "git-handles",
+        "launcher-handles",
+        "session-handles",
+        "live-file-descriptors"
+      ],
+      "quiesce_retains": "exact-private-binding-root-bytes",
+      "reopen_port_owner": "runtime-or-test-adapter",
+      "reopen_before_validation": "same-root-identity-and-full-current-closure-state-reread-and-compare",
+      "reopen_allowed_purposes": [
+        "issue",
+        "use",
+        "precommit",
+        "gate"
+      ],
+      "post_purpose_transition": "reseal-current-generation-then-quiesce",
+      "terminal_transition": "finalize-or-revoke-permanently-closes-authority"
+    },
+    "capability_rules": {
+      "process_local": true,
+      "opaque": true,
+      "non_serializable": true,
+      "non_portable": true,
+      "caller_construction_clone_share_replay": "forbidden",
+      "action_or_mutation_reexecution": "forbidden",
+      "currentness_cache_or_skip": "forbidden",
+      "double_concurrent_out_of_order_reopen": "forbidden",
+      "reopen_after_finalize_or_revoke": "forbidden"
+    },
+    "architecture_boundary": {
+      "core_role": "platform-neutral-state-machine-and-typed-reopen-port-only",
+      "runtime_adapter_role": "actual-file-repository-object-action-git-launcher-session-reopening-and-handle-closure",
+      "no_new_db_schema_table_dependency_daemon_graphref_lifecycle_or_wp10": true
+    },
+    "trigger_evidence": {
+      "p2a_cumulative_r2_attempts": [
+        "first-4.086-seconds-c-action-provenance-failed-closed-then-fixed",
+        "second-exact-7200-seconds-timeout-expired-with-no-receipt"
+      ],
+      "representative_retained_contexts": "fd-4-to-885-maxrss-7.20gb-then-teardown-fd-4",
+      "same_root_phase_probe": {
+        "plan_seconds": "0.546",
+        "base_seconds": "7.801",
+        "authorities_226_seconds": "4.904",
+        "observations_226_seconds": "226.608",
+        "factory_milliseconds": "1.085",
+        "issuance_seconds": "114.974",
+        "dynamic_seconds_lower_bound": "545.166",
+        "timeout_seconds": "900"
+      },
+      "diagnosis": "live-resource-accumulation-plus-three-currentness-passes-not-a-single-binding-stall"
+    },
+    "verification_authority": {
+      "red": "valid-current-api-close-path-proves-stale-or-226-context-resource-accumulation",
+      "positive": "226-exact-bindings-execute-seal-quiesce-lazy-reopen-issue-use-precommit-gate-and-requiesce",
+      "positive_counts": "plan-226-oracles-113-dynamic-226-valid-48-missing-false-static-0-valid-274-missing-false",
+      "negative_dimensions": [
+        "root-installation-source-package-wheel-record",
+        "task-object-target-action-command",
+        "same-path-and-coherent-tamper",
+        "wrong-root-or-ref-and-missing-or-extra",
+        "forged-cloned-serialized-seal",
+        "double-concurrent-out-of-order-reopen",
+        "action-or-mutation-replay",
+        "reopen-after-finalize-or-revoke",
+        "symlink-and-cross-binding"
+      ],
+      "negative_outcome": "zero-write-zero-mutation-zero-replay",
+      "resource_evidence": "deterministic-lifecycle-and-active-handle-counters-plus-fd-baseline-return-diagnostic",
+      "machine_rss_or_fd_threshold_in_engine": "forbidden",
+      "runtime_and_heartbeat_limits": "testability-config-only-not-raised-to-mask-failure"
+    },
+    "candidate_findings": [
+      {"id": "GEW-REMAINING54-P2A-CAND-R1-001", "status": "open"},
+      {"id": "GEW-REMAINING54-P2A-CAND-R1-002", "status": "open"},
+      {"id": "GEW-REMAINING54-P2A-CAND-R1-003", "status": "open"},
+      {"id": "GEW-REMAINING54-P2A-CAND-R1-004", "status": "open", "e1_closure_required": true},
+      {"id": "GEW-REMAINING54-P2A-CAND-R1-005", "status": "open"}
+    ],
+    "candidate_finding_disposition_authority": "independent-candidate-reviewer-only",
+    "preserved_d_order": "wp07a-baseline-then-wp07a-method-then-wp08-security-evidence-package-wheel-p1-sibling-before-p2a-cumulative-r2"
+  },
+  "e1_r3_revision": {
+    "revision_id": "GEW-REMAINING54-E1-AUTHOR-R3",
+    "previous_manifest_digest": "0238f9cc835da4cb9b78fa8e3451e0c7c5f2cafd9733ec21a0ba854128249852",
+    "stable_finding": {
+      "id": "GEW-REMAINING54-E1-REPOSITORY-ISOLATION-TRACE-R1-001",
+      "author_status": "addressed-pending-independent-review",
+      "resolution_authority": "independent-reviewer-only"
+    },
+    "approved_target_boundary_addition": [],
+    "allowed_target_count": 167,
+    "historical_rule": "pre-e1-per-profile-shared-repository-or-application-stack-language-is-historical-only-and-does-not-apply-to-e1-or-current-cumulative",
+    "current_rule": "each-binding-has-one-fresh-private-repository-root-task-target-branch-ref-action-root-and-command-root-with-no-cross-binding-or-cross-profile-sharing",
+    "positive_identity_assertions": {
+      "binding_count": 226,
+      "repository_root_identity_unique_count": 226,
+      "task_identity_unique_count": 226,
+      "target_identity_unique_count": 226,
+      "branch_ref_identity_unique_count": 226,
+      "action_root_identity_unique_count": 226,
+      "command_root_identity_unique_count": 226,
+      "combined_binding_identity_tuple_unique_count": 226
+    },
+    "negative_preserved": "cross-binding-or-cross-profile-root-task-target-branch-ref-action-command-substitution-fails-with-zero-write-zero-mutation-zero-replay"
+  },
+  "f1_amendment": {
+    "amendment_id": "GEW-REMAINING54-F1-DEPENDENCY-SECURITY-REHYDRATE",
+    "amended_at": "2026-09-06",
+    "decision": "approve-one-exact-dependency-security-application-target-and-generic-typed-rehydrate-current-seal-api",
+    "previous_manifest_digest": "f60633ae6e3537762b1ac0927f036d0606e1ba033525513668411a0ecc9062ff",
+    "approved_target_boundary_addition": [
+      "application/graph_engineering/application/dependency_security.py"
+    ],
+    "historical_authority_counts": {
+      "c": 166,
+      "d": 167,
+      "e1": 167
+    },
+    "current_allowed_target_count": 168,
+    "authorized_contract": {
+      "factory": "DependencySecurityObservationFactory",
+      "api": "generic-typed-rehydrate-and-current-seal",
+      "same_binding_requirements": [
+        "private-repository-root-identity",
+        "task-identity-and-current-revision-snapshot-epoch",
+        "dependency-security-category-identity",
+        "current-installed-bootstrap-source-package-wheel-record-closure"
+      ],
+      "factory_observation_separation": "factory-rehydrates-and-seals-an-existing-typed-DependencySecurityObservation; graph-or-category-assessment-remains-a-distinct-downstream-consumer-and-is-not-authority-input",
+      "authority": "opaque-runtime-owned-process-local-current-seal",
+      "full_reread_phases": [
+        "issue",
+        "use",
+        "precommit",
+        "gate"
+      ],
+      "forbidden": [
+        "resolver-or-network-access",
+        "action-command-or-mutation-replay",
+        "caller-constructed-cloned-serialized-or-forged-seal",
+        "stale-p-to-r-or-r-to-p-substitution",
+        "cross-root-cross-task-cross-category-or-cross-installation-rehydrate",
+        "rehydrate-after-finalize-or-revoke"
+      ],
+      "rejection_effect": "zero-write-zero-mutation-zero-action-or-command-replay"
+    },
+    "installation_cascade": "verify-the-new-application-source-through-the-existing-source-checkout-attestation-pyproject-package-mapping-wheel-and-record-closure; independently-verify-each-bootstrap-and-the-c-and-d-provenance-chain-against-its-actual-input-projection-without-forcing-a-digest-change-when-those-inputs-are-unchanged",
+    "testability_data": {
+      "source": "config/profiles/scenario-truth-policy-registry-v1.json",
+      "cumulative_runtime_limit_seconds": 12600,
+      "heartbeat_interval_seconds": 60,
+      "classification": "routine-config-owned-e1-testability-data",
+      "cannot_replace": "seal-quiesce-reopen-full-reread-exclusive-reopen-active-handle-and-zero-replay-gates"
+    }
+  },
+  "f2_amendment": {
+    "amendment_id": "GEW-REMAINING54-F2-TERMINAL-LIFECYCLE-REPAIR",
+    "amended_at": "2026-09-06",
+    "human_approval": "批准F2",
+    "decision": "approve-existing-boundary-implementation-and-test-repair",
+    "source_escalation": {
+      "decision": "ESCALATE",
+      "code": "E_SCOPE",
+      "record": ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-decision-r1.json"
+    },
+    "approved_target_boundary_addition": [],
+    "current_allowed_target_count": 168,
+    "authorized_findings": [
+      "GEW-REMAINING54-F1-SEAL-TERMINAL-R0-001",
+      "GEW-REMAINING54-F1-QUIESCENT-TEST-R0-002",
+      "GEW-REMAINING54-F1-TERMINAL-CLEANUP-R0-003"
+    ],
+    "authorized_work": [
+      "retain-and-recheck-the-original-live-state-across-seal-projection-callbacks",
+      "prove-quiesced-dependency-bindings-retain-no-live-factory-or-observation",
+      "revoke-the-dependency-reopen-authority-when-the-binding-lifecycle-finalizes-or-revokes",
+      "run-deterministic-regressions-and-fresh-independent-review"
+    ],
+    "authority_effect": "No goal, non-goal, target, schema, dependency, data-access, security-posture, architecture, or irreversible-action expansion. F2 authorizes only the named implementation and test repairs inside the existing exact168 Envelope after the preserved E_SCOPE decision.",
+    "forbidden": [
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "wp10",
+      "user-project-or-real-environment-access",
+      "database-event-graphref-dependency-or-daemon-expansion"
+    ]
+  },
+  "memory_repair_amendment": {
+    "amendment_id": "GEW-REMAINING54-LOSSLESS-TRACE-MEMORY-REPAIR",
+    "date": "2026-09-10",
+    "human_approval": "批准先修复",
+    "approved_target_boundary_addition": [
+      "core/graph_engineering/core/contracts/resources.py",
+      "tests/support/wp05_actions.py",
+      ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+      ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r2.json",
+      ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r2.json",
+      ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r2.json"
+    ],
+    "previous_allowed_target_count": 168,
+    "current_allowed_target_count": 174,
+    "authorized_work": [
+      "lossless-workcontext-trace-storage-with-identical-events-order-balances-and-audit-semantics",
+      "operation-local-action-fixture-context-lifetimes",
+      "bounded-regression-memory-checks-and-independent-review"
+    ],
+    "run_state": "Previous cumulative run owner-aborted without final receipt; monitoring remains PAUSED. Fix first; do not launch cumulative rerun or restore monitoring in this repair.",
+    "authority_effect": "Adds only these six exact targets to historical exact168. This amendment governs the memory repair; all historical approvals and rejected reviews remain preserved. No charging, budget, temporary-unit, gate, currentness, source-attestation, isolation, P/R, or irreversible-action boundary is weakened.",
+    "forbidden": ["commit", "push", "merge", "deploy", "release", "network", "wp10", "cumulative-rerun", "restore-monitoring"]
+  },
+  "local_acceptance_amendment": {
+    "amendment_id": "GEW-REMAINING54-LOCAL-CANDIDATE-REVIEW-AUTHORITY",
+    "human_approval": "批准",
+    "approved_request": "Add candidate and review for local acceptance and independent technical review; keep commit, push, merge, deploy, release, network and WP10 prohibited.",
+    "approved_action_additions": ["candidate", "review"],
+    "approved_target_boundary_addition": [],
+    "current_allowed_target_count": 174,
+    "prior_envelope_raw_sha256": "9d2c5da3097168d6be2d81a42b55779204618b79d0f29ff229b29564899d3878",
+    "prior_human_record_raw_sha256": "119dbbfeb5da1c21fc5ed3d488bb564ebecfe62ba4ff92bf1c52adf9244077cc",
+    "authority_effect": "Adds only the two named reversible local actions. No target, goal, non-goal, intent, budget, dependency, data-access, security-posture, architecture or irreversible authority changes. Historical amendments and decisions remain historical records, not newly approved conclusions.",
+    "verification_context": "The subsequently authorized single rerun of p2a-cumulative-r2 in session 72241 exited 0 with a complete receipt: dynamic 226 valid / 48 missing / false, static 0 valid / 274 missing / false. This is partial coverage, not Remaining54 completion. Source and evidence must be independently checked before acceptance.",
+    "run_and_monitor_boundary": "No automatic repeat of completed run 72241. Monitoring remains paused while local acceptance is performed; this action amendment does not itself start a run or restore monitoring.",
+    "forbidden": ["commit", "push", "merge", "deploy", "release", "network", "WP10", "external-communication"]
+  },
+  "candidate_defect_repair_amendment": {
+    "amendment_id": "GEW-REMAINING54-CANDIDATE-DEFECT-REPAIR-14400",
+    "date": "2026-09-10",
+    "human_approval": "批准",
+    "approved_request": "先修复符号链接检查与负向证据绑定两处缺陷，将后续累计运行上限设为4小时；旧记录保留、不追认，修复后暂不自动重跑。",
+    "authorized_work": [
+      "reject in-root and out-of-root target/component symlinks during execute, currentness and restore",
+      "bind complete factory-owned multi-target negative evidence to execution, observation, coverage issuance and gate currentness",
+      "bounded regression tests and independent review"
+    ],
+    "future_cumulative_runtime_limit_seconds": 14400,
+    "heartbeat_interval_seconds": 60,
+    "approved_target_boundary_addition": [],
+    "current_allowed_target_count": 174,
+    "prior_human_record_raw_sha256": "b6f4b9c1f269aced0379bf10c593cff84516ef55255d85e59c3368a9ef0c68d1",
+    "authority_effect": "Supersedes historical 12600 seconds only for future explicitly authorized cumulative runs. Prior agent-set 86400 seconds is not ratified. Old run 72241 remains historical partial diagnostic evidence, not a newly accepted Candidate or within-budget run. No new cumulative run or monitoring restart is authorized.",
+    "forbidden": [
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "WP10",
+      "external-communication",
+      "cumulative-rerun",
+      "restore-monitoring"
+    ]
+  },
+  "f1_agent_audit": {
+    "authority_effect": "none",
+    "diagnostic_correction": "index-25-was-inferred-from-plan-order-plus-stack-context-without-a-complete-last-binding-log-and-must-not-be-reported-as-a-directly-observed-binding-index-or-stall-location",
+    "f1_r1_traceability_correction": {
+      "finding_id": "GEW-REMAINING54-F1-SOURCE-CLOSURE-TRACE-R1-001",
+      "author_status": "addressed-pending-independent-review",
+      "resolution_authority": "independent-reviewer-only",
+      "previous_docs_manifest_digest": "39ad9c84904135091ec09135f0c2a4551ab3c9cf6da6136240daa92187556cd6",
+      "authority_effect": "none",
+      "observed_source_closure": "application/graph_engineering/application/dependency_security.py-is-an-exact-source-checkout-attestation-member-and-pyproject-package-member-and-is-verified-in-archive-unpacked-wheel-and-record-currentness",
+      "dependency_bootstrap_v1_2_scope": "config/security/dependency-advisory-installation-bootstrap-v1.2.json-has-no-application-source-protected-member-field-and-is-recomputed-only-when-its-actual-schema-registry-source-artifact-source-attestation-or-history-inputs-change",
+      "performance_bootstrap_scope": "application/graph_engineering/application/profile_coverage.py-is-an-actual-protected-file-of-config/performance/performance-benchmark-installation-bootstrap-v1.json",
+      "projection_rule": "pyproject-action-c-runtime-and-d-baseline-currentness-is-always-verified-but-a-digest-is-changed-only-when-the-corresponding-actual-input-projection-changes;the-action-build-projection-excludes-the-dependency-advisory-and-performance-benchmark-tables",
+      "preserved_bytes": "dependency-bootstrap-v1.2-schema-members-and-history-remain-byte-identical-when-their-actual-inputs-are-unchanged"
+    },
+    "f1_r1_observation_version_correction": {
+      "finding_id": "GEW-REMAINING54-F1-OBSERVATION-VERSION-TRACE-R1-002",
+      "author_status": "addressed-pending-independent-review",
+      "resolution_authority": "independent-reviewer-only",
+      "previous_docs_manifest_digest": "92f784d4375829e0532545f2617d8b7d52ff80df9099d825bc5de6d074b52e14",
+      "authority_effect": "none",
+      "origin": "agent-added-generic-v1.0-only-and-route-split-language-not-human-approved-f1-authority",
+      "correction": "rehydrate-current-seal-supports-existing-exact-dependency-security-observation-1.0.0-and-1.1.0-types-and-schemas;dependency-graph-assessment-factory-and-evidence-remain-distinct-downstream-consumers-and-cannot-substitute-for-the-observation-factory-observation-seal-or-issuer",
+      "v1_1_reconstruction": "selector-is-derived-only-from-the-issued-frozen-graph-observation-inputs-and-fresh-current-graph-installation-graph-policy-remediation-before-and-after-graphs-and-disposition-are-fully-reread-and-compared-exactly-before-an-atomic-live-transition",
+      "task_projection_rule": "existing-task-projection-profile-category-task-revision-snapshot-and-invalidation-discriminator-remains-exact-and-is-not-widened",
+      "preserved_candidate_inputs": "original-mandatory-and-real-e2e-candidates-and-r-request-digest-remain-unchanged;scenario-plan-and-oracle-are-not-edited-to-obtain-a-pass",
+      "frozen_r_candidate": "GEW-PRO-DEPENDENCY-SECURITY-ARTIFACTS-R-selects-GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-P-with-request-digest-sha256-jcs-v1:e9315eb7ced2072939c95533b7f8aeb53e11e1e1c137d5e462c69c5130a9b938"
+    },
+    "preexisting_dirty_unallowed_paths_left_untouched": [
+      "tests/support/wp08_dependency_security.py",
+      "tests/support/wp08_migration_rehearsal.py"
+    ]
+  },
+  "approved_boundary": "Complete the exact remaining 54 WP-08 bindings through P1 existing offline performance authority, P2 config-owned local scenario truth, and P3 an offline local release-operations simulator, with reversible documentation, implementation, verification, and independent review inside the named Authority Envelope. The exact target boundary includes pyproject.toml plus the existing performance benchmark registry and installation bootstrap. The performance noise ceiling is config-owned 1/2. Positive evidence remains a real parent monotonic_ns measurement of each full StructuredCommand and must satisfy complete performance-success semantics. The authorized frozen negative oracle vector [1,2,100,200,201] has median 100 and MAD 99, so 99*2 > 100*1 proves only deterministic fail-closed behavior and can never stand in for a real performance PASS.",
+  "rejected_boundaries": [
+    "Real staging or production access, network access, remote health checks, credentials, or user-project mutation.",
+    "WP-10 enablement, real deployment, release, publication, or production evidence claims.",
+    "Database schema, repository event kind, GraphRef API, dependency, daemon, or remote-state expansion.",
+    "Commit, push, merge, deploy, release, publication, or external communication."
+  ],
+  "authority_effect": "Authorizes current ADR-0007 revision 13, ADR-0008 revision 12, ADR-0009 revision 12, Spec revision 36, Impact revision 30, Plan revision 35, Test Plan revision 43, and the exact local/offline code, configuration, tests, manifests, verification records, and independent reviews named by the GEW-REMAINING54-V1 Authority Envelope. Historical R1, R3, A, B, C, D, E1, and independently accepted F1 R0 amendments remain intact. Historical C had 166 exact targets; D alone added tests/security/test_wp07a_action_contract_security.py for 167; E1 added no target and stayed 167. Current Human-approved F1 alone adds application/graph_engineering/application/dependency_security.py for exact168. F1 permits only a generic typed DependencySecurityObservationFactory rehydrate/current-seal API over the same private root, task, dependency-security category, and current installed closure. The factory and typed DependencySecurityObservation remain distinct from downstream graph/category assessment, which cannot construct or substitute the authority. Runtime owns an opaque process-local seal; issue, use, precommit, and gate each fully reread the same bootstrap/source/package/wheel/RECORD and task/root/category state. P/R substitution, forged/cloned/serialized/stale/cross-root/cross-task/cross-category/cross-installation seals, terminal reopen, resolver/network access, and action/command/mutation replay fail closed with zero write, mutation, or replay. Routine agent correction GEW-REMAINING54-F1-SOURCE-CLOSURE-TRACE-R1-001 has authority_effect none: the new application source is bound by the source-checkout attestation, pyproject package mapping, archive/unpacked wheel and RECORD currentness; dependency bootstrap 1.2 does not directly pin that application source and remains unchanged when its actual schema/registry/source-artifact/source-attestation/history inputs are unchanged. Relevant bootstraps, pyproject, the C runtime branches, and D baseline are verified and are re-signed only when their own actual input projections change; the action build projection excludes dependency-advisory and performance-benchmark tables. Routine agent correction GEW-REMAINING54-F1-OBSERVATION-VERSION-TRACE-R1-002 also has authority_effect none: the generic typed API covers the existing exact DependencySecurityObservation 1.0 and 1.1 schemas; DependencyGraphAssessmentFactory and evidence remain distinct downstream consumers and cannot replace the observation factory, observation, seal, or issuer. Version 1.1 selection is derived from issued frozen graph inputs and must be reconstructed from fresh current graph installation, graph policy, remediation, before/after graph and disposition with full exact comparison before an atomic LIVE transition; the existing task projection discriminator is unchanged. Original mandatory and real-e2e candidates remain unchanged; GEW-PRO-DEPENDENCY-SECURITY-ARTIFACTS-R continues to select GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-P with request_digest sha256-jcs-v1:e9315eb7ced2072939c95533b7f8aeb53e11e1e1c137d5e462c69c5130a9b938, and no scenario, plan, or oracle may be edited merely to obtain a pass. Config-owned 12600-second cumulative runtime and 60-second heartbeat are routine E1 testability data and cannot replace lifecycle/currentness gates. Stable finding GEW-REMAINING54-E1-REPOSITORY-ISOLATION-TRACE-R1-001 remains addressed pending independent reviewer resolution. Candidate findings GEW-REMAINING54-P2A-CAND-R1-001 through GEW-REMAINING54-P2A-CAND-R1-005 remain open; only an independent Candidate reviewer may close them. Commit, push, merge, deploy, release, network access, WP-10, real environments, user projects, database or GraphRef APIs, dependencies, daemons, and all other absent authority remain denied."
+}

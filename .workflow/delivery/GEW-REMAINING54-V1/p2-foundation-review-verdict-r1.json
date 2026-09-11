@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "implementation",
+  "scope_changed": false,
+  "change_kinds": [
+    "implementation",
+    "test"
+  ],
+  "findings": [
+    {
+      "id": "GEW-REMAINING54-F1-SEAL-TERMINAL-R0-001",
+      "severity": "blocking",
+      "evidence": "On verified artifact digest 887066caf28bf74ddeddc665826159534b93dfdd9991fcf0bcb4db07b934453d, application/graph_engineering/application/dependency_security.py:3051-3077 fetches state after project_current callbacks and unconditionally commits QUIESCED without checking the original LIVE state identity. Independent valid artifacts-P probe session 47905 observed revoke reaching TERMINAL during the physical parser callback, then seal_current returning a new seal in QUIESCED; subsequent rehydrate_current succeeded and reached LIVE generation 1. Durable state remained unchanged. Outputs are captured in chunks 3ab397 and d17c52. This violates F1 terminal-reopen prohibition.",
+      "required_change": "Make seal_current retain and validate the original issued LIVE state across projection work and reject any intervening revoke or lifecycle transition before committing the seal. Preserve terminal state permanently. Add a regression using a genuinely issued observation and reentrant parser-triggered revoke.",
+      "verification": "The reproduced callback must cause seal_current to reject without issuing a seal; authority remains TERMINAL and all subsequent rehydration attempts fail. Assert zero durable writes, mutations, resolver/network calls, and action/command replay. Preserve existing rehydrate-time revoke protection and refresh affected provenance and review digests.",
+      "status": "open"
+    },
+    {
+      "id": "GEW-REMAINING54-F1-QUIESCENT-TEST-R0-002",
+      "severity": "blocking",
+      "evidence": "tests/integration/test_wp08_scenario_truth.py:1303-1323 asserts QUIESCED generation 4, then unpacks result.authority._dependency_security as a live factory/observation tuple. Every successful phase closes through tests/support/wp08_release_coverage.py::_close_lifecycle_handle, which invokes application/profile_coverage.py::_quiesce_dependency_security and sets that tuple to None. The post-gate assertions therefore contradict the required no-live-authority quiescent state and will raise TypeError after successful lifecycle completion.",
+      "required_change": "Update this positive regression to inspect factory/category/observation identity while legitimately LIVE, then verify equivalent sealed graph/schema bindings and absence of retained live authority after quiescence. Preserve its four-phase, terminal cleanup, zero-replay, and durable-state assertions.",
+      "verification": "Run test_dependency_graph_positive_reopens_without_resolver_replay on the revised exact source bundle. It must complete all four phases, assert QUIESCED generation 4 with no live dependency tuple, preserve typed graph bindings and zero replay, and finish with permanently closed authority and zero active handles.",
+      "status": "open"
+    }
+  ]
+}

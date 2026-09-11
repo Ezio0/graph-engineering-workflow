@@ -1,0 +1,245 @@
+# ADR-0009: Offline Release Operations Simulator Authority
+
+## Status
+
+Accepted decision，revision 12 remaining54 F1 routine traceability R1 candidate，2026-09-06。Human Owner 已批准 P3：使用 installation-pinned artifact、
+本地 filesystem deployment simulator 与无网络 health observer，补齐 `release-operations` 的 exact 24 mandatory
+P/R records 和 `artifact-provenance`、`health-gate`、`partial-deploy` 三个 scenario pairs。该批准只允许 disposable
+local simulation；它不授权真实 build publication、staging/production、网络/socket health check、WP-10、真实 deploy/
+release、DB schema、GraphRef API、新 dependency、commit、push、merge 或外部通信。
+
+本 ADR 的独立 architecture review、schema/bootstrap conformance 与 TDD 是 implementation blocking gate。未关闭前，
+release-operations 30 IDs 保持 missing；`local-simulator` evidence 绝不升级为 `production-deployed` 或真实 release proof。
+
+### Remaining54 docs review and authority lineage
+
+| Finding / authority revision | Revision 12 disposition |
+|---|---|
+| `GEW-REMAINING54-DOCS-ARCH-R1-001` | Historical R1 closure：target boundary当时只增加`pyproject.toml`，使P3 resources由现有只读`scripts/build_backend.py`进入wheel/RECORD/source manifest。 |
+| `GEW-REMAINING54-DOCS-TRACE-R2-001` | Historical R2 closure：当时current suite为ADR-0007 r3、ADR-0008 r2、本文ADR-0009 r2、Spec r26、Impact r20、Plan r25、Test Plan r33。 |
+| `GEW-REMAINING54-PERFORMANCE-NOISE-AUTHORITY-R3` | Historical R3 authority retained；不改变P3语义，Envelope当时增至159。 |
+| `GEW-REMAINING54-ORACLE-REJECTION-INPUT-A` | Historical A不改变P3 simulator语义；Envelope当时exact增至164，新增1.1 oracle input schema、两个generic core sources及dependency/migration current bootstraps。Historical A author R0 suite为ADR-0007 r5、ADR-0008 r4、本文ADR-0009 r4、Spec r28、Impact r22、Plan r27、Test Plan r35。1.0 bytes/history与historical dependency v1.1不变，P3 artifact provenance继续要求current source/package/bootstrap/wheel/RECORD closure保护。 |
+| `GEW-REMAINING54-ORACLE-CASCADE-A-R1-001` | **CLOSED / Historical A routine R1**：把当时已在164 Envelope内的`core/graph_engineering/core/profiles.py`与`config/verification/wp-00-targets.json`补入exact affected cascade，关闭schema-domain registry与source-manifest遗漏；不改变P3 simulator语义、A五项target delta或authority。Historical A R1 suite为ADR-0007 r6、ADR-0008 r5、本文ADR-0009 r5、Spec r29、Impact r23、Plan r28、Test Plan r36。 |
+| `GEW-REMAINING54-ACTION-PROVENANCE-B` | **Historical Human-approved B**：Envelope从164增至165且只新增`config/actions/action-policy-v1.json`；Historical B尚未把default runtime纳入可变闭包。Historical B suite为ADR-0007 r7、ADR-0008 r6、本文ADR-0009 r6、Spec r30、Impact r24、Plan r29、Test Plan r37。 |
+| `GEW-REMAINING54-ACTION-RUNTIME-CASCADE-B-R1-001` | **CLOSED by C**：default policy重签后的default runtime旧pin会正确fail closed；C加入唯一runtime target，完成双runtime与下游artifact/package closure。 |
+| `GEW-REMAINING54-ACTION-RUNTIME-C` | **Historical Human-approved C**：Envelope从165增至166且只新增`config/security/security-runtime-v1.json`；P3仍只消费local simulator authority。Historical C suite为ADR-0007 r8、ADR-0008 r7、本文ADR-0009 r7、Spec r31、Impact r25、Plan r30、Test Plan r38。 |
+| `GEW-REMAINING54-WP07A-BUILD-BASELINE-D` | **Historical Human-approved D**：Envelope从166增至167且只新增`tests/security/test_wp07a_action_contract_security.py`，只修复历史stale exact build baseline；P3/真实deploy-release边界不变。删除D项恢复166。Historical D suite为ADR-0007 r9、ADR-0008 r8、本文ADR-0009 r8、Spec r32、Impact r26、Plan r31、Test Plan r39。 |
+| `GEW-REMAINING54-PROCESS-LOCAL-QUIESCENT-REOPEN-E1` | **Historical Human-approved E1 R3**：不增加target，Envelope保持exact167；process-local sealed/quiesced/reopened authority释放per-binding live resources，不改变P3 simulator或真实deploy/release禁止。Historical initial E1 suite为ADR-0007 r10、ADR-0008 r9、本文ADR-0009 r9、Spec r33、Impact r27、Plan r32、Test Plan r40；Historical E1 R3 suite为ADR-0007 r11、ADR-0008 r10、本文ADR-0009 r10、Spec r34、Impact r28、Plan r33、Test Plan r41。 |
+| `GEW-REMAINING54-E1-REPOSITORY-ISOLATION-TRACE-R1-001` | **ADDRESSED by author，pending independent reviewer resolution**：E1/current cumulative不得复用pre-E1 per-Profile repository/application stack；226 bindings的repository-root/task/target/branch-ref/action-root/command-root六维各自exact unique且禁止cross-binding/profile substitution。 |
+| `GEW-REMAINING54-F1-DEPENDENCY-SECURITY-REHYDRATE` | **Current Human-approved F1**：只新增`application/graph_engineering/application/dependency_security.py`，Envelope exact167→168；generic typed rehydrate/current-seal不改变P3 simulator或真实deploy/release禁止。Independently accepted F1 R0 suite为ADR-0007 r12、ADR-0008 r11、本文ADR-0009 r11、Spec r35、Impact r29、Plan r34、Test Plan r42。 |
+| `GEW-REMAINING54-F1-SOURCE-CLOSURE-TRACE-R1-001` | **ADDRESSED by author，pending independent reviewer resolution**：routine F1 source-closure traceability correction保持P3 simulator、artifact rules、exact168 Envelope和全部deny byte-for-byte语义不变；current package/wheel/RECORD验证按真实source/manifest inputs闭合，`authority_effect=none`。Current R1 suite为ADR-0007 r13、ADR-0008 r12、本文ADR-0009 r12、Spec r36、Impact r30、Plan r35、Test Plan r43。 |
+| `GEW-REMAINING54-F1-OBSERVATION-VERSION-TRACE-R1-002` | **ADDRESSED by author，pending independent reviewer resolution**：generic typed Observation 1.0/1.1 rehydrate correction的`authority_effect=none`；不改变P3 simulator、release evidence、scenario/plan/oracle或任何真实deploy/release禁止。 |
+
+Historical B只修复以下configuration provenance：`pyproject.toml` builtin implementation projection→
+`config/contracts/action-adapter-registry-v1.json`→`config/actions/concrete-action-policy-v1.json`→
+`config/actions/action-policy-v1.json`与`config/actions/action-policy-local-actions-v1.json`分支→
+`config/security/security-runtime-local-actions-v1.json`→既有source/wp-00/current bootstraps/package/wheel/RECORD pins。
+Historical B尚缺default runtime。C冻结完整current graph：`pyproject.toml` builtin provenance→
+`config/contracts/action-adapter-registry-v1.json`→`config/actions/concrete-action-policy-v1.json`，随后default policy
+`config/actions/action-policy-v1.json`→`config/security/security-runtime-v1.json`，local policy
+`config/actions/action-policy-local-actions-v1.json`→`config/security/security-runtime-local-actions-v1.json`。两runtime共同
+进入source checkout/`config/verification/wp-00-targets.json`、performance/dependency-v1.2/migration/scenario-truth/
+release-operations current bootstraps、package pins、只读`scripts/build_backend.py`、wheel archive/unpacked/`RECORD` pins。
+该有向图禁止下游digest反馈上游或fixed-point重签；所有ID/digest/raw/size/RECORD必须正反向exact。
+`scripts/evidence_utils.py`只读验证default runtime，不在allowlist。P2a packaged-source恢复冻结后依次完成双runtime重签、
+consumer currentness与P1 sibling。本修订不改变P3 local simulator语义、不授权真实deployment/release；C exact166，
+删除C项恢复165且无第167路径。
+
+D不改变P3或local simulator。已获批P2a sources/pyproject与C action chain current后，factory/WP08/package/wheel均PASS；
+扩大security run 17/18唯一失败是历史WP07A测试仍冻结旧
+`_action_build_manifest_digest(pyproject.toml)` expected
+`b9e8e75bca0436651a723da05d9bcea27f06768666c8c1d9f9fc6b9b80707944`。D只授权在
+`tests/security/test_wp07a_action_contract_security.py`换成current approved projection的exact constant；必须保留
+dependency/import/build-mapping/entrypoint/registry/provenance substitution attacks，禁止skip/loose/ambient expected。
+执行顺序为WP07A named method→WP08 security/evidence/package/wheel/P1 sibling→`p2a-cumulative-r2`。
+`GEW-REMAINING54-P2A-CAND-R1-001`、`GEW-REMAINING54-P2A-CAND-R1-002`、
+`GEW-REMAINING54-P2A-CAND-R1-003`、`GEW-REMAINING54-P2A-CAND-R1-004`、
+`GEW-REMAINING54-P2A-CAND-R1-005`全部保持OPEN，须由独立Candidate reviewer关闭；P2a计数仍226/113/48，
+static仍0/274。Historical D当时exact167，删除D项恢复166，且其authority revision未授权第168路径；不扩大真实deploy/release权限。
+
+E1保留每binding唯一fresh private repository root/task/target/branch/ref/action/command roots，只改变process-local handle
+lifecycle。触发证据为`p2a-cumulative-r2`第一次4.086s C provenance fail-closed后修复、第二次exact7200s
+`TimeoutExpired`无receipt；retained contexts FD4→885/maxRSS7.20GB、teardown FD4；same-root probe
+plan0.546s/base7.801s/226 authorities4.904s/observations226.608s/factory1.085ms/issuance114.974s/
+dynamic>545.166s、900s timeout，证明resource accumulation+三次currentness passes而非single-binding stuck。
+
+execution/observation后opaque seal绑定current installation/provenance/source/package/wheel/`RECORD`、runtime-attested root
+identity（core无absolute-path data）、task/object/target/action/command状态和record/observation digests。quiesce释放repository/
+object/action/Git/launcher/session/live FDs且保留root bytes；后续issue/use/precommit/gate由runtime-owned typed port strict-serial
+reopen同一root，全量重验后执行，再seal/quiesce。同一时刻最多一个reopen；seal不可serialized/portable/forged/cloned/
+shared/replayed，禁止action/mutation replay、currentness skip/cache、cross-binding repository及terminal reopen。
+
+core只定义平台中立状态机/port，runtime/test adapter负责actual reopen；不新增DB/GraphRef/dependency/daemon/WP10或P3
+authority。RED证明valid close仍积累resources；226-binding GREEN保持226/113/48/static0与P1 sibling，negative tamper/reopen/
+symlink/cross-binding全部zero write/mutation/replay。resource proof用lifecycle/active-handle counters和FD baseline-return，不把
+机器RSS/FD阈值硬编码进engine；timeout/heartbeat属于testability config且不可抬高掩盖。D顺序保留、五个Candidate
+findings保持OPEN，其中R1-004需E1闭环后由独立reviewer处理。Historical E1当时Envelope为exact167且未授权第168路径；
+Current F1只增加dependency-security application source形成exact168，不改变本ADR的P3边界。
+
+## Context
+
+冻结 Support Matrix 已含 release-operations 24 mandatory IDs 和三个 scenario pairs，但 current execution plan 未签发
+其中任何一个。P1+P2 完成后的 exact state 为 plan244 / oracle122 / dynamic gate 244 valid, 30 missing, false。
+
+现有 generic Profile machinery 可表达十二列，但 release truth 还需要证明：artifact bytes 的来源闭包、被部署 artifact
+与观察 target 的同一性、health gate、partial deployment 的 query/reconcile/rollback，以及 restart 不重放 deploy。
+真实 environment 被本轮排除，所以只能对已标记的 local simulator target 作这些断言。
+
+## Decision Drivers
+
+1. artifact provenance 必须从 current installed bytes 与 source/build/package attestations派生；
+2. deploy/rollback/query 必须经过现有 action-scoped prepare→authorize→execute→reconcile 协议；
+3. health truth 必须读取 local simulator state，不允许网络、自报 PASS 或 caller truth；
+4. partial deploy 必须保留可查询中间状态并确定性恢复，不能跳成成功；
+5. mandatory/scenario evidence 都要 task-bound、CAS referenced、restart zero replay；
+6. 不启用 WP-10、真实 release 或新的 durable repository schema。
+
+## Decision
+
+采用 **protected local artifact manifest + action-protocol filesystem simulator + local health observer + release-specific
+task assessment projection**。
+
+### 1. Closed policy, fixture and installation closure
+
+新增 `urn:gew:release-operations-policy-registry:v1`，root exact fields/order 为：
+
+`schema_version, registry_id, artifact_policy, health_policy, deployment_policy, rollback_policy, scenarios,
+registry_digest`。
+
+policy 固定 artifact required provenance fields、allowed local operation IDs、ordered deployment phases、health predicates、
+partial-deploy fault points、rollback preconditions、integer budgets、owner routes与 exact three-scenario set。所有路径、phase、
+health值、budgets、timeouts 和 thresholds 均为 config data；core 不硬编码。任何 missing/extra/reorder/duplicate/alias、
+unknown operation/fault、empty owner route或 same ID/body replacement均拒绝。
+
+新增 `urn:gew:release-simulator-fixture-registry:v1`。fixtures 仅描述 private temp root 中的 immutable A manifest、candidate
+B artifact identity、stage/active slots、health state vectors、fault schedule与 expected rollback A；不包含用户项目、凭据、
+真实 URL/port或外部环境。P/R/task 各自得到 fresh root，mutable slots 永不共享。
+
+`urn:gew:release-operations-installation-bootstrap:1.0.0` exact pin policy/fixture registries、下述 8 schema pairs、Profile
+schema registry、approved Profile/coverage/semantic policies、Support Matrix、execution plan、action/adapter/connector registries、
+installed distribution/version/RECORD、source/build/package attestation、artifact protected closure与 ordered protected member
+digest。只从 installed resource byte pipe 加载；ambient checkout、caller path/digest、external artifact、index或 network
+fallback全部禁止。
+
+### 2. Exact schemas and assessment 1.4
+
+Profile schema registry增加以下 8 组 source/digest-input pairs：
+
+| Contract | Source schema | Digest-input schema |
+|---|---|---|
+| release policy registry | `urn:gew:schema:release-operations-policy-registry:1.0.0` | `urn:gew:schema:release-operations-policy-registry-input:1.0.0` |
+| simulator fixture registry | `urn:gew:schema:release-simulator-fixture-registry:1.0.0` | `urn:gew:schema:release-simulator-fixture-registry-input:1.0.0` |
+| artifact manifest | `urn:gew:schema:release-artifact-manifest:1.0.0` | `urn:gew:schema:release-artifact-manifest-input:1.0.0` |
+| health observation | `urn:gew:schema:release-health-observation:1.0.0` | `urn:gew:schema:release-health-observation-input:1.0.0` |
+| deployment observation | `urn:gew:schema:release-deployment-observation:1.0.0` | `urn:gew:schema:release-deployment-observation-input:1.0.0` |
+| final release observation | `urn:gew:schema:release-operations-observation:1.0.0` | `urn:gew:schema:release-operations-observation-input:1.0.0` |
+| installation bootstrap | `urn:gew:schema:release-operations-installation-bootstrap:1.0.0` | `urn:gew:schema:release-operations-installation-bootstrap-input:1.0.0` |
+| category assessment 1.4 | `urn:gew:schema:category-completion-assessment:1.4.0` | `urn:gew:schema:category-completion-assessment-input:1.4.0` |
+
+每个 digest-input 只排除自身 derived digest。1.4 是 release-only closed union：仅 `profile_id=release-operations` 的
+mandatory/scenario tasks 可携带唯一 `release_operations_projection`；不得携带1.1/1.2/1.3任何其它 projection。
+assessment 1.0～1.3 bytes与语义保持冻结。不存在把 release projection回填到generic 1.0的兼容捷径。
+
+`release_artifact_manifest` exact绑定 artifact ID/version/raw SHA-256/size、installed wheel/distribution/RECORD、source
+manifest、build attestation、logical member closure与 provenance digest。artifact bytes必须来自 bootstrap 保护的当前
+installation；名称/版本相同但 bytes、RECORD、source或build不同均拒绝。
+
+`release_health_observation` exact绑定 task/target/generation、policy、active artifact、local state raw digest、ordered
+predicate results、observed outcome与 digest。observer只读 private filesystem state；不得调用 DNS/socket/proxy、HTTP、
+subprocess或 caller health callback。
+
+`release_deployment_observation` exact绑定 action ID/claim/journal/receipt、expected/current generation、artifact、ordered
+stage transitions、fault/reconcile state、before/after target与 digest。`release_operations_observation` 包含完整 artifact/
+deployment/health/rollback/current target bodies与digests、GraphRef six pins、task revision/snapshot/epoch、installation pins、
+factory seal、owner route、scenario/column outcome及 final digest。
+
+### 3. Local simulator action boundary
+
+新增 platform adapter `local-release-simulator-v1`，只允许三个 config-bound operation IDs：
+
+- `local-release-simulator.apply`：在 private root 中写 staged slot，经 fsync/rename/CAS generation切换 active pointer；
+- `local-release-simulator.query`：只读返回 exact stage/active/generation/artifact/health state；
+- `local-release-simulator.restore`：仅对原 action 的 exact claim/receipt/expected current generation恢复 A。
+
+adapter locator 必须由 factory 创建并验证位于 test-owned private root；绝不接受用户路径、symlink escape、absolute caller
+target或 environment expansion。每个 action 仍走 existing `ActionCoordinator`、resource claims/fences、prepared authority、
+journal、receipt与 reconcile；caller不能直调 mutation。query 可重试；apply/restore 不因 unknown自动重放。
+
+fault schedule exact覆盖 `before-stage-write`, `after-stage-durable`, `before-active-switch`, `after-active-switch-durable`,
+`before-health-observe`。每个 cut 的 query只接受完整 A、durable staged-B+active-A 或 active-B；mixed bytes、pointer/manifest
+不一致、generation rollback与unowned residue fail closed。unknown effect保留原 claim并 route owner；只有 query证明效果后
+才能 reconcile。rollback 仅在 fresh current state匹配 receipt后执行，最终 health+artifact必须exact恢复A。
+
+### 4. Mandatory and scenario truth
+
+24 mandatory bindings继续使用冻结十二列语义，但每个 P/R 的 task-local release projection必须同时绑定 current artifact、
+simulator target和适用 release facts：
+
+- `normal/boundary/revise/authority/drift/invalidation/artifacts/review/target` 使用既有 typed column contract，并附加 release
+  policy/artifact/target currentness；
+- `recovery/rollback` 必须消费 same-action claim/receipt、query/reconcile与 exact restored-A health；
+- `real-e2e` 必须真实调用一次 **local simulator** apply/query/health（P mutation delta=1），R 在 wrong expected generation/
+  stale artifact下于 apply前拒绝（delta=0）；其 evidence kind明确为 `authoritative-local-release-simulator`，不是 production；
+- 所有 P/R 保持 unique task/request/execution/observation/record，不共享 mutable root、action authority或target。
+
+三个 scenario meanings exact 为：
+
+| Scenario | P meaning | R meaning |
+|---|---|---|
+| `artifact-provenance` | B artifact manifest与 current installed wheel/RECORD/source/build/protected closure逐字节闭合，deployed active artifact exact等于该manifest | name/version label、caller digest、wrong RECORD/source/build、missing/extra/reordered member、same-path/coherent re-sign被拒绝且零mutation |
+| `health-gate` | apply B 后由 local observer读取active-B state，全部 config-owned health predicates通过，fresh reobserve仍current后才允许scenario record | 自报PASS、stale/pre-switch health、只比较部分predicate、wrong artifact/generation或任一fail被拒绝；不得标记healthy/released |
+| `partial-deploy` | 注入config fault得到可查询partial state；不得宣告release成功。系统对exact claim query/reconcile，执行authorized restore并证明active-A artifact与health恢复，外层P仅表示partial-deploy处理正确 | 跳过query、重放apply、把staged-B当active、wrong claim/generation、无rollback authority、部分恢复或把partial当成功被拒绝 |
+
+### 5. Currentness, restart and lifecycle
+
+issue/use/precommit/restart/coverage每次重读 task/current GraphRef、policy/fixture/bootstrap/schema/action registries、artifact/
+RECORD/source/build bytes、journal/claim/receipt、simulator generation/pointer/slots/health与 nested digests。precommit在所有
+hooks后 final query+health reobserve，消费token后无 target-sensitive callback。
+
+assessment仍只提交既有 `task.category_assessed` 与一个 task-unique referenced CAS。restart从 current task唯一 ref重读
+1.4 bytes并以 fresh installation/factory重验；apply/restore replay count exact为0，仅query/health只读重验。missing/duplicate
+ref、CAS replacement、foreign/clone/stale factory/action/observer、post-observation artifact/target/policy replacement均拒绝，
+且 task/event/snapshot/object/ref/action/target/input零写；DNS/socket/proxy count exact 0。
+
+release records与前244 records共用现有 CoverageRecordFactory lifecycle。P3先加入24 mandatory records与12 oracle members，
+达到 plan268/oracle134/gate `268 valid / 6 missing / false`；再加入6 scenario records与3 oracle members，最终 exact：
+
+- production plan bindings `274`，unique task IDs `274`；
+- independent oracle bindings `137`；
+- dynamic combined gate `274 valid / 0 missing / passed=true`，invalid/stale/duplicate均为空；
+- static-only substitute仍 `0 valid / 274 missing / passed=false`，即 static acceptance count exact为0；
+- exact combined decision后才允许 finalize/revoke；abort/finalized terminal语义与 <120s teardown不变。
+
+任何子批失败则该批 IDs 全部保持 missing，已通过的244或268 records保持immutable/current；禁止 partial/sharded gate、
+waiver、修改Support Matrix或从真实环境补证。
+
+## Alternatives Considered
+
+| Alternative | Disposition | Reason |
+|---|---|---|
+| action-protocol local filesystem simulator | Adopted | 能证明artifact/action/health/rollback闭包而不触及真实环境 |
+| 真实 staging/production | Rejected for this authority | 需要新的network、target、credential、deploy/release authority |
+| fixture label或静态 manifest 直接 PASS | Rejected | 不能证明 action/current target/health/partial recovery |
+| socket/HTTP localhost health | Rejected | 本批准要求无网络；filesystem observer足够表达本地模拟状态 |
+| 启用 WP-10 install/upgrade/release | Rejected | P3只闭合WP-08 coverage，不扩大产品交付阶段 |
+
+## Consequences
+
+### Positive
+
+- release-operations 24 mandatory 与3 scenario pairs拥有实际 local action、artifact、health、rollback证据；
+- action unknown/partial state继承既有claim/fence/reconcile安全语义；
+- final 274/137 dynamic gate可以零missing完成，同时明确不是生产release；
+- config-owned policy与private roots保持data-logic separation及用户数据隔离。
+
+### Costs and limitations
+
+- local simulator只能证明协议和状态机，不能证明特定云、集群或真实服务可发布；
+- 新增8组schema pairs、adapter/config/bootstrap和严格fault/currentness矩阵；
+- full 274-record strict-serial candidate验证成本较高，不能用并发mutable target或static shortcut降低。
+
+## Rollback
+
+若实现或review不收敛，停止注册release factories/adapter，移除尚未采用的1.4/config/schema/code/tests，保留既有 plan244、
+assessment1.0～1.3、action/repository/GraphRef semantics与所有通过records。不得回退为真实deploy、网络health、WP-10、
+caller PASS或partial deployment成功。

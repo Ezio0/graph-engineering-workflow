@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-REMAINING54-V1",
+  "amendment_id": "GEW-REMAINING54-F1-DEPENDENCY-SECURITY-REHYDRATE",
+  "files": [
+    {
+      "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+      "sha256": "25d6ba058f2b92b14a306443ab9186051571eb4ef4d1a4804cfee62fa0b6fa68"
+    },
+    {
+      "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+      "sha256": "e54ffcd750f5bd43e5dfafcb08cb960e469b137797fba1126b3a5180e42b0927"
+    },
+    {
+      "path": "docs/adr/0007-offline-performance-benchmark-authority.md",
+      "sha256": "4547c9e8770ef936840b202df0e2ffd93bb666a065fa1e31c2ebcf5b9366fcc9"
+    },
+    {
+      "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+      "sha256": "d5c5b967a922fd3d9ad34475eb658db66e193bc337e6fe0bae52eb51ea3d4f84"
+    },
+    {
+      "path": "docs/adr/0009-offline-release-operations-simulator-authority.md",
+      "sha256": "3c5a0d552a3992b0430c3a73b48fd883d0e58f6c2ff9e409a29931c1578baaed"
+    },
+    {
+      "path": "docs/impact/graph-engineering-workflow.md",
+      "sha256": "1710ebc7497ce8175ccad59eed750064b154343976e9a6966032cfae29d21e01"
+    },
+    {
+      "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+      "sha256": "7d02eadcf98638cdd67a25a5ad8e7c91bfcebbb3b25d26ac99966f83352df033"
+    },
+    {
+      "path": "docs/specs/graph-engineering-workflow.md",
+      "sha256": "6c0cafef12203df5b12bbf3df05087ce556abd14e9a658876b5f1d9c15311177"
+    },
+    {
+      "path": "docs/test-plans/graph-engineering-workflow.md",
+      "sha256": "ecf93373074d8a3b15134b619c9a5ff7d8d3a2d7943345054d5fbd9e4652e6ca"
+    }
+  ],
+  "ordered_raw_aggregate_sha256": "d64cfeb3d34147c5ae2c11097ff49b2d57c20b1c58b94d8c989c50af8ae4d230"
+}

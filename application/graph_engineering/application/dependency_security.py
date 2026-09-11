@@ -6,10 +6,14 @@ import copy
 import hashlib
 import hmac
 import json
+import os
 import pathlib
+import stat
+import threading
 import tomllib
 import weakref
 from collections.abc import Mapping
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 
 from packaging.requirements import InvalidRequirement, Requirement
@@ -2617,6 +2621,794 @@ class DependencySecurityObservationFactory:
         """Resolve the retained immutable observation under current installation."""
 
         return self.require_current(value)
+
+
+def _dependency_read_regular_file(
+    path: pathlib.Path,
+) -> tuple[bytes, os.stat_result]:
+    """Read one exact regular file while rejecting name/descriptor races."""
+
+    try:
+        named_before = os.lstat(path)
+        if not stat.S_ISREG(named_before.st_mode):
+            raise DependencySecurityError(
+                "dependency closure member kind is foreign"
+            )
+        descriptor = os.open(
+            path,
+            os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0),
+        )
+        try:
+            opened_before = os.fstat(descriptor)
+            chunks: list[bytes] = []
+            while True:
+                chunk = os.read(descriptor, 1024 * 1024)
+                if not chunk:
+                    break
+                chunks.append(chunk)
+            opened_after = os.fstat(descriptor)
+        finally:
+            os.close(descriptor)
+        named_after = os.lstat(path)
+    except OSError as error:
+        raise DependencySecurityError(
+            "dependency closure member is unavailable"
+        ) from error
+    identities = tuple(
+        (value.st_dev, value.st_ino, value.st_uid, value.st_mode, value.st_size)
+        for value in (named_before, opened_before, opened_after, named_after)
+    )
+    if len(set(identities)) != 1:
+        raise DependencySecurityError("dependency closure member changed while read")
+    return b"".join(chunks), named_after
+
+
+def _dependency_canonical_path(path: pathlib.Path) -> pathlib.Path:
+    if not isinstance(path, pathlib.Path) or not path.is_absolute():
+        raise DependencySecurityError("dependency closure path is not exact")
+    try:
+        resolved = path.resolve(strict=True)
+        if resolved != path:
+            raise DependencySecurityError(
+                "dependency closure path is not canonical"
+            )
+        for member in (resolved, *resolved.parents):
+            if stat.S_ISLNK(os.lstat(member).st_mode):
+                raise DependencySecurityError(
+                    "dependency closure path chain contains a symlink"
+                )
+    except OSError as error:
+        raise DependencySecurityError(
+            "dependency closure path is unavailable"
+        ) from error
+    return resolved
+
+
+def _dependency_fixture_path_projection(path: pathlib.Path) -> FrozenMap:
+    """Describe one exact physical input without retaining an open handle."""
+
+    resolved = _dependency_canonical_path(path)
+    root_metadata = resolved.lstat()
+    root_kind = stat.S_IFMT(root_metadata.st_mode)
+    members: list[dict[str, object]] = []
+    if root_kind == stat.S_IFREG:
+        body, root_metadata = _dependency_read_regular_file(resolved)
+        members.append({
+            "identity": [
+                int(root_metadata.st_dev),
+                int(root_metadata.st_ino),
+                int(root_metadata.st_uid),
+            ],
+            "kind": "file",
+            "length": len(body),
+            "mode": stat.S_IMODE(root_metadata.st_mode),
+            "path": ".",
+            "raw_sha256": hashlib.sha256(body).hexdigest(),
+        })
+    elif root_kind == stat.S_IFDIR:
+        for member in sorted(resolved.rglob("*"), key=lambda item: item.as_posix()):
+            if stat.S_ISLNK(member.lstat().st_mode):
+                raise DependencySecurityError(
+                    "dependency closure member is a symlink"
+                )
+            metadata = member.lstat()
+            kind = stat.S_IFMT(metadata.st_mode)
+            projection: dict[str, object] = {
+                "identity": [
+                    int(metadata.st_dev),
+                    int(metadata.st_ino),
+                    int(metadata.st_uid),
+                ],
+                "mode": stat.S_IMODE(metadata.st_mode),
+                "path": member.relative_to(resolved).as_posix(),
+            }
+            if kind == stat.S_IFDIR:
+                projection["kind"] = "directory"
+            elif kind == stat.S_IFREG:
+                body, metadata = _dependency_read_regular_file(member)
+                projection.update({
+                    "kind": "file",
+                    "length": len(body),
+                    "raw_sha256": hashlib.sha256(body).hexdigest(),
+                })
+            else:
+                raise DependencySecurityError(
+                    "dependency closure member kind is foreign"
+                )
+            members.append(projection)
+    else:
+        raise DependencySecurityError("dependency closure path kind is foreign")
+    projected = freeze({
+        "members": members,
+        "root_identity": [
+            int(root_metadata.st_dev),
+            int(root_metadata.st_ino),
+            int(root_metadata.st_uid),
+        ],
+        "root_mode": stat.S_IMODE(root_metadata.st_mode),
+        "root_kind": "file" if root_kind == stat.S_IFREG else "directory",
+    })
+    if not isinstance(projected, FrozenMap):
+        raise AssertionError("dependency fixture projection did not freeze")
+    return projected
+
+
+def _dependency_repository_projection(repository: object) -> FrozenMap:
+    from graph_engineering.storage.repository import TaskRepository
+
+    if type(repository) is not TaskRepository:
+        raise DependencySecurityError(
+            "dependency security repository authority is foreign"
+        )
+    try:
+        factory = repository._factory
+        root = _dependency_canonical_path(pathlib.Path(factory.data_root))
+        scope = repository._command_scope
+        scope.require_current()
+        if pathlib.Path(scope.repository_root).resolve(strict=True) != root:
+            raise DependencySecurityError(
+                "dependency security repository scope is foreign"
+            )
+        metadata = root.lstat()
+    except (AttributeError, OSError) as error:
+        raise DependencySecurityError(
+            "dependency security repository identity is unavailable"
+        ) from error
+    projection = freeze({
+        "canonical_path": root.as_posix(),
+        "identity": [
+            int(metadata.st_dev), int(metadata.st_ino), int(metadata.st_uid),
+        ],
+        "mode": stat.S_IMODE(metadata.st_mode),
+    })
+    if not isinstance(projection, FrozenMap):
+        raise AssertionError("dependency repository projection did not freeze")
+    return projection
+
+
+def _dependency_security_reopen_projection(
+    factory: DependencySecurityObservationFactory,
+    observation: DependencySecurityObservation,
+) -> FrozenMap:
+    if (
+        type(factory) is not DependencySecurityObservationFactory
+        or type(observation) is not DependencySecurityObservation
+        or getattr(observation, "_authority", None) is not factory
+        or not isinstance(getattr(observation, "_projection", None), FrozenMap)
+        or not hasattr(factory, "_graph")
+    ):
+        raise DependencySecurityError(
+            "dependency security observation authority is foreign"
+        )
+    version = observation._projection.get("schema_version")
+    graph = factory._graph
+    if (
+        version not in {"1.0.0", "1.1.0"}
+        or (version == "1.0.0" and graph is not None)
+        or (
+            version == "1.1.0"
+            and type(graph) is not DependencyGraphObservationFactory
+        )
+    ):
+        raise DependencySecurityError(
+            "dependency security observation authority is foreign"
+        )
+    factory.require_current(observation)
+    before = observation._before
+    after = observation._after
+    if (
+        type(before) is not DependencyOfflineClosureObservation
+        or type(after) is not DependencyOfflineClosureObservation
+    ):
+        raise DependencySecurityError(
+            "generic dependency security closure is foreign"
+        )
+    graph_projection: dict[str, object] | None = None
+    if version == "1.1.0":
+        before_graph = observation._before_graph
+        after_graph = observation._after_graph
+        disposition = observation._disposition
+        if (
+            type(graph) is not DependencyGraphObservationFactory
+            or type(before_graph) is not DependencyClosureGraphObservation
+            or (
+                after_graph is not None
+                and type(after_graph) is not DependencyClosureGraphObservation
+            )
+            or (
+                disposition is not None
+                and type(disposition)
+                is not DependencyRemediationDispositionAuthority
+            )
+        ):
+            raise DependencySecurityError(
+                "dependency graph observation closure is foreign"
+            )
+        graph._require_installation()
+        graph.require_current(before_graph)
+        if after_graph is not None:
+            graph.require_current(after_graph)
+        if disposition is not None:
+            graph.require_current_disposition(disposition)
+        graph_projection = {
+            "installation": thaw(graph._installation),
+            "policy": graph._policy.to_dict(),
+            "remediation": graph._remediation.to_dict(),
+            "before": before_graph.to_dict(),
+            "after": None if after_graph is None else after_graph.to_dict(),
+            "disposition": (
+                None if disposition is None else disposition.to_dict()
+            ),
+        }
+    projection = freeze({
+        "schema_version": version,
+        "observation_kind": (
+            "dependency-security-generic"
+            if version == "1.0.0"
+            else "dependency-security-graph"
+        ),
+        "registry_projection": thaw(factory._registry._projection),
+        "registry": factory._registry.registry._data.to_dict(),
+        "repository": thaw(
+            _dependency_repository_projection(factory._registry._repository)
+        ),
+        "before": before.to_dict(),
+        "after": after.to_dict(),
+        "applicabilities": [
+            value.to_dict() for value in observation._applicabilities
+        ],
+        "residual": observation._residual.to_dict(),
+        "observation": observation.to_dict(),
+        "graph": graph_projection,
+        "physical_inputs": {
+            "before_candidate": thaw(
+                _dependency_fixture_path_projection(before._candidate)
+            ),
+            "before_wheelhouse": thaw(
+                _dependency_fixture_path_projection(before._wheelhouse)
+            ),
+            "after_candidate": thaw(
+                _dependency_fixture_path_projection(after._candidate)
+            ),
+            "after_wheelhouse": thaw(
+                _dependency_fixture_path_projection(after._wheelhouse)
+            ),
+        },
+    })
+    if not isinstance(projection, FrozenMap):
+        raise AssertionError("dependency reopen projection did not freeze")
+    return projection
+
+
+class DependencySecurityObservationSeal:
+    """Opaque process-local seal for one quiesced typed observation."""
+
+    __slots__ = ("_capability", "_generation", "_projection", "_paths")
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise TypeError("dependency security seals are authority-issued")
+
+    def __copy__(self) -> object:
+        raise TypeError("dependency security seals cannot be copied")
+
+    def __deepcopy__(self, memo: object) -> object:
+        del memo
+        raise TypeError("dependency security seals cannot be copied")
+
+    def __reduce__(self) -> object:
+        raise TypeError("dependency security seals cannot be serialized")
+
+    def __getstate__(self) -> object:
+        raise TypeError("dependency security seals cannot be serialized")
+
+
+class DependencySecurityObservationReopenAuthority:
+    """Runtime-owned rehydration authority for typed v1.0/v1.1 observations."""
+
+    __slots__ = (
+        "_capability", "_factory", "_generation", "_observation", "_seal",
+        "_state", "_rehydration_count", "__weakref__",
+    )
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise TypeError(
+            "dependency security reopen authorities are installation-issued"
+        )
+
+    def __copy__(self) -> object:
+        raise TypeError("dependency security reopen authorities cannot be copied")
+
+    def __deepcopy__(self, memo: object) -> object:
+        del memo
+        raise TypeError("dependency security reopen authorities cannot be copied")
+
+    def __reduce__(self) -> object:
+        raise TypeError(
+            "dependency security reopen authorities cannot be serialized"
+        )
+
+    def __getstate__(self) -> object:
+        raise TypeError(
+            "dependency security reopen authorities cannot be serialized"
+        )
+
+    @classmethod
+    def from_current(
+        cls,
+        factory: DependencySecurityObservationFactory,
+        observation: DependencySecurityObservation,
+    ) -> DependencySecurityObservationReopenAuthority:
+        if cls is not DependencySecurityObservationReopenAuthority:
+            raise DependencySecurityError(
+                "dependency security reopen authority type is foreign"
+            )
+        _dependency_security_reopen_projection(factory, observation)
+        result = object.__new__(cls)
+        result._capability = object()
+        result._factory = factory
+        result._observation = observation
+        result._generation = 0
+        result._seal = None
+        result._state = "LIVE"
+        result._rehydration_count = 0
+        _DEPENDENCY_REOPEN_AUTHORITIES[result] = _DependencyReopenState(
+            capability=result._capability,
+            factory=factory,
+            generation=0,
+            observation=observation,
+            owner_pid=os.getpid(),
+            owner_thread_id=threading.get_ident(),
+            seal=None,
+            seal_capability=None,
+            seal_projection=None,
+            seal_paths=None,
+            state="LIVE",
+            rehydration_count=0,
+        )
+        return result
+
+    def _require_issued(self) -> _DependencyReopenState:
+        state = _DEPENDENCY_REOPEN_AUTHORITIES.get(self)
+        if (
+            type(self) is not DependencySecurityObservationReopenAuthority
+            or type(state) is not _DependencyReopenState
+            or self._capability is not state.capability
+            or self._factory is not state.factory
+            or self._generation != state.generation
+            or self._observation is not state.observation
+            or self._seal is not state.seal
+            or type(self._generation) is not int
+            or type(state.generation) is not int
+            or self._state != state.state
+            or type(self._rehydration_count) is not int
+            or type(state.rehydration_count) is not int
+            or self._rehydration_count != state.rehydration_count
+            or type(state.owner_pid) is not int
+            or type(state.owner_thread_id) is not int
+            or os.getpid() != state.owner_pid
+            or threading.get_ident() != state.owner_thread_id
+        ):
+            raise DependencySecurityError(
+                "dependency security reopen authority is foreign"
+            )
+        return state
+
+    @property
+    def state(self) -> str:
+        return self._require_issued().state
+
+    @property
+    def generation(self) -> int:
+        return self._require_issued().generation
+
+    @property
+    def rehydration_count(self) -> int:
+        return self._require_issued().rehydration_count
+
+    def project_current(
+        self,
+        factory: DependencySecurityObservationFactory,
+        observation: DependencySecurityObservation,
+    ) -> FrozenMap:
+        state = self._require_issued()
+        if (
+            state.state != "LIVE"
+            or factory is not state.factory
+            or observation is not state.observation
+        ):
+            raise DependencySecurityError(
+                "dependency security live authority is foreign"
+            )
+        return _dependency_security_reopen_projection(factory, observation)
+
+    def seal_current(
+        self,
+        factory: DependencySecurityObservationFactory,
+        observation: DependencySecurityObservation,
+    ) -> DependencySecurityObservationSeal:
+        state = self._require_issued()
+        projection = self.project_current(factory, observation)
+        if _DEPENDENCY_REOPEN_AUTHORITIES.get(self) is not state:
+            raise DependencySecurityError(
+                "dependency security authority changed before seal commit"
+            )
+        before = observation._before
+        after = observation._after
+        issued = object.__new__(DependencySecurityObservationSeal)
+        issued._capability = object()
+        issued._generation = state.generation
+        issued._projection = projection
+        issued._paths = (
+            before._candidate,
+            before._wheelhouse,
+            after._candidate,
+            after._wheelhouse,
+        )
+        self._factory = None
+        self._observation = None
+        self._seal = issued
+        self._state = "QUIESCED"
+        _DEPENDENCY_REOPEN_AUTHORITIES[self] = replace(
+            state,
+            factory=None,
+            observation=None,
+            seal=issued,
+            seal_capability=issued._capability,
+            seal_projection=projection,
+            seal_paths=issued._paths,
+            state="QUIESCED",
+        )
+        return issued
+
+    def _require_current_seal(
+        self, seal: DependencySecurityObservationSeal,
+    ) -> None:
+        state = self._require_issued()
+        valid = (
+            type(seal) is DependencySecurityObservationSeal
+            and seal is state.seal
+            and seal._capability is state.seal_capability
+            and type(seal._generation) is int
+            and type(state.generation) is int
+            and seal._generation == state.generation
+            and seal._projection is state.seal_projection
+            and seal._paths is state.seal_paths
+            and isinstance(state.seal_projection, FrozenMap)
+            and type(state.seal_paths) is tuple
+            and len(state.seal_paths) == 4
+        )
+        if not valid:
+            raise DependencySecurityError("dependency security seal is foreign")
+
+    def rehydrate_current(
+        self,
+        seal: DependencySecurityObservationSeal,
+        *,
+        repository: object,
+        category_application: object,
+    ) -> tuple[
+        DependencySecurityObservationFactory,
+        DependencySecurityObservation,
+    ]:
+        self._require_current_seal(seal)
+        state = self._require_issued()
+        if state.state != "QUIESCED":
+            raise DependencySecurityError(
+                "dependency security authority is not quiesced"
+            )
+        try:
+            from graph_engineering.application.profile_execution import (
+                CategoryExecutionApplication,
+            )
+            from graph_engineering.storage.repository import TaskRepository
+
+            if (
+                type(category_application) is not CategoryExecutionApplication
+                or type(repository) is not TaskRepository
+                or category_application._repository is not repository
+                or category_application._policy.profile_id != "dependency-security"
+            ):
+                raise DependencySecurityError(
+                    "dependency security reopened runtime is foreign"
+                )
+            before_candidate, before_wheelhouse, after_candidate, after_wheelhouse = (
+                state.seal_paths
+            )
+            sealed_repository = state.seal_projection
+            if (
+                not isinstance(sealed_repository, FrozenMap)
+                or _dependency_repository_projection(repository)
+                != sealed_repository["repository"]
+            ):
+                raise DependencySecurityError(
+                    "dependency security repository identity changed"
+                )
+            registry_factory = DependencyAdvisoryRegistryFactory.from_installation(
+                repository
+            )
+            registry = registry_factory.registry
+            closures = DependencyOfflineClosureObservationFactory.from_registry(
+                registry_factory
+            )
+            before = closures.observe_candidate(
+                before_candidate, before_wheelhouse, phase="before"
+            )
+            after = closures.observe_candidate(
+                after_candidate, after_wheelhouse, phase="after"
+            )
+            applicability_factory = (
+                DependencyApplicabilityObservationFactory.
+                from_registry_and_closures(registry_factory, closures)
+            )
+            sealed_projection = state.seal_projection
+            if not isinstance(sealed_projection, FrozenMap):
+                raise DependencySecurityError(
+                    "dependency security seal projection is malformed"
+                )
+            sealed_body = thaw(sealed_projection)
+            if type(sealed_body) is not dict:
+                raise DependencySecurityError(
+                    "dependency security seal projection is malformed"
+                )
+            applicability_rows = sealed_body.get("applicabilities")
+            if type(applicability_rows) is not list or not applicability_rows:
+                raise DependencySecurityError(
+                    "dependency security applicability seal is malformed"
+                )
+            applicabilities: list[DependencyApplicabilityObservation] = []
+            registry_body = registry._data.to_dict()
+            advisories = registry_body.get("advisories")
+            if type(advisories) is not list:
+                raise DependencySecurityError(
+                    "dependency security registry seal is malformed"
+                )
+            for row in applicability_rows:
+                if type(row) is not dict:
+                    raise DependencySecurityError(
+                        "dependency security applicability seal is malformed"
+                    )
+                identity = (row.get("advisory_id"), row.get("advisory_revision"))
+                advisory_record = next((
+                    item for item in advisories
+                    if type(item) is dict
+                    and (item.get("advisory_id"), item.get("advisory_revision"))
+                    == identity
+                ), None)
+                if advisory_record is None:
+                    raise DependencySecurityError(
+                        "dependency security advisory seal is stale"
+                    )
+                advisory = registry_factory.advisory(
+                    str(identity[0]), int(identity[1])
+                )
+                source = registry_factory.source(
+                    str(advisory_record["source_id"]),
+                    int(advisory_record["source_revision"]),
+                )
+                applicabilities.append(applicability_factory.observe(
+                    registry, advisory, source, before, after,
+                ))
+            residual_factory = (
+                DependencyResidualExposureFactory.from_registry_and_closures(
+                    registry_factory, closures,
+                )
+            )
+            residual = residual_factory.observe(registry, before, after)
+            sealed_observation = sealed_body.get("observation")
+            if type(sealed_observation) is not dict:
+                raise DependencySecurityError(
+                    "dependency security observation seal is malformed"
+                )
+            task_id = sealed_observation.get("task_id")
+            if type(task_id) is not str or not task_id:
+                raise DependencySecurityError(
+                    "dependency security task seal is malformed"
+                )
+            version = sealed_observation.get("schema_version")
+            graph_body = sealed_body.get("graph")
+            if version == "1.0.0" and graph_body is None:
+                factory = DependencySecurityObservationFactory.from_authorities(
+                    registry=registry_factory,
+                    closures=closures,
+                    applicability=applicability_factory,
+                    residual=residual_factory,
+                    category_application=category_application,
+                )
+                observation = factory.observe(
+                    registry=registry,
+                    before=before,
+                    after=after,
+                    applicabilities=tuple(applicabilities),
+                    residual=residual,
+                    task_id=task_id,
+                )
+            elif version == "1.1.0" and type(graph_body) is dict:
+                if len(applicabilities) != 1:
+                    raise DependencySecurityError(
+                        "dependency graph applicability seal is not exact"
+                    )
+                before_graph_body = graph_body.get("before")
+                after_graph_body = graph_body.get("after")
+                disposition_body = graph_body.get("disposition")
+                if (
+                    type(before_graph_body) is not dict
+                    or (
+                        after_graph_body is not None
+                        and type(after_graph_body) is not dict
+                    )
+                    or (
+                        disposition_body is not None
+                        and type(disposition_body) is not dict
+                    )
+                ):
+                    raise DependencySecurityError(
+                        "dependency graph observation seal is malformed"
+                    )
+                advisory_id = before_graph_body.get("selected_advisory_id")
+                advisory_revision = before_graph_body.get(
+                    "selected_advisory_revision"
+                )
+                if type(advisory_id) is not str or type(advisory_revision) is not int:
+                    raise DependencySecurityError(
+                        "dependency graph advisory seal is malformed"
+                    )
+                advisory = registry_factory.advisory(
+                    advisory_id, advisory_revision,
+                )
+                graph_factory = (
+                    DependencyGraphObservationFactory.
+                    from_registry_and_closures(registry_factory, closures)
+                )
+                before_graph = graph_factory.observe(advisory, before)
+                after_graph = (
+                    None
+                    if after_graph_body is None
+                    else graph_factory.observe(advisory, after)
+                )
+                disposition = (
+                    None
+                    if disposition_body is None
+                    else graph_factory.disposition(advisory)
+                )
+                factory = (
+                    DependencySecurityObservationFactory.
+                    from_graph_authorities(
+                        registry=registry_factory,
+                        closures=closures,
+                        applicability=applicability_factory,
+                        residual=residual_factory,
+                        graph=graph_factory,
+                        category_application=category_application,
+                    )
+                )
+                scenario_id = sealed_observation.get("scenario_id")
+                if type(scenario_id) is not str or not scenario_id:
+                    raise DependencySecurityError(
+                        "dependency graph scenario seal is malformed"
+                    )
+                observation = factory.observe_graph(
+                    registry=registry,
+                    before=before,
+                    after=after,
+                    applicabilities=tuple(applicabilities),
+                    residual=residual,
+                    before_graph=before_graph,
+                    after_graph=after_graph,
+                    disposition=disposition,
+                    scenario_id=scenario_id,
+                    task_id=task_id,
+                )
+            else:
+                raise DependencySecurityError(
+                    "dependency security observation seal version is foreign"
+                )
+            if not hmac.compare_digest(
+                canonical_bytes(
+                    _dependency_security_reopen_projection(factory, observation)
+                ),
+                canonical_bytes(sealed_projection),
+            ):
+                raise DependencySecurityError(
+                    "dependency security reopened projection changed"
+                )
+        except DependencySecurityError:
+            raise
+        except Exception as error:
+            raise DependencySecurityError(
+                "dependency security observation cannot be reopened"
+            ) from error
+        if _DEPENDENCY_REOPEN_AUTHORITIES.get(self) is not state:
+            raise DependencySecurityError(
+                "dependency security seal changed before reopen commit"
+            )
+        self._require_current_seal(seal)
+        self._factory = factory
+        self._observation = observation
+        self._seal = None
+        self._generation = state.generation + 1
+        self._state = "LIVE"
+        self._rehydration_count = state.rehydration_count + 1
+        _DEPENDENCY_REOPEN_AUTHORITIES[self] = replace(
+            state,
+            factory=factory,
+            generation=state.generation + 1,
+            observation=observation,
+            seal=None,
+            seal_capability=None,
+            seal_projection=None,
+            seal_paths=None,
+            state="LIVE",
+            rehydration_count=state.rehydration_count + 1,
+        )
+        return factory, observation
+
+    def revoke(self, seal: DependencySecurityObservationSeal | None = None) -> None:
+        state = self._require_issued()
+        if state.state == "TERMINAL":
+            return
+        if state.state == "QUIESCED":
+            if seal is None:
+                seal = state.seal
+            self._require_current_seal(seal)
+        elif seal is not None:
+            raise DependencySecurityError("dependency security seal is foreign")
+        self._factory = None
+        self._observation = None
+        self._seal = None
+        self._state = "TERMINAL"
+        _DEPENDENCY_REOPEN_AUTHORITIES[self] = replace(
+            state,
+            factory=None,
+            observation=None,
+            seal=None,
+            seal_capability=None,
+            seal_projection=None,
+            seal_paths=None,
+            state="TERMINAL",
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class _DependencyReopenState:
+    capability: object
+    factory: DependencySecurityObservationFactory | None
+    generation: int
+    observation: DependencySecurityObservation | None
+    owner_pid: int
+    owner_thread_id: int
+    seal: DependencySecurityObservationSeal | None
+    seal_capability: object | None
+    seal_projection: FrozenMap | None
+    seal_paths: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path] | None
+    state: str
+    rehydration_count: int
+
+
+_DEPENDENCY_REOPEN_AUTHORITIES: weakref.WeakKeyDictionary[
+    DependencySecurityObservationReopenAuthority, _DependencyReopenState,
+] = weakref.WeakKeyDictionary()
 
 
 class DependencyGraphAssessmentEvidence:

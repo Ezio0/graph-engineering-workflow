@@ -309,6 +309,40 @@ def bounded_measure(
     return Measure(nodes, members, items, string_scalars, encoded_size)
 
 
+@dataclass(slots=True)
+class _ChargeRun:
+    """Lossless consecutive attempts; ordinals are assigned when inspected."""
+
+    event_id: str
+    coefficient: int
+    count: int
+    multiplier: int
+    operation_path: tuple[int, ...]
+    pre_balance: int
+    amount: int
+    rejected: bool
+    length: int = 1
+
+    def attempt(self, ordinal: int, offset: int = 0) -> dict[str, object]:
+        balance = self.pre_balance - offset * self.amount
+        value: dict[str, object] = {
+            "amount": str(self.amount),
+            "coefficient": str(self.coefficient),
+            "count": str(self.count),
+            "event_id": self.event_id,
+            "event_ordinal": str(ordinal),
+            "multiplier": str(self.multiplier),
+            "operation_path": list(self.operation_path),
+            "pre_balance": str(balance),
+        }
+        if self.rejected:
+            value["status"] = "rejected"
+        else:
+            value["post_balance"] = str(balance - self.amount)
+            value["status"] = "charged"
+        return value
+
+
 class WorkContext:
     """Single-operation atomic work balance with a deterministic trace."""
 
@@ -327,9 +361,58 @@ class WorkContext:
         if balance > profile.work_budget:
             raise ValueError("initial balance cannot exceed the resource profile budget")
         self.balance = balance
-        self.trace: list[dict[str, object]] = []
+        self._trace: list[dict[str, object]] | None = None
+        self._trace_runs: list[_ChargeRun] = []
         self._next_operation_ordinal: dict[tuple[int, ...], int] = {}
         self._temporary_units = 0
+
+    @property
+    def trace(self) -> list[dict[str, object]]:
+        """Return the complete live list, expanding unread runs only once.
+
+        Inspection deliberately restores the original mutable list contract.
+        Callers requesting all events also take on their full memory cost.
+        """
+        if self._trace is None:
+            trace: list[dict[str, object]] = []
+            for run in self._trace_runs:
+                first = len(trace)
+                trace.extend(run.attempt(first + offset, offset) for offset in range(run.length))
+            self._trace = trace
+            self._trace_runs.clear()
+        return self._trace
+
+    @trace.setter
+    def trace(self, value: list[dict[str, object]]) -> None:
+        # Preserve callers' existing ability to replace the public trace list.
+        self._trace = value
+        self._trace_runs.clear()
+
+    def _record_attempt(
+        self, event_id: str, coefficient: int, count: int, multiplier: int,
+        operation_path: tuple[int, ...], amount: int, rejected: bool,
+    ) -> None:
+        path = tuple(operation_path)
+        if self._trace is None and self._trace_runs and not rejected:
+            last = self._trace_runs[-1]
+            if (
+                not last.rejected
+                and last.event_id == event_id
+                and last.coefficient == coefficient
+                and last.count == count
+                and last.multiplier == multiplier
+                and last.operation_path == path
+                and last.pre_balance - last.length * last.amount == self.balance
+            ):
+                last.length += 1
+                return
+        run = _ChargeRun(
+            event_id, coefficient, count, multiplier, path, self.balance, amount, rejected,
+        )
+        if self._trace is None:
+            self._trace_runs.append(run)
+        else:
+            self._trace.append(run.attempt(len(self._trace)))
 
     def child_path(self, parent_path: tuple[int, ...]) -> tuple[int, ...]:
         ordinal = self._next_operation_ordinal.get(parent_path, 0)
@@ -393,19 +476,11 @@ class WorkContext:
         checked_multiplier = _positive_integer(multiplier, "multiplier")
         coefficient = self.schedule.coefficients[event_id]
         amount = coefficient * count * checked_multiplier
-        attempt: dict[str, object] = {
-            "amount": str(amount),
-            "coefficient": str(coefficient),
-            "count": str(count),
-            "event_id": event_id,
-            "event_ordinal": str(len(self.trace)),
-            "multiplier": str(checked_multiplier),
-            "operation_path": list(operation_path),
-            "pre_balance": str(self.balance),
-        }
+        self._record_attempt(
+            event_id, coefficient, count, checked_multiplier,
+            operation_path, amount, amount > self.balance,
+        )
         if amount > self.balance:
-            attempt["status"] = "rejected"
-            self.trace.append(attempt)
             raise ContractError(ErrorDetail(
                 code="E_BUDGET",
                 phase="budget",
@@ -416,9 +491,6 @@ class WorkContext:
                 evaluation_path=evaluation_path,
             ))
         self.balance -= amount
-        attempt["post_balance"] = str(self.balance)
-        attempt["status"] = "charged"
-        self.trace.append(attempt)
 
 
 def compare_charge(

@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-REMAINING54-V1",
+  "node": "implementation",
+  "artifact": "implementation",
+  "author_id": "/root",
+  "reviewer_id": "/root/remaining54_f1_impl_reviewer_r0",
+  "targets": [
+    "application/graph_engineering/application/dependency_security.py",
+    "application/graph_engineering/application/profile_coverage.py",
+    "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+    "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+    "core/graph_engineering/__init__.py",
+    "core/graph_engineering/core/profile_coverage.py",
+    "core/graph_engineering/core/source_checkout.py",
+    "pyproject.toml",
+    "tests/integration/test_wp08_scenario_truth.py",
+    "tests/security/test_wp08_remaining54_authority.py",
+    "tests/support/source_checkout_attestation.py",
+    "tests/support/wp08_release_coverage.py",
+    "tests/support/wp08_scenario_truth.py"
+  ],
+  "revision": 0,
+  "artifact_digest": "887066caf28bf74ddeddc665826159534b93dfdd9991fcf0bcb4db07b934453d",
+  "previous_artifact_digest": null,
+  "open_finding_ids": []
+}

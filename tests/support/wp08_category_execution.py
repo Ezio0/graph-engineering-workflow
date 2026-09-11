@@ -1346,17 +1346,18 @@ def action_rollback_binding(
     from graph_engineering.adapters.fake_actions import DeterministicFakeTarget
     from graph_engineering.core.actions import PreparedAction
     from tests.support.wp05_actions import (
-        ACTION_DOCUMENT_CONTEXT,
         action_stack,
         authority_document,
         compensation_prepared_document,
         disclosure_plan,
+        security_context,
     )
 
     action = probe._stack.enter_context(action_stack())
-    prepared_document = compensation_prepared_document()
+    document_context = security_context()
+    prepared_document = compensation_prepared_document(context=document_context)
     parsed = PreparedAction.from_dict(
-        prepared_document, context=ACTION_DOCUMENT_CONTEXT,
+        prepared_document, context=document_context,
     )
     authority = authority_document(parsed)
     action.coordinator.prepare(prepared_document)

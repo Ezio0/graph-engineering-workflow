@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import base64
+import csv
+import io
 import json
 import hashlib
 import os
@@ -175,6 +178,21 @@ class InstalledWheelTests(unittest.TestCase):
                 self.assertIn(f"graph_engineering/{package}/__init__.py", names)
                 self.assertNotIn(f"{package}/__init__.py", names)
 
+            schema_source = ROOT / "config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json"
+            schema_resource = "graph_engineering/config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json"
+            schema_body = schema_source.read_bytes()
+            with zipfile.ZipFile(wheel) as archive:
+                self.assertEqual(archive.read(schema_resource), schema_body)
+                record_name = next(name for name in names if name.endswith(".dist-info/RECORD"))
+                record = {
+                    row[0]: (row[1], row[2])
+                    for row in csv.reader(io.StringIO(archive.read(record_name).decode("utf-8")))
+                }
+            expected_hash = "sha256=" + base64.urlsafe_b64encode(
+                hashlib.sha256(schema_body).digest()
+            ).decode("ascii").rstrip("=")
+            self.assertEqual(record[schema_resource], (expected_hash, str(len(schema_body))))
+
             venv = temp / "venv"
             subprocess.run([sys.executable, "-m", "venv", str(venv)], check=True)
             python = venv / "bin" / "python"
@@ -186,6 +204,27 @@ class InstalledWheelTests(unittest.TestCase):
                 env={**os.environ, "PIP_CONFIG_FILE": os.devnull},
             )
             self.assertEqual(install.returncode, 0, install.stderr)
+
+            unpacked = subprocess.run(
+                [
+                    str(python),
+                    "-c",
+                    (
+                        "import hashlib,importlib.resources,json; "
+                        "body=importlib.resources.files('graph_engineering').joinpath("
+                        "'config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json').read_bytes(); "
+                        "print(json.dumps({'sha256':hashlib.sha256(body).hexdigest(),'size':len(body)}))"
+                    ),
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(unpacked.returncode, 0, unpacked.stderr)
+            self.assertEqual(
+                json.loads(unpacked.stdout),
+                {"sha256": hashlib.sha256(schema_body).hexdigest(), "size": len(schema_body)},
+            )
 
             entry_point = subprocess.run(
                 [str(venv / "bin" / "graph-engineering"), "--version"],

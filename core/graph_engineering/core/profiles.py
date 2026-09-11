@@ -22,6 +22,7 @@ from graph_engineering.core.contracts.schema import SchemaProfilePolicy
 from graph_engineering.core.graph.budget import LoopBudgetRegistry
 from graph_engineering.core.migration_rehearsal import MIGRATION_REHEARSAL_SCHEMA_IDS
 from graph_engineering.core.performance_benchmark import PERFORMANCE_BENCHMARK_SCHEMA_IDS
+from graph_engineering.core.scenario_truth import SCENARIO_TRUTH_SCHEMA_IDS
 
 
 _RAW_SHA256 = re.compile(r"[0-9a-f]{64}\Z")
@@ -88,6 +89,7 @@ PROFILE_DOMAIN_SCHEMA_IDS = tuple(sorted({
     "urn:gew:schema:profile-coverage-execution-record:1.0.0",
     "urn:gew:schema:profile-coverage-observation:1.0.0",
     "urn:gew:schema:profile-coverage-oracle-input:1.0.0",
+    "urn:gew:schema:profile-coverage-oracle-input:1.1.0",
     "urn:gew:schema:profile-coverage-plan-selector:1.0.0",
     "urn:gew:schema:profile-coverage-policy-input:1.0.0",
     "urn:gew:schema:profile-coverage-policy:1.0.0",
@@ -110,7 +112,8 @@ PROFILE_DOMAIN_SCHEMA_IDS = tuple(sorted({
     "urn:gew:schema:risk-overlay-definition:1.0.0",
     "urn:gew:schema:support-matrix-definition-input:1.0.0",
     "urn:gew:schema:support-matrix-definition:1.0.0",
-} | set(MIGRATION_REHEARSAL_SCHEMA_IDS) | set(PERFORMANCE_BENCHMARK_SCHEMA_IDS)))
+} | set(MIGRATION_REHEARSAL_SCHEMA_IDS) | set(PERFORMANCE_BENCHMARK_SCHEMA_IDS)
+  | set(SCENARIO_TRUTH_SCHEMA_IDS)))
 
 
 class ProfileContractError(ValueError):
@@ -2597,6 +2600,7 @@ class CoverageRecordFactory:
                         authority,
                         self,
                         registration_capability,
+                        "revoke",
                     )
                 except Exception as error:
                     raise ProfileContractError(
@@ -2642,7 +2646,9 @@ class CoverageRecordFactory:
             try:
                 for authority, registration, capability in registrations:
                     try:
-                        registration._revoke(authority, self, capability)
+                        registration._revoke(
+                            authority, self, capability, "finalize",
+                        )
                     except Exception as error:
                         if first_error is None:
                             first_error = error
@@ -2718,6 +2724,7 @@ class CoverageRecordFactory:
             observed = registration_binding[1].require_observation(
                 registration_binding[0],
                 observation,
+                purpose="use",
             )
         except ValueError as error:
             raise ProfileContractError(
@@ -2728,6 +2735,11 @@ class CoverageRecordFactory:
             matrix=matrix,
             profile=profile,
             overlay=overlay,
+            precommit=lambda: registration_binding[1].require_observation(
+                registration_binding[0],
+                observation,
+                purpose="precommit",
+            ),
         )
 
     def _issue_observed(
@@ -2737,6 +2749,7 @@ class CoverageRecordFactory:
         matrix: SupportMatrixDefinition,
         profile: ProfileDefinition,
         overlay: RiskOverlayDefinition,
+        precommit: object | None = None,
     ) -> CoverageRecord:
         with self.__lifecycle_lock:
             self._require_current(issuing=True)
@@ -2745,6 +2758,7 @@ class CoverageRecordFactory:
                 matrix=matrix,
                 profile=profile,
                 overlay=overlay,
+                precommit=precommit,
             )
 
     def _issue_observed_unlocked(
@@ -2754,6 +2768,7 @@ class CoverageRecordFactory:
         matrix: SupportMatrixDefinition,
         profile: ProfileDefinition,
         overlay: RiskOverlayDefinition,
+        precommit: object | None = None,
     ) -> CoverageRecord:
         coverage_policy = self._coverage_policy
         if (
@@ -2866,6 +2881,17 @@ class CoverageRecordFactory:
                 )
             },
         }
+        if precommit is not None:
+            try:
+                current_observation = precommit() if callable(precommit) else None
+            except ValueError as error:
+                raise ProfileContractError(
+                    "CoverageRecord precommit authority is stale"
+                ) from error
+            if current_observation is not observed:
+                raise ProfileContractError(
+                    "CoverageRecord precommit authority is stale"
+                )
         issued = object.__new__(CoverageRecord)
         capability = object()
         for name, item in (
@@ -2895,14 +2921,24 @@ class CoverageRecordFactory:
         return issued
 
     def require_issued(
-        self, record: object, *, matrix: SupportMatrixDefinition,
+        self,
+        record: object,
+        *,
+        matrix: SupportMatrixDefinition,
+        purpose: str = "gate",
     ) -> CoverageRecord:
         with self.__lifecycle_lock:
             self._require_current()
-            return self._require_issued_unlocked(record, matrix=matrix)
+            return self._require_issued_unlocked(
+                record, matrix=matrix, purpose=purpose,
+            )
 
     def _require_issued_unlocked(
-        self, record: object, *, matrix: SupportMatrixDefinition,
+        self,
+        record: object,
+        *,
+        matrix: SupportMatrixDefinition,
+        purpose: str = "gate",
     ) -> CoverageRecord:
         _require_exact_type(record, CoverageRecord, "coverage record")
         issued = self.__issued.get(id(record))
@@ -2930,6 +2966,7 @@ class CoverageRecordFactory:
                 registration_binding[1].require_observation(
                     registration_binding[0],
                     observation,
+                    purpose=purpose,
                 )
             except ValueError as error:
                 raise ProfileContractError(

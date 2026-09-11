@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-REMAINING54-V1",
+  "node": "test-plan",
+  "artifact": "test_plan",
+  "author_id": "/root/remaining54_docs_author_r1",
+  "reviewer_id": "/root/remaining54_f1_docs_reviewer_r1",
+  "targets": [
+    ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+    "docs/adr/0007-offline-performance-benchmark-authority.md",
+    "docs/adr/0008-local-profile-scenario-truth-authority.md",
+    "docs/adr/0009-offline-release-operations-simulator-authority.md",
+    "docs/impact/graph-engineering-workflow.md",
+    "docs/plans/2026-08-13-graph-engineering-workflow.md",
+    "docs/specs/graph-engineering-workflow.md",
+    "docs/test-plans/graph-engineering-workflow.md"
+  ],
+  "revision": 1,
+  "artifact_digest": "7a8388bec550f59dc579f147e9b32a62d3320bc63fdc4f31eb3ed14a87d56967",
+  "previous_artifact_digest": "d64cfeb3d34147c5ae2c11097ff49b2d57c20b1c58b94d8c989c50af8ae4d230",
+  "open_finding_ids": []
+}

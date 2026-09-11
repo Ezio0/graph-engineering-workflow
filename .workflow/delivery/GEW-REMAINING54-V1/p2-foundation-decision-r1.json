@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-REMAINING54-V1",
+  "artifact": "implementation",
+  "decision": "ESCALATE",
+  "code": "E_SCOPE",
+  "message": "human decision required for change kinds: implementation, test",
+  "next_node": "implementation",
+  "revision": 0,
+  "human_required": true,
+  "current_node": "implementation",
+  "input_verdict": "REVISE",
+  "input_digests": {
+    "envelope": "sha256:2f0aca13d980aadd1ff1c4324b1cd53a1f5197165833d2574980dad1abb82859",
+    "state": "sha256:ed4e87c5ae16964b6c9bbdeb12d70d3ebe2b4cea815d62569c6b2c0d868e1127",
+    "verdict": "sha256:882748921b972780679eeb5a1f67fadb7fd12700e95f04bd5b8b4c838bc1616e"
+  }
+}

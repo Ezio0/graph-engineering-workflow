@@ -12,12 +12,14 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import warnings
 import zipfile
 from collections.abc import Callable, Iterator
 from contextlib import ExitStack, contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
+from graph_engineering.core.contracts.immutable import thaw
 from tests.support import wp08_category_execution as category
 
 
@@ -55,6 +57,18 @@ PERFORMANCE_STABLE_BASELINE_PASS_TEST_ID = (
 PERFORMANCE_STABLE_BASELINE_REJECT_TEST_ID = (
     "GEW-PSC-PERFORMANCE-STABLE-BASELINE-R"
 )
+PERFORMANCE_REMAINING_SCENARIO_IDS = (
+    "correctness-regression", "noise-outlier",
+)
+PERFORMANCE_REMAINING_SCENARIO_TEST_IDS = tuple(
+    f"GEW-PSC-PERFORMANCE-{scenario_id.upper()}-{disposition}"
+    for scenario_id in PERFORMANCE_REMAINING_SCENARIO_IDS
+    for disposition in ("P", "R")
+)
+NEW_FEATURE_MULTI_TARGET_SCENARIO_ID = "multi-target"
+NEW_FEATURE_MULTI_TARGET_PASS_TEST_ID = "GEW-PSC-NEW-FEATURE-MULTI-TARGET-P"
+NEW_FEATURE_MULTI_TARGET_REJECT_TEST_ID = "GEW-PSC-NEW-FEATURE-MULTI-TARGET-R"
+NEW_FEATURE_MULTI_TARGET_BOUNDARY_CASE_ID = NEW_FEATURE_MULTI_TARGET_PASS_TEST_ID
 DEPENDENCY_SECURITY_VULNERABLE_GRAPH_PASS_TEST_ID = (
     "GEW-PSC-DEPENDENCY-SECURITY-VULNERABLE-GRAPH-P"
 )
@@ -165,11 +179,28 @@ EXPECTED_ORACLE_SCENARIOS = (
         "scaffold",
     ),
     (
+        "ORA-PROFILE-NEW-FEATURE",
+        "new-feature",
+        "scenario",
+        "boundary",
+        "multi-target",
+    ),
+    (
         "ORA-PROFILE-PERFORMANCE",
         "performance",
         "scenario",
         "boundary",
         "stable-baseline",
+    ),
+    *(
+        (
+            "ORA-PROFILE-PERFORMANCE",
+            "performance",
+            "scenario",
+            "boundary",
+            scenario_id,
+        )
+        for scenario_id in PERFORMANCE_REMAINING_SCENARIO_IDS
     ),
     *(
         (
@@ -223,7 +254,7 @@ NEW_MANDATORY_COLUMNS = (
 
 def expected_oracle_binding_identities(
 ) -> tuple[tuple[str, str, str, str, str | None], ...]:
-    """Return the frozen independent 110-member oracle identity closure."""
+    """Return the frozen independent 113-member oracle identity closure."""
 
     identities = tuple(sorted((
         *(
@@ -233,7 +264,7 @@ def expected_oracle_binding_identities(
         ),
         *EXPECTED_ORACLE_SCENARIOS,
     )))
-    if len(identities) != 110 or len(set(identities)) != 110:
+    if len(identities) != 113 or len(set(identities)) != 113:
         raise AssertionError("expected Profile coverage oracle closure is not exact")
     return identities
 
@@ -400,10 +431,538 @@ class SerialCoverageExecution:
     state_before: object
     state_after: object
     dependency_security_context: object | None = None
+    dependency_reopen_authority: object | None = None
+    dependency_reopen_seal: object | None = None
     performance_context: object | None = None
     migration_context: object | None = None
+    migration_rehearsal_projection: object | None = None
+    scenario_truth_context: object | None = None
+    binding_lifecycle: object | None = None
+    private_repository_root: object | None = None
+    private_action_root: object | None = None
+    private_shared_runtime: object | None = None
+    private_real_e2e_root: object | None = None
+    private_real_e2e_handle: object | None = None
+
+    @staticmethod
+    def _lifecycle_json(value: object) -> object:
+        if type(value) is bytes:
+            return {
+                "bytes_sha256": hashlib.sha256(value).hexdigest(),
+                "length": len(value),
+            }
+        if isinstance(value, dict):
+            return {
+                str(key): SerialCoverageExecution._lifecycle_json(item)
+                for key, item in value.items()
+            }
+        if isinstance(value, (list, tuple)):
+            return [
+                SerialCoverageExecution._lifecycle_json(item) for item in value
+            ]
+        if value is None or type(value) in {str, int, bool}:
+            return value
+        raise AssertionError(
+            "coverage binding lifecycle projection contains a foreign value"
+        )
+
+    def binding_identity_projection(self) -> dict[str, object]:
+        repository_root = self.private_repository_root
+        action_root = self.private_action_root
+        if repository_root is None or action_root is None:
+            raise AssertionError("coverage binding private roots are unavailable")
+        repository_identity = repository_root.identity_projection()
+        action_identity = action_root.identity_projection()
+        real_e2e_root = self.private_real_e2e_root
+        if (
+            real_e2e_root is not None
+            and self.private_real_e2e_handle is None
+        ):
+            return real_e2e_root.binding_identity_projection()
+        target_root = (
+            self.target.root
+            if real_e2e_root is None
+            else real_e2e_root.project
+        )
+        target_metadata = target_root.lstat()
+        target_identity = [
+            int(target_metadata.st_dev),
+            int(target_metadata.st_ino),
+            int(target_metadata.st_uid),
+        ]
+        binding = self.authority._plan.binding(self.test_id)
+        task_id = str(binding["task_id"])
+        if real_e2e_root is None:
+            target_id = self.target.target_id
+            branch_ref = ["branch:" + task_id, "ref:" + task_id]
+            command_root = repository_identity["command_root_identity"]
+        else:
+            current = self.probe.real_e2e_authority._fresh()
+            lifecycle = self.binding_lifecycle
+            real_e2e_root.record_observation(
+                None if lifecycle is None else lifecycle.expected_purpose,
+                current,
+            )
+            if not self.probe.real_e2e_authority._same_current_observation(
+                current,
+                self.probe.real_e2e_authority._execution["after"],
+            ):
+                raise AssertionError("real-E2E binding ref changed")
+            target_id = self.probe.real_e2e_authority._expected_target.target_id
+            branch_ref = [task_id, current.head_ref]
+            command_root = real_e2e_root.identity_projection()[
+                "command_root_identity"
+            ]
+        projection = {
+            "action_root": action_identity["runtime_root_identity"],
+            "branch_ref": branch_ref,
+            "command_root": command_root,
+            "repository_root": repository_identity[
+                "repository_root_identity"
+            ],
+            "target": [target_id, *target_identity],
+            "task": task_id,
+        }
+        if real_e2e_root is not None:
+            real_e2e_root.seal_binding_identity(projection)
+        return projection
+
+    def _lifecycle_projection(self, shared: object) -> dict[str, object]:
+        if shared is not self.private_shared_runtime:
+            raise AssertionError("coverage binding repository handle is foreign")
+        if self.private_real_e2e_root is not None:
+            handle = self.private_real_e2e_handle
+            if type(handle) is not PrivateRealE2EHandle:
+                raise AssertionError("real-E2E live handle is unavailable")
+            authority = self.probe.real_e2e_authority
+            action_id = authority._action_id
+            if type(action_id) is not str:
+                raise AssertionError("real-E2E Action identity is unavailable")
+            current = handle.adapter.observe(
+                authority._target_plan_document,
+                expected=authority._expected_target,
+            )
+            lifecycle = self.binding_lifecycle
+            self.private_real_e2e_root.record_observation(
+                None if lifecycle is None else lifecycle.expected_purpose,
+                current,
+            )
+            current_document = current.to_dict()
+            stable_current = {
+                field: current_document[field]
+                for field in authority._CURRENT_OBSERVATION_FIELDS
+            }
+            projection = {
+                "action_state": self._lifecycle_json(
+                    handle.action.repository.concrete_action_audit(action_id)
+                ),
+                "authority": self.authority._binding_lifecycle_projection(
+                    self.execution,
+                ),
+                "binding_identity": self.binding_identity_projection(),
+                "command_state": {
+                    "cumulative_launch_count": (
+                        authority._cumulative_launch_count
+                    ),
+                    "root_identity": self.private_real_e2e_root.identity_projection()[
+                        "command_root_identity"
+                    ],
+                },
+                "target_state": {
+                    "current_observation": stable_current,
+                    "durable_observation": authority._execution["after"],
+                    "cumulative_mutation_count": (
+                        authority._cumulative_mutation_count
+                    ),
+                    "target_id": authority._expected_target.target_id,
+                },
+            }
+            dependency_reopen = self.dependency_reopen_authority
+            if dependency_reopen is not None:
+                dependency = self.authority._dependency_security
+                if type(dependency) is not tuple or len(dependency) != 2:
+                    raise AssertionError(
+                        "generic dependency authority is unavailable"
+                    )
+                projection["dependency_state"] = self._lifecycle_json(
+                    thaw(dependency_reopen.project_current(*dependency))
+                )
+            return projection
+        target = self.target
+        rollback = self.probe.rollback_signature()
+        target_body = target.path.read_bytes()
+        projection = {
+            "action_state": self._lifecycle_json(rollback),
+            "authority": self.authority._binding_lifecycle_projection(
+                self.execution,
+            ),
+            "binding_identity": self.binding_identity_projection(),
+            "command_state": {
+                "launcher_replay_count": 0,
+                "root_identity": self.private_repository_root.identity_projection()[
+                    "command_root_identity"
+                ],
+            },
+            "target_state": {
+                "bytes_sha256": hashlib.sha256(target_body).hexdigest(),
+                "mutation_count": target.mutation_count,
+                "query_count": target.query_count,
+                "revision": target._revision,
+                "target_id": target.target_id,
+            },
+        }
+        dependency_context = self.dependency_security_context
+        dependency_reopen = self.dependency_reopen_authority
+        if dependency_reopen is not None:
+            dependency = self.authority._dependency_security
+            if type(dependency) is not tuple or len(dependency) != 2:
+                raise AssertionError("generic dependency authority is unavailable")
+            projection["dependency_state"] = self._lifecycle_json(
+                thaw(dependency_reopen.project_current(*dependency))
+            )
+        elif dependency_context is not None:
+            binding = self.authority._plan.binding(self.test_id)
+            projection["dependency_state"] = (
+                dependency_context.seal_graph_assessment(
+                    self.authority._dependency_security,
+                    self.application,
+                    task_id=str(binding["task_id"]),
+                    scenario_id=str(binding["scenario_id"]),
+                )
+            )
+        migration_projection = self.migration_rehearsal_projection
+        if migration_projection is not None:
+            from graph_engineering.core.contracts.immutable import FrozenMap
+
+            if not isinstance(migration_projection, FrozenMap):
+                raise AssertionError(
+                    "migration lifecycle projection is not frozen"
+                )
+            assessment = self.application.current_assessment(
+                self.probe.task_id,
+                expected_profile_id="migration",
+            )
+            current_projection = (
+                None
+                if assessment is None
+                else assessment.migration_rehearsal_projection
+            )
+            migration_factory = (
+                self.application._oracle._migration_rehearsal_factory
+            )
+            if (
+                current_projection != migration_projection
+                or migration_factory is None
+                or migration_factory._replay_count != 0
+            ):
+                raise AssertionError(
+                    "migration lifecycle projection is stale or replayed"
+                )
+            projection["migration_state"] = {
+                "projection": self._lifecycle_json(thaw(current_projection)),
+                "replay_count": migration_factory._replay_count,
+            }
+        return projection
+
+    def _close_lifecycle_handle(self, shared: object) -> None:
+        if shared is not self.private_shared_runtime:
+            raise AssertionError("coverage binding close handle is foreign")
+        dependency_context = self.dependency_security_context
+        dependency_reopen = self.dependency_reopen_authority
+        if dependency_reopen is not None:
+            dependency = self.authority._dependency_security
+            if type(dependency) is not tuple or len(dependency) != 2:
+                raise AssertionError("generic dependency authority is unavailable")
+            self.dependency_reopen_seal = dependency_reopen.seal_current(
+                *dependency
+            )
+            self.authority._quiesce_dependency_security(dependency)
+            if dependency_context is not None:
+                for field_name in (
+                    "registry_factory", "registry", "closure_factory",
+                    "before", "after", "applicability_factory",
+                    "applicabilities", "residual_factory", "residual",
+                ):
+                    object.__setattr__(dependency_context, field_name, None)
+        elif dependency_context is not None:
+            binding = self.authority._plan.binding(self.test_id)
+            dependency_context.quiesce_graph_assessment(
+                self.authority._dependency_security,
+                self.application,
+                task_id=str(binding["task_id"]),
+                scenario_id=str(binding["scenario_id"]),
+            )
+        performance_context = self.performance_context
+        checkpoint_launches = getattr(
+            performance_context, "checkpoint_launches", None,
+        )
+        if callable(checkpoint_launches):
+            lifecycle = self.binding_lifecycle
+            checkpoint_launches(
+                None if lifecycle is None else lifecycle.expected_purpose,
+            )
+        real_e2e_root = self.private_real_e2e_root
+        if real_e2e_root is not None:
+            handle = self.private_real_e2e_handle
+            if type(handle) is not PrivateRealE2EHandle:
+                raise AssertionError("real-E2E live handle is unavailable")
+            stack = getattr(self.probe, "_stack", None)
+            close_stack = getattr(stack, "close", None)
+            if callable(close_stack):
+                close_stack()
+                self.probe._stack = ExitStack()
+            lifecycle = self.binding_lifecycle
+            real_e2e_root.close_handle(
+                handle,
+                purpose=(
+                    None if lifecycle is None else lifecycle.expected_purpose
+                ),
+            )
+            self.private_repository_root.close_handle(shared)
+            self.private_real_e2e_handle = None
+            self.private_shared_runtime = None
+            return
+        application = self.application
+        oracle = getattr(application, "_oracle", None)
+        for name in (
+            "_performance_registry_factory",
+            "_migration_rehearsal_factory",
+            "_scenario_truth_factory",
+        ):
+            close = getattr(getattr(oracle, name, None), "close", None)
+            if callable(close):
+                close()
+        stack = getattr(self.probe, "_stack", None)
+        close_stack = getattr(stack, "close", None)
+        if callable(close_stack):
+            close_stack()
+            self.probe._stack = ExitStack()
+        self.private_action_root.close_handle(
+            self.probe.private_action_fixture,
+        )
+        self.private_repository_root.close_handle(shared)
+        self.private_shared_runtime = None
+
+    def _requiesce_dependency_reopen_after_failure(
+        self, dependency: object,
+    ) -> None:
+        reopen = self.dependency_reopen_authority
+        if reopen is None or reopen.state != "LIVE":
+            return
+        try:
+            if type(dependency) is not tuple or len(dependency) != 2:
+                raise AssertionError(
+                    "reopened dependency authority is unavailable"
+                )
+            seal = reopen.seal_current(*dependency)
+            self.dependency_reopen_seal = seal
+            if self.authority._dependency_security is dependency:
+                self.authority._quiesce_dependency_security(dependency)
+        except BaseException:
+            reopen.revoke()
+            self.dependency_reopen_seal = None
+
+    def _reopen_lifecycle_handle(self) -> object:
+        if self.private_shared_runtime is not None:
+            raise AssertionError("coverage binding is already live")
+        shared = self.private_repository_root.open()
+        real_e2e_root = self.private_real_e2e_root
+        if real_e2e_root is not None:
+            handle = None
+            dependency_security = None
+            try:
+                handle = real_e2e_root.open()
+                authority = self.probe.real_e2e_authority
+                authority.reattach_current(
+                    coordinator=handle.action.raw_coordinator,
+                    action_repository=handle.action.repository,
+                    adapter=handle.adapter,
+                    launcher=handle.launcher,
+                    task_application=shared.application,
+                    task_repository=shared.repository,
+                    objects=shared.objects,
+                    runtime=shared.runtime,
+                )
+                previous_application = self.application
+                previous_application._rollback._coordinator = (
+                    handle.action.raw_coordinator
+                )
+                restarted = previous_application.restart(
+                    shared.application, shared.runtime, self.target,
+                )
+                dependency_reopen = self.dependency_reopen_authority
+                if dependency_reopen is not None:
+                    dependency_security = dependency_reopen.rehydrate_current(
+                        self.dependency_reopen_seal,
+                        repository=shared.repository,
+                        category_application=restarted,
+                    )
+                    self.dependency_reopen_seal = None
+                self.application = restarted
+                self.probe.factory = shared.repository._factory
+                self.probe.repository = shared.repository
+                self.probe.objects = shared.objects
+                self.probe.task_application = shared.application
+                self.probe.runtime = shared.runtime
+                self.probe._rollback_action = handle.action
+                self.probe.real_e2e_action_fixture = handle.action
+                self.probe.real_e2e_adapter = handle.adapter
+                self.probe.private_real_e2e_handle = handle
+                self.authority._rebind_binding_runtime(
+                    category_application=restarted,
+                    task_application=shared.application,
+                    repository=shared.repository,
+                    object_repository=shared.objects,
+                    runtime=shared.runtime,
+                    dependency_security=dependency_security,
+                )
+                self.private_real_e2e_handle = handle
+                self.private_shared_runtime = shared
+                return shared
+            except BaseException:
+                self._requiesce_dependency_reopen_after_failure(
+                    dependency_security
+                )
+                if handle is not None:
+                    lifecycle = self.binding_lifecycle
+                    real_e2e_root.close_handle(
+                        handle,
+                        purpose=(
+                            None
+                            if lifecycle is None
+                            else lifecycle.expected_purpose
+                        ),
+                    )
+                self.private_repository_root.close_handle(shared)
+                raise
+        action = None
+        dependency_security = None
+        try:
+            action = self.private_action_root.open()
+            previous_application = self.application
+            previous_application._rollback._coordinator = action.raw_coordinator
+            restarted = previous_application.restart(
+                shared.application,
+                shared.runtime,
+                self.target,
+            )
+            dependency_context = self.dependency_security_context
+            dependency_reopen = self.dependency_reopen_authority
+            if dependency_reopen is not None:
+                dependency_security = dependency_reopen.rehydrate_current(
+                    self.dependency_reopen_seal,
+                    repository=shared.repository,
+                    category_application=restarted,
+                )
+                self.dependency_reopen_seal = None
+            elif dependency_context is not None:
+                binding = self.authority._plan.binding(self.test_id)
+                dependency_security = dependency_context.rehydrate_graph_assessment(
+                    shared.repository,
+                    restarted,
+                    task_id=str(binding["task_id"]),
+                    scenario_id=str(binding["scenario_id"]),
+                )
+            self.authority._rebind_binding_runtime(
+                category_application=restarted,
+                task_application=shared.application,
+                repository=shared.repository,
+                object_repository=shared.objects,
+                runtime=shared.runtime,
+                dependency_security=dependency_security,
+            )
+            self.application = restarted
+            self.probe.factory = shared.repository._factory
+            self.probe.repository = shared.repository
+            self.probe.objects = shared.objects
+            self.probe.task_application = shared.application
+            self.probe.runtime = shared.runtime
+            self.probe._rollback_action = action
+            self.probe.private_action_fixture = action
+            self.private_shared_runtime = shared
+            return shared
+        except BaseException:
+            self._requiesce_dependency_reopen_after_failure(
+                dependency_security
+            )
+            if action is not None:
+                self.private_action_root.close_handle(action)
+            self.private_repository_root.close_handle(shared)
+            raise
+
+    def enable_quiescent_lifecycle(
+        self,
+        *,
+        repository_root: object,
+        action_root: object,
+        shared_runtime: object,
+        real_e2e_root: object | None = None,
+        real_e2e_handle: object | None = None,
+    ) -> None:
+        from tests.support import wp08_scenario_truth as lifecycle_fixture
+
+        if self.binding_lifecycle is not None:
+            raise AssertionError("coverage binding lifecycle is already issued")
+        self.private_repository_root = repository_root
+        self.private_action_root = action_root
+        self.private_shared_runtime = shared_runtime
+        self.private_real_e2e_root = real_e2e_root
+        self.private_real_e2e_handle = real_e2e_handle
+        dependency = self.authority._dependency_security
+        if type(dependency) is tuple and len(dependency) == 2:
+            from graph_engineering.application import dependency_security
+
+            factory, observation = dependency
+            projection = getattr(observation, "_projection", None)
+            if (
+                type(factory)
+                is dependency_security.DependencySecurityObservationFactory
+                and type(observation)
+                is dependency_security.DependencySecurityObservation
+                and getattr(projection, "get", lambda _name: None)(
+                    "schema_version"
+                ) in {"1.0.0", "1.1.0"}
+            ):
+                self.dependency_reopen_authority = (
+                    dependency_security.
+                    DependencySecurityObservationReopenAuthority.from_current(
+                        factory, observation,
+                    )
+                )
+        lifecycle = lifecycle_fixture.issue_quiescent_binding(
+            binding_identity=self.binding_identity_projection(),
+            close_handle=self._close_lifecycle_handle,
+            opened_handle=shared_runtime,
+            private_root=repository_root.root,
+            project_current=self._lifecycle_projection,
+            reopen_handle=self._reopen_lifecycle_handle,
+            terminate_root=self._terminate_lifecycle_root,
+        )
+        self.binding_lifecycle = lifecycle
+        self.authority._bind_binding_lifecycle(lifecycle)
+
+    def observe_current(self) -> object:
+        return self.authority.observe(self.execution)
+
+    def _terminate_lifecycle_root(self, action: str) -> None:
+        dependency_reopen = self.dependency_reopen_authority
+        if dependency_reopen is not None:
+            dependency_reopen.revoke(self.dependency_reopen_seal)
+            self.dependency_reopen_seal = None
+        (
+            self.private_action_root.terminate(action)
+            if self.private_real_e2e_root is None
+            else self.private_real_e2e_root.terminate(action)
+        )
+        self.private_repository_root.terminate(action)
 
     def close(self) -> None:
+        lifecycle = self.binding_lifecycle
+        if lifecycle is not None and lifecycle.state != "PERMANENTLY_CLOSED":
+            lifecycle.terminate("revoke")
+        dependency_reopen = self.dependency_reopen_authority
+        if dependency_reopen is not None:
+            dependency_reopen.revoke(self.dependency_reopen_seal)
         target = self.target
         probe = self.probe
         try:
@@ -438,8 +997,15 @@ class SerialCoverageExecution:
             object.__setattr__(self, "state_before", None)
             object.__setattr__(self, "state_after", None)
             object.__setattr__(self, "dependency_security_context", None)
+            object.__setattr__(self, "dependency_reopen_authority", None)
+            object.__setattr__(self, "dependency_reopen_seal", None)
             object.__setattr__(self, "performance_context", None)
             object.__setattr__(self, "migration_context", None)
+            scenario_context = self.scenario_truth_context
+            close_scenario = getattr(scenario_context, "close", None)
+            if callable(close_scenario):
+                close_scenario()
+            object.__setattr__(self, "scenario_truth_context", None)
 
     def retain_gate_context(self) -> None:
         """Discard local diagnostics while retaining the gate authority graph."""
@@ -464,6 +1030,20 @@ def abort_uncommitted_coverage_factory(factory: object) -> object:
     return capability
 
 
+def finalize_consumed_coverage_factory(
+    factory: object,
+    decision: object,
+) -> object:
+    """Finalize one production coverage fixture after its gate is consumed."""
+
+    finalize = getattr(factory, "finalize_after_gate", None)
+    if not callable(finalize):
+        raise AssertionError("coverage candidate finalization is unavailable")
+    finalize(decision)
+    finalize(decision)
+    return decision
+
+
 @dataclass(frozen=True, slots=True)
 class Slice4API:
     ProfileCoverageExecutionPlan: type
@@ -483,8 +1063,45 @@ class PerformanceCoverageContext:
     launcher: object | None = None
     session: object | None = None
     evidence: object | None = None
+    cumulative_launch_count: int = 0
+    phase_launch_deltas: dict[str, int] = field(default_factory=dict)
+    measurement_durations_ns: tuple[tuple[int, ...], ...] = ()
+    _accounted_launcher: object | None = None
+    _accounted_launcher_count: int = 0
+
+    def checkpoint_launches(self, purpose: str | None) -> int:
+        """Accumulate one live launcher's monotonic count without retaining it."""
+
+        if purpose is not None and purpose not in {
+            "issue", "use", "precommit", "gate",
+        }:
+            raise AssertionError("performance lifecycle purpose is invalid")
+        launcher = self.launcher
+        if launcher is None:
+            delta = 0
+        else:
+            observed = getattr(launcher, "launch_count", None)
+            if type(observed) is not int or observed < 0:
+                raise AssertionError("performance launcher count is invalid")
+            if launcher is self._accounted_launcher:
+                if observed < self._accounted_launcher_count:
+                    raise AssertionError("performance launcher count regressed")
+                delta = observed - self._accounted_launcher_count
+            else:
+                delta = observed
+            self._accounted_launcher = launcher
+            self._accounted_launcher_count = observed
+        self.cumulative_launch_count += delta
+        if purpose is not None:
+            if purpose in self.phase_launch_deltas:
+                raise AssertionError(
+                    "performance lifecycle phase launch count was replayed"
+                )
+            self.phase_launch_deltas[purpose] = delta
+        return delta
 
     def close(self) -> None:
+        self.checkpoint_launches(None)
         session = self.session
         try:
             close_session = getattr(session, "close", None)
@@ -509,6 +1126,7 @@ def performance_coverage_context(
     column: str,
     *,
     measure: bool,
+    scenario_id: str | None = None,
 ) -> PerformanceCoverageContext:
     """Build exact A/B/A evidence for one performance task when requested."""
 
@@ -525,6 +1143,14 @@ def performance_coverage_context(
     )
     if not measure:
         return context
+    if scenario_id is not None and scenario_id not in {
+        PERFORMANCE_STABLE_BASELINE_BOUNDARY_CASE_ID,
+        *(
+            f"GEW-PSC-PERFORMANCE-{member.upper()}-P"
+            for member in PERFORMANCE_REMAINING_SCENARIO_IDS
+        ),
+    }:
+        raise AssertionError("performance scenario boundary is not installed")
     try:
         root = registry_factory.private_root(registry_authority)
         context.root = root
@@ -613,6 +1239,19 @@ def performance_coverage_context(
             target=target,
             restored=restored,
         )
+        projection = context.evidence.projection
+        sample_sets = projection["sample_sets"]
+        measured = tuple(
+            tuple(sample["duration_ns"] for sample in row["samples"])
+            for row in sample_sets
+        )
+        if (
+            len(measured) != 3
+            or any(len(row) != 5 for row in measured)
+            or any(type(value) is not int or value < 1 for row in measured for value in row)
+        ):
+            raise AssertionError("performance parent timing projection is invalid")
+        context.measurement_durations_ns = measured
         return context
     except BaseException:
         context.close()
@@ -722,6 +1361,7 @@ def production_runtime(
     scenario_id: str | None = None,
     task_id: str | None = None,
     shared_runtime: category.SharedProductionCategoryRuntime | None = None,
+    private_action_root: object | None = None,
     performance_measurement: bool = False,
 ):  # type: ignore[no-untyped-def]
     """Build one exact Slice 3 Profile/full-planned category path."""
@@ -745,8 +1385,18 @@ def production_runtime(
     performance_context = None
     if profile_id == "performance":
         performance_context = performance_coverage_context(
-            probe, column, measure=performance_measurement,
+            probe,
+            column,
+            measure=performance_measurement,
+            scenario_id=scenario_id,
         )
+    scenario_truth_factory = None
+    if scenario_id == NEW_FEATURE_MULTI_TARGET_BOUNDARY_CASE_ID:
+        from graph_engineering.application.scenario_truth import (
+            ScenarioTruthRegistryFactory,
+        )
+
+        scenario_truth_factory = ScenarioTruthRegistryFactory.from_installation()
     oracle = api.CategoryCompletionOracle(
         policy=policy,
         target_authority=target_authority,
@@ -760,10 +1410,23 @@ def production_runtime(
             if performance_context is None
             else performance_context.registry_authority
         ),
+        scenario_truth_factory=scenario_truth_factory,
     )
-    action_coordinator, action_context = category.action_rollback_binding(
-        probe, target,
-    )
+    if private_action_root is None:
+        action_coordinator, action_context = category.action_rollback_binding(
+            probe, target,
+        )
+        private_action_fixture = None
+    else:
+        from tests.support import wp08_scenario_truth as lifecycle_fixture
+
+        (
+            action_coordinator,
+            action_context,
+            private_action_fixture,
+        ) = lifecycle_fixture.bind_private_rollback_action(
+            probe, target, private_action_root,
+        )
     rollback = api.CategoryRollbackBridge(policy, action_coordinator)
     rollback.prepare_action(**action_context)
     probe.bind_rollback_evidence(rollback)
@@ -787,13 +1450,232 @@ def production_runtime(
     )
     application.bind_current_sources(probe.task_id)
     probe.performance_context = performance_context
+    probe.scenario_truth_factory = scenario_truth_factory
+    probe.private_action_fixture = private_action_fixture
+    probe.private_action_root = private_action_root
     if performance_context is not None:
         probe._stack.callback(performance_context.close)
+    if scenario_truth_factory is not None:
+        probe._stack.callback(scenario_truth_factory.close)
     return api, application, probe, target
+
+
+@dataclass(slots=True)
+class PrivateRealE2EHandle:
+    action: object
+    adapter: object
+    launcher: object
+
+
+class PrivateRealE2ERoot:
+    """Retain one exact Git/action/command root while handles are quiesced."""
+
+    def __init__(self) -> None:
+        from tests.support import wp08_scenario_truth as lifecycle_fixture
+
+        self.__temporary = tempfile.TemporaryDirectory(
+            prefix="gew-e1-private-real-e2e-"
+        )
+        self.root = pathlib.Path(self.__temporary.name).resolve(strict=True)
+        self.project = self.root / "project"
+        self.command_root = self.root
+        self.action_root = lifecycle_fixture.PrivateActionRepositoryRoot()
+        self.__configuration: tuple[object, ...] | None = None
+        self.__live: PrivateRealE2EHandle | None = None
+        self.__terminal = False
+        self.__cumulative_mutation_count = 0
+        self.__cumulative_launch_count = 0
+        self.__phase_mutation_deltas: dict[str, int] = {}
+        self.__phase_launch_deltas: dict[str, int] = {}
+        self.__observation_receipts: dict[str, list[tuple[int, str]]] = {}
+        self.__binding_identity: object | None = None
+
+    @property
+    def cumulative_mutation_count(self) -> int:
+        return self.__cumulative_mutation_count
+
+    @property
+    def cumulative_launch_count(self) -> int:
+        return self.__cumulative_launch_count
+
+    @property
+    def phase_mutation_deltas(self) -> dict[str, int]:
+        return dict(self.__phase_mutation_deltas)
+
+    @property
+    def phase_launch_deltas(self) -> dict[str, int]:
+        return dict(self.__phase_launch_deltas)
+
+    @property
+    def observation_receipts(self) -> dict[str, tuple[tuple[int, str], ...]]:
+        return {
+            purpose: tuple(receipts)
+            for purpose, receipts in self.__observation_receipts.items()
+        }
+
+    @staticmethod
+    def _identity(path: pathlib.Path) -> list[int]:
+        import stat
+
+        metadata = path.lstat()
+        if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISDIR(metadata.st_mode):
+            raise AssertionError("private real-E2E root identity changed")
+        return [
+            int(metadata.st_dev), int(metadata.st_ino), int(metadata.st_uid),
+            stat.S_IMODE(metadata.st_mode),
+        ]
+
+    def identity_projection(self) -> dict[str, object]:
+        return {
+            "action_root_identity": self.action_root.identity_projection()[
+                "runtime_root_identity"
+            ],
+            "command_root_identity": self._identity(self.command_root),
+            "project_root_identity": self._identity(self.project),
+            "runtime_root_identity": self._identity(self.root),
+        }
+
+    def seal_binding_identity(self, projection: dict[str, object]) -> None:
+        from graph_engineering.core.contracts.immutable import FrozenMap, freeze
+
+        frozen = freeze(copy.deepcopy(projection))
+        if not isinstance(frozen, FrozenMap):
+            raise AssertionError("private real-E2E binding identity is malformed")
+        if self.__binding_identity is None:
+            self.__binding_identity = frozen
+        elif self.__binding_identity != frozen:
+            raise AssertionError("private real-E2E binding identity changed")
+
+    def binding_identity_projection(self) -> dict[str, object]:
+        from graph_engineering.core.contracts.immutable import thaw
+
+        if self.__binding_identity is None:
+            raise AssertionError("private real-E2E binding identity is unsealed")
+        projection = thaw(self.__binding_identity)
+        if type(projection) is not dict:
+            raise AssertionError("private real-E2E binding identity is malformed")
+        return projection
+
+    def configure(
+        self,
+        *,
+        adapter_factory: object,
+        concrete_policy: object,
+        registry: object,
+        git_configuration: dict[str, object],
+        provider_document: dict[str, object],
+        command_document: dict[str, object],
+        runtime_document: dict[str, object],
+    ) -> None:
+        if self.__configuration is not None:
+            raise AssertionError("private real-E2E root was already configured")
+        self.__configuration = (
+            adapter_factory, concrete_policy, registry,
+            copy.deepcopy(git_configuration), copy.deepcopy(provider_document),
+            copy.deepcopy(command_document), copy.deepcopy(runtime_document),
+        )
+
+    def record_observation(
+        self, purpose: str | None, observation: object,
+    ) -> None:
+        from graph_engineering.adapters.git_native import GitIdentityObservation
+
+        if type(observation) is not GitIdentityObservation:
+            raise AssertionError("private real-E2E observation is foreign")
+        document = observation.to_dict()
+        if GitIdentityObservation.from_dict(document) != observation:
+            raise AssertionError("private real-E2E observation digest is stale")
+        key = "initial" if purpose is None else purpose
+        receipts = self.__observation_receipts.setdefault(key, [])
+        if receipts and observation.observation_revision <= receipts[-1][0]:
+            raise AssertionError(
+                "private real-E2E observation revision did not advance"
+            )
+        receipts.append((
+            observation.observation_revision, observation.observation_digest,
+        ))
+
+    def open(self) -> PrivateRealE2EHandle:
+        if (
+            self.__terminal or self.__live is not None
+            or self.__configuration is None
+        ):
+            raise AssertionError("private real-E2E root cannot reopen")
+        from graph_engineering.adapters.action_adapters import ActionAdapterFactory
+        from graph_engineering.adapters.command_native import SecretProviderPorts
+
+        (
+            adapter_factory, concrete_policy, registry, git_configuration,
+            provider_document, command_document, runtime_document,
+        ) = self.__configuration
+        if type(adapter_factory) is not ActionAdapterFactory:
+            raise AssertionError("private real-E2E adapter factory is foreign")
+        action = self.action_root.open(concrete_action_authority=(
+            adapter_factory, concrete_policy, registry,
+        ))
+        adapter = None
+        launcher = None
+        try:
+            adapter = adapter_factory.issue_git_native(git_configuration)
+            provider = adapter_factory.issue_secret_provider(
+                provider_document,
+                SecretProviderPorts(resolve=lambda _reference: b"disposable-unused"),
+            )
+            launcher = adapter_factory.issue_project_command(
+                command_document, runtime_document, provider=provider,
+            )
+            handle = PrivateRealE2EHandle(action, adapter, launcher)
+            self.__live = handle
+            return handle
+        except BaseException:
+            if launcher is not None:
+                launcher.close()
+            if adapter is not None:
+                adapter.close()
+            self.action_root.close_handle(action)
+            raise
+
+    def close_handle(
+        self, handle: PrivateRealE2EHandle, *, purpose: str | None,
+    ) -> None:
+        if self.__live is not handle:
+            raise AssertionError("private real-E2E handle is foreign")
+        mutation_count = handle.adapter.mutation_count
+        launch_count = handle.launcher.launch_count
+        if purpose is None:
+            if self.__phase_mutation_deltas or self.__phase_launch_deltas:
+                raise AssertionError("private real-E2E initial handle was replayed")
+            self.__cumulative_mutation_count = mutation_count
+            self.__cumulative_launch_count = launch_count
+        else:
+            if purpose in self.__phase_mutation_deltas:
+                raise AssertionError("private real-E2E phase was replayed")
+            self.__phase_mutation_deltas[purpose] = mutation_count
+            self.__phase_launch_deltas[purpose] = launch_count
+            if mutation_count != 0 or launch_count != 0:
+                raise AssertionError("private real-E2E phase replayed a side effect")
+        try:
+            handle.launcher.close()
+            handle.adapter.close()
+            self.action_root.close_handle(handle.action)
+        finally:
+            self.__live = None
+
+    def terminate(self, action: str) -> None:
+        if (
+            action not in {"finalize", "revoke"}
+            or self.__live is not None or self.__terminal
+        ):
+            raise AssertionError("private real-E2E root cannot terminate")
+        self.action_root.terminate(action)
+        self.__terminal = True
+        self.__temporary.cleanup()
 
 
 def production_real_e2e_runtime(
     *, accepted: bool, profile_id: str = "new-feature", task_id: str | None = None,
+    private_repository_runtime: object | None = None,
+    private_tool_root: object | None = None,
 ):  # type: ignore[no-untyped-def]
     """Build one exact disposable Git/action/command/category authority chain."""
 
@@ -830,10 +1712,16 @@ def production_real_e2e_runtime(
     from tests.support.wp07a_actions import installed_action_adapter_attestation
 
     stack = ExitStack()
+    private_tool_handle = None
     try:
-        directory = pathlib.Path(stack.enter_context(
-            tempfile.TemporaryDirectory(prefix="gew-wp08-real-e2e-")
-        ))
+        if private_tool_root is None:
+            directory = pathlib.Path(stack.enter_context(
+                tempfile.TemporaryDirectory(prefix="gew-wp08-real-e2e-")
+            ))
+        else:
+            if type(private_tool_root) is not PrivateRealE2ERoot:
+                raise AssertionError("private real-E2E root is foreign")
+            directory = private_tool_root.root
         project = directory / "project"
         git_name = shutil.which("git")
         if git_name is None:
@@ -843,6 +1731,19 @@ def production_real_e2e_runtime(
             (os.fspath(git_executable), "init", "--quiet", os.fspath(project)),
             shell=False, check=True, capture_output=True, timeout=10,
         )
+        if private_tool_root is not None:
+            if type(task_id) is not str or not task_id:
+                raise AssertionError("private real-E2E task namespace is invalid")
+            branch_name = "gew-binding-" + hashlib.sha256(
+                task_id.encode("utf-8")
+            ).hexdigest()
+            subprocess.run(
+                (
+                    os.fspath(git_executable), "-C", os.fspath(project),
+                    "symbolic-ref", "HEAD", "refs/heads/" + branch_name,
+                ),
+                shell=False, check=True, capture_output=True, timeout=10,
+            )
         if profile_id == "new-feature":
             artifact_name = "feature-contract.json"
             first_body = b'{"feature":"absent"}\n'
@@ -1023,19 +1924,36 @@ def production_real_e2e_runtime(
                 "command-runtime-policy": runtime_document["policy_digest"],
             },
         )
-        action_fixture = stack.enter_context(action_stack(
-            concrete_action_authority=(adapter_factory, concrete, registry)
-        ))
-        adapter = adapter_factory.issue_git_native(git_configuration)
-        stack.callback(adapter.close)
-        provider = adapter_factory.issue_secret_provider(
-            provider_document,
-            SecretProviderPorts(resolve=lambda _reference: b"disposable-unused"),
-        )
-        launcher = adapter_factory.issue_project_command(
-            command_document, runtime_document, provider=provider,
-        )
-        stack.callback(launcher.close)
+        if private_tool_root is None:
+            action_fixture = stack.enter_context(action_stack(
+                concrete_action_authority=(adapter_factory, concrete, registry)
+            ))
+            adapter = adapter_factory.issue_git_native(git_configuration)
+            stack.callback(adapter.close)
+            provider = adapter_factory.issue_secret_provider(
+                provider_document,
+                SecretProviderPorts(
+                    resolve=lambda _reference: b"disposable-unused"
+                ),
+            )
+            launcher = adapter_factory.issue_project_command(
+                command_document, runtime_document, provider=provider,
+            )
+            stack.callback(launcher.close)
+        else:
+            private_tool_root.configure(
+                adapter_factory=adapter_factory,
+                concrete_policy=concrete,
+                registry=registry,
+                git_configuration=git_configuration,
+                provider_document=provider_document,
+                command_document=command_document,
+                runtime_document=runtime_document,
+            )
+            private_tool_handle = private_tool_root.open()
+            action_fixture = private_tool_handle.action
+            adapter = private_tool_handle.adapter
+            launcher = private_tool_handle.launcher
         before = adapter.observe(target_document, expected=expected_target)
         prepared_value = prepared_document()
         payload = mutation_payload(
@@ -1144,6 +2062,7 @@ def production_real_e2e_runtime(
                 profile_id, "real-e2e", target=observer,
                 real_e2e_authority=authority,
                 task_id=task_id,
+                shared_runtime=private_repository_runtime,
             )
         )
         target_authority = api.CategoryTargetObservationAuthority(policy)
@@ -1166,9 +2085,18 @@ def production_real_e2e_runtime(
                 else performance_context.registry_authority
             ),
         )
-        rollback_action, rollback_context = category.action_rollback_binding(
-            probe, observer,
-        )
+        if private_tool_root is None:
+            rollback_action, rollback_context = category.action_rollback_binding(
+                probe, observer,
+            )
+        else:
+            from tests.support import wp08_scenario_truth as lifecycle_fixture
+
+            rollback_action, rollback_context = (
+                lifecycle_fixture.bind_rollback_action_fixture(
+                    probe, observer, action_fixture,
+                )
+            )
         rollback = api.CategoryRollbackBridge(policy, rollback_action)
         rollback.prepare_action(**rollback_context)
         probe.bind_rollback_evidence(rollback)
@@ -1191,7 +2119,8 @@ def production_real_e2e_runtime(
         probe.performance_context = performance_context
         if performance_context is not None:
             probe._stack.callback(performance_context.close)
-        probe._stack.callback(stack.close)
+        if private_tool_root is None:
+            probe._stack.callback(stack.close)
         probe.real_e2e_authority = authority
         probe.real_e2e_adapter = adapter
         probe.real_e2e_action_fixture = action_fixture
@@ -1200,9 +2129,13 @@ def production_real_e2e_runtime(
         probe.real_e2e_foreign_oid = third_oid
         probe.real_e2e_git_executable = git_executable
         probe.real_e2e_project = project
+        probe.private_real_e2e_handle = private_tool_handle
+        probe.private_real_e2e_root = private_tool_root
         return api, application, probe, observer
     except BaseException:
         stack.close()
+        if private_tool_root is not None and private_tool_handle is not None:
+            private_tool_root.close_handle(private_tool_handle, purpose=None)
         raise
 
 
@@ -1485,6 +2418,7 @@ def run_serial_profile_binding(
     column: str,
     disposition: str,
     shared_runtime: category.SharedProductionCategoryRuntime | None = None,
+    quiescent: bool = False,
 ) -> SerialCoverageExecution:
     """Execute one isolated binding on its consumer-authority thread."""
 
@@ -1495,20 +2429,59 @@ def run_serial_profile_binding(
     probe: category.ProductionCategoryProbe | None = None
     target: object | None = None
     owned_dependency_context: object | None = None
+    private_repository_root: object | None = None
+    private_action_root: object | None = None
+    private_shared_runtime: object | None = None
+    private_real_e2e_root: object | None = None
+    private_real_e2e_handle: object | None = None
     try:
         if real_e2e:
+            if quiescent:
+                from tests.support import wp08_scenario_truth as lifecycle_fixture
+
+                if shared_runtime is not None:
+                    raise AssertionError(
+                        "quiescent real-E2E binding cannot share a Profile runtime"
+                    )
+                private_repository_root = (
+                    lifecycle_fixture.PrivateCategoryRepositoryRoot(profile_id)
+                )
+                private_shared_runtime = private_repository_root.open()
+                private_real_e2e_root = PrivateRealE2ERoot()
+                private_action_root = private_real_e2e_root.action_root
             _api, application, probe, target = production_real_e2e_runtime(
                 accepted=disposition == "P", profile_id=profile_id,
                 task_id=task_id,
+                private_repository_runtime=private_shared_runtime,
+                private_tool_root=private_real_e2e_root,
+            )
+            private_real_e2e_handle = getattr(
+                probe, "private_real_e2e_handle", None,
             )
             candidate = real_e2e_candidate(
                 accepted=disposition == "P", profile_id=profile_id,
                 task_id=task_id,
             )
         else:
+            if quiescent:
+                from tests.support import wp08_scenario_truth as lifecycle_fixture
+
+                if shared_runtime is not None:
+                    raise AssertionError(
+                        "quiescent binding cannot share a Profile runtime"
+                    )
+                private_repository_root = (
+                    lifecycle_fixture.PrivateCategoryRepositoryRoot(profile_id)
+                )
+                private_action_root = (
+                    lifecycle_fixture.PrivateActionRepositoryRoot()
+                )
+                private_shared_runtime = private_repository_root.open()
+                shared_runtime = private_shared_runtime
             _api, application, probe, target = production_runtime(
                 column, profile_id=profile_id, task_id=task_id,
                 shared_runtime=shared_runtime,
+                private_action_root=private_action_root,
                 performance_measurement=(
                     profile_id == "performance"
                 ),
@@ -1526,11 +2499,11 @@ def run_serial_profile_binding(
         dependency_graph_scenario: str | None = None
         if profile_id == "dependency-security":
             from tests.support import wp08_dependency_security as dependency_fixture
-
+            candidate_scenario = candidate.get("scenario_id")
             dependency_graph_scenario = next((
                 scenario_id
                 for scenario_id in DEPENDENCY_GRAPH_SCENARIO_IDS
-                if candidate.get("scenario_id") == (
+                if candidate_scenario == (
                     "GEW-PSC-DEPENDENCY-SECURITY-"
                     f"{scenario_id.upper()}-P"
                 )
@@ -1570,11 +2543,23 @@ def run_serial_profile_binding(
                     )
                 )
                 owned_dependency_context = dependency_context
+            if quiescent and owned_dependency_context is None:
+                owned_dependency_context = dependency_context
+                if (
+                    shared_runtime is not None
+                    and shared_runtime.dependency_security_context
+                    is dependency_context
+                ):
+                    shared_runtime.dependency_security_context = None
             if dependency_graph_scenario is not None:
                 dependency_security = dependency_context.observe_graph(
                     application,
                     probe.task_id,
                     scenario_id=dependency_graph_scenario,
+                )
+            else:
+                dependency_security = dependency_context.observe(
+                    application, probe.task_id,
                 )
         if disposition == "P":
             performance_context = getattr(
@@ -1586,11 +2571,11 @@ def run_serial_profile_binding(
                 performance_evidence=getattr(
                     performance_context, "evidence", None,
                 ),
-                dependency_graph_evidence=dependency_security,
-            )
-        if profile_id == "dependency-security" and dependency_security is None:
-            dependency_security = dependency_context.observe(
-                application, probe.task_id,
+                dependency_graph_evidence=(
+                    dependency_security
+                    if dependency_graph_scenario is not None
+                    else None
+                ),
             )
         authority = api4.ProfileCoverageAuthority(
             plan=plan,
@@ -1624,7 +2609,7 @@ def run_serial_profile_binding(
             "COMPLETED" if disposition == "P" else "EXPECTED_REJECTION"
         ):
             raise AssertionError("coverage serial execution returned the wrong result")
-        return SerialCoverageExecution(
+        result = SerialCoverageExecution(
             test_id=test_id,
             profile_id=profile_id,
             column_id=column,
@@ -1642,6 +2627,15 @@ def run_serial_profile_binding(
                 probe, "performance_context", None,
             ),
         )
+        if quiescent:
+            result.enable_quiescent_lifecycle(
+                repository_root=private_repository_root,
+                action_root=private_action_root,
+                shared_runtime=private_shared_runtime,
+                real_e2e_root=private_real_e2e_root,
+                real_e2e_handle=private_real_e2e_handle,
+            )
+        return result
     except BaseException:
         if target is not None:
             close = getattr(target, "close", None)
@@ -1654,6 +2648,42 @@ def run_serial_profile_binding(
         close_dependency = getattr(owned_dependency_context, "close", None)
         if callable(close_dependency):
             close_dependency()
+        if private_real_e2e_root is not None:
+            if private_real_e2e_handle is not None:
+                try:
+                    private_real_e2e_root.close_handle(
+                        private_real_e2e_handle, purpose=None,
+                    )
+                except Exception:
+                    pass
+            try:
+                private_real_e2e_root.terminate("revoke")
+            except Exception:
+                pass
+            private_action_root = None
+        if private_action_root is not None:
+            private_action_fixture = getattr(
+                probe, "private_action_fixture", None,
+            )
+            if private_action_fixture is not None:
+                try:
+                    private_action_root.close_handle(private_action_fixture)
+                except Exception:
+                    pass
+            try:
+                private_action_root.terminate("revoke")
+            except Exception:
+                pass
+        if private_repository_root is not None:
+            if private_shared_runtime is not None:
+                try:
+                    private_repository_root.close_handle(private_shared_runtime)
+                except Exception:
+                    pass
+            try:
+                private_repository_root.terminate("revoke")
+            except Exception:
+                pass
         raise
 
 
@@ -1663,6 +2693,7 @@ def run_serial_scenario_binding(
     plan: object,
     scenario_id: str,
     disposition: str,
+    quiescent: bool = False,
 ) -> SerialCoverageExecution:
     """Execute one exact installed scenario binding in isolation."""
 
@@ -1680,6 +2711,13 @@ def run_serial_scenario_binding(
             EXISTING_FEATURE_REJECT_TEST_ID,
             EXISTING_FEATURE_BOUNDARY_CASE_ID,
             existing_feature_candidate,
+        ),
+        NEW_FEATURE_MULTI_TARGET_SCENARIO_ID: (
+            "new-feature",
+            NEW_FEATURE_MULTI_TARGET_PASS_TEST_ID,
+            NEW_FEATURE_MULTI_TARGET_REJECT_TEST_ID,
+            NEW_FEATURE_MULTI_TARGET_BOUNDARY_CASE_ID,
+            new_feature_multi_target_candidate,
         ),
         BUG_FIX_REPRODUCIBLE_FAILURE_SCENARIO_ID: (
             "bug-fix",
@@ -1716,6 +2754,21 @@ def run_serial_scenario_binding(
             PERFORMANCE_STABLE_BASELINE_BOUNDARY_CASE_ID,
             performance_stable_baseline_candidate,
         ),
+        **{
+            performance_scenario_id: (
+                "performance",
+                f"GEW-PSC-PERFORMANCE-{performance_scenario_id.upper()}-P",
+                f"GEW-PSC-PERFORMANCE-{performance_scenario_id.upper()}-R",
+                f"GEW-PSC-PERFORMANCE-{performance_scenario_id.upper()}-P",
+                (
+                    lambda *, accepted, selected=performance_scenario_id:
+                    performance_remaining_scenario_candidate(
+                        selected, accepted=accepted,
+                    )
+                ),
+            )
+            for performance_scenario_id in PERFORMANCE_REMAINING_SCENARIO_IDS
+        },
         DEPENDENCY_SECURITY_VULNERABLE_GRAPH_SCENARIO_ID: (
             "dependency-security",
             DEPENDENCY_SECURITY_VULNERABLE_GRAPH_PASS_TEST_ID,
@@ -1776,6 +2829,17 @@ def run_serial_scenario_binding(
     binding = plan.binding(test_id)
     task_id = str(binding["task_id"])
     migration_context: object | None = None
+    private_repository_root: object | None = None
+    private_action_root: object | None = None
+    private_shared_runtime: object | None = None
+    if quiescent and profile_id == "migration" and disposition == "P":
+        from tests.support import wp08_scenario_truth as lifecycle_fixture
+
+        private_repository_root = lifecycle_fixture.PrivateCategoryRepositoryRoot(
+            profile_id,
+        )
+        private_action_root = lifecycle_fixture.PrivateActionRepositoryRoot()
+        private_shared_runtime = private_repository_root.open()
     if profile_id == "migration" and disposition == "P":
         from tests.support import wp08_migration_rehearsal as migration_fixture
 
@@ -1783,18 +2847,40 @@ def run_serial_scenario_binding(
             task_id=task_id,
             scenario_boundary_case_id=boundary_case_id,
             selector=candidate_factory(accepted=True),
+            shared_runtime=private_shared_runtime,
+            private_action_root=private_action_root,
         )
         fixture, _migration_document = migration_context.__enter__()
         application = fixture.category_application
         probe = fixture.probe
         target = fixture.target
+        if quiescent:
+            migration_handle = migration_fixture.migration_binding_handle(fixture)
+            private_repository_root.adopt_active_repository(
+                private_shared_runtime,
+                migration_handle,
+                fixture.repository,
+            )
+            private_shared_runtime = migration_handle
     else:
+        if quiescent:
+            from tests.support import wp08_scenario_truth as lifecycle_fixture
+
+            private_repository_root = (
+                lifecycle_fixture.PrivateCategoryRepositoryRoot(profile_id)
+            )
+            private_action_root = lifecycle_fixture.PrivateActionRepositoryRoot()
+            private_shared_runtime = private_repository_root.open()
         _api, application, probe, target = production_runtime(
             "boundary",
             profile_id=profile_id,
             scenario_id=boundary_case_id,
             task_id=task_id,
-            performance_measurement=profile_id == "performance",
+            performance_measurement=(
+                profile_id == "performance" and disposition == "P"
+            ),
+            shared_runtime=private_shared_runtime,
+            private_action_root=private_action_root,
         )
     owned_dependency_context: object | None = None
     try:
@@ -1827,6 +2913,30 @@ def run_serial_scenario_binding(
                     application, probe.task_id,
                 )
             )
+        scenario_truth_context = None
+        if scenario_id == NEW_FEATURE_MULTI_TARGET_SCENARIO_ID:
+            from tests.support import wp08_scenario_truth as scenario_fixture
+
+            if disposition == "P":
+                scenario_truth_context = scenario_fixture.observe_current_candidate(
+                    application,
+                    target,
+                    candidate,
+                    probe.scenario_truth_factory,
+                )
+            else:
+                truth_candidate = candidate_factory(accepted=True)
+                truth_candidate["task_id"] = task_id
+                scenario_truth_context = scenario_fixture.reject_current_candidate(
+                    application,
+                    target,
+                    candidate,
+                    truth_candidate,
+                    probe.scenario_truth_factory,
+                    scenario_id=scenario_id,
+                    test_id=test_id,
+                    oracle_digest=str(plan.oracle_for(test_id)["oracle_digest"]),
+                )
         if disposition == "P" and profile_id != "migration":
             application.assess_and_commit(
                 candidate,
@@ -1841,6 +2951,11 @@ def run_serial_scenario_binding(
                     if scenario_id in DEPENDENCY_GRAPH_SCENARIO_IDS
                     else None
                 ),
+                scenario_truth_evidence=(
+                    None
+                    if scenario_truth_context is None
+                    else scenario_truth_context.evidence
+                ),
             )
         authority = api4.ProfileCoverageAuthority(
             plan=plan,
@@ -1850,6 +2965,11 @@ def run_serial_scenario_binding(
             object_repository=probe.objects,
             runtime=probe.runtime,
             dependency_security=dependency_security,
+            scenario_rejection_factory=(
+                scenario_truth_context.registry_factory
+                if disposition == "R" and scenario_truth_context is not None
+                else None
+            ),
         )
         execution = (
             authority.observe_completion(
@@ -1860,6 +2980,10 @@ def run_serial_scenario_binding(
             if disposition == "P"
             else authority.execute_rejection(
                 test_id, candidate=candidate, observer=target,
+                scenario_rejection_evidence=(
+                    None if scenario_truth_context is None
+                    else scenario_truth_context.evidence
+                ),
             )
         )
         state_after = _serial_state_signature(probe, target, real_e2e=False)
@@ -1867,6 +2991,19 @@ def run_serial_scenario_binding(
             raise AssertionError("scenario coverage mutated its caller input")
         if disposition == "R" and state_after != state_before:
             raise AssertionError("scenario coverage rejection changed durable state")
+        if (
+            disposition == "R"
+            and scenario_id == NEW_FEATURE_MULTI_TARGET_SCENARIO_ID
+            and (
+                scenario_truth_context is None
+                or scenario_truth_context.test_id != execution.test_id
+                or scenario_truth_context.task_id != execution.task_id
+                or scenario_truth_context.oracle_digest != execution.oracle_digest
+            )
+        ):
+            raise AssertionError(
+                "scenario rejection proof is not bound to its execution oracle"
+            )
         if (
             execution.test_id != test_id
             or execution.selector_kind != "scenario"
@@ -1877,7 +3014,31 @@ def run_serial_scenario_binding(
             != ("COMPLETED" if disposition == "P" else "EXPECTED_REJECTION")
         ):
             raise AssertionError("scenario coverage returned a mismatched execution")
-        return SerialCoverageExecution(
+        migration_rehearsal_projection = None
+        if migration_context is not None and disposition == "P":
+            from graph_engineering.core.contracts.immutable import (
+                FrozenMap,
+                freeze,
+                thaw,
+            )
+
+            assessment = application.current_assessment(
+                probe.task_id,
+                expected_profile_id="migration",
+            )
+            current_projection = (
+                None
+                if assessment is None
+                else assessment.migration_rehearsal_projection
+            )
+            migration_rehearsal_projection = freeze(
+                copy.deepcopy(thaw(current_projection))
+            )
+            if not isinstance(migration_rehearsal_projection, FrozenMap):
+                raise AssertionError(
+                    "migration lifecycle projection did not freeze"
+                )
+        result = SerialCoverageExecution(
             test_id=test_id,
             profile_id=profile_id,
             column_id="boundary",
@@ -1892,7 +3053,16 @@ def run_serial_scenario_binding(
             state_after=state_after,
             dependency_security_context=owned_dependency_context,
             migration_context=migration_context,
+            migration_rehearsal_projection=migration_rehearsal_projection,
+            scenario_truth_context=scenario_truth_context,
         )
+        if quiescent:
+            result.enable_quiescent_lifecycle(
+                repository_root=private_repository_root,
+                action_root=private_action_root,
+                shared_runtime=private_shared_runtime,
+            )
+        return result
     except BaseException:
         if migration_context is not None:
             migration_context.__exit__(*sys.exc_info())
@@ -1901,6 +3071,32 @@ def run_serial_scenario_binding(
         close_dependency = getattr(owned_dependency_context, "close", None)
         if callable(close_dependency):
             close_dependency()
+        close_scenario = getattr(locals().get("scenario_truth_context"), "close", None)
+        if callable(close_scenario):
+            close_scenario()
+        if private_action_root is not None:
+            private_action_fixture = getattr(
+                locals().get("probe"), "private_action_fixture", None,
+            )
+            if private_action_fixture is not None:
+                try:
+                    private_action_root.close_handle(private_action_fixture)
+                except Exception:
+                    pass
+            try:
+                private_action_root.terminate("revoke")
+            except Exception:
+                pass
+        if private_repository_root is not None:
+            if private_shared_runtime is not None:
+                try:
+                    private_repository_root.close_handle(private_shared_runtime)
+                except Exception:
+                    pass
+            try:
+                private_repository_root.terminate("revoke")
+            except Exception:
+                pass
         raise
 
 
@@ -1978,6 +3174,28 @@ def existing_feature_candidate(*, accepted: bool) -> dict[str, object]:
         EXISTING_FEATURE_PASS_TEST_ID
         if accepted
         else EXISTING_FEATURE_REJECT_TEST_ID
+    )
+    return candidate
+
+
+def new_feature_multi_target_candidate(*, accepted: bool) -> dict[str, object]:
+    """Return only the public selector; local multi-target truth is factory-issued."""
+
+    candidate = category.candidate_document("new-feature", "boundary")
+    candidate["request_id"] = (
+        "wp08-s4:new-feature:multi-target:pass"
+        if accepted
+        else "wp08-s4:new-feature:multi-target:reject"
+    )
+    candidate["scenario_id"] = (
+        NEW_FEATURE_MULTI_TARGET_BOUNDARY_CASE_ID
+        if accepted
+        else "GEW-PSC-NEW-FEATURE-MULTI-TARGET"
+    )
+    candidate["task_id"] = coverage_task_id(
+        NEW_FEATURE_MULTI_TARGET_PASS_TEST_ID
+        if accepted
+        else NEW_FEATURE_MULTI_TARGET_REJECT_TEST_ID
     )
     return candidate
 
@@ -2096,6 +3314,27 @@ def performance_stable_baseline_candidate(
         PERFORMANCE_STABLE_BASELINE_PASS_TEST_ID
         if accepted
         else PERFORMANCE_STABLE_BASELINE_REJECT_TEST_ID
+    )
+    return candidate
+
+
+def performance_remaining_scenario_candidate(
+    scenario_id: str, *, accepted: bool,
+) -> dict[str, object]:
+    """Return one exact remaining performance scenario selector."""
+
+    if scenario_id not in PERFORMANCE_REMAINING_SCENARIO_IDS:
+        raise AssertionError("unknown remaining performance scenario selector")
+    stable = f"GEW-PSC-PERFORMANCE-{scenario_id.upper()}"
+    candidate = category.candidate_document("performance", "boundary")
+    candidate["request_id"] = (
+        f"wp08-s4:performance:{scenario_id}:pass"
+        if accepted
+        else f"wp08-s4:performance:{scenario_id}:reject"
+    )
+    candidate["scenario_id"] = f"{stable}-P" if accepted else stable
+    candidate["task_id"] = coverage_task_id(
+        f"{stable}-{'P' if accepted else 'R'}"
     )
     return candidate
 
@@ -2798,6 +4037,8 @@ STABLE_BASELINE_R1_SELECTOR = "stable-baseline-r1"
 VULNERABLE_GRAPH_R1_SELECTOR = "vulnerable-graph-r1"
 MIGRATION_SCENARIOS_R1_SELECTOR = "migration-scenarios-r1"
 DEPENDENCY_GRAPH_SCENARIOS_R1_SELECTOR = "dependency-graph-scenarios-r1"
+PERFORMANCE_REMAINING_R1_SELECTOR = "performance-remaining-r1"
+P2A_CUMULATIVE_R2_SELECTOR = "p2a-cumulative-r2"
 VERIFIED_RUNNER_SELECTORS = (
     DEPENDENCY_GRAPH_SCENARIOS_R1_SELECTOR,
     EXISTING_FEATURE_R1_SELECTOR,
@@ -2805,6 +4046,8 @@ VERIFIED_RUNNER_SELECTORS = (
     MIGRATION_SCENARIOS_R1_SELECTOR,
     MINIMAL_PATCH_R1_SELECTOR,
     PERFORMANCE_AUTHORITY_R2_SELECTOR,
+    PERFORMANCE_REMAINING_R1_SELECTOR,
+    P2A_CUMULATIVE_R2_SELECTOR,
     REGRESSION_BOUNDARY_R1_SELECTOR,
     REPRODUCIBLE_FAILURE_R1_SELECTOR,
     STABLE_BASELINE_R1_SELECTOR,
@@ -4222,6 +5465,617 @@ def _run_stable_baseline_r1_child() -> dict[str, object]:
     }
 
 
+def _resign_performance_candidate_projection(
+    document: dict[str, object],
+) -> None:
+    """Coherently re-sign one test-only candidate evidence mutation."""
+
+    from tests.support import wp08_performance_benchmark as performance_fixture
+
+    sequence = document["sample_sets"][1]
+    for correctness in sequence["warmup_correctness_observations"]:
+        performance_fixture._resign(
+            correctness,
+            "performance-correctness-observation",
+            "correctness_digest",
+        )
+    for sample in sequence["samples"]:
+        correctness = sample.get("correctness_observation")
+        if type(correctness) is dict:
+            performance_fixture._resign(
+                correctness,
+                "performance-correctness-observation",
+                "correctness_digest",
+            )
+        performance_fixture._resign(
+            sample, "performance-measurement-sample", "sample_digest",
+        )
+    sample_set = sequence["sample_set_observation"]
+    sample_set["warmup_correctness_observations"] = copy.deepcopy(
+        sequence["warmup_correctness_observations"]
+    )
+    sample_set["samples"] = copy.deepcopy(sequence["samples"])
+    performance_fixture._resign(
+        sample_set,
+        "performance-sample-set-observation",
+        "sample_set_observation_digest",
+    )
+    statistics = document["statistics_observations"][1]
+    statistics["sample_set_observation"] = copy.deepcopy(sample_set)
+    performance_fixture._resign(
+        statistics,
+        "performance-statistics-observation",
+        "statistics_observation_digest",
+    )
+    performance_fixture._resign(
+        document, "performance-evidence-projection", "projection_digest",
+    )
+
+
+def _performance_correctness_rejection_attacks(
+    evidence: object,
+) -> tuple[str, ...]:
+    """Reject coherently signed caller attempts to bypass correctness."""
+
+    from graph_engineering.application.performance_benchmark import (
+        PerformanceBenchmarkError,
+        PerformanceBenchmarkRegistryFactory,
+    )
+    from graph_engineering.core.contracts.immutable import thaw
+
+    original = thaw(evidence.projection)
+    alternate = category.digest("performance-correctness-regression")
+
+    def candidate_sample(value: dict[str, object]) -> dict[str, object]:
+        return value["sample_sets"][1]["samples"][0]
+
+    mutations = (
+        (
+            "observed-mismatch",
+            lambda value: candidate_sample(value)["correctness_observation"].update(
+                {"observed_correctness_digest": alternate}
+            ),
+        ),
+        (
+            "expected-substitution",
+            lambda value: candidate_sample(value)["correctness_observation"].update({
+                "expected_correctness_digest": alternate,
+                "observed_correctness_digest": alternate,
+            }),
+        ),
+        (
+            "ignored-iteration",
+            lambda value: candidate_sample(value)["correctness_observation"].update(
+                {"iteration_index": 1}
+            ),
+        ),
+        (
+            "duration-only",
+            lambda value: candidate_sample(value).pop("correctness_observation"),
+        ),
+        (
+            "wrong-phase",
+            lambda value: candidate_sample(value)["correctness_observation"].update(
+                {"iteration_kind": "warmup"}
+            ),
+        ),
+        (
+            "wrong-case",
+            lambda value: candidate_sample(value)["correctness_observation"].update(
+                {"benchmark_case_id": "foreign-performance-case"}
+            ),
+        ),
+        (
+            "caller-correct",
+            lambda value: candidate_sample(value)["correctness_observation"].update(
+                {"observed_correctness_digest": True}
+            ),
+        ),
+    )
+    rejected: list[str] = []
+    for label, mutate in mutations:
+        changed = copy.deepcopy(original)
+        mutate(changed)
+        _resign_performance_candidate_projection(changed)
+        factory = PerformanceBenchmarkRegistryFactory.from_installation()
+        authority = factory.registry()
+        rejected.append(_expect_verified_rejection(
+            label,
+            PerformanceBenchmarkError,
+            lambda changed=changed, factory=factory, authority=authority:
+            factory.rehydrate_performance_evidence(authority, changed),
+        ))
+    return tuple(sorted(rejected))
+
+
+def _run_performance_remaining_r1_child() -> dict[str, object]:
+    """Run the two P1 performance scenario pairs and closed attack matrices."""
+
+    from graph_engineering.core.performance_benchmark import (
+        comparison_products,
+        integer_statistics,
+    )
+
+    _api, api4, _coverage, matrix, _profile, _overlay, plan = _verified_plan()
+    scenario_attacks: dict[str, tuple[str, ...]] = {}
+    retained_outliers: dict[str, tuple[int, int, int]] = {}
+    correctness_rejections: tuple[str, ...] = ()
+    noise_rejection: dict[str, object] = {}
+    for index, scenario_id in enumerate(PERFORMANCE_REMAINING_SCENARIO_IDS):
+        other = PERFORMANCE_REMAINING_SCENARIO_IDS[
+            (index + 1) % len(PERFORMANCE_REMAINING_SCENARIO_IDS)
+        ]
+        stable = f"GEW-PSC-PERFORMANCE-{scenario_id.upper()}"
+        attacks = _scenario_attack_receipt(
+            api4=api4,
+            plan=plan,
+            matrix=matrix,
+            profile_id="performance",
+            scenario_id=scenario_id,
+            boundary_case_id=f"{stable}-P",
+            pass_test_id=f"{stable}-P",
+            reject_test_id=f"{stable}-R",
+            candidate_factory=(
+                lambda *, accepted, selected=scenario_id:
+                performance_remaining_scenario_candidate(
+                    selected, accepted=accepted,
+                )
+            ),
+            request_label=scenario_id,
+            other_scenario_id=f"GEW-PSC-PERFORMANCE-{other.upper()}-P",
+        )
+        if len(attacks) != 12:
+            raise AssertionError(
+                f"{scenario_id} standard attack matrix changed"
+            )
+        scenario_attacks[scenario_id] = attacks
+
+        positive = run_serial_scenario_binding(
+            api4=api4,
+            plan=plan,
+            scenario_id=scenario_id,
+            disposition="P",
+        )
+        try:
+            projection = positive.probe.performance_context.evidence.projection
+            candidate_samples = tuple(
+                item["duration_ns"]
+                for item in projection["sample_sets"][1]["samples"]
+            )
+            candidate_statistics = projection["statistics_observations"][1]
+            if any(
+                sample["correctness_observation"]["observed_correctness_digest"]
+                != sample["correctness_observation"]["expected_correctness_digest"]
+                for sample in projection["sample_sets"][1]["samples"]
+            ):
+                raise AssertionError(
+                    "candidate correctness regression was accepted"
+                )
+            if scenario_id == "noise-outlier":
+                oracle = plan.oracle_for(
+                    "GEW-PSC-PERFORMANCE-NOISE-OUTLIER-R"
+                )
+                rejection_input = oracle["rejection_input"]
+                values = rejection_input["values"]
+                registry = (
+                    positive.probe.performance_context
+                    .registry_authority.registry
+                )
+                benchmark_case = registry.benchmark_cases[0]
+                policies = tuple(
+                    policy for policy in registry.statistics_policies
+                    if policy.statistics_policy_id
+                    == benchmark_case.statistics_policy_id
+                )
+                if len(policies) != 1:
+                    raise AssertionError("noise rejection policy is ambiguous")
+                rejection_median, rejection_mad, rejection_quiet = (
+                    integer_statistics(values, policies[0])
+                )
+                rejection_left, rejection_right = comparison_products(
+                    rejection_mad,
+                    rejection_median,
+                    policies[0].noise_ceiling_numerator,
+                    policies[0].noise_ceiling_denominator,
+                )
+                if (
+                    (rejection_median, rejection_mad, rejection_quiet)
+                    != (100, 99, False)
+                    or (rejection_left, rejection_right) != (198, 100)
+                    or tuple(candidate_samples) == tuple(values)
+                    or "[1,2,100,200,201]" in oracle["reject_error_message"]
+                ):
+                    raise AssertionError(
+                        "typed noise rejection did not remain R-only"
+                    )
+                noise_rejection = {
+                    "kind": rejection_input["kind"],
+                    "median": rejection_median,
+                    "mad": rejection_mad,
+                    "left_product": rejection_left,
+                    "right_product": rejection_right,
+                    "outcome": "inconclusive-noise",
+                }
+                median = candidate_statistics["median_ns"]
+                mad = candidate_statistics["mad_ns"]
+                maximum_deviation = max(
+                    abs(value - median) for value in candidate_samples
+                )
+                if maximum_deviation <= mad:
+                    raise AssertionError(
+                        "noise-outlier did not retain an outlier"
+                    )
+                retained_outliers[scenario_id] = (
+                    median, mad, maximum_deviation,
+                )
+            elif scenario_id == "correctness-regression":
+                correctness_rejections = (
+                    _performance_correctness_rejection_attacks(
+                        positive.probe.performance_context.evidence
+                    )
+                )
+            before = positive.probe.performance_context.launcher.launch_count
+            restarted_task, restarted_runtime = positive.probe.restart_authorities()
+            restarted_application = positive.application.restart(
+                restarted_task, restarted_runtime, positive.target,
+            )
+            restarted_authority = api4.ProfileCoverageAuthority(
+                plan=plan,
+                category_application=restarted_application,
+                task_application=restarted_task,
+                repository=positive.probe.repository,
+                object_repository=positive.probe.objects,
+                runtime=restarted_runtime,
+            )
+            restored = restarted_authority.observe_completion(
+                positive.test_id,
+                task_id=positive.probe.task_id,
+                expected_profile_id="performance",
+            )
+            if (
+                restored.execution_digest != positive.execution.execution_digest
+                or positive.probe.performance_context.launcher.launch_count != before
+            ):
+                raise AssertionError(
+                    "performance P1 restart changed evidence or replayed launcher"
+                )
+        finally:
+            positive.close()
+    return {
+        "oracle_bindings": len(plan.oracle_bindings),
+        "plan_bindings": len(plan.bindings),
+        "restart": "current-launcher-zero",
+        "correctness_rejections": correctness_rejections,
+        "noise_rejection": noise_rejection,
+        "retained_outliers": retained_outliers,
+        "scenario_attacks": scenario_attacks,
+        "selector": PERFORMANCE_REMAINING_R1_SELECTOR,
+    }
+
+
+def _run_p2a_cumulative_r2_child() -> dict[str, object]:
+    """Run the exact P2a cumulative dynamic and static coverage selectors."""
+
+    from tests.support import wp08_scenario_truth as lifecycle_fixture
+    from tests.unit import test_wp08_profile_contracts as contracts
+
+    fd_before = len(os.listdir("/dev/fd"))
+    started_ns = time.monotonic_ns()
+    prior_ns = started_ns
+
+    def progress(stage: str, **fields: object) -> None:
+        nonlocal prior_ns
+        observed_ns = time.monotonic_ns()
+        print(json.dumps(
+            {
+                "delta_ns": observed_ns - prior_ns,
+                "elapsed_ns": observed_ns - started_ns,
+                "stage": stage,
+                **fields,
+            },
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        ), file=sys.stderr, flush=True)
+        prior_ns = observed_ns
+
+    progress("p1-sibling-start")
+    p1_sibling = _run_performance_remaining_r1_child()
+    progress("p1-sibling-done")
+    progress("plan-load-start")
+    api, api4, coverage, matrix, profile, overlay, plan = _verified_plan()
+    progress(
+        "plan-load-done",
+        oracle_bindings=len(plan.oracle_bindings),
+        plan_bindings=len(plan.bindings),
+    )
+    results: list[SerialCoverageExecution] = []
+    observations: list[object] = []
+    records: tuple[object, ...] = ()
+    factory = None
+    factory_closed = False
+    dynamic_decision = None
+    static_decision = None
+    try:
+        for index, (test_id, binding) in enumerate(plan.bindings.items(), start=1):
+            progress(
+                "binding-start",
+                index=index,
+                selector_kind=binding["selector_kind"],
+                test_id=test_id,
+            )
+            if binding["selector_kind"] == "mandatory":
+                result = run_serial_profile_binding(
+                    api4=api4,
+                    plan=plan,
+                    profile_id=str(binding["profile_id"]),
+                    column=str(binding["column_id"]),
+                    disposition=str(binding["disposition"]),
+                    quiescent=True,
+                )
+            elif binding["selector_kind"] == "scenario":
+                result = run_serial_scenario_binding(
+                    api4=api4,
+                    plan=plan,
+                    scenario_id=str(binding["scenario_id"]),
+                    disposition=str(binding["disposition"]),
+                    quiescent=True,
+                )
+            else:
+                raise AssertionError("P2a cumulative selector kind changed")
+            if result.test_id != test_id:
+                result.close()
+                raise AssertionError("P2a cumulative execution order changed")
+            lifecycle = result.binding_lifecycle
+            if (
+                lifecycle is None
+                or (
+                    lifecycle.state,
+                    lifecycle.generation,
+                    lifecycle.expected_purpose,
+                ) != ("QUIESCED", 0, "issue")
+            ):
+                result.close()
+                raise AssertionError("P2a cumulative binding did not quiesce at g0")
+            progress("binding-executed", index=index, test_id=test_id)
+            results.append(result)
+            observations.append(result.observe_current())
+            if (
+                lifecycle.state,
+                lifecycle.generation,
+                lifecycle.expected_purpose,
+            ) != ("QUIESCED", 1, "use"):
+                raise AssertionError("P2a cumulative issue phase did not requiesce")
+            if (
+                lifecycle_fixture.PrivateBindingReopenPort.active_handle_count()
+                or lifecycle_fixture.PrivateBindingReopenPort.
+                active_reopened_binding_count()
+            ):
+                raise AssertionError("P2a cumulative issue retained a live binding")
+            progress("binding-observed", index=index, test_id=test_id)
+
+        execution_ids = tuple(result.test_id for result in results)
+        if (
+            len(execution_ids) != 226
+            or len(set(execution_ids)) != 226
+            or set(execution_ids) != set(plan.bindings)
+        ):
+            raise AssertionError("P2a cumulative execution closure changed")
+        oracle_keys = tuple(
+            (
+                row["oracle_id"], row["profile_id"], row["selector_kind"],
+                row["column_id"], row["scenario_id"],
+            )
+            for row in plan.oracle_bindings
+        )
+        if len(oracle_keys) != 113 or len(set(oracle_keys)) != 113:
+            raise AssertionError("P2a cumulative oracle closure changed")
+
+        identity_fields = (
+            "repository_root", "task", "target", "branch_ref",
+            "action_root", "command_root",
+        )
+        binding_identities = tuple(
+            result.binding_identity_projection() for result in results
+        )
+
+        def identity_key(value: object) -> str:
+            return json.dumps(
+                value,
+                ensure_ascii=False,
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+
+        if any(
+            len({identity_key(row[field]) for row in binding_identities}) != 226
+            for field in identity_fields
+        ) or len({
+            tuple(identity_key(row[field]) for field in identity_fields)
+            for row in binding_identities
+        }) != 226:
+            raise AssertionError("P2a cumulative binding identities are shared")
+
+        progress("factory-start", authorities=len(results))
+        factory = api.CoverageRecordFactory(
+            execution_authority=tuple(result.authority for result in results),
+            coverage_policy=coverage,
+        )
+        progress("factory-done", authorities=len(results))
+        profile_contracts: dict[str, tuple[object, object]] = {
+            "new-feature": (profile, overlay),
+        }
+        issued_records: list[object] = []
+        for index, (result, observation) in enumerate(
+            zip(results, observations, strict=True), start=1,
+        ):
+            progress("record-start", index=index, test_id=result.test_id)
+            current_profile = profile_contracts.get(result.profile_id)
+            if current_profile is None:
+                loaded = _verified_runner_contracts(result.profile_id)
+                current_profile = (loaded[3], loaded[4])
+                profile_contracts[result.profile_id] = current_profile
+            issued_records.append(factory.issue_execution(
+                observation,
+                matrix=matrix,
+                profile=current_profile[0],
+                overlay=current_profile[1],
+            ))
+            lifecycle = result.binding_lifecycle
+            if (
+                lifecycle.state,
+                lifecycle.generation,
+                lifecycle.expected_purpose,
+            ) != ("QUIESCED", 3, "gate"):
+                raise AssertionError(
+                    "P2a cumulative use/precommit phases did not requiesce"
+                )
+            if lifecycle_fixture.PrivateBindingReopenPort.active_handle_count():
+                raise AssertionError(
+                    "P2a cumulative record issuance retained a live binding"
+                )
+            progress("record-done", index=index, test_id=result.test_id)
+        records = tuple(issued_records)
+        progress("dynamic-gate-start", records=len(records))
+        dynamic_decision = api.ReleaseCoverageGate.evaluate(
+            matrix,
+            coverage_records=records,
+            coverage_factory=factory,
+        )
+        record_ids = tuple(record.test_id for record in records)
+        if (
+            dynamic_decision.passed
+            or len(record_ids) != 226
+            or len(set(record_ids)) != 226
+            or len(dynamic_decision.missing_test_ids) != 48
+            or dynamic_decision.invalid_test_ids
+            or dynamic_decision.stale_test_ids
+        ):
+            raise AssertionError("P2a cumulative dynamic gate changed")
+        if any((
+            result.binding_lifecycle.state,
+            result.binding_lifecycle.generation,
+            result.binding_lifecycle.expected_purpose,
+        ) != ("QUIESCED", 4, None) for result in results):
+            raise AssertionError("P2a cumulative gate phases did not requiesce")
+        if (
+            lifecycle_fixture.PrivateBindingReopenPort.active_handle_count()
+            or lifecycle_fixture.PrivateBindingReopenPort.
+            active_reopened_binding_count()
+            or lifecycle_fixture.PrivateBindingReopenPort.
+            maximum_active_reopened_binding_count() > 1
+        ):
+            raise AssertionError("P2a cumulative gate violated strict serial reopen")
+        progress(
+            "dynamic-gate-done",
+            missing=len(dynamic_decision.missing_test_ids),
+            records=len(records),
+        )
+
+        progress("static-gate-start")
+        static_registry = api.EvidenceObservationRegistry.from_dict(
+            contracts._evidence_registry_document(),
+            coverage_policy=coverage,
+            oracle_manifest_bytes=contracts._oracle_manifest_bytes(),
+        )
+        static_authority = api.EvidenceObservationAuthority(
+            static_registry,
+            evidence_root=contracts.ROOT / "tests/fixtures",
+        )
+        static_observation = static_authority.observe(
+            PASS_TEST_ID,
+            matrix=matrix,
+            profile=profile,
+            overlay=overlay,
+        )
+        static_factory = api.CoverageRecordFactory(
+            authority=static_authority,
+            coverage_policy=coverage,
+        )
+        static_record = static_factory.issue(
+            static_observation,
+            matrix=matrix,
+            profile=profile,
+            overlay=overlay,
+        )
+        static_decision = api.ReleaseCoverageGate.evaluate(
+            matrix,
+            coverage_records=(static_record,),
+            coverage_factory=static_factory,
+        )
+        if (
+            static_decision.passed
+            or len(static_decision.missing_test_ids) != 274
+            or static_decision.invalid_test_ids
+            or static_decision.stale_test_ids
+        ):
+            raise AssertionError("P2a cumulative static gate changed")
+        progress(
+            "static-gate-done",
+            missing=len(static_decision.missing_test_ids),
+        )
+        finalize_consumed_coverage_factory(factory, dynamic_decision)
+        factory_closed = True
+        if any(
+            result.binding_lifecycle.state != "PERMANENTLY_CLOSED"
+            for result in results
+        ):
+            raise AssertionError("P2a cumulative bindings did not become terminal")
+        progress("terminal-done", results=len(results))
+    finally:
+        if factory is not None and not factory_closed:
+            if dynamic_decision is None:
+                abort_uncommitted_coverage_factory(factory)
+            else:
+                finalize_consumed_coverage_factory(factory, dynamic_decision)
+        progress("teardown-start", results=len(results))
+        for index, result in enumerate(reversed(results), start=1):
+            result.close()
+            progress("teardown-result", index=index, test_id=result.test_id)
+        progress("teardown-done", results=len(results))
+    if (
+        lifecycle_fixture.PrivateBindingReopenPort.active_handle_count()
+        or lifecycle_fixture.PrivateBindingReopenPort.
+        active_reopened_binding_count()
+        or len(os.listdir("/dev/fd")) != fd_before
+    ):
+        raise AssertionError("P2a cumulative resources did not return to baseline")
+    if dynamic_decision is None or static_decision is None:
+        raise AssertionError("P2a cumulative gates were not evaluated")
+    new_ids = {
+        NEW_FEATURE_MULTI_TARGET_PASS_TEST_ID,
+        NEW_FEATURE_MULTI_TARGET_REJECT_TEST_ID,
+    }
+    return {
+        "dynamic": {
+            "valid": len(records),
+            "missing": len(dynamic_decision.missing_test_ids),
+            "passed": dynamic_decision.passed,
+            "invalid": len(dynamic_decision.invalid_test_ids),
+            "stale": len(dynamic_decision.stale_test_ids),
+            "duplicate": len(records) - len({record.test_id for record in records}),
+        },
+        "new_records": len(tuple(
+            record for record in records if record.test_id in new_ids
+        )),
+        "oracle_bindings": len(plan.oracle_bindings),
+        "p1_sibling": p1_sibling,
+        "plan_bindings": len(plan.bindings),
+        "retained_records": len(tuple(
+            record for record in records if record.test_id not in new_ids
+        )),
+        "selector": P2A_CUMULATIVE_R2_SELECTOR,
+        "static": {
+            "valid": 0,
+            "missing": len(static_decision.missing_test_ids),
+            "passed": static_decision.passed,
+            "invalid": len(static_decision.invalid_test_ids),
+            "stale": len(static_decision.stale_test_ids),
+            "duplicate": 0,
+        },
+    }
+
+
 def _run_vulnerable_graph_r1_child() -> dict[str, object]:
     """Run the dependency-security vulnerable-graph P/R and attacks."""
 
@@ -4829,8 +6683,102 @@ def _run_migration_scenarios_r1_child() -> dict[str, object]:
     }
 
 
+def _stderr_text(value: object) -> str:
+    if isinstance(value, bytes):
+        return value.decode(errors="replace")
+    return "" if value is None else str(value)
+
+
+def _wait_for_verified_child(
+    process: object,
+    *,
+    selector: str,
+    timeout_seconds: int,
+    heartbeat_interval_seconds: int,
+) -> dict[str, object]:
+    """Wait for one child while reporting bounded deterministic progress."""
+
+    if (
+        type(timeout_seconds) is not int
+        or type(heartbeat_interval_seconds) is not int
+        or timeout_seconds <= 0
+        or heartbeat_interval_seconds <= 0
+        or heartbeat_interval_seconds >= timeout_seconds
+    ):
+        raise AssertionError("verified runner testability limits are invalid")
+    communicate = getattr(process, "communicate", None)
+    kill = getattr(process, "kill", None)
+    if not callable(communicate) or not callable(kill):
+        raise AssertionError("verified runner child process is invalid")
+    started_ns = time.monotonic_ns()
+    elapsed_ns = 0
+    sequence = 0
+    progress = ""
+    while True:
+        remaining_ns = timeout_seconds * 1_000_000_000 - elapsed_ns
+        wait_seconds = min(
+            heartbeat_interval_seconds,
+            remaining_ns / 1_000_000_000,
+        )
+        try:
+            stdout, stderr = communicate(timeout=wait_seconds)
+        except subprocess.TimeoutExpired as error:
+            progress = _stderr_text(error.stderr)[-16384:] or progress
+            elapsed_ns = time.monotonic_ns() - started_ns
+            if elapsed_ns >= timeout_seconds * 1_000_000_000:
+                kill()
+                _final_stdout, final_stderr = communicate()
+                detail = (_stderr_text(final_stderr) or progress)[-16384:]
+                raise AssertionError(
+                    f"verified runner child timed out ({selector}): {detail}"
+                ) from error
+            sequence += 1
+            heartbeat = {
+                "elapsed_seconds": elapsed_ns // 1_000_000_000,
+                "heartbeat_sequence": sequence,
+                "last_child_stderr": progress,
+                "selector": selector,
+            }
+            print(
+                json.dumps(heartbeat, sort_keys=True, separators=(",", ":")),
+                file=sys.stderr,
+                flush=True,
+            )
+            continue
+        returncode = getattr(process, "returncode", None)
+        if returncode != 0:
+            raise AssertionError(
+                f"verified runner child failed ({selector}): "
+                f"{_stderr_text(stderr) or _stderr_text(stdout)}"
+            )
+        try:
+            receipt = json.loads(_stderr_text(stdout))
+        except json.JSONDecodeError as error:
+            raise AssertionError("verified runner receipt is not exact JSON") from error
+        if type(receipt) is not dict or receipt.get("selector") != selector:
+            raise AssertionError("verified runner receipt selector changed")
+        return receipt
+
+
+def _p2a_cumulative_runner_testability():  # type: ignore[no-untyped-def]
+    """Re-read immutable cumulative-runner limits from current authority."""
+
+    from graph_engineering.application.scenario_truth import (
+        ScenarioTruthRegistryFactory,
+    )
+
+    factory = ScenarioTruthRegistryFactory.from_installation()
+    try:
+        return factory.registry().testability
+    finally:
+        factory.close()
+
+
 def _run_verified_selector_in_fresh_child(
-    selector: str, *, timeout_seconds: int,
+    selector: str,
+    *,
+    timeout_seconds: int,
+    heartbeat_interval_seconds: int | None = None,
 ) -> dict[str, object]:
     """Issue a fresh source attestation and run one exact selector in isolation."""
 
@@ -4856,21 +6804,48 @@ def _run_verified_selector_in_fresh_child(
             os.fspath(category.ROOT / path)
             for path in ("core", "adapters", "application", "storage", ".")
         )
-        result = subprocess.run(
-            (
-                sys.executable,
-                "-X", f"gew_installation_control_root={control}",
-                "-m", "tests.support.wp08_release_coverage",
-                "--verified-child", selector,
-            ),
-            cwd=category.ROOT,
-            env=environment,
-            shell=False,
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=timeout_seconds,
-        )
+        if heartbeat_interval_seconds is not None:
+            process = subprocess.Popen(
+                (
+                    sys.executable,
+                    "-X", f"gew_installation_control_root={control}",
+                    "-m", "tests.support.wp08_release_coverage",
+                    "--verified-child", selector,
+                ),
+                cwd=category.ROOT,
+                env=environment,
+                shell=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            return _wait_for_verified_child(
+                process,
+                selector=selector,
+                timeout_seconds=timeout_seconds,
+                heartbeat_interval_seconds=heartbeat_interval_seconds,
+            )
+        try:
+            result = subprocess.run(
+                (
+                    sys.executable,
+                    "-X", f"gew_installation_control_root={control}",
+                    "-m", "tests.support.wp08_release_coverage",
+                    "--verified-child", selector,
+                ),
+                cwd=category.ROOT,
+                env=environment,
+                shell=False,
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=timeout_seconds,
+            )
+        except subprocess.TimeoutExpired as error:
+            progress = _stderr_text(error.stderr)[-16384:]
+            raise AssertionError(
+                f"verified runner child timed out ({selector}): {progress}"
+            ) from error
         if result.returncode != 0:
             raise AssertionError(
                 f"verified runner child failed ({selector}): "
@@ -4941,6 +6916,25 @@ def run_stable_baseline_r1_verified() -> dict[str, object]:
     )
 
 
+def run_performance_remaining_r1_verified() -> dict[str, object]:
+    """Run the two remaining performance scenario pairs in isolation."""
+
+    return _run_verified_selector_in_fresh_child(
+        PERFORMANCE_REMAINING_R1_SELECTOR, timeout_seconds=3600,
+    )
+
+
+def run_p2a_cumulative_r2_verified() -> dict[str, object]:
+    """Run the exact P2a cumulative selector in one fresh attested child."""
+
+    testability = _p2a_cumulative_runner_testability()
+    return _run_verified_selector_in_fresh_child(
+        P2A_CUMULATIVE_R2_SELECTOR,
+        timeout_seconds=testability["cumulative_runtime_limit_seconds"],
+        heartbeat_interval_seconds=testability["heartbeat_interval_seconds"],
+    )
+
+
 def run_vulnerable_graph_r1_verified() -> dict[str, object]:
     """Run the dependency-security vulnerable-graph pair in isolation."""
 
@@ -4991,6 +6985,10 @@ def _verified_runner_main(arguments: list[str] | None = None) -> int:
             receipt = _run_reproducible_failure_r1_child()
         elif selector == STABLE_BASELINE_R1_SELECTOR:
             receipt = _run_stable_baseline_r1_child()
+        elif selector == PERFORMANCE_REMAINING_R1_SELECTOR:
+            receipt = _run_performance_remaining_r1_child()
+        elif selector == P2A_CUMULATIVE_R2_SELECTOR:
+            receipt = _run_p2a_cumulative_r2_child()
         elif selector == VULNERABLE_GRAPH_R1_SELECTOR:
             receipt = _run_vulnerable_graph_r1_child()
         else:
@@ -5013,6 +7011,10 @@ def _verified_runner_main(arguments: list[str] | None = None) -> int:
         receipt = run_migration_scenarios_r1_verified()
     elif values == [STABLE_BASELINE_R1_SELECTOR]:
         receipt = run_stable_baseline_r1_verified()
+    elif values == [PERFORMANCE_REMAINING_R1_SELECTOR]:
+        receipt = run_performance_remaining_r1_verified()
+    elif values == [P2A_CUMULATIVE_R2_SELECTOR]:
+        receipt = run_p2a_cumulative_r2_verified()
     elif values == [VULNERABLE_GRAPH_R1_SELECTOR]:
         receipt = run_vulnerable_graph_r1_verified()
     else:

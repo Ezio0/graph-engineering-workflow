@@ -21,11 +21,13 @@ from graph_engineering.core.contracts.canonical import canonical_bytes
 from graph_engineering.core.contracts.immutable import FrozenMap, freeze, thaw
 from graph_engineering.core.profile_execution import CategoryExecutionError
 from graph_engineering.core.profile_coverage import (
+    ProcessLocalBindingLifecycle,
     ProfileCoverageAuthorityRegistration,
     ProfileCoverageError,
     ProfileCoverageExecutionPlan,
     ProfileCoverageExecutionRecord,
     ProfileCoverageObservation,
+    RuntimeBindingReopenPort,
     _register_profile_coverage_authority_type,
     profile_coverage_digest,
 )
@@ -66,6 +68,76 @@ def _frozen_mapping(value: object, label: str) -> FrozenMap:
     return frozen
 
 
+class ProfileCoverageBindingLifecycle:
+    """Application-owned orchestration for one quiescent coverage binding."""
+
+    __slots__ = ("__lifecycle", "__seal")
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise TypeError("coverage binding lifecycle is runtime-issued")
+
+    def __copy__(self) -> object:
+        raise TypeError("coverage binding lifecycle is not cloneable")
+
+    def __deepcopy__(self, memo: object) -> object:
+        del memo
+        raise TypeError("coverage binding lifecycle is not cloneable")
+
+    def __reduce_ex__(self, protocol: int) -> object:
+        del protocol
+        raise TypeError("coverage binding lifecycle is not serializable")
+
+    def __getstate__(self) -> object:
+        raise TypeError("coverage binding lifecycle is not serializable")
+
+    @classmethod
+    def _issue(
+        cls,
+        *,
+        port: RuntimeBindingReopenPort,
+        binding_digest: str,
+        opened_handle: object,
+    ) -> ProfileCoverageBindingLifecycle:
+        result = object.__new__(cls)
+        lifecycle = ProcessLocalBindingLifecycle._issue(
+            port=port,
+            binding_digest=binding_digest,
+            opened_handle=opened_handle,
+            owner=result,
+        )
+        result.__lifecycle = lifecycle
+        result.__seal = lifecycle.seal_and_quiesce(result)
+        return result
+
+    @property
+    def state(self) -> str:
+        return self.__lifecycle.state
+
+    @property
+    def generation(self) -> int:
+        return self.__lifecycle.generation
+
+    @property
+    def expected_purpose(self) -> str | None:
+        return self.__lifecycle.expected_purpose
+
+    def _require_process_local_current(self) -> None:
+        self.__lifecycle._require_owner(self)
+        self.__lifecycle._require_current_seal(self.__seal)
+
+    def run(self, purpose: object, phase: object) -> object:
+        value, next_seal = self.__lifecycle.run_phase(
+            self.__seal, purpose, phase, self,
+        )
+        self.__seal = next_seal
+        return value
+
+    def terminate(self, terminal_action: object) -> None:
+        self.__lifecycle.terminate(self.__seal, terminal_action, self)
+        self.__seal = None
+
+
 class ProfileCoverageAuthority:
     """Issue current production coverage proofs under consumer-local identity."""
 
@@ -79,6 +151,7 @@ class ProfileCoverageAuthority:
         object_repository: ObjectRepository,
         runtime: RuntimeContext,
         dependency_security: tuple[object, object] | None = None,
+        scenario_rejection_factory: object | None = None,
     ) -> None:
         if (
             type(plan) is not ProfileCoverageExecutionPlan
@@ -167,6 +240,24 @@ class ProfileCoverageAuthority:
         self._objects = object_repository
         self._runtime = runtime
         self._dependency_security = dependency_security
+        # R has no committed category assessment from which restart could
+        # restore this issuer. Retain its process-local identity (no open runtime
+        # handles) for full receipt/installation/target rereads at every phase.
+        category_scenario_factory = category_application._oracle._scenario_truth_factory
+        if scenario_rejection_factory is not None:
+            from graph_engineering.application.scenario_truth import ScenarioTruthRegistryFactory
+            if (type(scenario_rejection_factory) is not ScenarioTruthRegistryFactory
+                    or type(category_scenario_factory) is not ScenarioTruthRegistryFactory):
+                raise ProfileCoverageError("scenario rejection issuer is foreign")
+            scenario_rejection_factory.registry()
+            category_scenario_factory.registry()
+            if scenario_rejection_factory.installation_pins != category_scenario_factory.installation_pins:
+                raise ProfileCoverageError("scenario rejection installation is foreign")
+        self.__scenario_rejection_factory = (
+            category_scenario_factory if scenario_rejection_factory is None
+            else scenario_rejection_factory
+        )
+        self.__scenario_rejections: dict[int, object] = {}
         self.__issued: dict[
             int,
             tuple[
@@ -196,25 +287,41 @@ class ProfileCoverageAuthority:
             tuple[object, weakref.ReferenceType[object], bool],
         ] = {}
         self._performance_registry_factory = performance_factory
+        self._performance_registry_authority = performance_registry_authority
         self._performance_registration = None
+        self._performance_rejection_binding = None
+        self._binding_lifecycle: ProfileCoverageBindingLifecycle | None = None
         if performance_factory is not None:
             from graph_engineering.application.performance_benchmark import (
                 PerformanceBenchmarkError,
             )
 
             try:
-                self._performance_registration = (
-                    performance_factory._issue_profile_coverage_registration(
-                        authority=self,
-                        application=category_application,
-                        task_application=task_application,
-                        repository=repository,
-                        object_repository=object_repository,
-                        runtime=runtime,
-                        plan=plan,
-                        registry_authority=performance_registry_authority,
-                    )
+                task_id = category_application._facts._coverage_task_identity()
+                matching = tuple(
+                    binding
+                    for binding in plan.bindings.values()
+                    if binding["task_id"] == task_id
                 )
+                if (
+                    len(matching) == 1
+                    and matching[0]["expected_result"] == "EXPECTED_REJECTION"
+                    and matching[0]["selector_kind"] == "scenario"
+                ):
+                    self._performance_rejection_binding = matching[0]
+                else:
+                    self._performance_registration = (
+                        performance_factory._issue_profile_coverage_registration(
+                            authority=self,
+                            application=category_application,
+                            task_application=task_application,
+                            repository=repository,
+                            object_repository=object_repository,
+                            runtime=runtime,
+                            plan=plan,
+                            registry_authority=performance_registry_authority,
+                        )
+                    )
             except PerformanceBenchmarkError as error:
                 raise ProfileCoverageError(
                     "performance coverage authority registration failed"
@@ -222,6 +329,246 @@ class ProfileCoverageAuthority:
         self._coverage_registration = ProfileCoverageAuthorityRegistration._issue(
             self, plan,
         )
+
+    def _bind_binding_lifecycle(
+        self,
+        lifecycle: ProfileCoverageBindingLifecycle,
+    ) -> None:
+        if (
+            type(lifecycle) is not ProfileCoverageBindingLifecycle
+            or self._binding_lifecycle is not None
+            or lifecycle.state != "QUIESCED"
+        ):
+            raise ProfileCoverageError("coverage binding lifecycle is foreign")
+        lifecycle._require_process_local_current()
+        self._binding_lifecycle = lifecycle
+
+    def _run_binding_phase(self, purpose: str, phase: object) -> object:
+        lifecycle = self._binding_lifecycle
+        if lifecycle is None:
+            if not callable(phase):
+                raise ProfileCoverageError("coverage binding phase is unavailable")
+            return phase()
+        return lifecycle.run(purpose, lambda _handle: phase())
+
+    def _quiesce_dependency_security(
+        self, authority: tuple[object, object],
+    ) -> None:
+        """Release the live generic dependency tuple after its runtime seals it."""
+
+        self._require_active()
+        from graph_engineering.application.dependency_security import (
+            DependencySecurityObservation,
+            DependencySecurityObservationFactory,
+        )
+
+        if (
+            authority is not self._dependency_security
+            or type(authority) is not tuple
+            or len(authority) != 2
+            or type(authority[0]) is not DependencySecurityObservationFactory
+            or type(authority[1]) is not DependencySecurityObservation
+            or authority[1]._authority is not authority[0]
+            or authority[1]._projection.get("schema_version")
+            not in {"1.0.0", "1.1.0"}
+        ):
+            raise ProfileCoverageError(
+                "dependency security quiesce authority is foreign"
+            )
+        authority[0].require_current(authority[1])
+        self._dependency_security = None
+
+    def _rebind_binding_runtime(
+        self,
+        *,
+        category_application: CategoryExecutionApplication,
+        task_application: TaskApplication,
+        repository: TaskRepository,
+        object_repository: ObjectRepository,
+        runtime: RuntimeContext,
+        dependency_security: tuple[object, object] | None = None,
+    ) -> None:
+        old_category = self._category
+        if (
+            type(category_application) is not CategoryExecutionApplication
+            or type(task_application) is not TaskApplication
+            or type(repository) is not TaskRepository
+            or type(object_repository) is not ObjectRepository
+            or type(runtime) is not RuntimeContext
+            or category_application._task_application is not task_application
+            or category_application._repository is not repository
+            or category_application._objects is not object_repository
+            or category_application._runtime is not runtime
+            or task_application._repository is not repository
+            or task_application._materialization_objects is not object_repository
+            or old_category is None
+            or category_application._policy is not old_category._policy
+            or category_application._facts._coverage_task_identity()
+            != old_category._facts._coverage_task_identity()
+        ):
+            raise ProfileCoverageError("coverage binding runtime is foreign")
+        profile_id = category_application._policy.profile_id
+        if profile_id == "dependency-security":
+            from graph_engineering.application.dependency_security import (
+                DependencyGraphAssessmentEvidence,
+                DependencyGraphAssessmentFactory,
+                DependencySecurityObservation,
+                DependencySecurityObservationFactory,
+            )
+
+            generic_current = (
+                type(dependency_security) is tuple
+                and len(dependency_security) == 2
+                and type(dependency_security[0])
+                is DependencySecurityObservationFactory
+                and type(dependency_security[1]) is DependencySecurityObservation
+                and dependency_security[0]._category is category_application
+                and dependency_security[1]._authority is dependency_security[0]
+                and dependency_security[0].require_current(dependency_security[1])
+                is dependency_security[1]
+            )
+            graph_current = (
+                type(dependency_security) is tuple
+                and len(dependency_security) == 2
+                and type(dependency_security[0]) is DependencyGraphAssessmentFactory
+                and type(dependency_security[1]) is DependencyGraphAssessmentEvidence
+                and dependency_security[0]._repository is repository
+                and dependency_security[1]._authority is dependency_security[0]
+                and dependency_security[0].require_current(dependency_security[1])
+                is dependency_security[1]
+            )
+            if not generic_current and not graph_current:
+                raise ProfileCoverageError(
+                    "restarted dependency security authority is unavailable"
+                )
+        elif dependency_security is not None:
+            raise ProfileCoverageError(
+                "restarted dependency security authority is cross-profile"
+            )
+        performance_factory = self._performance_registry_factory
+        performance_authority = self._performance_registry_authority
+        performance_registration = self._performance_registration
+        if performance_factory is not None:
+            from graph_engineering.application.performance_benchmark import (
+                PerformanceBenchmarkError,
+                PerformanceBenchmarkRegistryFactory,
+            )
+
+            restarted_factory = (
+                category_application._oracle._performance_registry_factory
+            )
+            restarted_authority = (
+                category_application._oracle._performance_registry_authority
+            )
+            try:
+                if type(restarted_factory) is not PerformanceBenchmarkRegistryFactory:
+                    raise PerformanceBenchmarkError(
+                        "restarted performance coverage factory is unavailable"
+                    )
+                restarted_factory.require_current(restarted_authority)
+                if performance_registration is None:
+                    if self._performance_rejection_binding is None:
+                        raise PerformanceBenchmarkError(
+                            "restarted performance rejection binding is unavailable"
+                        )
+                    restarted_registration = None
+                else:
+                    task_id = category_application._facts._coverage_task_identity()
+                    current_bindings = tuple(
+                        binding
+                        for binding in self._plan.bindings.values()
+                        if binding["task_id"] == task_id
+                    )
+                    if (
+                        len(current_bindings) == 1
+                        and current_bindings[0]["expected_result"]
+                        == "EXPECTED_REJECTION"
+                    ):
+                        performance_factory._rehydrate_quiescent_profile_coverage_rejection(
+                            performance_registration,
+                            self,
+                            restarted_factory,
+                            restarted_authority,
+                        )
+                    restarted_registration = (
+                        restarted_factory._issue_profile_coverage_registration(
+                            authority=self,
+                            application=category_application,
+                            task_application=task_application,
+                            repository=repository,
+                            object_repository=object_repository,
+                            runtime=runtime,
+                            plan=self._plan,
+                            registry_authority=restarted_authority,
+                        )
+                    )
+            except PerformanceBenchmarkError as error:
+                close = getattr(restarted_factory, "close", None)
+                if callable(close):
+                    close()
+                raise ProfileCoverageError(
+                    "restarted performance coverage authority is unavailable"
+                ) from error
+            performance_factory = restarted_factory
+            performance_authority = restarted_authority
+            performance_registration = restarted_registration
+        self._category = category_application
+        self._tasks = task_application
+        self._repository = repository
+        self._objects = object_repository
+        self._runtime = runtime
+        self._dependency_security = dependency_security
+        self._performance_registry_factory = performance_factory
+        self._performance_registry_authority = performance_authority
+        self._performance_registration = performance_registration
+
+    def _binding_lifecycle_projection(
+        self,
+        record: ProfileCoverageExecutionRecord,
+    ) -> dict[str, object]:
+        import graph_engineering
+
+        issued = self._require_record(record)
+        try:
+            archive_resources = graph_engineering._validate_distribution_identity()
+            provenance, plan, oracles, runner = (
+                graph_engineering._profile_coverage_installation_resources()
+            )
+        except Exception as error:
+            raise ProfileCoverageError(
+                "coverage binding installation closure is stale"
+            ) from error
+        installed_members = (provenance, plan, *oracles, runner)
+        observation_digests = sorted(
+            item[0].observation_digest
+            for item in self.__observations.values()
+            if item[1] is issued
+        )
+        return {
+            "archive_members": (
+                []
+                if archive_resources is None
+                else [
+                    [name, hashlib.sha256(body).hexdigest(), len(body)]
+                    for name, body in archive_resources
+                ]
+            ),
+            "execution_digest": issued.execution_digest,
+            "execution_object_digest": issued.execution_object_digest,
+            "execution_object_identity": str(id(issued)),
+            "installation_members": [
+                [hashlib.sha256(body).hexdigest(), len(body)]
+                for body in installed_members
+            ],
+            "observation_digests": observation_digests,
+            "observation_object_identities": sorted(
+                str(id(item[0]))
+                for item in self.__observations.values()
+                if item[1] is issued
+            ),
+            "plan_digest": self._plan.plan_digest,
+            "task_state": self._state_document(issued.task_id),
+        }
 
     def _require_active(self) -> None:
         lifecycle_lock = getattr(
@@ -244,7 +591,14 @@ class ProfileCoverageAuthority:
         performance_registration = getattr(
             self, "_performance_registration", None,
         )
-        if performance_factory is not None or performance_registration is not None:
+        performance_rejection_binding = getattr(
+            self, "_performance_rejection_binding", None,
+        )
+        if (
+            performance_factory is not None
+            or performance_registration is not None
+            or performance_rejection_binding is not None
+        ):
             from graph_engineering.application.performance_benchmark import (
                 PerformanceBenchmarkError,
                 PerformanceBenchmarkRegistryFactory,
@@ -255,9 +609,30 @@ class ProfileCoverageAuthority:
                     raise PerformanceBenchmarkError(
                         "performance coverage factory changed"
                     )
-                performance_factory._require_profile_coverage_registration(
-                    performance_registration, self,
-                )
+                if performance_registration is not None:
+                    performance_factory._require_profile_coverage_registration(
+                        performance_registration, self,
+                    )
+                else:
+                    performance_factory.require_current(
+                        self._performance_registry_authority,
+                    )
+                    task_id = self._category._facts._coverage_task_identity()
+                    current = tuple(
+                        binding
+                        for binding in self._plan.bindings.values()
+                        if binding["task_id"] == task_id
+                    )
+                    if (
+                        len(current) != 1
+                        or current[0] is not performance_rejection_binding
+                        or current[0]["profile_id"] != "performance"
+                        or current[0]["expected_result"] != "EXPECTED_REJECTION"
+                        or current[0]["selector_kind"] != "scenario"
+                    ):
+                        raise PerformanceBenchmarkError(
+                            "performance rejection binding changed"
+                        )
             except PerformanceBenchmarkError as error:
                 raise ProfileCoverageError(
                     "performance coverage authority is foreign or stale"
@@ -272,7 +647,21 @@ class ProfileCoverageAuthority:
         from graph_engineering.core.profiles import CoverageRecordFactory
 
         with self.__lifecycle_lock:
-            self._require_active()
+            lifecycle = self._binding_lifecycle
+            if lifecycle is None:
+                self._require_active()
+            elif (
+                type(lifecycle) is not ProfileCoverageBindingLifecycle
+                or self.__lifecycle_state != "active"
+                or lifecycle.state != "QUIESCED"
+                or lifecycle.generation != 1
+                or lifecycle.expected_purpose != "use"
+            ):
+                raise ProfileCoverageError(
+                    "production coverage lifecycle is not ready for record use"
+                )
+            if lifecycle is not None:
+                lifecycle._require_process_local_current()
             if (
                 registration is not self._coverage_registration
                 or type(factory) is not CoverageRecordFactory
@@ -293,6 +682,7 @@ class ProfileCoverageAuthority:
         registration: object,
         factory: object,
         capability: object,
+        terminal_action: str,
     ) -> bool:
         with self.__lifecycle_lock:
             revoked = self.__revoked_capabilities.get(id(capability))
@@ -312,6 +702,7 @@ class ProfileCoverageAuthority:
                 or binding is None
                 or binding[0] is not capability
                 or binding[1] is not factory
+                or terminal_action not in {"finalize", "revoke"}
             ):
                 raise ProfileCoverageError(
                     "production coverage lifecycle capability is foreign"
@@ -330,8 +721,16 @@ class ProfileCoverageAuthority:
                 )
             self.__lifecycle_state = "closing"
             try:
+                lifecycle = self._binding_lifecycle
+                if (
+                    lifecycle is not None
+                    and lifecycle.state != "PERMANENTLY_CLOSED"
+                ):
+                    lifecycle.terminate(terminal_action)
                 self.__observations.clear()
                 self.__issued.clear()
+                self.__scenario_rejections.clear()
+                self.__scenario_rejection_factory = None
                 self._category = None
                 self._tasks = None
                 self._repository = None
@@ -339,6 +738,7 @@ class ProfileCoverageAuthority:
                 self._runtime = None
                 self._dependency_security = None
                 self._plan = None
+                self._binding_lifecycle = None
             finally:
                 self.__lifecycle_state = "closed"
             self.__revoked_capabilities[id(capability)] = (
@@ -483,6 +883,7 @@ class ProfileCoverageAuthority:
         values: Mapping[str, object],
         *,
         request_projection: object | None = None,
+        rejection_evidence: object | None = None,
     ) -> ProfileCoverageExecutionRecord:
         self._require_active()
         self._require_dependency_security_current(
@@ -520,6 +921,12 @@ class ProfileCoverageAuthority:
                 value = _frozen_mapping(value, "coverage materialization pins")
             object.__setattr__(result, field, value)
         self._require_active()
+        if values["result"] == "EXPECTED_REJECTION":
+            current_rejection_digest = self._scenario_rejection_digest(
+                str(values["test_id"]), rejection_evidence,
+            )
+            if current_rejection_digest != values["typed_evidence_object_digest"]:
+                raise ProfileCoverageError("scenario rejection changed before issuance")
         self.__issued[id(result)] = (
             result,
             projection,
@@ -528,6 +935,8 @@ class ProfileCoverageAuthority:
             capability,
             frozen_request,
         )
+        if rejection_evidence is not None:
+            self.__scenario_rejections[id(result)] = rejection_evidence
         return result
 
     def _completion_values(
@@ -630,6 +1039,40 @@ class ProfileCoverageAuthority:
             raise ProfileCoverageError(
                 "dependency graph category projection crossed selector boundary"
             )
+        scenario_projection = getattr(assessment, "scenario_truth_projection", None)
+        if scenario_projection is not None:
+            if (
+                assessment.schema_version != "1.3.0"
+                or binding["selector_kind"] != "scenario"
+                or not isinstance(scenario_projection, FrozenMap)
+                or assessment.performance_evidence_projection is not None
+                or assessment.migration_rehearsal_projection is not None
+                or assessment.dependency_graph_projection is not None
+            ):
+                raise ProfileCoverageError(
+                    "scenario truth category projection is absent or foreign"
+                )
+            projection_body = thaw(scenario_projection)
+            expected_boundary_case = (
+                "GEW-PSC-" + str(projection_body.get("profile_id", "")).upper()
+                + "-" + str(projection_body.get("scenario_id", "")).upper() + "-P"
+            )
+            if (
+                projection_body.get("task_id") != assessment.task_id
+                or projection_body.get("task_revision") != assessment.task_revision
+                or projection_body.get("snapshot_digest") != assessment.snapshot_digest
+                or projection_body.get("invalidation_epoch")
+                != assessment.invalidation_epoch
+                or projection_body.get("profile_id") != assessment.profile_id
+                or expected_boundary_case != assessment.scenario_id
+                or projection_body.get("graph_ref_pins")
+                != thaw(assessment.materialization_pins)
+            ):
+                raise ProfileCoverageError(
+                    "scenario truth category projection binding changed"
+                )
+        elif assessment.schema_version == "1.3.0":
+            raise ProfileCoverageError("scenario truth projection is missing")
         reference = {
             "evidence_id": assessment.assessment_digest,
             "evidence_type": "category-completion-assessment",
@@ -803,15 +1246,60 @@ class ProfileCoverageAuthority:
             raise ProfileCoverageError("isolated rejection oracle result changed")
         return "sha256:" + str(observed["oracle_result_digest"])
 
+    def _scenario_rejection_digest(self, test_id: str, evidence: object) -> str | None:
+        from graph_engineering.core.scenario_truth import ScenarioTruthError
+
+        binding = self._binding(test_id, "R")
+        factory = self.__scenario_rejection_factory
+        try:
+            if factory is None and binding["selector_kind"] == "scenario":
+                from graph_engineering.application.scenario_truth import ScenarioTruthRegistryFactory
+                installed = ScenarioTruthRegistryFactory.from_installation()
+                try:
+                    if installed.rejection_attack_ids(binding["profile_id"], binding["scenario_id"]):
+                        raise ScenarioTruthError("required scenario rejection issuer is absent")
+                finally:
+                    installed.close()
+            required = (
+                factory is not None and binding["selector_kind"] == "scenario"
+                and factory.rejection_attack_ids(binding["profile_id"], binding["scenario_id"])
+            )
+            if not required:
+                if evidence is not None:
+                    raise ScenarioTruthError("scenario rejection evidence crossed selector boundary")
+                return None
+            task_id = str(binding["task_id"])
+            snapshot = self._tasks.runtime_show(task_id, self._runtime).snapshot
+            current = {
+                "task_id": task_id, "task_revision": snapshot.task_revision,
+                "snapshot_digest": snapshot.snapshot_digest,
+                "invalidation_epoch": snapshot.invalidation_epoch,
+                "profile_id": str(snapshot.graph_ref["profile_id"]),
+                "profile_version": str(snapshot.graph_ref["profile_version"]),
+                "scenario_id": binding["scenario_id"],
+                "graph_ref_pins": self._pins(snapshot.graph_ref),
+                "branch_id": "branch:" + task_id, "ref_id": "ref:" + task_id,
+            }
+            return factory.require_rejections(
+                evidence, binding=current, test_id=test_id,
+                oracle_digest=str(self._plan.oracle_for(test_id)["oracle_digest"]),
+            )
+        except ScenarioTruthError as error:
+            raise ProfileCoverageError("scenario rejection evidence failed closed") from error
+
     def execute_rejection(
         self,
         test_id: str,
         *,
         candidate: object,
         observer: object,
+        scenario_rejection_evidence: object | None = None,
     ) -> ProfileCoverageExecutionRecord:
         self._require_active()
         binding = self._binding(test_id, "R")
+        rejection_evidence_digest = self._scenario_rejection_digest(
+            test_id, scenario_rejection_evidence,
+        )
         if type(candidate) is not dict:
             raise ProfileCoverageError("coverage rejection candidate is not exact")
         candidate_before = copy.deepcopy(candidate)
@@ -835,12 +1323,37 @@ class ProfileCoverageAuthority:
             raise ProfileCoverageError("coverage rejection task identity is foreign")
         self._require_real_e2e_current(binding, task_id=task_id)
         before_state = self._state_document(task_id)
-        try:
-            self._category.assess_and_commit(candidate, observer=observer)
-        except CategoryExecutionError as error:
-            rejection = error
+        performance_message = None
+        if self._performance_rejection_binding is binding:
+            try:
+                performance_message = (
+                    self._performance_registry_factory
+                    ._profile_coverage_rejection_message(
+                        self._performance_registry_authority,
+                        self._plan.oracle_for(test_id),
+                    )
+                )
+            except Exception as error:
+                from graph_engineering.application.performance_benchmark import (
+                    PerformanceBenchmarkError,
+                )
+
+                if not isinstance(error, PerformanceBenchmarkError):
+                    raise
+                raise ProfileCoverageError(
+                    "performance coverage rejection proof failed closed"
+                ) from error
+        if performance_message is None:
+            try:
+                self._category.assess_and_commit(candidate, observer=observer)
+            except CategoryExecutionError as error:
+                rejection = error
+            else:
+                raise ProfileCoverageError(
+                    "coverage rejection command unexpectedly committed"
+                )
         else:
-            raise ProfileCoverageError("coverage rejection command unexpectedly committed")
+            rejection = CategoryExecutionError(performance_message)
         after_state = self._state_document(task_id)
         if candidate != candidate_before or after_state != before_state:
             raise ProfileCoverageError("coverage rejection changed input or durable task state")
@@ -888,7 +1401,7 @@ class ProfileCoverageAuthority:
             "assessment_object_digest": None,
             "assessment_reference_digest": None,
             "column_evidence_digest": None,
-            "typed_evidence_object_digest": None,
+            "typed_evidence_object_digest": rejection_evidence_digest,
             "matrix_digest": self._plan.support_matrix_digest,
             "plan_digest": self._plan.plan_digest,
             "oracle_id": str(oracle["oracle_id"]),
@@ -910,6 +1423,7 @@ class ProfileCoverageAuthority:
         return self._issue_record(
             values,
             request_projection=candidate_before,
+            rejection_evidence=scenario_rejection_evidence,
         )
 
     def _require_record(
@@ -976,6 +1490,11 @@ class ProfileCoverageAuthority:
             ):
                 raise ProfileCoverageError("coverage completion record is stale")
         elif record.result == "EXPECTED_REJECTION":
+            rejection_evidence_digest = self._scenario_rejection_digest(
+                record.test_id, self.__scenario_rejections.get(id(record)),
+            )
+            if rejection_evidence_digest != record.typed_evidence_object_digest:
+                raise ProfileCoverageError("scenario rejection evidence digest changed")
             if request_projection is None:
                 raise ProfileCoverageError(
                     "coverage rejection request projection is absent"
@@ -1039,6 +1558,14 @@ class ProfileCoverageAuthority:
         return record
 
     def observe(
+        self,
+        record: object,
+    ) -> ProfileCoverageObservation:
+        return self._run_binding_phase(
+            "issue", lambda: self._observe_live(record),
+        )  # type: ignore[return-value]
+
+    def _observe_live(
         self,
         record: object,
     ) -> ProfileCoverageObservation:
@@ -1107,6 +1634,21 @@ class ProfileCoverageAuthority:
         self,
         observation: object,
     ) -> ProfileCoverageObservation:
+        return self._require_observation_for_phase(observation, "use")
+
+    def _require_observation_for_phase(
+        self,
+        observation: object,
+        purpose: str,
+    ) -> ProfileCoverageObservation:
+        return self._run_binding_phase(
+            purpose, lambda: self._require_observation_live(observation),
+        )  # type: ignore[return-value]
+
+    def _require_observation_live(
+        self,
+        observation: object,
+    ) -> ProfileCoverageObservation:
         self._require_active()
         if (
             type(observation) is not ProfileCoverageObservation
@@ -1160,4 +1702,4 @@ class ProfileCoverageAuthority:
 _register_profile_coverage_authority_type(ProfileCoverageAuthority)
 
 
-__all__ = ["ProfileCoverageAuthority"]
+__all__ = ["ProfileCoverageAuthority", "ProfileCoverageBindingLifecycle"]

@@ -7,7 +7,7 @@ import copy
 import json
 import pathlib
 import tempfile
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from collections.abc import Callable
 from dataclasses import dataclass
 from unittest import mock
@@ -72,6 +72,9 @@ class _RehearsalFixture:
     probe: object
     target: object
     temporary: tempfile.TemporaryDirectory[str]
+    shared_runtime: object | None
+    current_scope: object
+    current_objects: object
 
     def close(self) -> None:
         self.completed.close()
@@ -79,6 +82,58 @@ class _RehearsalFixture:
         self.probe.close()
         self.target.close()
         self.temporary.cleanup()
+
+
+@dataclass(slots=True)
+class MigrationBindingHandle:
+    """Live handles for the post-migration repository selected before g0."""
+
+    shared_runtime: object
+    current_scope: object
+    current_objects: object
+    completed: object
+    factory: object
+    objects: object
+    repository: object
+    application: object
+    runtime: object
+    _closed: bool = False
+
+    def close(self) -> None:
+        if self._closed:
+            return
+        self._closed = True
+        first_error: BaseException | None = None
+        for close in (
+            self.current_objects.close,
+            lambda: self.current_scope.__exit__(None, None, None),
+            self.completed.close,
+            self.shared_runtime.close,
+        ):
+            try:
+                close()
+            except BaseException as error:
+                if first_error is None:
+                    first_error = error
+        if first_error is not None:
+            raise first_error
+
+
+def migration_binding_handle(fixture: _RehearsalFixture) -> MigrationBindingHandle:
+    shared = fixture.shared_runtime
+    if shared is None:
+        raise AssertionError("migration binding shared root is unavailable")
+    return MigrationBindingHandle(
+        shared_runtime=shared,
+        current_scope=fixture.current_scope,
+        current_objects=fixture.current_objects,
+        completed=fixture.completed,
+        factory=fixture.probe.factory,
+        objects=fixture.probe.objects,
+        repository=fixture.probe.repository,
+        application=fixture.probe.task_application,
+        runtime=fixture.probe.runtime,
+    )
 
 
 def load_slice_a_api() -> SliceAAPI:
@@ -129,6 +184,8 @@ def _rehearsal_fixture(
     task_id: str = "task:migration:rehearsal-slice-a",
     scenario_boundary_case_id: str | None = None,
     selector: dict[str, object] | None = None,
+    shared_runtime: object | None = None,
+    private_action_root: object | None = None,
 ) -> object:
     from graph_engineering.application.tasks import TaskApplication
     from graph_engineering.core.contracts.immutable import thaw
@@ -158,6 +215,7 @@ def _rehearsal_fixture(
             "migration", "boundary", target=target,
             task_id=task_id,
             scenario_id=scenario_boundary_case_id,
+            shared_runtime=shared_runtime,
         )
         category_api = load_slice3_api()
         materialized = materialized_profile("migration")
@@ -167,7 +225,9 @@ def _rehearsal_fixture(
             materialization_record=materialized.record,
         )
         target_authority = category_api.CategoryTargetObservationAuthority(policy)
-        rollback_coordinator, rollback_context = action_rollback_binding(probe, target)
+        rollback_coordinator, rollback_context = action_rollback_binding(
+            probe, target,
+        )
         rollback = category_api.CategoryRollbackBridge(policy, rollback_coordinator)
         rollback.prepare_action(**rollback_context)
         probe.bind_rollback_evidence(rollback)
@@ -235,6 +295,30 @@ def _rehearsal_fixture(
             manager, current_repository,
         )
         current_factory._rehydrate_executions(factory)
+        probe.factory = current_connection_factory
+        probe.repository = current_repository
+        probe.objects = current_objects
+        probe.task_application = current_task_application
+        if private_action_root is not None:
+            from tests.support.wp08_scenario_truth import (
+                bind_rollback_action_fixture,
+            )
+
+            probe._stack.close()
+            probe._stack = ExitStack()
+            probe._rollback_action = None
+            probe._rollback_action_target = None
+            probe._rollback_local_target = None
+            private_action_fixture = private_action_root.open()
+            rollback_coordinator, rollback_context = bind_rollback_action_fixture(
+                probe, target, private_action_fixture,
+            )
+            rollback = category_api.CategoryRollbackBridge(
+                policy, rollback_coordinator,
+            )
+            rollback.prepare_action(**rollback_context)
+            probe.bind_rollback_evidence(rollback)
+            probe.private_action_fixture = private_action_fixture
         previous_category_application = category_application
         current_snapshot_before = copy.deepcopy(
             current_repository.load(task_id)
@@ -301,16 +385,26 @@ def _rehearsal_fixture(
             category_application,
             task_id=task_id,
         )
-        probe.factory = current_connection_factory
-        probe.repository = current_repository
-        probe.objects = current_objects
-        probe.task_application = current_task_application
         fixture = _RehearsalFixture(
-            api, current_factory, current_factory.authority, observation,
-            category_application,
-            task_id,
-            "migration-rehearsal-forward", "migration-rehearsal-backward", crashes,
-            manager, current_repository, repository, completed, probe, target, temporary,
+            api=api,
+            factory=current_factory,
+            authority=current_factory.authority,
+            observation=observation,
+            category_application=category_application,
+            task_id=task_id,
+            forward_id="migration-rehearsal-forward",
+            backward_id="migration-rehearsal-backward",
+            crashes=crashes,
+            manager=manager,
+            repository=current_repository,
+            stale_repository=repository,
+            completed=completed,
+            probe=probe,
+            target=target,
+            temporary=temporary,
+            shared_runtime=shared_runtime,
+            current_scope=current_scope,
+            current_objects=current_objects,
         )
         case_document = thaw(observation.observation.document)
         assert type(case_document) is dict

@@ -1,22 +1,48 @@
 # Graph Engineering Workflow — Impact Analysis
 
+## 2026-09-10 approved memory-repair impact
+
+`GEW-REMAINING54-LOSSLESS-TRACE-MEMORY-REPAIR` adds six exact targets to
+historical exact168; approval is `批准先修复`. The prior baseline below remains
+historical; this supplement governs the repair before coding. Native samples
+found interpreter-finalization GC with a 75.8 GiB footprint, but did not identify
+every live object. Isolated document construction independently reproduced global
+trace retention; schema loads retained trace memory until their context died.
+Do not claim the entire process footprint has been attributed to one object.
+
+Affected code: WorkContext trace representation, WP-05 action-document fixture
+helpers and existing WP-08 action-setup call sites. Full trace contents and live
+list behavior, work budgets, exception precedence and temporary-unit accounting
+remain unchanged. Unread consecutive events use lossless runs; inspecting the
+whole trace still allocates the whole list. Short-lived fixture contexts prevent
+process-global accumulation without discarding a caller-owned context's audit.
+No schema/API, dependency, persistent state, gate, or installation-trust change;
+the source file is already included in the installed package. Revalidate actual
+source/currentness inputs; do not modify unrelated pins or WP-07a gate policy.
+
+This is a hotfix under the existing approved PRD, not a new feature or architecture
+choice. Required regressions precede implementation and independent review follows
+verification. No commit is authorized (any later authorized commit must record the
+hotfix exception). Cumulative execution and monitoring remain stopped; focused
+tests are not a Remaining54/Candidate pass.
+
 ## 1. 文档控制
 
 | 项目 | 内容 |
 |---|---|
 | 产品 | Graph Engineering Workflow |
-| 版本 | v1 Reviewed，implementation-alignment revision 18 |
-| 状态 | Independent Impact Review PASS；WP-04A r5 PASS，WP-04 r3 implementation candidate；ADR-0005 review r1 revision |
-| 日期 | 2026-08-14 |
+| 版本 | v1 Reviewed，implementation-alignment revision 30 |
+| 状态 | Historical Independent Impact Review PASS；F1 routine source/observation traceability R1 candidate |
+| 日期 | 2026-09-06 |
 | Author | Codex `/root` |
 | 上游定位 | [Positioning v2 Approved](../positioning/graph-engineering-workflow.md) |
 | Intent Baseline | [PRD v2 Approved](../prd/graph-engineering-workflow.md) |
 | 技术设计 | [Tech Spec v1 Approved](../specs/graph-engineering-workflow.md) |
 | Positioning digest | `968d4b574008b53ce79f7fe4c1e1b3d5f71d44bca890425848f388577883f799` |
 | PRD digest | `594b4437301853919ce3b4aa93e703a395ed45bff924ea6266b3a8e202a30be7` |
-| Tech Spec digest | implementation-alignment revision 24 由 recovery amendment governing manifest 精确绑定 |
+| Tech Spec | current governing implementation-alignment revision 36；revision 24 recovery binding仅为historical lineage |
 | Authority task | `GEW-IMPACT-V1` |
-| 当前授权 | 批准计划内的本仓库可逆实现、校验与独立审核；不授权不可逆动作或外部通信 |
+| 当前授权 | `GEW-REMAINING54-V1` 仅授权本仓库本地/离线文档、实现、验证与独立审核；不授权真实deploy/release、network、WP-10、commit/push/merge/外部通信 |
 
 本文评估按批准设计构建 v1 对仓库结构、用户、状态数据、外部系统、安全、兼容性、
 运行、测试和后续交付的影响。它不重新选择产品范围，也不把“尚无代码”等同于
@@ -175,10 +201,11 @@ v1 只有一位 Owner；其他 Telegram/Discord 用户、其他 Codex/Hermes 会
 共享节点不会消除上述类别影响；Support Matrix 和 ReleaseCoverageGate 必须逐类证明。
 
 WP-08 coverage fixture 的规模化验证会为每个 stable binding 使用独立、config-owned
-`task_id`，并把该 identity 绑定到 selector/request/plan/oracle digest。仅 fixture 资源层可按
-Profile 复用 disposable repository/application stack；task row、current authority、target 与
-evidence 仍逐 binding 隔离，临时攻击 probe 当场关闭。此优化不改变生产 repository、DB、
-GraphRef，也不降低 combined gate、zero-write 或 freshness 语义。为避免完整 matrix 的
+`task_id`，并把该 identity 绑定到 selector/request/plan/oracle digest。Historical pre-E1 Option C曾允许fixture
+资源层按Profile复用disposable repository/application stack；该历史优化不适用于Human-approved E1或current
+cumulative。E1要求每binding独占fresh private repository root、task、target、branch/ref、action root与command root，
+临时攻击probe当场关闭且任何维度不得跨binding/profile共享。该隔离不改变生产repository、DB、GraphRef，也不降低
+combined gate、zero-write或freshness语义。为避免完整matrix的
 consumer-local identity graph 延迟进程回收，CoverageRecord factory 对每个 candidate 提供两个
 互斥的单调终态：exact combined gate 消费完成后 finalize，或在尚无 combined gate decision 时
 由 factory 在 register/gate/finalize 同一锁内冻结 current generation 与完整 authority/record projection、
@@ -448,7 +475,7 @@ v1 不能以“框架可表达”宣称九类支持。发布需要：
 | IMP-R08 | 本地源码/凭据被模型或 connector 过度外发 | 中 | 严重 | classification、DataDisclosurePlan、redaction、secret refs | Privacy loop |
 | IMP-R09 | schema/Graph 升级使进行中任务失效 | 中 | 高 | version lock、bundle migration、兼容矩阵、rollback | Migration loop |
 | IMP-R10 | extension 破坏 invariant 或供应链安全 | 中 | 高 | source/trust ADR、manifest validation、capability isolation | Extension loop |
-| IMP-R11 | 测试矩阵庞大但证据不可维护或 fixture teardown 失控 | 中 | 高 | versioned case/task IDs、content-addressed evidence、per-Profile disposable fixture resource reuse、combined coverage gate | Verification loop |
+| IMP-R11 | 测试矩阵庞大但证据不可维护或 fixture teardown 失控 | 中 | 高 | versioned case/task IDs、content-addressed evidence、E1每binding fresh private repository/application stack、seal/quiesce/reopen active-handle归零、combined coverage gate | Verification loop |
 | IMP-R12 | 产品可靠但未满足 PMF | 中 | 严重 | 最小真实指标、反证、复用/授权意愿和人类负担观测 | Human + Agent |
 | IMP-R13 | dependency-security 把 package integrity 或 fixture label 冒充 vulnerability/fix truth | 中 | 严重 | ADR-0006 installation-pinned offline advisory/source authority、WP08A exact closure、use/precommit/restart currentness、zero-network probes | Profile + Security loops |
 | IMP-R14 | performance 把child自报、噪声或不同硬件结果冒充可比benchmark truth | 中 | 严重 | ADR-0007 parent-monotonic protected command、exact fingerprint、integer median/MAD/cross-products、correctness与currentness probes | Profile + Verification loops |
@@ -585,6 +612,212 @@ performance继续1.1，其他Profile继续1.0；cross-branch/dual projection全�
 replacement或coherent re-sign在issuance前拒绝。两批沿用Option C、combined gate、finalize/revoke和pre-gate
 abort；terminal及拒绝路径不写task/action/target，不形成新lifecycle authority。
 
+#### Remaining54 P1/P2/P3 impact amendment
+
+Historical Human-approved A author R0 suite为ADR-0007 revision 5、ADR-0008 revision 4、ADR-0009 revision 4、Spec revision 28、
+Historical Impact revision 22、Plan revision 27与Test Plan revision 35。Routine finding
+`GEW-REMAINING54-ORACLE-CASCADE-A-R1-001`保持**CLOSED**；Historical A R1 suite为ADR-0007 revision 6、
+Historical ADR-0008 revision 5、ADR-0009 revision 5、Spec revision 29、Impact revision 23、Plan revision 28与Test Plan revision 36。
+Historical Human-approved B suite为ADR-0007 revision 7、ADR-0008 revision 6、ADR-0009 revision 6、Spec revision 30、
+Impact revision 24、Plan revision 29与Test Plan revision 37。Routine finding
+`GEW-REMAINING54-ACTION-RUNTIME-CASCADE-B-R1-001`由C关闭。Historical Human-approved C suite为
+ADR-0007 revision 8、ADR-0008 revision 7、ADR-0009 revision 7、Spec revision 31、Impact revision 25、
+Plan revision 30与Test Plan revision 38。Historical Human-approved D suite为ADR-0007 revision 9、
+ADR-0008 revision 8、ADR-0009 revision 8、Spec revision 32、Impact revision 26、Plan revision 31与
+Test Plan revision 39。Historical initial E1 suite为ADR-0007 revision 10、ADR-0008 revision 9、ADR-0009 revision 9、
+Spec revision 33、Impact revision 27、Plan revision 32与Test Plan revision 40。Historical E1 R3 suite为ADR-0007
+revision 11、ADR-0008 revision 10、ADR-0009 revision 10、Spec revision 34、Impact revision 28、Plan revision 33与
+Test Plan revision 41。Independently accepted F1 R0 suite为ADR-0007 revision 12、ADR-0008 revision 11、
+ADR-0009 revision 11、Spec revision 35、Impact revision 29、Plan revision 34与Test Plan revision 42。Current routine
+traceability R1 suite为ADR-0007 revision 13、ADR-0008 revision 12、ADR-0009 revision 12、Spec revision 36、
+本文Impact revision 30、Plan revision 35与Test Plan revision 43；
+Positioning/PRD不变。当前
+plan220/oracle110/dynamic gate `220 valid / 54 missing / false` 的54项精确拆为：performance 4；new-feature
+multi-target 2；hotfix 4；refactor-debt 6；incident-response 8；release-operations mandatory 24 + scenarios 6。
+
+代码影响限于新增通用 scenario truth core/application、release operations core/application与local simulator adapter，
+并扩展既有 profile assessment/coverage/restart glue。数据影响是versioned config/schema/oracle members与task-local CAS
+projection；不新增或迁移SQLite table、event kind、GraphRef字段，不修改用户数据。assessment 1.3/1.4 additive closed
+branches保持1.0～1.2兼容；旧task照旧读取，cross-version projection拒绝。
+
+文件系统影响只在安装资源读取与test-owned private roots。P2每个binding独占task/branch/ref/targets；P3每个binding
+独占simulator root/stage/active slots。不得访问用户repo、real staging/production、network或ambient artifact。source/
+package protection需要把新增config/schemas/modules加入ordered target manifest、wheel RECORD和fresh source/build
+attestation；这会改变新candidate package digest，但不会改既有v1/v2 advisory历史或WP08A evidence。
+
+安全影响集中在三点：第一，caller/scenario label不能成为truth，必须由installation-pinned factory重建；第二，partial/
+unknown effect不允许自动replay，incident unknown-effects只形成`blocked-owner-route`，release partial-deploy只在query+
+authorized restore+fresh health后算处理成功；第三，本地production-like/release simulator evidence带明确local kind，不能
+提升为production authority。所有拒绝要求task/event/snapshot/object/ref/action/target/input零写及network count=0。
+
+兼容/发布数量按批次单调演进：P1 `224/112/50 missing`；P2四子批最终`244/122/30`；P3 mandatory
+`268/134/6`；P3 scenarios最终plan274/oracle137/dynamic gate `274 valid / 0 missing / true`。static-only gate保持
+`0 valid / 274 missing / false`。只有最终exact combined decision可finalize；前序失败不删除已通过records，当前批
+全部IDs继续missing。
+
+主要风险与控制：
+
+| 风险 | 影响 | 控制/回退 |
+|---|---|---|
+| local结果被误称production | 虚假发布保证 | closed evidence kind、production flag拒绝、文档/API不暴露提升路径 |
+| scenario target/branch共享 | 跨case污染与假current | unique task/private root/ref/fence；alias/symlink/cross-task零写拒绝 |
+| unknown/partial自动重放 | 重复副作用 | existing claim/query/reconcile；inner blocked/partial绝不等于success |
+| schema union混用 | 旧task被错误解释 | 1.3/1.4 profile discriminator、single projection、旧bytes冻结 |
+| oracle命名碰撞 | incident recovery被替换 | scenario recovery使用`profile-incident-response-scenario-recovery-v1.json` |
+| 测试时长/资源泄漏 | non-convergence | strict serial selectors、private root cleanup、每method `OK`后<120s自然退出 |
+
+回退边界为删除尚未采用的新增1.3/1.4、registries、adapter与tests，使相应IDs保持missing；不得修改Support Matrix、
+waive case、回退为static/caller truth，或改用真实环境补证。
+
+Historical R1 target-boundary impact只增加`pyproject.toml`并把Envelope增至157；historical R2只统一revision links；
+historical R3再且仅增加performance registry/bootstrap并把Envelope增至159。R3性能数据语义继续有效：registry内
+config-owned noise ceiling为`1/2`，P为真实parent timing完整success，R frozen vector只证明fail-closed；core仍只有通用
+integer median/MAD/cross-product，不含threshold或sample。
+P继续由parent `monotonic_ns`真实测量完整`StructuredCommand`并满足完整success；R vector
+`[1,2,100,200,201]`只以median100、MAD99及`99*2 > 100*1`证明fail-closed，不产生真实性能结论。
+
+Historical A把Envelope增至164，exact新增1.1 oracle input schema、generic profile-coverage/source-checkout core、dependency
+current v1.2 bootstrap与migration current v1 bootstrap五项。1.0 schema raw bytes/history不变；1.1新增typed
+`rejection_input={kind:"integer-vector",values:[positive safe integers]}`。noise oracle中的values必须是真正numeric
+`[1,2,100,200,201]`并进入oracle digest，不能藏在`reject_error_message`；message只保留诊断。core影响只限
+1.0/1.1 exact field/version/schema/digest与safe-integer验证，performance application负责解释vector和重算median/MAD。
+
+Source/package影响沿1.1 schema→profile domain/schema registries→generic core/source checkout→wp-00 exact targets/
+source manifest→oracle/manifest/plan/application→
+performance bootstrap、dependency current v1.2 bootstrap、migration current v1 bootstrap pin/digest→pyproject→只读builder→
+wheel archive/unpacked/RECORD双向级联。dependency v1.1是historical且不得修改。其余affected config/application/test路径
+均已逐项列入Historical Spec revision 29的164 closure，其中必须exact包含已授权的`core/graph_engineering/core/profiles.py`与
+`config/verification/wp-00-targets.json`：前者把1.1 schema ID加入`PROFILE_DOMAIN_SCHEMA_IDS`并保持1.0+1.1 exact，后者把
+1.1 schema path加入wp-00 exact set，使source manifest纳入新schema。遗漏任一路径会让registry构造或source/package
+attestation失去闭包；missing/extra/version alias、stale/omit/reorder、1.0 replacement、message payload、checkout fallback
+或package mismatch都保持对应IDs missing。Historical A不改变Positioning/PRD、P/R semantics、DB/GraphRef、dependency、
+网络、WP-10或不可逆权限；`scripts/build_backend.py`仍不在allowlist。Historical B authority lineage为
+`GEW-REMAINING54-ACTION-PROVENANCE-B`；Historical A authority为`GEW-REMAINING54-ORACLE-REJECTION-INPUT-A`，routine
+closure `GEW-REMAINING54-ORACLE-CASCADE-A-R1-001`保持CLOSED。
+
+Historical B把Envelope从164增至165，唯一新增`config/actions/action-policy-v1.json`。P2新增packaged sources使
+`pyproject.toml` builtin implementation build projection与derived implementation digests变化；adapter registry、concrete
+policy及两份current action policies因此必须拓扑重签。default policy旧pin让P1 verified child fail closed是正确防护，
+不是可删障碍。绕过factory、弱化/删除installation pin、caller override、ambient checkout fallback或伪造coherent chain会把
+stale implementation提升为current，风险不可接受且明确禁止。
+
+Historical B impact graph为`pyproject.toml` builtin provenance→`config/contracts/action-adapter-registry-v1.json`→
+`config/actions/concrete-action-policy-v1.json`→`config/actions/action-policy-v1.json`与
+`config/actions/action-policy-local-actions-v1.json`分支→`config/security/security-runtime-local-actions-v1.json`→
+source checkout/wp-00/current performance、dependency、migration、scenario-truth、release-operations bootstraps→
+pyproject package/resource pins→只读builder→wheel archive/unpacked/RECORD。下游pin fields不进入上游builtin build
+projection，且default/local policies互不互引，因此无digest环；只允许由final current sources按拓扑单向重算和反向验证。
+already-in-Historical-B-165 source/package/test paths由Historical Spec revision 30逐项冻结，按值不变的pin仍须重验但不得人为修改历史文件。
+
+Historical B要求P2a source恢复并冻结后先完成整链重签，再复跑P1 currentness sibling；只有P1 sibling再次通过才可继续P2a。
+B不改变action semantics/capabilities/operations、P1/P2目标、外部动作gate或历史bytes，并在当时不授权第166路径。遗漏/额外路径、
+错误edge direction、self/cross-policy cycle、stale intermediate digest、仅正向不反向、package/RECORD mismatch均保持P1/P2
+records missing且零action/target mutation。
+
+Historical C把Envelope从165增至166，唯一新增`config/security/security-runtime-v1.json`；删除该唯一C项精确恢复165，
+且在C当时不存在第167个path。它关闭`GEW-REMAINING54-ACTION-RUNTIME-CASCADE-B-R1-001`：B重签default policy后，旧default
+runtime pin正确fail closed，但B未授权该current consumer进入可变闭包。C仅补齐该runtime target，不改变action semantics、
+capabilities、operations、external-action gates、P1/P2目标或任何历史bytes。
+
+C impact graph共享`pyproject.toml` builtin provenance→`config/contracts/action-adapter-registry-v1.json`→
+`config/actions/concrete-action-policy-v1.json`前缀，随后精确分叉：default policy
+`config/actions/action-policy-v1.json`→default runtime `config/security/security-runtime-v1.json`；local policy
+`config/actions/action-policy-local-actions-v1.json`→local runtime
+`config/security/security-runtime-local-actions-v1.json`。两份runtime current后共同进入已在166内的source checkout、
+`config/verification/wp-00-targets.json`、performance/dependency-v1.2/migration/scenario-truth/release-operations current
+bootstraps、package pins、只读builder、wheel archive/unpacked resources与`RECORD`。两个runtime不得互引，下游不得反馈
+上游，故无digest环；只允许按拓扑单向重算并对source/resource/raw hash/size/semantic/nested/RECORD pins反向exact验证。
+
+`scripts/evidence_utils.py`是default runtime的只读consumer并须验证current default-policy pin；它不在allowlist且不得修改。
+default policy重签而default runtime仍是旧pin时，evidence collection与P1 verified child必须在任何evidence/action/target
+write前fail closed，禁止以consumer rewrite、factory bypass或installation-pin weakening恢复。P2a恢复顺序固定为final packaged
+sources→shared prefix与两policy→拓扑重签两runtime→`evidence_utils` currentness test→P1 currentness sibling PASS→
+P2a scenario issuance；省略或换序保持相关records missing。Historical C authority lineage为
+`GEW-REMAINING54-ACTION-RUNTIME-C`。
+
+Historical D把Envelope从166增至exact167，唯一新增`tests/security/test_wp07a_action_contract_security.py`；删除D项精确恢复
+166，且D authority revision拒绝第168个path。影响严格限于历史WP07A测试的一个expected constant：获批P2a scenario sources与
+`pyproject.toml`合法改变build projection，且C action chain完成重签后factory/WP08 currentness和package/wheel均PASS；
+扩大security run 17/18的唯一失败，是该测试仍将`_action_build_manifest_digest(pyproject.toml)`与旧
+`b9e8e75bca0436651a723da05d9bcea27f06768666c8c1d9f9fc6b9b80707944`比较。
+
+D只允许把旧literal更新为current approved build projection的独立预计算exact digest。必须保留dependency、declared
+imports、build mapping、entrypoint、registry与provenance substitution attacks；禁止skip/remove assertion、loose/prefix
+comparison、ambient/caller/runtime-self-derived expected或回退合法P2a files。因此产品语义、action authority、实现/config、
+P1/P2结果与安全姿态均不变，风险只是在变更顺序错误时让stale test继续阻断，不能通过弱化测试规避。
+
+Candidate findings `GEW-REMAINING54-P2A-CAND-R1-001`、`GEW-REMAINING54-P2A-CAND-R1-002`、
+`GEW-REMAINING54-P2A-CAND-R1-003`、`GEW-REMAINING54-P2A-CAND-R1-004`、
+`GEW-REMAINING54-P2A-CAND-R1-005`全部保持OPEN，等待新的独立Candidate reviewer；001/002/003/005 focused GREEN
+只是修订证据，004仍需D后cumulative selector。恢复顺序固定为exact WP07A baseline update→named WP07A method→WP08
+security/evidence/package/wheel/P1 sibling→`p2a-cumulative-r2`。D不改变P2a plan226/oracle113/dynamic 226/48/false或
+static 0/274/false。Historical D authority lineage为`GEW-REMAINING54-WP07A-BUILD-BASELINE-D`。
+
+Historical E1不改变target boundary：当时Envelope仍exact167 unique relative/no-glob，D仍是相对C唯一新增test，删除D恢复166，
+且E1 revision拒绝第168项。Current F1单独增加dependency-security application source形成exact168；它不合并隔离边界，
+每binding继续使用唯一fresh private repository root、task、target、branch/ref和
+action/command roots，禁止跨binding/profile共享repository。
+
+资源影响从“226套live contexts一直保留到gate”改成process-local opaque authority分段持有。execution/observation后seal
+绑定current installation/provenance/source/package/wheel/`RECORD`、runtime-attested root identity（core不硬编码absolute
+path）、task/object/target/action/command状态和record/observation digests；quiesce释放repository/object/action/Git/
+launcher/session handles与live FDs，同时保留private-root bytes。后续issue/use/precommit/gate由runtime-owned typed port
+strict-serial reopen同一root，全量重读/比较后才验证，完成即新generation seal并再次quiesce。同一时间最多一个reopened
+binding；finalize/revoke永久关闭。
+
+安全影响是新增必须fail-closed的process-local capability lifecycle。seal不可serialized/portable/caller-created/cloned/
+shared/replayed；wrong root/ref、same-path/coherent replacement、missing/extra closure、double/concurrent/out-of-order reopen、
+cross-binding/profile reuse、action/mutation replay、currentness cache/skip、symlink和terminal reopen全部zero write/mutation/
+replay拒绝。进程退出后不能从seal bytes恢复；existing durable restart只能经fresh factory currentness建立新process-local
+authority，不得重执行action。core只有platform-neutral state machine/typed port，actual filesystem/repository/action reopen
+留runtime/test adapter，不新增DB schema/table、GraphRef lifecycle、dependency、daemon或WP10。
+
+触发证据：`p2a-cumulative-r2` first 4.086s C provenance fail-closed后修复，second exact7200s TimeoutExpired无receipt；
+retained contexts FD4→885/maxRSS7.20GB、teardown FD4；same-root probe plan0.546s/base7.801s/226 authorities4.904s/
+observations226.608s/factory1.085ms/issuance114.974s/dynamic>545.166s并900s timeout。影响判断是live accumulation加三次
+currentness passes而非single binding stuck，不能抬高runtime/heartbeat掩盖。RSS/FD只作diagnostic；deterministic lifecycle/
+active-handle counters与FD baseline-return才是resource acceptance，机器阈值不进engine。
+
+正向226-binding lifecycle保持plan226/oracle113/dynamic226/48/false、static0/274/false与P1 sibling current；测试必须
+机械断言repository-root、task、target、branch/ref、action-root、command-root六个identity集合各有exact226 unique成员，
+combined binding tuple也有226 unique成员，任意维度都不跨binding/profile共享。全部cross-binding/profile substitution
+negative保持zero write/mutation/replay。D顺序保持。五个Candidate findings仍OPEN，仅独立reviewer可关闭；R1-004新增E1 closure。
+Current authority lineage为`GEW-REMAINING54-PROCESS-LOCAL-QUIESCENT-REOPEN-E1`。
+
+Stable finding `GEW-REMAINING54-E1-REPOSITORY-ISOLATION-TRACE-R1-001`在本author revision中为
+**ADDRESSED / pending independent reviewer resolution**；只有independent reviewer可以标记resolved。
+
+F1的产品/数据影响限于一个现有application module变为可修改target：
+`application/graph_engineering/application/dependency_security.py`。它只允许generic typed
+`DependencySecurityObservationFactory` rehydrate/current-seal API，并保持factory、typed observation与downstream
+graph/category assessment三者身份分离。rehydrate必须same private root/task/category/current installed closure；
+issue/use/precommit/gate四阶段全量重读，opaque runtime-owned seal不可caller构造或portable。P↔R、forged/stale、
+cross-root/task/category/installation、terminal与same-path attacks均在zero write/mutation/resolver/network/action replay下拒绝。
+
+Routine version traceability correction不增加API或schema：existing exact `DependencySecurityObservation` 1.0与1.1都可由同一
+generic typed rehydrate/current-seal contract恢复。1.0对应无graph factory，1.1对应same-binding exact
+`DependencyGraphObservationFactory`；1.1必须从issued frozen graph inputs取唯一selector，并用fresh current installation graph
+policy/remediation、before/after graph与disposition重建后全投影exact compare。`DependencyGraphAssessmentFactory`/Evidence保持
+distinct downstream consumer且不能替代Observation authority。既有`_task_projection` discriminator、mandatory/real-E2E
+candidates、`GEW-PRO-DEPENDENCY-SECURITY-ARTIFACTS-R`的
+`request_digest=sha256-jcs-v1:e9315eb7ced2072939c95533b7f8aeb53e11e1e1c137d5e462c69c5130a9b938`、scenario、plan和oracle
+均不变。
+
+installation/source影响按实际闭包而非虚构的bootstrap pin传播：new application source由
+`core/graph_engineering/__init__.py::_SOURCE_FILES`、source-checkout attestation、`pyproject.toml` package/protected-source
+mapping、archive/unpacked wheel与`RECORD`绑定。dependency bootstrap1.2不含application source protected-member字段，只验证
+自身schema/registry/source-artifact/source-attestation/history；其输入不变时1.2/schema/history bytes与digest不变。
+performance bootstrap只对其真实protected files（包括`application/graph_engineering/application/profile_coverage.py`）变化重算。
+pyproject、C双runtime与D baseline均须currentness验证，但仅actual projection变化才重签；action build projection剔除
+dependency-advisory/performance-benchmark tables，因此C/D可以在验证后保持原digest。不引入schema、dependency、DB、GraphRef或daemon。
+Routine finding `GEW-REMAINING54-F1-SOURCE-CLOSURE-TRACE-R1-001`由author标记
+**ADDRESSED / pending independent reviewer resolution**，`authority_effect=none`。
+Routine finding `GEW-REMAINING54-F1-OBSERVATION-VERSION-TRACE-R1-002`也由author标记
+**ADDRESSED / pending independent reviewer resolution**，`authority_effect=none`；无target/schema/security-posture影响。
+当前 config-owned 14400/60 来自 2026-09-10 Human 对 future budget 的明确批准，旧 agent-only 86400 不获追认；
+这些数据不能替代lifecycle/currentness gates。**Agent audit note（无Human authority effect）：**index25只由plan顺序与stack
+推定且缺少完整last-binding日志，不是direct observation；两个pre-existing dirty、未授权support files保持未修改。
+
 ### 14.2 延后但有明确触发条件
 
 | 事项 | Disposition | 触发条件 |
@@ -664,3 +897,10 @@ expired-lease compensation conflict 已由 Human Owner 接受 ADR-0005 方案，
 review、实现和 exact evidence 仍是该 recovery path 的 blocking gate；通过前只能 fail closed。
 其余计划内本仓库可逆实现可继续推进；commit、push、merge、deploy、release、外部通信仍需
 单独授权。
+
+
+## 2026-09-10 approved Candidate defect repair
+
+Hotfix classification: approved existing-contract repair, not a new PRD intent or architecture scope. Affected surfaces are local scenario observer/path validation, coverage authority, installed fixture expectations and their existing schema/pin closure, test fixtures and regression tests. The previously accepted P/R boundary is retained: R proves only fail-closed rejection, never P success. No database, event, GraphRef, dependency, user-root or network change. Existing historical review and run records remain immutable evidence; this supplement supersedes agent-only 86400-second prose, not the historical facts.
+
+Current governing budget: **14400 seconds (4 hours)** for future separately authorized cumulative runs; heartbeat remains 60 seconds. Historical 12600/86400 values and old receipts are retained as history, not current authority. Monitoring remains PAUSED and no automatic rerun is authorized.

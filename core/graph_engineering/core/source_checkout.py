@@ -120,6 +120,7 @@ SOURCE_FILES = (
     "config/contracts/schemas/profile-coverage-execution-record-1.0.0.json",
     "config/contracts/schemas/profile-coverage-observation-1.0.0.json",
     "config/contracts/schemas/profile-coverage-oracle-input-1.0.0.json",
+    "config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json",
     "config/contracts/schemas/profile-coverage-plan-selector-1.0.0.json",
     "config/contracts/schemas/profile-coverage-request-1.0.0.json",
     "config/contracts/schemas/profile-coverage-task-state-1.0.0.json",

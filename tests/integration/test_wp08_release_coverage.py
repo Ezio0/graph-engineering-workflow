@@ -306,8 +306,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 220)
-                self.assertEqual(len(plan.oracle_bindings), 110)
+                self.assertEqual(len(plan.bindings), 226)
+                self.assertEqual(len(plan.oracle_bindings), 113)
                 self.assertIn(
                     "dependency-graph-scenarios-r1",
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -323,8 +323,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 220)
-                self.assertEqual(len(plan.oracle_bindings), 110)
+                self.assertEqual(len(plan.bindings), 226)
+                self.assertEqual(len(plan.oracle_bindings), 113)
                 self.assertIn(
                     fixture.MIGRATION_SCENARIOS_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -346,8 +346,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 220)
-                self.assertEqual(len(plan.oracle_bindings), 110)
+                self.assertEqual(len(plan.bindings), 226)
+                self.assertEqual(len(plan.oracle_bindings), 113)
                 self.assertIn(
                     fixture.VULNERABLE_GRAPH_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -367,8 +367,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 220)
-                self.assertEqual(len(plan.oracle_bindings), 110)
+                self.assertEqual(len(plan.bindings), 226)
+                self.assertEqual(len(plan.oracle_bindings), 113)
                 self.assertIn(
                     fixture.STABLE_BASELINE_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -432,7 +432,7 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     plan.binding(test_id)["task_id"]
                     for test_id in sorted(plan.bindings)
                 )
-                self.assertEqual(len(task_ids), 220)
+                self.assertEqual(len(task_ids), 226)
                 self.assertEqual(len(task_ids), len(set(task_ids)))
                 for test_id, task_id in zip(
                     sorted(plan.bindings), task_ids, strict=True,
@@ -2611,6 +2611,10 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
         minimal_patch_observations: tuple[object, ...] = ()
         stable_baseline_results: list[fixture.SerialCoverageExecution] = []
         stable_baseline_observations: tuple[object, ...] = ()
+        performance_remaining_results: list[fixture.SerialCoverageExecution] = []
+        performance_remaining_observations: tuple[object, ...] = ()
+        multi_target_results: list[fixture.SerialCoverageExecution] = []
+        multi_target_observations: tuple[object, ...] = ()
         vulnerable_graph_results: list[fixture.SerialCoverageExecution] = []
         vulnerable_graph_observations: tuple[object, ...] = ()
         dependency_graph_scenario_results: list[
@@ -2633,6 +2637,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
         regression_boundary_records: tuple[object, ...] = ()
         minimal_patch_records: tuple[object, ...] = ()
         stable_baseline_records: tuple[object, ...] = ()
+        performance_remaining_records: tuple[object, ...] = ()
+        multi_target_records: tuple[object, ...] = ()
         vulnerable_graph_records: tuple[object, ...] = ()
         dependency_graph_scenario_records: tuple[object, ...] = ()
         migration_scenario_records: tuple[object, ...] = ()
@@ -2663,8 +2669,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 220)
-                self.assertEqual(len(plan.oracle_bindings), 110)
+                self.assertEqual(len(plan.bindings), 226)
+                self.assertEqual(len(plan.oracle_bindings), 113)
                 self.assertIn(
                     fixture.VULNERABLE_GRAPH_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -4199,6 +4205,14 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                 result.retain_gate_context()
 
             for disposition in ("P", "R"):
+                multi_target_results.append(
+                    fixture.run_serial_scenario_binding(
+                        api4=api4,
+                        plan=plan,
+                        scenario_id=fixture.NEW_FEATURE_MULTI_TARGET_SCENARIO_ID,
+                        disposition=disposition,
+                    )
+                )
                 reproducible_failure_results.append(
                     fixture.run_serial_scenario_binding(
                         api4=api4,
@@ -4243,6 +4257,17 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                         disposition=disposition,
                     )
                 )
+                for performance_scenario_id in (
+                    fixture.PERFORMANCE_REMAINING_SCENARIO_IDS
+                ):
+                    performance_remaining_results.append(
+                        fixture.run_serial_scenario_binding(
+                            api4=api4,
+                            plan=plan,
+                            scenario_id=performance_scenario_id,
+                            disposition=disposition,
+                        )
+                    )
                 vulnerable_graph_results.append(
                     fixture.run_serial_scenario_binding(
                         api4=api4,
@@ -4277,6 +4302,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
             dependency_graph_scenario_results.sort(
                 key=lambda item: item.test_id,
             )
+            performance_remaining_results.sort(key=lambda item: item.test_id)
+            multi_target_results.sort(key=lambda item: item.test_id)
             self.assertEqual(
                 tuple(item.test_id for item in reproducible_failure_results),
                 (
@@ -4310,6 +4337,17 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                 (
                     fixture.PERFORMANCE_STABLE_BASELINE_PASS_TEST_ID,
                     fixture.PERFORMANCE_STABLE_BASELINE_REJECT_TEST_ID,
+                ),
+            )
+            self.assertEqual(
+                tuple(item.test_id for item in performance_remaining_results),
+                tuple(sorted(fixture.PERFORMANCE_REMAINING_SCENARIO_TEST_IDS)),
+            )
+            self.assertEqual(
+                tuple(item.test_id for item in multi_target_results),
+                (
+                    fixture.NEW_FEATURE_MULTI_TARGET_PASS_TEST_ID,
+                    fixture.NEW_FEATURE_MULTI_TARGET_REJECT_TEST_ID,
                 ),
             )
             self.assertEqual(
@@ -4349,6 +4387,14 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                 item.authority.observe(item.execution)
                 for item in stable_baseline_results
             )
+            performance_remaining_observations = tuple(
+                item.authority.observe(item.execution)
+                for item in performance_remaining_results
+            )
+            multi_target_observations = tuple(
+                item.authority.observe(item.execution)
+                for item in multi_target_results
+            )
             vulnerable_graph_observations = tuple(
                 item.authority.observe(item.execution)
                 for item in vulnerable_graph_results
@@ -4367,6 +4413,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                 *regression_boundary_results,
                 *minimal_patch_results,
                 *stable_baseline_results,
+                *performance_remaining_results,
+                *multi_target_results,
                 *vulnerable_graph_results,
                 *dependency_graph_scenario_results,
                 *migration_scenario_results,
@@ -5712,6 +5760,14 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                             ),
                             *(
                                 item.authority
+                                for item in performance_remaining_results
+                            ),
+                            *(
+                                item.authority
+                                for item in multi_target_results
+                            ),
+                            *(
+                                item.authority
                                 for item in vulnerable_graph_results
                             ),
                             *batch_authorities,
@@ -5834,6 +5890,24 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                         )
                         for observation in stable_baseline_observations
                     )
+                    performance_remaining_records = tuple(
+                        factory.issue_execution(
+                            observation,
+                            matrix=matrix,
+                            profile=performance_profile,
+                            overlay=performance_overlay,
+                        )
+                        for observation in performance_remaining_observations
+                    )
+                    multi_target_records = tuple(
+                        factory.issue_execution(
+                            observation,
+                            matrix=matrix,
+                            profile=profile,
+                            overlay=overlay,
+                        )
+                        for observation in multi_target_observations
+                    )
                     vulnerable_graph_records = tuple(
                         factory.issue_execution(
                             observation,
@@ -5946,6 +6020,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                             *regression_boundary_records,
                             *minimal_patch_records,
                             *stable_baseline_records,
+                            *performance_remaining_records,
+                            *multi_target_records,
                             *vulnerable_graph_records,
                             *dependency_graph_scenario_records,
                             *migration_scenario_records,
@@ -5978,10 +6054,15 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     self.assertEqual(len(regression_boundary_records), 2)
                     self.assertEqual(len(minimal_patch_records), 2)
                     self.assertEqual(len(stable_baseline_records), 2)
+                    self.assertEqual(len(performance_remaining_records), 4)
+                    self.assertEqual(len(multi_target_records), 2)
                     self.assertEqual(len(vulnerable_graph_records), 2)
                     self.assertEqual(len(dependency_graph_scenario_records), 4)
                     self.assertEqual(len(migration_scenario_records), 8)
-                    self.assertEqual(len(decision.missing_test_ids), 54)
+                    self.assertEqual(len(combined_records), 226)
+                    self.assertEqual(len(decision.missing_test_ids), 48)
+                    self.assertEqual(decision.invalid_test_ids, ())
+                    self.assertEqual(decision.stale_test_ids, ())
                 finally:
                     if scenario_positive_target is not None:
                         scenario_positive_target.close()
@@ -6688,11 +6769,11 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                 finding="WP08-S4-AUTHORITY-LIFECYCLE",
                 phase="combined-gate-finalize-and-revoke",
             ):
-                self.assertEqual(len(combined_records), 220)
-                self.assertEqual(len({id(item) for item in combined_records}), 220)
+                self.assertEqual(len(combined_records), 226)
+                self.assertEqual(len({id(item) for item in combined_records}), 226)
                 self.assertEqual(
                     len(factory._CoverageRecordFactory__issued),
-                    220,
+                    226,
                 )
                 durable_before_close = probe.signature()
                 record_documents = tuple(item.to_dict() for item in combined_records)
@@ -6759,11 +6840,15 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                         coverage_policy=coverage,
                     )
         finally:
+            for result in reversed(multi_target_results):
+                result.close()
             for result in reversed(migration_scenario_results):
                 result.close()
             for result in reversed(dependency_graph_scenario_results):
                 result.close()
             for result in reversed(vulnerable_graph_results):
+                result.close()
+            for result in reversed(performance_remaining_results):
                 result.close()
             for result in reversed(minimal_patch_results):
                 result.close()
@@ -6821,6 +6906,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
             regression_boundary_results.clear()
             minimal_patch_results.clear()
             stable_baseline_results.clear()
+            performance_remaining_results.clear()
+            multi_target_results.clear()
             vulnerable_graph_results.clear()
             dependency_graph_scenario_results.clear()
             migration_scenario_results.clear()
@@ -6847,6 +6934,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
             regression_boundary_observations = ()
             minimal_patch_observations = ()
             stable_baseline_observations = ()
+            performance_remaining_observations = ()
+            multi_target_observations = ()
             vulnerable_graph_observations = ()
             batch_records = ()
             bug_fix_records = ()
@@ -6862,6 +6951,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
             regression_boundary_records = ()
             minimal_patch_records = ()
             stable_baseline_records = ()
+            performance_remaining_records = ()
+            multi_target_records = ()
             vulnerable_graph_records = ()
             dependency_graph_scenario_records = ()
             combined_records = ()
