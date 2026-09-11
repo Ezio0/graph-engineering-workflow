@@ -306,8 +306,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 226)
-                self.assertEqual(len(plan.oracle_bindings), 113)
+                self.assertEqual(len(plan.bindings), 230)
+                self.assertEqual(len(plan.oracle_bindings), 115)
                 self.assertIn(
                     "dependency-graph-scenarios-r1",
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -323,8 +323,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 226)
-                self.assertEqual(len(plan.oracle_bindings), 113)
+                self.assertEqual(len(plan.bindings), 230)
+                self.assertEqual(len(plan.oracle_bindings), 115)
                 self.assertIn(
                     fixture.MIGRATION_SCENARIOS_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -346,8 +346,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 226)
-                self.assertEqual(len(plan.oracle_bindings), 113)
+                self.assertEqual(len(plan.bindings), 230)
+                self.assertEqual(len(plan.oracle_bindings), 115)
                 self.assertIn(
                     fixture.VULNERABLE_GRAPH_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -367,8 +367,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 226)
-                self.assertEqual(len(plan.oracle_bindings), 113)
+                self.assertEqual(len(plan.bindings), 230)
+                self.assertEqual(len(plan.oracle_bindings), 115)
                 self.assertIn(
                     fixture.STABLE_BASELINE_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -432,7 +432,7 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     plan.binding(test_id)["task_id"]
                     for test_id in sorted(plan.bindings)
                 )
-                self.assertEqual(len(task_ids), 226)
+                self.assertEqual(len(task_ids), 230)
                 self.assertEqual(len(task_ids), len(set(task_ids)))
                 for test_id, task_id in zip(
                     sorted(plan.bindings), task_ids, strict=True,
@@ -2669,8 +2669,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 226)
-                self.assertEqual(len(plan.oracle_bindings), 113)
+                self.assertEqual(len(plan.bindings), 230)
+                self.assertEqual(len(plan.oracle_bindings), 115)
                 self.assertIn(
                     fixture.VULNERABLE_GRAPH_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,

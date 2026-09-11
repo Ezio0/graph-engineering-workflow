@@ -11,10 +11,10 @@
   "fixture_raw_sha256": "1a88d1695ef14bf68ac7ec73378a0490d923f3824c39c7d60c32aa6ff468e326",
   "installation_id": "graph-engineering-workflow:0.1.0:migration-rehearsal",
   "network_mode": "offline-only",
-  "profile_schema_registry_digest": "sha256-jcs-v1:c1b0446b8cfe3ab0380e33e62c596f270c1eb0bb315717a49bd0b3d82fc760eb",
+  "profile_schema_registry_digest": "sha256-jcs-v1:72a711820c831c2f62e4eb38e481b889485fb195dcb53fe324e1a47171eb4d82",
   "profile_schema_registry_id": "urn:gew:schema-registry:profiles:1.0.0",
-  "profile_schema_registry_raw_sha256": "f2e18fb2b92898b46f900d648f9786ad2c123ed566a0912a6adfd54147ac9a08",
-  "protected_closure_digest": "sha256-jcs-v1:b88796f95985773ac4057ec5a567a756c5bb6716e98c0de698f5ab994bc6b36e",
+  "profile_schema_registry_raw_sha256": "3ba21cb1f5c270c5c4d2eb7ec97a1818a53d4a7d82258a36cdac6f1e6b353c72",
+  "protected_closure_digest": "sha256-jcs-v1:c0e2d482e3ca2e81294c0615389ff20e3ca0c111b534aa014c4d39afcb85aed7",
   "protected_resources": [
     {
       "raw_sha256": "049000ebc8355e092f960cfeca817223d835c59567b710d0c1eacc56084c0276",
@@ -27,7 +27,7 @@
       "source": "application/graph_engineering/application/profile_execution.py"
     },
     {
-      "raw_sha256": "e7a15020527881dea498a1f3b21aaad2c16a860aedc014f48087d16e70a139f1",
+      "raw_sha256": "02a76e6ed91d307d0cc019f99cec3adf0cc21dd65a63a423a29652c1e5e304cb",
       "resource": "graph_engineering/__init__.py",
       "source": "core/graph_engineering/__init__.py"
     },
@@ -126,5 +126,5 @@
   "transform_manifest_digest": "sha256-jcs-v1:e5305adc1012d26464ebca7a05f1570e3f13c0b3e8e1ef061d120b17203b16c4",
   "transform_manifest_id": "migration-rehearsal-transform-manifest-v1",
   "transform_raw_sha256": "0b68dc63f71cec61ebe014e50ce161b68b129448021d18faa0e4548577a60d6f",
-  "bootstrap_digest": "sha256-jcs-v1:59cc11f28ce87c6e066f05a55bcd8f39de6de8af33a50f160026c58e389dcc7b"
+  "bootstrap_digest": "sha256-jcs-v1:3d288a42c03fae471ab00e6e1d31851b565cb32da32156506f4f7fbf9804d1db"
 }

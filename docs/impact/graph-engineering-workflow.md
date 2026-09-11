@@ -904,3 +904,34 @@ review、实现和 exact evidence 仍是该 recovery path 的 blocking gate；�
 Hotfix classification: approved existing-contract repair, not a new PRD intent or architecture scope. Affected surfaces are local scenario observer/path validation, coverage authority, installed fixture expectations and their existing schema/pin closure, test fixtures and regression tests. The previously accepted P/R boundary is retained: R proves only fail-closed rejection, never P success. No database, event, GraphRef, dependency, user-root or network change. Existing historical review and run records remain immutable evidence; this supplement supersedes agent-only 86400-second prose, not the historical facts.
 
 Current governing budget: **14400 seconds (4 hours)** for future separately authorized cumulative runs; heartbeat remains 60 seconds. Historical 12600/86400 values and old receipts are retained as history, not current authority. Monitoring remains PAUSED and no automatic rerun is authorized.
+
+### P2b bounded continuation impact — 2026-09-11
+
+Human authorized only documentation, implementation, bounded tests and independent
+review of the two hotfix scenarios. P2a commit
+`6c3e67c011925fb41d49d0781c3fd06e619d708b` preserves all accepted prior bytes,
+approvals and runtime evidence. New source invalidates reuse of that receipt as
+current cumulative evidence; it does not invalidate its historical acceptance.
+
+Affected layers are existing scenario core/application factories, profile
+assessment/coverage consumers and private test contexts; guarded fixture and
+observation shapes are conditional additions to existing authorized schema pairs.
+Only the two hotfix fixture/policy rows gain guarded behavior. P2a and inactive
+P2c/P2d fixtures retain their semantics. Registry/bootstrap/package pins may
+change only where actual protected inputs change. The exact174 source-edit
+allowlist is unchanged; the prior commit-only exception for the two protected
+support files is exhausted and grants no editing permission.
+
+Risks: baseline captured too late; authority/control substitution; false health or
+production claims; proof clone/foreign reuse; loss of proof on CAS restoration or
+quiescent reopen; incomplete R vectors; partial patch mistaken for zero-write
+rejection. Mitigation is pre-mutation identity receipts, current same-root reads,
+closed typed proof validation, exact ordered complete rejection aggregation and
+fresh-root bounded regression. Local fixture authority is explicitly synthetic
+and installation-owned, not real production authorization.
+
+No new database/event/GraphRef/API endpoint, dependency, daemon, external service,
+runtime adapter or production operation is introduced. This is an implementation
+refinement of ADR-0008, not a new architectural direction. Preserve historical
+assessment versions and the P2a no-follow path walk. Any necessary new target,
+material architecture or authority change returns to Human before implementation.

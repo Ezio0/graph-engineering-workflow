@@ -2,29 +2,29 @@
   "schema_version": "1.0.0",
   "bootstrap_id": "urn:gew:scenario-truth-installation-bootstrap:1.0.0",
   "policy_registry_id": "urn:gew:scenario-truth-policy-registry:v1",
-  "policy_registry_digest": "sha256-jcs-v1:1cfb1292572d4f92aebd36665b3f46172ba77d1c9a83bcce03c77307f911e119",
-  "policy_registry_raw_sha256": "29ac384e341b585c650c21897cfbe3bef6ed37944b21586f5ce0b4d0ba31c10a",
+  "policy_registry_digest": "sha256-jcs-v1:8afddccc25cb0f167ef3256196644836c44e4022195fdc1a4b4ea01e55f2cb11",
+  "policy_registry_raw_sha256": "59a32ec4f49e9d733055f45973239802fb9e6f9b28a3eeb93f0597e3061c1b31",
   "fixture_registry_id": "urn:gew:scenario-truth-fixture-registry:v1",
-  "fixture_registry_digest": "sha256-jcs-v1:65732c0195c7ff0913a5ff83716ac30fd0149560cbaddbcbc36fed98b77b5e16",
-  "fixture_registry_raw_sha256": "2960916d3e3eff6bb024ec512de26f9f7538e9e8ffbc591300a2c9a55c3055ca",
-  "profile_schema_registry_digest": "sha256-jcs-v1:c1b0446b8cfe3ab0380e33e62c596f270c1eb0bb315717a49bd0b3d82fc760eb",
-  "profile_schema_registry_raw_sha256": "f2e18fb2b92898b46f900d648f9786ad2c123ed566a0912a6adfd54147ac9a08",
+  "fixture_registry_digest": "sha256-jcs-v1:1071d0fc3efc270e0cd227e89cddf8d39525b7a7a2e9767cf983c8d6e8c90c72",
+  "fixture_registry_raw_sha256": "5333c60d1f6f26aeaf1217ec55612f14f39a4daadc800e2a53fb940720abb267",
+  "profile_schema_registry_digest": "sha256-jcs-v1:72a711820c831c2f62e4eb38e481b889485fb195dcb53fe324e1a47171eb4d82",
+  "profile_schema_registry_raw_sha256": "3ba21cb1f5c270c5c4d2eb7ec97a1818a53d4a7d82258a36cdac6f1e6b353c72",
   "schema_vectors": [
     {
       "schema_id": "urn:gew:schema:category-completion-assessment-input:1.3.0",
-      "raw_sha256": "b573f084e26f21c4eb28b6f5d7e01c5d087bafeb36589329ab354e4289ff34e9"
+      "raw_sha256": "7bac5a5bcba2488a3f33078817e54a1b1a5844406e3118ba98061a32392e3276"
     },
     {
       "schema_id": "urn:gew:schema:category-completion-assessment:1.3.0",
-      "raw_sha256": "dd5d50079f71408370f1f49ae7e6918d374256eff01b43cbcdbe6728791deaa4"
+      "raw_sha256": "3a8cd426a09bf4662954a5fb35b5067ebee80ea18a5070da9588907e6782ad1f"
     },
     {
       "schema_id": "urn:gew:schema:scenario-truth-fixture-registry-input:1.0.0",
-      "raw_sha256": "caa72e9f891db0255a61762e91f2ec1005df89a725aed35c8c3d7532b7ad7848"
+      "raw_sha256": "d138908bfb89cfcf9ef7c776c5d8971a5c14a192ed824b270dac8b5d983b3c20"
     },
     {
       "schema_id": "urn:gew:schema:scenario-truth-fixture-registry:1.0.0",
-      "raw_sha256": "85c4cc690bc1b059670479396cca027165657b6ebe72c80c4bdf44c6437e26e5"
+      "raw_sha256": "442e27e2cf42b1e3fe790f0e72bdcfde4fe762550a8c357c4542aa6e5e94d21b"
     },
     {
       "schema_id": "urn:gew:schema:scenario-truth-installation-bootstrap-input:1.0.0",
@@ -36,11 +36,11 @@
     },
     {
       "schema_id": "urn:gew:schema:scenario-truth-observation-input:1.0.0",
-      "raw_sha256": "7e1c3e98f8d5793991006ef8db7b862831aed15df30a622e3da639d7f73d17b4"
+      "raw_sha256": "4ccf408050cb8a5e0d14032a9766fad45e56c8bb2e47b334b80cf140f9b528d8"
     },
     {
       "schema_id": "urn:gew:schema:scenario-truth-observation:1.0.0",
-      "raw_sha256": "2140a11db9702a78855371f93ee8cb9bd9f0cbbf7e859172b055bc1d4ac850d0"
+      "raw_sha256": "2e0804687d58b3f2a6852bf5205b94341a37aa80ef0bc8b6b69816e132b4bbf3"
     },
     {
       "schema_id": "urn:gew:schema:scenario-truth-policy-registry-input:1.0.0",
@@ -58,11 +58,11 @@
     },
     {
       "path": "application/graph_engineering/application/scenario_truth.py",
-      "raw_sha256": "a2d11c53a28bec90c7f487d3fcb7876b0a2e938946d5779b630726b0348231ec"
+      "raw_sha256": "f2bb1baa6297e1310b3d0bfc42e625f82c9d410316fa48dbc5d914e806904959"
     },
     {
       "path": "core/graph_engineering/__init__.py",
-      "raw_sha256": "e7a15020527881dea498a1f3b21aaad2c16a860aedc014f48087d16e70a139f1"
+      "raw_sha256": "02a76e6ed91d307d0cc019f99cec3adf0cc21dd65a63a423a29652c1e5e304cb"
     },
     {
       "path": "core/graph_engineering/core/profile_execution.py",
@@ -74,13 +74,13 @@
     },
     {
       "path": "core/graph_engineering/core/scenario_truth.py",
-      "raw_sha256": "c63bcae4b4280a8dc83dbe71f99d5b7f50a90e5b77d0d1a941b340b28dd219f3"
+      "raw_sha256": "2a231a53d0d6128511ee8bc05d9ad122273f3f5960722e1bb4fcc21039ff23cb"
     },
     {
       "path": "scripts/build_backend.py",
       "raw_sha256": "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:d12421135fe2ccaf36a738b0e3c12a5a345d77c8fa8f833015006c3c38be96cb",
-  "bootstrap_digest": "sha256-jcs-v1:62f79ac273d826bccb4541e4deef3543139360cf15c510fff50e242499173c1a"
+  "protected_closure_digest": "sha256-jcs-v1:38398d8e3dd61be18c1aeec6af06470246dc4d1cf7c78d4ae3e0d07c8c2f7eae",
+  "bootstrap_digest": "sha256-jcs-v1:e842a4debd50bdb3bf3ff465f9ae6e7bf9a1a9cdf36eb4b77405762713e3810c"
 }

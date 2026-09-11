@@ -3469,6 +3469,40 @@
       "test_id": "GEW-PSC-DEPENDENCY-SECURITY-VULNERABLE-GRAPH-R"
     },
     {
+      "category_boundary_case_id": "GEW-PSC-HOTFIX-EMERGENCY-BASELINE-P",
+      "column_id": "boundary",
+      "disposition": "P",
+      "execution_kind": "contract-test",
+      "expected_result": "COMPLETED",
+      "oracle_digest": "sha256-jcs-v1:7dd2970d5eb34211c8e274282bc736ca255e39d3f0f699a30d423375b0234b6c",
+      "oracle_id": "ORA-PROFILE-HOTFIX",
+      "overlay_id": "full-planned",
+      "profile_id": "hotfix",
+      "request_digest": null,
+      "scenario_id": "emergency-baseline",
+      "selector_digest": "sha256-jcs-v1:a7684640ed3328808d5deaefff7e8f5d44a6afcb955c3861ffcdfb75621309fb",
+      "selector_kind": "scenario",
+      "task_id": "task:wp08-coverage:gew-psc-hotfix-emergency-baseline-p",
+      "test_id": "GEW-PSC-HOTFIX-EMERGENCY-BASELINE-P"
+    },
+    {
+      "category_boundary_case_id": "GEW-PSC-HOTFIX-EMERGENCY-BASELINE-P",
+      "column_id": "boundary",
+      "disposition": "R",
+      "execution_kind": "contract-test",
+      "expected_result": "EXPECTED_REJECTION",
+      "oracle_digest": "sha256-jcs-v1:7dd2970d5eb34211c8e274282bc736ca255e39d3f0f699a30d423375b0234b6c",
+      "oracle_id": "ORA-PROFILE-HOTFIX",
+      "overlay_id": "full-planned",
+      "profile_id": "hotfix",
+      "request_digest": "sha256-jcs-v1:511c0502b36b659e0d14db0fcfce45bf14973206e1b81c6a22690a503d726976",
+      "scenario_id": "emergency-baseline",
+      "selector_digest": "sha256-jcs-v1:89b59cc8180d72ee7fb041bea7a462b9586427f1ac2e2702e07d1d8ae2799aec",
+      "selector_kind": "scenario",
+      "task_id": "task:wp08-coverage:gew-psc-hotfix-emergency-baseline-r",
+      "test_id": "GEW-PSC-HOTFIX-EMERGENCY-BASELINE-R"
+    },
+    {
       "category_boundary_case_id": "GEW-PSC-HOTFIX-MINIMAL-PATCH-P",
       "column_id": "boundary",
       "disposition": "P",
@@ -3501,6 +3535,40 @@
       "selector_kind": "scenario",
       "task_id": "task:wp08-coverage:gew-psc-hotfix-minimal-patch-r",
       "test_id": "GEW-PSC-HOTFIX-MINIMAL-PATCH-R"
+    },
+    {
+      "category_boundary_case_id": "GEW-PSC-HOTFIX-PRODUCTION-LIKE-GATE-P",
+      "column_id": "boundary",
+      "disposition": "P",
+      "execution_kind": "contract-test",
+      "expected_result": "COMPLETED",
+      "oracle_digest": "sha256-jcs-v1:33e1875dc92b45bb954a4221cc62a3256772a0b08ca20f2be152bb6b03b3917a",
+      "oracle_id": "ORA-PROFILE-HOTFIX",
+      "overlay_id": "full-planned",
+      "profile_id": "hotfix",
+      "request_digest": null,
+      "scenario_id": "production-like-gate",
+      "selector_digest": "sha256-jcs-v1:0034ff0860c0955e6f65206481035f5d589b0b64fab5ecb8c069db735ebb1dd9",
+      "selector_kind": "scenario",
+      "task_id": "task:wp08-coverage:gew-psc-hotfix-production-like-gate-p",
+      "test_id": "GEW-PSC-HOTFIX-PRODUCTION-LIKE-GATE-P"
+    },
+    {
+      "category_boundary_case_id": "GEW-PSC-HOTFIX-PRODUCTION-LIKE-GATE-P",
+      "column_id": "boundary",
+      "disposition": "R",
+      "execution_kind": "contract-test",
+      "expected_result": "EXPECTED_REJECTION",
+      "oracle_digest": "sha256-jcs-v1:33e1875dc92b45bb954a4221cc62a3256772a0b08ca20f2be152bb6b03b3917a",
+      "oracle_id": "ORA-PROFILE-HOTFIX",
+      "overlay_id": "full-planned",
+      "profile_id": "hotfix",
+      "request_digest": "sha256-jcs-v1:7b7672b609c50becca6b524b70556c32c779910a05a8ec3289a1336b14ed7256",
+      "scenario_id": "production-like-gate",
+      "selector_digest": "sha256-jcs-v1:2d4eee7cbe23bdc8c22f3e48d205fcb4fb550d2ac1dd6e4c517c3aef32633f0f",
+      "selector_kind": "scenario",
+      "task_id": "task:wp08-coverage:gew-psc-hotfix-production-like-gate-r",
+      "test_id": "GEW-PSC-HOTFIX-PRODUCTION-LIKE-GATE-R"
     },
     {
       "category_boundary_case_id": "GEW-PSC-MIGRATION-BACKWARD-P",
@@ -4517,6 +4585,22 @@
       }
     },
     {
+      "category_boundary_case_id": "GEW-PSC-HOTFIX-EMERGENCY-BASELINE-P",
+      "column_id": "boundary",
+      "oracle_digest": "sha256-jcs-v1:7dd2970d5eb34211c8e274282bc736ca255e39d3f0f699a30d423375b0234b6c",
+      "oracle_id": "ORA-PROFILE-HOTFIX",
+      "oracle_member": "config/test-oracles/profile-hotfix-emergency-baseline-v1.json",
+      "oracle_raw_sha256": "1d1509f52d27bb78eed64ceff0b9cbb8d8b12c41579cdc37aa12bdf964539729",
+      "overlay_id": "full-planned",
+      "profile_id": "hotfix",
+      "scenario_id": "emergency-baseline",
+      "selector_kind": "scenario",
+      "task_ids": {
+        "P": "task:wp08-coverage:gew-psc-hotfix-emergency-baseline-p",
+        "R": "task:wp08-coverage:gew-psc-hotfix-emergency-baseline-r"
+      }
+    },
+    {
       "category_boundary_case_id": "GEW-PSC-HOTFIX-MINIMAL-PATCH-P",
       "column_id": "boundary",
       "oracle_digest": "sha256-jcs-v1:936cd1009b0dbe1f5e00f0aec365342294400a0c7faa60c50e8a1833dcb8c783",
@@ -4530,6 +4614,22 @@
       "task_ids": {
         "P": "task:wp08-coverage:gew-psc-hotfix-minimal-patch-p",
         "R": "task:wp08-coverage:gew-psc-hotfix-minimal-patch-r"
+      }
+    },
+    {
+      "category_boundary_case_id": "GEW-PSC-HOTFIX-PRODUCTION-LIKE-GATE-P",
+      "column_id": "boundary",
+      "oracle_digest": "sha256-jcs-v1:33e1875dc92b45bb954a4221cc62a3256772a0b08ca20f2be152bb6b03b3917a",
+      "oracle_id": "ORA-PROFILE-HOTFIX",
+      "oracle_member": "config/test-oracles/profile-hotfix-production-like-gate-v1.json",
+      "oracle_raw_sha256": "dabbebdda7fac6aa4a4a85604ff1f4037bce543b26074eaf3dc0635e83f22e91",
+      "overlay_id": "full-planned",
+      "profile_id": "hotfix",
+      "scenario_id": "production-like-gate",
+      "selector_kind": "scenario",
+      "task_ids": {
+        "P": "task:wp08-coverage:gew-psc-hotfix-production-like-gate-p",
+        "R": "task:wp08-coverage:gew-psc-hotfix-production-like-gate-r"
       }
     },
     {
@@ -5661,5 +5761,5 @@
   },
   "schema_version": "1.0.0",
   "support_matrix_digest": "sha256-jcs-v1:3a38e5159b08c81413b39fa156f5544eb3d56e0841081413f05d2103af9f7a95",
-  "plan_digest": "sha256-jcs-v1:326ef4765d0773776836434ede2f43219a11ab16c79211e814b979acfcc9e98e"
+  "plan_digest": "sha256-jcs-v1:1a5fc4cddfa63dd049bb4827ba90643fee3bf055848e19cc6b543bead5d80c47"
 }

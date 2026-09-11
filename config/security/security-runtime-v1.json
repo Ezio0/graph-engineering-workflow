@@ -12,7 +12,7 @@
   "policies": {
     "action": {
       "policy_id": "action-policy-default",
-      "policy_digest": "sha256-jcs-v1:dede7caa9e2e81f20755b03e3822a2e09729822a2dfca8a85534a3250d1ee056"
+      "policy_digest": "sha256-jcs-v1:da0595bdf6417e732e73716cd89a91f578fd2d42df8ebc9f0850497c0874957e"
     },
     "disclosure": {
       "policy_id": "disclosure-default",
@@ -35,5 +35,5 @@
       "policy_digest": "sha256-jcs-v1:36625b80fd867613618482a45701de2cb65ca2a245b6c616e0fe32b9ff5b458c"
     }
   },
-  "manifest_digest": "sha256-jcs-v1:23846e6bf2af5f0cf3e724328212ae2d42050415538c3dad01c102be955a3659"
+  "manifest_digest": "sha256-jcs-v1:43f2cac58299ba383c706807e6b00971236e024dd98abc2123ace9661d5ad4f0"
 }

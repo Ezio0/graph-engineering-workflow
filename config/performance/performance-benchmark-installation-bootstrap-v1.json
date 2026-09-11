@@ -32,11 +32,11 @@
   "maximum_repetition_count": 999,
   "maximum_warmup_count": 31,
   "network_mode": "offline-only",
-  "profile_schema_registry_digest": "sha256-jcs-v1:c1b0446b8cfe3ab0380e33e62c596f270c1eb0bb315717a49bd0b3d82fc760eb",
-  "profile_schema_registry_raw_sha256": "f2e18fb2b92898b46f900d648f9786ad2c123ed566a0912a6adfd54147ac9a08",
+  "profile_schema_registry_digest": "sha256-jcs-v1:72a711820c831c2f62e4eb38e481b889485fb195dcb53fe324e1a47171eb4d82",
+  "profile_schema_registry_raw_sha256": "3ba21cb1f5c270c5c4d2eb7ec97a1818a53d4a7d82258a36cdac6f1e6b353c72",
   "profile_schema_registry_resource": "graph_engineering/config/contracts/profile-schema-registry-v1.json",
   "profile_schema_registry_source": "config/contracts/profile-schema-registry-v1.json",
-  "protected_closure_digest": "sha256-jcs-v1:155c813ee4d7ac60786445790ef9901a122d0a6ac7bb1f6776f6570f5849d07e",
+  "protected_closure_digest": "sha256-jcs-v1:e03d0088f7642ba720736fd772e54bf2a392f23206f455f7dd0b779bad14e132",
   "protected_resources": [
     {
       "raw_sha256": "9de5fcfdc5fdcbf6a84aa5adb4e58ecd4291af571210c4ae38b6fc74aae07f32",
@@ -64,7 +64,7 @@
       "source": "application/graph_engineering/application/profile_execution.py"
     },
     {
-      "raw_sha256": "f2e18fb2b92898b46f900d648f9786ad2c123ed566a0912a6adfd54147ac9a08",
+      "raw_sha256": "3ba21cb1f5c270c5c4d2eb7ec97a1818a53d4a7d82258a36cdac6f1e6b353c72",
       "resource": "graph_engineering/config/contracts/profile-schema-registry-v1.json",
       "source": "config/contracts/profile-schema-registry-v1.json"
     },
@@ -356,5 +356,5 @@
   "source_registry_raw_sha256": "8e61edb0f2ba802d8b6e6c9ceb04808e308f4566d7b85a9b5b8651d9d748d3e4",
   "source_registry_resource": "graph_engineering/config/performance/performance-source-registry-v1.json",
   "source_registry_source": "config/performance/performance-source-registry-v1.json",
-  "bootstrap_digest": "sha256-jcs-v1:5170d35309524a33f50b57017aa3f8c877b81c7b80b4120ba571f4f4fc1bf6db"
+  "bootstrap_digest": "sha256-jcs-v1:e139a39aaa645a59093ae5ee95ff62166bf283ffb87a20ab96bb47263a8c61ed"
 }

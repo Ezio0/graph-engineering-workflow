@@ -17,7 +17,7 @@
         "git.update-ref"
       ],
       "implementation_ref": "builtin:git-native-v1",
-      "implementation_digest": "sha256-jcs-v1:7874e63e7a91d9a700d29eee4920dff7eff0d23988bf3ed1997fb2ad5d85163b"
+      "implementation_digest": "sha256-jcs-v1:56078d2d41b03231b4eaf082c1904cc56348a91e48d5802e8735da941f317b0b"
     },
     {
       "adapter_id": "project-command-v1",
@@ -32,7 +32,7 @@
         "project.run"
       ],
       "implementation_ref": "builtin:project-command-v1",
-      "implementation_digest": "sha256-jcs-v1:4be60c85ec27dddef82f7002e4e3f64ff3bfdbcf3884b1fe35d817fb2594c72d"
+      "implementation_digest": "sha256-jcs-v1:e0fb96de1784f78b720bbafc023625ac05928a3ad6cf5c08a8775cc283bde8dc"
     },
     {
       "adapter_id": "target-query-v1",
@@ -45,7 +45,7 @@
         "target.observe"
       ],
       "implementation_ref": "builtin:target-query-v1",
-      "implementation_digest": "sha256-jcs-v1:c34d8e13be102ecb30edc142abdcf3fb115e11a03248ee74adb10de733c0cecc"
+      "implementation_digest": "sha256-jcs-v1:cce86c8d6673561ffc6badb265b0d31a3b8416ee71862d8c2a6ec7393c37aa48"
     },
     {
       "adapter_id": "secret-provider-v1",
@@ -58,7 +58,7 @@
         "secret.resolve"
       ],
       "implementation_ref": "builtin:secret-provider-v1",
-      "implementation_digest": "sha256-jcs-v1:1c93646caf484af5192ddb4fde764d17db418723d271d0860cdac9431e9942a1"
+      "implementation_digest": "sha256-jcs-v1:8096bc6dcb7135c8e00422a93feaf723b40409afe84878f7d1dae6b83f519feb"
     },
     {
       "adapter_id": "connector-unavailable-v1",
@@ -71,8 +71,8 @@
         "connector.unavailable"
       ],
       "implementation_ref": "builtin:connector-unavailable-v1",
-      "implementation_digest": "sha256-jcs-v1:a24e23332f0966e3a7c76bbb9c4741693901263e06451cdd5a047fef0476877a"
+      "implementation_digest": "sha256-jcs-v1:f53281427c9ebd292172743cefa1ceaec3d7a237543ddd296b77808c6ad7644e"
     }
   ],
-  "registry_digest": "sha256-jcs-v1:b9aba242221d3f4be9bbdb1e20cdb808862aa1e3e42be17c0e48580a8901427d"
+  "registry_digest": "sha256-jcs-v1:ccb9f1be03441e658b7c4dad8b0fba42948ebeb102364b50bb9e6d5fdd7ee069"
 }

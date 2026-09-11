@@ -170,6 +170,81 @@ _ASSERTION_FIELDS = ("assertion_id", "kind", "expected")
 _ROLLBACK_FIELDS = ("kind", "expected_state_id", "required")
 
 
+def validate_execution_contract(value: object, targets: object) -> None:
+    """Validate config-owned local guard data, independent of scenario names."""
+    contract = _exact(value, (
+        "contract_id", "environment_id", "environment_classification",
+        "authority_kind", "impact_roles", "containment_roles", "controls",
+        "minimal_change_budget", "health_predicates", "ordered_gates",
+    ), "execution contract")
+    for field in ("contract_id", "environment_id", "authority_kind"):
+        _text(contract[field], field)
+    if contract["environment_classification"] != "non-production":
+        raise ScenarioTruthError("execution contract is not explicitly non-production")
+    roles = tuple(target["role_id"] for target in targets)
+    for field in ("impact_roles", "containment_roles"):
+        if _ordered_text(contract[field], field) != roles:
+            raise ScenarioTruthError("execution scope does not cover exact target roles")
+    _integer(contract["minimal_change_budget"], "minimal change budget")
+    controls = contract["controls"]
+    if type(controls) is not list or not controls:
+        raise ScenarioTruthError("execution controls are absent")
+    ids, paths, kinds = [], [target["path_id"] for target in targets], []
+    for item in controls:
+        row = _exact(item, ("control_id", "kind", "path_id", "expected_value"), "control")
+        ids.append(_text(row["control_id"], "control ID"))
+        paths.append(_text(row["path_id"], "control path"))
+        kinds.append(_text(row["kind"], "control kind"))
+        _data_text(row["expected_value"], "control expected bytes")
+    if (len(ids) != len(set(ids)) or len(paths) != len(set(paths))
+            or sorted(kinds) != ["authority", "containment", "health", "impact", "rollback"]):
+        raise ScenarioTruthError("execution control closure is not exact")
+    predicates = contract["health_predicates"]
+    if type(predicates) is not list or not predicates:
+        raise ScenarioTruthError("health predicate closure is absent")
+    ids = []
+    for item in predicates:
+        row = _exact(item, ("predicate_id", "target_role", "field_path", "expected"), "health predicate")
+        ids.append(_text(row["predicate_id"], "predicate ID"))
+        if row["target_role"] not in roles:
+            raise ScenarioTruthError("health predicate role is foreign")
+        if type(row["field_path"]) is not list or not row["field_path"]:
+            raise ScenarioTruthError("health predicate field path is absent")
+        for key in row["field_path"]:
+            _text(key, "health field")
+        scalar = row["expected"]
+        if type(scalar) not in (str, bool, int, type(None)):
+            raise ScenarioTruthError("health predicate expected scalar is not exact")
+        if type(scalar) is int and abs(scalar) > SAFE_INTEGER:
+            raise ScenarioTruthError("health predicate integer is unsafe")
+    if len(ids) != len(set(ids)):
+        raise ScenarioTruthError("health predicate IDs are aliased")
+    gates = contract["ordered_gates"]
+    if type(gates) is not list or len(gates) != 3:
+        raise ScenarioTruthError("ordered gate closure is incomplete")
+    ids, kinds = [], []
+    for item in gates:
+        row = _exact(item, ("gate_id", "kind"), "ordered gate")
+        ids.append(_text(row["gate_id"], "gate ID"))
+        kinds.append(row["kind"])
+    if len(ids) != len(set(ids)) or kinds != ["impact", "health", "rollback"]:
+        raise ScenarioTruthError("ordered gate closure is invalid")
+
+
+def minimal_change_bytes(before: bytes, after: bytes) -> int:
+    """Count removed plus inserted bytes in the minimal contiguous edit span."""
+    if type(before) is not bytes or type(after) is not bytes:
+        raise ScenarioTruthError("change metric requires exact bytes")
+    prefix = 0
+    while prefix < min(len(before), len(after)) and before[prefix] == after[prefix]:
+        prefix += 1
+    suffix = 0
+    while (suffix < min(len(before), len(after)) - prefix
+           and before[len(before) - suffix - 1] == after[len(after) - suffix - 1]):
+        suffix += 1
+    return len(before) + len(after) - 2 * (prefix + suffix)
+
+
 @dataclass(frozen=True, slots=True)
 class ScenarioTruthRegistry:
     policy_document: FrozenMap
@@ -282,6 +357,8 @@ def parse_scenario_truth_registries(
         fields = _FIXTURE_ROW_FIELDS
         if isinstance(value, Mapping) and "rejection_attack_ids" in value:
             fields = (*fields[:-1], "rejection_attack_ids", fields[-1])
+        if isinstance(value, Mapping) and "execution_contract" in value:
+            fields = (*fields[:-1], "execution_contract", fields[-1])
         row = _exact(value, fields, "scenario fixture row")
         if "rejection_attack_ids" in row:
             _ordered_text(row["rejection_attack_ids"], "scenario rejection attacks")
@@ -308,6 +385,8 @@ def parse_scenario_truth_registries(
             _data_text(target["rollback_value"], "target rollback_value")
         if tuple(target_roles) != tuple(sorted(set(target_roles))) or len(path_ids) != len(set(path_ids)):
             raise ScenarioTruthError("scenario target roles are not canonical and distinct")
+        if "execution_contract" in row:
+            validate_execution_contract(row["execution_contract"], targets)
         phases = row["phase_expectations"]
         if type(phases) is not list or not phases:
             raise ScenarioTruthError("scenario fixture phases are empty")
@@ -425,6 +504,7 @@ class ScenarioTruthObservation:
     rollback_or_compensation: FrozenMap
     owner_route: str
     scenario_outcome: str
+    execution_proof: FrozenMap | None
     observation_digest: str
     _authority: object
 
@@ -436,6 +516,8 @@ class ScenarioTruthObservation:
         result: dict[str, object] = {}
         for field in _OBSERVATION_FIELDS[:-1]:
             result[field] = thaw(getattr(self, field))
+        if self.execution_proof is not None:
+            result["execution_proof"] = thaw(self.execution_proof)
         return result
 
     def to_dict(self) -> dict[str, object]:
@@ -450,12 +532,16 @@ class ScenarioTruthObservation:
 def issue_scenario_truth_observation(
     body: Mapping[str, object], *, authority: object,
 ) -> ScenarioTruthObservation:
-    _exact(dict(body), _OBSERVATION_FIELDS[:-1], "scenario truth observation body")
+    fields = _OBSERVATION_FIELDS[:-1]
+    if "execution_proof" in body:
+        fields = (*fields, "execution_proof")
+    _exact(dict(body), fields, "scenario truth observation body")
     result = object.__new__(ScenarioTruthObservation)
+    object.__setattr__(result, "execution_proof", None)
     for field, value in body.items():
         if field in {
             "graph_ref_pins", "installation_pins", "policy_row", "fixture_row",
-            "branch_binding", "rollback_or_compensation",
+            "branch_binding", "rollback_or_compensation", "execution_proof",
         }:
             value = freeze(value)
         elif field in {

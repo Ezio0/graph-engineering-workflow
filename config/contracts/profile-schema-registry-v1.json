@@ -1,5 +1,5 @@
 {
-  "registry_digest": "sha256-jcs-v1:c1b0446b8cfe3ab0380e33e62c596f270c1eb0bb315717a49bd0b3d82fc760eb",
+  "registry_digest": "sha256-jcs-v1:72a711820c831c2f62e4eb38e481b889485fb195dcb53fe324e1a47171eb4d82",
   "registry_id": "urn:gew:schema-registry:profiles:1.0.0",
   "resources": [
     {
@@ -35,7 +35,7 @@
       "schema_id": "urn:gew:schema:category-completion-assessment-input:1.2.0"
     },
     {
-      "body_digest": "sha256-raw-v1:b573f084e26f21c4eb28b6f5d7e01c5d087bafeb36589329ab354e4289ff34e9",
+      "body_digest": "sha256-raw-v1:7bac5a5bcba2488a3f33078817e54a1b1a5844406e3118ba98061a32392e3276",
       "schema_id": "urn:gew:schema:category-completion-assessment-input:1.3.0"
     },
     {
@@ -51,7 +51,7 @@
       "schema_id": "urn:gew:schema:category-completion-assessment:1.2.0"
     },
     {
-      "body_digest": "sha256-raw-v1:dd5d50079f71408370f1f49ae7e6918d374256eff01b43cbcdbe6728791deaa4",
+      "body_digest": "sha256-raw-v1:3a8cd426a09bf4662954a5fb35b5067ebee80ea18a5070da9588907e6782ad1f",
       "schema_id": "urn:gew:schema:category-completion-assessment:1.3.0"
     },
     {
@@ -467,11 +467,11 @@
       "schema_id": "urn:gew:schema:risk-overlay-definition:1.0.0"
     },
     {
-      "body_digest": "sha256-raw-v1:caa72e9f891db0255a61762e91f2ec1005df89a725aed35c8c3d7532b7ad7848",
+      "body_digest": "sha256-raw-v1:d138908bfb89cfcf9ef7c776c5d8971a5c14a192ed824b270dac8b5d983b3c20",
       "schema_id": "urn:gew:schema:scenario-truth-fixture-registry-input:1.0.0"
     },
     {
-      "body_digest": "sha256-raw-v1:85c4cc690bc1b059670479396cca027165657b6ebe72c80c4bdf44c6437e26e5",
+      "body_digest": "sha256-raw-v1:442e27e2cf42b1e3fe790f0e72bdcfde4fe762550a8c357c4542aa6e5e94d21b",
       "schema_id": "urn:gew:schema:scenario-truth-fixture-registry:1.0.0"
     },
     {
@@ -483,11 +483,11 @@
       "schema_id": "urn:gew:schema:scenario-truth-installation-bootstrap:1.0.0"
     },
     {
-      "body_digest": "sha256-raw-v1:7e1c3e98f8d5793991006ef8db7b862831aed15df30a622e3da639d7f73d17b4",
+      "body_digest": "sha256-raw-v1:4ccf408050cb8a5e0d14032a9766fad45e56c8bb2e47b334b80cf140f9b528d8",
       "schema_id": "urn:gew:schema:scenario-truth-observation-input:1.0.0"
     },
     {
-      "body_digest": "sha256-raw-v1:2140a11db9702a78855371f93ee8cb9bd9f0cbbf7e859172b055bc1d4ac850d0",
+      "body_digest": "sha256-raw-v1:2e0804687d58b3f2a6852bf5205b94341a37aa80ef0bc8b6b69816e132b4bbf3",
       "schema_id": "urn:gew:schema:scenario-truth-observation:1.0.0"
     },
     {

@@ -2092,3 +2092,74 @@ trust 仍由后续 WP/ADR 收敛。若任何后续选择改变无 daemon、单 r
 Target validation must reject symbolic links before resolution, including every relative directory component, the target and the private root; owner/type/link-count checks apply consistently to execute, target snapshots, currentness and restored evidence. Open file descriptors must use no-follow semantics for reads/writes. Restore revalidates targets on every use. R receipts must be registry-issued from actual failed zero-write attempts, owned by the same scenario factory, ordered exactly as installed fixture rejection expectations, uniquely rooted, and bound to task revision/snapshot/invalidation, graph and installation pins, scenario, test and frozen oracle. A typed opaque aggregate carries the receipt projection digest through the existing coverage execution typed_evidence_object_digest and hence observation/CoverageRecord digests. Issue/use/precommit/gate reread current receipt identity and target bytes; omitted, altered, reordered, stale, foreign or P-substituted evidence fails closed. Existing scenario fixture schema gains only an optional ordered rejection attack-ID closure; no new path, persistence schema or GraphRef API.
 
 Current governing budget: **14400 seconds (4 hours)** for future separately authorized cumulative runs; heartbeat remains 60 seconds. Historical 12600/86400 values and old receipts are retained as history, not current authority. Monitoring remains PAUSED and no automatic rerun is authorized.
+
+### P2b bounded implementation contract — 2026-09-11
+
+This slice implements only ADR-0008 `hotfix/emergency-baseline` and
+`hotfix/production-like-gate` from the accepted P2a commit. It does not change
+Positioning/PRD intent, add production access, or authorize cumulative execution.
+
+The existing installed fixture row gains an optional closed `execution_contract`
+for guarded scenarios. Its data owns environment identity, the explicit
+non-production classification, local authority kind, exact impact/containment
+roles, private control-resource identities/paths/expected bytes, a safe-integer
+minimal-change budget, health predicates, and ordered gate IDs. These values
+are never selected by a profile/scenario branch in engine code. Control resources
+are installed-fixture copies inside the same fresh private root, not external
+credentials or evidence of real emergency/production authority. Each health
+predicate selects an exact field from freshly read candidate target JSON and
+compares it to its configured expected scalar; malformed/missing fields and
+non-exact scalar types fail closed. No caller health boolean is accepted.
+
+A guarded observer exposes `capture_baseline()`, returning a non-serializable,
+factory-owned identity receipt. It reads all A targets, current installed
+authority/impact/containment/health controls and rollback readiness before any
+candidate mutation. The receipt binds the complete task/revision/snapshot/epoch,
+GraphRef pins, profile/scenario, installation closure, branch/ref and private-root
+identity, baseline/control byte digests and the pre-mutation sequence. It is
+issued only when the observer mutation count is zero and all targets equal A;
+a baseline from B, after execution, from another observer, cloned/re-signed or
+stale against any current control/target is rejected. Factory identity tables
+retain the original receipt and immutable projection, not equality-only checks.
+
+`execute(request, baseline_receipt=...)` requires that current receipt for guarded
+fixtures; unguarded P2a calls remain unchanged. The guarded request additionally
+binds the exact configured environment/classification and ordered gate selection.
+All request, baseline, authority, role/scope, rollback and control checks precede
+the first patch. The deterministic minimal-change metric is the byte span
+remaining after stripping the common prefix and suffix from A and B, counting
+removed plus inserted bytes; it must not exceed the config-owned safe integer.
+Candidate writes remain the existing fenced private-target writes. After fresh B
+reads, execute the complete ordered impact/health/rollback gate and reobserve
+controls/targets before issuance. No gate omission, alias, failed/stale health,
+production classification elevation or caller-supplied facts may issue evidence.
+Unexpected failure after an authorized patch is reported as failure with no
+observation/coverage issuance; it is not represented as a zero-write rejection.
+
+The guarded observation includes a closed optional `execution_proof`: exact
+contract/environment, complete baseline/control observations, causal phase
+sequence, measured change metric and ordered gate results. It is required iff the
+installed fixture has `execution_contract`. The proof participates in the
+observation and all downstream digests. Existing 1.0 scenario and 1.3 assessment
+schema pairs gain this conditional closed shape without changing legacy
+unguarded projections or assessment 1.0/1.1/1.2 bytes. Currentness and restoration
+must compare installed fixture/policy and complete binding, recompute proof
+relationships and fresh target/control predicates, then issue new consumer-local
+authority only from the existing unique referenced CAS. Serialized proof bytes
+are evidence, never a reusable baseline authority. Restart performs zero patch,
+command or action replay.
+
+Each scenario has its own installed complete rejection vector and separate
+fresh private root per attack. Factory-issued rejection receipts bind actual
+failing operations, arguments, control/target snapshots and zero-write outcome;
+the full ordered receipt aggregate participates in execution/coverage currentness.
+Dedicated tests also exercise post-patch failures, which must never be mislabeled
+as zero-write R receipts. Existing P2a symlink defenses, exact task namespaces,
+eight-receipt closure, four-phase quiesce/reopen and terminal invalidation remain.
+
+Add only the two already-authorized oracle paths and four corresponding bindings.
+Any source/config change follows the existing exact schema/bootstrap/action pin
+cascade using actual changed bytes, including package/source closure. No pinned
+digest or validation rule is weakened. This slice reports bounded implementation
+evidence and plan 230/oracle115; 230 valid/44 missing is a future cumulative claim,
+not established by these isolated tests.

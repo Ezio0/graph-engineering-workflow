@@ -47,13 +47,13 @@ registry-raw-sha256 = "031df42d9aa2a8c57ee4b720dbae852aaa35b098511c07e9d614c5543
 registry-source = "config/security/dependency-advisory-registry-v2.json"
 registry-resource = "graph_engineering/config/security/dependency-advisory-registry-v2.json"
 bootstrap-id = "urn:gew:dependency-advisory-installation-bootstrap:v1.2"
-bootstrap-digest = "sha256-jcs-v1:f20018a2c2efc2cbb12d7859e7ceb0862ca75b0321106ea765f554208faa7343"
-bootstrap-raw-sha256 = "65de915df7c6e8118654cfb983ee0f60f461788de3048434bf2552d313a5ba48"
+bootstrap-digest = "sha256-jcs-v1:42194f526a2a48a217e8d509b6cc39e68666a03a224aa4adaa9b7d8cc271d694"
+bootstrap-raw-sha256 = "721e5b52fa98c3baf659be7def751414bdb581d691ea899f76201bb4859d2f95"
 bootstrap-source = "config/security/dependency-advisory-installation-bootstrap-v1.2.json"
 bootstrap-resource = "graph_engineering/config/security/dependency-advisory-installation-bootstrap-v1.2.json"
 profile-schema-registry-id = "urn:gew:schema-registry:profiles:1.0.0"
-profile-schema-registry-digest = "sha256-jcs-v1:c1b0446b8cfe3ab0380e33e62c596f270c1eb0bb315717a49bd0b3d82fc760eb"
-profile-schema-registry-raw-sha256 = "f2e18fb2b92898b46f900d648f9786ad2c123ed566a0912a6adfd54147ac9a08"
+profile-schema-registry-digest = "sha256-jcs-v1:72a711820c831c2f62e4eb38e481b889485fb195dcb53fe324e1a47171eb4d82"
+profile-schema-registry-raw-sha256 = "3ba21cb1f5c270c5c4d2eb7ec97a1818a53d4a7d82258a36cdac6f1e6b353c72"
 profile-schema-registry-source = "config/contracts/profile-schema-registry-v1.json"
 profile-schema-registry-resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json"
 source-artifact-id = "urn:gew:dependency-advisory-source-artifact:v2"
@@ -168,13 +168,13 @@ transform-raw-sha256 = "0b68dc63f71cec61ebe014e50ce161b68b129448021d18faa0e45485
 transform-source = "config/migration/migration-rehearsal-transform-manifest-v1.json"
 transform-resource = "graph_engineering/config/migration/migration-rehearsal-transform-manifest-v1.json"
 bootstrap-id = "urn:gew:migration-rehearsal-bootstrap:v1"
-bootstrap-digest = "sha256-jcs-v1:59cc11f28ce87c6e066f05a55bcd8f39de6de8af33a50f160026c58e389dcc7b"
-bootstrap-raw-sha256 = "11aeaba3c933f177191dc4dc252897ee4ca4b1425d01e025b1aa29a6a5a15bb6"
+bootstrap-digest = "sha256-jcs-v1:3d288a42c03fae471ab00e6e1d31851b565cb32da32156506f4f7fbf9804d1db"
+bootstrap-raw-sha256 = "95925c18c33b1ae06eb129e13e9f04833b5cbbfd745afceb047ea6fb6d4a10f2"
 bootstrap-source = "config/migration/migration-rehearsal-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/migration/migration-rehearsal-installation-bootstrap-v1.json"
 profile-schema-registry-id = "urn:gew:schema-registry:profiles:1.0.0"
-profile-schema-registry-digest = "sha256-jcs-v1:c1b0446b8cfe3ab0380e33e62c596f270c1eb0bb315717a49bd0b3d82fc760eb"
-profile-schema-registry-raw-sha256 = "f2e18fb2b92898b46f900d648f9786ad2c123ed566a0912a6adfd54147ac9a08"
+profile-schema-registry-digest = "sha256-jcs-v1:72a711820c831c2f62e4eb38e481b889485fb195dcb53fe324e1a47171eb4d82"
+profile-schema-registry-raw-sha256 = "3ba21cb1f5c270c5c4d2eb7ec97a1818a53d4a7d82258a36cdac6f1e6b353c72"
 profile-schema-registry-source = "config/contracts/profile-schema-registry-v1.json"
 profile-schema-registry-resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json"
 distribution-name = "graph-engineering-workflow"
@@ -183,11 +183,11 @@ source-attestation-policy-id = "source-checkout-attestation-v1"
 build-backend-raw-sha256 = "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b"
 build-backend-source = "scripts/build_backend.py"
 build-backend-resource = "graph_engineering/scripts/build_backend.py"
-protected-closure-digest = "sha256-jcs-v1:b88796f95985773ac4057ec5a567a756c5bb6716e98c0de698f5ab994bc6b36e"
+protected-closure-digest = "sha256-jcs-v1:c0e2d482e3ca2e81294c0615389ff20e3ca0c111b534aa014c4d39afcb85aed7"
 protected-resources = [
   { raw-sha256 = "049000ebc8355e092f960cfeca817223d835c59567b710d0c1eacc56084c0276", source = "application/graph_engineering/application/migration_rehearsal.py", resource = "graph_engineering/application/migration_rehearsal.py" },
   { raw-sha256 = "259d35a4a2eea5c1ef78604711a3c97bc0f1bcebec9d046e73747ea617d60df5", source = "application/graph_engineering/application/profile_execution.py", resource = "graph_engineering/application/profile_execution.py" },
-  { raw-sha256 = "e7a15020527881dea498a1f3b21aaad2c16a860aedc014f48087d16e70a139f1", source = "core/graph_engineering/__init__.py", resource = "graph_engineering/__init__.py" },
+  { raw-sha256 = "02a76e6ed91d307d0cc019f99cec3adf0cc21dd65a63a423a29652c1e5e304cb", source = "core/graph_engineering/__init__.py", resource = "graph_engineering/__init__.py" },
   { raw-sha256 = "2a7d82251d04e517acbf45ba26b9b5382560ce1138e707e576ddd84c1b2a6269", source = "core/graph_engineering/core/migration_rehearsal.py", resource = "graph_engineering/core/migration_rehearsal.py" },
   { raw-sha256 = "3e46f301b7d0865e8b5150b96a026e102e3609c61c11cc6ad1051c90f8c05aed", source = "core/graph_engineering/core/profile_execution.py", resource = "graph_engineering/core/profile_execution.py" },
   { raw-sha256 = "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b", source = "scripts/build_backend.py", resource = "graph_engineering/scripts/build_backend.py" },
@@ -219,13 +219,13 @@ registry-raw-sha256 = "132f11c3d7f09da0989e5130e612ee0784dc744d08d030ece3db61c40
 registry-source = "config/performance/performance-benchmark-registry-v1.json"
 registry-resource = "graph_engineering/config/performance/performance-benchmark-registry-v1.json"
 bootstrap-id = "performance-benchmark-installation-v1"
-bootstrap-digest = "sha256-jcs-v1:5170d35309524a33f50b57017aa3f8c877b81c7b80b4120ba571f4f4fc1bf6db"
-bootstrap-raw-sha256 = "71d3c5ebfc628f39b0896a6c13ccc435ff4428cdb55aebb0c6dc61271d35b821"
+bootstrap-digest = "sha256-jcs-v1:e139a39aaa645a59093ae5ee95ff62166bf283ffb87a20ab96bb47263a8c61ed"
+bootstrap-raw-sha256 = "3e02e277cb30eecfd53b4fa2647131466d790bf4c737b0b9b84927c9abc3d3b5"
 bootstrap-source = "config/performance/performance-benchmark-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/performance/performance-benchmark-installation-bootstrap-v1.json"
 profile-schema-registry-id = "urn:gew:schema-registry:profiles:1.0.0"
-profile-schema-registry-digest = "sha256-jcs-v1:c1b0446b8cfe3ab0380e33e62c596f270c1eb0bb315717a49bd0b3d82fc760eb"
-profile-schema-registry-raw-sha256 = "f2e18fb2b92898b46f900d648f9786ad2c123ed566a0912a6adfd54147ac9a08"
+profile-schema-registry-digest = "sha256-jcs-v1:72a711820c831c2f62e4eb38e481b889485fb195dcb53fe324e1a47171eb4d82"
+profile-schema-registry-raw-sha256 = "3ba21cb1f5c270c5c4d2eb7ec97a1818a53d4a7d82258a36cdac6f1e6b353c72"
 profile-schema-registry-source = "config/contracts/profile-schema-registry-v1.json"
 profile-schema-registry-resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json"
 fixture-id = "performance-fixture-v1"
@@ -269,14 +269,14 @@ distribution-version = "0.1.0"
 source-attestation-policy-id = "source-checkout-attestation-v1"
 maximum-warmup-count = 31
 maximum-repetition-count = 999
-protected-closure-digest = "sha256-jcs-v1:155c813ee4d7ac60786445790ef9901a122d0a6ac7bb1f6776f6570f5849d07e"
+protected-closure-digest = "sha256-jcs-v1:e03d0088f7642ba720736fd772e54bf2a392f23206f455f7dd0b779bad14e132"
 protected-resources = [
   { raw-sha256 = "9de5fcfdc5fdcbf6a84aa5adb4e58ecd4291af571210c4ae38b6fc74aae07f32", source = "adapters/graph_engineering/adapters/performance_correctness.py", resource = "graph_engineering/adapters/performance_correctness.py" },
   { raw-sha256 = "c180f078b5356f9d3cc156136aaa9fce6a64643cee345efe3b9cf4b840087fa1", source = "adapters/graph_engineering/adapters/performance_environment.py", resource = "graph_engineering/adapters/performance_environment.py" },
   { raw-sha256 = "7608f06360739353f012dbcef151049c4c053df54591fbe76787c728ad825976", source = "application/graph_engineering/application/performance_benchmark.py", resource = "graph_engineering/application/performance_benchmark.py" },
   { raw-sha256 = "7f584debcd9b0b9e7d955aca1554aa300210ee8b77cdbf17cb697c3ba416be4c", source = "application/graph_engineering/application/profile_coverage.py", resource = "graph_engineering/application/profile_coverage.py" },
   { raw-sha256 = "259d35a4a2eea5c1ef78604711a3c97bc0f1bcebec9d046e73747ea617d60df5", source = "application/graph_engineering/application/profile_execution.py", resource = "graph_engineering/application/profile_execution.py" },
-  { raw-sha256 = "f2e18fb2b92898b46f900d648f9786ad2c123ed566a0912a6adfd54147ac9a08", source = "config/contracts/profile-schema-registry-v1.json", resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json" },
+  { raw-sha256 = "3ba21cb1f5c270c5c4d2eb7ec97a1818a53d4a7d82258a36cdac6f1e6b353c72", source = "config/contracts/profile-schema-registry-v1.json", resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json" },
   { raw-sha256 = "7a311449277ce2e4418b4e010a53dd416058cf04bbaef730af822b802010774d", source = "config/contracts/schemas/category-completion-assessment-1.1.0.json", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-1.1.0.json" },
   { raw-sha256 = "8acf90c80a85e1bf97e36df82c1f83b1d75f367655b68a78aded14009f5fda72", source = "config/contracts/schemas/category-completion-assessment-1.2.0.json", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-1.2.0.json" },
   { raw-sha256 = "20fa60d0b301ab6ff97e31086f3377996153517b27b072cea90ad7b995a19fa2", source = "config/contracts/schemas/category-completion-assessment-input-1.1.0.json", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-input-1.1.0.json" },
@@ -333,8 +333,8 @@ schema-vectors = [
 
 [tool.gew.profile.scenario-truth]
 bootstrap-id = "urn:gew:scenario-truth-installation-bootstrap:1.0.0"
-bootstrap-digest = "sha256-jcs-v1:62f79ac273d826bccb4541e4deef3543139360cf15c510fff50e242499173c1a"
-bootstrap-raw-sha256 = "21925d9253707e07a3ae8f9e6a32be4e6e3baf6476d2e01f8a1feeeb04099aea"
+bootstrap-digest = "sha256-jcs-v1:e842a4debd50bdb3bf3ff465f9ae6e7bf9a1a9cdf36eb4b77405762713e3810c"
+bootstrap-raw-sha256 = "52dcbfcfc35cd8f3a50ead7b02348abe8b86f8068b5a36047cba9007b4ef6277"
 bootstrap-source = "config/profiles/scenario-truth-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/profiles/scenario-truth-installation-bootstrap-v1.json"
 policy-source = "config/profiles/scenario-truth-policy-registry-v1.json"
@@ -409,8 +409,8 @@ registry-resource = "graph_engineering/config/profiles/profile-real-e2e-binding-
 
 [tool.gew.profile.coverage-execution-plan]
 plan-id = "urn:gew:profile-coverage-execution-plan:wp08-s4-v1"
-plan-digest = "sha256-jcs-v1:326ef4765d0773776836434ede2f43219a11ab16c79211e814b979acfcc9e98e"
-plan-raw-sha256 = "d79f1e4b54e9afb7c6dd2873631e709537e336d666845c3c2630a0a301f77ce7"
+plan-digest = "sha256-jcs-v1:1a5fc4cddfa63dd049bb4827ba90643fee3bf055848e19cc6b543bead5d80c47"
+plan-raw-sha256 = "850790e2b0918a6aed6f92ff3b25bdb7625f16789d053cdc8fa2211226a37ff0"
 plan-source = "config/profiles/profile-coverage-execution-plan-v1.json"
 plan-resource = "graph_engineering/config/profiles/profile-coverage-execution-plan-v1.json"
 oracle-vectors = [
@@ -456,7 +456,9 @@ oracle-vectors = [
   { oracle-id = "ORA-PROFILE-HOTFIX", profile-id = "hotfix", selector-kind = "mandatory", column-id = "revise", scenario-id = "", category-boundary-case-id = "", overlay-id = "full-planned", pass-task-id = "task:wp08-coverage:gew-pro-hotfix-revise-p", reject-task-id = "task:wp08-coverage:gew-pro-hotfix-revise-r", oracle-digest = "sha256-jcs-v1:62b3fb0228f957d5110ef636a19dbba9ef150f5cad64eadb80df42b7bb95c746", oracle-raw-sha256 = "30e0f44231a4e03529ceb833cb54b9a7ff03f8357189f5c340f7c1234895b2a8", oracle-source = "config/test-oracles/profile-hotfix-revise-v1.json", oracle-resource = "graph_engineering/config/test-oracles/profile-hotfix-revise-v1.json" },
   { oracle-id = "ORA-PROFILE-HOTFIX", profile-id = "hotfix", selector-kind = "mandatory", column-id = "rollback", scenario-id = "", category-boundary-case-id = "", overlay-id = "full-planned", pass-task-id = "task:wp08-coverage:gew-pro-hotfix-rollback-p", reject-task-id = "task:wp08-coverage:gew-pro-hotfix-rollback-r", oracle-digest = "sha256-jcs-v1:643595cb668075198354102105f4459c016488e448d1be5e67d5f7f2f9c2df53", oracle-raw-sha256 = "7debec5a532048a89a1eeda0acc96f9e8ce1de7a7df6638586bc91410d8a484f", oracle-source = "config/test-oracles/profile-hotfix-rollback-v1.json", oracle-resource = "graph_engineering/config/test-oracles/profile-hotfix-rollback-v1.json" },
   { oracle-id = "ORA-PROFILE-HOTFIX", profile-id = "hotfix", selector-kind = "mandatory", column-id = "target", scenario-id = "", category-boundary-case-id = "", overlay-id = "full-planned", pass-task-id = "task:wp08-coverage:gew-pro-hotfix-target-p", reject-task-id = "task:wp08-coverage:gew-pro-hotfix-target-r", oracle-digest = "sha256-jcs-v1:618f5ec8d18c012f2e6903d61d7494bf7d44049d048e8978793ebcb2b85f3560", oracle-raw-sha256 = "f8fdc66398238679a3c7df336fefb72af3986bef65de6fbfeac54455a74c7208", oracle-source = "config/test-oracles/profile-hotfix-target-v1.json", oracle-resource = "graph_engineering/config/test-oracles/profile-hotfix-target-v1.json" },
+  { oracle-id = "ORA-PROFILE-HOTFIX", profile-id = "hotfix", selector-kind = "scenario", column-id = "boundary", scenario-id = "emergency-baseline", category-boundary-case-id = "GEW-PSC-HOTFIX-EMERGENCY-BASELINE-P", overlay-id = "full-planned", pass-task-id = "task:wp08-coverage:gew-psc-hotfix-emergency-baseline-p", reject-task-id = "task:wp08-coverage:gew-psc-hotfix-emergency-baseline-r", oracle-digest = "sha256-jcs-v1:7dd2970d5eb34211c8e274282bc736ca255e39d3f0f699a30d423375b0234b6c", oracle-raw-sha256 = "1d1509f52d27bb78eed64ceff0b9cbb8d8b12c41579cdc37aa12bdf964539729", oracle-source = "config/test-oracles/profile-hotfix-emergency-baseline-v1.json", oracle-resource = "graph_engineering/config/test-oracles/profile-hotfix-emergency-baseline-v1.json" },
   { oracle-id = "ORA-PROFILE-HOTFIX", profile-id = "hotfix", selector-kind = "scenario", column-id = "boundary", scenario-id = "minimal-patch", category-boundary-case-id = "GEW-PSC-HOTFIX-MINIMAL-PATCH-P", overlay-id = "full-planned", pass-task-id = "task:wp08-coverage:gew-psc-hotfix-minimal-patch-p", reject-task-id = "task:wp08-coverage:gew-psc-hotfix-minimal-patch-r", oracle-digest = "sha256-jcs-v1:936cd1009b0dbe1f5e00f0aec365342294400a0c7faa60c50e8a1833dcb8c783", oracle-raw-sha256 = "24ac8acc4cd3537b7afdc0add8e1dec6f6ab2e63eefc5fd3b7c0c2c01b679f20", oracle-source = "config/test-oracles/profile-hotfix-minimal-patch-v1.json", oracle-resource = "graph_engineering/config/test-oracles/profile-hotfix-minimal-patch-v1.json" },
+  { oracle-id = "ORA-PROFILE-HOTFIX", profile-id = "hotfix", selector-kind = "scenario", column-id = "boundary", scenario-id = "production-like-gate", category-boundary-case-id = "GEW-PSC-HOTFIX-PRODUCTION-LIKE-GATE-P", overlay-id = "full-planned", pass-task-id = "task:wp08-coverage:gew-psc-hotfix-production-like-gate-p", reject-task-id = "task:wp08-coverage:gew-psc-hotfix-production-like-gate-r", oracle-digest = "sha256-jcs-v1:33e1875dc92b45bb954a4221cc62a3256772a0b08ca20f2be152bb6b03b3917a", oracle-raw-sha256 = "dabbebdda7fac6aa4a4a85604ff1f4037bce543b26074eaf3dc0635e83f22e91", oracle-source = "config/test-oracles/profile-hotfix-production-like-gate-v1.json", oracle-resource = "graph_engineering/config/test-oracles/profile-hotfix-production-like-gate-v1.json" },
   { oracle-id = "ORA-PROFILE-INCIDENT-RESPONSE", profile-id = "incident-response", selector-kind = "mandatory", column-id = "artifacts", scenario-id = "", category-boundary-case-id = "", overlay-id = "full-planned", pass-task-id = "task:wp08-coverage:gew-pro-incident-response-artifacts-p", reject-task-id = "task:wp08-coverage:gew-pro-incident-response-artifacts-r", oracle-digest = "sha256-jcs-v1:cfa70842c07da0d70fb088769579aed6a96898712978fea50cdbecab9be5e8c4", oracle-raw-sha256 = "da5e36690d9bf99fc1737313a3f39b1403fa101907079bbcdc0b50b5f87b8283", oracle-source = "config/test-oracles/profile-incident-response-artifacts-v1.json", oracle-resource = "graph_engineering/config/test-oracles/profile-incident-response-artifacts-v1.json" },
   { oracle-id = "ORA-PROFILE-INCIDENT-RESPONSE", profile-id = "incident-response", selector-kind = "mandatory", column-id = "authority", scenario-id = "", category-boundary-case-id = "", overlay-id = "full-planned", pass-task-id = "task:wp08-coverage:gew-pro-incident-response-authority-p", reject-task-id = "task:wp08-coverage:gew-pro-incident-response-authority-r", oracle-digest = "sha256-jcs-v1:ffa419bbd34d01fb5661cbf011d71b341d21d61880642c5b5c731d9199d1a5b4", oracle-raw-sha256 = "9bd9c965acbc545494f69fa26b7a26c79188425b0d59b3c9bc9a599690cd3982", oracle-source = "config/test-oracles/profile-incident-response-authority-v1.json", oracle-resource = "graph_engineering/config/test-oracles/profile-incident-response-authority-v1.json" },
   { oracle-id = "ORA-PROFILE-INCIDENT-RESPONSE", profile-id = "incident-response", selector-kind = "mandatory", column-id = "boundary", scenario-id = "", category-boundary-case-id = "", overlay-id = "full-planned", pass-task-id = "task:wp08-coverage:gew-pro-incident-response-boundary-p", reject-task-id = "task:wp08-coverage:gew-pro-incident-response-boundary-r", oracle-digest = "sha256-jcs-v1:71ae3591f556af584a433cff162f8770429ce52b042ffbb67d92cbaf714a2097", oracle-raw-sha256 = "820dc5b896ef4b3f4869848afd811d950b16ba0a95b6e48bbe1f9bcce180ad11", oracle-source = "config/test-oracles/profile-incident-response-boundary-v1.json", oracle-resource = "graph_engineering/config/test-oracles/profile-incident-response-boundary-v1.json" },
@@ -691,9 +693,11 @@ protected-sources = [
   "config/test-oracles/profile-hotfix-authority-v1.json",
   "config/test-oracles/profile-hotfix-boundary-v1.json",
   "config/test-oracles/profile-hotfix-drift-v1.json",
+  "config/test-oracles/profile-hotfix-emergency-baseline-v1.json",
   "config/test-oracles/profile-hotfix-invalidation-v1.json",
   "config/test-oracles/profile-hotfix-minimal-patch-v1.json",
   "config/test-oracles/profile-hotfix-normal-v1.json",
+  "config/test-oracles/profile-hotfix-production-like-gate-v1.json",
   "config/test-oracles/profile-hotfix-real-e2e-v1.json",
   "config/test-oracles/profile-hotfix-recovery-v1.json",
   "config/test-oracles/profile-hotfix-review-v1.json",
@@ -942,9 +946,11 @@ protected-resources = [
   "graph_engineering/config/test-oracles/profile-hotfix-authority-v1.json",
   "graph_engineering/config/test-oracles/profile-hotfix-boundary-v1.json",
   "graph_engineering/config/test-oracles/profile-hotfix-drift-v1.json",
+  "graph_engineering/config/test-oracles/profile-hotfix-emergency-baseline-v1.json",
   "graph_engineering/config/test-oracles/profile-hotfix-invalidation-v1.json",
   "graph_engineering/config/test-oracles/profile-hotfix-minimal-patch-v1.json",
   "graph_engineering/config/test-oracles/profile-hotfix-normal-v1.json",
+  "graph_engineering/config/test-oracles/profile-hotfix-production-like-gate-v1.json",
   "graph_engineering/config/test-oracles/profile-hotfix-real-e2e-v1.json",
   "graph_engineering/config/test-oracles/profile-hotfix-recovery-v1.json",
   "graph_engineering/config/test-oracles/profile-hotfix-review-v1.json",

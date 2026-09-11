@@ -1,4 +1,167 @@
 {
+  "p2b_records": [
+    {
+      "record_id": "p2b-verification-2026-09-11-r0",
+      "reviewer_id": "/root/p2b_verification_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "verification",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "record_id": "p2b-verification-2026-09-11-r0",
+          "frozen_targets": 44,
+          "raw_hash_and_byte_mismatches": [],
+          "aggregate_sha256": "e599a923e9d45944677fe2fbbc27dd3df41eff8d861b7eded3a45fc7be5d81bc",
+          "aggregate_checked_before_and_after_tests": true,
+          "upstream_reconciled_r1_decision_bindings_match": true,
+          "baseline_commit": "6c3e67c011925fb41d49d0781c3fd06e619d708b",
+          "envelope_targets": 174,
+          "outside_envelope": [],
+          "baseline_envelope_prd_and_three_protected_files_unchanged": true,
+          "baseline_top_level_records_preserved": true,
+          "baseline_bindings_retained": 226,
+          "baseline_oracle_bindings_retained": 113,
+          "added_bindings": 4,
+          "added_oracle_bindings": 2,
+          "recorded_current_tests": {
+            "record_id": "p2b-bounded-verification-2026-09-11-r1",
+            "tests": 47,
+            "elapsed_seconds": 283.501,
+            "timeout_seconds": 600,
+            "exit_code": 0
+          },
+          "recorded_isolated_wheel_packaging": {
+            "tests": 3,
+            "elapsed_seconds": 8.632,
+            "timeout_seconds": 180,
+            "result": "PASS"
+          },
+          "independent_tests": {
+            "selectors": [
+              "tests.unit.test_wp08_scenario_truth.GuardedScenarioTruthTests",
+              "tests.contract.test_wp08_remaining54_contracts.Remaining54P2bContractsTest",
+              "tests.security.test_wp08_remaining54_authority.ScenarioTruthSecurityTests"
+            ],
+            "tests": 19,
+            "elapsed_seconds": 7.878,
+            "subprocess_elapsed_seconds": 8.074,
+            "timeout_seconds": 180,
+            "exit_code": 0,
+            "strict_serial": true,
+            "fail_fast": true,
+            "pythonpath": "core:adapters:application:storage:.",
+            "installation_control_root": "/private/tmp/gew-p2b-bounded.GUnEdW/control",
+            "python_flags": [
+              "-B",
+              "-X",
+              "gew_installation_control_root=/private/tmp/gew-p2b-bounded.GUnEdW/control"
+            ]
+          },
+          "diff_check_exit_code": 0,
+          "acceptance_limit": "Bounded P2b verification only. Plan230/oracle115 is configuration shape, not cumulative 230-valid/44-missing acceptance. No cumulative run, monitoring restoration, source edits, commit or other irreversible action was performed by this reviewer."
+        }
+      }
+    },
+    {
+      "record_id": "p2b-candidate-2026-09-11-r0",
+      "reviewer_id": "/root/p2b_candidate_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "candidate",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "record_id": "p2b-candidate-2026-09-11-r0",
+          "raw_file_count": 44,
+          "raw_hash_or_byte_mismatches": [],
+          "aggregate_sha256": "e599a923e9d45944677fe2fbbc27dd3df41eff8d861b7eded3a45fc7be5d81bc",
+          "rechecked_at_review_completion": true,
+          "upstream_reducer_replays_exact": [
+            "p2b-document-check-2026-09-11-r0",
+            "p2b-implementation-2026-09-11-r0",
+            "p2b-implementation-2026-09-11-r1",
+            "p2b-verification-2026-09-11-r0"
+          ],
+          "r1_state_binding": "p2b-implementation-2026-09-11-r1-reconciled",
+          "human_repair_gate": "GEW-REMAINING54-P2B-R0-THREE-FINDINGS-V1 explicitly resolves the preserved R0 E_SCOPE gate; all three finding IDs are resolved by the independent R1 verdict.",
+          "preserved_baseline_commit": "6c3e67c011925fb41d49d0781c3fd06e619d708b",
+          "preserved_baseline_record_fields": 259,
+          "envelope_targets_unchanged": 174,
+          "protected_three_files_and_approved_intent_unchanged": true,
+          "outside_envelope": [],
+          "plan": {
+            "retained_bindings": 226,
+            "retained_oracle_bindings": 113,
+            "added_bindings": 4,
+            "added_oracle_bindings": 2
+          },
+          "frozen_test_results": {
+            "bounded_r1": "47 tests, 283.501 seconds, exit 0, timeout 600 seconds",
+            "isolated_packaging": "3 tests, 8.632 seconds, PASS, timeout 180 seconds",
+            "independent_verification": "19 tests, 7.878 seconds, exit 0, timeout 180 seconds; overlaps targeted coverage"
+          },
+          "acceptance_trace": "PRD US-11/FR-06/FR-07/FR-10/FR-12, ADR-0008 hotfix rows, and the 2026-09-11 P2b Spec/Test Plan are supported by the guarded baseline/proof/currentness, complete rejection-vector, lifecycle/zero-replay, schema-profile and package checks. Earlier failures and pending-at-start records remain preserved beside their completion record.",
+          "diff_check_exit_code": 0,
+          "review_boundary": "Read-only static Candidate review; no tests or source edits. PASS covers only the two bounded local hotfix scenarios. Plan230/oracle115 is not cumulative 230-valid/44-missing acceptance, Remaining54 completion or production evidence. Cumulative execution, monitoring restoration, P2c/P2d/P3 and all irreversible or external actions remain outside this approval."
+        }
+      }
+    },
+    {
+      "record_id": "p2b-technical-2026-09-11-r0",
+      "reviewer_id": "/root/p2b_technical_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "review",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "record_id": "p2b-technical-2026-09-11-r0",
+          "review_method": "Independent read-only static review; no tests, edits, network operations or further agents.",
+          "source_binding": {
+            "exact_targets": 44,
+            "raw_hash_or_size_mismatches": [],
+            "aggregate_sha256": "e599a923e9d45944677fe2fbbc27dd3df41eff8d861b7eded3a45fc7be5d81bc",
+            "aggregate_rechecked_at_completion": true,
+            "verification_and_candidate_decision_input_digests_match": true
+          },
+          "technical_acceptance": [
+            "application/graph_engineering/application/scenario_truth.py capture_baseline and execute require an original observer-owned, non-serializable baseline receipt; current A targets, controls, rollback readiness and configured change budget are checked before mutation.",
+            "The guarded proof executes the configured impact/health/rollback order, reads actual candidate JSON with exact scalar-type comparison, and reobserves targets and controls before issuance. Started writes increment mutation_count, preventing post-patch failures from issuing zero-write rejection receipts.",
+            "Guarded rejection issuance and subsequent currentness reread the task marker using no-follow private-root checks. Complete ordered receipt aggregation also checks original identities, bindings, target/control snapshots and distinct roots.",
+            "Restored guarded evidence validates installed fixture/policy, complete binding, proof relationships and current resources. The existing CategoryAssessmentResolver requires the unique task-current referenced CAS object; restoration does not execute patches.",
+            "Only the two hotfix fixture/policy rows changed. Scenario names, environment values, controls, predicates and change budgets remain configuration-owned.",
+            "All six touched schema documents have bounded rejection vectors and no unbounded array schemas. Package protected-source ordering is canonical; all previous source/resource pairs remain unchanged, with exactly the two authorized oracle pairs added. All 288 inspected pyproject raw source pins match current bytes."
+          ],
+          "preservation": {
+            "baseline_commit_and_current_head": "6c3e67c011925fb41d49d0781c3fd06e619d708b",
+            "envelope_targets": 174,
+            "envelope_and_protected_three_files_unchanged": true,
+            "outside_envelope": [],
+            "preserved_baseline_top_level_record_fields": 259,
+            "retained_bindings_exact": 226,
+            "retained_oracle_bindings_exact": 113,
+            "added_bindings": 4,
+            "added_oracle_bindings": 2,
+            "baseline_oracle_raw_changes": []
+          },
+          "recorded_verification": {
+            "completed_bounded_r1": "47 tests; 283.501 seconds; exit 0; timeout 600 seconds.",
+            "isolated_wheel_and_packaging": "3 tests; 8.632 seconds; PASS; timeout 180 seconds.",
+            "independent_verification": "19 tests; 7.878 seconds; exit 0; timeout 180 seconds.",
+            "historical_failures_and_pending_records": "Preserved alongside the separately recorded completed result."
+          },
+          "authority_boundary": "PASS covers only bounded local hotfix/emergency-baseline and hotfix/production-like-gate technical quality. Plan230/oracle115 is configuration shape, not cumulative acceptance, Remaining54 completion or production evidence. This verdict grants no commit, push, merge, deployment, release, cumulative execution, monitoring restoration, P2c/P2d/P3 or external-communication authority."
+        }
+      }
+    }
+  ],
   "schema_version": "1.0",
   "task_id": "GEW-REMAINING54-V1",
   "records": [

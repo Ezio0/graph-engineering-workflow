@@ -24,6 +24,7 @@ from graph_engineering.core.scenario_truth import (
     ScenarioTruthRegistry,
     evaluate_scenario_assertions,
     issue_scenario_truth_observation,
+    minimal_change_bytes,
     parse_scenario_truth_registries,
 )
 
@@ -287,12 +288,106 @@ def _read_private_target(root: pathlib.Path, path_id: str, *, root_identity=None
             return stream.read()
 
 
+class ScenarioBaselineReceipt:
+    """An identity-only, observer-owned pre-mutation capability."""
+
+    __slots__ = ()
+
+    def __init__(self):
+        raise TypeError("scenario baseline is observer-issued")
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("scenario baseline authority is not serializable")
+
+
+def _control_observations(fixture, root, root_identity):
+    rows = []
+    for control in fixture["execution_contract"]["controls"]:
+        body = _read_private_target(root, control["path_id"], root_identity=root_identity)
+        if body != control["expected_value"].encode("ascii"):
+            raise ScenarioTruthError("scenario control is stale or unauthorized")
+        rows.append({"control_id": control["control_id"], "kind": control["kind"],
+                     "path_id": control["path_id"],
+                     "value_digest": "sha256:" + hashlib.sha256(body).hexdigest()})
+    return rows
+
+
+def _baseline_projection(binding, fixture, pins, root, root_identity):
+    task_id = _text(binding["task_id"], "guarded task ID")
+    if (binding["branch_id"] != "branch:" + task_id
+            or binding["ref_id"] != "ref:" + task_id
+            or _read_private_target(root, ".scenario-truth-root", root_identity=root_identity)
+            != task_id.encode("ascii")):
+        raise ScenarioTruthError("scenario guarded private root binding changed")
+    contract = fixture["execution_contract"]
+    targets = fixture["target_roles"]
+    if (fixture["rollback_or_compensation"]["required"] is not True
+            or any(row["rollback_value"] != row["baseline_value"]
+                   or row["rollback_state_id"] != row["baseline_state_id"] for row in targets)):
+        raise ScenarioTruthError("scenario rollback readiness is incomplete")
+    change = sum(minimal_change_bytes(row["baseline_value"].encode("ascii"),
+                                     row["candidate_value"].encode("ascii")) for row in targets)
+    if change > contract["minimal_change_budget"]:
+        raise ScenarioTruthError("scenario minimal change budget exceeded")
+    return {
+        "binding": thaw(binding), "installation_pins": thaw(pins),
+        "root_path": os.fspath(root), "root_identity": list(root_identity),
+        "contract": thaw(contract),
+        "baseline_targets": [ScenarioTruthObservationFactory._target_observation(
+            row, row["baseline_value"].encode("ascii"), row["baseline_state_id"])
+            for row in targets],
+        "control_observations": _control_observations(fixture, root, root_identity),
+        "pre_mutation_sequence": 0, "change_bytes": change,
+    }
+
+
+def _guarded_proof(binding, fixture, pins, root, root_identity):
+    """Recompute deterministic relationships and freshly read gate predicates."""
+    baseline = _baseline_projection(binding, fixture, pins, root, root_identity)
+    contract = fixture["execution_contract"]
+    targets = {row["role_id"]: row for row in fixture["target_roles"]}
+    phases = [{"phase_id": "baseline-captured", "sequence": 0, "mutation_count": 0},
+              {"phase_id": "candidate-observed", "sequence": 1, "mutation_count": len(targets)}]
+    results = []
+    for gate in contract["ordered_gates"]:
+        if gate["kind"] == "impact":
+            for row in targets.values():
+                if _read_private_target(root, row["path_id"], root_identity=root_identity) != row["candidate_value"].encode("ascii"):
+                    raise ScenarioTruthError("scenario impact gate target is stale")
+        elif gate["kind"] == "health":
+            for predicate in contract["health_predicates"]:
+                row = targets[predicate["target_role"]]
+                body = _read_private_target(root, row["path_id"], root_identity=root_identity)
+                actual = _strict_json(body, "scenario candidate health")
+                for field in predicate["field_path"]:
+                    if type(actual) is not dict or field not in actual:
+                        raise ScenarioTruthError("scenario health field is missing")
+                    actual = actual[field]
+                if type(actual) is not type(predicate["expected"]) or actual != predicate["expected"]:
+                    raise ScenarioTruthError("scenario health predicate failed")
+        elif gate["kind"] == "rollback":
+            # Baseline projection above verified installed rollback A readiness.
+            _control_observations(fixture, root, root_identity)
+        else:
+            raise ScenarioTruthError("scenario gate kind is unsupported")
+        results.append({"gate_id": gate["gate_id"], "kind": gate["kind"], "passed": True})
+        phases.append({"phase_id": gate["gate_id"], "sequence": len(phases),
+                       "mutation_count": len(targets)})
+    if _control_observations(fixture, root, root_identity) != baseline["control_observations"]:
+        raise ScenarioTruthError("scenario controls changed during gate")
+    for row in targets.values():
+        if _read_private_target(root, row["path_id"], root_identity=root_identity) != row["candidate_value"].encode("ascii"):
+            raise ScenarioTruthError("scenario target changed during gate")
+    return {"baseline": baseline, "ordered_phases": phases, "gate_results": results}
+
+
 class ScenarioTruthObservationFactory:
     """One opaque task/profile/scenario observer over a private local root."""
 
     __slots__ = (
         "_owner", "_binding", "_policy_row", "_fixture_row", "_root",
         "_mutation_count", "_executed", "_request", "_root_identity",
+        "_baseline_receipts",
     )
 
     def __init__(self, *args: object, **kwargs: object) -> None:
@@ -315,27 +410,61 @@ class ScenarioTruthObservationFactory:
     def _read_target(self, path_id: str) -> bytes:
         return _read_private_target(self._root, path_id, root_identity=self._root_identity)
 
-    def reject(self, attack_id: str, request: object) -> ScenarioTruthRejectionReceipt:
+    def capture_baseline(self) -> ScenarioBaselineReceipt:
+        self._owner.require_observer(self)
+        if ("execution_contract" not in self._fixture_row
+                or self._executed or self._mutation_count):
+            raise ScenarioTruthError("scenario baseline is absent or late")
+        for row in self._fixture_row["target_roles"]:
+            if self._read_target(row["path_id"]) != row["baseline_value"].encode("ascii"):
+                raise ScenarioTruthError("scenario baseline is not current A")
+        projection = freeze(_baseline_projection(self._binding, self._fixture_row,
+            self._owner.installation_pins, self._root, self._root_identity))
+        receipt = object.__new__(ScenarioBaselineReceipt)
+        self._baseline_receipts[id(receipt)] = (receipt, projection)
+        return receipt
+
+    def _require_baseline(self, receipt):
+        issued = self._baseline_receipts.get(id(receipt))
+        if (type(receipt) is not ScenarioBaselineReceipt or issued is None
+                or issued[0] is not receipt or self._executed or self._mutation_count):
+            raise ScenarioTruthError("scenario baseline is missing, cloned, foreign, or late")
+        projection = freeze(_baseline_projection(self._binding, self._fixture_row,
+            self._owner.installation_pins, self._root, self._root_identity))
+        if projection != issued[1]:
+            raise ScenarioTruthError("scenario baseline binding or controls changed")
+        return issued[1]
+
+    def reject(self, attack_id: str, request: object, *, baseline_receipt=None) -> ScenarioTruthRejectionReceipt:
         self._owner.require_observer(self)
         if self._executed or self._mutation_count:
             raise ScenarioTruthError("scenario rejection observer is one-shot")
         if attack_id not in self._fixture_row.get("rejection_attack_ids", ()):
             raise ScenarioTruthError("scenario rejection attack is not installed")
+        root_marker_digest = self._guarded_root_marker_digest()
         before_request = copy.deepcopy(request)
         before_targets = self.target_bytes()
-        if not self._matches_rejection(attack_id, request, before_targets):
+        before_controls = self._control_bytes()
+        if ("execution_contract" in self._fixture_row
+                and attack_id not in ("missing-baseline", "foreign-baseline")):
+            issued_baseline = self._baseline_receipts.get(id(baseline_receipt))
+            if issued_baseline is None or issued_baseline[0] is not baseline_receipt:
+                raise ScenarioTruthError("scenario rejection prerequisite baseline is missing")
+        if not self._matches_rejection(attack_id, request, before_targets, baseline_receipt):
             raise ScenarioTruthError("scenario rejection attack label is false")
         try:
-            self.execute(request)
+            self.execute(request, baseline_receipt=baseline_receipt)
         except ScenarioTruthError as error:
             error_message = str(error)
         else:
             raise ScenarioTruthError("scenario rejection unexpectedly succeeded")
         if (request != before_request or self.target_bytes() != before_targets
+                or self._control_bytes() != before_controls
+                or self._guarded_root_marker_digest() != root_marker_digest
                 or self._mutation_count != 0 or self._executed):
             raise ScenarioTruthError("scenario rejection changed state or input")
         self._executed = True
-        projection = freeze({
+        raw_projection = {
             "attack_id": attack_id, "binding": thaw(self._binding),
             "root_path": os.fspath(self._root),
             "root_identity": list(self._root_identity),
@@ -344,7 +473,14 @@ class ScenarioTruthObservationFactory:
                         for role, body in before_targets],
             "mutation_count": 0, "request_unchanged": True,
             "target_bytes_unchanged": True,
-        })
+        }
+        if "execution_contract" in self._fixture_row:
+            raw_projection["root_marker_digest"] = root_marker_digest
+            baseline = self._baseline_receipts.get(id(baseline_receipt))
+            raw_projection["baseline_argument"] = (thaw(baseline[1]) if baseline else None)
+            raw_projection["controls"] = [{"control_id": key, "sha256": hashlib.sha256(body).hexdigest()}
+                                           for key, body in before_controls]
+        projection = freeze(raw_projection)
         receipt = object.__new__(ScenarioTruthRejectionReceipt)
         for name in ("attack_id", "root_path", "mutation_count", "request_unchanged",
                      "target_bytes_unchanged"):
@@ -355,7 +491,23 @@ class ScenarioTruthObservationFactory:
         )
         return receipt
 
-    def _matches_rejection(self, attack_id: str, request: object, targets: object) -> bool:
+    def _guarded_root_marker_digest(self):
+        if "execution_contract" not in self._fixture_row:
+            return None
+        task_id = self._binding["task_id"]
+        marker = self._read_target(".scenario-truth-root")
+        if (marker != task_id.encode("ascii")
+                or self._binding["branch_id"] != "branch:" + task_id
+                or self._binding["ref_id"] != "ref:" + task_id):
+            raise ScenarioTruthError("scenario rejection root marker binding changed")
+        return "sha256:" + hashlib.sha256(marker).hexdigest()
+
+    def _control_bytes(self):
+        contract = self._fixture_row.get("execution_contract")
+        return tuple((row["control_id"], self._read_target(row["path_id"]))
+                     for row in contract["controls"]) if contract else ()
+
+    def _matches_rejection(self, attack_id: str, request: object, targets: object, baseline_receipt=None) -> bool:
         """Recognize universal structural failure classes, not caller labels."""
         if type(request) is not dict or type(request.get("targets")) is not list:
             return False
@@ -364,6 +516,25 @@ class ScenarioTruthObservationFactory:
             return False
         expected = self._request["targets"]
         roles = [row.get("role_id") for row in rows]
+        if "execution_contract" in self._fixture_row:
+            if attack_id == "missing-baseline":
+                return request == self._request and baseline_receipt is None
+            if attack_id == "foreign-baseline":
+                return (request == self._request and type(baseline_receipt) is ScenarioBaselineReceipt
+                        and id(baseline_receipt) not in self._baseline_receipts)
+            if attack_id == "stale-control":
+                return (request == self._request and self._control_bytes() != tuple(
+                    (row["control_id"], row["expected_value"].encode("ascii"))
+                    for row in self._fixture_row["execution_contract"]["controls"]))
+            if attack_id == "wrong-environment":
+                return request.get("environment") != self._request["environment"]
+            if attack_id == "gate-omission":
+                return (type(request.get("ordered_gate_ids")) is list
+                        and len(request["ordered_gate_ids"]) < len(self._request["ordered_gate_ids"]))
+            if attack_id == "gate-reorder":
+                return (type(request.get("ordered_gate_ids")) is list
+                        and request["ordered_gate_ids"] != self._request["ordered_gate_ids"]
+                        and sorted(request["ordered_gate_ids"]) == sorted(self._request["ordered_gate_ids"]))
         if attack_id == "missing-role":
             return len(rows) == len(expected) and any("role_id" not in row for row in rows)
         if attack_id == "extra-role":
@@ -385,7 +556,10 @@ class ScenarioTruthObservationFactory:
         return False
 
     def _validate_request(self, request: object) -> Mapping[str, object]:
-        if type(request) is not dict or tuple(request) != _REQUEST_FIELDS:
+        fields = _REQUEST_FIELDS
+        if "execution_contract" in self._fixture_row:
+            fields = (*fields, "environment", "ordered_gate_ids")
+        if type(request) is not dict or tuple(request) != fields:
             raise ScenarioTruthError("scenario request fields/order are not exact")
         if freeze(request) != freeze(self._request):
             raise ScenarioTruthError("scenario request differs from installed policy")
@@ -405,11 +579,15 @@ class ScenarioTruthObservationFactory:
             raise ScenarioTruthError("scenario target request aliases a role or path")
         return request
 
-    def execute(self, request: object) -> ScenarioTruthObservation:
+    def execute(self, request: object, *, baseline_receipt=None) -> ScenarioTruthObservation:
         value = self._validate_request(request)
         self._owner.require_observer(self)
-        if self._executed:
+        if self._executed or self._mutation_count:
             raise ScenarioTruthError("scenario observer is one-shot")
+        guarded = "execution_contract" in self._fixture_row
+        baseline = self._require_baseline(baseline_receipt) if guarded else None
+        if not guarded and baseline_receipt is not None:
+            raise ScenarioTruthError("unguarded scenario cannot consume a baseline authority")
         before: list[dict[str, object]] = []
         transitions: list[dict[str, object]] = []
         after: list[dict[str, object]] = []
@@ -431,9 +609,11 @@ class ScenarioTruthObservationFactory:
                     if stream.read() != old_body:
                         raise ScenarioTruthError("scenario target changed before mutation")
                     stream.seek(0)
+                    # Count a started write even if an I/O fault leaves a partial
+                    # patch. Such an observer can never issue zero-write R proof.
+                    self._mutation_count += 1
                     stream.write(new_body)
                     stream.truncate()
-            self._mutation_count += 1
             transitions.append({
                 "phase_id": self._fixture_row["phase_expectations"][0]["phase_id"],
                 "role_id": target["role_id"],
@@ -511,6 +691,12 @@ class ScenarioTruthObservationFactory:
             "owner_route": self._policy_row["owner_route_policy"],
             "scenario_outcome": self._policy_row["success_outcome"],
         }
+        if guarded:
+            proof = _guarded_proof(self._binding, self._fixture_row,
+                self._owner.installation_pins, self._root, self._root_identity)
+            if freeze(proof["baseline"]) != baseline:
+                raise ScenarioTruthError("scenario baseline changed during execution")
+            body["execution_proof"] = proof
         observation = issue_scenario_truth_observation(body, authority=self)
         self._executed = True
         self._owner.register_observation(self, observation)
@@ -641,6 +827,8 @@ class ScenarioTruthRegistryFactory:
         )
         result = object.__new__(cls)
         result._registry = registry
+        result._schema_documents = schema_documents
+        result._resolve_schema = resolve_schema
         result._authority = _RegistryAuthority(result, registry)
         result._issued_observers: dict[int, ScenarioTruthObservationFactory] = {}
         result._issued_observations: dict[int, tuple[ScenarioTruthObservationFactory, ScenarioTruthObservation]] = {}
@@ -732,13 +920,21 @@ class ScenarioTruthRegistryFactory:
         marker = root / ".scenario-truth-root"
         marker.write_text(task_id, encoding="ascii")
         os.chmod(marker, 0o600)
-        for target in fixture_row["target_roles"]:
-            relative = pathlib.PurePosixPath(target["path_id"])
-            if relative.is_absolute() or ".." in relative.parts or "\\" in target["path_id"]:
-                raise ScenarioTruthError("scenario fixture path is unsafe")
+        seeds = [(row["path_id"], row["baseline_value"]) for row in fixture_row["target_roles"]]
+        contract = fixture_row.get("execution_contract")
+        if contract is not None:
+            seeds.extend((row["path_id"], row["expected_value"]) for row in contract["controls"])
+        for path_id, seed in seeds:
+            relative = pathlib.PurePosixPath(path_id)
+            if (relative.is_absolute() or any(part in ("", ".", "..") for part in path_id.split("/"))
+                    or "\\" in path_id or path_id == ".scenario-truth-root"
+                    or any(other != path_id and other.startswith(path_id + "/") for other, _ in seeds)):
+                raise ScenarioTruthError("scenario fixture path is unsafe or aliased")
+        for path_id, seed in seeds:
+            relative = pathlib.PurePosixPath(path_id)
             path = root / relative
             path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-            path.write_bytes(target["baseline_value"].encode("ascii"))
+            path.write_bytes(seed.encode("ascii"))
             os.chmod(path, 0o600)
         result = object.__new__(ScenarioTruthObservationFactory)
         result._owner = self
@@ -749,6 +945,7 @@ class ScenarioTruthRegistryFactory:
         result._root_identity = _identity(metadata)
         result._mutation_count = 0
         result._executed = False
+        result._baseline_receipts = {}
         targets = [
             {
                 "role_id": row["role_id"],
@@ -767,6 +964,12 @@ class ScenarioTruthRegistryFactory:
             "ordered_phase_ids": list(policy_row["ordered_phase_ids"]),
             "rollback_or_compensation": thaw(fixture_row["rollback_or_compensation"]),
         }
+        if contract is not None:
+            result._request["environment"] = {
+                "environment_id": contract["environment_id"],
+                "classification": contract["environment_classification"],
+            }
+            result._request["ordered_gate_ids"] = [row["gate_id"] for row in contract["ordered_gates"]]
         self._issued_observers[id(result)] = result
         return result
 
@@ -783,7 +986,14 @@ class ScenarioTruthRegistryFactory:
         self, observer: ScenarioTruthObservationFactory, observation: ScenarioTruthObservation,
     ) -> None:
         self.require_observer(observer)
-        self._issued_observations[id(observation)] = (observer, observation)
+        self._validate_observation_schema(observation.to_dict())
+        self._issued_observations[id(observation)] = (observer, observation, freeze(observation.to_dict()))
+
+    def _validate_observation_schema(self, value):
+        schema_id = "urn:gew:schema:scenario-truth-observation:1.0.0"
+        if validate_instance(self._schema_documents[schema_id], value,
+                             source_id=schema_id, resolver=self._resolve_schema):
+            raise ScenarioTruthError("scenario observation schema is not exact")
 
     def rejection_attack_ids(self, profile_id: str, scenario_id: str) -> tuple[str, ...]:
         self.require_current(self._authority)
@@ -800,6 +1010,9 @@ class ScenarioTruthRegistryFactory:
             raise ScenarioTruthError("scenario rejection receipt is missing, cloned, or foreign")
         _, observer, projection, targets = issued
         self.require_observer(observer)
+        if ("execution_contract" in observer._fixture_row
+                and observer._guarded_root_marker_digest() != projection.get("root_marker_digest")):
+            raise ScenarioTruthError("scenario rejection root marker digest changed")
         if (value.projection != projection
                 or type(value.mutation_count) is not int
                 or value.request_unchanged is not True
@@ -811,6 +1024,10 @@ class ScenarioTruthRegistryFactory:
                 or observer.mutation_count != 0 or not observer._executed
                 or observer.target_bytes() != targets):
             raise ScenarioTruthError("scenario rejection receipt is stale or altered")
+        if "controls" in projection and freeze([
+                {"control_id": key, "sha256": hashlib.sha256(body).hexdigest()}
+                for key, body in observer._control_bytes()]) != projection["controls"]:
+            raise ScenarioTruthError("scenario rejection controls changed")
         return issued
 
     def bind_rejections(self, receipts: object, *, test_id: str,
@@ -884,6 +1101,8 @@ class ScenarioTruthRegistryFactory:
         if issued is None or issued[1] is not value or value._authority is not issued[0]:
             raise ScenarioTruthError("scenario observation is missing, cloned, or foreign")
         observer = issued[0]
+        if freeze(value.to_dict()) != issued[2]:
+            raise ScenarioTruthError("scenario observation issued projection changed")
         if tuple(row["state_id"] for row in value.after_targets) != tuple(
             row["candidate_state_id"] for row in observer._fixture_row["target_roles"]
         ):
@@ -896,6 +1115,8 @@ class ScenarioTruthRegistryFactory:
         for target in observer._fixture_row["target_roles"]:
             if observer._read_target(target["path_id"]) != target["candidate_value"].encode("ascii"):
                 raise ScenarioTruthError("scenario target changed after observation")
+        if "execution_contract" in observer._fixture_row:
+            self._validate_guarded_projection(value.to_dict(), observer._root, observer._root_identity)
         return value
 
     def projection(self, value: object) -> FrozenMap:
@@ -910,6 +1131,7 @@ class ScenarioTruthRegistryFactory:
         self._require_installation_current()
         if type(value) is not dict:
             raise ScenarioTruthError("scenario projection is not an object")
+        self._validate_observation_schema(value)
         digest = value.get("observation_digest")
         body = copy.deepcopy(value)
         body.pop("observation_digest", None)
@@ -946,6 +1168,17 @@ class ScenarioTruthRegistryFactory:
             or _read_private_target(root, ".scenario-truth-root").decode("ascii") != task_id
         ):
             raise ScenarioTruthError("scenario projection root is stale or foreign")
+        if (branch["branch_id"] != "branch:" + task_id or branch["ref_id"] != "ref:" + task_id):
+            raise ScenarioTruthError("scenario projection branch namespace is foreign")
+        installed_policy = self._registry.policy_row(body.get("profile_id"), body.get("scenario_id"))
+        installed_fixture = self._registry.fixture_row(installed_policy["fixture_id"])
+        if (freeze(fixture) != installed_fixture or freeze(body.get("policy_row")) != installed_policy
+                or body.get("profile_version") != installed_policy["profile_version"]):
+            raise ScenarioTruthError("scenario projection differs from installed registry")
+        if "execution_contract" in installed_fixture:
+            self._validate_guarded_projection(body, root, _identity(metadata))
+        elif "execution_proof" in body:
+            raise ScenarioTruthError("unguarded projection carries a guarded proof")
         after = body.get("after_targets")
         if type(after) is not list or len(after) != len(fixture["target_roles"]):
             raise ScenarioTruthError("scenario projection target set changed")
@@ -961,6 +1194,46 @@ class ScenarioTruthRegistryFactory:
             ):
                 raise ScenarioTruthError("scenario projection target is stale")
         return _identity(metadata)
+
+    def _validate_guarded_projection(self, body, root, root_identity):
+        policy = self._registry.policy_row(body.get("profile_id"), body.get("scenario_id"))
+        fixture = self._registry.fixture_row(policy["fixture_id"])
+        if (freeze(body.get("fixture_row")) != fixture or freeze(body.get("policy_row")) != policy
+                or freeze(body.get("installation_pins")) != self.installation_pins):
+            raise ScenarioTruthError("scenario guarded installation binding changed")
+        binding = {field: body.get(field) for field in _BINDING_FIELDS[:-2]}
+        branch = body.get("branch_binding", {})
+        binding.update({"branch_id": branch.get("branch_id"), "ref_id": branch.get("ref_id")})
+        if (type(binding["task_revision"]) is not int or binding["task_revision"] < 1
+                or type(binding["invalidation_epoch"]) is not int or binding["invalidation_epoch"] < 0
+                or binding["profile_version"] != policy["profile_version"]):
+            raise ScenarioTruthError("scenario guarded task revision is invalid")
+        _digest(binding["snapshot_digest"], "guarded snapshot")
+        pins = binding["graph_ref_pins"]
+        if type(pins) is not dict or set(pins) != set(_PIN_FIELDS):
+            raise ScenarioTruthError("scenario guarded GraphRef closure changed")
+        for digest in pins.values():
+            _digest(digest, "guarded GraphRef pin")
+        expected = _guarded_proof(freeze(binding), fixture, self.installation_pins, root, root_identity)
+        if freeze(body.get("execution_proof")) != freeze(expected):
+            raise ScenarioTruthError("scenario guarded execution proof is missing or changed")
+        before = expected["baseline"]["baseline_targets"]
+        after = [ScenarioTruthObservationFactory._target_observation(
+            row, row["candidate_value"].encode("ascii"), row["candidate_state_id"])
+            for row in fixture["target_roles"]]
+        transitions = [{"phase_id": fixture["phase_expectations"][0]["phase_id"],
+            "role_id": row["role_id"], "before_digest": first["value_digest"],
+            "after_digest": last["value_digest"]} for row, first, last in zip(
+                fixture["target_roles"], before, after, strict=True)]
+        if (body.get("before_targets") != before or body.get("after_targets") != after
+                or body.get("ordered_transitions") != transitions
+                or body.get("rollback_or_compensation") != thaw(fixture["rollback_or_compensation"])
+                or body.get("owner_route") != policy["owner_route_policy"]
+                or body.get("scenario_outcome") != policy["success_outcome"]
+                or body.get("assertion_results") != [
+                    {"assertion_id": row["assertion_id"], "passed": True}
+                    for row in fixture["assertion_expectations"]]):
+            raise ScenarioTruthError("scenario guarded observation relationships changed")
 
     def close(self) -> None:
         self._closed = True

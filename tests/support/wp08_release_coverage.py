@@ -69,6 +69,11 @@ NEW_FEATURE_MULTI_TARGET_SCENARIO_ID = "multi-target"
 NEW_FEATURE_MULTI_TARGET_PASS_TEST_ID = "GEW-PSC-NEW-FEATURE-MULTI-TARGET-P"
 NEW_FEATURE_MULTI_TARGET_REJECT_TEST_ID = "GEW-PSC-NEW-FEATURE-MULTI-TARGET-R"
 NEW_FEATURE_MULTI_TARGET_BOUNDARY_CASE_ID = NEW_FEATURE_MULTI_TARGET_PASS_TEST_ID
+HOTFIX_GUARDED_SCENARIO_IDS = ("emergency-baseline", "production-like-gate")
+SCENARIO_TRUTH_SCENARIO_IDS = (NEW_FEATURE_MULTI_TARGET_SCENARIO_ID, *HOTFIX_GUARDED_SCENARIO_IDS)
+SCENARIO_TRUTH_BOUNDARY_CASE_IDS = (NEW_FEATURE_MULTI_TARGET_BOUNDARY_CASE_ID, *(
+    f"GEW-PSC-HOTFIX-{scenario.upper()}-P" for scenario in HOTFIX_GUARDED_SCENARIO_IDS
+))
 DEPENDENCY_SECURITY_VULNERABLE_GRAPH_PASS_TEST_ID = (
     "GEW-PSC-DEPENDENCY-SECURITY-VULNERABLE-GRAPH-P"
 )
@@ -1391,7 +1396,7 @@ def production_runtime(
             scenario_id=scenario_id,
         )
     scenario_truth_factory = None
-    if scenario_id == NEW_FEATURE_MULTI_TARGET_BOUNDARY_CASE_ID:
+    if scenario_id in SCENARIO_TRUTH_BOUNDARY_CASE_IDS:
         from graph_engineering.application.scenario_truth import (
             ScenarioTruthRegistryFactory,
         )
@@ -2719,6 +2724,12 @@ def run_serial_scenario_binding(
             NEW_FEATURE_MULTI_TARGET_BOUNDARY_CASE_ID,
             new_feature_multi_target_candidate,
         ),
+        **{scenario: (
+            "hotfix", f"GEW-PSC-HOTFIX-{scenario.upper()}-P",
+            f"GEW-PSC-HOTFIX-{scenario.upper()}-R", f"GEW-PSC-HOTFIX-{scenario.upper()}-P",
+            (lambda *, accepted, selected=scenario:
+             hotfix_guarded_candidate(selected, accepted=accepted)),
+        ) for scenario in HOTFIX_GUARDED_SCENARIO_IDS},
         BUG_FIX_REPRODUCIBLE_FAILURE_SCENARIO_ID: (
             "bug-fix",
             BUG_FIX_REPRODUCIBLE_FAILURE_PASS_TEST_ID,
@@ -2914,7 +2925,7 @@ def run_serial_scenario_binding(
                 )
             )
         scenario_truth_context = None
-        if scenario_id == NEW_FEATURE_MULTI_TARGET_SCENARIO_ID:
+        if scenario_id in SCENARIO_TRUTH_SCENARIO_IDS:
             from tests.support import wp08_scenario_truth as scenario_fixture
 
             if disposition == "P":
@@ -2993,7 +3004,7 @@ def run_serial_scenario_binding(
             raise AssertionError("scenario coverage rejection changed durable state")
         if (
             disposition == "R"
-            and scenario_id == NEW_FEATURE_MULTI_TARGET_SCENARIO_ID
+            and scenario_id in SCENARIO_TRUTH_SCENARIO_IDS
             and (
                 scenario_truth_context is None
                 or scenario_truth_context.test_id != execution.test_id
@@ -3175,6 +3186,17 @@ def existing_feature_candidate(*, accepted: bool) -> dict[str, object]:
         if accepted
         else EXISTING_FEATURE_REJECT_TEST_ID
     )
+    return candidate
+
+
+def hotfix_guarded_candidate(scenario_id: str, *, accepted: bool) -> dict[str, object]:
+    if scenario_id not in HOTFIX_GUARDED_SCENARIO_IDS:
+        raise ValueError("hotfix guarded scenario is not selected")
+    candidate = category.candidate_document("hotfix", "boundary")
+    candidate["request_id"] = f"wp08-s4:hotfix:{scenario_id}:" + ("pass" if accepted else "reject")
+    prefix = f"GEW-PSC-HOTFIX-{scenario_id.upper()}"
+    candidate["scenario_id"] = prefix + ("-P" if accepted else "")
+    candidate["task_id"] = coverage_task_id(prefix + ("-P" if accepted else "-R"))
     return candidate
 
 

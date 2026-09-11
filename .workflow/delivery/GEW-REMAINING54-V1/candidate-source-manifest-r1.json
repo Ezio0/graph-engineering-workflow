@@ -1,4 +1,795 @@
 {
+  "p2b_packets": [
+    {
+      "record_id": "p2b-verification-2026-09-11-r0",
+      "author_id": "/root",
+      "scope": "Bounded P2b only: hotfix/emergency-baseline and hotfix/production-like-gate. Independent verification of frozen implementation and current completed evidence, not cumulative acceptance.",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "sha256": "e11a939b7719b56c5955567faf6d9bfeb93dee2e3f1fd34a024d1f324a215554",
+          "bytes": 13360
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "sha256": "b5ecd651d28d0e63c2020ab58f5bebfc58a36d0a6d608db13cb632b543fc3c2d",
+          "bytes": 37978
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+          "sha256": "244a5b756d24daaa790895b9e636fd516faecaf1309d85c652b8705fbd418148",
+          "bytes": 41346
+        },
+        {
+          "path": "application/graph_engineering/application/scenario_truth.py",
+          "sha256": "f2bb1baa6297e1310b3d0bfc42e625f82c9d410316fa48dbc5d914e806904959",
+          "bytes": 65400
+        },
+        {
+          "path": "config/actions/action-policy-local-actions-v1.json",
+          "sha256": "b0d3884f6fbe51130160a835fe6c1ca344d44fc3288c5c9ae2df053907dbf1ec",
+          "bytes": 1178
+        },
+        {
+          "path": "config/actions/action-policy-v1.json",
+          "sha256": "586fce98d29cab86d5055b041a00a2e14e8fcf1b726fcb3041b3ac9fb670b735",
+          "bytes": 1156
+        },
+        {
+          "path": "config/actions/concrete-action-policy-v1.json",
+          "sha256": "de3bc4f42a29a99197a22f75ed135743d10813174f737c856dfc0a441b0b5e9c",
+          "bytes": 1210
+        },
+        {
+          "path": "config/contracts/action-adapter-registry-v1.json",
+          "sha256": "e94dc1eabc30bc782ca9cc12f27cd8ab1a4c86cff69fd60478fd1f0b9b5f1191",
+          "bytes": 2460
+        },
+        {
+          "path": "config/contracts/profile-schema-registry-v1.json",
+          "sha256": "3ba21cb1f5c270c5c4d2eb7ec97a1818a53d4a7d82258a36cdac6f1e6b353c72",
+          "bytes": 24499
+        },
+        {
+          "path": "config/contracts/schemas/category-completion-assessment-1.3.0.json",
+          "sha256": "3a8cd426a09bf4662954a5fb35b5067ebee80ea18a5070da9588907e6782ad1f",
+          "bytes": 44512
+        },
+        {
+          "path": "config/contracts/schemas/category-completion-assessment-input-1.3.0.json",
+          "sha256": "7bac5a5bcba2488a3f33078817e54a1b1a5844406e3118ba98061a32392e3276",
+          "bytes": 44428
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
+          "sha256": "442e27e2cf42b1e3fe790f0e72bdcfde4fe762550a8c357c4542aa6e5e94d21b",
+          "bytes": 10837
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
+          "sha256": "d138908bfb89cfcf9ef7c776c5d8971a5c14a192ed824b270dac8b5d983b3c20",
+          "bytes": 10757
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-observation-1.0.0.json",
+          "sha256": "2e0804687d58b3f2a6852bf5205b94341a37aa80ef0bc8b6b69816e132b4bbf3",
+          "bytes": 34038
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
+          "sha256": "4ccf408050cb8a5e0d14032a9766fad45e56c8bb2e47b334b80cf140f9b528d8",
+          "bytes": 33952
+        },
+        {
+          "path": "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+          "sha256": "95925c18c33b1ae06eb129e13e9f04833b5cbbfd745afceb047ea6fb6d4a10f2",
+          "bytes": 6512
+        },
+        {
+          "path": "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+          "sha256": "3e02e277cb30eecfd53b4fa2647131466d790bf4c737b0b9b84927c9abc3d3b5",
+          "bytes": 22350
+        },
+        {
+          "path": "config/profiles/profile-coverage-execution-plan-v1.json",
+          "sha256": "850790e2b0918a6aed6f92ff3b25bdb7625f16789d053cdc8fa2211226a37ff0",
+          "bytes": 263805
+        },
+        {
+          "path": "config/profiles/scenario-truth-fixture-registry-v1.json",
+          "sha256": "5333c60d1f6f26aeaf1217ec55612f14f39a4daadc800e2a53fb940720abb267",
+          "bytes": 22866
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "sha256": "52dcbfcfc35cd8f3a50ead7b02348abe8b86f8068b5a36047cba9007b4ef6277",
+          "bytes": 4081
+        },
+        {
+          "path": "config/profiles/scenario-truth-policy-registry-v1.json",
+          "sha256": "59a32ec4f49e9d733055f45973239802fb9e6f9b28a3eeb93f0597e3061c1b31",
+          "bytes": 10878
+        },
+        {
+          "path": "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+          "sha256": "721e5b52fa98c3baf659be7def751414bdb581d691ea899f76201bb4859d2f95",
+          "bytes": 7528
+        },
+        {
+          "path": "config/security/security-runtime-local-actions-v1.json",
+          "sha256": "70b305206386d224ff3b58899619301681809d0c9b9bcc1f71268a86a977e6dc",
+          "bytes": 1503
+        },
+        {
+          "path": "config/security/security-runtime-v1.json",
+          "sha256": "18518c4ca28606deac49e5c4c7f84e2bbfbc09aa7e105586fe0f454837adb0f1",
+          "bytes": 1491
+        },
+        {
+          "path": "config/test-oracles/profile-hotfix-emergency-baseline-v1.json",
+          "sha256": "1d1509f52d27bb78eed64ceff0b9cbb8d8b12c41579cdc37aa12bdf964539729",
+          "bytes": 1142
+        },
+        {
+          "path": "config/test-oracles/profile-hotfix-production-like-gate-v1.json",
+          "sha256": "dabbebdda7fac6aa4a4a85604ff1f4037bce543b26074eaf3dc0635e83f22e91",
+          "bytes": 1150
+        },
+        {
+          "path": "config/verification/wp-00-targets.json",
+          "sha256": "4d7633d909e38f71828def4fbb5698de9f87b66840870b11f4f01e1663e84eca",
+          "bytes": 48906
+        },
+        {
+          "path": "core/graph_engineering/__init__.py",
+          "sha256": "02a76e6ed91d307d0cc019f99cec3adf0cc21dd65a63a423a29652c1e5e304cb",
+          "bytes": 110443
+        },
+        {
+          "path": "core/graph_engineering/core/scenario_truth.py",
+          "sha256": "2a231a53d0d6128511ee8bc05d9ad122273f3f5960722e1bb4fcc21039ff23cb",
+          "bytes": 26092
+        },
+        {
+          "path": "docs/adr/0007-offline-performance-benchmark-authority.md",
+          "sha256": "045c4a4a2af2b887dcdc8a38413034e2c2a6cce605f418b456e65558f889b184",
+          "bytes": 45276
+        },
+        {
+          "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "sha256": "3d920bebfc0d97adb8cabd3e7e8ba71058950f5109c58bf3c235220799a05add",
+          "bytes": 31739
+        },
+        {
+          "path": "docs/adr/0009-offline-release-operations-simulator-authority.md",
+          "sha256": "03aff594c757f338c3dddf4b95234714ea9a118fa25c40aaa441edaeedce63ac",
+          "bytes": 23702
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "sha256": "4211285fef099c154895cec9a32c8740ed0ef64a58665dad9f624ab0c83253b9",
+          "bytes": 75088
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "sha256": "4dbf6154105273faace68a1a38fd0b7778495a1d5c49a7fc3971995c878a8b62",
+          "bytes": 67406
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "sha256": "d33478125b72a259d72f1b42a9f103de389586eb46360b0cdd2ba12d3c8b2362",
+          "bytes": 163038
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "sha256": "1dce8abeed3f3ab69acd7cd785d6d906a4ee0007720e2620a0619d931e95a000",
+          "bytes": 143147
+        },
+        {
+          "path": "pyproject.toml",
+          "sha256": "0e41fac2340799f787733362cc1eedc3988ceb0fe749b9c78210f8b3f056bcee",
+          "bytes": 184832
+        },
+        {
+          "path": "tests/contract/test_wp08_remaining54_contracts.py",
+          "sha256": "f204383c9b4938e70f59a8167dc5159f96bbafb1eb5f31072e2dd99f7e12863c",
+          "bytes": 14809
+        },
+        {
+          "path": "tests/integration/test_wp08_release_coverage.py",
+          "sha256": "4395bd9e36774c9703b56f88bd2062be6386389d31723eea1f306a7534985194",
+          "bytes": 334104
+        },
+        {
+          "path": "tests/integration/test_wp08_scenario_truth.py",
+          "sha256": "e09f81bcddf345adeebbcad3367862d6590cdba10cec1d9c985ca90a578ad07b",
+          "bytes": 101090
+        },
+        {
+          "path": "tests/support/source_checkout_attestation.py",
+          "sha256": "faedfa592e7f4aa6cb3ccdfe15497a7d6f286ef68b355630c25a8539cf392349",
+          "bytes": 27919
+        },
+        {
+          "path": "tests/support/wp08_release_coverage.py",
+          "sha256": "63f2ad51ff748d2508562f7c42a21130d217df82ff31bcab0fd49f67d9da4d54",
+          "bytes": 282464
+        },
+        {
+          "path": "tests/support/wp08_scenario_truth.py",
+          "sha256": "3ad6e23b0844fae67c79a6c3e00ddafb1e5078a3b7c813eb1a3a13c7cc0839bb",
+          "bytes": 47150
+        },
+        {
+          "path": "tests/unit/test_wp08_scenario_truth.py",
+          "sha256": "dc5908bda5a367ef4e406ba90946bc6a31ba72854cea5df86d6eaf4c5f23a4df",
+          "bytes": 80100
+        }
+      ],
+      "aggregate_algorithm": "SHA256 of sorted UTF-8 project-relative path + NUL + raw file bytes + NUL.",
+      "ordered_raw_aggregate_sha256": "e599a923e9d45944677fe2fbbc27dd3df41eff8d861b7eded3a45fc7be5d81bc",
+      "implementation_artifact_digest": "b3516bf0dc45015561c9367c948a3003496550a01ade388592d9de1cfc4c3d55",
+      "upstream_decision": "p2-scenarios-decision-r2.json.p2b_records[p2b-implementation-2026-09-11-r1]: ADVANCE to verification",
+      "evidence": "p2-scenarios-source-manifest-r2.json.p2b_verification_results[p2b-bounded-verification-2026-09-11-r1] and p2b_packets[p2b-implementation-2026-09-11-r1].verification; historical failed attempts preserved.",
+      "acceptance_limit": "47 current bounded tests plus 3 clean wheel/packaging tests passed. Configuration 230 bindings/115 oracles is not cumulative 230-valid/44-missing evidence. All existing 226/113 baseline rows and exact174 Envelope retained. No cumulative launch or monitoring restoration.",
+      "prohibited": [
+        "commit",
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "cumulative-rerun",
+        "monitoring-restoration",
+        "P2c",
+        "P2d",
+        "P3",
+        "source-edit-target-expansion"
+      ]
+    },
+    {
+      "record_id": "p2b-candidate-2026-09-11-r0",
+      "author_id": "/root",
+      "scope": "Bounded P2b Candidate only; two local guarded hotfix scenarios. This is not Remaining54 completion, cumulative acceptance or real production evidence.",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "sha256": "e11a939b7719b56c5955567faf6d9bfeb93dee2e3f1fd34a024d1f324a215554",
+          "bytes": 13360
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "sha256": "b5ecd651d28d0e63c2020ab58f5bebfc58a36d0a6d608db13cb632b543fc3c2d",
+          "bytes": 37978
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+          "sha256": "244a5b756d24daaa790895b9e636fd516faecaf1309d85c652b8705fbd418148",
+          "bytes": 41346
+        },
+        {
+          "path": "application/graph_engineering/application/scenario_truth.py",
+          "sha256": "f2bb1baa6297e1310b3d0bfc42e625f82c9d410316fa48dbc5d914e806904959",
+          "bytes": 65400
+        },
+        {
+          "path": "config/actions/action-policy-local-actions-v1.json",
+          "sha256": "b0d3884f6fbe51130160a835fe6c1ca344d44fc3288c5c9ae2df053907dbf1ec",
+          "bytes": 1178
+        },
+        {
+          "path": "config/actions/action-policy-v1.json",
+          "sha256": "586fce98d29cab86d5055b041a00a2e14e8fcf1b726fcb3041b3ac9fb670b735",
+          "bytes": 1156
+        },
+        {
+          "path": "config/actions/concrete-action-policy-v1.json",
+          "sha256": "de3bc4f42a29a99197a22f75ed135743d10813174f737c856dfc0a441b0b5e9c",
+          "bytes": 1210
+        },
+        {
+          "path": "config/contracts/action-adapter-registry-v1.json",
+          "sha256": "e94dc1eabc30bc782ca9cc12f27cd8ab1a4c86cff69fd60478fd1f0b9b5f1191",
+          "bytes": 2460
+        },
+        {
+          "path": "config/contracts/profile-schema-registry-v1.json",
+          "sha256": "3ba21cb1f5c270c5c4d2eb7ec97a1818a53d4a7d82258a36cdac6f1e6b353c72",
+          "bytes": 24499
+        },
+        {
+          "path": "config/contracts/schemas/category-completion-assessment-1.3.0.json",
+          "sha256": "3a8cd426a09bf4662954a5fb35b5067ebee80ea18a5070da9588907e6782ad1f",
+          "bytes": 44512
+        },
+        {
+          "path": "config/contracts/schemas/category-completion-assessment-input-1.3.0.json",
+          "sha256": "7bac5a5bcba2488a3f33078817e54a1b1a5844406e3118ba98061a32392e3276",
+          "bytes": 44428
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
+          "sha256": "442e27e2cf42b1e3fe790f0e72bdcfde4fe762550a8c357c4542aa6e5e94d21b",
+          "bytes": 10837
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
+          "sha256": "d138908bfb89cfcf9ef7c776c5d8971a5c14a192ed824b270dac8b5d983b3c20",
+          "bytes": 10757
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-observation-1.0.0.json",
+          "sha256": "2e0804687d58b3f2a6852bf5205b94341a37aa80ef0bc8b6b69816e132b4bbf3",
+          "bytes": 34038
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
+          "sha256": "4ccf408050cb8a5e0d14032a9766fad45e56c8bb2e47b334b80cf140f9b528d8",
+          "bytes": 33952
+        },
+        {
+          "path": "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+          "sha256": "95925c18c33b1ae06eb129e13e9f04833b5cbbfd745afceb047ea6fb6d4a10f2",
+          "bytes": 6512
+        },
+        {
+          "path": "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+          "sha256": "3e02e277cb30eecfd53b4fa2647131466d790bf4c737b0b9b84927c9abc3d3b5",
+          "bytes": 22350
+        },
+        {
+          "path": "config/profiles/profile-coverage-execution-plan-v1.json",
+          "sha256": "850790e2b0918a6aed6f92ff3b25bdb7625f16789d053cdc8fa2211226a37ff0",
+          "bytes": 263805
+        },
+        {
+          "path": "config/profiles/scenario-truth-fixture-registry-v1.json",
+          "sha256": "5333c60d1f6f26aeaf1217ec55612f14f39a4daadc800e2a53fb940720abb267",
+          "bytes": 22866
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "sha256": "52dcbfcfc35cd8f3a50ead7b02348abe8b86f8068b5a36047cba9007b4ef6277",
+          "bytes": 4081
+        },
+        {
+          "path": "config/profiles/scenario-truth-policy-registry-v1.json",
+          "sha256": "59a32ec4f49e9d733055f45973239802fb9e6f9b28a3eeb93f0597e3061c1b31",
+          "bytes": 10878
+        },
+        {
+          "path": "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+          "sha256": "721e5b52fa98c3baf659be7def751414bdb581d691ea899f76201bb4859d2f95",
+          "bytes": 7528
+        },
+        {
+          "path": "config/security/security-runtime-local-actions-v1.json",
+          "sha256": "70b305206386d224ff3b58899619301681809d0c9b9bcc1f71268a86a977e6dc",
+          "bytes": 1503
+        },
+        {
+          "path": "config/security/security-runtime-v1.json",
+          "sha256": "18518c4ca28606deac49e5c4c7f84e2bbfbc09aa7e105586fe0f454837adb0f1",
+          "bytes": 1491
+        },
+        {
+          "path": "config/test-oracles/profile-hotfix-emergency-baseline-v1.json",
+          "sha256": "1d1509f52d27bb78eed64ceff0b9cbb8d8b12c41579cdc37aa12bdf964539729",
+          "bytes": 1142
+        },
+        {
+          "path": "config/test-oracles/profile-hotfix-production-like-gate-v1.json",
+          "sha256": "dabbebdda7fac6aa4a4a85604ff1f4037bce543b26074eaf3dc0635e83f22e91",
+          "bytes": 1150
+        },
+        {
+          "path": "config/verification/wp-00-targets.json",
+          "sha256": "4d7633d909e38f71828def4fbb5698de9f87b66840870b11f4f01e1663e84eca",
+          "bytes": 48906
+        },
+        {
+          "path": "core/graph_engineering/__init__.py",
+          "sha256": "02a76e6ed91d307d0cc019f99cec3adf0cc21dd65a63a423a29652c1e5e304cb",
+          "bytes": 110443
+        },
+        {
+          "path": "core/graph_engineering/core/scenario_truth.py",
+          "sha256": "2a231a53d0d6128511ee8bc05d9ad122273f3f5960722e1bb4fcc21039ff23cb",
+          "bytes": 26092
+        },
+        {
+          "path": "docs/adr/0007-offline-performance-benchmark-authority.md",
+          "sha256": "045c4a4a2af2b887dcdc8a38413034e2c2a6cce605f418b456e65558f889b184",
+          "bytes": 45276
+        },
+        {
+          "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "sha256": "3d920bebfc0d97adb8cabd3e7e8ba71058950f5109c58bf3c235220799a05add",
+          "bytes": 31739
+        },
+        {
+          "path": "docs/adr/0009-offline-release-operations-simulator-authority.md",
+          "sha256": "03aff594c757f338c3dddf4b95234714ea9a118fa25c40aaa441edaeedce63ac",
+          "bytes": 23702
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "sha256": "4211285fef099c154895cec9a32c8740ed0ef64a58665dad9f624ab0c83253b9",
+          "bytes": 75088
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "sha256": "4dbf6154105273faace68a1a38fd0b7778495a1d5c49a7fc3971995c878a8b62",
+          "bytes": 67406
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "sha256": "d33478125b72a259d72f1b42a9f103de389586eb46360b0cdd2ba12d3c8b2362",
+          "bytes": 163038
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "sha256": "1dce8abeed3f3ab69acd7cd785d6d906a4ee0007720e2620a0619d931e95a000",
+          "bytes": 143147
+        },
+        {
+          "path": "pyproject.toml",
+          "sha256": "0e41fac2340799f787733362cc1eedc3988ceb0fe749b9c78210f8b3f056bcee",
+          "bytes": 184832
+        },
+        {
+          "path": "tests/contract/test_wp08_remaining54_contracts.py",
+          "sha256": "f204383c9b4938e70f59a8167dc5159f96bbafb1eb5f31072e2dd99f7e12863c",
+          "bytes": 14809
+        },
+        {
+          "path": "tests/integration/test_wp08_release_coverage.py",
+          "sha256": "4395bd9e36774c9703b56f88bd2062be6386389d31723eea1f306a7534985194",
+          "bytes": 334104
+        },
+        {
+          "path": "tests/integration/test_wp08_scenario_truth.py",
+          "sha256": "e09f81bcddf345adeebbcad3367862d6590cdba10cec1d9c985ca90a578ad07b",
+          "bytes": 101090
+        },
+        {
+          "path": "tests/support/source_checkout_attestation.py",
+          "sha256": "faedfa592e7f4aa6cb3ccdfe15497a7d6f286ef68b355630c25a8539cf392349",
+          "bytes": 27919
+        },
+        {
+          "path": "tests/support/wp08_release_coverage.py",
+          "sha256": "63f2ad51ff748d2508562f7c42a21130d217df82ff31bcab0fd49f67d9da4d54",
+          "bytes": 282464
+        },
+        {
+          "path": "tests/support/wp08_scenario_truth.py",
+          "sha256": "3ad6e23b0844fae67c79a6c3e00ddafb1e5078a3b7c813eb1a3a13c7cc0839bb",
+          "bytes": 47150
+        },
+        {
+          "path": "tests/unit/test_wp08_scenario_truth.py",
+          "sha256": "dc5908bda5a367ef4e406ba90946bc6a31ba72854cea5df86d6eaf4c5f23a4df",
+          "bytes": 80100
+        }
+      ],
+      "aggregate_algorithm": "SHA256 of sorted UTF-8 project-relative path + NUL + raw file bytes + NUL.",
+      "ordered_raw_aggregate_sha256": "e599a923e9d45944677fe2fbbc27dd3df41eff8d861b7eded3a45fc7be5d81bc",
+      "upstream_records": [
+        "p2-scenarios-decision-r2.json.p2b_records[p2b-implementation-2026-09-11-r1]",
+        "candidate-review-verdict-r1.json.p2b_records[p2b-verification-2026-09-11-r0]",
+        "candidate-decision-r1.json.p2b_records[p2b-verification-2026-09-11-r0]"
+      ],
+      "test_evidence": {
+        "coordinator_bounded": {
+          "tests": 47,
+          "elapsed_seconds": 283.501,
+          "timeout_seconds": 600,
+          "result": "PASS"
+        },
+        "isolated_packaging": {
+          "tests": 3,
+          "elapsed_seconds": 8.632,
+          "timeout_seconds": 180,
+          "result": "PASS"
+        },
+        "independent_verification": {
+          "tests": 19,
+          "elapsed_seconds": 7.878,
+          "timeout_seconds": 180,
+          "result": "PASS"
+        },
+        "note": "Independent 19-test batch repeats targeted coverage; counts are not disjoint. All historical failures remain recorded."
+      },
+      "scope_audit": {
+        "allowed_targets": 174,
+        "unchanged_original_delivery_record_fields": true,
+        "unchanged_baseline_bindings": 226,
+        "unchanged_baseline_oracle_bindings": 113,
+        "added_bindings": 4,
+        "added_oracles": 2,
+        "protected_files_unchanged": true,
+        "head": "6c3e67c011925fb41d49d0781c3fd06e619d708b",
+        "architecture": "PASS",
+        "diff_check": "PASS"
+      },
+      "pending_outside_this_candidate": [
+        "fresh cumulative acceptance",
+        "P2c",
+        "P2d",
+        "P3"
+      ],
+      "prohibited": [
+        "cumulative-rerun",
+        "monitoring-restoration",
+        "commit",
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "source-edit-target-expansion"
+      ]
+    },
+    {
+      "record_id": "p2b-technical-2026-09-11-r0",
+      "author_id": "/root",
+      "scope": "Final independent technical review of the bounded P2b Candidate. No cumulative, production, Remaining54-complete or irreversible-action claim.",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "sha256": "e11a939b7719b56c5955567faf6d9bfeb93dee2e3f1fd34a024d1f324a215554",
+          "bytes": 13360
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "sha256": "b5ecd651d28d0e63c2020ab58f5bebfc58a36d0a6d608db13cb632b543fc3c2d",
+          "bytes": 37978
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+          "sha256": "244a5b756d24daaa790895b9e636fd516faecaf1309d85c652b8705fbd418148",
+          "bytes": 41346
+        },
+        {
+          "path": "application/graph_engineering/application/scenario_truth.py",
+          "sha256": "f2bb1baa6297e1310b3d0bfc42e625f82c9d410316fa48dbc5d914e806904959",
+          "bytes": 65400
+        },
+        {
+          "path": "config/actions/action-policy-local-actions-v1.json",
+          "sha256": "b0d3884f6fbe51130160a835fe6c1ca344d44fc3288c5c9ae2df053907dbf1ec",
+          "bytes": 1178
+        },
+        {
+          "path": "config/actions/action-policy-v1.json",
+          "sha256": "586fce98d29cab86d5055b041a00a2e14e8fcf1b726fcb3041b3ac9fb670b735",
+          "bytes": 1156
+        },
+        {
+          "path": "config/actions/concrete-action-policy-v1.json",
+          "sha256": "de3bc4f42a29a99197a22f75ed135743d10813174f737c856dfc0a441b0b5e9c",
+          "bytes": 1210
+        },
+        {
+          "path": "config/contracts/action-adapter-registry-v1.json",
+          "sha256": "e94dc1eabc30bc782ca9cc12f27cd8ab1a4c86cff69fd60478fd1f0b9b5f1191",
+          "bytes": 2460
+        },
+        {
+          "path": "config/contracts/profile-schema-registry-v1.json",
+          "sha256": "3ba21cb1f5c270c5c4d2eb7ec97a1818a53d4a7d82258a36cdac6f1e6b353c72",
+          "bytes": 24499
+        },
+        {
+          "path": "config/contracts/schemas/category-completion-assessment-1.3.0.json",
+          "sha256": "3a8cd426a09bf4662954a5fb35b5067ebee80ea18a5070da9588907e6782ad1f",
+          "bytes": 44512
+        },
+        {
+          "path": "config/contracts/schemas/category-completion-assessment-input-1.3.0.json",
+          "sha256": "7bac5a5bcba2488a3f33078817e54a1b1a5844406e3118ba98061a32392e3276",
+          "bytes": 44428
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
+          "sha256": "442e27e2cf42b1e3fe790f0e72bdcfde4fe762550a8c357c4542aa6e5e94d21b",
+          "bytes": 10837
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
+          "sha256": "d138908bfb89cfcf9ef7c776c5d8971a5c14a192ed824b270dac8b5d983b3c20",
+          "bytes": 10757
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-observation-1.0.0.json",
+          "sha256": "2e0804687d58b3f2a6852bf5205b94341a37aa80ef0bc8b6b69816e132b4bbf3",
+          "bytes": 34038
+        },
+        {
+          "path": "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
+          "sha256": "4ccf408050cb8a5e0d14032a9766fad45e56c8bb2e47b334b80cf140f9b528d8",
+          "bytes": 33952
+        },
+        {
+          "path": "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+          "sha256": "95925c18c33b1ae06eb129e13e9f04833b5cbbfd745afceb047ea6fb6d4a10f2",
+          "bytes": 6512
+        },
+        {
+          "path": "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+          "sha256": "3e02e277cb30eecfd53b4fa2647131466d790bf4c737b0b9b84927c9abc3d3b5",
+          "bytes": 22350
+        },
+        {
+          "path": "config/profiles/profile-coverage-execution-plan-v1.json",
+          "sha256": "850790e2b0918a6aed6f92ff3b25bdb7625f16789d053cdc8fa2211226a37ff0",
+          "bytes": 263805
+        },
+        {
+          "path": "config/profiles/scenario-truth-fixture-registry-v1.json",
+          "sha256": "5333c60d1f6f26aeaf1217ec55612f14f39a4daadc800e2a53fb940720abb267",
+          "bytes": 22866
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "sha256": "52dcbfcfc35cd8f3a50ead7b02348abe8b86f8068b5a36047cba9007b4ef6277",
+          "bytes": 4081
+        },
+        {
+          "path": "config/profiles/scenario-truth-policy-registry-v1.json",
+          "sha256": "59a32ec4f49e9d733055f45973239802fb9e6f9b28a3eeb93f0597e3061c1b31",
+          "bytes": 10878
+        },
+        {
+          "path": "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+          "sha256": "721e5b52fa98c3baf659be7def751414bdb581d691ea899f76201bb4859d2f95",
+          "bytes": 7528
+        },
+        {
+          "path": "config/security/security-runtime-local-actions-v1.json",
+          "sha256": "70b305206386d224ff3b58899619301681809d0c9b9bcc1f71268a86a977e6dc",
+          "bytes": 1503
+        },
+        {
+          "path": "config/security/security-runtime-v1.json",
+          "sha256": "18518c4ca28606deac49e5c4c7f84e2bbfbc09aa7e105586fe0f454837adb0f1",
+          "bytes": 1491
+        },
+        {
+          "path": "config/test-oracles/profile-hotfix-emergency-baseline-v1.json",
+          "sha256": "1d1509f52d27bb78eed64ceff0b9cbb8d8b12c41579cdc37aa12bdf964539729",
+          "bytes": 1142
+        },
+        {
+          "path": "config/test-oracles/profile-hotfix-production-like-gate-v1.json",
+          "sha256": "dabbebdda7fac6aa4a4a85604ff1f4037bce543b26074eaf3dc0635e83f22e91",
+          "bytes": 1150
+        },
+        {
+          "path": "config/verification/wp-00-targets.json",
+          "sha256": "4d7633d909e38f71828def4fbb5698de9f87b66840870b11f4f01e1663e84eca",
+          "bytes": 48906
+        },
+        {
+          "path": "core/graph_engineering/__init__.py",
+          "sha256": "02a76e6ed91d307d0cc019f99cec3adf0cc21dd65a63a423a29652c1e5e304cb",
+          "bytes": 110443
+        },
+        {
+          "path": "core/graph_engineering/core/scenario_truth.py",
+          "sha256": "2a231a53d0d6128511ee8bc05d9ad122273f3f5960722e1bb4fcc21039ff23cb",
+          "bytes": 26092
+        },
+        {
+          "path": "docs/adr/0007-offline-performance-benchmark-authority.md",
+          "sha256": "045c4a4a2af2b887dcdc8a38413034e2c2a6cce605f418b456e65558f889b184",
+          "bytes": 45276
+        },
+        {
+          "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "sha256": "3d920bebfc0d97adb8cabd3e7e8ba71058950f5109c58bf3c235220799a05add",
+          "bytes": 31739
+        },
+        {
+          "path": "docs/adr/0009-offline-release-operations-simulator-authority.md",
+          "sha256": "03aff594c757f338c3dddf4b95234714ea9a118fa25c40aaa441edaeedce63ac",
+          "bytes": 23702
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "sha256": "4211285fef099c154895cec9a32c8740ed0ef64a58665dad9f624ab0c83253b9",
+          "bytes": 75088
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "sha256": "4dbf6154105273faace68a1a38fd0b7778495a1d5c49a7fc3971995c878a8b62",
+          "bytes": 67406
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "sha256": "d33478125b72a259d72f1b42a9f103de389586eb46360b0cdd2ba12d3c8b2362",
+          "bytes": 163038
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "sha256": "1dce8abeed3f3ab69acd7cd785d6d906a4ee0007720e2620a0619d931e95a000",
+          "bytes": 143147
+        },
+        {
+          "path": "pyproject.toml",
+          "sha256": "0e41fac2340799f787733362cc1eedc3988ceb0fe749b9c78210f8b3f056bcee",
+          "bytes": 184832
+        },
+        {
+          "path": "tests/contract/test_wp08_remaining54_contracts.py",
+          "sha256": "f204383c9b4938e70f59a8167dc5159f96bbafb1eb5f31072e2dd99f7e12863c",
+          "bytes": 14809
+        },
+        {
+          "path": "tests/integration/test_wp08_release_coverage.py",
+          "sha256": "4395bd9e36774c9703b56f88bd2062be6386389d31723eea1f306a7534985194",
+          "bytes": 334104
+        },
+        {
+          "path": "tests/integration/test_wp08_scenario_truth.py",
+          "sha256": "e09f81bcddf345adeebbcad3367862d6590cdba10cec1d9c985ca90a578ad07b",
+          "bytes": 101090
+        },
+        {
+          "path": "tests/support/source_checkout_attestation.py",
+          "sha256": "faedfa592e7f4aa6cb3ccdfe15497a7d6f286ef68b355630c25a8539cf392349",
+          "bytes": 27919
+        },
+        {
+          "path": "tests/support/wp08_release_coverage.py",
+          "sha256": "63f2ad51ff748d2508562f7c42a21130d217df82ff31bcab0fd49f67d9da4d54",
+          "bytes": 282464
+        },
+        {
+          "path": "tests/support/wp08_scenario_truth.py",
+          "sha256": "3ad6e23b0844fae67c79a6c3e00ddafb1e5078a3b7c813eb1a3a13c7cc0839bb",
+          "bytes": 47150
+        },
+        {
+          "path": "tests/unit/test_wp08_scenario_truth.py",
+          "sha256": "dc5908bda5a367ef4e406ba90946bc6a31ba72854cea5df86d6eaf4c5f23a4df",
+          "bytes": 80100
+        }
+      ],
+      "aggregate_algorithm": "SHA256 of sorted UTF-8 project-relative path + NUL + raw file bytes + NUL.",
+      "ordered_raw_aggregate_sha256": "e599a923e9d45944677fe2fbbc27dd3df41eff8d861b7eded3a45fc7be5d81bc",
+      "upstream_record_id": "p2b-candidate-2026-09-11-r0",
+      "upstream_artifacts": [
+        "candidate-source-manifest-r1.json.p2b_packets[p2b-candidate-2026-09-11-r0]",
+        "candidate-state-r1.json.p2b_records[p2b-candidate-2026-09-11-r0]",
+        "candidate-review-verdict-r1.json.p2b_records[p2b-candidate-2026-09-11-r0]",
+        "candidate-decision-r1.json.p2b_records[p2b-candidate-2026-09-11-r0]"
+      ],
+      "authority": "Current exact174 Envelope and p2b_continuation_amendment/p2b_three_finding_repair_amendment; no new action authorization.",
+      "boundary": "Technical review PASS is not commit authority. Preserve the standard reducer result and stop at the separately authorized human-action boundary.",
+      "prohibited": [
+        "commit",
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "cumulative-rerun",
+        "monitoring-restoration",
+        "P2c",
+        "P2d",
+        "P3",
+        "source-edit-target-expansion"
+      ]
+    }
+  ],
   "schema_version": "1.0",
   "task_id": "GEW-REMAINING54-V1",
   "record_format": "append-only-manifest-revisions",

@@ -174,11 +174,36 @@
       "resume-p2a-cumulative-r2"
     ],
     "candidate_findings": [
-      {"id": "GEW-REMAINING54-P2A-CAND-R1-001", "status": "open", "focused_state": "green", "scope": "full-installed-closure-currentness"},
-      {"id": "GEW-REMAINING54-P2A-CAND-R1-002", "status": "open", "focused_state": "green", "scope": "exact-full-task-namespace-branch-ref"},
-      {"id": "GEW-REMAINING54-P2A-CAND-R1-003", "status": "open", "focused_state": "green", "scope": "generic-assertion-evaluator-and-required-fact-ids"},
-      {"id": "GEW-REMAINING54-P2A-CAND-R1-004", "status": "open", "focused_state": "awaiting-d-baseline-and-cumulative-r2", "scope": "executable-p2a-cumulative-selector-exact-226-48-static-0-of-274"},
-      {"id": "GEW-REMAINING54-P2A-CAND-R1-005", "status": "open", "focused_state": "green", "scope": "r-task-factory-root-attack-evidence-bound-to-r-record-and-oracle"}
+      {
+        "id": "GEW-REMAINING54-P2A-CAND-R1-001",
+        "status": "open",
+        "focused_state": "green",
+        "scope": "full-installed-closure-currentness"
+      },
+      {
+        "id": "GEW-REMAINING54-P2A-CAND-R1-002",
+        "status": "open",
+        "focused_state": "green",
+        "scope": "exact-full-task-namespace-branch-ref"
+      },
+      {
+        "id": "GEW-REMAINING54-P2A-CAND-R1-003",
+        "status": "open",
+        "focused_state": "green",
+        "scope": "generic-assertion-evaluator-and-required-fact-ids"
+      },
+      {
+        "id": "GEW-REMAINING54-P2A-CAND-R1-004",
+        "status": "open",
+        "focused_state": "awaiting-d-baseline-and-cumulative-r2",
+        "scope": "executable-p2a-cumulative-selector-exact-226-48-static-0-of-274"
+      },
+      {
+        "id": "GEW-REMAINING54-P2A-CAND-R1-005",
+        "status": "open",
+        "focused_state": "green",
+        "scope": "r-task-factory-root-attack-evidence-bound-to-r-record-and-oracle"
+      }
     ],
     "candidate_finding_disposition_authority": "independent-candidate-reviewer-only"
   },
@@ -285,11 +310,27 @@
       "runtime_and_heartbeat_limits": "testability-config-only-not-raised-to-mask-failure"
     },
     "candidate_findings": [
-      {"id": "GEW-REMAINING54-P2A-CAND-R1-001", "status": "open"},
-      {"id": "GEW-REMAINING54-P2A-CAND-R1-002", "status": "open"},
-      {"id": "GEW-REMAINING54-P2A-CAND-R1-003", "status": "open"},
-      {"id": "GEW-REMAINING54-P2A-CAND-R1-004", "status": "open", "e1_closure_required": true},
-      {"id": "GEW-REMAINING54-P2A-CAND-R1-005", "status": "open"}
+      {
+        "id": "GEW-REMAINING54-P2A-CAND-R1-001",
+        "status": "open"
+      },
+      {
+        "id": "GEW-REMAINING54-P2A-CAND-R1-002",
+        "status": "open"
+      },
+      {
+        "id": "GEW-REMAINING54-P2A-CAND-R1-003",
+        "status": "open"
+      },
+      {
+        "id": "GEW-REMAINING54-P2A-CAND-R1-004",
+        "status": "open",
+        "e1_closure_required": true
+      },
+      {
+        "id": "GEW-REMAINING54-P2A-CAND-R1-005",
+        "status": "open"
+      }
     ],
     "candidate_finding_disposition_authority": "independent-candidate-reviewer-only",
     "preserved_d_order": "wp07a-baseline-then-wp07a-method-then-wp08-security-evidence-package-wheel-p1-sibling-before-p2a-cumulative-r2"
@@ -425,13 +466,26 @@
     ],
     "run_state": "Previous cumulative run owner-aborted without final receipt; monitoring remains PAUSED. Fix first; do not launch cumulative rerun or restore monitoring in this repair.",
     "authority_effect": "Adds only these six exact targets to historical exact168. This amendment governs the memory repair; all historical approvals and rejected reviews remain preserved. No charging, budget, temporary-unit, gate, currentness, source-attestation, isolation, P/R, or irreversible-action boundary is weakened.",
-    "forbidden": ["commit", "push", "merge", "deploy", "release", "network", "wp10", "cumulative-rerun", "restore-monitoring"]
+    "forbidden": [
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "wp10",
+      "cumulative-rerun",
+      "restore-monitoring"
+    ]
   },
   "local_acceptance_amendment": {
     "amendment_id": "GEW-REMAINING54-LOCAL-CANDIDATE-REVIEW-AUTHORITY",
     "human_approval": "批准",
     "approved_request": "Add candidate and review for local acceptance and independent technical review; keep commit, push, merge, deploy, release, network and WP10 prohibited.",
-    "approved_action_additions": ["candidate", "review"],
+    "approved_action_additions": [
+      "candidate",
+      "review"
+    ],
     "approved_target_boundary_addition": [],
     "current_allowed_target_count": 174,
     "prior_envelope_raw_sha256": "9d2c5da3097168d6be2d81a42b55779204618b79d0f29ff229b29564899d3878",
@@ -439,7 +493,16 @@
     "authority_effect": "Adds only the two named reversible local actions. No target, goal, non-goal, intent, budget, dependency, data-access, security-posture, architecture or irreversible authority changes. Historical amendments and decisions remain historical records, not newly approved conclusions.",
     "verification_context": "The subsequently authorized single rerun of p2a-cumulative-r2 in session 72241 exited 0 with a complete receipt: dynamic 226 valid / 48 missing / false, static 0 valid / 274 missing / false. This is partial coverage, not Remaining54 completion. Source and evidence must be independently checked before acceptance.",
     "run_and_monitor_boundary": "No automatic repeat of completed run 72241. Monitoring remains paused while local acceptance is performed; this action amendment does not itself start a run or restore monitoring.",
-    "forbidden": ["commit", "push", "merge", "deploy", "release", "network", "WP10", "external-communication"]
+    "forbidden": [
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "WP10",
+      "external-communication"
+    ]
   },
   "candidate_defect_repair_amendment": {
     "amendment_id": "GEW-REMAINING54-CANDIDATE-DEFECT-REPAIR-14400",
@@ -510,5 +573,96 @@
     "Database schema, repository event kind, GraphRef API, dependency, daemon, or remote-state expansion.",
     "Commit, push, merge, deploy, release, publication, or external communication."
   ],
-  "authority_effect": "Authorizes current ADR-0007 revision 13, ADR-0008 revision 12, ADR-0009 revision 12, Spec revision 36, Impact revision 30, Plan revision 35, Test Plan revision 43, and the exact local/offline code, configuration, tests, manifests, verification records, and independent reviews named by the GEW-REMAINING54-V1 Authority Envelope. Historical R1, R3, A, B, C, D, E1, and independently accepted F1 R0 amendments remain intact. Historical C had 166 exact targets; D alone added tests/security/test_wp07a_action_contract_security.py for 167; E1 added no target and stayed 167. Current Human-approved F1 alone adds application/graph_engineering/application/dependency_security.py for exact168. F1 permits only a generic typed DependencySecurityObservationFactory rehydrate/current-seal API over the same private root, task, dependency-security category, and current installed closure. The factory and typed DependencySecurityObservation remain distinct from downstream graph/category assessment, which cannot construct or substitute the authority. Runtime owns an opaque process-local seal; issue, use, precommit, and gate each fully reread the same bootstrap/source/package/wheel/RECORD and task/root/category state. P/R substitution, forged/cloned/serialized/stale/cross-root/cross-task/cross-category/cross-installation seals, terminal reopen, resolver/network access, and action/command/mutation replay fail closed with zero write, mutation, or replay. Routine agent correction GEW-REMAINING54-F1-SOURCE-CLOSURE-TRACE-R1-001 has authority_effect none: the new application source is bound by the source-checkout attestation, pyproject package mapping, archive/unpacked wheel and RECORD currentness; dependency bootstrap 1.2 does not directly pin that application source and remains unchanged when its actual schema/registry/source-artifact/source-attestation/history inputs are unchanged. Relevant bootstraps, pyproject, the C runtime branches, and D baseline are verified and are re-signed only when their own actual input projections change; the action build projection excludes dependency-advisory and performance-benchmark tables. Routine agent correction GEW-REMAINING54-F1-OBSERVATION-VERSION-TRACE-R1-002 also has authority_effect none: the generic typed API covers the existing exact DependencySecurityObservation 1.0 and 1.1 schemas; DependencyGraphAssessmentFactory and evidence remain distinct downstream consumers and cannot replace the observation factory, observation, seal, or issuer. Version 1.1 selection is derived from issued frozen graph inputs and must be reconstructed from fresh current graph installation, graph policy, remediation, before/after graph and disposition with full exact comparison before an atomic LIVE transition; the existing task projection discriminator is unchanged. Original mandatory and real-e2e candidates remain unchanged; GEW-PRO-DEPENDENCY-SECURITY-ARTIFACTS-R continues to select GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-P with request_digest sha256-jcs-v1:e9315eb7ced2072939c95533b7f8aeb53e11e1e1c137d5e462c69c5130a9b938, and no scenario, plan, or oracle may be edited merely to obtain a pass. Config-owned 12600-second cumulative runtime and 60-second heartbeat are routine E1 testability data and cannot replace lifecycle/currentness gates. Stable finding GEW-REMAINING54-E1-REPOSITORY-ISOLATION-TRACE-R1-001 remains addressed pending independent reviewer resolution. Candidate findings GEW-REMAINING54-P2A-CAND-R1-001 through GEW-REMAINING54-P2A-CAND-R1-005 remain open; only an independent Candidate reviewer may close them. Commit, push, merge, deploy, release, network access, WP-10, real environments, user projects, database or GraphRef APIs, dependencies, daemons, and all other absent authority remain denied."
+  "authority_effect": "Authorizes current ADR-0007 revision 13, ADR-0008 revision 12, ADR-0009 revision 12, Spec revision 36, Impact revision 30, Plan revision 35, Test Plan revision 43, and the exact local/offline code, configuration, tests, manifests, verification records, and independent reviews named by the GEW-REMAINING54-V1 Authority Envelope. Historical R1, R3, A, B, C, D, E1, and independently accepted F1 R0 amendments remain intact. Historical C had 166 exact targets; D alone added tests/security/test_wp07a_action_contract_security.py for 167; E1 added no target and stayed 167. Current Human-approved F1 alone adds application/graph_engineering/application/dependency_security.py for exact168. F1 permits only a generic typed DependencySecurityObservationFactory rehydrate/current-seal API over the same private root, task, dependency-security category, and current installed closure. The factory and typed DependencySecurityObservation remain distinct from downstream graph/category assessment, which cannot construct or substitute the authority. Runtime owns an opaque process-local seal; issue, use, precommit, and gate each fully reread the same bootstrap/source/package/wheel/RECORD and task/root/category state. P/R substitution, forged/cloned/serialized/stale/cross-root/cross-task/cross-category/cross-installation seals, terminal reopen, resolver/network access, and action/command/mutation replay fail closed with zero write, mutation, or replay. Routine agent correction GEW-REMAINING54-F1-SOURCE-CLOSURE-TRACE-R1-001 has authority_effect none: the new application source is bound by the source-checkout attestation, pyproject package mapping, archive/unpacked wheel and RECORD currentness; dependency bootstrap 1.2 does not directly pin that application source and remains unchanged when its actual schema/registry/source-artifact/source-attestation/history inputs are unchanged. Relevant bootstraps, pyproject, the C runtime branches, and D baseline are verified and are re-signed only when their own actual input projections change; the action build projection excludes dependency-advisory and performance-benchmark tables. Routine agent correction GEW-REMAINING54-F1-OBSERVATION-VERSION-TRACE-R1-002 also has authority_effect none: the generic typed API covers the existing exact DependencySecurityObservation 1.0 and 1.1 schemas; DependencyGraphAssessmentFactory and evidence remain distinct downstream consumers and cannot replace the observation factory, observation, seal, or issuer. Version 1.1 selection is derived from issued frozen graph inputs and must be reconstructed from fresh current graph installation, graph policy, remediation, before/after graph and disposition with full exact comparison before an atomic LIVE transition; the existing task projection discriminator is unchanged. Original mandatory and real-e2e candidates remain unchanged; GEW-PRO-DEPENDENCY-SECURITY-ARTIFACTS-R continues to select GEW-PSC-DEPENDENCY-SECURITY-FIX-UNAVAILABLE-P with request_digest sha256-jcs-v1:e9315eb7ced2072939c95533b7f8aeb53e11e1e1c137d5e462c69c5130a9b938, and no scenario, plan, or oracle may be edited merely to obtain a pass. Config-owned 12600-second cumulative runtime and 60-second heartbeat are routine E1 testability data and cannot replace lifecycle/currentness gates. Stable finding GEW-REMAINING54-E1-REPOSITORY-ISOLATION-TRACE-R1-001 remains addressed pending independent reviewer resolution. Candidate findings GEW-REMAINING54-P2A-CAND-R1-001 through GEW-REMAINING54-P2A-CAND-R1-005 remain open; only an independent Candidate reviewer may close them. Commit, push, merge, deploy, release, network access, WP-10, real environments, user projects, database or GraphRef APIs, dependencies, daemons, and all other absent authority remain denied.",
+  "p2b_continuation_amendment": {
+    "amendment_id": "GEW-REMAINING54-P2B-BOUNDED-V1",
+    "observed_at_utc": "2026-09-11 08:58:13 UTC",
+    "human_approval": "批准启动 P2b 的文档核对、实现、有界测试和独立评审",
+    "scope": "Implement and independently review only hotfix/emergency-baseline and hotfix/production-like-gate under ADR-0008, with two P/R pairs and two oracle members. Keep the exact174 source-edit target allowlist unchanged.",
+    "baseline_commit": "6c3e67c011925fb41d49d0781c3fd06e619d708b",
+    "supersedes": "Only the previous temporary prohibition on P2b documentation, implementation and bounded local tests/review. Prior P2a acceptance and the one completed commit remain historical, not authority for another action.",
+    "authorized_actions": [
+      "documentation",
+      "implementation",
+      "verification",
+      "independent-review",
+      "candidate",
+      "review"
+    ],
+    "expected_plan_shape": {
+      "bindings": 230,
+      "oracle_bindings": 115,
+      "remaining_bindings": 44
+    },
+    "evidence_boundary": "The expected plan shape is not a new cumulative dynamic-gate result. The 226-binding P2a receipt remains bound to its committed source. This authorization permits bounded local evidence and independent review only; cumulative acceptance must be separately authorized.",
+    "test_boundary": "Strict serial fresh private roots; individually bounded native test commands; stop on failure/timeout and investigate, no automatic repeated cumulative run. Runtime budget and heartbeat policy values remain unchanged.",
+    "no_new_source_edit_targets": true,
+    "protected_files": [
+      "config/verification/wp-07a-gate.json",
+      "tests/support/wp08_dependency_security.py",
+      "tests/support/wp08_migration_rehearsal.py"
+    ],
+    "prohibited": [
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "WP10",
+      "external-communication",
+      "cumulative-rerun",
+      "monitoring-restoration",
+      "P2c",
+      "P2d",
+      "P3",
+      "source-edit-target-expansion"
+    ],
+    "preservation": "Use append-only P2b records in existing authorized record paths. Preserve every old top-level record and reference the baseline Git commit for exact historical bytes; do not rewrite prior approvals, findings, digests or run results."
+  },
+  "p2b_three_finding_repair_amendment": {
+    "amendment_id": "GEW-REMAINING54-P2B-R0-THREE-FINDINGS-V1",
+    "human_approval": "批准",
+    "approval_context": "Approval of the assistant's immediately preceding request to authorize implementation and consistency changes solely to repair the three P2b implementation review findings, with all other boundaries unchanged.",
+    "approved_finding_ids": [
+      "GEW-REMAINING54-P2B-IMPLEMENTATION-R0-001",
+      "GEW-REMAINING54-P2B-IMPLEMENTATION-R0-002",
+      "GEW-REMAINING54-P2B-IMPLEMENTATION-R0-003"
+    ],
+    "approved_change_kinds": [
+      "implementation",
+      "consistency"
+    ],
+    "scope": "Only canonical paired package/source ordering and actual pin cascade, bounded rejection-vector schema-profile conformance and regression tests, and no-follow rejection task-marker issuance/currentness checks and bounded negative tests. Then independent review of the repaired P2b artifact.",
+    "resolves_human_gate": {
+      "record_id": "p2b-implementation-2026-09-11-r0",
+      "decision": "ESCALATE",
+      "code": "E_SCOPE",
+      "artifact_digest": "5da0912d60fecab36539aae2c10395d84231ef6ff38c0a9b8101ec32ca7dc3d8"
+    },
+    "authority_effect": "The envelope already lists implementation and consistency, but the reference reducer's routine vocabulary required a separate Human decision. This explicit approval satisfies that decision only for the three named findings. Preserve the original verdict and ESCALATE; do not rewrite them or weaken the reducer, policy, permissions, or future gates.",
+    "allowed_targets_unchanged": 174,
+    "authorized_actions_unchanged": true,
+    "protected_files_unchanged": [
+      "config/verification/wp-07a-gate.json",
+      "tests/support/wp08_dependency_security.py",
+      "tests/support/wp08_migration_rehearsal.py"
+    ],
+    "prohibited_unchanged": [
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "WP10",
+      "external-communication",
+      "cumulative-rerun",
+      "monitoring-restoration",
+      "P2c",
+      "P2d",
+      "P3",
+      "source-edit-target-expansion"
+    ]
+  }
 }

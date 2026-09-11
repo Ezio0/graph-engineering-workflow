@@ -1070,7 +1070,9 @@ def observe_current_candidate(
         binding=binding,
         private_root=temporary_root.name,
     )
-    evidence = observer.execute(observer.request())
+    baseline = (observer.capture_baseline()
+                if "execution_contract" in observer._fixture_row else None)
+    evidence = observer.execute(observer.request(), baseline_receipt=baseline)
     return ScenarioTruthCoverageContext(
         registry_factory, temporary_root, observer, evidence,
     )
@@ -1141,7 +1143,7 @@ def reject_current_candidate(
         del observer
         request["rollback_or_compensation"]["expected_state_id"] = "foreign"
 
-    attacks = (
+    attacks = dict((
         ("missing-role", missing_role),
         ("extra-role", extra_role),
         ("aliased-role", aliased_role),
@@ -1150,9 +1152,9 @@ def reject_current_candidate(
         ("partial-success", partial_success),
         ("stale-target", stale_target),
         ("wrong-rollback", wrong_rollback),
-    )
+    ))
     try:
-        for attack_id, attack in attacks:
+        for attack_id in registry_factory.rejection_attack_ids(binding["profile_id"], scenario_id):
             temporary_root = tempfile.TemporaryDirectory(
                 prefix="gew-scenario-truth-rejection-"
             )
@@ -1163,8 +1165,28 @@ def reject_current_candidate(
                 private_root=temporary_root.name,
             )
             request = observer.request()
-            attack(request, observer)
-            receipt = observer.reject(attack_id, request)
+            baseline = (observer.capture_baseline()
+                        if "execution_contract" in observer._fixture_row else None)
+            if attack_id == "missing-baseline":
+                baseline = None
+            elif attack_id == "foreign-baseline":
+                foreign_root = tempfile.TemporaryDirectory(prefix="gew-scenario-foreign-")
+                roots.append(foreign_root)
+                foreign = registry_factory.observation_factory(
+                    registry_factory.registry(), binding=binding, private_root=foreign_root.name)
+                baseline = foreign.capture_baseline()
+            elif attack_id == "stale-control":
+                path = observer._root / observer._fixture_row["execution_contract"]["controls"][0]["path_id"]
+                path.write_bytes(path.read_bytes() + b"stale")
+            elif attack_id == "wrong-environment":
+                request["environment"]["classification"] = "production"
+            elif attack_id == "gate-omission":
+                request["ordered_gate_ids"].pop()
+            elif attack_id == "gate-reorder":
+                request["ordered_gate_ids"].reverse()
+            else:
+                attacks[attack_id](request, observer)
+            receipt = observer.reject(attack_id, request, baseline_receipt=baseline)
             if (
                 receipt.mutation_count != 0
                 or not receipt.request_unchanged

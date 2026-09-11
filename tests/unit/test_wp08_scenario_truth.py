@@ -1464,5 +1464,234 @@ class BindingLifecycleRuntimeTests(unittest.TestCase):
             root.terminate("revoke")
 
 
+class GuardedScenarioTruthTests(unittest.TestCase):
+    scenarios = ("emergency-baseline", "production-like-gate")
+
+    def setUp(self):
+        self.factory = ScenarioTruthRegistryFactory.from_installation()
+        self.addCleanup(self.factory.close)
+
+    def observer(self, scenario):
+        binding = ScenarioTruthAuthorityTests.binding()
+        binding["profile_id"] = "hotfix"
+        binding["scenario_id"] = scenario
+        root = tempfile.TemporaryDirectory(prefix="gew-p2b-unit-")
+        self.addCleanup(root.cleanup)
+        return self.factory.observation_factory(
+            self.factory.registry(), binding=binding, private_root=root.name,
+        )
+
+    def test_guarded_execution_requires_fresh_opaque_baseline(self):
+        for scenario in self.scenarios:
+            with self.subTest(scenario=scenario):
+                observer = self.observer(scenario)
+                baseline = observer.capture_baseline()
+                with self.assertRaises(ScenarioTruthError):
+                    observer.execute(observer.request())
+                self.assertEqual(observer.mutation_count, 0)
+                with self.assertRaises(TypeError):
+                    pickle.dumps(baseline)
+                evidence = observer.execute(observer.request(), baseline_receipt=baseline)
+                self.factory.require_current(evidence)
+                self.assertIn("execution_proof", evidence.to_dict())
+                self.assertEqual(observer.mutation_count, len(observer.request()["targets"]))
+                with self.assertRaises(ScenarioTruthError):
+                    observer.capture_baseline()
+
+    def test_guarded_baseline_rejects_foreign_clone_serialized_and_stale_inputs(self):
+        for scenario in self.scenarios:
+            for attack in ("foreign", "clone", "serialized", "target", "control", "revision"):
+                with self.subTest(scenario=scenario, attack=attack):
+                    observer = self.observer(scenario)
+                    baseline = observer.capture_baseline()
+                    if attack == "foreign":
+                        baseline = self.observer(scenario).capture_baseline()
+                    elif attack == "clone":
+                        baseline = object.__new__(type(baseline))
+                    elif attack == "serialized":
+                        baseline = dict(observer._baseline_receipts[id(baseline)][1])
+                    elif attack == "target":
+                        path = observer._root / observer.request()["targets"][0]["path_id"]
+                        path.write_bytes(b"stale")
+                    elif attack == "control":
+                        path = observer._root / observer._fixture_row["execution_contract"]["controls"][0]["path_id"]
+                        path.write_bytes(b"stale")
+                    else:
+                        from graph_engineering.core.contracts.immutable import freeze, thaw
+                        changed = thaw(observer._binding)
+                        changed["task_revision"] += 1
+                        observer._binding = freeze(changed)
+                    before = observer.target_bytes()
+                    with self.assertRaises(ScenarioTruthError):
+                        observer.execute(observer.request(), baseline_receipt=baseline)
+                    self.assertEqual(observer.target_bytes(), before)
+                    self.assertEqual(observer.mutation_count, 0)
+
+    def test_capture_from_b_and_guard_request_tamper_fail_before_patch(self):
+        for scenario in self.scenarios:
+            observer = self.observer(scenario)
+            row = observer._fixture_row["target_roles"][0]
+            (observer._root / row["path_id"]).write_text(row["candidate_value"], encoding="ascii")
+            with self.assertRaises(ScenarioTruthError):
+                observer.capture_baseline()
+            self.assertEqual(observer.mutation_count, 0)
+            for attack in ("production", "environment", "omission", "order", "alias", "caller-health", "scope"):
+                with self.subTest(scenario=scenario, attack=attack):
+                    observer = self.observer(scenario)
+                    baseline = observer.capture_baseline()
+                    request = observer.request()
+                    if attack == "production": request["environment"]["classification"] = "production"
+                    elif attack == "environment": request["environment"]["environment_id"] += "-foreign"
+                    elif attack == "omission": request["ordered_gate_ids"].pop()
+                    elif attack == "order": request["ordered_gate_ids"].reverse()
+                    elif attack == "alias": request["ordered_gate_ids"][1] = request["ordered_gate_ids"][0]
+                    elif attack == "scope": request["targets"].pop()
+                    else: request["healthy"] = True
+                    before = observer.target_bytes()
+                    with self.assertRaises(ScenarioTruthError):
+                        observer.execute(request, baseline_receipt=baseline)
+                    self.assertEqual(observer.target_bytes(), before)
+                    self.assertEqual(observer.mutation_count, 0)
+
+    def test_guarded_proof_restoration_is_exact_and_current_without_replay(self):
+        from graph_engineering.core.contracts.immutable import thaw
+        for scenario in self.scenarios:
+            observer = self.observer(scenario)
+            evidence = observer.execute(observer.request(), baseline_receipt=observer.capture_baseline())
+            projection = json.loads(evidence.to_bytes())
+            with mock.patch.object(type(observer), "execute", side_effect=AssertionError("replay")):
+                restored = self.factory.restore_projection(projection)
+                self.factory.require_current(restored)
+            for attack in ("missing", "environment", "baseline", "sequence", "budget", "gates", "extra", "fixture", "before"):
+                with self.subTest(scenario=scenario, attack=attack):
+                    changed = copy.deepcopy(projection)
+                    proof = changed["execution_proof"]
+                    if attack == "missing": del changed["execution_proof"]
+                    elif attack == "environment": proof["baseline"]["contract"]["environment_id"] += "-foreign"
+                    elif attack == "baseline": proof["baseline"]["baseline_targets"][0]["state_id"] = "B"
+                    elif attack == "sequence": proof["ordered_phases"][0]["sequence"] = True
+                    elif attack == "budget": proof["baseline"]["change_bytes"] += 1
+                    elif attack == "gates": proof["gate_results"].reverse()
+                    elif attack == "extra": proof["extra"] = True
+                    elif attack == "fixture": changed["fixture_row"]["execution_contract"]["authority_kind"] += "-foreign"
+                    else: changed["before_targets"][0]["state_id"] = "B"
+                    body = {k:v for k,v in changed.items() if k != "observation_digest"}
+                    changed["observation_digest"] = scenario_core._semantic(body, "scenario-truth-observation")
+                    with self.assertRaises(ScenarioTruthError): self.factory.restore_projection(changed)
+            control = observer._fixture_row["execution_contract"]["controls"][-1]
+            (observer._root / control["path_id"]).write_bytes(b"stale")
+            for value in (evidence, restored):
+                with self.assertRaises(ScenarioTruthError): self.factory.require_current(value)
+
+    def test_post_patch_failure_is_not_a_zero_write_rejection_or_retry(self):
+        import graph_engineering.application.scenario_truth as application_truth
+        for scenario in self.scenarios:
+            for drift in ("target", "control"):
+                observer = self.observer(scenario)
+                baseline = observer.capture_baseline()
+                original = application_truth._guarded_proof
+                def inject(*args):
+                    row = (observer._fixture_row["target_roles"][0] if drift == "target"
+                           else observer._fixture_row["execution_contract"]["controls"][0])
+                    (observer._root / row["path_id"]).write_bytes(b"post-patch drift")
+                    return original(*args)
+                with mock.patch.object(application_truth, "_guarded_proof", side_effect=inject):
+                    with self.assertRaises(ScenarioTruthError):
+                        observer.execute(observer.request(), baseline_receipt=baseline)
+                self.assertGreater(observer.mutation_count, 0)
+                self.assertFalse(any(item[0] is observer for item in self.factory._issued_observations.values()))
+                with self.assertRaises(ScenarioTruthError): observer.reject("missing-baseline", observer.request())
+                with self.assertRaises(ScenarioTruthError): observer.execute(observer.request(), baseline_receipt=baseline)
+
+    def test_every_guard_control_and_change_budget_are_pre_patch_prerequisites(self):
+        from graph_engineering.core.contracts.immutable import freeze, thaw
+        for scenario in self.scenarios:
+            for index in range(5):
+                observer = self.observer(scenario)
+                baseline = observer.capture_baseline()
+                control = observer._fixture_row["execution_contract"]["controls"][index]
+                (observer._root / control["path_id"]).write_bytes(b"not authorized")
+                with self.assertRaises(ScenarioTruthError): observer.capture_baseline()
+                with self.assertRaises(ScenarioTruthError): observer.execute(observer.request(), baseline_receipt=baseline)
+                self.assertEqual(observer.mutation_count, 0)
+            observer = self.observer(scenario)
+            fixture = thaw(observer._fixture_row)
+            fixture["execution_contract"]["minimal_change_budget"] = 0
+            observer._fixture_row = freeze(fixture)
+            with self.assertRaises(ScenarioTruthError): observer.capture_baseline()
+            self.assertEqual(observer.mutation_count, 0)
+
+    def test_guarded_health_reads_exact_json_scalar_and_minimal_change_metric(self):
+        from graph_engineering.application.scenario_truth import _guarded_proof
+        self.assertEqual(scenario_core.minimal_change_bytes(b"prefixAsuffix", b"prefixBsuffix"), 2)
+        self.assertEqual(scenario_core.minimal_change_bytes(b"same", b"same"), 0)
+        self.assertEqual(scenario_core.minimal_change_bytes(b"abc", b"ab"), 1)
+        from graph_engineering.core.contracts.immutable import freeze, thaw
+        for scenario in self.scenarios:
+            for candidate in ('{"healthy":1}', '{"healthy":false}', '{}', '{"healthy":true,"healthy":false}', 'malformed'):
+                with self.subTest(scenario=scenario, candidate=candidate):
+                    observer = self.observer(scenario)
+                    fixture = thaw(observer._fixture_row)
+                    fixture["target_roles"][0]["candidate_value"] = candidate
+                    fixture["execution_contract"]["minimal_change_budget"] = 1024
+                    (observer._root / fixture["target_roles"][0]["path_id"]).write_text(candidate, encoding="ascii")
+                    with self.assertRaises(ScenarioTruthError):
+                        _guarded_proof(observer._binding, freeze(fixture), self.factory.installation_pins,
+                                       observer._root, observer._root_identity)
+
+    def test_guarded_control_links_are_denied_at_capture_execute_and_restore(self):
+        for phase in ("capture", "execute", "restore", "current"):
+            observer = self.observer(self.scenarios[0])
+            baseline = observer.capture_baseline()
+            evidence = (observer.execute(observer.request(), baseline_receipt=baseline)
+                        if phase in ("restore", "current") else None)
+            control = observer._fixture_row["execution_contract"]["controls"][0]
+            path = observer._root / control["path_id"]
+            backing = path.with_name(path.name + "-backing")
+            path.rename(backing)
+            path.symlink_to(backing)
+            count = observer.mutation_count
+            with self.assertRaises(ScenarioTruthError):
+                if phase == "capture": observer.capture_baseline()
+                elif phase == "execute": observer.execute(observer.request(), baseline_receipt=baseline)
+                elif phase == "restore": self.factory.restore_projection(evidence.to_dict())
+                else: self.factory.require_current(evidence)
+            self.assertEqual(observer.mutation_count, count)
+
+    def test_guarded_root_marker_is_current_before_and_after_patch(self):
+        for executed in (False, True):
+            observer = self.observer(self.scenarios[0])
+            baseline = observer.capture_baseline()
+            evidence = observer.execute(observer.request(), baseline_receipt=baseline) if executed else None
+            (observer._root / ".scenario-truth-root").write_bytes(b"foreign-task")
+            count = observer.mutation_count
+            with self.assertRaises(ScenarioTruthError):
+                if executed: self.factory.require_current(evidence)
+                else: observer.execute(observer.request(), baseline_receipt=baseline)
+            self.assertEqual(observer.mutation_count, count)
+
+    def test_guarded_rejection_marker_binding_at_issue_and_before_aggregation(self):
+        for scenario in self.scenarios:
+            for stage in ("issue", "aggregate"):
+                for attack in ("content", "missing", "symlink"):
+                    with self.subTest(scenario=scenario, stage=stage, attack=attack):
+                        observer = self.observer(scenario)
+                        receipt = (observer.reject("missing-baseline", observer.request())
+                                   if stage == "aggregate" else None)
+                        issued = dict(self.factory._issued_rejections)
+                        marker = observer._root / ".scenario-truth-root"
+                        if attack == "content": marker.write_bytes(b"foreign-task")
+                        elif attack == "missing": marker.unlink()
+                        else:
+                            backing = marker.with_name("marker-backing")
+                            marker.rename(backing)
+                            marker.symlink_to(backing)
+                        with self.assertRaises(ScenarioTruthError):
+                            if stage == "issue": observer.reject("missing-baseline", observer.request())
+                            else: self.factory._require_rejection_receipt(receipt)
+                        self.assertEqual(self.factory._issued_rejections, issued)
+                        self.assertEqual(observer.mutation_count, 0)
+
+
 if __name__ == "__main__":
     unittest.main()

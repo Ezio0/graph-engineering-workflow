@@ -24,5 +24,19 @@
       "verification": "Independently reconstructed the ARTIFACTS-R request from current candidate-selector logic, profile data and plan task ID, framed the existing semantic-digest domain, and obtained SHA-256 e9315eb7ced2072939c95533b7f8aeb53e11e1e1c137d5e462c69c5130a9b938. ADR-0008, Spec, Impact, Plan, Test Plan and the authority-neutral audit correction agree on this value and no version/schema/target expansion.",
       "status": "resolved"
     }
+  ],
+  "p2b_records": [
+    {
+      "record_id": "p2b-document-check-2026-09-11-r0",
+      "reviewer_id": "/root/p2b_docs_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "test_plan",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      }
+    }
   ]
 }

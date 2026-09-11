@@ -29,7 +29,7 @@
       "profile_version": "1.0.0",
       "scenario_id": "emergency-baseline",
       "fixture_id": "fixture:hotfix:emergency-baseline:v1",
-      "fixture_digest": "sha256-jcs-v1:cd5f94d540bbad94bed7085dcf1743ed00564e6dd536d4a1028b5e751d83bb62",
+      "fixture_digest": "sha256-jcs-v1:6eef2a97c04c61e634fa25500a2bf5814e6a63b82a5a979d6fe77e784aed52e5",
       "required_target_roles": [
         "primary-target"
       ],
@@ -48,14 +48,14 @@
       "mutation_budget": 1,
       "rollback_required": true,
       "compensation_required": false,
-      "row_digest": "sha256-jcs-v1:eb6659b79ccfe49de5b03b73daa8c15fbc49e7d6e089ca2ba87a9a90a337781c"
+      "row_digest": "sha256-jcs-v1:d6911cef95ed3fe495acbbb5ef1459e6b89e8d8fde7795cb20980f76671fc7b3"
     },
     {
       "profile_id": "hotfix",
       "profile_version": "1.0.0",
       "scenario_id": "production-like-gate",
       "fixture_id": "fixture:hotfix:production-like-gate:v1",
-      "fixture_digest": "sha256-jcs-v1:bb9548d8260a92bb5bae1d6a729afedba773ea7df7aee09e86d13b714e5a29e1",
+      "fixture_digest": "sha256-jcs-v1:b75b05d81315e32553cb2467be2862ea7b1db779fec5c10ad4b099b77c903d86",
       "required_target_roles": [
         "primary-target"
       ],
@@ -74,7 +74,7 @@
       "mutation_budget": 1,
       "rollback_required": true,
       "compensation_required": false,
-      "row_digest": "sha256-jcs-v1:c85b8c2ccb64850dc1c6b9704d48385bf6db7be7672dd95641c2f8d687a46817"
+      "row_digest": "sha256-jcs-v1:5679777e2bd7a5f4dbebe378bd9ef7cef9265f9a899f26e77e968f79c423a2fd"
     },
     {
       "profile_id": "incident-response",
@@ -289,5 +289,5 @@
       "row_digest": "sha256-jcs-v1:c8f7da52a2e01fcf9328df16405fff52748ee0cca5bc30389c04d7abe8b56eea"
     }
   ],
-  "registry_digest": "sha256-jcs-v1:1cfb1292572d4f92aebd36665b3f46172ba77d1c9a83bcce03c77307f911e119"
+  "registry_digest": "sha256-jcs-v1:8afddccc25cb0f167ef3256196644836c44e4022195fdc1a4b4ea01e55f2cb11"
 }

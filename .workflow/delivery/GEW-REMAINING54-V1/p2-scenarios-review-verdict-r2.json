@@ -29,5 +29,85 @@
       "verification": "Independent checks passed: 16 memory/charge/resource tests; 3 WP-02 cross-implementation tests; 63 tests and 130 subtests covering scenario unit, authority and charge/resource contracts; architecture scan and diff whitespace checks. Final source hashes remained unchanged. This PASS covers only the bounded memory/lifecycle hotfix, not Candidate closure, cumulative verification, monitoring restoration or irreversible authority.",
       "status": "resolved"
     }
+  ],
+  "p2b_records": [
+    {
+      "record_id": "p2b-implementation-2026-09-11-r0",
+      "reviewer_id": "/root/p2b_implementation_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "REVISE",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [
+          "implementation",
+          "consistency",
+          "testability"
+        ],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P2B-IMPLEMENTATION-R0-001",
+            "severity": "blocking",
+            "status": "open",
+            "evidence": "The 43 target hashes match aggregate 5da0912d60fecab36539aae2c10395d84231ef6ff38c0a9b8101ec32ca7dc3d8. At that revision, pyproject.toml:692-706 inserts hotfix-emergency-baseline after hotfix-minimal-patch and hotfix-production-like-gate before hotfix-normal, violating the protected-vector canonical ordering. The coordinator's preserved p2b-verification-attempt-2026-09-11-r0 reports tests/e2e/test_wp00_installed_wheel.py:162 failing sources == tuple(sorted(set(sources))). Thus the required package/source closure verification does not pass.",
+            "required_change": "Restore canonical ordering of paired protected-source/resource vectors without changing their exact membership or weakening checks. Recompute every actually affected provenance/bootstrap pin through the existing authorized cascade.",
+            "verification": "Run bounded installed-wheel and packaging checks to completion, verify paired sources/resources remain aligned and unique, and confirm the four new bindings/two oracles are retained alongside all 226/113 baseline entries."
+          },
+          {
+            "id": "GEW-REMAINING54-P2B-IMPLEMENTATION-R0-002",
+            "severity": "blocking",
+            "status": "open",
+            "evidence": "The coordinator's preserved schema-profile verification fails with profile/array-bound at properties.fixtures.items.properties.rejection_attack_ids. config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json:48-55 lacks maxItems; the same unbounded array appears in its input pair and both observation/assessment source-input pairs. This omission is inherited from the baseline, but remains present in all six schemas revised and pinned by this packet. core/graph_engineering/core/contracts/schema.py:145 explicitly rejects array schemas without maxItems.",
+            "required_change": "Make the touched schema pairs conform to the frozen schema profile, preserving the installed exact rejection-vector semantics and source/input projection relationship. Add direct schema-profile regression coverage and update affected schema/registry/bootstrap/package pins without weakening the profile validator.",
+            "verification": "Validate all six changed schemas against the frozen GEW schema profile, not merely example instances; then run bounded source/input projection and installation-currentness checks."
+          },
+          {
+            "id": "GEW-REMAINING54-P2B-IMPLEMENTATION-R0-003",
+            "severity": "blocking",
+            "status": "open",
+            "evidence": "Static review finds asymmetric private-root binding validation. Guarded positive evidence rereads .scenario-truth-root in _baseline_projection, but application/graph_engineering/application/scenario_truth.py:999-1014 validates rejection receipts using the frozen binding, target bytes and control bytes only. It never rereads the task marker. bind_rejections and require_rejections rely on this method, and application/graph_engineering/application/profile_coverage.py:_scenario_rejection_digest adds no marker check. Consequently replacing, removing or symlinking an issued guarded R receipt's marker leaves this currentness path unchanged while violating the preserved exact task namespace. The added root-marker regression exercises positive evidence only.",
+            "required_change": "Bind and freshly validate each rejection root's task marker through the existing no-follow/root-identity checks at receipt issuance and subsequent rejection currentness. Preserve intentionally invalid attack target/control snapshots; do not require those snapshots to become successful positive prerequisites.",
+            "verification": "For both guarded scenarios, add bounded R tests changing marker content, deleting it and replacing it with a symlink before aggregation and at issue/use/precommit/gate. Require fail-closed results, unchanged issuance state and zero additional task/action/target writes or replay; retain the successful complete eight-receipt vectors."
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "p2b-implementation-2026-09-11-r1",
+      "reviewer_id": "/root/p2b_implementation_r1",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P2B-IMPLEMENTATION-R0-001",
+            "severity": "blocking",
+            "status": "resolved",
+            "evidence": "pyproject.toml restores canonical ordering of the paired protected-source/resource vectors. The preserved isolated-wheel-and-packaging result records 3 tests passing. Independent read-only comparison confirms all 226 baseline bindings and 113 oracle rows remain unchanged, with exactly four hotfix bindings and two oracle additions.",
+            "required_change": "Completed: restore paired canonical ordering and reconcile affected provenance/bootstrap pins without changing membership or weakening validation.",
+            "verification": "All 43 target hashes and aggregate b3516bf0dc450155c9367c948a3003496550a01ade388592d9de1cfc4c3d55 were independently checked; the actual verified aggregate is b3516bf0dc45015561c9367c948a3003496550a01ade388592d9de1cfc4c3d55. State targets match the manifest and remain within the unchanged exact174 Envelope. HEAD, approved PRD v2 and protected files remain unchanged."
+          },
+          {
+            "id": "GEW-REMAINING54-P2B-IMPLEMENTATION-R0-002",
+            "severity": "blocking",
+            "status": "resolved",
+            "evidence": "All six touched schemas now bound rejection_attack_ids with maxItems 64. Static inspection found no unbounded array nodes, and each source/input pair differs only by its top-level derived digest field and schema ID. tests/contract/test_wp08_remaining54_contracts.py:268 directly validates all six schemas against the frozen schema profile.",
+            "required_change": "Completed: restore schema-profile conformance, preserve exact installed rejection vectors and digest projections, and add direct profile regression coverage.",
+            "verification": "The appended p2b-bounded-verification-2026-09-11-r1 completion records the contract regression within 47 passing tests, exit 0, 283.501 seconds under a 600-second bound. Its artifact digest matches the independently rechecked frozen aggregate."
+          },
+          {
+            "id": "GEW-REMAINING54-P2B-IMPLEMENTATION-R0-003",
+            "severity": "blocking",
+            "status": "resolved",
+            "evidence": "application/graph_engineering/application/scenario_truth.py now checks the guarded task marker before rejection execution, rechecks it before receipt issuance, binds its digest, and freshly validates it in _require_rejection_receipt. Reads use the existing no-follow, root-identity and private-file checks. Intentionally invalid attack targets and controls remain compared against their recorded rejection snapshots.",
+            "required_change": "Completed: enforce guarded rejection task-marker binding at issuance and subsequent currentness, with bounded marker-content, deletion and symlink regressions.",
+            "verification": "Reviewed both-scenario issuance/aggregation regressions and aggregate/issue/use/precommit/gate negative coverage, issuance-state preservation, complete eight-receipt vectors and four-phase zero-replay lifecycle assertions. These selectors completed in the recorded 47-test passing batch. This PASS covers bounded P2b implementation only; it establishes no cumulative acceptance or irreversible-action authority."
+          }
+        ]
+      }
+    }
   ]
 }

@@ -40,5 +40,65 @@
       "sha256": "b9ca2a10493bceedde1a0637d8f6d5ba6e3be54d818410c4292e03779720f6fd"
     }
   ],
-  "ordered_raw_aggregate_sha256": "7a8388bec550f59dc579f147e9b32a62d3320bc63fdc4f31eb3ed14a87d56967"
+  "ordered_raw_aggregate_sha256": "7a8388bec550f59dc579f147e9b32a62d3320bc63fdc4f31eb3ed14a87d56967",
+  "p2b_packets": [
+    {
+      "record_id": "p2b-document-check-2026-09-11-r0",
+      "author_id": "/root",
+      "revision": 0,
+      "scope": "P2b bounded documentation refinement only, before code.",
+      "entry_commit": "6c3e67c011925fb41d49d0781c3fd06e619d708b",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "raw_sha256": "e11a939b7719b56c5955567faf6d9bfeb93dee2e3f1fd34a024d1f324a215554",
+          "bytes": 13360
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "raw_sha256": "02ff7ae8bbd18eacc827c9e422d943c9688246668a7c80eb474d555ae96dd37f",
+          "bytes": 35828
+        },
+        {
+          "path": "docs/adr/0007-offline-performance-benchmark-authority.md",
+          "raw_sha256": "045c4a4a2af2b887dcdc8a38413034e2c2a6cce605f418b456e65558f889b184",
+          "bytes": 45276
+        },
+        {
+          "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "raw_sha256": "3d920bebfc0d97adb8cabd3e7e8ba71058950f5109c58bf3c235220799a05add",
+          "bytes": 31739
+        },
+        {
+          "path": "docs/adr/0009-offline-release-operations-simulator-authority.md",
+          "raw_sha256": "03aff594c757f338c3dddf4b95234714ea9a118fa25c40aaa441edaeedce63ac",
+          "bytes": 23702
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "raw_sha256": "4211285fef099c154895cec9a32c8740ed0ef64a58665dad9f624ab0c83253b9",
+          "bytes": 75088
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "raw_sha256": "4dbf6154105273faace68a1a38fd0b7778495a1d5c49a7fc3971995c878a8b62",
+          "bytes": 67406
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "raw_sha256": "d33478125b72a259d72f1b42a9f103de389586eb46360b0cdd2ba12d3c8b2362",
+          "bytes": 163038
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "raw_sha256": "1dce8abeed3f3ab69acd7cd785d6d906a4ee0007720e2620a0619d931e95a000",
+          "bytes": 143147
+        }
+      ],
+      "artifact_digest": "e07a5e0473e6e8f188f07fa10909e6d4b0f60369e61c87d4b71ee00ecd8ed49b",
+      "aggregate_algorithm": "SHA256 of sorted project-relative path + NUL + raw bytes + NUL",
+      "prior_record_preservation": "All original top-level fields are unchanged. Exact original whole-file bytes remain available at the entry commit.",
+      "evidence_boundary": "Plan230/oracle115 is a target shape, not newly measured cumulative coverage. No code or cumulative execution yet."
+    }
+  ]
 }

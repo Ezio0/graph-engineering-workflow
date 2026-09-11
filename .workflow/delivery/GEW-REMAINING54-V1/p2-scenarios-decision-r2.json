@@ -14,5 +14,50 @@
     "envelope": "sha256:16c1370cee3620460494657a31ce667e97acfa9e7147bb6fddc94bcda597aa15",
     "state": "sha256:c4137bde163102c7fdacbebf208a6f7b4480f3371ab02449ce24251a967e3df7",
     "verdict": "sha256:dfcc0bd425d33cf5d63f3e2eca33addea229ef34383341b3415264b55e9f7adc"
-  }
+  },
+  "p2b_records": [
+    {
+      "record_id": "p2b-implementation-2026-09-11-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ESCALATE",
+        "code": "E_SCOPE",
+        "message": "human decision required for change kinds: consistency, implementation",
+        "next_node": "implementation",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "implementation",
+        "input_verdict": "REVISE",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:c9911b586a4f515073405643a579b2b5af1c93091fe4ba99d8500bcfee05674f",
+          "verdict": "sha256:5d635da8b3690ff41520b9d4b0f3c8a4f70e0399145a0711b1a16870a641b660"
+        }
+      }
+    },
+    {
+      "record_id": "p2b-implementation-2026-09-11-r1",
+      "state_record_id": "p2b-implementation-2026-09-11-r1-reconciled",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:63f5ca500785a04a208f3a3e45fd1eea2a892a6668593d0f245f7c8bd9eb7f63",
+          "verdict": "sha256:cf96d41123f37eb472ba0b35ab9fc9081bf8c9ac2beec4fa43d32c971ee2ee9e"
+        }
+      }
+    }
+  ]
 }

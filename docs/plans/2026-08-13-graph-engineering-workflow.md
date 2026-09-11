@@ -854,3 +854,34 @@ extension trust 必须先走 ADR-0004 author/reviewer loop；只有该 ADR 会�
 Order: record human amendment; add these impact/spec/test requirements; reproduce both defects with focused RED tests; implement bounded repairs and reconcile actual protected-source digests; run bounded GREEN/static checks; freeze a new independently reviewed repair revision without erasing rejected records. Do not launch a cumulative run, restore monitoring or enter P2b. Cumulative acceptance stays pending until separately authorized fresh evidence exists.
 
 Current governing budget: **14400 seconds (4 hours)** for future separately authorized cumulative runs; heartbeat remains 60 seconds. Historical 12600/86400 values and old receipts are retained as history, not current authority. Monitoring remains PAUSED and no automatic rerun is authorized.
+
+### P2b bounded delivery plan — 2026-09-11
+
+Authority: `human-decision-p1-p2-p3-r0.json#p2b_continuation_amendment`.
+Entry baseline is the accepted and locally committed P2a checkpoint; only the two
+hotfix scenarios advance. The current source-edit Envelope remains exact174.
+
+1. Review this Spec/Impact/Plan/Test Plan refinement independently against approved
+   PRD/ADR-0008 before code. Persist scoped P2b state/verdict/decision records as
+   append-only entries in existing allowed record files; preserve prior records
+   and exact historical bytes in the entry commit.
+2. Add focused RED tests for absent guarded baseline/health semantics and absent
+   hotfix oracle/plan bindings; distinguish intended failure from stale imports or
+   installation setup errors. Do not run a cumulative selector.
+3. Implement the config-owned guarded contract, opaque pre-mutation receipt,
+   current local controls, minimal-change calculation and actual target health
+   predicates. Extend closed proof validation through currentness/CAS/restoration.
+4. Add both independent P/R contexts and complete factory-owned rejection vectors;
+   use separate fresh private roots and strict serial four-phase lifecycle tests.
+   Add the two authorized oracle members and four plan bindings only.
+5. Recompute actual changed schema/registry/bootstrap/action/source/package pins
+   in dependency order without editing protected support files or weakening pins.
+   Run bounded targeted GREEN, P2a retained regression and relevant static/package
+   checks. Each native test command has an explicit finite timeout; stop and
+   diagnose on failure/timeout rather than blindly repeating the batch.
+6. Freeze current source/evidence and obtain fresh independent implementation and
+   bounded verification review. Preserve every rejected revision and stable
+   finding ID; use the standard reducer and configured three-revision limit.
+7. Stop with an implementation/bounded-evidence handoff. Plan 230/oracle115 is not a
+   new cumulative 230-valid receipt. Cumulative rerun, monitoring, commit/push,
+   P2c/P2d/P3 and irreversible actions require separate authority and stay stopped.

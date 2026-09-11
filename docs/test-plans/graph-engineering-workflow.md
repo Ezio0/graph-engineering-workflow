@@ -1604,3 +1604,47 @@ unchanged R receipts/state and zero replay. The R coverage authority must retain
 its exact process-local scenario issuer independently of restarted category
 assessment state; no missing-factory shortcut is permitted. The revision 1
 independent review and its failing normal-R reopen result remain preserved.
+
+### P2b bounded acceptance matrix — 2026-09-11
+
+The authorized run scope is bounded native tests only, strict serial fresh roots,
+with a finite timeout per command and first-failure diagnosis. No cumulative
+selector, launch supervisor or monitoring restoration is permitted. The original
+P2a receipt remains bound to its committed source, not the new working tree.
+
+- RED: guarded fixture must not complete with the generic A-to-B/three-boolean
+  contract; missing hotfix oracle members and four plan bindings must be observed.
+- Baseline P: genuine installation-owned local emergency grant, exact impact and
+  containment scope, actual A reads, zero prior mutations, minimal B within the
+  configured byte budget, ready rollback and fresh B all share one binding.
+- Baseline negatives: missing receipt, B/late capture, cloned/foreign/re-signed or
+  stale receipt; missing/stale authority; impact/containment omission/substitution;
+  wrong rollback or excessive patch. Assert failure before first patch when the
+  invalid prerequisite exists before execution, unchanged input/control/targets,
+  zero task/event/CAS/ref/action writes and zero issued completion evidence.
+- Local gate P: fresh candidate JSON health predicates and the complete ordered
+  impact/health/rollback gate produce explicit local/non-production proof.
+  Negatives cover production elevation, self-reported health, failed/missing/
+  stale health/control, skipped/reordered gate and environment/target aliases.
+- Post-patch faults: inject target/control drift between patch and final gate;
+  require no observation/assessment/coverage issuance and truthful nonzero
+  mutation accounting where a patch already occurred. Never issue a zero-write
+  rejection receipt for such an execution.
+- Typed closure: each P/R is distinct; factory owns every exact ordered installed
+  rejection receipt. Reject missing/extra/reordered/duplicate/cloned/foreign or
+  stale receipt, altered false flags, P substitution and missing original issuer.
+- Currentness: change binding, installation, fixture, baseline proof, control,
+  environment, health predicate, gate order or target at issue/use/precommit/gate.
+  All false/currentness substitutions fail closed with no further writes.
+- Restart: unique referenced CAS with a fresh factory restores proof only after
+  complete installed/current checks, no mutation/action/command replay; altered
+  or coherently re-signed proof and foreign/duplicate/unreferenced CAS fail.
+- Lifecycle: bounded four-phase tests for each new P/R binding plus retained P2a,
+  strict serial reopen, distinct root/task/branch/ref/targets, no-follow path
+  checks and terminal invalidation; resource handles return to the local baseline.
+- Counts/package: exact existing bindings/oracles retained plus four/two additions;
+  plan230/oracle115, two exact hotfix oracle paths, closed schema/package/source
+  membership and current pins. Preserve frozen old assessment/oracle bytes.
+- Report: separate measured bounded tests from future cumulative coverage.
+  Independent review must not call this 230-valid, Remaining54-complete, production
+  ready, deployed or committed.

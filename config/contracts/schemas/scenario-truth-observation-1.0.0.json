@@ -236,8 +236,13 @@
           "$ref": "#/$defs/id"
         },
         "rejection_attack_ids": {
-          "type": "array", "minItems": 1, "uniqueItems": true,
-          "items": { "$ref": "#/$defs/id" }
+          "type": "array",
+          "maxItems": 64,
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
         },
         "target_roles": {
           "type": "array",
@@ -360,6 +365,182 @@
         },
         "fixture_digest": {
           "$ref": "#/$defs/digest"
+        },
+        "execution_contract": {
+          "type": "object",
+          "properties": {
+            "contract_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "environment_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "environment_classification": {
+              "const": "non-production"
+            },
+            "authority_kind": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "impact_roles": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "minItems": 1,
+              "maxItems": 64
+            },
+            "containment_roles": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "minItems": 1,
+              "maxItems": 64
+            },
+            "controls": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "control_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "kind": {
+                    "enum": [
+                      "authority",
+                      "impact",
+                      "containment",
+                      "health",
+                      "rollback"
+                    ]
+                  },
+                  "path_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "expected_value": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "control_id",
+                  "kind",
+                  "path_id",
+                  "expected_value"
+                ],
+                "unevaluatedProperties": false
+              },
+              "minItems": 5,
+              "maxItems": 5
+            },
+            "minimal_change_budget": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "health_predicates": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "predicate_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "target_role": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "field_path": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    "minItems": 1,
+                    "maxItems": 64
+                  },
+                  "expected": {
+                    "type": [
+                      "string",
+                      "boolean",
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "predicate_id",
+                  "target_role",
+                  "field_path",
+                  "expected"
+                ],
+                "unevaluatedProperties": false
+              },
+              "minItems": 1,
+              "maxItems": 64
+            },
+            "ordered_gates": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "gate_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "kind": {
+                    "enum": [
+                      "impact",
+                      "health",
+                      "rollback"
+                    ]
+                  }
+                },
+                "required": [
+                  "gate_id",
+                  "kind"
+                ],
+                "unevaluatedProperties": false
+              },
+              "minItems": 3,
+              "maxItems": 3
+            }
+          },
+          "required": [
+            "contract_id",
+            "environment_id",
+            "environment_classification",
+            "authority_kind",
+            "impact_roles",
+            "containment_roles",
+            "controls",
+            "minimal_change_budget",
+            "health_predicates",
+            "ordered_gates"
+          ],
+          "unevaluatedProperties": false
         }
       },
       "required": [
@@ -534,6 +715,482 @@
     },
     "observation_digest": {
       "$ref": "#/$defs/digest"
+    },
+    "execution_proof": {
+      "type": "object",
+      "properties": {
+        "baseline": {
+          "type": "object",
+          "properties": {
+            "binding": {
+              "type": "object",
+              "properties": {
+                "task_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "task_revision": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "snapshot_digest": {
+                  "$ref": "#/$defs/digest"
+                },
+                "invalidation_epoch": {
+                  "$ref": "#/$defs/integer"
+                },
+                "profile_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "profile_version": {
+                  "$ref": "#/$defs/id"
+                },
+                "scenario_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "graph_ref_pins": {
+                  "type": "object",
+                  "properties": {
+                    "base_graph_digest": {
+                      "$ref": "#/$defs/digest"
+                    },
+                    "profile_digest": {
+                      "$ref": "#/$defs/digest"
+                    },
+                    "overlay_digest": {
+                      "$ref": "#/$defs/digest"
+                    },
+                    "project_config_digest": {
+                      "$ref": "#/$defs/digest"
+                    },
+                    "support_matrix_digest": {
+                      "$ref": "#/$defs/digest"
+                    },
+                    "materialization_digest": {
+                      "$ref": "#/$defs/digest"
+                    }
+                  },
+                  "required": [
+                    "base_graph_digest",
+                    "profile_digest",
+                    "overlay_digest",
+                    "project_config_digest",
+                    "support_matrix_digest",
+                    "materialization_digest"
+                  ],
+                  "unevaluatedProperties": false
+                },
+                "branch_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "ref_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "task_id",
+                "task_revision",
+                "snapshot_digest",
+                "invalidation_epoch",
+                "profile_id",
+                "profile_version",
+                "scenario_id",
+                "graph_ref_pins",
+                "branch_id",
+                "ref_id"
+              ],
+              "unevaluatedProperties": false
+            },
+            "installation_pins": {
+              "type": "object",
+              "properties": {
+                "bootstrap_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "bootstrap_digest": {
+                  "$ref": "#/$defs/digest"
+                },
+                "policy_registry_digest": {
+                  "$ref": "#/$defs/digest"
+                },
+                "fixture_registry_digest": {
+                  "$ref": "#/$defs/digest"
+                },
+                "profile_schema_registry_digest": {
+                  "$ref": "#/$defs/digest"
+                },
+                "protected_closure_digest": {
+                  "$ref": "#/$defs/digest"
+                },
+                "distribution_name": {
+                  "$ref": "#/$defs/id"
+                },
+                "distribution_version": {
+                  "$ref": "#/$defs/id"
+                }
+              },
+              "required": [
+                "bootstrap_id",
+                "bootstrap_digest",
+                "policy_registry_digest",
+                "fixture_registry_digest",
+                "profile_schema_registry_digest",
+                "protected_closure_digest",
+                "distribution_name",
+                "distribution_version"
+              ],
+              "unevaluatedProperties": false
+            },
+            "root_path": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "root_identity": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "contract": {
+              "type": "object",
+              "properties": {
+                "contract_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "environment_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "environment_classification": {
+                  "const": "non-production"
+                },
+                "authority_kind": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "impact_roles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "minItems": 1,
+                  "maxItems": 64
+                },
+                "containment_roles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "minItems": 1,
+                  "maxItems": 64
+                },
+                "controls": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "control_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      },
+                      "kind": {
+                        "enum": [
+                          "authority",
+                          "impact",
+                          "containment",
+                          "health",
+                          "rollback"
+                        ]
+                      },
+                      "path_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      },
+                      "expected_value": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "control_id",
+                      "kind",
+                      "path_id",
+                      "expected_value"
+                    ],
+                    "unevaluatedProperties": false
+                  },
+                  "minItems": 5,
+                  "maxItems": 5
+                },
+                "minimal_change_budget": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "health_predicates": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "predicate_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      },
+                      "target_role": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      },
+                      "field_path": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        },
+                        "minItems": 1,
+                        "maxItems": 64
+                      },
+                      "expected": {
+                        "type": [
+                          "string",
+                          "boolean",
+                          "integer",
+                          "null"
+                        ],
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "predicate_id",
+                      "target_role",
+                      "field_path",
+                      "expected"
+                    ],
+                    "unevaluatedProperties": false
+                  },
+                  "minItems": 1,
+                  "maxItems": 64
+                },
+                "ordered_gates": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "gate_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      },
+                      "kind": {
+                        "enum": [
+                          "impact",
+                          "health",
+                          "rollback"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "gate_id",
+                      "kind"
+                    ],
+                    "unevaluatedProperties": false
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                }
+              },
+              "required": [
+                "contract_id",
+                "environment_id",
+                "environment_classification",
+                "authority_kind",
+                "impact_roles",
+                "containment_roles",
+                "controls",
+                "minimal_change_budget",
+                "health_predicates",
+                "ordered_gates"
+              ],
+              "unevaluatedProperties": false
+            },
+            "baseline_targets": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "role_id": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "path_id": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "state_id": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "value_digest": {
+                    "type": "string",
+                    "pattern": "^sha256:[0-9a-f]{64}$"
+                  }
+                },
+                "required": [
+                  "role_id",
+                  "path_id",
+                  "state_id",
+                  "value_digest"
+                ],
+                "unevaluatedProperties": false
+              }
+            },
+            "control_observations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "control_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "kind": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "path_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "value_digest": {
+                    "type": "string",
+                    "pattern": "^sha256:[0-9a-f]{64}$"
+                  }
+                },
+                "required": [
+                  "control_id",
+                  "kind",
+                  "path_id",
+                  "value_digest"
+                ],
+                "unevaluatedProperties": false
+              },
+              "minItems": 5,
+              "maxItems": 5
+            },
+            "pre_mutation_sequence": {
+              "const": 0
+            },
+            "change_bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "binding",
+            "installation_pins",
+            "root_path",
+            "root_identity",
+            "contract",
+            "baseline_targets",
+            "control_observations",
+            "pre_mutation_sequence",
+            "change_bytes"
+          ],
+          "unevaluatedProperties": false
+        },
+        "ordered_phases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "phase_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "sequence": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "mutation_count": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "phase_id",
+              "sequence",
+              "mutation_count"
+            ],
+            "unevaluatedProperties": false
+          },
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "gate_results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "gate_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "passed": {
+                "const": true
+              }
+            },
+            "required": [
+              "gate_id",
+              "kind",
+              "passed"
+            ],
+            "unevaluatedProperties": false
+          },
+          "minItems": 3,
+          "maxItems": 3
+        }
+      },
+      "required": [
+        "baseline",
+        "ordered_phases",
+        "gate_results"
+      ],
+      "unevaluatedProperties": false
     }
   },
   "required": [
@@ -560,5 +1217,33 @@
     "scenario_outcome",
     "observation_digest"
   ],
-  "unevaluatedProperties": false
+  "unevaluatedProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "fixture_row": {
+            "required": [
+              "execution_contract"
+            ]
+          }
+        },
+        "required": [
+          "fixture_row"
+        ]
+      },
+      "then": {
+        "required": [
+          "execution_proof"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "execution_proof"
+          ]
+        }
+      }
+    }
+  ]
 }

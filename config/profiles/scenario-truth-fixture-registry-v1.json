@@ -11,11 +11,11 @@
           "role_id": "primary-target",
           "path_id": "targets/primary-target.state",
           "baseline_state_id": "A",
-          "baseline_value": "hotfix:emergency-baseline:primary-target:A\n",
+          "baseline_value": "{\"revision\":\"A\",\"healthy\":false}",
           "candidate_state_id": "B",
-          "candidate_value": "hotfix:emergency-baseline:primary-target:B\n",
+          "candidate_value": "{\"revision\":\"B\",\"healthy\":true}",
           "rollback_state_id": "A",
-          "rollback_value": "hotfix:emergency-baseline:primary-target:A\n"
+          "rollback_value": "{\"revision\":\"A\",\"healthy\":false}"
         }
       ],
       "phase_expectations": [
@@ -47,7 +47,86 @@
         "expected_state_id": "A",
         "required": true
       },
-      "fixture_digest": "sha256-jcs-v1:cd5f94d540bbad94bed7085dcf1743ed00564e6dd536d4a1028b5e751d83bb62"
+      "rejection_attack_ids": [
+        "missing-baseline",
+        "foreign-baseline",
+        "stale-control",
+        "stale-target",
+        "wrong-rollback",
+        "wrong-environment",
+        "gate-omission",
+        "gate-reorder"
+      ],
+      "execution_contract": {
+        "contract_id": "local-emergency-baseline-v1",
+        "environment_id": "private-emergency-baseline-fixture",
+        "environment_classification": "non-production",
+        "authority_kind": "local-hotfix-fixture",
+        "impact_roles": [
+          "primary-target"
+        ],
+        "containment_roles": [
+          "primary-target"
+        ],
+        "controls": [
+          {
+            "control_id": "emergency-baseline:authority",
+            "kind": "authority",
+            "path_id": "controls/authority.json",
+            "expected_value": "{\"contract_id\":\"local-emergency-baseline-v1\",\"control\":\"authority\",\"role\":\"primary-target\",\"environment\":\"private-emergency-baseline-fixture\",\"classification\":\"non-production\"}"
+          },
+          {
+            "control_id": "emergency-baseline:impact",
+            "kind": "impact",
+            "path_id": "controls/impact.json",
+            "expected_value": "{\"contract_id\":\"local-emergency-baseline-v1\",\"control\":\"impact\",\"role\":\"primary-target\",\"environment\":\"private-emergency-baseline-fixture\",\"classification\":\"non-production\"}"
+          },
+          {
+            "control_id": "emergency-baseline:containment",
+            "kind": "containment",
+            "path_id": "controls/containment.json",
+            "expected_value": "{\"contract_id\":\"local-emergency-baseline-v1\",\"control\":\"containment\",\"role\":\"primary-target\",\"environment\":\"private-emergency-baseline-fixture\",\"classification\":\"non-production\"}"
+          },
+          {
+            "control_id": "emergency-baseline:health",
+            "kind": "health",
+            "path_id": "controls/health.json",
+            "expected_value": "{\"contract_id\":\"local-emergency-baseline-v1\",\"control\":\"health\",\"role\":\"primary-target\",\"environment\":\"private-emergency-baseline-fixture\",\"classification\":\"non-production\"}"
+          },
+          {
+            "control_id": "emergency-baseline:rollback",
+            "kind": "rollback",
+            "path_id": "controls/rollback.json",
+            "expected_value": "{\"contract_id\":\"local-emergency-baseline-v1\",\"control\":\"rollback\",\"role\":\"primary-target\",\"environment\":\"private-emergency-baseline-fixture\",\"classification\":\"non-production\"}"
+          }
+        ],
+        "minimal_change_budget": 64,
+        "health_predicates": [
+          {
+            "predicate_id": "emergency-baseline:healthy",
+            "target_role": "primary-target",
+            "field_path": [
+              "healthy"
+            ],
+            "expected": true
+          }
+        ],
+        "ordered_gates": [
+          {
+            "gate_id": "emergency-baseline:impact",
+            "kind": "impact"
+          },
+          {
+            "gate_id": "emergency-baseline:health",
+            "kind": "health"
+          },
+          {
+            "gate_id": "emergency-baseline:rollback",
+            "kind": "rollback"
+          }
+        ]
+      },
+      "fixture_digest": "sha256-jcs-v1:6eef2a97c04c61e634fa25500a2bf5814e6a63b82a5a979d6fe77e784aed52e5"
     },
     {
       "fixture_id": "fixture:hotfix:production-like-gate:v1",
@@ -58,11 +137,11 @@
           "role_id": "primary-target",
           "path_id": "targets/primary-target.state",
           "baseline_state_id": "A",
-          "baseline_value": "hotfix:production-like-gate:primary-target:A\n",
+          "baseline_value": "{\"revision\":\"A\",\"healthy\":false}",
           "candidate_state_id": "B",
-          "candidate_value": "hotfix:production-like-gate:primary-target:B\n",
+          "candidate_value": "{\"revision\":\"B\",\"healthy\":true}",
           "rollback_state_id": "A",
-          "rollback_value": "hotfix:production-like-gate:primary-target:A\n"
+          "rollback_value": "{\"revision\":\"A\",\"healthy\":false}"
         }
       ],
       "phase_expectations": [
@@ -94,7 +173,86 @@
         "expected_state_id": "A",
         "required": true
       },
-      "fixture_digest": "sha256-jcs-v1:bb9548d8260a92bb5bae1d6a729afedba773ea7df7aee09e86d13b714e5a29e1"
+      "rejection_attack_ids": [
+        "missing-baseline",
+        "foreign-baseline",
+        "stale-control",
+        "stale-target",
+        "wrong-rollback",
+        "wrong-environment",
+        "gate-omission",
+        "gate-reorder"
+      ],
+      "execution_contract": {
+        "contract_id": "local-production-like-gate-v1",
+        "environment_id": "private-production-like-gate-fixture",
+        "environment_classification": "non-production",
+        "authority_kind": "local-hotfix-fixture",
+        "impact_roles": [
+          "primary-target"
+        ],
+        "containment_roles": [
+          "primary-target"
+        ],
+        "controls": [
+          {
+            "control_id": "production-like-gate:authority",
+            "kind": "authority",
+            "path_id": "controls/authority.json",
+            "expected_value": "{\"contract_id\":\"local-production-like-gate-v1\",\"control\":\"authority\",\"role\":\"primary-target\",\"environment\":\"private-production-like-gate-fixture\",\"classification\":\"non-production\"}"
+          },
+          {
+            "control_id": "production-like-gate:impact",
+            "kind": "impact",
+            "path_id": "controls/impact.json",
+            "expected_value": "{\"contract_id\":\"local-production-like-gate-v1\",\"control\":\"impact\",\"role\":\"primary-target\",\"environment\":\"private-production-like-gate-fixture\",\"classification\":\"non-production\"}"
+          },
+          {
+            "control_id": "production-like-gate:containment",
+            "kind": "containment",
+            "path_id": "controls/containment.json",
+            "expected_value": "{\"contract_id\":\"local-production-like-gate-v1\",\"control\":\"containment\",\"role\":\"primary-target\",\"environment\":\"private-production-like-gate-fixture\",\"classification\":\"non-production\"}"
+          },
+          {
+            "control_id": "production-like-gate:health",
+            "kind": "health",
+            "path_id": "controls/health.json",
+            "expected_value": "{\"contract_id\":\"local-production-like-gate-v1\",\"control\":\"health\",\"role\":\"primary-target\",\"environment\":\"private-production-like-gate-fixture\",\"classification\":\"non-production\"}"
+          },
+          {
+            "control_id": "production-like-gate:rollback",
+            "kind": "rollback",
+            "path_id": "controls/rollback.json",
+            "expected_value": "{\"contract_id\":\"local-production-like-gate-v1\",\"control\":\"rollback\",\"role\":\"primary-target\",\"environment\":\"private-production-like-gate-fixture\",\"classification\":\"non-production\"}"
+          }
+        ],
+        "minimal_change_budget": 64,
+        "health_predicates": [
+          {
+            "predicate_id": "production-like-gate:healthy",
+            "target_role": "primary-target",
+            "field_path": [
+              "healthy"
+            ],
+            "expected": true
+          }
+        ],
+        "ordered_gates": [
+          {
+            "gate_id": "production-like-gate:impact",
+            "kind": "impact"
+          },
+          {
+            "gate_id": "production-like-gate:health",
+            "kind": "health"
+          },
+          {
+            "gate_id": "production-like-gate:rollback",
+            "kind": "rollback"
+          }
+        ]
+      },
+      "fixture_digest": "sha256-jcs-v1:b75b05d81315e32553cb2467be2862ea7b1db779fec5c10ad4b099b77c903d86"
     },
     {
       "fixture_id": "fixture:incident-response:containment:v1",
@@ -355,8 +513,14 @@
         "required": true
       },
       "rejection_attack_ids": [
-        "missing-role", "extra-role", "aliased-role", "one-target-only",
-        "cross-branch", "partial-success", "stale-target", "wrong-rollback"
+        "missing-role",
+        "extra-role",
+        "aliased-role",
+        "one-target-only",
+        "cross-branch",
+        "partial-success",
+        "stale-target",
+        "wrong-rollback"
       ],
       "fixture_digest": "sha256-jcs-v1:0536fd15c99669d90b6967716e499c4ccf1d06707facdc2037af7fd50068d83d"
     },
@@ -502,5 +666,5 @@
       "fixture_digest": "sha256-jcs-v1:c0f3f936fa603c26809eaed090c83802e2765ec0655e27137159f04513557cb2"
     }
   ],
-  "registry_digest": "sha256-jcs-v1:65732c0195c7ff0913a5ff83716ac30fd0149560cbaddbcbc36fed98b77b5e16"
+  "registry_digest": "sha256-jcs-v1:1071d0fc3efc270e0cd227e89cddf8d39525b7a7a2e9767cf983c8d6e8c90c72"
 }

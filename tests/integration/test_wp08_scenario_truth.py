@@ -751,8 +751,8 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
         plan = api4.ProfileCoverageExecutionPlan.from_installation(
             matrix=self.matrix()
         )
-        self.assertEqual(len(plan.bindings), 226)
-        self.assertEqual(len(plan.oracle_bindings), 113)
+        self.assertEqual(len(plan.bindings), 230)
+        self.assertEqual(len(plan.oracle_bindings), 115)
         positive = fixture.run_serial_scenario_binding(
             api4=api4,
             plan=plan,
@@ -1453,6 +1453,132 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
                 dimension,
             )
 
+    def test_hotfix_guarded_p_r_quiescent_lifecycle_and_zero_replay(self):
+        from graph_engineering.application.scenario_truth import ScenarioTruthObservationFactory
+        from graph_engineering.core.scenario_truth import ScenarioTruthError
+        api, coverage, matrix, profile, overlay = fixture._verified_runner_contracts("hotfix")
+        api4 = fixture.load_slice4_api()
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (230, 115))
+        identities = []
+        for scenario in fixture.HOTFIX_GUARDED_SCENARIO_IDS:
+            for disposition in ("P", "R"):
+                with self.subTest(scenario=scenario, disposition=disposition):
+                    result = fixture.run_serial_scenario_binding(api4=api4, plan=plan,
+                        scenario_id=scenario, disposition=disposition, quiescent=True)
+                    factory = None
+                    try:
+                        context = result.scenario_truth_context
+                        identities.append(result.binding_identity_projection())
+                        lifecycle = result.binding_lifecycle
+                        self.assertEqual((lifecycle.state, lifecycle.generation), ("QUIESCED", 0))
+                        if disposition == "P":
+                            projection = context.evidence.to_dict()
+                            self.assertEqual(projection["execution_proof"]["baseline"]["binding"]["task_id"], result.probe.task_id)
+                            self.assertEqual(context.observer.mutation_count, 1)
+                        else:
+                            self.assertEqual(result.execution.typed_evidence_object_digest, context.evidence.evidence_digest)
+                            expected = context.registry_factory.rejection_attack_ids("hotfix", scenario)
+                            self.assertEqual(tuple(r.attack_id for r in context.receipts), expected)
+                            self.assertEqual(len({r.root_path for r in context.receipts}), len(expected))
+                            self.assertTrue(all(r.mutation_count == 0 for r in context.receipts))
+                            self.assertEqual(result.state_after, result.state_before)
+                            for receipts in ((), context.receipts[::-1],
+                                    (copy.copy(context.receipts[0]), *context.receipts[1:])):
+                                with self.assertRaises(ScenarioTruthError):
+                                    context.registry_factory.bind_rejections(receipts, test_id=context.test_id,
+                                        oracle_digest=context.oracle_digest)
+                        with mock.patch.object(ScenarioTruthObservationFactory, "execute", side_effect=AssertionError("patch replay")):
+                            observed = result.observe_current()
+                            factory = api.CoverageRecordFactory(execution_authority=result.authority, coverage_policy=coverage)
+                            record = factory.issue_execution(observed, matrix=matrix, profile=profile, overlay=overlay)
+                            decision = api.ReleaseCoverageGate.evaluate(matrix, coverage_records=(record,), coverage_factory=factory)
+                        self.assertFalse(decision.passed)
+                        self.assertEqual((lifecycle.state, lifecycle.generation, lifecycle.expected_purpose), ("QUIESCED", 4, None))
+                        fixture.abort_uncommitted_coverage_factory(factory)
+                        factory = None
+                        self.assertEqual(lifecycle.state, "PERMANENTLY_CLOSED")
+                    finally:
+                        if factory is not None: fixture.abort_uncommitted_coverage_factory(factory)
+                        result.close()
+                    self.assertEqual(runtime_fixture.PrivateBindingReopenPort.active_handle_count(), 0)
+        for dimension in ("repository_root", "task", "target", "branch_ref", "action_root", "command_root"):
+            self.assertEqual(len({repr(identity[dimension]) for identity in identities}), 4, dimension)
+
+    def test_hotfix_guarded_control_drift_fails_all_coverage_phases(self):
+        from graph_engineering.core.scenario_truth import ScenarioTruthError
+        api, coverage, matrix, profile, overlay = fixture._verified_runner_contracts("hotfix")
+        api4 = fixture.load_slice4_api()
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        fd_before = len(os.listdir("/dev/fd"))
+        for scenario in fixture.HOTFIX_GUARDED_SCENARIO_IDS:
+            for disposition in ("P", "R"):
+                for phase in ("aggregate", "issue", "use", "precommit", "gate"):
+                    if phase == "aggregate" and disposition == "P":
+                        continue
+                    with self.subTest(scenario=scenario, disposition=disposition, phase=phase):
+                        result = fixture.run_serial_scenario_binding(api4=api4, plan=plan,
+                            scenario_id=scenario, disposition=disposition)
+                        factory = None
+                        try:
+                            context = result.scenario_truth_context
+                            observer = (context.observer if disposition == "P" else
+                                context.registry_factory._issued_rejections[id(context.receipts[0])][1])
+                            control = observer._fixture_row["execution_contract"]["controls"][0]
+                            control_path = observer._root / control["path_id"]
+                            marker = observer._root / ".scenario-truth-root"
+                            backing = observer._root / "marker-test-backing"
+                            if phase not in ("aggregate", "issue"):
+                                observation = result.observe_current()
+                                factory = api.CoverageRecordFactory(execution_authority=result.authority, coverage_policy=coverage)
+                            if phase == "gate":
+                                record = factory.issue_execution(observation, matrix=matrix, profile=profile, overlay=overlay)
+                            attacks = ("control",) if disposition == "P" else ("control", "marker-content", "marker-missing", "marker-symlink")
+                            for attack in attacks:
+                                with self.subTest(attack=attack):
+                                    path = control_path if attack == "control" else marker
+                                    original = path.read_bytes()
+                                    before = fixture._serial_state_signature(result.probe, result.target, real_e2e=False)
+                                    issued = None if factory is None else dict(factory._CoverageRecordFactory__issued)
+                                    aggregates = dict(context.registry_factory._rejection_evidence)
+                                    def corrupt():
+                                        if attack == "marker-missing": path.unlink()
+                                        elif attack == "marker-symlink":
+                                            path.rename(backing)
+                                            path.symlink_to(backing)
+                                        else: path.write_bytes(original + b"drift")
+                                    try:
+                                        if phase == "precommit":
+                                            registration_type = type(result.authority._coverage_registration)
+                                            original_require = registration_type.require_observation
+                                            def require(registration, authority, current, *, purpose="use"):
+                                                if purpose == "precommit": corrupt()
+                                                return original_require(registration, authority, current, purpose=purpose)
+                                            with mock.patch.object(registration_type, "require_observation", new=require), self.assertRaises(api.ProfileContractError):
+                                                factory.issue_execution(observation, matrix=matrix, profile=profile, overlay=overlay)
+                                        else:
+                                            corrupt()
+                                            with self.assertRaises((ScenarioTruthError, api4.ProfileCoverageError, api.ProfileContractError)):
+                                                if phase == "aggregate":
+                                                    context.registry_factory.bind_rejections(context.receipts,
+                                                        test_id=context.test_id, oracle_digest=context.oracle_digest)
+                                                elif phase == "issue": result.observe_current()
+                                                elif phase == "use": factory.issue_execution(observation, matrix=matrix, profile=profile, overlay=overlay)
+                                                else: api.ReleaseCoverageGate.evaluate(matrix, coverage_records=(record,), coverage_factory=factory)
+                                    finally:
+                                        if path.is_symlink(): path.unlink()
+                                        if backing.exists(): backing.rename(path)
+                                        else:
+                                            path.write_bytes(original)
+                                            os.chmod(path, 0o600)
+                                    self.assertEqual(fixture._serial_state_signature(result.probe, result.target, real_e2e=False), before)
+                                    self.assertEqual(context.registry_factory._rejection_evidence, aggregates)
+                                    if factory is not None: self.assertEqual(factory._CoverageRecordFactory__issued, issued)
+                        finally:
+                            if factory is not None: fixture.abort_uncommitted_coverage_factory(factory)
+                            result.close()
+        self.assertEqual(len(os.listdir("/dev/fd")), fd_before)
+
     def test_dependency_graph_positive_reopens_without_resolver_replay(self) -> None:
         from graph_engineering.application import dependency_security
 
@@ -1859,7 +1985,7 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
             "GEW-PSC-MIGRATION-PARTIAL-DATA-P",
             "GEW-PSC-HOTFIX-MINIMAL-PATCH-R",
         )
-        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (226, 113))
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (230, 115))
         self.assertEqual(len(test_ids), len(set(test_ids)))
 
         results = []

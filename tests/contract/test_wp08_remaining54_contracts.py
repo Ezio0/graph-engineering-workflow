@@ -183,8 +183,8 @@ class Remaining54P1ContractsTest(unittest.TestCase):
             matrix=matrix,
         )
 
-        self.assertEqual(len(plan.bindings), 226)
-        self.assertEqual(len(plan.oracle_bindings), 113)
+        self.assertEqual(len(plan.bindings), 230)
+        self.assertEqual(len(plan.oracle_bindings), 115)
         self.assertEqual(
             tuple(
                 test_id
@@ -226,8 +226,8 @@ class Remaining54P1ContractsTest(unittest.TestCase):
         self.assertEqual(
             receipt["selector"], fixture.PERFORMANCE_REMAINING_R1_SELECTOR,
         )
-        self.assertEqual(receipt["plan_bindings"], 226)
-        self.assertEqual(receipt["oracle_bindings"], 113)
+        self.assertEqual(receipt["plan_bindings"], 230)
+        self.assertEqual(receipt["oracle_bindings"], 115)
         self.assertEqual(receipt["restart"], "current-launcher-zero")
         self.assertEqual(
             tuple(sorted(receipt["scenario_attacks"])),
@@ -262,6 +262,76 @@ class Remaining54P1ContractsTest(unittest.TestCase):
         )
         for attacks in receipt["scenario_attacks"].values():
             self.assertEqual(len(attacks), 12)
+
+
+class Remaining54P2bContractsTest(unittest.TestCase):
+    def test_all_touched_schemas_conform_to_frozen_schema_profile(self):
+        from graph_engineering.core.contracts.schema import SchemaProfilePolicy, validate_schema_profile
+        policy = SchemaProfilePolicy.from_dict(json.loads((ROOT / "config/contracts/schema-profile-v1.json").read_text()))
+        for name in ("scenario-truth-fixture-registry", "scenario-truth-observation", "category-completion-assessment"):
+            version = "1.3.0" if name == "category-completion-assessment" else "1.0.0"
+            for suffix in ("", "-input"):
+                schema = json.loads((ROOT / f"config/contracts/schemas/{name}{suffix}-{version}.json").read_text())
+                self.assertEqual(validate_schema_profile(schema, policy), schema["$id"])
+
+    def test_guarded_contracts_are_config_owned_and_closed(self):
+        from graph_engineering.core.scenario_truth import validate_execution_contract, ScenarioTruthError
+        rows = json.loads((ROOT / "config/profiles/scenario-truth-fixture-registry-v1.json").read_text())["fixtures"]
+        guarded = [row for row in rows if "execution_contract" in row]
+        self.assertEqual({(row["profile_id"], row["scenario_id"]) for row in guarded},
+                         {("hotfix", scenario) for scenario in fixture.HOTFIX_GUARDED_SCENARIO_IDS})
+        for row in guarded:
+            value = row["execution_contract"]
+            validate_execution_contract(value, row["target_roles"])
+            for mutate in (
+                lambda d: d.update(extra=True),
+                lambda d: d.update(environment_classification="production"),
+                lambda d: d.update(minimal_change_budget=True),
+                lambda d: d.update(minimal_change_budget=-1),
+                lambda d: d.update(impact_roles=[]),
+                lambda d: d.update(containment_roles=["foreign"]),
+                lambda d: d["controls"].pop(),
+                lambda d: d["controls"][1].update(path_id=d["controls"][0]["path_id"]),
+                lambda d: d["health_predicates"][0].update(target_role="foreign"),
+                lambda d: d["health_predicates"][0].update(expected=1.5),
+                lambda d: d["ordered_gates"].reverse(),
+                lambda d: d["ordered_gates"].pop(),
+            ):
+                bad = copy.deepcopy(value)
+                mutate(bad)
+                with self.assertRaises(ScenarioTruthError): validate_execution_contract(bad, row["target_roles"])
+        for path in (ROOT / "core/graph_engineering/core/scenario_truth.py",
+                     ROOT / "application/graph_engineering/application/scenario_truth.py"):
+            source = path.read_text()
+            for scenario in fixture.HOTFIX_GUARDED_SCENARIO_IDS:
+                self.assertNotIn(scenario, source)
+            for row in guarded:
+                self.assertNotIn(row["execution_contract"]["environment_id"], source)
+
+    def test_p2b_plan_and_package_membership_are_exact(self):
+        import tomllib
+        from graph_engineering import _SOURCE_FILES
+        from tests.support.source_checkout_attestation import SOURCE_FILES
+        from tests.integration.test_wp08_scenario_truth import ScenarioTruthIntegrationTests
+        plan = fixture.load_slice4_api().ProfileCoverageExecutionPlan.from_installation(
+            matrix=ScenarioTruthIntegrationTests.matrix())
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (230, 115))
+        manifest = tomllib.loads((ROOT / "pyproject.toml").read_text())
+        table = manifest["tool"]["gew"]["profile"]["coverage-execution-plan"]
+        for scenario in fixture.HOTFIX_GUARDED_SCENARIO_IDS:
+            path = "config/test-oracles/profile-hotfix-" + scenario + "-v1.json"
+            self.assertIn(path, _SOURCE_FILES)
+            self.assertIn(path, SOURCE_FILES)
+            vector = next(row for row in table["oracle-vectors"] if row["scenario-id"] == scenario)
+            self.assertEqual(vector["oracle-source"], path)
+            self.assertEqual(vector["oracle-resource"], "graph_engineering/" + path)
+            self.assertEqual(vector["oracle-raw-sha256"], hashlib.sha256((ROOT / path).read_bytes()).hexdigest())
+            for disposition in ("P", "R"):
+                binding = plan.binding(f"GEW-PSC-HOTFIX-{scenario.upper()}-{disposition}")
+                self.assertEqual(binding["profile_id"], "hotfix")
+                self.assertEqual(binding["disposition"], disposition)
+                self.assertEqual(binding["request_digest"], None if disposition == "P" else
+                                 fixture.coverage_request_digest(fixture.hotfix_guarded_candidate(scenario, accepted=False)))
 
 
 if __name__ == "__main__":
