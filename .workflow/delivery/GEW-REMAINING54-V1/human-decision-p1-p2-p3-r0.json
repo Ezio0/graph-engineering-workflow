@@ -1,4 +1,18 @@
 {
+  "p2b_cumulative_entry_amendment": {
+    "amendment_id": "GEW-REMAINING54-P2B-CUMULATIVE-ENTRY-V1",
+    "human_approval": "继续",
+    "approval_context": "Direct go-ahead to the preceding focused request for P2b cumulative entry documentation, implementation, bounded tests and independent review; not authorization to execute the cumulative selector.",
+    "baseline_commit": "f4a47d1e5f46fba013762161e62635684dcaaa1c",
+    "scope": "Prepare a distinct P2b cumulative acceptance entry while preserving P2a identity and expectations. Reuse strict-serial lifecycle, current source attestation, config-owned limits and terminal cleanup. Produce bounded control-flow and existing real local scenario evidence only.",
+    "authorized_actions": ["documentation", "implementation", "verification", "independent-review", "candidate", "review"],
+    "allowed_targets_unchanged": 174,
+    "evidence_limit": "No 230-binding run or 230-valid receipt is authorized. Simulated orchestration tests are unit evidence only, never cumulative acceptance. P2a historical receipts stay historical.",
+    "test_boundary": "Strict serial bounded native tests, each command at most 600 seconds; stop on first failure or timeout and investigate. Never invoke the actual cumulative child or launch performance sibling during mocked orchestration tests.",
+    "protected_files": ["config/verification/wp-07a-gate.json", "tests/support/wp08_dependency_security.py", "tests/support/wp08_migration_rehearsal.py"],
+    "prohibited": ["cumulative-rerun", "monitoring-restoration", "commit", "push", "merge", "deploy", "release", "network", "WP10", "external-communication", "P2c", "P2d", "P3", "source-edit-target-expansion"],
+    "preservation": "Append new entry-specific sibling records in existing authorized paths. Do not rewrite previous approval, review, decision, test or commit records; do not modify the original Envelope."
+  },
   "schema_version": "1.0",
   "task_id": "GEW-REMAINING54-V1",
   "decision_id": "GEW-REMAINING54-P1-P2-P3-LOCAL-OFFLINE",

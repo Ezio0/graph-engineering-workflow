@@ -1,4 +1,58 @@
 {
+  "p2b_entry_records": [
+    {
+      "record_id": "p2b-entry-verification-2026-09-12-r0",
+      "reviewer_id": "/root/p2b_entry_verification_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "verification",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "record_id": "p2b-entry-verification-2026-09-12-r0",
+          "verified_target_count": 17,
+          "verified_aggregate_sha256": "7cb1632f7c8de5ffc70fc4c92972459ab232bc25d9610e32e3ae54995fb4cb9c",
+          "unauthorized_targets": [],
+          "independent_fast_batch": {
+            "tests": 16,
+            "elapsed_seconds": 1.51,
+            "timeout_seconds": 120,
+            "exit_code": 0,
+            "strict_serial": true,
+            "observed_output": "Ran 16 tests in 1.510s; OK"
+          },
+          "assessment": "Frozen sources, completed bounded evidence, checkpoint separation, preflight denial, receipt validation, lifecycle cleanup and config-owned limits support entry readiness. Historical records remain preserved.",
+          "boundary": "No actual cumulative or performance workload was launched. Simulated orchestration is unit evidence only; this verdict does not establish 230-valid cumulative acceptance or authorize execution, monitoring or irreversible actions."
+        }
+      }
+    },
+    {
+      "record_id": "p2b-entry-candidate-2026-09-12-r0",
+      "reviewer_id": "/root/p2b_entry_candidate_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "candidate",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      }
+    },
+    {
+      "record_id": "p2b-entry-technical-review-2026-09-12-r0",
+      "reviewer_id": "/root/p2b_entry_technical_review_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "review",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      }
+    }
+  ],
   "p2b_records": [
     {
       "record_id": "p2b-verification-2026-09-11-r0",

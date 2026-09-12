@@ -1,4 +1,18 @@
 {
+  "p2b_entry_records": [
+    {
+      "record_id": "p2b-entry-docs-2026-09-12-r0",
+      "reviewer_id": "/root/p2b_entry_docs_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "test_plan",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      }
+    }
+  ],
   "schema_version": "1.0",
   "verdict": "PASS",
   "artifact": "test_plan",

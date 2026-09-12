@@ -1693,5 +1693,242 @@ class GuardedScenarioTruthTests(unittest.TestCase):
                         self.assertEqual(observer.mutation_count, 0)
 
 
+class CumulativeEntryTests(unittest.TestCase):
+    """Entry/control-flow evidence only; never launches cumulative workloads."""
+
+    def test_p2b_entry_is_distinct_and_checkpoint_oracles_are_immutable(self):
+        from dataclasses import FrozenInstanceError
+        from tests.support import wp08_release_coverage as fixture
+
+        self.assertEqual(fixture.P2B_CUMULATIVE_R1_SELECTOR, "p2b-cumulative-r1")
+        self.assertIn(fixture.P2B_CUMULATIVE_R1_SELECTOR, fixture.VERIFIED_RUNNER_SELECTORS)
+        self.assertIn(fixture.P2A_CUMULATIVE_R2_SELECTOR, fixture.VERIFIED_RUNNER_SELECTORS)
+        for selector, expected in (("p2a-cumulative-r2", (226, 113, 48, 2)),
+                                   ("p2b-cumulative-r1", (230, 115, 44, 4))):
+            checkpoint = fixture._cumulative_checkpoint(selector)
+            self.assertEqual((checkpoint.plan_bindings, checkpoint.oracle_bindings,
+                              checkpoint.missing_records, len(checkpoint.new_test_ids)), expected)
+            with self.assertRaises(FrozenInstanceError): checkpoint.plan_bindings += 1
+            with self.assertRaises(AttributeError): checkpoint.new_test_ids.add("foreign")
+        with self.assertRaises(AssertionError): fixture._cumulative_checkpoint("foreign")
+
+    @staticmethod
+    def plan_double(selector):
+        from types import SimpleNamespace as NS
+        from tests.support import wp08_release_coverage as fixture
+        checkpoint = fixture._cumulative_checkpoint(selector)
+        ids = sorted(checkpoint.new_test_ids) + [
+            f"simulated-retained-{i}" for i in range(
+                checkpoint.plan_bindings - len(checkpoint.new_test_ids))]
+        plan = NS(bindings={key: {"selector_kind": "scenario" if i % 2 else "mandatory",
+                                 "profile_id": "new-feature", "column_id": key,
+                                 "scenario_id": key, "disposition": "P"}
+                            for i, key in enumerate(ids)},
+                  oracle_bindings=[{"oracle_id": str(i), "profile_id": "new-feature",
+                                    "selector_kind": "scenario", "column_id": "boundary",
+                                    "scenario_id": str(i)}
+                                   for i in range(checkpoint.oracle_bindings)])
+        matrix = NS(profile_case_ids=tuple(ids), scenario_case_ids=tuple(
+            f"simulated-missing-{i}" for i in range(checkpoint.missing_records)))
+        return checkpoint, plan, matrix
+
+    def test_plan_preflight_precedes_every_expensive_operation(self):
+        from tests.support import wp08_release_coverage as fixture
+        for attack in ("plan-count", "oracle-count", "oracle-duplicate", "new-id", "matrix-count"):
+            checkpoint, plan, matrix = self.plan_double("p2b-cumulative-r1")
+            if attack == "plan-count": plan.bindings.pop(next(iter(plan.bindings)))
+            elif attack == "oracle-count": plan.oracle_bindings.pop()
+            elif attack == "oracle-duplicate": plan.oracle_bindings[-1] = plan.oracle_bindings[0]
+            elif attack == "matrix-count": matrix.scenario_case_ids += ("extra",)
+            else:
+                key = next(iter(checkpoint.new_test_ids))
+                plan.bindings["substituted"] = plan.bindings.pop(key)
+                matrix.profile_case_ids = tuple("substituted" if p == key else p
+                                                for p in matrix.profile_case_ids)
+            with self.subTest(attack=attack), redirect_stderr(StringIO()), \
+                 mock.patch.object(fixture, "_verified_plan", return_value=(None, None, None, matrix, None, None, plan)), \
+                 mock.patch.object(fixture, "_run_performance_remaining_r1_child") as sibling, \
+                 mock.patch.object(fixture, "run_serial_profile_binding") as binding, \
+                 self.assertRaisesRegex(AssertionError, "preflight"):
+                fixture._run_p2b_cumulative_r1_child()
+            sibling.assert_not_called()
+            binding.assert_not_called()
+        _, plan, matrix = self.plan_double("p2b-cumulative-r1")
+        with self.assertRaisesRegex(AssertionError, "preflight"):
+            fixture._validate_cumulative_plan(plan, matrix, fixture._cumulative_checkpoint("p2a-cumulative-r2"))
+
+    def simulate(self, selector, attack=None):
+        """All records/gates are doubles: never cumulative acceptance evidence."""
+        from contextlib import ExitStack
+        from types import SimpleNamespace as NS
+        from tests.support import wp08_release_coverage as fixture
+        from tests.support import wp08_scenario_truth as lifecycle_fixture
+        from tests.unit import test_wp08_profile_contracts as contracts
+        checkpoint, plan, matrix = self.plan_double(selector)
+        made, closed, finalized, aborted, purposes = [], [], [], [], []
+        self.last_simulation = (made, closed, finalized, aborted, purposes)
+
+        class Result:
+            profile_id = "new-feature"
+            def __init__(self, key):
+                self.test_id = "foreign" if attack == "execution-id" else key
+                self.binding_lifecycle = NS(state="QUIESCED", generation=0, expected_purpose="issue")
+                self.authority = self
+                made.append(self)
+            def observe_current(self):
+                self.binding_lifecycle.generation = 2 if attack == "issue-generation" else 1
+                self.binding_lifecycle.expected_purpose = "use"
+                purposes.append((self.test_id, "issue"))
+                return self
+            def binding_identity_projection(self):
+                key = "shared" if attack == "identity" else self.test_id
+                return {field: key for field in ("repository_root", "task", "target", "branch_ref", "action_root", "command_root")}
+            def close(self):
+                closed.append(self.test_id)
+                if attack == "close": raise AssertionError("simulated close failure")
+
+        class Factory:
+            def __init__(self, *, execution_authority=None, authority=None, **kwargs):
+                self.production = execution_authority is not None
+                self.rows = tuple(execution_authority or ())
+                self.capability = object()
+                if attack == "factory": raise AssertionError("simulated factory failure")
+            def issue_execution(self, observation, **kwargs):
+                observation.binding_lifecycle.generation = 2 if attack == "record-generation" else 3
+                observation.binding_lifecycle.expected_purpose = "gate"
+                purposes.append((observation.test_id, "use/precommit"))
+                return NS(test_id=made[0].test_id if attack == "duplicate" else observation.test_id)
+            def issue(self, *args, **kwargs): return NS(test_id="static-test-only")
+            def finalize_after_gate(self, decision):
+                finalized.append(decision)
+                for row in self.rows: row.binding_lifecycle.state = "PERMANENTLY_CLOSED"
+                if attack == "finalize": raise AssertionError("simulated finalize failure")
+            def prepare_abort_uncommitted_candidate(self):
+                if attack == "abort": raise AssertionError("simulated abort failure")
+                return self.capability
+            def abort_uncommitted_candidate(self, capability):
+                assert capability is self.capability
+                aborted.append(capability)
+
+        def execute(**kwargs):
+            self.assertTrue(kwargs["quiescent"])
+            if attack == "binding" and len(made) == 2: raise AssertionError("simulated binding failure")
+            return Result(kwargs.get("column", kwargs.get("scenario_id")))
+
+        def gate(_matrix, *, coverage_records, coverage_factory):
+            if coverage_factory.production:
+                if attack in ("dynamic-error", "abort"): raise AssertionError("simulated dynamic failure")
+                for row in made:
+                    row.binding_lifecycle.generation = 3 if attack == "gate-generation" else 4
+                    row.binding_lifecycle.expected_purpose = None
+                    purposes.append((row.test_id, "gate"))
+                missing = matrix.scenario_case_ids
+                if attack == "missing": missing = missing[:-1]
+                if attack == "wrong-missing": missing = ("wrong", *missing[1:])
+                return NS(passed=attack == "passed", missing_test_ids=missing,
+                          invalid_test_ids=("bad",) if attack == "invalid" else (),
+                          stale_test_ids=("old",) if attack == "stale" else ())
+            return NS(passed=attack == "static-passed",
+                      missing_test_ids=matrix.profile_case_ids + matrix.scenario_case_ids,
+                      invalid_test_ids=("bad",) if attack == "static-invalid" else (), stale_test_ids=())
+
+        api = NS(CoverageRecordFactory=Factory, ReleaseCoverageGate=NS(evaluate=gate),
+                 EvidenceObservationRegistry=NS(from_dict=lambda *a, **k: object()),
+                 EvidenceObservationAuthority=lambda *a, **k: NS(observe=lambda *a, **k: object()))
+        p1 = {"selector": fixture.PERFORMANCE_REMAINING_R1_SELECTOR,
+              "plan_bindings": checkpoint.plan_bindings, "oracle_bindings": checkpoint.oracle_bindings}
+        with ExitStack() as stack:
+            stack.enter_context(redirect_stderr(StringIO()))
+            for name, value in (("_verified_plan", lambda: (api, None, None, matrix, None, None, plan)),
+                                ("_run_performance_remaining_r1_child", lambda: p1),
+                                ("run_serial_profile_binding", execute), ("run_serial_scenario_binding", execute)):
+                stack.enter_context(mock.patch.object(fixture, name, value))
+            stack.enter_context(mock.patch.object(contracts, "_evidence_registry_document", return_value={}))
+            stack.enter_context(mock.patch.object(contracts, "_oracle_manifest_bytes", return_value=b"{}"))
+            stack.enter_context(mock.patch.object(fixture.os, "listdir", side_effect=([], ["leak"] if attack == "fd" else [])))
+            for name, value in (("active_handle_count", 0), ("active_reopened_binding_count", 0),
+                                ("maximum_active_reopened_binding_count", 2 if attack == "parallel" else 1)):
+                stack.enter_context(mock.patch.object(lifecycle_fixture.PrivateBindingReopenPort, name, return_value=value))
+            # Defense in depth: a missed mock must never launch any process.
+            stack.enter_context(mock.patch.object(fixture.subprocess, "Popen", side_effect=AssertionError("native launch forbidden")))
+            stack.enter_context(mock.patch.object(fixture.subprocess, "run", side_effect=AssertionError("native launch forbidden")))
+            return fixture._run_cumulative_child(selector)
+
+    def test_simulated_p2a_and_p2b_complete_serial_orchestration(self):
+        from tests.support import wp08_release_coverage as fixture
+        for selector in ("p2a-cumulative-r2", "p2b-cumulative-r1"):
+            with self.subTest(selector=selector):
+                receipt = self.simulate(selector)
+                checkpoint = fixture._cumulative_checkpoint(selector)
+                self.assertIs(fixture._validate_cumulative_receipt(receipt, checkpoint), receipt)
+                made, closed, finalized, aborted, purposes = self.last_simulation
+                self.assertEqual(len(made), checkpoint.plan_bindings)
+                self.assertEqual(closed, [r.test_id for r in reversed(made)])
+                self.assertEqual(len(finalized), 2)
+                self.assertFalse(aborted)
+                self.assertEqual(len(purposes), 3 * checkpoint.plan_bindings)
+                self.assertTrue(all(r.binding_lifecycle.state == "PERMANENTLY_CLOSED" for r in made))
+
+    def test_simulated_failures_preserve_denial_and_cleanup(self):
+        for attack in ("execution-id", "issue-generation", "binding", "identity", "factory",
+                       "record-generation", "duplicate", "dynamic-error", "abort", "passed",
+                       "invalid", "stale", "missing", "wrong-missing", "gate-generation",
+                       "parallel", "static-passed", "static-invalid", "finalize", "close", "fd"):
+            with self.subTest(attack=attack), self.assertRaises(AssertionError):
+                self.simulate("p2b-cumulative-r1", attack)
+            made, closed, finalized, aborted, _ = self.last_simulation
+            self.assertEqual(closed, [r.test_id for r in reversed(made)])
+            if attack in ("dynamic-error", "record-generation"):
+                self.assertEqual(len(aborted), 2)
+                self.assertFalse(finalized)
+            if attack in ("passed", "invalid", "stale", "missing", "duplicate", "static-invalid"):
+                self.assertEqual(len(finalized), 2)
+                self.assertFalse(aborted)
+
+    def test_receipt_tampering_and_parent_limits(self):
+        from tests.support import wp08_release_coverage as fixture
+        receipt = self.simulate("p2b-cumulative-r1")
+        checkpoint = fixture._cumulative_checkpoint("p2b-cumulative-r1")
+        for mutate in (lambda r: r.update(selector="p2a-cumulative-r2"),
+                       lambda r: r.update(extra=True), lambda r: r.pop("p1_sibling"),
+                       lambda r: r.update(new_records=2), lambda r: r.update(retained_records=224),
+                       lambda r: r["dynamic"].update(valid=226), lambda r: r["dynamic"].update(passed=True),
+                       lambda r: r["dynamic"].update(invalid=False), lambda r: r["static"].update(valid=1),
+                       lambda r: r["static"].update(duplicate=1), lambda r: r["static"].update(extra=0),
+                       lambda r: r["p1_sibling"].update(plan_bindings=226)):
+            bad = copy.deepcopy(receipt)
+            mutate(bad)
+            with self.assertRaises(AssertionError): fixture._validate_cumulative_receipt(bad, checkpoint)
+        limits = fixture._cumulative_runner_testability()
+        with self.assertRaises(TypeError): limits["cumulative_runtime_limit_seconds"] = 1
+        with mock.patch.object(fixture, "_run_verified_selector_in_fresh_child", return_value=receipt) as launch:
+            self.assertEqual(fixture.run_p2b_cumulative_r1_verified(), receipt)
+        launch.assert_called_once_with("p2b-cumulative-r1", timeout_seconds=limits["cumulative_runtime_limit_seconds"],
+                                       heartbeat_interval_seconds=limits["heartbeat_interval_seconds"])
+        with mock.patch.object(fixture, "_run_verified_selector_in_fresh_child", return_value={}), self.assertRaises(AssertionError):
+            fixture.run_p2b_cumulative_r1_verified()
+
+    def test_parent_and_child_dispatch_do_not_cross_selectors(self):
+        from contextlib import redirect_stdout
+        from tests.support import wp08_release_coverage as fixture
+        for selector, parent_name, child_name in (
+            ("p2a-cumulative-r2", "run_p2a_cumulative_r2_verified", "_run_p2a_cumulative_r2_child"),
+            ("p2b-cumulative-r1", "run_p2b_cumulative_r1_verified", "_run_p2b_cumulative_r1_child")):
+            with mock.patch.object(fixture, parent_name, return_value={"selector": selector}) as parent, \
+                 mock.patch.object(fixture, child_name, return_value={"selector": selector}) as child, \
+                 redirect_stdout(StringIO()), redirect_stderr(StringIO()):
+                self.assertEqual(fixture._verified_runner_main([selector]), 0)
+                parent.assert_called_once_with()
+                child.assert_not_called()
+                with mock.patch.dict(os.environ, {"GEW_WP08_VERIFIED_RUNNER_CHILD": "foreign"}), self.assertRaises(AssertionError):
+                    fixture._verified_runner_main(["--verified-child", selector])
+                child.assert_not_called()
+                with mock.patch.dict(os.environ, {"GEW_WP08_VERIFIED_RUNNER_CHILD": selector}):
+                    self.assertEqual(fixture._verified_runner_main(["--verified-child", selector]), 0)
+                child.assert_called_once_with()
+                self.assertEqual(fixture._verified_runner_main([selector, "extra"]), 2)
+                self.assertEqual(fixture._verified_runner_main(["unknown"]), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

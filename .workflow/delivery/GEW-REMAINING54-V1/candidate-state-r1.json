@@ -1,4 +1,108 @@
 {
+  "p2b_entry_records": [
+    {
+      "record_id": "p2b-entry-verification-2026-09-12-r0",
+      "state": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "node": "verification",
+        "artifact": "verification",
+        "author_id": "/root",
+        "reviewer_id": "/root/p2b_entry_verification_r0",
+        "targets": [
+          ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+          "config/profiles/profile-coverage-execution-plan-v1.json",
+          "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "config/profiles/scenario-truth-policy-registry-v1.json",
+          "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "docs/impact/graph-engineering-workflow.md",
+          "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "docs/specs/graph-engineering-workflow.md",
+          "docs/test-plans/graph-engineering-workflow.md",
+          "pyproject.toml",
+          "tests/contract/test_wp08_remaining54_contracts.py",
+          "tests/integration/test_wp08_scenario_truth.py",
+          "tests/security/test_wp08_remaining54_authority.py",
+          "tests/support/wp08_release_coverage.py",
+          "tests/unit/test_wp08_scenario_truth.py"
+        ],
+        "revision": 0,
+        "artifact_digest": "7cb1632f7c8de5ffc70fc4c92972459ab232bc25d9610e32e3ae54995fb4cb9c",
+        "previous_artifact_digest": null,
+        "open_finding_ids": []
+      }
+    },
+    {
+      "record_id": "p2b-entry-candidate-2026-09-12-r0",
+      "state": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "node": "candidate",
+        "artifact": "candidate",
+        "author_id": "/root",
+        "reviewer_id": "/root/p2b_entry_candidate_r0",
+        "targets": [
+          ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+          "config/profiles/profile-coverage-execution-plan-v1.json",
+          "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "config/profiles/scenario-truth-policy-registry-v1.json",
+          "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "docs/impact/graph-engineering-workflow.md",
+          "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "docs/specs/graph-engineering-workflow.md",
+          "docs/test-plans/graph-engineering-workflow.md",
+          "pyproject.toml",
+          "tests/contract/test_wp08_remaining54_contracts.py",
+          "tests/integration/test_wp08_scenario_truth.py",
+          "tests/security/test_wp08_remaining54_authority.py",
+          "tests/support/wp08_release_coverage.py",
+          "tests/unit/test_wp08_scenario_truth.py"
+        ],
+        "revision": 0,
+        "artifact_digest": "7cb1632f7c8de5ffc70fc4c92972459ab232bc25d9610e32e3ae54995fb4cb9c",
+        "previous_artifact_digest": null,
+        "open_finding_ids": []
+      }
+    },
+    {
+      "record_id": "p2b-entry-technical-review-2026-09-12-r0",
+      "state": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "node": "independent-review",
+        "artifact": "review",
+        "author_id": "/root",
+        "reviewer_id": "/root/p2b_entry_technical_review_r0",
+        "targets": [
+          ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+          "config/profiles/profile-coverage-execution-plan-v1.json",
+          "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "config/profiles/scenario-truth-policy-registry-v1.json",
+          "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "docs/impact/graph-engineering-workflow.md",
+          "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "docs/specs/graph-engineering-workflow.md",
+          "docs/test-plans/graph-engineering-workflow.md",
+          "pyproject.toml",
+          "tests/contract/test_wp08_remaining54_contracts.py",
+          "tests/integration/test_wp08_scenario_truth.py",
+          "tests/security/test_wp08_remaining54_authority.py",
+          "tests/support/wp08_release_coverage.py",
+          "tests/unit/test_wp08_scenario_truth.py"
+        ],
+        "revision": 0,
+        "artifact_digest": "7cb1632f7c8de5ffc70fc4c92972459ab232bc25d9610e32e3ae54995fb4cb9c",
+        "previous_artifact_digest": null,
+        "open_finding_ids": []
+      }
+    }
+  ],
   "p2b_records": [
     {
       "record_id": "p2b-verification-2026-09-11-r0",

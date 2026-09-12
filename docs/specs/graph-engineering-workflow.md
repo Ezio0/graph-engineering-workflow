@@ -2163,3 +2163,41 @@ cascade using actual changed bytes, including package/source closure. No pinned
 digest or validation rule is weakened. This slice reports bounded implementation
 evidence and plan 230/oracle115; 230 valid/44 missing is a future cumulative claim,
 not established by these isolated tests.
+
+### P2b cumulative entry preparation — 2026-09-12
+
+The Human go-ahead authorizes entry preparation, not execution. The approved PRD
+Intent Baseline v2 and ADR-0008 are unchanged. Add `p2b-cumulative-r1` beside
+`p2a-cumulative-r2`; preserve the latter's historical 226/113/48 checkpoint.
+The new checkpoint expects plan230/oracle115, dynamic230 valid/44 missing/false,
+static0 valid/274 missing/false, four new hotfix records and 226 retained records.
+These are frozen acceptance-oracle data in the test fixture, not configurable
+engine/business logic, and are not evidence until a separately authorized run.
+
+Factor the existing private cumulative orchestration into one checkpoint-driven
+helper with immutable test-fixture expectations. Before the performance sibling
+or any binding mutation, verify exact plan/oracle counts, unique oracle keys and
+all checkpoint-new IDs. Reject unknown checkpoints, shape drift and omitted or
+substituted hotfix IDs. P2a must fail fast on the current P2b plan rather than run
+the wrong checkpoint. Keep installed plan/source validation authoritative.
+
+Execute every installed binding in order in its own fresh private root. Preserve
+the g0→issue→use/precommit→gate quiesce generations, distinct identity vectors,
+single reopened binding, actual current observations, one combined dynamic gate,
+static-only denial, consumed-gate finalization versus pre-gate abort, reversed
+teardown and FD/active-handle baseline return. Do not copy an old cumulative
+receipt, filter out old bindings, replay mutations, or shard the combined gate.
+Count new/retained records from actual issued IDs and bind the new selector in
+the receipt. Validate its closed count/status fields before a parent returns it;
+wrong selector, malformed/extra fields, bool-as-count and foreign counts fail.
+
+The P2b parent uses the existing attested fresh-child handoff and immutable
+registry testability limits (14400 seconds and 60-second heartbeat), without
+changing their values, timeout enforcement or failure propagation. Existing P2a
+and other selectors remain registered. No approval is inferred from invocation
+availability: actual cumulative execution and monitoring need separate authority.
+
+This slice performs only bounded mocked orchestration/dispatch/failure tests and
+selected real hotfix lifecycle regressions. Mocked records never become an
+acceptance receipt. No production schema, core API, dependency, adapter or ADR
+change is needed; reconcile actual affected source/package pins if required.

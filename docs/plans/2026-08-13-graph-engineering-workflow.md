@@ -885,3 +885,22 @@ hotfix scenarios advance. The current source-edit Envelope remains exact174.
 7. Stop with an implementation/bounded-evidence handoff. Plan 230/oracle115 is not a
    new cumulative 230-valid receipt. Cumulative rerun, monitoring, commit/push,
    P2c/P2d/P3 and irreversible actions require separate authority and stay stopped.
+
+### P2b cumulative entry bounded plan — 2026-09-12
+
+1. Record the Human go-ahead for entry preparation, keep exact174 and prior
+   records unchanged, independently review this Spec/Impact/Plan/Test Plan bundle.
+2. Add focused RED tests for absent P2b registration, immutable checkpoint
+   expectations, preflight rejection and parent/child dispatch without launching
+   native cumulative or performance children.
+3. Share the existing orchestration with explicit immutable P2a/P2b test-oracle
+   data, add the P2b entry and exact receipt validation. Preserve authoritative
+   execution, quiescence and terminal cleanup; do not weaken gates or old counts.
+4. Verify simulated full success and negative paths (shape/identity/order/gate/
+   receipt/cleanup/timeout), then bounded real guarded/P2a lifecycle and package
+   checks in strict serial. Each native command is fail-fast, at most 600 seconds.
+5. Recompute actual affected pins; freeze source and completed bounded evidence;
+   obtain independent implementation, verification, Candidate and technical
+   review using the standard reducer and three-revision limit.
+6. Hand off entry readiness only. Do not run the cumulative selector, restore
+   monitoring, commit/push or start P2c. Those actions require separate authority.

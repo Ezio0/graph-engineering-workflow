@@ -935,3 +935,25 @@ runtime adapter or production operation is introduced. This is an implementation
 refinement of ADR-0008, not a new architectural direction. Preserve historical
 assessment versions and the P2a no-follow path walk. Any necessary new target,
 material architecture or authority change returns to Human before implementation.
+
+### P2b cumulative entry impact — 2026-09-12
+
+Authority: `p2b_cumulative_entry_amendment`. This is acceptance-harness work for
+the two already accepted hotfix scenarios, not new product intent or architecture.
+Primary code target is `tests/support/wp08_release_coverage.py`; unit/contract
+targets are the existing scenario-truth unit and Remaining54 contract modules.
+The current Spec, Plan and Test Plan and append-only existing delivery records
+carry design and evidence. Only actual affected provenance/package/bootstrap pins
+may be reconciled inside the unchanged exact174 allowlist.
+
+Shared orchestration risks are cross-checkpoint count drift, premature expensive
+execution, misrouted parent/child selectors, partial evidence presented as full,
+and loss of cleanup on exceptions. Mitigate with immutable fixture expectations,
+preflight before P1/bindings, exact receipt validation, independent P2a/P2b dispatch
+tests and fast simulated success/failure lifecycle tests. Retain selected real
+hotfix and P2a lifecycle regressions; simulations prove wiring only.
+
+Production plan230/oracle115, installed scenarios, budgets, schemas, approved
+Intent Baseline, protected three files and old records stay unchanged except
+mechanically necessary actual pins. This entry is not a real run: no cumulative
+receipt, monitor restoration, commit/push, P2c/P2d/P3, network or WP10 is allowed.

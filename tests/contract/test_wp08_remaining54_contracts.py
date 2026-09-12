@@ -265,6 +265,22 @@ class Remaining54P1ContractsTest(unittest.TestCase):
 
 
 class Remaining54P2bContractsTest(unittest.TestCase):
+    def test_p2b_cumulative_entry_uses_exact_current_checkpoint_without_running(self):
+        from tests.integration.test_wp08_scenario_truth import ScenarioTruthIntegrationTests
+        matrix = ScenarioTruthIntegrationTests.matrix()
+        plan = fixture.load_slice4_api().ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        checkpoint = fixture._cumulative_checkpoint("p2b-cumulative-r1")
+        fixture._validate_cumulative_plan(plan, matrix, checkpoint)
+        self.assertEqual((checkpoint.plan_bindings, checkpoint.oracle_bindings,
+                          checkpoint.missing_records), (230, 115, 44))
+        self.assertEqual(checkpoint.new_test_ids, frozenset(
+            f"GEW-PSC-HOTFIX-{scenario.upper()}-{disposition}"
+            for scenario in ("emergency-baseline", "production-like-gate")
+            for disposition in ("P", "R")))
+        self.assertTrue(callable(fixture.run_p2b_cumulative_r1_verified))
+        with self.assertRaises(AssertionError):
+            fixture._validate_cumulative_plan(plan, matrix, fixture._cumulative_checkpoint("p2a-cumulative-r2"))
+
     def test_all_touched_schemas_conform_to_frozen_schema_profile(self):
         from graph_engineering.core.contracts.schema import SchemaProfilePolicy, validate_schema_profile
         policy = SchemaProfilePolicy.from_dict(json.loads((ROOT / "config/contracts/schema-profile-v1.json").read_text()))

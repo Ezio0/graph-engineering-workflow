@@ -1,4 +1,352 @@
 {
+  "p2b_entry_packets": [
+    {
+      "record_id": "p2b-entry-verification-2026-09-12-r0",
+      "author_id": "/root",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "sha256": "e11a939b7719b56c5955567faf6d9bfeb93dee2e3f1fd34a024d1f324a215554",
+          "bytes": 13360
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "sha256": "d602114d76c594385ec3a583b2893ade574bd91bb30fc8960bb22de46728564e",
+          "bytes": 39889
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+          "sha256": "187fe0a2ee4ca5e783d608bc5ca6950df4fe2a630585dc54a66c725adf4385b7",
+          "bytes": 49202
+        },
+        {
+          "path": "config/profiles/profile-coverage-execution-plan-v1.json",
+          "sha256": "850790e2b0918a6aed6f92ff3b25bdb7625f16789d053cdc8fa2211226a37ff0",
+          "bytes": 263805
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "sha256": "52dcbfcfc35cd8f3a50ead7b02348abe8b86f8068b5a36047cba9007b4ef6277",
+          "bytes": 4081
+        },
+        {
+          "path": "config/profiles/scenario-truth-policy-registry-v1.json",
+          "sha256": "59a32ec4f49e9d733055f45973239802fb9e6f9b28a3eeb93f0597e3061c1b31",
+          "bytes": 10878
+        },
+        {
+          "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "sha256": "3d920bebfc0d97adb8cabd3e7e8ba71058950f5109c58bf3c235220799a05add",
+          "bytes": 31739
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "sha256": "7846cd04131f982146cf238f99545dba34e7e6565bc4ad5ca51da0d9e55d8912",
+          "bytes": 76475
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "sha256": "e4abf67dd1fd36444f03a088cfe556f4eef8e10f07238f051f5da05066b9a6b5",
+          "bytes": 68689
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "sha256": "7cb6c8560f2e298fa92225b17ecdb8cbd881461e63e17a9d83e93dae2a490dbe",
+          "bytes": 165560
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "sha256": "d9415d73e51e1695ec716613739d125f9a80b917e7598f523958bc94fd19ac7e",
+          "bytes": 145151
+        },
+        {
+          "path": "pyproject.toml",
+          "sha256": "0e41fac2340799f787733362cc1eedc3988ceb0fe749b9c78210f8b3f056bcee",
+          "bytes": 184832
+        },
+        {
+          "path": "tests/contract/test_wp08_remaining54_contracts.py",
+          "sha256": "8f4cfaf2a0e869533781ddc184f77b3c6c1c856ae5986047bf613b4f7c24aa99",
+          "bytes": 15919
+        },
+        {
+          "path": "tests/integration/test_wp08_scenario_truth.py",
+          "sha256": "e09f81bcddf345adeebbcad3367862d6590cdba10cec1d9c985ca90a578ad07b",
+          "bytes": 101090
+        },
+        {
+          "path": "tests/security/test_wp08_remaining54_authority.py",
+          "sha256": "12b4b467114fc24dc6aaa02ae8f1d00f27d9ad714b404c5a7635a75c51be5603",
+          "bytes": 16762
+        },
+        {
+          "path": "tests/support/wp08_release_coverage.py",
+          "sha256": "18c132cdfcfb688c3fab831e297b16f289f4831ecb3346d887bf36e4e6ecf67b",
+          "bytes": 289009
+        },
+        {
+          "path": "tests/unit/test_wp08_scenario_truth.py",
+          "sha256": "2cd0ceda4bb21139af860b8cb70c1862fb709aafd6e337f6ba4a5825a9ba9012",
+          "bytes": 96440
+        }
+      ],
+      "ordered_raw_aggregate_sha256": "7cb1632f7c8de5ffc70fc4c92972459ab232bc25d9610e32e3ae54995fb4cb9c",
+      "aggregate_algorithm": "SHA256(sorted path + NUL + raw bytes + NUL)",
+      "upstream_record_id": "p2b-entry-implementation-2026-09-12-r0",
+      "evidence_record_id": "p2b-entry-bounded-verification-2026-09-12-r0",
+      "scope": "P2b cumulative entry readiness and bounded verification only; simulated records are not cumulative evidence. No actual cumulative launch or production configuration/core change.",
+      "prohibited": [
+        "cumulative-rerun",
+        "monitoring-restoration",
+        "commit",
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "P2c",
+        "P2d",
+        "P3",
+        "source-edit-target-expansion"
+      ]
+    },
+    {
+      "record_id": "p2b-entry-candidate-2026-09-12-r0",
+      "author_id": "/root",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "sha256": "e11a939b7719b56c5955567faf6d9bfeb93dee2e3f1fd34a024d1f324a215554",
+          "bytes": 13360
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "sha256": "d602114d76c594385ec3a583b2893ade574bd91bb30fc8960bb22de46728564e",
+          "bytes": 39889
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+          "sha256": "187fe0a2ee4ca5e783d608bc5ca6950df4fe2a630585dc54a66c725adf4385b7",
+          "bytes": 49202
+        },
+        {
+          "path": "config/profiles/profile-coverage-execution-plan-v1.json",
+          "sha256": "850790e2b0918a6aed6f92ff3b25bdb7625f16789d053cdc8fa2211226a37ff0",
+          "bytes": 263805
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "sha256": "52dcbfcfc35cd8f3a50ead7b02348abe8b86f8068b5a36047cba9007b4ef6277",
+          "bytes": 4081
+        },
+        {
+          "path": "config/profiles/scenario-truth-policy-registry-v1.json",
+          "sha256": "59a32ec4f49e9d733055f45973239802fb9e6f9b28a3eeb93f0597e3061c1b31",
+          "bytes": 10878
+        },
+        {
+          "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "sha256": "3d920bebfc0d97adb8cabd3e7e8ba71058950f5109c58bf3c235220799a05add",
+          "bytes": 31739
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "sha256": "7846cd04131f982146cf238f99545dba34e7e6565bc4ad5ca51da0d9e55d8912",
+          "bytes": 76475
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "sha256": "e4abf67dd1fd36444f03a088cfe556f4eef8e10f07238f051f5da05066b9a6b5",
+          "bytes": 68689
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "sha256": "7cb6c8560f2e298fa92225b17ecdb8cbd881461e63e17a9d83e93dae2a490dbe",
+          "bytes": 165560
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "sha256": "d9415d73e51e1695ec716613739d125f9a80b917e7598f523958bc94fd19ac7e",
+          "bytes": 145151
+        },
+        {
+          "path": "pyproject.toml",
+          "sha256": "0e41fac2340799f787733362cc1eedc3988ceb0fe749b9c78210f8b3f056bcee",
+          "bytes": 184832
+        },
+        {
+          "path": "tests/contract/test_wp08_remaining54_contracts.py",
+          "sha256": "8f4cfaf2a0e869533781ddc184f77b3c6c1c856ae5986047bf613b4f7c24aa99",
+          "bytes": 15919
+        },
+        {
+          "path": "tests/integration/test_wp08_scenario_truth.py",
+          "sha256": "e09f81bcddf345adeebbcad3367862d6590cdba10cec1d9c985ca90a578ad07b",
+          "bytes": 101090
+        },
+        {
+          "path": "tests/security/test_wp08_remaining54_authority.py",
+          "sha256": "12b4b467114fc24dc6aaa02ae8f1d00f27d9ad714b404c5a7635a75c51be5603",
+          "bytes": 16762
+        },
+        {
+          "path": "tests/support/wp08_release_coverage.py",
+          "sha256": "18c132cdfcfb688c3fab831e297b16f289f4831ecb3346d887bf36e4e6ecf67b",
+          "bytes": 289009
+        },
+        {
+          "path": "tests/unit/test_wp08_scenario_truth.py",
+          "sha256": "2cd0ceda4bb21139af860b8cb70c1862fb709aafd6e337f6ba4a5825a9ba9012",
+          "bytes": 96440
+        }
+      ],
+      "ordered_raw_aggregate_sha256": "7cb1632f7c8de5ffc70fc4c92972459ab232bc25d9610e32e3ae54995fb4cb9c",
+      "aggregate_algorithm": "SHA256(sorted path + NUL + raw bytes + NUL)",
+      "upstream_record_id": "p2b-entry-verification-2026-09-12-r0",
+      "evidence_record_id": "p2b-entry-bounded-verification-2026-09-12-r0",
+      "scope": "Candidate for P2b cumulative entry readiness only; completed bounded regression and independent fast verification, no actual cumulative acceptance or production change.",
+      "prohibited": [
+        "cumulative-rerun",
+        "monitoring-restoration",
+        "commit",
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "P2c",
+        "P2d",
+        "P3",
+        "source-edit-target-expansion"
+      ],
+      "upstream_decision_input_digests": {
+        "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+        "state": "sha256:e341eab9c5556b6fad729289323b1fb926970310ceba38c8b553686562d355c0",
+        "verdict": "sha256:acd0c415e93c7300b57c89518ba898696b0912f6b8e691b14f729d616959f752"
+      }
+    },
+    {
+      "record_id": "p2b-entry-technical-review-2026-09-12-r0",
+      "author_id": "/root",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "sha256": "e11a939b7719b56c5955567faf6d9bfeb93dee2e3f1fd34a024d1f324a215554",
+          "bytes": 13360
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "sha256": "d602114d76c594385ec3a583b2893ade574bd91bb30fc8960bb22de46728564e",
+          "bytes": 39889
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+          "sha256": "187fe0a2ee4ca5e783d608bc5ca6950df4fe2a630585dc54a66c725adf4385b7",
+          "bytes": 49202
+        },
+        {
+          "path": "config/profiles/profile-coverage-execution-plan-v1.json",
+          "sha256": "850790e2b0918a6aed6f92ff3b25bdb7625f16789d053cdc8fa2211226a37ff0",
+          "bytes": 263805
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "sha256": "52dcbfcfc35cd8f3a50ead7b02348abe8b86f8068b5a36047cba9007b4ef6277",
+          "bytes": 4081
+        },
+        {
+          "path": "config/profiles/scenario-truth-policy-registry-v1.json",
+          "sha256": "59a32ec4f49e9d733055f45973239802fb9e6f9b28a3eeb93f0597e3061c1b31",
+          "bytes": 10878
+        },
+        {
+          "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "sha256": "3d920bebfc0d97adb8cabd3e7e8ba71058950f5109c58bf3c235220799a05add",
+          "bytes": 31739
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "sha256": "7846cd04131f982146cf238f99545dba34e7e6565bc4ad5ca51da0d9e55d8912",
+          "bytes": 76475
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "sha256": "e4abf67dd1fd36444f03a088cfe556f4eef8e10f07238f051f5da05066b9a6b5",
+          "bytes": 68689
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "sha256": "7cb6c8560f2e298fa92225b17ecdb8cbd881461e63e17a9d83e93dae2a490dbe",
+          "bytes": 165560
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "sha256": "d9415d73e51e1695ec716613739d125f9a80b917e7598f523958bc94fd19ac7e",
+          "bytes": 145151
+        },
+        {
+          "path": "pyproject.toml",
+          "sha256": "0e41fac2340799f787733362cc1eedc3988ceb0fe749b9c78210f8b3f056bcee",
+          "bytes": 184832
+        },
+        {
+          "path": "tests/contract/test_wp08_remaining54_contracts.py",
+          "sha256": "8f4cfaf2a0e869533781ddc184f77b3c6c1c856ae5986047bf613b4f7c24aa99",
+          "bytes": 15919
+        },
+        {
+          "path": "tests/integration/test_wp08_scenario_truth.py",
+          "sha256": "e09f81bcddf345adeebbcad3367862d6590cdba10cec1d9c985ca90a578ad07b",
+          "bytes": 101090
+        },
+        {
+          "path": "tests/security/test_wp08_remaining54_authority.py",
+          "sha256": "12b4b467114fc24dc6aaa02ae8f1d00f27d9ad714b404c5a7635a75c51be5603",
+          "bytes": 16762
+        },
+        {
+          "path": "tests/support/wp08_release_coverage.py",
+          "sha256": "18c132cdfcfb688c3fab831e297b16f289f4831ecb3346d887bf36e4e6ecf67b",
+          "bytes": 289009
+        },
+        {
+          "path": "tests/unit/test_wp08_scenario_truth.py",
+          "sha256": "2cd0ceda4bb21139af860b8cb70c1862fb709aafd6e337f6ba4a5825a9ba9012",
+          "bytes": 96440
+        }
+      ],
+      "ordered_raw_aggregate_sha256": "7cb1632f7c8de5ffc70fc4c92972459ab232bc25d9610e32e3ae54995fb4cb9c",
+      "aggregate_algorithm": "SHA256(sorted path + NUL + raw bytes + NUL)",
+      "upstream_record_id": "p2b-entry-candidate-2026-09-12-r0",
+      "evidence_record_id": "p2b-entry-bounded-verification-2026-09-12-r0",
+      "scope": "Independent Technical Review for P2b cumulative entry readiness; actual cumulative acceptance and all irreversible actions remain unauthorized.",
+      "prohibited": [
+        "cumulative-rerun",
+        "monitoring-restoration",
+        "commit",
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "P2c",
+        "P2d",
+        "P3",
+        "source-edit-target-expansion"
+      ],
+      "upstream_decision_input_digests": {
+        "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+        "state": "sha256:bc56720d40f2b0a7440ba1a5eb8278b2cc8ef75667dc311cf5ab6437dbcaf057",
+        "verdict": "sha256:4b315eb465f612ef7b2ac594bb4ed5c88fdc04e6336f73d2bdb5f4d3c203af57"
+      }
+    }
+  ],
   "p2b_packets": [
     {
       "record_id": "p2b-verification-2026-09-11-r0",

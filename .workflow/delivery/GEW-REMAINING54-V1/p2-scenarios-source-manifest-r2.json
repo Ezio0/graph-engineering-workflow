@@ -1,4 +1,175 @@
 {
+  "p2b_entry_verification_results": [
+    {
+      "record_id": "p2b-entry-bounded-verification-2026-09-12-r0",
+      "artifact_digest": "9d90502853bdece587d9dc4d87a7b6879be92dd784428de950f92af0909555c0",
+      "completes_pending_packet": "p2b-entry-implementation-2026-09-12-r0",
+      "result": "PASS",
+      "bounded": {
+        "tests": 58,
+        "elapsed_seconds": 114.385,
+        "timeout_seconds": 600,
+        "exit_code": 0,
+        "strict_serial": true,
+        "fail_fast": true,
+        "observed_output": "Ran 58 tests in 114.385s; OK",
+        "selectors": [
+          "tests.unit.test_wp08_scenario_truth",
+          "tests.contract.test_wp08_remaining54_contracts.Remaining54P2bContractsTest",
+          "tests.security.test_wp08_remaining54_authority.ScenarioTruthSecurityTests",
+          "tests.integration.test_wp08_scenario_truth.ScenarioTruthIntegrationTests.test_hotfix_guarded_p_r_quiescent_lifecycle_and_zero_replay",
+          "tests.integration.test_wp08_scenario_truth.ScenarioTruthIntegrationTests.test_multi_target_positive_uses_quiescent_binding_lifecycle"
+        ]
+      },
+      "isolated_packaging": {
+        "tests": 3,
+        "elapsed_seconds": 8.365,
+        "timeout_seconds": 180,
+        "exit_code": 0,
+        "strict_serial": true,
+        "fail_fast": true,
+        "environment": "env -u PYTHONPATH; wheel install --no-index --no-deps",
+        "selectors": [
+          "tests.e2e.test_wp00_installed_wheel",
+          "tests.unit.test_wp00_packaging.PackagingContractTests.test_source_manifest_closes_profile_oracle_input_generation_two"
+        ]
+      },
+      "scope_audit": {
+        "allowed_targets": 174,
+        "product_sources_and_all_configs_unchanged": true,
+        "protected_files_unchanged": true,
+        "old_records_preserved": true,
+        "head": "f4a47d1e5f46fba013762161e62635684dcaaa1c"
+      },
+      "cumulative_run_started": false,
+      "monitor_restored": false,
+      "no_source_change_during_review": true,
+      "evidence_limit": "Simulated226/230 orchestration is unit/control-flow coverage only. Real tests are bounded hotfix/P2a lifecycle, unit/contracts/security and packaging checks. No actual cumulative receipt or full-project completion is claimed. Prior failures and RUNNING-at-freeze records are retained."
+    }
+  ],
+  "p2b_entry_packets": [
+    {
+      "record_id": "p2b-entry-implementation-2026-09-12-r0",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "sha256": "e11a939b7719b56c5955567faf6d9bfeb93dee2e3f1fd34a024d1f324a215554",
+          "bytes": 13360
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "sha256": "d602114d76c594385ec3a583b2893ade574bd91bb30fc8960bb22de46728564e",
+          "bytes": 39889
+        },
+        {
+          "path": "config/profiles/profile-coverage-execution-plan-v1.json",
+          "sha256": "850790e2b0918a6aed6f92ff3b25bdb7625f16789d053cdc8fa2211226a37ff0",
+          "bytes": 263805
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "sha256": "52dcbfcfc35cd8f3a50ead7b02348abe8b86f8068b5a36047cba9007b4ef6277",
+          "bytes": 4081
+        },
+        {
+          "path": "config/profiles/scenario-truth-policy-registry-v1.json",
+          "sha256": "59a32ec4f49e9d733055f45973239802fb9e6f9b28a3eeb93f0597e3061c1b31",
+          "bytes": 10878
+        },
+        {
+          "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "sha256": "3d920bebfc0d97adb8cabd3e7e8ba71058950f5109c58bf3c235220799a05add",
+          "bytes": 31739
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "sha256": "7846cd04131f982146cf238f99545dba34e7e6565bc4ad5ca51da0d9e55d8912",
+          "bytes": 76475
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "sha256": "e4abf67dd1fd36444f03a088cfe556f4eef8e10f07238f051f5da05066b9a6b5",
+          "bytes": 68689
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "sha256": "7cb6c8560f2e298fa92225b17ecdb8cbd881461e63e17a9d83e93dae2a490dbe",
+          "bytes": 165560
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "sha256": "d9415d73e51e1695ec716613739d125f9a80b917e7598f523958bc94fd19ac7e",
+          "bytes": 145151
+        },
+        {
+          "path": "pyproject.toml",
+          "sha256": "0e41fac2340799f787733362cc1eedc3988ceb0fe749b9c78210f8b3f056bcee",
+          "bytes": 184832
+        },
+        {
+          "path": "tests/contract/test_wp08_remaining54_contracts.py",
+          "sha256": "8f4cfaf2a0e869533781ddc184f77b3c6c1c856ae5986047bf613b4f7c24aa99",
+          "bytes": 15919
+        },
+        {
+          "path": "tests/integration/test_wp08_scenario_truth.py",
+          "sha256": "e09f81bcddf345adeebbcad3367862d6590cdba10cec1d9c985ca90a578ad07b",
+          "bytes": 101090
+        },
+        {
+          "path": "tests/security/test_wp08_remaining54_authority.py",
+          "sha256": "12b4b467114fc24dc6aaa02ae8f1d00f27d9ad714b404c5a7635a75c51be5603",
+          "bytes": 16762
+        },
+        {
+          "path": "tests/support/wp08_release_coverage.py",
+          "sha256": "18c132cdfcfb688c3fab831e297b16f289f4831ecb3346d887bf36e4e6ecf67b",
+          "bytes": 289009
+        },
+        {
+          "path": "tests/unit/test_wp08_scenario_truth.py",
+          "sha256": "2cd0ceda4bb21139af860b8cb70c1862fb709aafd6e337f6ba4a5825a9ba9012",
+          "bytes": 96440
+        }
+      ],
+      "ordered_raw_aggregate_sha256": "9d90502853bdece587d9dc4d87a7b6879be92dd784428de950f92af0909555c0",
+      "aggregate_algorithm": "SHA256(sorted path + NUL + raw bytes + NUL)",
+      "scope": "P2b cumulative entry readiness only; no real cumulative launch, no new production/engine behavior.",
+      "baseline_commit": "f4a47d1e5f46fba013762161e62635684dcaaa1c",
+      "upstream_document_decision": "docs-decision-r1.json.p2b_entry_records[p2b-entry-docs-2026-09-12-r0]: ADVANCE implementation",
+      "verification": {
+        "red": {
+          "tests": 1,
+          "elapsed_seconds": 0.027,
+          "timeout_seconds": 30,
+          "result": "expected ERROR: P2B_CUMULATIVE_R1_SELECTOR absent"
+        },
+        "focused_green": {
+          "tests": 10,
+          "elapsed_seconds": 1.067,
+          "timeout_seconds": 120,
+          "result": "PASS",
+          "source_note": "Before whitespace-only source formatting; final bounded batch tests the frozen revision."
+        },
+        "bounded_regression": {
+          "status": "RUNNING, not yet acceptance evidence",
+          "timeout_seconds": 600,
+          "strict_serial": true,
+          "selectors": [
+            "tests.unit.test_wp08_scenario_truth",
+            "tests.contract.test_wp08_remaining54_contracts.Remaining54P2bContractsTest",
+            "tests.security.test_wp08_remaining54_authority.ScenarioTruthSecurityTests",
+            "tests.integration.test_wp08_scenario_truth.ScenarioTruthIntegrationTests.test_hotfix_guarded_p_r_quiescent_lifecycle_and_zero_replay",
+            "tests.integration.test_wp08_scenario_truth.ScenarioTruthIntegrationTests.test_multi_target_positive_uses_quiescent_binding_lifecycle"
+          ]
+        },
+        "pin_cascade": "Both read-only pin helpers returned empty patches; no pin/production configuration changes required.",
+        "architecture": "PASS",
+        "diff_check": "PASS"
+      },
+      "evidence_boundary": "Mocked 226/230 orchestration is unit/control-flow evidence only and cannot be used as cumulative acceptance. This slice runs no actual cumulative or performance selector. Prior records are preserved."
+    }
+  ],
   "schema_version": "1.0",
   "task_id": "GEW-REMAINING54-V1",
   "amendment_id": "GEW-REMAINING54-LOSSLESS-TRACE-MEMORY-REPAIR",

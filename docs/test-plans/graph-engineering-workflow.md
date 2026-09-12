@@ -1648,3 +1648,31 @@ P2a receipt remains bound to its committed source, not the new working tree.
 - Report: separate measured bounded tests from future cumulative coverage.
   Independent review must not call this 230-valid, Remaining54-complete, production
   ready, deployed or committed.
+
+### P2b cumulative entry bounded tests — 2026-09-12
+
+- Registration/dispatch: distinct P2a/P2b selectors and callable parents/children;
+  invalid, extra or foreign handoff arguments fail before invoking either child.
+  Parent forwards exact current registry timeout/heartbeat and validates P2b
+  receipt shape, selector, new/retained/dynamic/static counts and boolean statuses.
+- Preflight: expected plan/oracle counts, unique oracle keys and all new IDs;
+  count mismatch, duplicated oracle, missing or substituted hotfix ID and unknown
+  checkpoint stop before any performance sibling or binding execution.
+- Simulated orchestration: test-only doubles for installed plan, P1, bindings,
+  observations and gate; explicitly labeled unit/control-flow evidence. Exercise
+  P2a226 and P2b230, actual iteration/new-retained accounting, g0/issue/use/
+  precommit/gate generations, unique identity checks and strict-serial counters.
+  Cover invalid/stale/missing/duplicate or falsely passing gate results, identity
+  collision, execution mismatch, early exception, consumed finalization versus
+  abort, reversed cleanup and non-returning FD/handle checks. No real cumulative
+  child or performance sibling may run in this suite.
+- Runtime limits: existing timeout, heartbeat, child failure and wrong receipt
+  selector tests stay passing; a P2b parent must use the same immutable limits.
+- Real bounded evidence: guarded unit/contracts, both-hotfix quiescent P/R
+  lifecycle/zero-replay and retained P2a quiescent lifecycle; offline isolated
+  wheel/packaging and architecture/diff checks. Do not select the full release
+  coverage integration module or a cumulative selector. Each command at most
+  600 seconds, strict serial and fail-fast; preserve and diagnose every failure.
+- Acceptance: report completed bounded tests separately from actual cumulative
+  execution, which is not authorized. Plan230/oracle115 is still configuration
+  shape; no 230-valid receipt may be fabricated from simulated tests.

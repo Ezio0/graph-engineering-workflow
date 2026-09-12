@@ -18,6 +18,7 @@ import zipfile
 from collections.abc import Callable, Iterator
 from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass, field
+from types import MappingProxyType
 
 from graph_engineering.core.contracts.immutable import thaw
 from tests.support import wp08_category_execution as category
@@ -4061,6 +4062,7 @@ MIGRATION_SCENARIOS_R1_SELECTOR = "migration-scenarios-r1"
 DEPENDENCY_GRAPH_SCENARIOS_R1_SELECTOR = "dependency-graph-scenarios-r1"
 PERFORMANCE_REMAINING_R1_SELECTOR = "performance-remaining-r1"
 P2A_CUMULATIVE_R2_SELECTOR = "p2a-cumulative-r2"
+P2B_CUMULATIVE_R1_SELECTOR = "p2b-cumulative-r1"
 VERIFIED_RUNNER_SELECTORS = (
     DEPENDENCY_GRAPH_SCENARIOS_R1_SELECTOR,
     EXISTING_FEATURE_R1_SELECTOR,
@@ -4070,11 +4072,107 @@ VERIFIED_RUNNER_SELECTORS = (
     PERFORMANCE_AUTHORITY_R2_SELECTOR,
     PERFORMANCE_REMAINING_R1_SELECTOR,
     P2A_CUMULATIVE_R2_SELECTOR,
+    P2B_CUMULATIVE_R1_SELECTOR,
     REGRESSION_BOUNDARY_R1_SELECTOR,
     REPRODUCIBLE_FAILURE_R1_SELECTOR,
     STABLE_BASELINE_R1_SELECTOR,
     VULNERABLE_GRAPH_R1_SELECTOR,
 )
+
+
+@dataclass(frozen=True, slots=True)
+class _CumulativeCheckpoint:
+    """Frozen acceptance-oracle data, confined to this test fixture."""
+
+    selector: str
+    plan_bindings: int
+    oracle_bindings: int
+    missing_records: int
+    total_records: int
+    new_test_ids: frozenset[str]
+
+
+_CUMULATIVE_CHECKPOINTS = MappingProxyType({
+    P2A_CUMULATIVE_R2_SELECTOR: _CumulativeCheckpoint(
+        P2A_CUMULATIVE_R2_SELECTOR, 226, 113, 48, 274,
+        frozenset((NEW_FEATURE_MULTI_TARGET_PASS_TEST_ID,
+                   NEW_FEATURE_MULTI_TARGET_REJECT_TEST_ID)),
+    ),
+    P2B_CUMULATIVE_R1_SELECTOR: _CumulativeCheckpoint(
+        P2B_CUMULATIVE_R1_SELECTOR, 230, 115, 44, 274,
+        frozenset(f"GEW-PSC-HOTFIX-{scenario.upper()}-{disposition}"
+                  for scenario in HOTFIX_GUARDED_SCENARIO_IDS
+                  for disposition in ("P", "R")),
+    ),
+})
+
+
+def _cumulative_checkpoint(selector: str) -> _CumulativeCheckpoint:
+    if type(selector) is not str or selector not in _CUMULATIVE_CHECKPOINTS:
+        raise AssertionError("unknown cumulative checkpoint")
+    return _CUMULATIVE_CHECKPOINTS[selector]
+
+
+def _validate_cumulative_plan(plan, matrix, checkpoint):  # type: ignore[no-untyped-def]
+    """Reject wrong checkpoints before any expensive sibling or mutation."""
+
+    expected_ids = frozenset((*matrix.profile_case_ids, *matrix.scenario_case_ids))
+    oracle_keys = tuple(
+        (row["oracle_id"], row["profile_id"], row["selector_kind"],
+         row["column_id"], row["scenario_id"])
+        for row in plan.oracle_bindings
+    )
+    if (
+        len(plan.bindings) != checkpoint.plan_bindings
+        or len(oracle_keys) != checkpoint.oracle_bindings
+        or len(set(oracle_keys)) != checkpoint.oracle_bindings
+        or len(expected_ids) != checkpoint.total_records
+        or not set(plan.bindings) <= expected_ids
+        or not checkpoint.new_test_ids <= set(plan.bindings)
+        or len(expected_ids - set(plan.bindings)) != checkpoint.missing_records
+    ):
+        raise AssertionError("cumulative checkpoint plan preflight changed")
+
+
+def _validate_cumulative_receipt(receipt, checkpoint):  # type: ignore[no-untyped-def]
+    """Validate partial-checkpoint counts, never promote them to full success."""
+
+    expected = {
+        "selector": checkpoint.selector,
+        "plan_bindings": checkpoint.plan_bindings,
+        "oracle_bindings": checkpoint.oracle_bindings,
+        "new_records": len(checkpoint.new_test_ids),
+        "retained_records": checkpoint.plan_bindings - len(checkpoint.new_test_ids),
+        "dynamic": {"valid": checkpoint.plan_bindings,
+                    "missing": checkpoint.missing_records, "passed": False,
+                    "invalid": 0, "stale": 0, "duplicate": 0},
+        "static": {"valid": 0, "missing": checkpoint.total_records,
+                   "passed": False, "invalid": 0, "stale": 0, "duplicate": 0},
+    }
+
+    def exact(actual, wanted):  # type: ignore[no-untyped-def]
+        if type(actual) is not type(wanted):
+            return False
+        if isinstance(wanted, dict):
+            return actual.keys() == wanted.keys() and all(
+                exact(actual[key], value) for key, value in wanted.items()
+            )
+        return actual == wanted
+
+    if type(receipt) is not dict or receipt.keys() != expected.keys() | {"p1_sibling"}:
+        raise AssertionError("cumulative receipt fields changed")
+    if not exact({key: receipt[key] for key in expected}, expected):
+        raise AssertionError("cumulative receipt checkpoint changed")
+    sibling = receipt["p1_sibling"]
+    if type(sibling) is not dict or any(
+        not exact(sibling.get(key), value) for key, value in {
+            "selector": PERFORMANCE_REMAINING_R1_SELECTOR,
+            "plan_bindings": checkpoint.plan_bindings,
+            "oracle_bindings": checkpoint.oracle_bindings,
+        }.items()
+    ):
+        raise AssertionError("cumulative receipt P1 sibling changed")
+    return receipt
 
 
 def _verified_runner_contracts(
@@ -5775,8 +5873,10 @@ def _run_performance_remaining_r1_child() -> dict[str, object]:
     }
 
 
-def _run_p2a_cumulative_r2_child() -> dict[str, object]:
-    """Run the exact P2a cumulative dynamic and static coverage selectors."""
+def _run_cumulative_child(selector: str) -> dict[str, object]:
+    """Run one exact checkpoint through the shared serial lifecycle."""
+
+    checkpoint = _cumulative_checkpoint(selector)
 
     from tests.support import wp08_scenario_truth as lifecycle_fixture
     from tests.unit import test_wp08_profile_contracts as contracts
@@ -5793,6 +5893,7 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
                 "delta_ns": observed_ns - prior_ns,
                 "elapsed_ns": observed_ns - started_ns,
                 "stage": stage,
+                "selector": checkpoint.selector,
                 **fields,
             },
             ensure_ascii=False,
@@ -5801,9 +5902,6 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
         ), file=sys.stderr, flush=True)
         prior_ns = observed_ns
 
-    progress("p1-sibling-start")
-    p1_sibling = _run_performance_remaining_r1_child()
-    progress("p1-sibling-done")
     progress("plan-load-start")
     api, api4, coverage, matrix, profile, overlay, plan = _verified_plan()
     progress(
@@ -5811,6 +5909,10 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
         oracle_bindings=len(plan.oracle_bindings),
         plan_bindings=len(plan.bindings),
     )
+    _validate_cumulative_plan(plan, matrix, checkpoint)
+    progress("p1-sibling-start")
+    p1_sibling = _run_performance_remaining_r1_child()
+    progress("p1-sibling-done")
     results: list[SerialCoverageExecution] = []
     observations: list[object] = []
     records: tuple[object, ...] = ()
@@ -5844,10 +5946,10 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
                     quiescent=True,
                 )
             else:
-                raise AssertionError("P2a cumulative selector kind changed")
+                raise AssertionError("cumulative selector kind changed")
             if result.test_id != test_id:
                 result.close()
-                raise AssertionError("P2a cumulative execution order changed")
+                raise AssertionError("cumulative execution order changed")
             lifecycle = result.binding_lifecycle
             if (
                 lifecycle is None
@@ -5858,7 +5960,7 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
                 ) != ("QUIESCED", 0, "issue")
             ):
                 result.close()
-                raise AssertionError("P2a cumulative binding did not quiesce at g0")
+                raise AssertionError("cumulative binding did not quiesce at g0")
             progress("binding-executed", index=index, test_id=test_id)
             results.append(result)
             observations.append(result.observe_current())
@@ -5867,22 +5969,22 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
                 lifecycle.generation,
                 lifecycle.expected_purpose,
             ) != ("QUIESCED", 1, "use"):
-                raise AssertionError("P2a cumulative issue phase did not requiesce")
+                raise AssertionError("cumulative issue phase did not requiesce")
             if (
                 lifecycle_fixture.PrivateBindingReopenPort.active_handle_count()
                 or lifecycle_fixture.PrivateBindingReopenPort.
                 active_reopened_binding_count()
             ):
-                raise AssertionError("P2a cumulative issue retained a live binding")
+                raise AssertionError("cumulative issue retained a live binding")
             progress("binding-observed", index=index, test_id=test_id)
 
         execution_ids = tuple(result.test_id for result in results)
         if (
-            len(execution_ids) != 226
-            or len(set(execution_ids)) != 226
+            len(execution_ids) != checkpoint.plan_bindings
+            or len(set(execution_ids)) != checkpoint.plan_bindings
             or set(execution_ids) != set(plan.bindings)
         ):
-            raise AssertionError("P2a cumulative execution closure changed")
+            raise AssertionError("cumulative execution closure changed")
         oracle_keys = tuple(
             (
                 row["oracle_id"], row["profile_id"], row["selector_kind"],
@@ -5890,8 +5992,11 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
             )
             for row in plan.oracle_bindings
         )
-        if len(oracle_keys) != 113 or len(set(oracle_keys)) != 113:
-            raise AssertionError("P2a cumulative oracle closure changed")
+        if (
+            len(oracle_keys) != checkpoint.oracle_bindings
+            or len(set(oracle_keys)) != checkpoint.oracle_bindings
+        ):
+            raise AssertionError("cumulative oracle closure changed")
 
         identity_fields = (
             "repository_root", "task", "target", "branch_ref",
@@ -5910,13 +6015,14 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
             )
 
         if any(
-            len({identity_key(row[field]) for row in binding_identities}) != 226
+            len({identity_key(row[field]) for row in binding_identities})
+            != checkpoint.plan_bindings
             for field in identity_fields
         ) or len({
             tuple(identity_key(row[field]) for field in identity_fields)
             for row in binding_identities
-        }) != 226:
-            raise AssertionError("P2a cumulative binding identities are shared")
+        }) != checkpoint.plan_bindings:
+            raise AssertionError("cumulative binding identities are shared")
 
         progress("factory-start", authorities=len(results))
         factory = api.CoverageRecordFactory(
@@ -5950,11 +6056,11 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
                 lifecycle.expected_purpose,
             ) != ("QUIESCED", 3, "gate"):
                 raise AssertionError(
-                    "P2a cumulative use/precommit phases did not requiesce"
+                    "cumulative use/precommit phases did not requiesce"
                 )
             if lifecycle_fixture.PrivateBindingReopenPort.active_handle_count():
                 raise AssertionError(
-                    "P2a cumulative record issuance retained a live binding"
+                    "cumulative record issuance retained a live binding"
                 )
             progress("record-done", index=index, test_id=result.test_id)
         records = tuple(issued_records)
@@ -5967,19 +6073,24 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
         record_ids = tuple(record.test_id for record in records)
         if (
             dynamic_decision.passed
-            or len(record_ids) != 226
-            or len(set(record_ids)) != 226
-            or len(dynamic_decision.missing_test_ids) != 48
+            or len(record_ids) != checkpoint.plan_bindings
+            or len(set(record_ids)) != checkpoint.plan_bindings
+            or set(record_ids) != set(plan.bindings)
+            or len(dynamic_decision.missing_test_ids) != checkpoint.missing_records
+            or set(dynamic_decision.missing_test_ids) != (
+                set((*matrix.profile_case_ids, *matrix.scenario_case_ids))
+                - set(plan.bindings)
+            )
             or dynamic_decision.invalid_test_ids
             or dynamic_decision.stale_test_ids
         ):
-            raise AssertionError("P2a cumulative dynamic gate changed")
+            raise AssertionError("cumulative dynamic gate changed")
         if any((
             result.binding_lifecycle.state,
             result.binding_lifecycle.generation,
             result.binding_lifecycle.expected_purpose,
         ) != ("QUIESCED", 4, None) for result in results):
-            raise AssertionError("P2a cumulative gate phases did not requiesce")
+            raise AssertionError("cumulative gate phases did not requiesce")
         if (
             lifecycle_fixture.PrivateBindingReopenPort.active_handle_count()
             or lifecycle_fixture.PrivateBindingReopenPort.
@@ -5987,7 +6098,7 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
             or lifecycle_fixture.PrivateBindingReopenPort.
             maximum_active_reopened_binding_count() > 1
         ):
-            raise AssertionError("P2a cumulative gate violated strict serial reopen")
+            raise AssertionError("cumulative gate violated strict serial reopen")
         progress(
             "dynamic-gate-done",
             missing=len(dynamic_decision.missing_test_ids),
@@ -6027,11 +6138,14 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
         )
         if (
             static_decision.passed
-            or len(static_decision.missing_test_ids) != 274
+            or len(static_decision.missing_test_ids) != checkpoint.total_records
+            or set(static_decision.missing_test_ids) != set(
+                (*matrix.profile_case_ids, *matrix.scenario_case_ids)
+            )
             or static_decision.invalid_test_ids
             or static_decision.stale_test_ids
         ):
-            raise AssertionError("P2a cumulative static gate changed")
+            raise AssertionError("cumulative static gate changed")
         progress(
             "static-gate-done",
             missing=len(static_decision.missing_test_ids),
@@ -6042,32 +6156,38 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
             result.binding_lifecycle.state != "PERMANENTLY_CLOSED"
             for result in results
         ):
-            raise AssertionError("P2a cumulative bindings did not become terminal")
+            raise AssertionError("cumulative bindings did not become terminal")
         progress("terminal-done", results=len(results))
     finally:
-        if factory is not None and not factory_closed:
-            if dynamic_decision is None:
-                abort_uncommitted_coverage_factory(factory)
-            else:
-                finalize_consumed_coverage_factory(factory, dynamic_decision)
-        progress("teardown-start", results=len(results))
-        for index, result in enumerate(reversed(results), start=1):
-            result.close()
-            progress("teardown-result", index=index, test_id=result.test_id)
-        progress("teardown-done", results=len(results))
+        try:
+            if factory is not None and not factory_closed:
+                if dynamic_decision is None:
+                    abort_uncommitted_coverage_factory(factory)
+                else:
+                    finalize_consumed_coverage_factory(factory, dynamic_decision)
+        finally:
+            progress("teardown-start", results=len(results))
+            cleanup_error = None
+            for index, result in enumerate(reversed(results), start=1):
+                try:
+                    result.close()
+                except BaseException as error:
+                    if cleanup_error is None:
+                        cleanup_error = error
+                progress("teardown-result", index=index, test_id=result.test_id)
+            progress("teardown-done", results=len(results))
+            if cleanup_error is not None:
+                raise cleanup_error
     if (
         lifecycle_fixture.PrivateBindingReopenPort.active_handle_count()
         or lifecycle_fixture.PrivateBindingReopenPort.
         active_reopened_binding_count()
         or len(os.listdir("/dev/fd")) != fd_before
     ):
-        raise AssertionError("P2a cumulative resources did not return to baseline")
+        raise AssertionError("cumulative resources did not return to baseline")
     if dynamic_decision is None or static_decision is None:
-        raise AssertionError("P2a cumulative gates were not evaluated")
-    new_ids = {
-        NEW_FEATURE_MULTI_TARGET_PASS_TEST_ID,
-        NEW_FEATURE_MULTI_TARGET_REJECT_TEST_ID,
-    }
+        raise AssertionError("cumulative gates were not evaluated")
+    new_ids = checkpoint.new_test_ids
     return {
         "dynamic": {
             "valid": len(records),
@@ -6086,7 +6206,7 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
         "retained_records": len(tuple(
             record for record in records if record.test_id not in new_ids
         )),
-        "selector": P2A_CUMULATIVE_R2_SELECTOR,
+        "selector": checkpoint.selector,
         "static": {
             "valid": 0,
             "missing": len(static_decision.missing_test_ids),
@@ -6096,6 +6216,18 @@ def _run_p2a_cumulative_r2_child() -> dict[str, object]:
             "duplicate": 0,
         },
     }
+
+
+def _run_p2a_cumulative_r2_child() -> dict[str, object]:
+    """Preserve the P2a checkpoint and distinct selector identity."""
+
+    return _run_cumulative_child(P2A_CUMULATIVE_R2_SELECTOR)
+
+
+def _run_p2b_cumulative_r1_child() -> dict[str, object]:
+    """Entry availability does not authorize a P2b cumulative launch."""
+
+    return _run_cumulative_child(P2B_CUMULATIVE_R1_SELECTOR)
 
 
 def _run_vulnerable_graph_r1_child() -> dict[str, object]:
@@ -6782,7 +6914,7 @@ def _wait_for_verified_child(
         return receipt
 
 
-def _p2a_cumulative_runner_testability():  # type: ignore[no-untyped-def]
+def _cumulative_runner_testability():  # type: ignore[no-untyped-def]
     """Re-read immutable cumulative-runner limits from current authority."""
 
     from graph_engineering.application.scenario_truth import (
@@ -6794,6 +6926,12 @@ def _p2a_cumulative_runner_testability():  # type: ignore[no-untyped-def]
         return factory.registry().testability
     finally:
         factory.close()
+
+
+def _p2a_cumulative_runner_testability():  # type: ignore[no-untyped-def]
+    """Compatibility entry for the original P2a testability checks."""
+
+    return _cumulative_runner_testability()
 
 
 def _run_verified_selector_in_fresh_child(
@@ -6950,10 +7088,27 @@ def run_p2a_cumulative_r2_verified() -> dict[str, object]:
     """Run the exact P2a cumulative selector in one fresh attested child."""
 
     testability = _p2a_cumulative_runner_testability()
-    return _run_verified_selector_in_fresh_child(
+    receipt = _run_verified_selector_in_fresh_child(
         P2A_CUMULATIVE_R2_SELECTOR,
         timeout_seconds=testability["cumulative_runtime_limit_seconds"],
         heartbeat_interval_seconds=testability["heartbeat_interval_seconds"],
+    )
+    return _validate_cumulative_receipt(
+        receipt, _cumulative_checkpoint(P2A_CUMULATIVE_R2_SELECTOR),
+    )
+
+
+def run_p2b_cumulative_r1_verified() -> dict[str, object]:
+    """Run only with separate Human launch authority; entry tests must mock launch."""
+
+    testability = _cumulative_runner_testability()
+    receipt = _run_verified_selector_in_fresh_child(
+        P2B_CUMULATIVE_R1_SELECTOR,
+        timeout_seconds=testability["cumulative_runtime_limit_seconds"],
+        heartbeat_interval_seconds=testability["heartbeat_interval_seconds"],
+    )
+    return _validate_cumulative_receipt(
+        receipt, _cumulative_checkpoint(P2B_CUMULATIVE_R1_SELECTOR),
     )
 
 
@@ -7011,6 +7166,8 @@ def _verified_runner_main(arguments: list[str] | None = None) -> int:
             receipt = _run_performance_remaining_r1_child()
         elif selector == P2A_CUMULATIVE_R2_SELECTOR:
             receipt = _run_p2a_cumulative_r2_child()
+        elif selector == P2B_CUMULATIVE_R1_SELECTOR:
+            receipt = _run_p2b_cumulative_r1_child()
         elif selector == VULNERABLE_GRAPH_R1_SELECTOR:
             receipt = _run_vulnerable_graph_r1_child()
         else:
@@ -7037,6 +7194,8 @@ def _verified_runner_main(arguments: list[str] | None = None) -> int:
         receipt = run_performance_remaining_r1_verified()
     elif values == [P2A_CUMULATIVE_R2_SELECTOR]:
         receipt = run_p2a_cumulative_r2_verified()
+    elif values == [P2B_CUMULATIVE_R1_SELECTOR]:
+        receipt = run_p2b_cumulative_r1_verified()
     elif values == [VULNERABLE_GRAPH_R1_SELECTOR]:
         receipt = run_vulnerable_graph_r1_verified()
     else:
