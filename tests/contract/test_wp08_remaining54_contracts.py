@@ -266,9 +266,7 @@ class Remaining54P1ContractsTest(unittest.TestCase):
 
 class Remaining54P2bContractsTest(unittest.TestCase):
     def test_p2b_cumulative_entry_uses_exact_current_checkpoint_without_running(self):
-        from tests.integration.test_wp08_scenario_truth import ScenarioTruthIntegrationTests
-        matrix = ScenarioTruthIntegrationTests.matrix()
-        plan = fixture.load_slice4_api().ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        _, _, _, matrix, _, _, plan = fixture._verified_plan()
         checkpoint = fixture._cumulative_checkpoint("p2b-cumulative-r1")
         fixture._validate_cumulative_plan(plan, matrix, checkpoint)
         self.assertEqual((checkpoint.plan_bindings, checkpoint.oracle_bindings,

@@ -1676,3 +1676,29 @@ P2a receipt remains bound to its committed source, not the new working tree.
 - Acceptance: report completed bounded tests separately from actual cumulative
   execution, which is not authorized. Plan230/oracle115 is still configuration
   shape; no 230-valid receipt may be fabricated from simulated tests.
+
+### P2b real-loader omission regression — 2026-09-12
+
+- RED: the existing P2b installed-plan contract calls the real `_verified_plan`
+  instead of loading the plan directly. Preserve the observed113-versus115
+  failure before implementing the fix; no workload is invoked.
+- Exact checkpoint oracle: original P2a113 is unchanged, P2b adds exactly the two
+  approved full hotfix identity tuples and nothing else. Default current-source
+  callers use P2b; explicit P2a remains113. Unknown/non-string checkpoints fail.
+- Real installed loader: default and explicit P2b accept the real230/115 plan;
+  explicit P2a rejects that installation. This assertion must not mock the loader.
+- Real entry boundary: invoke the actual P2b cumulative child with real contract,
+  installation and oracle loading. Replace only the first P1 work call with a
+  distinctive stop sentinel and assert checkpoint routing. Separately invoke the
+  actual P1 sibling with its real loader, stopping at its first scenario attack.
+  Guard all subprocess and binding launches; no resulting receipt is acceptance.
+- Negative closure: missing, extra, duplicate and same-count changes to each of
+  oracle/profile/selector-kind/column/scenario fields are rejected for both
+  checkpoints. These malformed plan doubles test validation only, not execution.
+- Retain simulated lifecycle/dispatch/receipt/cleanup negatives and enforce the
+  new explicit checkpoint arguments, plus selected real hotfix/P2a lifecycle,
+  unit/security/contracts, offline packaging and architecture/diff checks.
+  Commands are fail-fast, strict serial and explicitly bounded to at most600s.
+- Preserve every previous result. This repair may establish bounded loader
+  readiness only; a fresh230-binding run and its actual receipt remain pending
+  separate Human authority and later independent acceptance.

@@ -904,3 +904,21 @@ hotfix scenarios advance. The current source-edit Envelope remains exact174.
    review using the standard reducer and three-revision limit.
 6. Hand off entry readiness only. Do not run the cumulative selector, restore
    monitoring, commit/push or start P2c. Those actions require separate authority.
+
+### P2b oracle closure bounded repair plan — 2026-09-12
+
+1. Preserve the failed run and record the focused Human repair approval. Review
+   this documentation bundle independently before changing implementation.
+2. Make the existing installed-plan contract traverse the real verified loader;
+   run that one test RED with a short explicit timeout, preserving its failure.
+3. Implement checkpoint-specific independent113/115 identity expectations. Keep
+   original P2a identities and pass cumulative identity through the P1 loader.
+4. Add genuine cumulative/P1 loader-to-first-workload-boundary tests, old/new
+   exact-set and same-count substitution negatives. Forbid workload/process
+   launch in those tests. Update simulation signatures and assert routing.
+5. Run focused and relevant bounded real regression, offline packaging, static
+   and provenance checks in strict serial (each test command at most600s).
+   Freeze completed evidence, then independent implementation, verification,
+   Candidate and technical review with standard reducer and existing loop budget.
+6. Stop at the next authority gate. No commit/push, monitoring restoration,
+   performance/cumulative workload, repair-loop rerun or later P2/P3 work.

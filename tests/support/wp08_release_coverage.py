@@ -259,8 +259,19 @@ NEW_MANDATORY_COLUMNS = (
 
 
 def expected_oracle_binding_identities(
+    *, selector: str | None = None,
 ) -> tuple[tuple[str, str, str, str, str | None], ...]:
-    """Return the frozen independent 113-member oracle identity closure."""
+    """Return an independent checkpoint closure; default to current P2b."""
+
+    checkpoint = _cumulative_checkpoint(
+        P2B_CUMULATIVE_R1_SELECTOR if selector is None else selector,
+    )
+    scenarios = EXPECTED_ORACLE_SCENARIOS
+    if checkpoint.selector == P2B_CUMULATIVE_R1_SELECTOR:
+        scenarios += tuple(
+            ("ORA-PROFILE-HOTFIX", "hotfix", "scenario", "boundary", scenario_id)
+            for scenario_id in HOTFIX_GUARDED_SCENARIO_IDS
+        )
 
     identities = tuple(sorted((
         *(
@@ -268,9 +279,12 @@ def expected_oracle_binding_identities(
             for oracle_id, profile_id in EXPECTED_ORACLE_MANDATORY_PROFILES
             for column in BUG_FIX_COLUMNS
         ),
-        *EXPECTED_ORACLE_SCENARIOS,
+        *scenarios,
     )))
-    if len(identities) != 113 or len(set(identities)) != 113:
+    if (
+        len(identities) != checkpoint.oracle_bindings
+        or len(set(identities)) != checkpoint.oracle_bindings
+    ):
         raise AssertionError("expected Profile coverage oracle closure is not exact")
     return identities
 
@@ -4203,7 +4217,8 @@ def _verified_runner_contracts(
     return api, coverage, matrix, profile, overlay
 
 
-def _verified_plan():  # type: ignore[no-untyped-def]
+def _verified_plan(*, selector: str | None = None):  # type: ignore[no-untyped-def]
+    expected_oracles = expected_oracle_binding_identities(selector=selector)
     api, coverage, matrix, profile, overlay = _verified_runner_contracts()
     api4 = load_slice4_api()
     plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
@@ -4214,7 +4229,7 @@ def _verified_plan():  # type: ignore[no-untyped-def]
         )
         for item in plan.oracle_bindings
     ))
-    if installed_oracles != expected_oracle_binding_identities():
+    if installed_oracles != expected_oracles:
         raise AssertionError("installed coverage oracle closure changed")
     return api, api4, coverage, matrix, profile, overlay, plan
 
@@ -5708,7 +5723,9 @@ def _performance_correctness_rejection_attacks(
     return tuple(sorted(rejected))
 
 
-def _run_performance_remaining_r1_child() -> dict[str, object]:
+def _run_performance_remaining_r1_child(
+    *, cumulative_selector: str | None = None,
+) -> dict[str, object]:
     """Run the two P1 performance scenario pairs and closed attack matrices."""
 
     from graph_engineering.core.performance_benchmark import (
@@ -5716,7 +5733,9 @@ def _run_performance_remaining_r1_child() -> dict[str, object]:
         integer_statistics,
     )
 
-    _api, api4, _coverage, matrix, _profile, _overlay, plan = _verified_plan()
+    _api, api4, _coverage, matrix, _profile, _overlay, plan = _verified_plan(
+        selector=cumulative_selector,
+    )
     scenario_attacks: dict[str, tuple[str, ...]] = {}
     retained_outliers: dict[str, tuple[int, int, int]] = {}
     correctness_rejections: tuple[str, ...] = ()
@@ -5903,7 +5922,9 @@ def _run_cumulative_child(selector: str) -> dict[str, object]:
         prior_ns = observed_ns
 
     progress("plan-load-start")
-    api, api4, coverage, matrix, profile, overlay, plan = _verified_plan()
+    api, api4, coverage, matrix, profile, overlay, plan = _verified_plan(
+        selector=checkpoint.selector,
+    )
     progress(
         "plan-load-done",
         oracle_bindings=len(plan.oracle_bindings),
@@ -5911,7 +5932,9 @@ def _run_cumulative_child(selector: str) -> dict[str, object]:
     )
     _validate_cumulative_plan(plan, matrix, checkpoint)
     progress("p1-sibling-start")
-    p1_sibling = _run_performance_remaining_r1_child()
+    p1_sibling = _run_performance_remaining_r1_child(
+        cumulative_selector=checkpoint.selector,
+    )
     progress("p1-sibling-done")
     results: list[SerialCoverageExecution] = []
     observations: list[object] = []

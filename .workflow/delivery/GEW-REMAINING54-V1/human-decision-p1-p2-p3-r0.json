@@ -1,4 +1,57 @@
 {
+  "p2b_oracle_repair_amendment": {
+    "amendment_id": "GEW-REMAINING54-P2B-ORACLE-CLOSURE-REPAIR-V1",
+    "human_approval": "批准",
+    "approval_context": "Approval of the preceding focused request to repair the real-entry oracle closure omission, update documentation, add true entry regression tests and independent review; no commit/push or cumulative workload.",
+    "baseline_commit": "e2df230362b1c811f6c60690de3a1d169bcaa1eb",
+    "triggering_failure_record_id": "p2b-cumulative-2026-09-12-r0-failed",
+    "scope": "Bounded repair of independent checkpoint-specific oracle identity closure and genuine installed-plan entry regression. Preserve P2a113/226 semantics and all original approval, review and failure records. Exercise both cumulative and P1 sibling entry loading without running performance or coverage workloads.",
+    "authorized_actions": [
+      "documentation",
+      "implementation",
+      "verification",
+      "independent-review",
+      "candidate",
+      "review"
+    ],
+    "allowed_targets_unchanged": 174,
+    "primary_source_targets": [
+      "tests/support/wp08_release_coverage.py",
+      "tests/unit/test_wp08_scenario_truth.py",
+      "tests/contract/test_wp08_remaining54_contracts.py"
+    ],
+    "documentation_targets": [
+      "docs/specs/graph-engineering-workflow.md",
+      "docs/impact/graph-engineering-workflow.md",
+      "docs/plans/2026-08-13-graph-engineering-workflow.md",
+      "docs/test-plans/graph-engineering-workflow.md"
+    ],
+    "test_boundary": "Strict serial, explicit timeout at most600 seconds for each native test command, fail-fast and diagnose on failure. A real entry-loader test may invoke child functions only with fail-closed sentinels before performance/binding work and guards against subprocess launch. No actual cumulative selector or performance workload.",
+    "protected_files": [
+      "config/verification/wp-07a-gate.json",
+      "tests/support/wp08_dependency_security.py",
+      "tests/support/wp08_migration_rehearsal.py"
+    ],
+    "prohibited": [
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "WP10",
+      "external-communication",
+      "cumulative-rerun",
+      "performance-workload",
+      "monitoring-restoration",
+      "P2c",
+      "P2d",
+      "P3",
+      "target-expansion",
+      "budget-change"
+    ],
+    "preservation": "Use only new p2b_oracle_repair_* sibling fields in existing authorized record files. Do not rewrite previous approval, PASS, handoff, failure or launch records. Original Envelope, PRD Intent Baseline v2 and ADR0008 remain unchanged."
+  },
   "p2b_cumulative_entry_amendment": {
     "amendment_id": "GEW-REMAINING54-P2B-CUMULATIVE-ENTRY-V1",
     "human_approval": "继续",

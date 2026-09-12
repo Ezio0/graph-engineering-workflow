@@ -1,4 +1,52 @@
 {
+  "p2b_oracle_repair_packets": [
+    {
+      "record_id": "p2b-oracle-repair-docs-2026-09-12-r0",
+      "author_id": "/root",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "bytes": 13360,
+          "sha256": "e11a939b7719b56c5955567faf6d9bfeb93dee2e3f1fd34a024d1f324a215554"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "bytes": 42508,
+          "sha256": "d00316f308ae83b73e9e07c8af6f31dfc7569480536ce3f3e0821f6f203cd248"
+        },
+        {
+          "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "bytes": 31739,
+          "sha256": "3d920bebfc0d97adb8cabd3e7e8ba71058950f5109c58bf3c235220799a05add"
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "bytes": 77692,
+          "sha256": "6087411fac8a91b211e60d9d4773eeeee16b99cc5ad034a48a7c8ba69e3b7d1d"
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "bytes": 69916,
+          "sha256": "e74daf3f3c3f61b53ebab6ca1a36091bfb51af79b048bfec9cad7af2e6c50ae6"
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "bytes": 167307,
+          "sha256": "03ab4fbc49bd8b6f31c4b7c9fb3eeb8d037d4630b44e174cba1f0615f51a4368"
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "bytes": 146998,
+          "sha256": "9fda9574a0d9f55284ed828bedad5e8e1269dc8d0546ef20fa1fe463e2cf7f37"
+        }
+      ],
+      "ordered_raw_aggregate_sha256": "c20ab9c245a78ddb8a5d9a0d18d5720aa5547bb54ac8e3978b837038796ddd63",
+      "aggregate_algorithm": "SHA256(sorted path + NUL + raw bytes + NUL)",
+      "authority": "human-decision-p1-p2-p3-r0.json.p2b_oracle_repair_amendment",
+      "upstream_failure_record_id": "p2b-cumulative-2026-09-12-r0-failed",
+      "scope": "Checkpoint-specific oracle closure and real entry loader bounded repair; no new product intent, architecture, target or execution authority."
+    }
+  ],
   "p2b_entry_packets": [
     {
       "record_id": "p2b-entry-docs-2026-09-12-r0",

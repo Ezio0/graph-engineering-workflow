@@ -1,4 +1,42 @@
 {
+  "p2b_oracle_repair_records": [
+    {
+      "record_id": "p2b-oracle-repair-implementation-2026-09-12-r0",
+      "state": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "node": "implementation",
+        "artifact": "implementation",
+        "author_id": "/root",
+        "reviewer_id": "/root/p2b_oracle_repair_impl_r0",
+        "targets": [
+          ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "config/profiles/profile-coverage-execution-plan-v1.json",
+          "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "config/profiles/scenario-truth-policy-registry-v1.json",
+          "config/test-oracles/profile-hotfix-emergency-baseline-v1.json",
+          "config/test-oracles/profile-hotfix-production-like-gate-v1.json",
+          "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "docs/impact/graph-engineering-workflow.md",
+          "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "docs/specs/graph-engineering-workflow.md",
+          "docs/test-plans/graph-engineering-workflow.md",
+          "pyproject.toml",
+          "tests/contract/test_wp08_remaining54_contracts.py",
+          "tests/integration/test_wp08_release_coverage.py",
+          "tests/integration/test_wp08_scenario_truth.py",
+          "tests/security/test_wp08_remaining54_authority.py",
+          "tests/support/wp08_release_coverage.py",
+          "tests/unit/test_wp08_scenario_truth.py"
+        ],
+        "revision": 0,
+        "artifact_digest": "ccfe1921962e84977fd72275a3953c2975f2487815e78fd6b36a0059712070cd",
+        "previous_artifact_digest": null,
+        "open_finding_ids": []
+      }
+    }
+  ],
   "p2b_entry_records": [
     {
       "record_id": "p2b-entry-implementation-2026-09-12-r0",

@@ -1,4 +1,64 @@
 {
+  "p2b_oracle_repair_records": [
+    {
+      "record_id": "p2b-oracle-repair-verification-2026-09-12-r0",
+      "reviewer_id": "/root/p2b_oracle_repair_verification_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "verification",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "record_id": "p2b-oracle-repair-verification-2026-09-12-r0",
+          "artifact_digest": "5bd0a7375905b2f6e29092f6091e27ae0c68e3eefb110addd55d992ac6402f38",
+          "binding": "All 20 target hashes, aggregate, upstream decision input digests and Envelope membership verified; artifact unchanged after testing.",
+          "independent_batch": {
+            "tests": 22,
+            "elapsed_seconds": 4.627,
+            "exit_code": 0,
+            "timeout_seconds": 120,
+            "strict_serial": true,
+            "attestation_control_root": "/private/tmp/gew-p2b-oracle-repair.tIKgz0/independent-control",
+            "selectors": [
+              "tests.unit.test_wp08_scenario_truth.OracleClosureEntryTests",
+              "tests.unit.test_wp08_scenario_truth.CumulativeEntryTests",
+              "tests.contract.test_wp08_remaining54_contracts.Remaining54P2bContractsTest",
+              "tests.security.test_wp08_remaining54_authority.ScenarioTruthSecurityTests"
+            ]
+          },
+          "loader_regression": "Real installed loader, cumulative child and P1 sibling reach guarded pre-workload boundaries. Exact-identity negatives cover both checkpoints; simulated orchestration remains separately identified.",
+          "preservation": "Historical P2a113 digest independently recomputed as b38cc66501af5c6e19aca36acd233ee49cd9dd2949bf69f7b6cff2db80d37f6e. Historical fixture assignments, prior JSON keys, protected files, Envelope, PRD and ADR unchanged. All seven failed-run runtime artifacts match recorded hashes.",
+          "scope": "Bounded loader-repair verification only; no cumulative acceptance, performance workload, monitoring restoration or irreversible authority."
+        }
+      }
+    },
+    {
+      "record_id": "p2b-oracle-repair-candidate-2026-09-12-r0",
+      "reviewer_id": "/root/p2b_oracle_repair_candidate_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "candidate",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      }
+    },
+    {
+      "record_id": "p2b-oracle-repair-technical-2026-09-12-r0",
+      "reviewer_id": "/root/p2b_oracle_repair_technical_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "review",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      }
+    }
+  ],
   "p2b_entry_records": [
     {
       "record_id": "p2b-entry-verification-2026-09-12-r0",

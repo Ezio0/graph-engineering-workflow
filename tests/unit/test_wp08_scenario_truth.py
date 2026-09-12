@@ -14,7 +14,7 @@ import tempfile
 import threading
 import unittest
 import weakref
-from contextlib import redirect_stderr
+from contextlib import ExitStack, contextmanager, redirect_stderr
 from io import StringIO
 from unittest import mock
 
@@ -1837,10 +1837,19 @@ class CumulativeEntryTests(unittest.TestCase):
                  EvidenceObservationAuthority=lambda *a, **k: NS(observe=lambda *a, **k: object()))
         p1 = {"selector": fixture.PERFORMANCE_REMAINING_R1_SELECTOR,
               "plan_bindings": checkpoint.plan_bindings, "oracle_bindings": checkpoint.oracle_bindings}
+
+        def load_plan(*, selector):
+            self.assertEqual(selector, checkpoint.selector)
+            return api, None, None, matrix, None, None, plan
+
+        def load_p1(*, cumulative_selector):
+            self.assertEqual(cumulative_selector, checkpoint.selector)
+            return p1
+
         with ExitStack() as stack:
             stack.enter_context(redirect_stderr(StringIO()))
-            for name, value in (("_verified_plan", lambda: (api, None, None, matrix, None, None, plan)),
-                                ("_run_performance_remaining_r1_child", lambda: p1),
+            for name, value in (("_verified_plan", load_plan),
+                                ("_run_performance_remaining_r1_child", load_p1),
                                 ("run_serial_profile_binding", execute), ("run_serial_scenario_binding", execute)):
                 stack.enter_context(mock.patch.object(fixture, name, value))
             stack.enter_context(mock.patch.object(contracts, "_evidence_registry_document", return_value={}))
@@ -1928,6 +1937,144 @@ class CumulativeEntryTests(unittest.TestCase):
                 child.assert_called_once_with()
                 self.assertEqual(fixture._verified_runner_main([selector, "extra"]), 2)
                 self.assertEqual(fixture._verified_runner_main(["unknown"]), 2)
+
+
+class OracleClosureEntryTests(unittest.TestCase):
+    """Real installed loader paths, stopped before any acceptance workload."""
+
+    class WorkloadBoundaryReached(RuntimeError):
+        pass
+
+    @contextmanager
+    def forbid_workloads(self):
+        from tests.support import wp08_release_coverage as fixture
+
+        with ExitStack() as stack:
+            for owner, name in (
+                (fixture.subprocess, "Popen"),
+                (fixture.subprocess, "run"),
+                (fixture, "run_serial_profile_binding"),
+                (fixture, "run_serial_scenario_binding"),
+                (fixture, "performance_remaining_scenario_candidate"),
+            ):
+                stack.enter_context(mock.patch.object(
+                    owner, name, side_effect=AssertionError("workload forbidden"),
+                ))
+            stack.enter_context(redirect_stderr(StringIO()))
+            yield
+
+    def test_checkpoint_sets_preserve_exact_historical_p2a(self):
+        from tests.support import wp08_release_coverage as fixture
+
+        p2a = fixture.expected_oracle_binding_identities(
+            selector=fixture.P2A_CUMULATIVE_R2_SELECTOR,
+        )
+        p2b = fixture.expected_oracle_binding_identities(
+            selector=fixture.P2B_CUMULATIVE_R1_SELECTOR,
+        )
+        # Captured from the committed113 fixture before this repair, not P2b data.
+        self.assertEqual(hashlib.sha256(json.dumps(
+            p2a, separators=(",", ":"),
+        ).encode()).hexdigest(),
+            "b38cc66501af5c6e19aca36acd233ee49cd9dd2949bf69f7b6cff2db80d37f6e")
+        additions = {
+            ("ORA-PROFILE-HOTFIX", "hotfix", "scenario", "boundary", "emergency-baseline"),
+            ("ORA-PROFILE-HOTFIX", "hotfix", "scenario", "boundary", "production-like-gate"),
+        }
+        self.assertEqual((len(p2a), len(set(p2a)), len(p2b), len(set(p2b))),
+                         (113, 113, 115, 115))
+        self.assertEqual(set(p2b), set(p2a) | additions)
+        self.assertFalse(set(p2a) & additions)
+        self.assertEqual(fixture.expected_oracle_binding_identities(), p2b)
+
+    def test_real_installed_loader_uses_current_or_explicit_checkpoint(self):
+        from tests.support import wp08_release_coverage as fixture
+
+        with self.forbid_workloads():
+            for selector in (None, fixture.P2B_CUMULATIVE_R1_SELECTOR):
+                with self.subTest(selector=selector):
+                    _, _, _, matrix, _, _, plan = fixture._verified_plan(selector=selector)
+                    self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (230, 115))
+                    fixture._validate_cumulative_plan(
+                        plan, matrix, fixture._cumulative_checkpoint(fixture.P2B_CUMULATIVE_R1_SELECTOR),
+                    )
+            with self.assertRaisesRegex(AssertionError, "oracle closure"):
+                fixture._verified_plan(selector=fixture.P2A_CUMULATIVE_R2_SELECTOR)
+
+    def test_real_cumulative_entry_loads_plan_before_p1_work(self):
+        from tests.support import wp08_release_coverage as fixture
+
+        with self.forbid_workloads(), mock.patch.object(
+            fixture, "_run_performance_remaining_r1_child",
+            side_effect=self.WorkloadBoundaryReached,
+        ) as boundary:
+            with self.assertRaises(self.WorkloadBoundaryReached):
+                fixture._run_p2b_cumulative_r1_child()
+            boundary.assert_called_once_with(cumulative_selector=fixture.P2B_CUMULATIVE_R1_SELECTOR)
+            boundary.reset_mock()
+            with self.assertRaisesRegex(AssertionError, "oracle closure"):
+                fixture._run_p2a_cumulative_r2_child()
+            boundary.assert_not_called()
+
+    def test_real_p1_sibling_loads_plan_before_performance_work(self):
+        from tests.support import wp08_release_coverage as fixture
+
+        for selector in (None, fixture.P2B_CUMULATIVE_R1_SELECTOR):
+            with self.subTest(selector=selector), self.forbid_workloads(), mock.patch.object(
+                fixture, "_scenario_attack_receipt", side_effect=self.WorkloadBoundaryReached,
+            ) as boundary:
+                with self.assertRaises(self.WorkloadBoundaryReached):
+                    fixture._run_performance_remaining_r1_child(cumulative_selector=selector)
+                self.assertEqual(boundary.call_count, 1)
+                self.assertEqual(len(boundary.call_args.kwargs["plan"].oracle_bindings), 115)
+        with self.forbid_workloads(), mock.patch.object(
+            fixture, "_scenario_attack_receipt", side_effect=self.WorkloadBoundaryReached,
+        ) as boundary:
+            with self.assertRaisesRegex(AssertionError, "oracle closure"):
+                fixture._run_performance_remaining_r1_child(
+                    cumulative_selector=fixture.P2A_CUMULATIVE_R2_SELECTOR,
+                )
+            boundary.assert_not_called()
+
+    def test_identity_closure_rejects_omission_duplicate_and_substitution(self):
+        from types import SimpleNamespace as NS
+        from tests.support import wp08_release_coverage as fixture
+
+        fields = ("oracle_id", "profile_id", "selector_kind", "column_id", "scenario_id")
+        for selector in (fixture.P2A_CUMULATIVE_R2_SELECTOR, fixture.P2B_CUMULATIVE_R1_SELECTOR):
+            # Deliberately malformed plan doubles: validation evidence only.
+            rows = [dict(zip(fields, row)) for row in fixture.expected_oracle_binding_identities(
+                selector=selector,
+            )]
+            scenario_index = next(i for i, row in enumerate(rows) if row["selector_kind"] == "scenario")
+            mutations = {"missing": rows[:-1], "duplicate": rows[:-1] + [rows[0]],
+                         "extra": rows + [dict(rows[scenario_index], oracle_id="foreign")]}
+            for field in fields:
+                changed = copy.deepcopy(rows)
+                changed[scenario_index][field] = "foreign"
+                mutations[field] = changed
+            for label, values in (("valid", rows), *mutations.items()):
+                plan = NS(oracle_bindings=values)
+                api4 = NS(ProfileCoverageExecutionPlan=NS(from_installation=lambda **kwargs: plan))
+                with self.subTest(selector=selector, mutation=label), self.forbid_workloads(), \
+                     mock.patch.object(fixture, "_verified_runner_contracts", return_value=(None,) * 5), \
+                     mock.patch.object(fixture, "load_slice4_api", return_value=api4):
+                    if label == "valid":
+                        self.assertIs(fixture._verified_plan(selector=selector)[-1], plan)
+                    else:
+                        with self.assertRaisesRegex(AssertionError, "oracle closure"):
+                            fixture._verified_plan(selector=selector)
+
+    def test_unknown_checkpoint_fails_before_loading_contracts(self):
+        from tests.support import wp08_release_coverage as fixture
+
+        for selector in ("", "p2c", "performance-remaining-r1", True, 113, [], {}):
+            with self.subTest(selector=selector), mock.patch.object(
+                fixture, "_verified_runner_contracts", side_effect=AssertionError("loader invoked"),
+            ) as loader:
+                with self.assertRaisesRegex(AssertionError, "unknown cumulative checkpoint"):
+                    fixture._verified_plan(selector=selector)
+                loader.assert_not_called()
 
 
 if __name__ == "__main__":

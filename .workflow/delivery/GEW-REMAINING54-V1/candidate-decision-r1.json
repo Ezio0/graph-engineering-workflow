@@ -1,4 +1,654 @@
 {
+  "p2b_oracle_repair_commit_authorizations": [
+    {
+      "record_id": "p2b-oracle-repair-local-commit-2026-09-12-r0",
+      "task_id": "GEW-REMAINING54-V1",
+      "recorded_at_utc": "2026-09-12 04:50:36 UTC",
+      "human_approval": "批准",
+      "approval_context": "是否批准本轮一次本地 commit（不 push、不启动长跑）？",
+      "authorized_action": "one-local-commit",
+      "maximum_commits": 1,
+      "expected_parent_commit": "e2df230362b1c811f6c60690de3a1d169bcaa1eb",
+      "reviewed_artifact_digest": "5bd0a7375905b2f6e29092f6091e27ae0c68e3eefb110addd55d992ac6402f38",
+      "terminal_review_record_id": "p2b-oracle-repair-technical-2026-09-12-r0",
+      "commit_paths": [
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-state-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r2.json",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "tests/contract/test_wp08_remaining54_contracts.py",
+        "tests/support/wp08_release_coverage.py",
+        "tests/unit/test_wp08_scenario_truth.py"
+      ],
+      "pre_authorization_file_sha256": "42c3ff380249ded5b38f9bf31af38c0dd816ea1db6ffac47bb54da730384fe49",
+      "frozen_other_commit_files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/candidate-review-verdict-r1.json",
+          "sha256": "50dfc5798c8012612f12f938c63515c314bb51ca4124614fdd08f986f5c5f90a",
+          "bytes": 65787
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json",
+          "sha256": "4d81ef4fc464f26e0602a2c8893cc5400166d7962b708ae7d27e1358ef85c190",
+          "bytes": 501801
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/candidate-state-r1.json",
+          "sha256": "77ea27591fc08e2015bb423c164540f8b3dca956d8631a365409de73242e6739",
+          "bytes": 60862
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+          "sha256": "36d3b2dcaff6cb95627e504178fad34763e5a6311c59c27083fc32d77fa672ae",
+          "bytes": 3137
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json",
+          "sha256": "2c6761c286b7b6f593be7be85a3161639a6a8b9121264b68f4be83551fc6ac28",
+          "bytes": 4238
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json",
+          "sha256": "6ddeb991d3abe7773af208b9bfeeed4d88083fe58fbf66c731e9341b66fc2dec",
+          "bytes": 8536
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json",
+          "sha256": "6c5800247c5c2c9d658d109997cb272c257c30fff086c99a71236702189cceb7",
+          "bytes": 4521
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "sha256": "d00316f308ae83b73e9e07c8af6f31dfc7569480536ce3f3e0821f6f203cd248",
+          "bytes": 42508
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r2.json",
+          "sha256": "fdf4918df4e73a1c702d4384ddd16c46c75072e9ab8e44ddc056a68620db27aa",
+          "bytes": 4114
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r2.json",
+          "sha256": "14ee451f8ed65a8b8ca3c4b3a3545d6429f33ea5eed1acc58818696dad2b38a5",
+          "bytes": 12240
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+          "sha256": "3aca612db52e37af38a475b03f6cff613588d4ee12e86e0587ca46824ca39114",
+          "bytes": 57769
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r2.json",
+          "sha256": "ed5062b53805437dba292461d5d50757928209a8b7f8d0c39fd63f2ff311f9bf",
+          "bytes": 16521
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "sha256": "6087411fac8a91b211e60d9d4773eeeee16b99cc5ad034a48a7c8ba69e3b7d1d",
+          "bytes": 77692
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "sha256": "e74daf3f3c3f61b53ebab6ca1a36091bfb51af79b048bfec9cad7af2e6c50ae6",
+          "bytes": 69916
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "sha256": "03ab4fbc49bd8b6f31c4b7c9fb3eeb8d037d4630b44e174cba1f0615f51a4368",
+          "bytes": 167307
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "sha256": "9fda9574a0d9f55284ed828bedad5e8e1269dc8d0546ef20fa1fe463e2cf7f37",
+          "bytes": 146998
+        },
+        {
+          "path": "tests/contract/test_wp08_remaining54_contracts.py",
+          "sha256": "865b2e3d1178a75fa20064c975ace9923ae0b042edef526a10e11c339deb8b19",
+          "bytes": 15730
+        },
+        {
+          "path": "tests/support/wp08_release_coverage.py",
+          "sha256": "a396ca4fac2e157c913180dc1dfe79efa2313587edb617daa30b859bcc8e281d",
+          "bytes": 289771
+        },
+        {
+          "path": "tests/unit/test_wp08_scenario_truth.py",
+          "sha256": "5857fd9824a0c8e6c397bf634f55561741554c9d91fbd9240e825ddd96cedb87",
+          "bytes": 104126
+        }
+      ],
+      "preserved_predecessor_reducer_decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "review",
+        "decision": "ESCALATE",
+        "code": "E_AUTHORITY",
+        "message": "next node requires separate authority: commit",
+        "next_node": "commit",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "independent-review",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:0c8b8f22944b2d257f0ff452043d197d707f7be19d283fe1065ee0b0bfb0d068",
+          "verdict": "sha256:71550fc856392fab9b72eaa0fae8e4b21e5a9df913b275775b253b89e3de8955"
+        }
+      },
+      "authority_rule": "This separate explicit human decision authorizes exactly one local commit of the frozen repair plus append-only authority/failure/evidence/review records. The original Authority Envelope and historical ESCALATE/E_AUTHORITY decision remain unchanged; no synthetic PASS is issued for the commit node.",
+      "preflight": {
+        "exact_changed_paths_verified": true,
+        "allowed_targets_count": 174,
+        "current_repair_artifact_digests_verified": [
+          {
+            "record_id": "p2b-oracle-repair-docs-2026-09-12-r0",
+            "digest": "c20ab9c245a78ddb8a5d9a0d18d5720aa5547bb54ac8e3978b837038796ddd63"
+          },
+          {
+            "record_id": "p2b-oracle-repair-implementation-2026-09-12-r0",
+            "digest": "ccfe1921962e84977fd72275a3953c2975f2487815e78fd6b36a0059712070cd"
+          },
+          {
+            "record_id": "p2b-oracle-repair-verification-2026-09-12-r0",
+            "digest": "5bd0a7375905b2f6e29092f6091e27ae0c68e3eefb110addd55d992ac6402f38"
+          },
+          {
+            "record_id": "p2b-oracle-repair-candidate-2026-09-12-r0",
+            "digest": "5bd0a7375905b2f6e29092f6091e27ae0c68e3eefb110addd55d992ac6402f38"
+          },
+          {
+            "record_id": "p2b-oracle-repair-technical-2026-09-12-r0",
+            "digest": "5bd0a7375905b2f6e29092f6091e27ae0c68e3eefb110addd55d992ac6402f38"
+          }
+        ],
+        "historical_top_level_records_preserved_in_files": 13,
+        "original_candidate_decision_bytes_must_be_preserved": true,
+        "staged_and_untracked_files_absent": true,
+        "active_git_hooks_absent": true,
+        "git_diff_check_passed": true
+      },
+      "commit_message": "fix: repair P2b oracle closure entry validation",
+      "execution_rule": "Stage only the exact commit_paths and verify each resulting staged blob against frozen raw bytes before one commit. Abort on drift or unexpected changes. Report the resulting commit hash separately; do not mutate this authorization to embed a self-referential commit hash.",
+      "remaining_prohibitions": [
+        "additional-commit",
+        "amend",
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "cumulative-rerun",
+        "performance-workload",
+        "monitoring-restoration",
+        "P2c",
+        "P2d",
+        "P3",
+        "source-edits",
+        "target-expansion",
+        "budget-change"
+      ],
+      "acceptance_limit": "Bounded oracle-loader repair only; no new cumulative receipt, performance acceptance or overall project completion."
+    }
+  ],
+  "p2b_oracle_repair_handoff": {
+    "record_id": "p2b-oracle-repair-handoff-2026-09-12-r0",
+    "status": "bounded-repair-accepted-awaiting-local-commit-authority",
+    "source_commit": "e2df230362b1c811f6c60690de3a1d169bcaa1eb",
+    "artifact_digest": "5bd0a7375905b2f6e29092f6091e27ae0c68e3eefb110addd55d992ac6402f38",
+    "target_count": 20,
+    "terminal_review_record_id": "p2b-oracle-repair-technical-2026-09-12-r0",
+    "review_status": {
+      "documentation": "PASS",
+      "implementation": "PASS",
+      "verification": "PASS",
+      "candidate": "PASS",
+      "technical_review": "PASS"
+    },
+    "reducer_decision": {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "artifact": "review",
+      "decision": "ESCALATE",
+      "code": "E_AUTHORITY",
+      "message": "next node requires separate authority: commit",
+      "next_node": "commit",
+      "revision": 0,
+      "human_required": true,
+      "current_node": "independent-review",
+      "input_verdict": "PASS",
+      "input_digests": {
+        "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+        "state": "sha256:0c8b8f22944b2d257f0ff452043d197d707f7be19d283fe1065ee0b0bfb0d068",
+        "verdict": "sha256:71550fc856392fab9b72eaa0fae8e4b21e5a9df913b275775b253b89e3de8955"
+      }
+    },
+    "repair": "Checkpoint-specific independent113/115 full oracle identity closure, explicit cumulative/P1 loader routing and genuine pre-workload entry regression. Original P2a identity hash and checkpoint constants preserved.",
+    "evidence": {
+      "expected_red": {
+        "tests": 1,
+        "elapsed_seconds": 0.405,
+        "exit_code": 1,
+        "reason": "Same installed oracle closure failure reproduced before repair"
+      },
+      "focused_green": {
+        "tests": 16,
+        "elapsed_seconds": 4.07,
+        "exit_code": 0
+      },
+      "bounded_regression": {
+        "tests": 64,
+        "elapsed_seconds": 119.476,
+        "exit_code": 0
+      },
+      "offline_packaging": {
+        "tests": 3,
+        "elapsed_seconds": 9.119,
+        "exit_code": 0
+      },
+      "independent_verification": {
+        "tests": 22,
+        "elapsed_seconds": 4.627,
+        "exit_code": 0,
+        "timeout_seconds": 120,
+        "strict_serial": true,
+        "attestation_control_root": "/private/tmp/gew-p2b-oracle-repair.tIKgz0/independent-control",
+        "selectors": [
+          "tests.unit.test_wp08_scenario_truth.OracleClosureEntryTests",
+          "tests.unit.test_wp08_scenario_truth.CumulativeEntryTests",
+          "tests.contract.test_wp08_remaining54_contracts.Remaining54P2bContractsTest",
+          "tests.security.test_wp08_remaining54_authority.ScenarioTruthSecurityTests"
+        ]
+      },
+      "counts_are_overlapping_batches": true
+    },
+    "scope_audit": {
+      "head": "e2df230362b1c811f6c60690de3a1d169bcaa1eb",
+      "changed_files": 20,
+      "allowed_targets": 174,
+      "historical_record_files_preserved": 13,
+      "failed_run_fields_preserved": true,
+      "protected_files_unchanged": [
+        "config/verification/wp-07a-gate.json",
+        "tests/support/wp08_dependency_security.py",
+        "tests/support/wp08_migration_rehearsal.py"
+      ],
+      "production_sources_configs_unchanged": true,
+      "no_staged_or_untracked_changes": true
+    },
+    "failed_run_record_preserved": "p2b-cumulative-2026-09-12-r0-failed",
+    "p2a_identity_baseline": {
+      "count": 113,
+      "canonical_json_sha256": "b38cc66501af5c6e19aca36acd233ee49cd9dd2949bf69f7b6cff2db80d37f6e",
+      "algorithm": "SHA256(JSON ordered tuples, compact separators)",
+      "source_commit": "e2df230362b1c811f6c60690de3a1d169bcaa1eb"
+    },
+    "cumulative_rerun_started": false,
+    "performance_workload_started": false,
+    "monitor_restored": false,
+    "commit_created": false,
+    "push_performed": false,
+    "acceptance_limit": "This is bounded loader-repair acceptance only, not a new230-valid cumulative receipt or overall project completion. Prior real run failed and its one-shot authority is consumed; a new run still requires fresh explicit authority.",
+    "next_authority_request": "One local commit for the frozen repair and append-only authority/failure/evidence/review records, excluding push, cumulative rerun, performance workload, monitoring restoration and later scope.",
+    "remaining_prohibitions": [
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "WP10",
+      "external-communication",
+      "cumulative-rerun",
+      "performance-workload",
+      "monitoring-restoration",
+      "P2c",
+      "P2d",
+      "P3",
+      "target-expansion",
+      "budget-change"
+    ]
+  },
+  "p2b_oracle_repair_records": [
+    {
+      "record_id": "p2b-oracle-repair-verification-2026-09-12-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "verification",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "candidate",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "verification",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:a723f3aa24ff8ac0969fc3f1934ea07cf5abb524ea94efad46a9ca2aebe2350b",
+          "verdict": "sha256:e8a2684722ce4814989d3f79c8e09c20499d3d298a6cc4680e30fb14fcc52099"
+        }
+      }
+    },
+    {
+      "record_id": "p2b-oracle-repair-candidate-2026-09-12-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "candidate",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "independent-review",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "candidate",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:bd47efe34193243117cce32607f8304128bd64fe88561e87342a7ec1d1356e0a",
+          "verdict": "sha256:4b315eb465f612ef7b2ac594bb4ed5c88fdc04e6336f73d2bdb5f4d3c203af57"
+        }
+      }
+    },
+    {
+      "record_id": "p2b-oracle-repair-technical-2026-09-12-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "review",
+        "decision": "ESCALATE",
+        "code": "E_AUTHORITY",
+        "message": "next node requires separate authority: commit",
+        "next_node": "commit",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "independent-review",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:0c8b8f22944b2d257f0ff452043d197d707f7be19d283fe1065ee0b0bfb0d068",
+          "verdict": "sha256:71550fc856392fab9b72eaa0fae8e4b21e5a9df913b275775b253b89e3de8955"
+        }
+      }
+    }
+  ],
+  "p2b_cumulative_run_executions": [
+    {
+      "record_id": "p2b-cumulative-2026-09-12-r0-failed",
+      "authorization_record_id": "p2b-cumulative-2026-09-12-r0",
+      "status": "FAILED_PRE_WORKLOAD_ORACLE_CLOSURE",
+      "actual_tool_exit_code": 1,
+      "execution_session_id": null,
+      "process_identity": {
+        "record_id": "p2b-cumulative-2026-09-12-r0",
+        "started_at_utc": "2026-09-12T04:19:21.569796+00:00",
+        "started_monotonic_ns": 563314168095416,
+        "supervisor_pid": 38150,
+        "source_artifact_digest": "7cb1632f7c8de5ffc70fc4c92972459ab232bc25d9610e32e3ae54995fb4cb9c",
+        "runtime_limit_seconds": 14400,
+        "command": [
+          "/Users/ezio/Documents/MyProjects/graph-engineering-workflow/.venv/bin/python",
+          "-B",
+          "-u",
+          "-X",
+          "gew_installation_control_root=/private/tmp/gew-p2b-cumulative.AU3HQJ/parent-control",
+          "-m",
+          "tests.support.wp08_release_coverage",
+          "p2b-cumulative-r1"
+        ],
+        "authorization_raw_sha256": "3942b04274a8a61403303048f404bd3c5c91a7d71eaa0180687c034efcedee4d",
+        "runner_parent_pid": 38151,
+        "owned_process_group_id": 38151
+      },
+      "exit_status": {
+        "record_id": "p2b-cumulative-2026-09-12-r0",
+        "event": "exited",
+        "started_at_utc": "2026-09-12T04:19:21.569796+00:00",
+        "finished_at_utc": "2026-09-12T04:19:22.413473+00:00",
+        "elapsed_ns": 843660250,
+        "runner_returncode": 1,
+        "timed_out": false,
+        "failure": null,
+        "source_artifact_digest": "7cb1632f7c8de5ffc70fc4c92972459ab232bc25d9610e32e3ae54995fb4cb9c",
+        "runtime_limit_seconds": 14400,
+        "receipt_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "run_log_sha256": "0393a03dd622490ebb1db572c644224e3fbe9b6683b20a1d0b4dea71d6d181b8",
+        "interpretation": "Observed process exit only; independent receipt/currentness/Candidate acceptance is still required."
+      },
+      "elapsed_seconds": 0.84366025,
+      "raw_runtime_artifacts": [
+        {
+          "path": "/private/tmp/gew-p2b-cumulative.AU3HQJ/launch_once.py",
+          "bytes": 6717,
+          "sha256": "690db4568df000bc182bfa7e30522c5af85cd84085ffeff747d147a25ae6b04e"
+        },
+        {
+          "path": "/private/tmp/gew-p2b-cumulative.AU3HQJ/launch-authority.json",
+          "bytes": 5588,
+          "sha256": "3942b04274a8a61403303048f404bd3c5c91a7d71eaa0180687c034efcedee4d"
+        },
+        {
+          "path": "/private/tmp/gew-p2b-cumulative.AU3HQJ/launch-start.json",
+          "bytes": 706,
+          "sha256": "38e0712f58602e6a4081a66f47eda6f790f4fc8bed0961c0a55bc53c299ceb08"
+        },
+        {
+          "path": "/private/tmp/gew-p2b-cumulative.AU3HQJ/process-identity.json",
+          "bytes": 771,
+          "sha256": "707421371e2b5f288bd0a6b99e6e8ea819e4c965e6c78d03cc562667ce132a1e"
+        },
+        {
+          "path": "/private/tmp/gew-p2b-cumulative.AU3HQJ/run.log",
+          "bytes": 2862,
+          "sha256": "0393a03dd622490ebb1db572c644224e3fbe9b6683b20a1d0b4dea71d6d181b8"
+        },
+        {
+          "path": "/private/tmp/gew-p2b-cumulative.AU3HQJ/receipt-stdout.json",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/private/tmp/gew-p2b-cumulative.AU3HQJ/exit-status.json",
+          "bytes": 707,
+          "sha256": "57de42308a586f6db960e0262e4db6725eebd97a71f6eacd28204e550ddfde57"
+        }
+      ],
+      "error": "AssertionError: installed coverage oracle closure changed",
+      "error_location": "tests/support/wp08_release_coverage.py:4218",
+      "last_child_stage": "plan-load-start",
+      "performance_sibling_started": false,
+      "cumulative_binding_execution_started": false,
+      "receipt_bytes": 0,
+      "acceptance_claim": false,
+      "root_cause": {
+        "installed_oracle_count": 115,
+        "frozen_expected_count": 113,
+        "exact_difference": {
+          "installed_count": 115,
+          "expected_count": 113,
+          "installed_extra": [
+            [
+              "ORA-PROFILE-HOTFIX",
+              "hotfix",
+              "scenario",
+              "boundary",
+              "emergency-baseline"
+            ],
+            [
+              "ORA-PROFILE-HOTFIX",
+              "hotfix",
+              "scenario",
+              "boundary",
+              "production-like-gate"
+            ]
+          ],
+          "installed_missing": [],
+          "diagnostic_only": "Compared existing immutable helper output against installed JSON; no cumulative selector or workload invoked."
+        },
+        "guard": "_verified_plan compares installed identities against expected_oracle_binding_identities(), which still freezes the 113-member P2a closure and omits both P2b hotfix identities.",
+        "coverage_gap": "CumulativeEntryTests mocks _verified_plan; the current P2b installed contract loads ProfileCoverageExecutionPlan directly and calls _validate_cumulative_plan without exercising _verified_plan. Prior bounded PASS remains historical evidence, not proof of real entry readiness.",
+        "classification": "entry integration defect; not timeout, thermal failure or source drift"
+      },
+      "process_cleanup": {
+        "read_only_system_ps": "No matching supervisor, runner, owned process group or cumulative process observed after exit.",
+        "active_owned_processes_observed": 0
+      },
+      "source_status": {
+        "commit": "e2df230362b1c811f6c60690de3a1d169bcaa1eb",
+        "reviewed_digest": "7cb1632f7c8de5ffc70fc4c92972459ab232bc25d9610e32e3ae54995fb4cb9c",
+        "source_modifications": false,
+        "only_worktree_change": ".workflow/delivery/GEW-REMAINING54-V1/candidate-decision-r1.json"
+      },
+      "launch_authority_consumed": true,
+      "automatic_retry": false,
+      "monitor_restored": false,
+      "readiness_disposition": "The actual failed real entry invalidates the earlier entry-ready handoff for launch purposes. Preserve that historical handoff and all PASS verdicts without rewriting them; this later failure is the current blocking evidence.",
+      "next_authority_required": "Approve a bounded repair of checkpoint-specific exact oracle closure and a real entry-loader regression with no performance/cumulative workload, including documentation and independent review. Do not change the historical P2a113 checkpoint or simply bypass the identity guard. Another actual cumulative launch requires fresh separate authority.",
+      "prohibited": [
+        "project-commit",
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "monitoring-restoration",
+        "P2c",
+        "P2d",
+        "P3",
+        "source-modification",
+        "threshold-change",
+        "budget-change",
+        "additional-launch"
+      ]
+    }
+  ],
+  "p2b_cumulative_run_authorizations": [
+    {
+      "schema_version": "1.0",
+      "record_id": "p2b-cumulative-2026-09-12-r0",
+      "task_id": "GEW-REMAINING54-V1",
+      "human_approval": "OK,继续",
+      "approval_observed_at_utc": "2026-09-12 04:18:23 UTC",
+      "approval_context": "Direct go-ahead after the local-commit completion message stated that the 230-binding cumulative acceptance run still required separate approval. Interpreted and announced as one cumulative run only, without restoring scheduled monitoring.",
+      "authority_effect": "Authorizes one real P2b cumulative run and its evidence capture against the committed, independently reviewed entry. Supersedes only the temporary cumulative-rerun prohibition for this single launch, using the existing immutable 14400-second runtime ceiling. Does not grant any project commit, push, monitoring-restoration, source modification or later implementation authority.",
+      "source_commit": "e2df230362b1c811f6c60690de3a1d169bcaa1eb",
+      "source_artifact_digest": "7cb1632f7c8de5ffc70fc4c92972459ab232bc25d9610e32e3ae54995fb4cb9c",
+      "artifact_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+        "config/profiles/profile-coverage-execution-plan-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/profiles/scenario-truth-policy-registry-v1.json",
+        "docs/adr/0008-local-profile-scenario-truth-authority.md",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "tests/contract/test_wp08_remaining54_contracts.py",
+        "tests/integration/test_wp08_scenario_truth.py",
+        "tests/security/test_wp08_remaining54_authority.py",
+        "tests/support/wp08_release_coverage.py",
+        "tests/unit/test_wp08_scenario_truth.py"
+      ],
+      "selector": "p2b-cumulative-r1",
+      "runtime_limit_seconds": 14400,
+      "heartbeat_interval_seconds": 60,
+      "maximum_launch_count": 1,
+      "project_root": "/Users/ezio/Documents/MyProjects/graph-engineering-workflow",
+      "run_directory": "/private/tmp/gew-p2b-cumulative.AU3HQJ",
+      "run_log": "/private/tmp/gew-p2b-cumulative.AU3HQJ/run.log",
+      "receipt_stdout": "/private/tmp/gew-p2b-cumulative.AU3HQJ/receipt-stdout.json",
+      "exit_status": "/private/tmp/gew-p2b-cumulative.AU3HQJ/exit-status.json",
+      "parent_control_root": "/private/tmp/gew-p2b-cumulative.AU3HQJ/parent-control",
+      "reviewed_control_root": "/private/tmp/gew-p2b-entry.HGIttq/control",
+      "command": [
+        "/Users/ezio/Documents/MyProjects/graph-engineering-workflow/.venv/bin/python",
+        "-B",
+        "-u",
+        "-X",
+        "gew_installation_control_root=/private/tmp/gew-p2b-cumulative.AU3HQJ/parent-control",
+        "-m",
+        "tests.support.wp08_release_coverage",
+        "p2b-cumulative-r1"
+      ],
+      "environment": {
+        "PYTHONPATH": "/Users/ezio/Documents/MyProjects/graph-engineering-workflow/core:/Users/ezio/Documents/MyProjects/graph-engineering-workflow/adapters:/Users/ezio/Documents/MyProjects/graph-engineering-workflow/application:/Users/ezio/Documents/MyProjects/graph-engineering-workflow/storage:/Users/ezio/Documents/MyProjects/graph-engineering-workflow",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "GEW_INSTALLATION_CONTROL_ROOT": "/private/tmp/gew-p2b-cumulative.AU3HQJ/parent-control"
+      },
+      "monitor": {
+        "scheduled_monitor_restored": false,
+        "runner_heartbeat_seconds": 60,
+        "automatic_completion_notification_promised": false
+      },
+      "expected_partial_coverage": {
+        "plan_bindings": 230,
+        "oracle_bindings": 115,
+        "new_records": 4,
+        "retained_records": 226,
+        "dynamic": {
+          "valid": 230,
+          "missing": 44,
+          "invalid": 0,
+          "stale": 0,
+          "duplicate": 0,
+          "passed": false
+        },
+        "static": {
+          "valid": 0,
+          "missing": 274,
+          "invalid": 0,
+          "stale": 0,
+          "duplicate": 0,
+          "passed": false
+        }
+      },
+      "execution_contract": "Reuse the previously used one-shot supervisor with only its authorization sibling-key updated. Invoke the unchanged committed verified parent once, with a fresh current owner-bound source attestation and owned-process-group hard limit. Preserve stdout receipt, stderr log, real exit code and hashes. No retries, parameter overrides, skipped assertions or fabricated observations.",
+      "failure_policy": "Stop on failure or timeout. Preserve evidence and investigate read-only; do not repair source or relaunch without separate authority.",
+      "acceptance": "A successful process exit is not final acceptance. Check exact receipt and current source binding; independent verification/Candidate/technical review must precede any later acceptance claim. R frozen negative-vector evidence proves fail-closed only. No Remaining54 274/274 or whole-project completion claim.",
+      "persistent_authorization_location": ".workflow/delivery/GEW-REMAINING54-V1/candidate-decision-r1.json#p2b_cumulative_run_authorizations",
+      "preservation": "Append new p2b_cumulative_run_* siblings within existing authorized record files only; retain every previous record and original Envelope.",
+      "prohibited": [
+        "project-commit",
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "monitoring-restoration",
+        "P2c",
+        "P2d",
+        "P3",
+        "source-modification",
+        "threshold-change",
+        "budget-change",
+        "additional-launch"
+      ]
+    }
+  ],
   "p2b_entry_commit_authorizations": [
     {
       "record_id": "p2b-entry-local-commit-2026-09-12-r0",

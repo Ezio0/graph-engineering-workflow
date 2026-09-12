@@ -1,4 +1,30 @@
 {
+  "p2b_oracle_repair_records": [
+    {
+      "record_id": "p2b-oracle-repair-docs-2026-09-12-r0",
+      "state": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "node": "test-plan",
+        "artifact": "test_plan",
+        "author_id": "/root",
+        "reviewer_id": "/root/p2b_oracle_repair_docs_r0",
+        "targets": [
+          ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "docs/impact/graph-engineering-workflow.md",
+          "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "docs/specs/graph-engineering-workflow.md",
+          "docs/test-plans/graph-engineering-workflow.md"
+        ],
+        "revision": 0,
+        "artifact_digest": "c20ab9c245a78ddb8a5d9a0d18d5720aa5547bb54ac8e3978b837038796ddd63",
+        "previous_artifact_digest": null,
+        "open_finding_ids": []
+      }
+    }
+  ],
   "p2b_entry_records": [
     {
       "record_id": "p2b-entry-docs-2026-09-12-r0",

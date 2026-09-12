@@ -1,4 +1,200 @@
 {
+  "p2b_oracle_repair_packets": [
+    {
+      "record_id": "p2b-oracle-repair-implementation-2026-09-12-r0",
+      "author_id": "/root",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "sha256": "e11a939b7719b56c5955567faf6d9bfeb93dee2e3f1fd34a024d1f324a215554",
+          "bytes": 13360
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "sha256": "d00316f308ae83b73e9e07c8af6f31dfc7569480536ce3f3e0821f6f203cd248",
+          "bytes": 42508
+        },
+        {
+          "path": "config/profiles/profile-coverage-execution-plan-v1.json",
+          "sha256": "850790e2b0918a6aed6f92ff3b25bdb7625f16789d053cdc8fa2211226a37ff0",
+          "bytes": 263805
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "sha256": "52dcbfcfc35cd8f3a50ead7b02348abe8b86f8068b5a36047cba9007b4ef6277",
+          "bytes": 4081
+        },
+        {
+          "path": "config/profiles/scenario-truth-policy-registry-v1.json",
+          "sha256": "59a32ec4f49e9d733055f45973239802fb9e6f9b28a3eeb93f0597e3061c1b31",
+          "bytes": 10878
+        },
+        {
+          "path": "config/test-oracles/profile-hotfix-emergency-baseline-v1.json",
+          "sha256": "1d1509f52d27bb78eed64ceff0b9cbb8d8b12c41579cdc37aa12bdf964539729",
+          "bytes": 1142
+        },
+        {
+          "path": "config/test-oracles/profile-hotfix-production-like-gate-v1.json",
+          "sha256": "dabbebdda7fac6aa4a4a85604ff1f4037bce543b26074eaf3dc0635e83f22e91",
+          "bytes": 1150
+        },
+        {
+          "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "sha256": "3d920bebfc0d97adb8cabd3e7e8ba71058950f5109c58bf3c235220799a05add",
+          "bytes": 31739
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "sha256": "6087411fac8a91b211e60d9d4773eeeee16b99cc5ad034a48a7c8ba69e3b7d1d",
+          "bytes": 77692
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "sha256": "e74daf3f3c3f61b53ebab6ca1a36091bfb51af79b048bfec9cad7af2e6c50ae6",
+          "bytes": 69916
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "sha256": "03ab4fbc49bd8b6f31c4b7c9fb3eeb8d037d4630b44e174cba1f0615f51a4368",
+          "bytes": 167307
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "sha256": "9fda9574a0d9f55284ed828bedad5e8e1269dc8d0546ef20fa1fe463e2cf7f37",
+          "bytes": 146998
+        },
+        {
+          "path": "pyproject.toml",
+          "sha256": "0e41fac2340799f787733362cc1eedc3988ceb0fe749b9c78210f8b3f056bcee",
+          "bytes": 184832
+        },
+        {
+          "path": "tests/contract/test_wp08_remaining54_contracts.py",
+          "sha256": "865b2e3d1178a75fa20064c975ace9923ae0b042edef526a10e11c339deb8b19",
+          "bytes": 15730
+        },
+        {
+          "path": "tests/integration/test_wp08_release_coverage.py",
+          "sha256": "4395bd9e36774c9703b56f88bd2062be6386389d31723eea1f306a7534985194",
+          "bytes": 334104
+        },
+        {
+          "path": "tests/integration/test_wp08_scenario_truth.py",
+          "sha256": "e09f81bcddf345adeebbcad3367862d6590cdba10cec1d9c985ca90a578ad07b",
+          "bytes": 101090
+        },
+        {
+          "path": "tests/security/test_wp08_remaining54_authority.py",
+          "sha256": "12b4b467114fc24dc6aaa02ae8f1d00f27d9ad714b404c5a7635a75c51be5603",
+          "bytes": 16762
+        },
+        {
+          "path": "tests/support/wp08_release_coverage.py",
+          "sha256": "a396ca4fac2e157c913180dc1dfe79efa2313587edb617daa30b859bcc8e281d",
+          "bytes": 289771
+        },
+        {
+          "path": "tests/unit/test_wp08_scenario_truth.py",
+          "sha256": "5857fd9824a0c8e6c397bf634f55561741554c9d91fbd9240e825ddd96cedb87",
+          "bytes": 104126
+        }
+      ],
+      "ordered_raw_aggregate_sha256": "ccfe1921962e84977fd72275a3953c2975f2487815e78fd6b36a0059712070cd",
+      "aggregate_algorithm": "SHA256(sorted path + NUL + raw bytes + NUL)",
+      "upstream_docs_record_id": "p2b-oracle-repair-docs-2026-09-12-r0",
+      "upstream_docs_decision_input_digests": {
+        "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+        "state": "sha256:d751979ace5dc5a74dc8c71c94449ec9fa75ab4555c56f68a343b938270026f3",
+        "verdict": "sha256:5a2ac3b4c4bedd7a0eefd93ad0d13793a1eac87d1ce1e91f3928fa2001ce8914"
+      },
+      "authority": "human-decision-p1-p2-p3-r0.json.p2b_oracle_repair_amendment",
+      "failure_evidence_record_id": "p2b-cumulative-2026-09-12-r0-failed",
+      "bounded_evidence": {
+        "initial_red": {
+          "selector": "tests.contract.test_wp08_remaining54_contracts.Remaining54P2bContractsTest.test_p2b_cumulative_entry_uses_exact_current_checkpoint_without_running",
+          "tests": 1,
+          "elapsed_seconds": 0.405,
+          "exit_code": 1,
+          "timeout_seconds": 30,
+          "observed": "FAILED (failures=1): installed coverage oracle closure changed",
+          "disposition": "Expected RED reproduced the actual failure; preserved before implementation."
+        },
+        "focused_green": {
+          "tests": 16,
+          "elapsed_seconds": 4.07,
+          "exit_code": 0,
+          "timeout_seconds": 120,
+          "selectors": [
+            "tests.unit.test_wp08_scenario_truth.OracleClosureEntryTests",
+            "tests.unit.test_wp08_scenario_truth.CumulativeEntryTests",
+            "tests.contract.test_wp08_remaining54_contracts.Remaining54P2bContractsTest"
+          ]
+        },
+        "bounded_regression": {
+          "tests": 64,
+          "elapsed_seconds": 119.476,
+          "exit_code": 0,
+          "timeout_seconds": 600,
+          "selectors": [
+            "tests.unit.test_wp08_scenario_truth",
+            "tests.contract.test_wp08_remaining54_contracts.Remaining54P2bContractsTest",
+            "tests.security.test_wp08_remaining54_authority.ScenarioTruthSecurityTests",
+            "tests.integration.test_wp08_scenario_truth.ScenarioTruthIntegrationTests.test_hotfix_guarded_p_r_quiescent_lifecycle_and_zero_replay",
+            "tests.integration.test_wp08_scenario_truth.ScenarioTruthIntegrationTests.test_multi_target_positive_uses_quiescent_binding_lifecycle"
+          ]
+        },
+        "isolated_packaging": {
+          "tests": 3,
+          "elapsed_seconds": 9.119,
+          "exit_code": 0,
+          "timeout_seconds": 180,
+          "selectors": [
+            "tests.e2e.test_wp00_installed_wheel",
+            "tests.unit.test_wp00_packaging.PackagingContractTests.test_source_manifest_closes_profile_oracle_input_generation_two"
+          ],
+          "environment": "env -u PYTHONPATH; wheel --no-index --no-deps"
+        },
+        "strict_serial": true,
+        "fail_fast": true,
+        "cumulative_launches": 0,
+        "performance_workloads": 0,
+        "attestation_control_root": "/private/tmp/gew-p2b-oracle-repair.tIKgz0/control",
+        "p2a_pre_repair_identity_baseline": {
+          "count": 113,
+          "canonical_json_sha256": "b38cc66501af5c6e19aca36acd233ee49cd9dd2949bf69f7b6cff2db80d37f6e",
+          "algorithm": "SHA256(JSON ordered tuples, compact separators)",
+          "source_commit": "e2df230362b1c811f6c60690de3a1d169bcaa1eb"
+        },
+        "checks": {
+          "architecture": "PASS",
+          "diff_check": "PASS",
+          "normative_pin_cascade": "no changes required",
+          "action_pin_cascade": "no changes required",
+          "historical_fixture_assignments": "EXPECTED_ORACLE_MANDATORY_PROFILES, EXPECTED_ORACLE_SCENARIOS, BUG_FIX_COLUMNS and _CUMULATIVE_CHECKPOINTS unchanged by AST comparison"
+        },
+        "scope": "Real installed loader and real child/P1 entry functions reach distinctive pre-workload sentinels; only heavy operations are replaced. Simulations remain unit evidence. No actual cumulative or performance receipt and no whole-project completion."
+      },
+      "prohibited": [
+        "commit",
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "cumulative-rerun",
+        "performance-workload",
+        "monitoring-restoration",
+        "P2c",
+        "P2d",
+        "P3",
+        "target-expansion",
+        "budget-change"
+      ]
+    }
+  ],
   "p2b_entry_verification_results": [
     {
       "record_id": "p2b-entry-bounded-verification-2026-09-12-r0",

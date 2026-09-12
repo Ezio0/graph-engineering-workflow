@@ -957,3 +957,22 @@ Production plan230/oracle115, installed scenarios, budgets, schemas, approved
 Intent Baseline, protected three files and old records stay unchanged except
 mechanically necessary actual pins. This entry is not a real run: no cumulative
 receipt, monitor restoration, commit/push, P2c/P2d/P3, network or WP10 is allowed.
+
+### P2b oracle closure repair impact — 2026-09-12
+
+This is a bounded acceptance-harness defect repair, authorized by
+`p2b_oracle_repair_amendment`, not a new product feature or architecture decision.
+The primary source changes stay in the existing release-coverage fixture,
+scenario-truth unit tests and Remaining54 contracts. Update the existing Spec,
+Impact, Plan and Test Plan; append new repair-specific workflow siblings only.
+No new target, PRD, ADR, production source/configuration or budget is required.
+
+The expectation helper also serves existing no-argument installed-plan callers
+and an integration contract. Its default must represent current P2b115; explicit
+P2a retains its exact historical113. The cumulative P1 sibling is a second real
+loader consumer and must inherit the same explicit checkpoint. Risks are
+accidental P2a promotion, a count-only bypass, self-derived expectations and
+mocked tests hiding another loader call. Cover them with independent frozen
+identity sets, exact substitutions and real loader/boundary regressions.
+The protected three files, original Envelope and every prior launch/review record
+remain unchanged. No cumulative/performance workload or automatic retry occurs.

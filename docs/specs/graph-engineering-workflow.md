@@ -2201,3 +2201,32 @@ This slice performs only bounded mocked orchestration/dispatch/failure tests and
 selected real hotfix lifecycle regressions. Mocked records never become an
 acceptance receipt. No production schema, core API, dependency, adapter or ADR
 change is needed; reconcile actual affected source/package pins if required.
+
+### P2b real-entry oracle closure repair — 2026-09-12
+
+The real run failed before any P1 or binding work: the installed115 identities
+were compared with a frozen113 expectation. Preserve that failure and prior
+review evidence; this bounded repair does not grant another launch. PRD v2 and
+ADR-0008 remain unchanged.
+
+Keep the original independent mandatory/scenario fixture identities intact.
+Resolve oracle expectations by an explicit cumulative checkpoint: P2a is exactly
+the original113 identities; P2b is exactly those113 plus the two approved hotfix
+scenario tuples (emergency-baseline and production-like-gate). Compare all five
+identity fields, not only counts. Unknown checkpoints, omissions, extras,
+duplicates and same-count substitutions fail closed. Never derive the expected
+closure from the installed plan being checked.
+
+The expectation helper and installed-plan loader default to the current P2b
+checkpoint for existing no-argument current-source callers. Cumulative children
+pass their own checkpoint explicitly through plan loading and the P1 sibling's
+plan loading. This preserves the P2a113 identity set and226/48 expectations;
+P2a against the current115 installation is rejected before expensive work.
+No lifecycle, gate, receipt, source attestation, resource or timing rule changes.
+
+Regression must exercise the real installed-plan loader, the actual cumulative
+child's loader-to-preflight path and the P1 sibling's loader path. Only the first
+expensive boundary is replaced with a distinctive stopping sentinel. Forbid
+native subprocess launch and binding/performance operations within those tests.
+Reaching that boundary proves loader integration only, never a successful
+cumulative receipt or performance measurement.

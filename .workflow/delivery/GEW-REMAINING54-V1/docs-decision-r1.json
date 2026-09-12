@@ -1,4 +1,27 @@
 {
+  "p2b_oracle_repair_records": [
+    {
+      "record_id": "p2b-oracle-repair-docs-2026-09-12-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "implementation",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "test-plan",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:d751979ace5dc5a74dc8c71c94449ec9fa75ab4555c56f68a343b938270026f3",
+          "verdict": "sha256:5a2ac3b4c4bedd7a0eefd93ad0d13793a1eac87d1ce1e91f3928fa2001ce8914"
+        }
+      }
+    }
+  ],
   "p2b_entry_records": [
     {
       "record_id": "p2b-entry-docs-2026-09-12-r0",
