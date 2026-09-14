@@ -1,4 +1,300 @@
 {
+  "p2b_cumulative_acceptance_records": [
+    {
+      "record_id": "p2b-cumulative-technical-2026-09-13-r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "review",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "record_id": "p2b-cumulative-technical-2026-09-13-r0",
+          "author_id": "/root",
+          "reviewer_id": "/root/p2b_cumulative_technical_r0",
+          "governing_process": "Explicitly approved one-round Policy 3.1.0 compatibility; original Artifact Review Protocol, independent review and irreversible gates retained.",
+          "source_binding": {
+            "source_commit": "970c0505bee887d921d1dd7c7f91c6bf5521ecc9",
+            "source_files_verified_against_current_and_committed_bytes": 20,
+            "source_aggregate_sha256": "5bd0a7375905b2f6e29092f6091e27ae0c68e3eefb110addd55d992ac6402f38",
+            "review_targets": 21,
+            "review_aggregate_sha256": "793f41241cdb4c7e67f458646817d3506137a3ce52cca6f1ba57830931c9c78c",
+            "original_envelope_targets": 174,
+            "all_review_targets_allowlisted": true,
+            "attested_source_members_rehashed": 280,
+            "runtime_artifacts_rehashed": 8,
+            "governing_workflow_inputs_rehashed": 6,
+            "mismatches": 0
+          },
+          "upstream_chain": {
+            "repair_records_checked": 5,
+            "current_verification_and_candidate_records_checked": 2,
+            "canonical_envelope_state_verdict_bindings_match": true,
+            "current_artifact_digests_match": true,
+            "technical_state_binds_exact_candidate_decision": true,
+            "independent_actor_identities_valid": true,
+            "method": "Independent read-only hashing and inspection of governing reducer semantics."
+          },
+          "runtime": {
+            "saved_launch_authority_equals_runtime_authority": true,
+            "launch_authority_canonical_sha256": "31caf0c7564ee612bcacf37dcd911fca4fc2944c73a72c47c67656564f9fd5ee",
+            "receipt_and_exit_status_equal_bound_packet": true,
+            "runner_returncode": 0,
+            "timed_out": false,
+            "elapsed_seconds": 12999.34153575,
+            "authorized_ceiling_seconds": 14400,
+            "one_shot_supervisor": "Hash-bound unchanged supervisor has exclusive launch/output markers, one subprocess launch and owned-process-group supervision without retry.",
+            "trace": "216 contiguous heartbeats; each binding-start/executed/observed and record-start/done stage contains exactly 230 ordered identities matching the installed plan.",
+            "limitation": "Persisted progress ends at dynamic-gate-start. Final gates, terminal finalization, reversed cleanup, zero live handles and returned FD baseline are supported by the exact successful receipt and exit through the inspected frozen execution path, not by persisted terminal stderr lines."
+          },
+          "checkpoint": {
+            "selector": "p2b-cumulative-r1",
+            "plan_bindings": 230,
+            "oracle_bindings": 115,
+            "new_records": 4,
+            "retained_records": 226,
+            "dynamic": {
+              "valid": 230,
+              "missing": 44,
+              "invalid": 0,
+              "stale": 0,
+              "duplicate": 0,
+              "passed": false
+            },
+            "static": {
+              "valid": 0,
+              "missing": 274,
+              "invalid": 0,
+              "stale": 0,
+              "duplicate": 0,
+              "passed": false
+            },
+            "historical_p2a_preserved": "226 plan / 113 oracle / 48 missing",
+            "p1_sibling": "Receipt includes both 12-member scenario rejection matrices, seven correctness rejections and restart without launcher replay.",
+            "negative_noise_vector": "Independently recomputed [1,2,100,200,201]: median 100, MAD 99, comparison 198 > 100. This is fail-closed evidence only."
+          },
+          "preservation": {
+            "prior_git_baseline_record_content_preserved": true,
+            "historical_failed_runtime_artifacts_rehashed": 7,
+            "historical_runtime_hash_mismatches": 0,
+            "original_envelope_unchanged": true,
+            "staged_paths": [],
+            "worktree_changes": "Only the four existing authorized Candidate record-container files.",
+            "review_actions": "Read-only filesystem, JSON/hash and Git inspection. No writes, tests, workloads, runtime-module imports, network, monitoring or subagents.",
+            "attestation_key_contents_accessed": false
+          },
+          "acceptance_boundary": "PASS accepts only this completed partial P2b cumulative technical-review artifact. The overall 274-record gate remains false. Under the governing graph, the next commit node still requires separate human authority; this verdict grants no commit, push, rerun, release, monitoring restoration or later implementation authority."
+        }
+      }
+    },
+    {
+      "record_id": "p2b-cumulative-candidate-2026-09-13-r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "candidate",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "record_id": "p2b-cumulative-candidate-2026-09-13-r0",
+          "author_id": "/root",
+          "reviewer_id": "/root/p2b_cumulative_candidate_r0",
+          "governing_process": "User-approved one-round Policy 3.1.0 compatibility with embedded append-only records; independent and irreversible gates retained.",
+          "artifact_binding": {
+            "exact_targets": 21,
+            "inside_original_envelope_targets": 174,
+            "aggregate_sha256": "793f41241cdb4c7e67f458646817d3506137a3ce52cca6f1ba57830931c9c78c",
+            "matches_named_candidate_state": true,
+            "source_files_verified": 20,
+            "source_commit": "970c0505bee887d921d1dd7c7f91c6bf5521ecc9",
+            "source_files_match_current_and_committed_bytes": true,
+            "attested_source_members_verified": 280,
+            "digest_or_size_mismatches": 0
+          },
+          "upstream_binding": {
+            "record_id": "p2b-cumulative-verification-2026-09-13-r0",
+            "independent_verdict": "PASS",
+            "saved_decision": "ADVANCE",
+            "next_node": "candidate",
+            "canonical_envelope_state_verdict_digests_match": true,
+            "same_exact_targets_and_artifact_digest": true,
+            "repair_upstream_records_checked": 5,
+            "repair_input_bindings_and_current_artifact_digests_match": true,
+            "method": "Read-only canonical hashing and inspection of the governing reducer semantics; no workload execution."
+          },
+          "runtime_evidence": {
+            "runtime_artifacts_verified": 8,
+            "workflow_inputs_verified": 6,
+            "runtime_authority_equals_saved_human_authorization": true,
+            "receipt_and_exit_status_equal_packet": true,
+            "runner_returncode": 0,
+            "timed_out": false,
+            "elapsed_seconds": 12999.34153575,
+            "authorized_ceiling_seconds": 14400,
+            "supervisor": "Hash-bound one-shot supervisor uses exclusive launch/output markers and one subprocess launch without a retry loop.",
+            "heartbeat_sequence": "216 contiguous observations",
+            "binding_and_record_trace": "230 unique, ordered binding-start/executed/observed and record-start/done observations; IDs exactly match the installed plan.",
+            "trace_limit": "Persisted child progress ends at dynamic-gate-start. Final gates, terminal finalization, reversed cleanup, zero live handles and returned FD baseline are supported by the exact successful receipt and exit through the inspected frozen execution path, not by persisted terminal stderr lines."
+          },
+          "checkpoint": {
+            "selector": "p2b-cumulative-r1",
+            "plan_bindings": 230,
+            "oracle_bindings": 115,
+            "new_records": 4,
+            "retained_records": 226,
+            "dynamic": {
+              "valid": 230,
+              "missing": 44,
+              "invalid": 0,
+              "stale": 0,
+              "duplicate": 0,
+              "passed": false
+            },
+            "static": {
+              "valid": 0,
+              "missing": 274,
+              "invalid": 0,
+              "stale": 0,
+              "duplicate": 0,
+              "passed": false
+            },
+            "historical_p2a_checkpoint_preserved": "226 plan / 113 oracle / 48 missing",
+            "p1_sibling": "Real sibling receipt includes both 12-member scenario attack matrices, seven correctness rejections and restart-without-relaunch evidence.",
+            "negative_noise_vector": "Independently recomputed [1,2,100,200,201]: median 100, MAD 99, comparison 198 > 100. Fail-closed evidence only, not a positive performance claim."
+          },
+          "preservation_and_scope": {
+            "prior_records_preserved": true,
+            "historical_failed_runtime_artifacts_verified": 7,
+            "staged_paths": [],
+            "worktree_changes": "Only the four existing authorized Candidate record-container files.",
+            "review_actions": "Read-only filesystem, JSON/hash and Git inspection; no writes, tests, workloads, runtime-module imports, network, monitoring restoration or subagents.",
+            "attestation_key_contents_accessed": false
+          },
+          "acceptance_boundary": "PASS accepts only this partial P2b Candidate artifact. Independent technical review remains required. The overall 274-record gate remains false; this verdict grants no commit, push, rerun, release or later implementation authority."
+        }
+      }
+    },
+    {
+      "record_id": "p2b-cumulative-verification-2026-09-13-r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "verification",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "reviewer_id": "/root/p2b_cumulative_verification_r0",
+          "author_id": "/root",
+          "record_id": "p2b-cumulative-verification-2026-09-13-r0",
+          "policy_version": "3.1.0",
+          "independent_checks": {
+            "artifact_binding": {
+              "targets": 21,
+              "raw_aggregate_sha256": "793f41241cdb4c7e67f458646817d3506137a3ce52cca6f1ba57830931c9c78c",
+              "matches_state": true,
+              "all_targets_inside_original_174_target_envelope": true
+            },
+            "source_currentness": {
+              "head": "970c0505bee887d921d1dd7c7f91c6bf5521ecc9",
+              "source_files_verified": 20,
+              "source_aggregate_sha256": "5bd0a7375905b2f6e29092f6091e27ae0c68e3eefb110addd55d992ac6402f38",
+              "attested_members_verified": 280,
+              "digest_or_size_mismatches": 0,
+              "fresh_attestation_matches_reviewed_source_members": true,
+              "source_root_identity_and_owner_only_control_metadata_match": true,
+              "attestation_key_contents_accessed": false
+            },
+            "runtime_and_authority": {
+              "runtime_artifacts_verified": 8,
+              "compatibility_workflow_inputs_verified": 6,
+              "launch_authority_canonical_sha256": "31caf0c7564ee612bcacf37dcd911fca4fc2944c73a72c47c67656564f9fd5ee",
+              "runtime_authority_equals_saved_human_authorization": true,
+              "receipt_sha256": "8d97d48633ddd4db4a8bf23f43f376c2563b60ed28768ca38a63de0ae9973719",
+              "run_log_sha256": "fac144b0bbacac85f318aeb7dbb351876cab0154b72f0243ce3f1fc9eb7e9ae5",
+              "runner_returncode": 0,
+              "timed_out": false,
+              "elapsed_seconds": 12999.34153575,
+              "authorized_ceiling_seconds": 14400,
+              "supervisor": "Unchanged hash-bound supervisor uses exclusive launch/output markers and one subprocess launch with an owned process group; no retry loop.",
+              "receipt_and_exit_status_equal_packet": true
+            },
+            "checkpoint": {
+              "selector": "p2b-cumulative-r1",
+              "plan_bindings": 230,
+              "oracle_bindings": 115,
+              "new_records": 4,
+              "retained_records": 226,
+              "dynamic": {
+                "valid": 230,
+                "missing": 44,
+                "invalid": 0,
+                "stale": 0,
+                "duplicate": 0,
+                "passed": false
+              },
+              "static": {
+                "valid": 0,
+                "missing": 274,
+                "invalid": 0,
+                "stale": 0,
+                "duplicate": 0,
+                "passed": false
+              },
+              "historical_p2a_checkpoint_preserved": "226 plan / 113 oracle / 48 missing"
+            },
+            "p1_sibling": {
+              "selector": "performance-remaining-r1",
+              "scenario_rejections": "12 each for noise-outlier and correctness-regression",
+              "correctness_rejections": 7,
+              "restart": "current-launcher-zero",
+              "negative_vector_recomputed": {
+                "values": [
+                  1,
+                  2,
+                  100,
+                  200,
+                  201
+                ],
+                "median": 100,
+                "mad": 99,
+                "left_product": 198,
+                "right_product": 100,
+                "outcome": "inconclusive-noise"
+              },
+              "interpretation": "The R vector establishes fail-closed behavior only. It is distinct from the real positive sibling measurements and supplies no performance improvement or production claim."
+            },
+            "lifecycle_and_trace": {
+              "heartbeat_sequence": "216 contiguous observations",
+              "deduplicated_binding_start_executed_observed_counts": [
+                230,
+                230,
+                230
+              ],
+              "deduplicated_record_start_done_counts": [
+                230,
+                230
+              ],
+              "frozen_assertions_inspected": "Exact checkpoint preflight and receipt validation; distinct binding identities; quiescent issue/use/precommit/gate generations; maximum one reopened binding; terminal finalization; reversed teardown; zero live handles and returned FD baseline before receipt.",
+              "limitation": "Persisted progress ends at dynamic-gate-start. Final gates and cleanup are supported by the exact successful receipt and exit through the inspected frozen execution path, not directly persisted terminal stderr lines."
+            },
+            "preservation_and_scope": {
+              "historical_failed_launch_preserved": true,
+              "historical_authorization_and_execution_records_preserved": true,
+              "prior_manifest_state_and_verdict_content_preserved": true,
+              "original_envelope_unchanged": true,
+              "staged_paths": [],
+              "observed_worktree_changes": "Only existing authorized candidate decision, source-manifest and state files.",
+              "review_actions": "Read-only filesystem, JSON/AST/hash parsing and Git inspection; no workloads, tests, writes, network, monitoring restoration or delegated agents."
+            }
+          },
+          "acceptance_boundary": "PASS applies only to this P2b partial-checkpoint verification artifact. Candidate and independent technical review remain required. The overall 274-record release gate is false; no commit, push, release, rerun or later implementation authority is granted."
+        }
+      }
+    }
+  ],
   "p2b_oracle_repair_records": [
     {
       "record_id": "p2b-oracle-repair-verification-2026-09-12-r0",
