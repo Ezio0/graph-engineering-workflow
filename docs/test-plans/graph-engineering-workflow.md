@@ -1702,3 +1702,52 @@ P2a receipt remains bound to its committed source, not the new working tree.
 - Preserve every previous result. This repair may establish bounded loader
   readiness only; a fresh230-binding run and its actual receipt remain pending
   separate Human authority and later independent acceptance.
+
+### P2c bounded acceptance matrix — 2026-09-14
+
+- Documentation gate: exact amendment, ADR-0008 trace, unchanged Intent Baseline,
+  exact174 allowlist and four-document contract pass independent artifact review
+  before implementation files change.
+- RED/config: the current 230/115 plan is missing exactly the six refactor-debt
+  P/R bindings and three exact oracle paths. Requiring `refactor_contract` and
+  `refactor_proof` for those rows fails before implementation. Schema negatives
+  cover missing/extra/reordered fields, duplicate case/edge/metric IDs, unknown
+  gate/comparator, unsafe path, bool/float integer substitution and coherent
+  fixture/bootstrap/package re-sign attempts.
+- Behavior P: read exact A before mutation and fresh B after mutation; both carry
+  the installed ordered case IDs/input digests and exact output/error/side-effect
+  vectors, equal to the frozen expectation and each other. R covers case omit,
+  add and reorder, expected-vector alias, any output/error/side-effect delta and
+  caller-reported equality. Require no later gate result after this gate fails.
+- Architecture P: behavior gate succeeds first; fresh B then has every exact
+  required directed edge and no forbidden directed edge. R covers forbidden and
+  missing edges, reversed/aliased paths, same edge count, same node set and skip/
+  reorder of the behavior gate. Assert architecture evaluation count is zero on
+  behavior failure and no later gate executes on architecture failure.
+- Nonfunctional P: behavior succeeds first; fresh B environment and metric ID are
+  exact, observed value is a safe integer and the installed generic comparator
+  satisfies the config-owned safe-integer threshold; B is reread after gates.
+  R covers hardcoded/substituted or float/bool threshold, environment drift,
+  missing/wrong/noninteger metric, comparator miss and behavior regression.
+  Assert metric evaluation count is zero whenever behavior fails.
+- Proof/authority: conditional proof has exact A/B observations, ordered successful
+  gates and fresh-B/config bindings. Reject missing/extra/reordered/cloned/foreign
+  or stale proof/receipt, altered result flags and P substitution. Issue/use/
+  precommit/gate reread fixture/bootstrap/source/package/target; CAS restart uses
+  fresh factory and unique referenced object with zero mutation/action replay.
+- Failure accounting: pre-mutation request/config attacks leave target/task/event/
+  CAS/ref/action/input unchanged. Injected post-write target/environment drift
+  issues no observation/assessment/coverage record and reports nonzero mutations;
+  it is not accepted into the zero-write rejection closure.
+- Counts/currentness: exact prior230/115 retained plus six/three additions yields
+  plan236/oracle118 and 38 missing. Oracle paths are exactly the behavior,
+  architecture and nonfunctional members. Re-run selected P2a multi-target and
+  P2b hotfix lifecycle/currentness/loader regressions plus scenario bootstrap,
+  package/wheel/RECORD and architecture/diff checks; protected files unchanged.
+- Execution boundary: strict serial, fresh private root per binding, native test
+  command timeout at most600 seconds, stop on first failure/timeout. Do not run a
+  cumulative selector, performance workload or monitor. Unit/control-flow tests
+  and plan shape must never be reported as a 236-valid cumulative receipt.
+- Review: independent implementation and Candidate reviewers receive exact source
+  manifests and measured bounded results. Any unresolved finding keeps all six
+  current sub-batch bindings missing and routes to the reducer/Human as required.

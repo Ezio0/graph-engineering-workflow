@@ -1,4 +1,296 @@
 {
+  "p2c_records": [
+    {
+      "record_id": "p2c-implementation-2026-09-14-r0",
+      "reviewer_id": "/root/p2c_implementation_reviewer_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "REVISE",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": ["testability"],
+        "findings": [
+          {
+            "id": "P2C-IMPL-R0-001",
+            "severity": "blocking",
+            "evidence": "application/graph_engineering/application/scenario_truth.py:428-458 reads candidate B before gate evaluation but does not reread it after the gates. An independent fresh-root probe produced execute_returned=scenario-completed, target_is_candidate=false, issued_observation=true and mutation_count=1 after gate-time drift.",
+            "required_change": "Reread and exactly compare B after all gates and before observation issuance/registration. On drift, raise with truthful nonzero mutation accounting and issue no observation, assessment or coverage evidence.",
+            "verification": "Add and pass an injected post-gate B/environment drift regression proving nonzero mutation and no issuance.",
+            "status": "open"
+          },
+          {
+            "id": "P2C-TEST-R0-002",
+            "severity": "blocking",
+            "evidence": "The frozen P2c tests did not inject post-write gate-time drift and did not directly exercise the refactor-proof CAS restart/rehydration branch.",
+            "required_change": "Add permanent regression coverage for post-gate B/environment drift and fresh-factory CAS restart/currentness without replay.",
+            "verification": "Require the new focused tests plus the existing exact three-scenario P/R integration test to pass under fresh source attestation.",
+            "status": "open"
+          }
+        ],
+        "evidence": {
+          "frozen_packet_before_and_after": "After the coordinator removed the unchanged out-of-envelope PRD from the reducer target set, the reviewer reconfirmed 38/38 hashes and sizes, zero targets outside exact174 and aggregate 72fc53302eb1cef512e442f6c166c162fac6a3d13f0d76112910ecd0ef5fd7da; the findings remain identical.",
+          "scope": "38 observed changed workspace paths were inside exact174; no forbidden action was performed",
+          "plan": "236 bindings / 118 oracle bindings / 38 missing; sorted and unique",
+          "historical": "P2a 226/113/48 and P2b 230/115/44 preserved",
+          "passing_checks": [
+            "8 passed, 7 subtests passed in 1.63s",
+            "1 passed, 6 subtests passed in 100.88s",
+            "868 JSON documents and pyproject.toml parsed successfully",
+            "data-logic separation, safe integer comparator, negative rejection closure, installation/package/digest closure and diff check passed"
+          ],
+          "authority_boundary": "No edits, cumulative selector, performance workload, monitoring, network, commit/push/merge/deploy/release, WP10, P2d or P3."
+        }
+      }
+    },
+    {
+      "record_id": "p2c-implementation-2026-09-14-r1",
+      "reviewer_id": "/root/p2c_implementation_reviewer_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [
+          {
+            "id": "P2C-IMPL-R0-001",
+            "severity": "blocking",
+            "evidence": "application/graph_engineering/application/scenario_truth.py:428-440 freezes candidate bytes, evaluates the gates, then rereads exact B from the private target; any difference raises ScenarioTruthError before proof construction or observation issuance. tests/unit/test_wp08_scenario_truth.py:1745-1774 permanently injects post-gate drift and asserts execute raises, _executed remains false and _issued_observations remains empty.",
+            "required_change": "none",
+            "verification": "Independent fresh-root drift regression passed: 1 passed in 0.19s.",
+            "status": "resolved"
+          },
+          {
+            "id": "P2C-TEST-R0-002",
+            "severity": "blocking",
+            "evidence": "The permanent drift regression is present, and tests/integration/test_wp08_scenario_truth.py:966-1028 generates durable CAS state with one P execution, blocks factory execute during restart/current_assessment, uses a fresh factory, asserts exact restored projection, two restored evidence objects, unchanged durable state and mutation_count=1.",
+            "required_change": "none",
+            "verification": "Independent fresh-root CAS restart/no-replay test passed in 9.38s; exact P2c P/R integration passed with 6 subtests in 101.47s; bounded P2c unit and contract set passed with 7 tests and 7 subtests in 1.31s.",
+            "status": "resolved"
+          }
+        ],
+        "evidence": {
+          "packet_and_state": "38/38 unique paths belong to exact174; raw SHA-256 and byte sizes match the current tree; packet and state target order match; revision chain is 72fc53302eb1cef512e442f6c166c162fac6a3d13f0d76112910ecd0ef5fd7da to af2692efbd6c776a3900dd53a146bd699c941385919991eaa4652e412476fd2c.",
+          "aggregate_before_and_after": "af2692efbd6c776a3900dd53a146bd699c941385919991eaa4652e412476fd2c",
+          "source_hashes_before_and_after": {
+            "application/graph_engineering/application/scenario_truth.py": "7d284986cd59637fe0ea9bc088735702429a4fa29d106744a9184416e0ea9333",
+            "tests/unit/test_wp08_scenario_truth.py": "457a9161a87e171d0e60c749a629250ade07bb5f96765d506c8afaa4fdcd853b",
+            "tests/integration/test_wp08_scenario_truth.py": "f4883ec0266624c6a6d9f61f6dc0c8132602f5f1428be33cc1de7da215217f9e"
+          },
+          "new_findings": [],
+          "authority_boundary": "Read-only strict-serial review only; no cumulative selector/run/rerun, performance workload, monitoring, P2d/P3, commit/push/merge/deploy/release, network, WP10 or external communication."
+        }
+      }
+    },
+    {
+      "record_id": "p2c-verification-2026-09-14-r0",
+      "reviewer_id": "/root/p2c_verification_reviewer_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "verification",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "upstream": {
+            "record_id": "p2c-implementation-2026-09-14-r1",
+            "reducer_replay_equal": true,
+            "decision": "ADVANCE",
+            "next_node": "verification",
+            "input_digests": {
+              "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+              "state": "sha256:480c4c383c1ee9efb6522d02983466f902486598dcef6b257f17015e9b4b8f53",
+              "verdict": "sha256:bd38b83ad886ae2826e981e660ddea6719180df2c14b77cba5f09e0a2ad2789d"
+            }
+          },
+          "frozen_source": {
+            "targets": 38,
+            "hash_or_size_mismatches": [],
+            "outside_exact174": [],
+            "ordered_raw_aggregate_before": "af2692efbd6c776a3900dd53a146bd699c941385919991eaa4652e412476fd2c",
+            "ordered_raw_aggregate_after": "af2692efbd6c776a3900dd53a146bd699c941385919991eaa4652e412476fd2c",
+            "current_changed_paths": 40,
+            "changed_paths_outside_exact174": []
+          },
+          "plan_shape": "P2a 226/113/48 and P2b 230/115/44 preserved; P2c is 236/118/38 with exact delta 6 bindings and 3 oracle bindings.",
+          "semantic_verification": "Post-gate exact-B drift fails closed before issuance; R attack closure preserves bytes and durable state; fresh-factory CAS restart restores without replay; environment IDs, vectors, paths, metric and threshold remain config-owned.",
+          "independent_tests": [
+            "RefactorScenarioTruthTests: 5 passed, 7 subtests passed in 0.89s",
+            "Remaining54P2cContractsTest: 2 passed in 0.49s",
+            "Exact P2c P/R plus fresh-factory CAS integration: 2 passed, 6 subtests passed in 109.99s"
+          ],
+          "parsing": "22 JSON documents, 1 TOML document and 10 Python AST files parsed; git diff check passed.",
+          "authority_boundary": "Read-only bounded P2c verification only; no cumulative selector/run/rerun, performance workload, monitoring, P2d/P3, commit/push/merge/deploy/release, network, WP10 or external communication.",
+          "acceptance_limit": "PASS verifies the bounded P2c increment and configuration shape only; it does not claim cumulative 236-valid acceptance or full Remaining54 completion."
+        }
+      }
+    },
+    {
+      "record_id": "p2c-candidate-2026-09-14-r0",
+      "reviewer_id": "/root/p2c_candidate_reviewer_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "candidate",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "frozen_source": {
+            "targets": 38,
+            "unique_and_sorted": true,
+            "outside_exact174": [],
+            "hash_or_size_mismatches": [],
+            "aggregate_before": "af2692efbd6c776a3900dd53a146bd699c941385919991eaa4652e412476fd2c",
+            "aggregate_after": "af2692efbd6c776a3900dd53a146bd699c941385919991eaa4652e412476fd2c"
+          },
+          "review_chain": "Docs PASS, implementation R0 REVISE, implementation R1 PASS and verification PASS all replay exactly through the reference reducer; all upstream input-digest bindings match and the 72fc... to af2692... revision chain is valid.",
+          "plan_shape": "Current 236/118/38; exact P2c delta 6 bindings and 3 oracle bindings; P2b 230/115/44 and P2a 226/113/48 are preserved without historical binding or oracle changes.",
+          "semantics": "Post-gate exact-B drift fails closed before issuance; all 18 R attacks have handlers and preserve target/durable state; fresh-factory CAS restoration blocks replay; all environment, case, edge, metric and threshold values remain config-owned.",
+          "installation_and_digest_closure": "148/148 checks passed; plan, scenario bootstrap, protected closure and all three oracle source/resource/raw/semantic pins match.",
+          "verification_evidence": [
+            "Refactor unit checks: 5 passed, 7 subtests passed",
+            "P2c contract checks: 2 passed",
+            "Exact P/R plus fresh-factory CAS integration: 2 passed, 6 subtests passed"
+          ],
+          "review_process": "No tracked or Candidate-target writes; status remained 40 paths, all exact174. One direct pytest attempt without the required source-attestation control root collected zero semantic tests and updated ignored .pytest_cache metadata only; it is not used as PASS evidence.",
+          "authority_boundary": "No cumulative selector/run/rerun, performance workload, monitoring, P2d/P3, commit/push/merge/deploy/release, network, WP10 or external communication.",
+          "acceptance_limit": "Candidate PASS accepts only the bounded P2c increment; it does not establish cumulative 236-valid acceptance or completion of Remaining54."
+        }
+      }
+    },
+    {
+      "record_id": "p2c-technical-2026-09-14-r0",
+      "reviewer_id": "/root/p2c_technical_reviewer_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "review",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "acceptance_boundary": "PASS accepts only the bounded P2c increment; it does not establish cumulative 236-valid acceptance or Remaining54 completion.",
+          "review_chain": "Reference reducer replayed docs PASS, implementation R0 REVISE, implementation R1 PASS, verification PASS and candidate PASS exactly; canonical input digests and upstream bindings match; both R0 finding IDs are resolved with digest progress from 72fc... to af2692....",
+          "frozen_source": {
+            "targets": 38,
+            "unique_sorted": true,
+            "outside_exact174": [],
+            "hash_or_size_mismatches": [],
+            "aggregate_before": "af2692efbd6c776a3900dd53a146bd699c941385919991eaa4652e412476fd2c",
+            "aggregate_after": "af2692efbd6c776a3900dd53a146bd699c941385919991eaa4652e412476fd2c"
+          },
+          "architecture_and_security": "Platform-neutral config-owned values, ordered fail-fast gates, post-gate exact-B reread, installation currentness, deterministic closed validation, complete R rejection closure and fresh-factory CAS no-replay all passed independent inspection.",
+          "installation_and_digest_closure": "Plan, policy, fixture, bootstrap and protected closure digests match; 7/7 protected raw hashes and all three oracle raw/semantic/plan/TOML bindings match; 22 JSON, 10 Python AST, 1 TOML and 5 Markdown targets parse, and git diff check passes.",
+          "plan_shape": "Current 236/118/38; exact P2c delta 6/3; all P2b 230/115 bindings/oracles remain byte-equivalent and P2a 226/113/48 is preserved.",
+          "bounded_test_evidence": "Independent implementation and verification reviews passed drift, CAS restart/no-replay, refactor units, contracts and exact P/R integration; no cumulative selector or performance workload was rerun.",
+          "workspace_before_after": "40 changed paths before and after, all exact174; protected files unchanged; reviewer made zero tracked or Candidate-target writes.",
+          "authority_boundary": "No forbidden action performed. A PASS reducer points to commit with separate Human authority; no commit, push, merge, deploy, release, network, WP10, monitoring, cumulative run, performance workload, P2d/P3 or external communication authority is implied."
+        }
+      }
+    },
+    {
+      "record_id": "p2c-implementation-2026-09-14-r2",
+      "reviewer_id": "/root/p2c_implementation_reviewer_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [
+          {
+            "id": "P2C-IMPL-R2-001",
+            "severity": "blocking",
+            "evidence": "The seven R2 synchronization paths are present in the index; staged_count=40, unstaged is empty, git diff --cached --check exits zero, and effective38 reconstructed from index has no hash/size mismatch or index/worktree drift.",
+            "required_change": "none",
+            "verification": "Index aggregate is exactly 7bda71720c665948d930559708cb8798f12e9e47898fe01c3c80e9f14c6a09c1.",
+            "status": "resolved"
+          }
+        ],
+        "evidence": {
+          "state_chain": "revision=2, previous artifact af2692efbd6c776a3900dd53a146bd699c941385919991eaa4652e412476fd2c, current artifact 7bda71720c665948d930559708cb8798f12e9e47898fe01c3c80e9f14c6a09c1, targets exact.",
+          "semantic_equivalence": "Each oracle differs from R1 only by removal of one trailing newline; parsed JSON and all three semantic oracle digests are unchanged.",
+          "pin_closure": "Plan is 236/118/38 with raw 6e54e73d...f16b and semantic sha256-jcs-v1:956699af...ff4c52; plan and TOML raw/semantic pins close.",
+          "bounded_tests": "R2 unit plus contract: 7 passed and 7 subtests; coordinator exact P/R integration: 1 passed and 6 subtests in 100.25s.",
+          "new_findings": [],
+          "write_declaration": "Reviewer made no file, staging or commit change.",
+          "authority_boundary": "No cumulative/performance workload, network, monitoring, P2d/P3, push, merge, deploy, release or WP10."
+        }
+      }
+    },
+    {
+      "record_id": "p2c-verification-2026-09-14-r2",
+      "reviewer_id": "/root/p2c_verification_reviewer_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "verification",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "upstream": "Implementation R2 PASS reducer replay equals ADVANCE to verification; state binding matches canonical envelope/state/verdict digests.",
+          "effective_source": "R1 base 38 plus exact five replacements yields 33 inherited and 38 effective files; no index hash/size mismatch, worktree drift or target outside exact174; aggregate before and after tests is 7bda71720c665948d930559708cb8798f12e9e47898fe01c3c80e9f14c6a09c1.",
+          "semantic_equivalence": "Each oracle is exactly one byte shorter and adding one EOF newline reconstructs R1; semantic digests are unchanged. Plan raw 6e54e73d...f16b, plan semantic sha256-jcs-v1:956699af...ff4c52 and all TOML raw/semantic pins match; application code is unchanged from R1.",
+          "plan_shape": "236 bindings / 118 oracle bindings / 38 remaining.",
+          "independent_tests": "Bounded unit plus contract: 7 passed and 7 subtests in 1.29s; coordinator exact P/R integration evidence is 1 passed and 6 subtests in 100.25s.",
+          "diff_checks": "Cached and worktree diff checks PASS.",
+          "audit_container_note": "Four append-only audit containers added after implementation staging were unstaged during review; they are outside effective38 and do not alter its aggregate.",
+          "authority_boundary": "Read-only bounded P2c verification; no cumulative/performance workload, network, monitoring, P2d/P3, push, merge, deploy, release, WP10 or external communication."
+        }
+      }
+    },
+    {
+      "record_id": "p2c-candidate-2026-09-14-r2",
+      "reviewer_id": "/root/p2c_candidate_reviewer_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "candidate",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "upstream_reducer_chain": "Implementation R2 PASS replays to verification and Verification R2 PASS replays to candidate; record IDs, canonical digests, next nodes and artifact digest all bind exactly.",
+          "effective_source": "R1 base 38 plus exact five replacements yields 33 inherited and 38 effective files; index hashes/sizes match, no index/worktree drift, aggregate 7bda71720c665948d930559708cb8798f12e9e47898fe01c3c80e9f14c6a09c1.",
+          "semantic_equivalence": "Each oracle ends with exactly one newline and adding one newline reconstructs R1 raw bytes; parsed semantics and all semantic digests are unchanged.",
+          "plan_and_installation_closure": "Plan semantic digest independently recomputes to sha256-jcs-v1:956699af...ff4c52; reversing only the raw pins and derived plan digest reconstructs the R1 plan and TOML hashes; all source/resource/raw/semantic pins close.",
+          "shape_and_code": "236/118/38; application scenario-truth code is byte-identical to R1; P2a 226/113/48 and P2b 230/115/44 checkpoints remain preserved.",
+          "tests": "Bound R2 evidence: contract 2 passed, unit 5 passed with 7 subtests, exact P/R integration 1 passed with 6 subtests; cached and worktree diff checks pass.",
+          "authority": "Candidate targets equal effective38 and are within exact174; all 40 staged paths and four append-only unstaged audit containers are within exact174; no untracked paths.",
+          "acceptance_boundary": "PASS accepts only P2c R2 and its semantic-preserving EOF hygiene revision; it does not establish cumulative 236-valid, complete Remaining54, P2d/P3 or any external/irreversible outcome.",
+          "write_declaration": "Reviewer performed no file, staging, commit, network, monitoring or external-state write."
+        }
+      }
+    },
+    {
+      "record_id": "p2c-technical-2026-09-14-r2",
+      "reviewer_id": "/root/p2c_technical_reviewer_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "review",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "reducer_replay": "Implementation R2 PASS to verification, Verification R2 PASS to candidate and Candidate R2 PASS to independent-review replay exactly; stored decisions, canonical input digests and upstream bindings agree.",
+          "source_closure": "R1 base 38 plus exact five replacements yields 33 inherited and 38 effective files; all current raw hashes and sizes match and ordered aggregate is 7bda71720c665948d930559708cb8798f12e9e47898fe01c3c80e9f14c6a09c1.",
+          "semantic_and_pin_closure": "Only three excess EOF blank lines were removed; oracle semantic digests are unchanged, plan semantic digest is sha256-jcs-v1:956699af...ff4c52, and plan/TOML raw, semantic and resource pins close.",
+          "scope": "Technical targets are 38 unique deterministic effective38 paths inside exact174; application code is byte-identical to R1.",
+          "shape_and_history": "236/118/38; P2a and P2b historical checkpoints unchanged.",
+          "architecture_and_security": "R1 platform-neutral data-logic separation, post-gate exact-B TOCTOU fail-closed, deterministic rejection, R mutation_count=0, fresh-factory CAS no-replay and installation/digest conclusions remain valid.",
+          "bounded_tests": "R2 contract 2 passed; unit 5 passed with 7 subtests; exact P/R integration 1 passed with 6 subtests; no cumulative or performance workload.",
+          "diff_hygiene": "Bound cached/worktree checks and current read-only worktree check PASS; no out-of-scope or untracked path.",
+          "acceptance_boundary": "PASS accepts only P2c bounded R2, not cumulative 236-valid, Remaining54 completion, P2d/P3, performance or external outcomes.",
+          "authority": "The subsequent one-local-commit depends on the separately recorded human authorization; no push, merge, deploy, release, network, monitoring, WP10, P2d or P3 authority is implied.",
+          "write_declaration": "Reviewer made no file, staging, commit, network, monitoring or external-state change."
+        }
+      }
+    }
+  ],
   "p2b_cumulative_acceptance_records": [
     {
       "record_id": "p2b-cumulative-technical-2026-09-13-r0",

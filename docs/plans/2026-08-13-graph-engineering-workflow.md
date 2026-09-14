@@ -922,3 +922,32 @@ hotfix scenarios advance. The current source-edit Envelope remains exact174.
    Candidate and technical review with standard reducer and existing loop budget.
 6. Stop at the next authority gate. No commit/push, monitoring restoration,
    performance/cumulative workload, repair-loop rerun or later P2/P3 work.
+
+### P2c bounded delivery plan — 2026-09-14
+
+Authority: `human-decision-p1-p2-p3-r0.json#p2c_continuation_amendment`.
+
+1. Cross-check ADR-0008, Spec, Impact, this Plan and Test Plan; freeze the closed
+   config-owned refactor contract, ordered fail-fast gate rules, exact P/R/oracle
+   identities and 236/118/38 plan shape. Persist append-only document evidence and
+   obtain independent artifact review before code.
+2. Add focused RED tests first for absent refactor contracts/proofs/oracles/plan
+   bindings, behavior order/equality, exact directed architecture edges, generic
+   safe-integer metric comparison, zero later-gate evaluation and currentness.
+3. Extend the existing scenario schema/core/application path generically. Populate
+   only the three installed fixture contracts and candidate observations from
+   config; never embed scenario IDs, vectors, edges, environments or thresholds
+   in logic. Add six bindings and three independent oracle members, then reconcile
+   only actual downstream digests and package resources.
+4. Run strict-serial focused RED/GREEN and retained P2a/P2b regression batches in
+   fresh private roots, each native command bounded to at most600 seconds and
+   stopped on first failure. Verify exact236/118/38 shape, source/package/current
+   pins, restart zero replay, lifecycle closure and protected-file preservation.
+5. Freeze an exact current implementation manifest, independent implementation
+   review, bounded verification and independent Candidate review in existing
+   authorized record containers. Findings follow the deterministic reducer; the
+   whole P2c sub-batch remains missing on failure.
+
+Do not launch a cumulative selector or performance workload, restore monitoring,
+enter P2d/P3, expand targets/budgets, use network or perform commit/push/merge/
+deploy/release/external communication. Stop at the next Human authority gate.

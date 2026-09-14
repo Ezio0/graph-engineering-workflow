@@ -1,4 +1,287 @@
 {
+  "p2c_records": [
+    {
+      "record_id": "p2c-implementation-2026-09-14-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "REVISE",
+        "code": "OK_REVISE",
+        "message": "apply routine findings and request a new independent review",
+        "next_node": "implementation",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "REVISE",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:33ce83576dc7b6523ea6022456538cbcd6f9957eb32a9defff68a756819e019b",
+          "verdict": "sha256:5a3211af0b0684fd0cad68eb6b555057256330558b83befa50483dd09d2ace3c"
+        }
+      }
+    },
+    {
+      "record_id": "p2c-implementation-2026-09-14-r1",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:480c4c383c1ee9efb6522d02983466f902486598dcef6b257f17015e9b4b8f53",
+          "verdict": "sha256:bd38b83ad886ae2826e981e660ddea6719180df2c14b77cba5f09e0a2ad2789d"
+        }
+      }
+    },
+    {
+      "record_id": "p2c-verification-2026-09-14-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "verification",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "candidate",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "verification",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:9ee8c29d686d465679a00948497e1e2db8b33c1b4b820fcbd3d7fe9558379f87",
+          "verdict": "sha256:0a6c1921461cd0fc7bca7bb6f8549d90671c1e08d1f5e6116c24d77efc68faf2"
+        }
+      }
+    },
+    {
+      "record_id": "p2c-candidate-2026-09-14-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "candidate",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "independent-review",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "candidate",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:3ecb2ecb215b0bb593492cda2e1a72f13ff559a1ffcc0561239ed29485065950",
+          "verdict": "sha256:256ba115e3e992d00ff8f54dff2a8f8bfdd228137f55dbcf42541b8bc7272ee7"
+        }
+      }
+    },
+    {
+      "record_id": "p2c-technical-2026-09-14-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "review",
+        "decision": "ESCALATE",
+        "code": "E_AUTHORITY",
+        "message": "next node requires separate authority: commit",
+        "next_node": "commit",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "independent-review",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:35ddeeb50040f4c4f4d2b79f82f67cf6f915b90b9b8cad6b05cd1e6827bbee12",
+          "verdict": "sha256:7f8da975767abdcee42b3ad45d955610fb87e34c03a95e6e277b2687beb39689"
+        }
+      }
+    },
+    {
+      "record_id": "p2c-implementation-2026-09-14-r2",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 2,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:76e614070da0969fe5b4a9cae97ccf5ef35ced186fd43421725397edaa20bf6b",
+          "verdict": "sha256:6f8c9c59ab11a292d53fe3d02f3e73c1187b0ce681d352dd71ff8f7d168a74db"
+        }
+      }
+    },
+    {
+      "record_id": "p2c-verification-2026-09-14-r2",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "verification",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "candidate",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "verification",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:3d001d8852924cecbdc3dc85e42f159f7a1a4dddff2c552f830ff2c581b3b552",
+          "verdict": "sha256:b9110dc9bb74cd75955a33392d4536f349dca12aea297bc96dca267cb611f95b"
+        }
+      }
+    },
+    {
+      "record_id": "p2c-candidate-2026-09-14-r2",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "candidate",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "independent-review",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "candidate",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:1d31bbcca77c03f62fbfcbe16c637a2b31a94eccb0129b58ba8f0e1ddec05b33",
+          "verdict": "sha256:b8f5f9bd7fbb9c121a94a6e427ceab75a167036d0b58d98e1029856f1d840444"
+        }
+      }
+    },
+    {
+      "record_id": "p2c-technical-2026-09-14-r2",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "review",
+        "decision": "ESCALATE",
+        "code": "E_AUTHORITY",
+        "message": "next node requires separate authority: commit",
+        "next_node": "commit",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "independent-review",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:4523f2b55189e29f82a480e5522879a5fadbf24e31b248558d675389693309ff",
+          "verdict": "sha256:244e18f08388e5c56f9a6d760b308dee8da5b997ec8de71887c78b3f105c6aa3"
+        }
+      }
+    }
+  ],
+  "p2c_commit_authorizations": [
+    {
+      "record_id": "p2c-local-commit-2026-09-14-r0",
+      "task_id": "GEW-REMAINING54-V1",
+      "recorded_at_utc": "2026-09-14T05:58:55Z",
+      "human_approval": "批准",
+      "approval_context": "批准将当前40个P2c exact174路径做一次本地commit（不push），然后仅在既有边界内继续只读收尾。",
+      "authorized_action": "one-local-commit",
+      "maximum_commits": 1,
+      "expected_parent_commit": "551979fb6a98691ff9ebde2968f42f5052ea0a90",
+      "review_artifact_digest": "af2692efbd6c776a3900dd53a146bd699c941385919991eaa4652e412476fd2c",
+      "technical_decision_input_digests": {
+        "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+        "state": "sha256:35ddeeb50040f4c4f4d2b79f82f67cf6f915b90b9b8cad6b05cd1e6827bbee12",
+        "verdict": "sha256:7f8da975767abdcee42b3ad45d955610fb87e34c03a95e6e277b2687beb39689"
+      },
+      "pre_authorization_changed_tree_aggregate_sha256": "646b8108650820c45e95ec11b4f75e7904640a59775ed0bb667a30c9090f54b3",
+      "exact_commit_paths": [
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/candidate-state-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        "application/graph_engineering/application/scenario_truth.py",
+        "config/contracts/profile-schema-registry-v1.json",
+        "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
+        "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
+        "config/contracts/schemas/scenario-truth-observation-1.0.0.json",
+        "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/profile-coverage-execution-plan-v1.json",
+        "config/profiles/scenario-truth-fixture-registry-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/profiles/scenario-truth-policy-registry-v1.json",
+        "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+        "config/test-oracles/profile-refactor-debt-architecture-invariant-v1.json",
+        "config/test-oracles/profile-refactor-debt-behavior-characterization-v1.json",
+        "config/test-oracles/profile-refactor-debt-nonfunctional-target-v1.json",
+        "config/verification/wp-00-targets.json",
+        "core/graph_engineering/__init__.py",
+        "core/graph_engineering/core/scenario_truth.py",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "tests/contract/test_wp08_remaining54_contracts.py",
+        "tests/integration/test_wp08_release_coverage.py",
+        "tests/integration/test_wp08_scenario_truth.py",
+        "tests/support/source_checkout_attestation.py",
+        "tests/support/wp08_release_coverage.py",
+        "tests/support/wp08_scenario_truth.py",
+        "tests/unit/test_wp08_scenario_truth.py"
+      ],
+      "explicitly_not_authorized": [
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "P2d",
+        "P3",
+        "cumulative-run",
+        "performance-workload",
+        "monitoring"
+      ]
+    },
+    {
+      "record_id": "p2c-local-commit-2026-09-14-r1",
+      "task_id": "GEW-REMAINING54-V1",
+      "recorded_at_utc": "2026-09-14T05:58:55Z",
+      "human_approval_record_id": "p2c-local-commit-2026-09-14-r0",
+      "authority_interpretation": "The already granted one-local-commit authorization remains applicable because R2 changes only semantic-preserving EOF hygiene and derived raw/digest pins within the identical 40 exact commit paths; maximum commits remains one and no commit has yet occurred.",
+      "expected_parent_commit": "551979fb6a98691ff9ebde2968f42f5052ea0a90",
+      "review_artifact_digest": "7bda71720c665948d930559708cb8798f12e9e47898fe01c3c80e9f14c6a09c1",
+      "technical_decision_input_digests": {
+        "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+        "state": "sha256:4523f2b55189e29f82a480e5522879a5fadbf24e31b248558d675389693309ff",
+        "verdict": "sha256:244e18f08388e5c56f9a6d760b308dee8da5b997ec8de71887c78b3f105c6aa3"
+      },
+      "exact_commit_paths_record_id": "p2c-local-commit-2026-09-14-r0",
+      "exact_commit_path_count": 40,
+      "maximum_commits": 1,
+      "explicitly_not_authorized": ["push", "merge", "deploy", "release", "network", "WP10", "P2d", "P3", "cumulative-run", "performance-workload", "monitoring"]
+    }
+  ],
   "p2b_cumulative_acceptance_commit_authorizations": [
     {
       "record_id": "p2b-cumulative-acceptance-local-commit-2026-09-14-r0",

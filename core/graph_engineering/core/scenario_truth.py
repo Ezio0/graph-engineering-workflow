@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import json
 from collections.abc import Mapping
 from dataclasses import dataclass
 
@@ -231,6 +232,288 @@ def validate_execution_contract(value: object, targets: object) -> None:
         raise ScenarioTruthError("ordered gate closure is invalid")
 
 
+_REFACTOR_CONTRACT_FIELDS = (
+    "contract_id", "environment_id", "gate_ids", "behavior_cases",
+    "required_edges", "forbidden_edges", "nonfunctional_target",
+)
+_BEHAVIOR_FIELDS = (
+    "case_id", "input_digest", "output_digest", "error_digest",
+    "side_effect_digest",
+)
+_EDGE_FIELDS = ("from_path_id", "to_path_id")
+_NONFUNCTIONAL_FIELDS = (
+    "environment_id", "metric_id", "comparator", "threshold",
+)
+_REFACTOR_OBSERVATION_FIELDS = (
+    "state_id", "environment_id", "behavior_observations",
+    "architecture_edges", "metric_observations",
+)
+_METRIC_FIELDS = ("metric_id", "value")
+_REFACTOR_GATES = (
+    "behavior-equivalence", "architecture-invariant", "nonfunctional-target",
+)
+_COMPARATORS = {
+    "equal": lambda actual, threshold: actual == threshold,
+    "greater-than": lambda actual, threshold: actual > threshold,
+    "greater-than-or-equal": lambda actual, threshold: actual >= threshold,
+    "less-than": lambda actual, threshold: actual < threshold,
+    "less-than-or-equal": lambda actual, threshold: actual <= threshold,
+}
+
+
+def _path_id(value: object, label: str) -> str:
+    result = _text(value, label)
+    parts = result.split("/")
+    if result.startswith("/") or "\\" in result or any(
+        part in {"", ".", ".."} for part in parts
+    ):
+        raise ScenarioTruthError(f"{label} is not canonical")
+    return result
+
+
+def _behavior_vector(value: object, label: str) -> tuple[Mapping[str, object], ...]:
+    if type(value) is not list or not value:
+        raise ScenarioTruthError(f"{label} is absent")
+    rows: list[Mapping[str, object]] = []
+    case_ids: list[str] = []
+    for item in value:
+        row = _exact(item, _BEHAVIOR_FIELDS, label)
+        case_ids.append(_text(row["case_id"], "behavior case ID"))
+        for field in _BEHAVIOR_FIELDS[1:]:
+            _digest(row[field], f"behavior {field}")
+        rows.append(row)
+    if len(case_ids) != len(set(case_ids)):
+        raise ScenarioTruthError("behavior case IDs are not unique")
+    return tuple(rows)
+
+
+def _edge_vector(
+    value: object, label: str, *, allow_empty: bool,
+) -> tuple[Mapping[str, object], ...]:
+    if type(value) is not list or (not value and not allow_empty):
+        raise ScenarioTruthError(f"{label} is absent")
+    rows: list[Mapping[str, object]] = []
+    keys: list[tuple[str, str]] = []
+    for item in value:
+        row = _exact(item, _EDGE_FIELDS, label)
+        key = (
+            _path_id(row["from_path_id"], "edge source path"),
+            _path_id(row["to_path_id"], "edge target path"),
+        )
+        if key[0] == key[1]:
+            raise ScenarioTruthError("architecture edge is self-referential")
+        rows.append(row)
+        keys.append(key)
+    if tuple(keys) != tuple(sorted(set(keys))):
+        raise ScenarioTruthError(f"{label} is not canonical and unique")
+    return tuple(rows)
+
+
+def _refactor_contract(value: object) -> Mapping[str, object]:
+    if isinstance(value, Mapping) and type(value) is not dict:
+        value = thaw(value)
+    contract = _exact(value, _REFACTOR_CONTRACT_FIELDS, "refactor contract")
+    _text(contract["contract_id"], "refactor contract ID")
+    environment_id = _text(contract["environment_id"], "refactor environment ID")
+    gate_ids = _ordered_text(contract["gate_ids"], "refactor gate IDs")
+    if (
+        gate_ids[0] != "behavior-equivalence"
+        or any(gate not in _REFACTOR_GATES for gate in gate_ids)
+        or tuple(_REFACTOR_GATES.index(gate) for gate in gate_ids)
+        != tuple(sorted(_REFACTOR_GATES.index(gate) for gate in gate_ids))
+    ):
+        raise ScenarioTruthError("refactor gate order is invalid")
+    _behavior_vector(contract["behavior_cases"], "refactor behavior cases")
+    architecture = "architecture-invariant" in gate_ids
+    required = _edge_vector(
+        contract["required_edges"], "required architecture edges",
+        allow_empty=not architecture,
+    )
+    forbidden = _edge_vector(
+        contract["forbidden_edges"], "forbidden architecture edges",
+        allow_empty=not architecture,
+    )
+    if architecture:
+        if not required or not forbidden:
+            raise ScenarioTruthError("architecture rules are incomplete")
+        required_keys = {
+            (row["from_path_id"], row["to_path_id"]) for row in required
+        }
+        forbidden_keys = {
+            (row["from_path_id"], row["to_path_id"]) for row in forbidden
+        }
+        if required_keys & forbidden_keys:
+            raise ScenarioTruthError("architecture rules conflict")
+    elif required or forbidden:
+        raise ScenarioTruthError("architecture rules exist without a gate")
+    nonfunctional = contract["nonfunctional_target"]
+    if "nonfunctional-target" in gate_ids:
+        target = _exact(
+            nonfunctional, _NONFUNCTIONAL_FIELDS, "nonfunctional target",
+        )
+        if _text(target["environment_id"], "metric environment") != environment_id:
+            raise ScenarioTruthError("metric environment is foreign")
+        _text(target["metric_id"], "metric ID")
+        comparator = _text(target["comparator"], "metric comparator")
+        if comparator not in _COMPARATORS:
+            raise ScenarioTruthError("metric comparator is unsupported")
+        _integer(target["threshold"], "metric threshold")
+    elif nonfunctional is not None:
+        raise ScenarioTruthError("nonfunctional target exists without a gate")
+    return contract
+
+
+def _refactor_observation(value: object, label: str) -> Mapping[str, object]:
+    if isinstance(value, Mapping) and type(value) is not dict:
+        value = thaw(value)
+    row = _exact(value, _REFACTOR_OBSERVATION_FIELDS, label)
+    _text(row["state_id"], f"{label} state ID")
+    _text(row["environment_id"], f"{label} environment ID")
+    _behavior_vector(row["behavior_observations"], f"{label} behavior")
+    _edge_vector(row["architecture_edges"], f"{label} architecture edges", allow_empty=True)
+    metrics = row["metric_observations"]
+    if type(metrics) is not list:
+        raise ScenarioTruthError(f"{label} metric observations are not exact")
+    metric_ids: list[str] = []
+    for item in metrics:
+        metric = _exact(item, _METRIC_FIELDS, f"{label} metric")
+        metric_ids.append(_text(metric["metric_id"], "metric observation ID"))
+        _integer(metric["value"], "metric observation value")
+    if tuple(metric_ids) != tuple(sorted(set(metric_ids))):
+        raise ScenarioTruthError("metric observations are not canonical and unique")
+    return row
+
+
+def _strict_refactor_json(value: object, label: str) -> Mapping[str, object]:
+    if type(value) is not str:
+        raise ScenarioTruthError(f"{label} is not exact JSON text")
+
+    def pairs(items: list[tuple[str, object]]) -> dict[str, object]:
+        result: dict[str, object] = {}
+        for key, item in items:
+            if key in result:
+                raise ScenarioTruthError(f"{label} has a duplicate key")
+            result[key] = item
+        return result
+
+    try:
+        parsed = json.loads(value, object_pairs_hook=pairs)
+    except (TypeError, ValueError) as error:
+        raise ScenarioTruthError(f"{label} is malformed") from error
+    return _refactor_observation(parsed, label)
+
+
+def _evaluate_behavior_gate(
+    contract: Mapping[str, object], before: Mapping[str, object],
+    after: Mapping[str, object],
+) -> dict[str, object]:
+    expected = freeze(contract["behavior_cases"])
+    if (
+        freeze(before["behavior_observations"]) != expected
+        or freeze(after["behavior_observations"]) != expected
+        or freeze(before["behavior_observations"])
+        != freeze(after["behavior_observations"])
+    ):
+        raise ScenarioTruthError("ordered behavior vectors differ")
+    return {"gate_id": "behavior-equivalence", "passed": True}
+
+
+def _evaluate_architecture_gate(
+    contract: Mapping[str, object], after: Mapping[str, object],
+) -> dict[str, object]:
+    observed = {
+        (row["from_path_id"], row["to_path_id"])
+        for row in after["architecture_edges"]
+    }
+    required = {
+        (row["from_path_id"], row["to_path_id"])
+        for row in contract["required_edges"]
+    }
+    forbidden = {
+        (row["from_path_id"], row["to_path_id"])
+        for row in contract["forbidden_edges"]
+    }
+    if not required <= observed or observed & forbidden:
+        raise ScenarioTruthError("architecture directed edge rules failed")
+    return {"gate_id": "architecture-invariant", "passed": True}
+
+
+def _evaluate_nonfunctional_gate(
+    contract: Mapping[str, object], after: Mapping[str, object],
+) -> dict[str, object]:
+    target = contract["nonfunctional_target"]
+    if not isinstance(target, Mapping):
+        raise ScenarioTruthError("nonfunctional target is absent")
+    metrics = after["metric_observations"]
+    if (
+        after["environment_id"] != target["environment_id"]
+        or type(metrics) is not list
+        or len(metrics) != 1
+        or metrics[0]["metric_id"] != target["metric_id"]
+    ):
+        raise ScenarioTruthError("nonfunctional metric observation is foreign")
+    actual = metrics[0]["value"]
+    threshold = target["threshold"]
+    comparator = target["comparator"]
+    if (
+        type(actual) is not int
+        or type(threshold) is not int
+        or comparator not in _COMPARATORS
+        or not _COMPARATORS[comparator](actual, threshold)
+    ):
+        raise ScenarioTruthError("nonfunctional target was not satisfied")
+    return {"gate_id": "nonfunctional-target", "passed": True}
+
+
+def evaluate_refactor_gates(
+    value: object, before_value: object, after_value: object,
+) -> tuple[dict[str, object], ...]:
+    """Evaluate config-owned refactor gates in exact fail-fast order."""
+
+    contract = _refactor_contract(value)
+    before = _refactor_observation(before_value, "refactor baseline")
+    after = _refactor_observation(after_value, "refactor candidate")
+    if (
+        before["environment_id"] != contract["environment_id"]
+        or after["environment_id"] != contract["environment_id"]
+    ):
+        raise ScenarioTruthError("refactor environment changed")
+    results: list[dict[str, object]] = []
+    for gate_id in contract["gate_ids"]:
+        if gate_id == "behavior-equivalence":
+            result = _evaluate_behavior_gate(contract, before, after)
+        elif gate_id == "architecture-invariant":
+            result = _evaluate_architecture_gate(contract, after)
+        elif gate_id == "nonfunctional-target":
+            result = _evaluate_nonfunctional_gate(contract, after)
+        else:  # _refactor_contract already rejects this path.
+            raise ScenarioTruthError("refactor gate is unsupported")
+        results.append(result)
+    return tuple(results)
+
+
+def validate_refactor_contract(value: object, targets: object) -> None:
+    """Validate one profile-neutral refactor contract and installed A/B bytes."""
+
+    contract = _refactor_contract(value)
+    if type(targets) not in {list, tuple} or len(targets) != 1:
+        raise ScenarioTruthError("refactor contract requires one exact target")
+    target = targets[0]
+    if not isinstance(target, Mapping):
+        raise ScenarioTruthError("refactor target is malformed")
+    before = _strict_refactor_json(target["baseline_value"], "refactor baseline")
+    after = _strict_refactor_json(target["candidate_value"], "refactor candidate")
+    rollback = _strict_refactor_json(target["rollback_value"], "refactor rollback")
+    if (
+        before["state_id"] != target["baseline_state_id"]
+        or after["state_id"] != target["candidate_state_id"]
+        or rollback["state_id"] != target["rollback_state_id"]
+        or freeze(before) != freeze(rollback)
+    ):
+        raise ScenarioTruthError("refactor target state or rollback is not exact")
+    evaluate_refactor_gates(contract, before, after)
+
+
 def minimal_change_bytes(before: bytes, after: bytes) -> int:
     """Count removed plus inserted bytes in the minimal contiguous edit span."""
     if type(before) is not bytes or type(after) is not bytes:
@@ -355,10 +638,18 @@ def parse_scenario_truth_registries(
     fixture_fact_ids: dict[str, tuple[str, ...]] = {}
     for value in raw_fixture_rows:
         fields = _FIXTURE_ROW_FIELDS
+        if (
+            isinstance(value, Mapping)
+            and "execution_contract" in value
+            and "refactor_contract" in value
+        ):
+            raise ScenarioTruthError("scenario fixture contract kinds conflict")
         if isinstance(value, Mapping) and "rejection_attack_ids" in value:
             fields = (*fields[:-1], "rejection_attack_ids", fields[-1])
         if isinstance(value, Mapping) and "execution_contract" in value:
             fields = (*fields[:-1], "execution_contract", fields[-1])
+        if isinstance(value, Mapping) and "refactor_contract" in value:
+            fields = (*fields[:-1], "refactor_contract", fields[-1])
         row = _exact(value, fields, "scenario fixture row")
         if "rejection_attack_ids" in row:
             _ordered_text(row["rejection_attack_ids"], "scenario rejection attacks")
@@ -387,6 +678,8 @@ def parse_scenario_truth_registries(
             raise ScenarioTruthError("scenario target roles are not canonical and distinct")
         if "execution_contract" in row:
             validate_execution_contract(row["execution_contract"], targets)
+        if "refactor_contract" in row:
+            validate_refactor_contract(row["refactor_contract"], targets)
         phases = row["phase_expectations"]
         if type(phases) is not list or not phases:
             raise ScenarioTruthError("scenario fixture phases are empty")
@@ -505,6 +798,7 @@ class ScenarioTruthObservation:
     owner_route: str
     scenario_outcome: str
     execution_proof: FrozenMap | None
+    refactor_proof: FrozenMap | None
     observation_digest: str
     _authority: object
 
@@ -518,6 +812,8 @@ class ScenarioTruthObservation:
             result[field] = thaw(getattr(self, field))
         if self.execution_proof is not None:
             result["execution_proof"] = thaw(self.execution_proof)
+        if self.refactor_proof is not None:
+            result["refactor_proof"] = thaw(self.refactor_proof)
         return result
 
     def to_dict(self) -> dict[str, object]:
@@ -533,15 +829,21 @@ def issue_scenario_truth_observation(
     body: Mapping[str, object], *, authority: object,
 ) -> ScenarioTruthObservation:
     fields = _OBSERVATION_FIELDS[:-1]
+    if "execution_proof" in body and "refactor_proof" in body:
+        raise ScenarioTruthError("scenario observation proof kinds conflict")
     if "execution_proof" in body:
         fields = (*fields, "execution_proof")
+    if "refactor_proof" in body:
+        fields = (*fields, "refactor_proof")
     _exact(dict(body), fields, "scenario truth observation body")
     result = object.__new__(ScenarioTruthObservation)
     object.__setattr__(result, "execution_proof", None)
+    object.__setattr__(result, "refactor_proof", None)
     for field, value in body.items():
         if field in {
             "graph_ref_pins", "installation_pins", "policy_row", "fixture_row",
             "branch_binding", "rollback_or_compensation", "execution_proof",
+            "refactor_proof",
         }:
             value = freeze(value)
         elif field in {
@@ -566,8 +868,10 @@ __all__ = (
     "ScenarioTruthError",
     "ScenarioTruthObservation",
     "ScenarioTruthRegistry",
+    "evaluate_refactor_gates",
     "evaluate_scenario_assertions",
     "issue_scenario_truth_observation",
     "parse_scenario_truth_registries",
     "scenario_observation_object_digest",
+    "validate_refactor_contract",
 )

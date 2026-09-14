@@ -71,10 +71,27 @@ NEW_FEATURE_MULTI_TARGET_PASS_TEST_ID = "GEW-PSC-NEW-FEATURE-MULTI-TARGET-P"
 NEW_FEATURE_MULTI_TARGET_REJECT_TEST_ID = "GEW-PSC-NEW-FEATURE-MULTI-TARGET-R"
 NEW_FEATURE_MULTI_TARGET_BOUNDARY_CASE_ID = NEW_FEATURE_MULTI_TARGET_PASS_TEST_ID
 HOTFIX_GUARDED_SCENARIO_IDS = ("emergency-baseline", "production-like-gate")
-SCENARIO_TRUTH_SCENARIO_IDS = (NEW_FEATURE_MULTI_TARGET_SCENARIO_ID, *HOTFIX_GUARDED_SCENARIO_IDS)
-SCENARIO_TRUTH_BOUNDARY_CASE_IDS = (NEW_FEATURE_MULTI_TARGET_BOUNDARY_CASE_ID, *(
-    f"GEW-PSC-HOTFIX-{scenario.upper()}-P" for scenario in HOTFIX_GUARDED_SCENARIO_IDS
-))
+REFACTOR_SCENARIO_IDS = (
+    "architecture-invariant",
+    "behavior-characterization",
+    "nonfunctional-target",
+)
+SCENARIO_TRUTH_SCENARIO_IDS = (
+    NEW_FEATURE_MULTI_TARGET_SCENARIO_ID,
+    *HOTFIX_GUARDED_SCENARIO_IDS,
+    *REFACTOR_SCENARIO_IDS,
+)
+SCENARIO_TRUTH_BOUNDARY_CASE_IDS = (
+    NEW_FEATURE_MULTI_TARGET_BOUNDARY_CASE_ID,
+    *(
+        f"GEW-PSC-HOTFIX-{scenario.upper()}-P"
+        for scenario in HOTFIX_GUARDED_SCENARIO_IDS
+    ),
+    *(
+        f"GEW-PSC-REFACTOR-DEBT-{scenario.upper()}-P"
+        for scenario in REFACTOR_SCENARIO_IDS
+    ),
+)
 DEPENDENCY_SECURITY_VULNERABLE_GRAPH_PASS_TEST_ID = (
     "GEW-PSC-DEPENDENCY-SECURITY-VULNERABLE-GRAPH-P"
 )
@@ -218,6 +235,16 @@ EXPECTED_ORACLE_SCENARIOS = (
         )
         for scenario_id in MIGRATION_SCENARIO_IDS
     ),
+    *(
+        (
+            "ORA-PROFILE-REFACTOR-DEBT",
+            "refactor-debt",
+            "scenario",
+            "boundary",
+            scenario_id,
+        )
+        for scenario_id in REFACTOR_SCENARIO_IDS
+    ),
 )
 SCAFFOLD_SCENARIO_ID = "scaffold"
 SCAFFOLD_BOUNDARY_CASE_ID = SCAFFOLD_PASS_TEST_ID
@@ -261,16 +288,40 @@ NEW_MANDATORY_COLUMNS = (
 def expected_oracle_binding_identities(
     *, selector: str | None = None,
 ) -> tuple[tuple[str, str, str, str, str | None], ...]:
-    """Return an independent checkpoint closure; default to current P2b."""
+    """Return an independent checkpoint closure; default to current P2c."""
 
-    checkpoint = _cumulative_checkpoint(
-        P2B_CUMULATIVE_R1_SELECTOR if selector is None else selector,
+    checkpoint = (
+        _P2C_CURRENT_CHECKPOINT
+        if selector is None
+        else _cumulative_checkpoint(selector)
     )
     scenarios = EXPECTED_ORACLE_SCENARIOS
-    if checkpoint.selector == P2B_CUMULATIVE_R1_SELECTOR:
+    if selector is None:
         scenarios += tuple(
             ("ORA-PROFILE-HOTFIX", "hotfix", "scenario", "boundary", scenario_id)
             for scenario_id in HOTFIX_GUARDED_SCENARIO_IDS
+        )
+    elif selector == P2B_CUMULATIVE_R1_SELECTOR:
+        scenarios = tuple(
+            item
+            for item in scenarios
+            if item[1] != "refactor-debt" or item[2] != "scenario"
+        )
+        scenarios += tuple(
+            ("ORA-PROFILE-HOTFIX", "hotfix", "scenario", "boundary", scenario_id)
+            for scenario_id in HOTFIX_GUARDED_SCENARIO_IDS
+        )
+    elif selector == P2A_CUMULATIVE_R2_SELECTOR:
+        scenarios = tuple(
+            item
+            for item in scenarios
+            if not (
+                (item[1] == "refactor-debt" and item[2] == "scenario")
+                or (
+                    item[1] == "hotfix"
+                    and item[4] in HOTFIX_GUARDED_SCENARIO_IDS
+                )
+            )
         )
 
     identities = tuple(sorted((
@@ -2745,6 +2796,14 @@ def run_serial_scenario_binding(
             (lambda *, accepted, selected=scenario:
              hotfix_guarded_candidate(selected, accepted=accepted)),
         ) for scenario in HOTFIX_GUARDED_SCENARIO_IDS},
+        **{scenario: (
+            "refactor-debt",
+            f"GEW-PSC-REFACTOR-DEBT-{scenario.upper()}-P",
+            f"GEW-PSC-REFACTOR-DEBT-{scenario.upper()}-R",
+            f"GEW-PSC-REFACTOR-DEBT-{scenario.upper()}-P",
+            (lambda *, accepted, selected=scenario:
+             refactor_scenario_candidate(selected, accepted=accepted)),
+        ) for scenario in REFACTOR_SCENARIO_IDS},
         BUG_FIX_REPRODUCIBLE_FAILURE_SCENARIO_ID: (
             "bug-fix",
             BUG_FIX_REPRODUCIBLE_FAILURE_PASS_TEST_ID,
@@ -3212,6 +3271,28 @@ def hotfix_guarded_candidate(scenario_id: str, *, accepted: bool) -> dict[str, o
     prefix = f"GEW-PSC-HOTFIX-{scenario_id.upper()}"
     candidate["scenario_id"] = prefix + ("-P" if accepted else "")
     candidate["task_id"] = coverage_task_id(prefix + ("-P" if accepted else "-R"))
+    return candidate
+
+
+def refactor_scenario_candidate(
+    scenario_id: str,
+    *,
+    accepted: bool,
+) -> dict[str, object]:
+    """Return one exact refactor-debt scenario selector."""
+
+    if scenario_id not in REFACTOR_SCENARIO_IDS:
+        raise ValueError("refactor scenario is not selected")
+    candidate = category.candidate_document("refactor-debt", "boundary")
+    candidate["request_id"] = (
+        f"wp08-s4:refactor-debt:{scenario_id}:"
+        + ("pass" if accepted else "reject")
+    )
+    prefix = f"GEW-PSC-REFACTOR-DEBT-{scenario_id.upper()}"
+    candidate["scenario_id"] = prefix + ("-P" if accepted else "")
+    candidate["task_id"] = coverage_task_id(
+        prefix + ("-P" if accepted else "-R")
+    )
     return candidate
 
 
@@ -4104,6 +4185,20 @@ class _CumulativeCheckpoint:
     missing_records: int
     total_records: int
     new_test_ids: frozenset[str]
+
+
+_P2C_CURRENT_CHECKPOINT = _CumulativeCheckpoint(
+    "p2c-current-plan",
+    236,
+    118,
+    38,
+    274,
+    frozenset(
+        f"GEW-PSC-REFACTOR-DEBT-{scenario.upper()}-{disposition}"
+        for scenario in REFACTOR_SCENARIO_IDS
+        for disposition in ("P", "R")
+    ),
+)
 
 
 _CUMULATIVE_CHECKPOINTS = MappingProxyType({

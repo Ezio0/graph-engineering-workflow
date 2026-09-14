@@ -1,4 +1,59 @@
 {
+  "p2c_continuation_amendment": {
+    "amendment_id": "GEW-REMAINING54-P2C-BOUNDED-V1",
+    "observed_at_utc": "2026-09-14T02:05:18Z",
+    "human_approval": "批准",
+    "approval_context": "Approval of the immediately preceding focused request for P2c documentation cross-check, TDD implementation, bounded strict-serial tests and independent review only. No cumulative run, commit, push or network action was requested or approved.",
+    "baseline_commit": "551979fb6a98691ff9ebde2968f42f5052ea0a90",
+    "scope": "Implement and independently review only refactor-debt/behavior-characterization, refactor-debt/architecture-invariant and refactor-debt/nonfunctional-target under ADR-0008, with six P/R bindings and three oracle members. Preserve the exact174 source-edit target allowlist.",
+    "authorized_actions": [
+      "documentation",
+      "implementation",
+      "verification",
+      "independent-review",
+      "candidate",
+      "review"
+    ],
+    "ordered_gate_contract": [
+      "ordered-behavior-vectors",
+      "exact-architecture-edges",
+      "config-owned-integer-nonfunctional-target"
+    ],
+    "failure_contract": "Any failed earlier gate prevents every later gate from running. Rejection evidence proves fail-closed behavior only and cannot substitute for positive scenario evidence.",
+    "expected_plan_shape": {
+      "bindings": 236,
+      "oracle_bindings": 118,
+      "remaining_bindings": 38
+    },
+    "evidence_boundary": "The expected plan shape is configuration shape only, not a cumulative dynamic-gate result. Historical P2a and P2b receipts remain bound to their committed sources. This authorization permits bounded local evidence and independent review only.",
+    "test_boundary": "TDD RED before implementation; strict serial fresh private roots; individually bounded native test commands at most 600 seconds; stop on first failure or timeout and investigate. Do not invoke any cumulative selector, performance workload or monitor.",
+    "allowed_targets_unchanged": 174,
+    "no_new_source_edit_targets": true,
+    "protected_files": [
+      "config/verification/wp-07a-gate.json",
+      "tests/support/wp08_dependency_security.py",
+      "tests/support/wp08_migration_rehearsal.py"
+    ],
+    "prohibited": [
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "WP10",
+      "external-communication",
+      "cumulative-run",
+      "cumulative-rerun",
+      "performance-workload",
+      "monitoring-restoration",
+      "P2d",
+      "P3",
+      "source-edit-target-expansion",
+      "budget-change"
+    ],
+    "preservation": "Use append-only P2c records in existing authorized record paths and preserve every P2a/P2b approval, finding, digest, run result and acceptance record. Do not migrate workflow record formats or modify the original Envelope, PRD Intent Baseline v2 or ADR-0008 intent."
+  },
   "p2b_oracle_repair_amendment": {
     "amendment_id": "GEW-REMAINING54-P2B-ORACLE-CLOSURE-REPAIR-V1",
     "human_approval": "批准",

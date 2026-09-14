@@ -215,7 +215,7 @@
       "profile_version": "1.0.0",
       "scenario_id": "architecture-invariant",
       "fixture_id": "fixture:refactor-debt:architecture-invariant:v1",
-      "fixture_digest": "sha256-jcs-v1:dc2fa9c3a9b6c25236912d80dfb869b3f0ddd1c8885539a518cb75edac732f8c",
+      "fixture_digest": "sha256-jcs-v1:6a8dc404e63e2db68b5066196f9b4d2ed0869b8aa91611a9bd241140d7231f97",
       "required_target_roles": [
         "primary-target"
       ],
@@ -234,14 +234,14 @@
       "mutation_budget": 1,
       "rollback_required": true,
       "compensation_required": false,
-      "row_digest": "sha256-jcs-v1:d3492f781af3ed92d6e73a370c9bde3b8a9579f5b761f433438a74ad5b8f1a4c"
+      "row_digest": "sha256-jcs-v1:599b6f2fd2af4a3b5f7e4008ceab00a73ce0b676b2dee041f84009bf0e7a24db"
     },
     {
       "profile_id": "refactor-debt",
       "profile_version": "1.0.0",
       "scenario_id": "behavior-characterization",
       "fixture_id": "fixture:refactor-debt:behavior-characterization:v1",
-      "fixture_digest": "sha256-jcs-v1:339dfa7ce29c310e8e852564db9815fa527c84dee7203f4740288be987e7f8ff",
+      "fixture_digest": "sha256-jcs-v1:1259ffb9759f1585c29185a427d5320514a4aede69d5369a10ffddf0728d0c95",
       "required_target_roles": [
         "primary-target"
       ],
@@ -260,14 +260,14 @@
       "mutation_budget": 1,
       "rollback_required": true,
       "compensation_required": false,
-      "row_digest": "sha256-jcs-v1:822065e8b516060ea7cbd0438988c502826d60e6d82134d3ca52b2eab84309df"
+      "row_digest": "sha256-jcs-v1:b7188a2e8f1b568934978bcaba369eb204efc2602ea248cfeb0bb09e3f08f652"
     },
     {
       "profile_id": "refactor-debt",
       "profile_version": "1.0.0",
       "scenario_id": "nonfunctional-target",
       "fixture_id": "fixture:refactor-debt:nonfunctional-target:v1",
-      "fixture_digest": "sha256-jcs-v1:c0f3f936fa603c26809eaed090c83802e2765ec0655e27137159f04513557cb2",
+      "fixture_digest": "sha256-jcs-v1:584d5e4651c6f14c5469b43271eec2d1db5b85d5c89c1e9770364e9d0bef327f",
       "required_target_roles": [
         "primary-target"
       ],
@@ -286,8 +286,8 @@
       "mutation_budget": 1,
       "rollback_required": true,
       "compensation_required": false,
-      "row_digest": "sha256-jcs-v1:c8f7da52a2e01fcf9328df16405fff52748ee0cca5bc30389c04d7abe8b56eea"
+      "row_digest": "sha256-jcs-v1:a3ea93e2648bd0cb3569f1db88e58160cdf4c86cfd118cf1f71667bec579a576"
     }
   ],
-  "registry_digest": "sha256-jcs-v1:8afddccc25cb0f167ef3256196644836c44e4022195fdc1a4b4ea01e55f2cb11"
+  "registry_digest": "sha256-jcs-v1:51708f60e16481d7a58fe05c72b02aca95bad95d4ebcb38cee071ae5d78d0d4e"
 }

@@ -260,20 +260,26 @@
               "baseline_state_id": {
                 "$ref": "#/$defs/id"
               },
-              "baseline_value": {
-                "$ref": "#/$defs/id"
+            "baseline_value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16384
               },
               "candidate_state_id": {
                 "$ref": "#/$defs/id"
               },
-              "candidate_value": {
-                "$ref": "#/$defs/id"
+            "candidate_value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16384
               },
               "rollback_state_id": {
                 "$ref": "#/$defs/id"
               },
-              "rollback_value": {
-                "$ref": "#/$defs/id"
+            "rollback_value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16384
               }
             },
             "required": [
@@ -539,6 +545,148 @@
             "minimal_change_budget",
             "health_predicates",
             "ordered_gates"
+          ],
+          "unevaluatedProperties": false
+        },
+        "refactor_contract": {
+          "type": "object",
+          "properties": {
+            "contract_id": {
+              "$ref": "#/$defs/id"
+            },
+            "environment_id": {
+              "$ref": "#/$defs/id"
+            },
+            "gate_ids": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 3,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "behavior-equivalence",
+                  "architecture-invariant",
+                  "nonfunctional-target"
+                ]
+              }
+            },
+            "behavior_cases": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 64,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "case_id": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "input_digest": {
+                    "$ref": "#/$defs/digest"
+                  },
+                  "output_digest": {
+                    "$ref": "#/$defs/digest"
+                  },
+                  "error_digest": {
+                    "$ref": "#/$defs/digest"
+                  },
+                  "side_effect_digest": {
+                    "$ref": "#/$defs/digest"
+                  }
+                },
+                "required": [
+                  "case_id",
+                  "input_digest",
+                  "output_digest",
+                  "error_digest",
+                  "side_effect_digest"
+                ],
+                "unevaluatedProperties": false
+              }
+            },
+            "required_edges": {
+              "type": "array",
+              "maxItems": 64,
+              "uniqueItems": true,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "from_path_id": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "to_path_id": {
+                    "$ref": "#/$defs/id"
+                  }
+                },
+                "required": [
+                  "from_path_id",
+                  "to_path_id"
+                ],
+                "unevaluatedProperties": false
+              }
+            },
+            "forbidden_edges": {
+              "type": "array",
+              "maxItems": 64,
+              "uniqueItems": true,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "from_path_id": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "to_path_id": {
+                    "$ref": "#/$defs/id"
+                  }
+                },
+                "required": [
+                  "from_path_id",
+                  "to_path_id"
+                ],
+                "unevaluatedProperties": false
+              }
+            },
+            "nonfunctional_target": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "environment_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "metric_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "comparator": {
+                  "enum": [
+                    "equal",
+                    "greater-than",
+                    "greater-than-or-equal",
+                    "less-than",
+                    "less-than-or-equal"
+                  ]
+                },
+                "threshold": {
+                  "$ref": "#/$defs/integer"
+                }
+              },
+              "required": [
+                "environment_id",
+                "metric_id",
+                "comparator",
+                "threshold"
+              ],
+              "unevaluatedProperties": false
+            }
+          },
+          "required": [
+            "contract_id",
+            "environment_id",
+            "gate_ids",
+            "behavior_cases",
+            "required_edges",
+            "forbidden_edges",
+            "nonfunctional_target"
           ],
           "unevaluatedProperties": false
         }
@@ -1188,6 +1336,87 @@
         "gate_results"
       ],
       "unevaluatedProperties": false
+    },
+    "refactor_proof": {
+      "type": "object",
+      "properties": {
+        "binding": {
+          "type": "object"
+        },
+        "installation_pins": {
+          "type": "object"
+        },
+        "root_path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "root_identity": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/integer"
+          }
+        },
+        "contract": {
+          "type": "object"
+        },
+        "before": {
+          "type": "object"
+        },
+        "after": {
+          "type": "object"
+        },
+        "gate_results": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "properties": {
+              "gate_id": {
+                "enum": [
+                  "behavior-equivalence",
+                  "architecture-invariant",
+                  "nonfunctional-target"
+                ]
+              },
+              "passed": {
+                "const": true
+              }
+            },
+            "required": [
+              "gate_id",
+              "passed"
+            ],
+            "unevaluatedProperties": false
+          }
+        },
+        "metric_comparison": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "fresh_candidate_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "binding",
+        "installation_pins",
+        "root_path",
+        "root_identity",
+        "contract",
+        "before",
+        "after",
+        "gate_results",
+        "metric_comparison",
+        "fresh_candidate_digest"
+      ],
+      "unevaluatedProperties": false
     }
   },
   "required": [
@@ -1237,6 +1466,32 @@
         "not": {
           "required": [
             "execution_proof"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture_row": {
+            "required": [
+              "refactor_contract"
+            ]
+          }
+        },
+        "required": [
+          "fixture_row"
+        ]
+      },
+      "then": {
+        "required": [
+          "refactor_proof"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "refactor_proof"
           ]
         }
       }

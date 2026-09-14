@@ -533,11 +533,11 @@
           "role_id": "primary-target",
           "path_id": "targets/primary-target.state",
           "baseline_state_id": "A",
-          "baseline_value": "refactor-debt:architecture-invariant:primary-target:A\n",
+          "baseline_value": "{\"state_id\":\"A\",\"environment_id\":\"local-refactor-fixture-v1\",\"behavior_observations\":[{\"case_id\":\"case:empty-input\",\"input_digest\":\"sha256-jcs-v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"output_digest\":\"sha256-jcs-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"error_digest\":\"sha256-jcs-v1:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"side_effect_digest\":\"sha256-jcs-v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\"},{\"case_id\":\"case:representative-input\",\"input_digest\":\"sha256-jcs-v1:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",\"output_digest\":\"sha256-jcs-v1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\",\"error_digest\":\"sha256-jcs-v1:0000000000000000000000000000000000000000000000000000000000000000\",\"side_effect_digest\":\"sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111\"}],\"architecture_edges\":[{\"from_path_id\":\"layers/core\",\"to_path_id\":\"layers/adapters\"},{\"from_path_id\":\"layers/domain\",\"to_path_id\":\"layers/core\"}],\"metric_observations\":[]}",
           "candidate_state_id": "B",
-          "candidate_value": "refactor-debt:architecture-invariant:primary-target:B\n",
+          "candidate_value": "{\"state_id\":\"B\",\"environment_id\":\"local-refactor-fixture-v1\",\"behavior_observations\":[{\"case_id\":\"case:empty-input\",\"input_digest\":\"sha256-jcs-v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"output_digest\":\"sha256-jcs-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"error_digest\":\"sha256-jcs-v1:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"side_effect_digest\":\"sha256-jcs-v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\"},{\"case_id\":\"case:representative-input\",\"input_digest\":\"sha256-jcs-v1:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",\"output_digest\":\"sha256-jcs-v1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\",\"error_digest\":\"sha256-jcs-v1:0000000000000000000000000000000000000000000000000000000000000000\",\"side_effect_digest\":\"sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111\"}],\"architecture_edges\":[{\"from_path_id\":\"layers/domain\",\"to_path_id\":\"layers/core\"}],\"metric_observations\":[]}",
           "rollback_state_id": "A",
-          "rollback_value": "refactor-debt:architecture-invariant:primary-target:A\n"
+          "rollback_value": "{\"state_id\":\"A\",\"environment_id\":\"local-refactor-fixture-v1\",\"behavior_observations\":[{\"case_id\":\"case:empty-input\",\"input_digest\":\"sha256-jcs-v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"output_digest\":\"sha256-jcs-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"error_digest\":\"sha256-jcs-v1:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"side_effect_digest\":\"sha256-jcs-v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\"},{\"case_id\":\"case:representative-input\",\"input_digest\":\"sha256-jcs-v1:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",\"output_digest\":\"sha256-jcs-v1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\",\"error_digest\":\"sha256-jcs-v1:0000000000000000000000000000000000000000000000000000000000000000\",\"side_effect_digest\":\"sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111\"}],\"architecture_edges\":[{\"from_path_id\":\"layers/core\",\"to_path_id\":\"layers/adapters\"},{\"from_path_id\":\"layers/domain\",\"to_path_id\":\"layers/core\"}],\"metric_observations\":[]}"
         }
       ],
       "phase_expectations": [
@@ -569,7 +569,53 @@
         "expected_state_id": "A",
         "required": true
       },
-      "fixture_digest": "sha256-jcs-v1:dc2fa9c3a9b6c25236912d80dfb869b3f0ddd1c8885539a518cb75edac732f8c"
+      "rejection_attack_ids": [
+        "architecture-count-only",
+        "architecture-forbidden-edge",
+        "architecture-missing-edge",
+        "architecture-path-alias",
+        "architecture-set-only",
+        "behavior-case-omission",
+        "behavior-gate-skip"
+      ],
+      "refactor_contract": {
+        "contract_id": "contract:refactor-debt:architecture-invariant:v1",
+        "environment_id": "local-refactor-fixture-v1",
+        "gate_ids": [
+          "behavior-equivalence",
+          "architecture-invariant"
+        ],
+        "behavior_cases": [
+          {
+            "case_id": "case:empty-input",
+            "input_digest": "sha256-jcs-v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "output_digest": "sha256-jcs-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "error_digest": "sha256-jcs-v1:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "side_effect_digest": "sha256-jcs-v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+          },
+          {
+            "case_id": "case:representative-input",
+            "input_digest": "sha256-jcs-v1:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "output_digest": "sha256-jcs-v1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "error_digest": "sha256-jcs-v1:0000000000000000000000000000000000000000000000000000000000000000",
+            "side_effect_digest": "sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111"
+          }
+        ],
+        "required_edges": [
+          {
+            "from_path_id": "layers/domain",
+            "to_path_id": "layers/core"
+          }
+        ],
+        "forbidden_edges": [
+          {
+            "from_path_id": "layers/core",
+            "to_path_id": "layers/adapters"
+          }
+        ],
+        "nonfunctional_target": null
+      },
+      "fixture_digest": "sha256-jcs-v1:6a8dc404e63e2db68b5066196f9b4d2ed0869b8aa91611a9bd241140d7231f97"
     },
     {
       "fixture_id": "fixture:refactor-debt:behavior-characterization:v1",
@@ -580,11 +626,11 @@
           "role_id": "primary-target",
           "path_id": "targets/primary-target.state",
           "baseline_state_id": "A",
-          "baseline_value": "refactor-debt:behavior-characterization:primary-target:A\n",
+          "baseline_value": "{\"state_id\":\"A\",\"environment_id\":\"local-refactor-fixture-v1\",\"behavior_observations\":[{\"case_id\":\"case:empty-input\",\"input_digest\":\"sha256-jcs-v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"output_digest\":\"sha256-jcs-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"error_digest\":\"sha256-jcs-v1:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"side_effect_digest\":\"sha256-jcs-v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\"},{\"case_id\":\"case:representative-input\",\"input_digest\":\"sha256-jcs-v1:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",\"output_digest\":\"sha256-jcs-v1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\",\"error_digest\":\"sha256-jcs-v1:0000000000000000000000000000000000000000000000000000000000000000\",\"side_effect_digest\":\"sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111\"}],\"architecture_edges\":[],\"metric_observations\":[]}",
           "candidate_state_id": "B",
-          "candidate_value": "refactor-debt:behavior-characterization:primary-target:B\n",
+          "candidate_value": "{\"state_id\":\"B\",\"environment_id\":\"local-refactor-fixture-v1\",\"behavior_observations\":[{\"case_id\":\"case:empty-input\",\"input_digest\":\"sha256-jcs-v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"output_digest\":\"sha256-jcs-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"error_digest\":\"sha256-jcs-v1:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"side_effect_digest\":\"sha256-jcs-v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\"},{\"case_id\":\"case:representative-input\",\"input_digest\":\"sha256-jcs-v1:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",\"output_digest\":\"sha256-jcs-v1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\",\"error_digest\":\"sha256-jcs-v1:0000000000000000000000000000000000000000000000000000000000000000\",\"side_effect_digest\":\"sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111\"}],\"architecture_edges\":[],\"metric_observations\":[]}",
           "rollback_state_id": "A",
-          "rollback_value": "refactor-debt:behavior-characterization:primary-target:A\n"
+          "rollback_value": "{\"state_id\":\"A\",\"environment_id\":\"local-refactor-fixture-v1\",\"behavior_observations\":[{\"case_id\":\"case:empty-input\",\"input_digest\":\"sha256-jcs-v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"output_digest\":\"sha256-jcs-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"error_digest\":\"sha256-jcs-v1:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"side_effect_digest\":\"sha256-jcs-v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\"},{\"case_id\":\"case:representative-input\",\"input_digest\":\"sha256-jcs-v1:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",\"output_digest\":\"sha256-jcs-v1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\",\"error_digest\":\"sha256-jcs-v1:0000000000000000000000000000000000000000000000000000000000000000\",\"side_effect_digest\":\"sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111\"}],\"architecture_edges\":[],\"metric_observations\":[]}"
         }
       ],
       "phase_expectations": [
@@ -616,7 +662,41 @@
         "expected_state_id": "A",
         "required": true
       },
-      "fixture_digest": "sha256-jcs-v1:339dfa7ce29c310e8e852564db9815fa527c84dee7203f4740288be987e7f8ff"
+      "rejection_attack_ids": [
+        "behavior-case-addition",
+        "behavior-case-omission",
+        "behavior-case-reorder",
+        "behavior-delta",
+        "caller-behavior-equivalent",
+        "expected-vector-alias"
+      ],
+      "refactor_contract": {
+        "contract_id": "contract:refactor-debt:behavior-characterization:v1",
+        "environment_id": "local-refactor-fixture-v1",
+        "gate_ids": [
+          "behavior-equivalence"
+        ],
+        "behavior_cases": [
+          {
+            "case_id": "case:empty-input",
+            "input_digest": "sha256-jcs-v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "output_digest": "sha256-jcs-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "error_digest": "sha256-jcs-v1:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "side_effect_digest": "sha256-jcs-v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+          },
+          {
+            "case_id": "case:representative-input",
+            "input_digest": "sha256-jcs-v1:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "output_digest": "sha256-jcs-v1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "error_digest": "sha256-jcs-v1:0000000000000000000000000000000000000000000000000000000000000000",
+            "side_effect_digest": "sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111"
+          }
+        ],
+        "required_edges": [],
+        "forbidden_edges": [],
+        "nonfunctional_target": null
+      },
+      "fixture_digest": "sha256-jcs-v1:1259ffb9759f1585c29185a427d5320514a4aede69d5369a10ffddf0728d0c95"
     },
     {
       "fixture_id": "fixture:refactor-debt:nonfunctional-target:v1",
@@ -627,11 +707,11 @@
           "role_id": "primary-target",
           "path_id": "targets/primary-target.state",
           "baseline_state_id": "A",
-          "baseline_value": "refactor-debt:nonfunctional-target:primary-target:A\n",
+          "baseline_value": "{\"state_id\":\"A\",\"environment_id\":\"local-refactor-fixture-v1\",\"behavior_observations\":[{\"case_id\":\"case:empty-input\",\"input_digest\":\"sha256-jcs-v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"output_digest\":\"sha256-jcs-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"error_digest\":\"sha256-jcs-v1:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"side_effect_digest\":\"sha256-jcs-v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\"},{\"case_id\":\"case:representative-input\",\"input_digest\":\"sha256-jcs-v1:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",\"output_digest\":\"sha256-jcs-v1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\",\"error_digest\":\"sha256-jcs-v1:0000000000000000000000000000000000000000000000000000000000000000\",\"side_effect_digest\":\"sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111\"}],\"architecture_edges\":[],\"metric_observations\":[{\"metric_id\":\"metric:work-units\",\"value\":800000}]}",
           "candidate_state_id": "B",
-          "candidate_value": "refactor-debt:nonfunctional-target:primary-target:B\n",
+          "candidate_value": "{\"state_id\":\"B\",\"environment_id\":\"local-refactor-fixture-v1\",\"behavior_observations\":[{\"case_id\":\"case:empty-input\",\"input_digest\":\"sha256-jcs-v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"output_digest\":\"sha256-jcs-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"error_digest\":\"sha256-jcs-v1:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"side_effect_digest\":\"sha256-jcs-v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\"},{\"case_id\":\"case:representative-input\",\"input_digest\":\"sha256-jcs-v1:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",\"output_digest\":\"sha256-jcs-v1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\",\"error_digest\":\"sha256-jcs-v1:0000000000000000000000000000000000000000000000000000000000000000\",\"side_effect_digest\":\"sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111\"}],\"architecture_edges\":[],\"metric_observations\":[{\"metric_id\":\"metric:work-units\",\"value\":600000}]}",
           "rollback_state_id": "A",
-          "rollback_value": "refactor-debt:nonfunctional-target:primary-target:A\n"
+          "rollback_value": "{\"state_id\":\"A\",\"environment_id\":\"local-refactor-fixture-v1\",\"behavior_observations\":[{\"case_id\":\"case:empty-input\",\"input_digest\":\"sha256-jcs-v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"output_digest\":\"sha256-jcs-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"error_digest\":\"sha256-jcs-v1:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"side_effect_digest\":\"sha256-jcs-v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\"},{\"case_id\":\"case:representative-input\",\"input_digest\":\"sha256-jcs-v1:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",\"output_digest\":\"sha256-jcs-v1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\",\"error_digest\":\"sha256-jcs-v1:0000000000000000000000000000000000000000000000000000000000000000\",\"side_effect_digest\":\"sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111\"}],\"architecture_edges\":[],\"metric_observations\":[{\"metric_id\":\"metric:work-units\",\"value\":800000}]}"
         }
       ],
       "phase_expectations": [
@@ -663,8 +743,49 @@
         "expected_state_id": "A",
         "required": true
       },
-      "fixture_digest": "sha256-jcs-v1:c0f3f936fa603c26809eaed090c83802e2765ec0655e27137159f04513557cb2"
+      "rejection_attack_ids": [
+        "behavior-delta",
+        "caller-metric-pass",
+        "environment-drift",
+        "hardcoded-threshold",
+        "metric-miss",
+        "threshold-bool",
+        "threshold-float"
+      ],
+      "refactor_contract": {
+        "contract_id": "contract:refactor-debt:nonfunctional-target:v1",
+        "environment_id": "local-refactor-fixture-v1",
+        "gate_ids": [
+          "behavior-equivalence",
+          "nonfunctional-target"
+        ],
+        "behavior_cases": [
+          {
+            "case_id": "case:empty-input",
+            "input_digest": "sha256-jcs-v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "output_digest": "sha256-jcs-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "error_digest": "sha256-jcs-v1:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "side_effect_digest": "sha256-jcs-v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+          },
+          {
+            "case_id": "case:representative-input",
+            "input_digest": "sha256-jcs-v1:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "output_digest": "sha256-jcs-v1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "error_digest": "sha256-jcs-v1:0000000000000000000000000000000000000000000000000000000000000000",
+            "side_effect_digest": "sha256-jcs-v1:1111111111111111111111111111111111111111111111111111111111111111"
+          }
+        ],
+        "required_edges": [],
+        "forbidden_edges": [],
+        "nonfunctional_target": {
+          "environment_id": "local-refactor-fixture-v1",
+          "metric_id": "metric:work-units",
+          "comparator": "less-than-or-equal",
+          "threshold": 731942
+        }
+      },
+      "fixture_digest": "sha256-jcs-v1:584d5e4651c6f14c5469b43271eec2d1db5b85d5c89c1e9770364e9d0bef327f"
     }
   ],
-  "registry_digest": "sha256-jcs-v1:1071d0fc3efc270e0cd227e89cddf8d39525b7a7a2e9767cf983c8d6e8c90c72"
+  "registry_digest": "sha256-jcs-v1:d2fc4483e25bb7f4869c012b5c321cbdfed724427447df00812c8b926be51254"
 }

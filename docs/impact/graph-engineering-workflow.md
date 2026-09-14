@@ -976,3 +976,30 @@ mocked tests hiding another loader call. Cover them with independent frozen
 identity sets, exact substitutions and real loader/boundary regressions.
 The protected three files, original Envelope and every prior launch/review record
 remain unchanged. No cumulative/performance workload or automatic retry occurs.
+
+### P2c bounded continuation impact — 2026-09-14
+
+The Human-approved change is limited to three refactor-debt scenario pairs and
+their three oracle members. Affected layers are the existing scenario fixture and
+observation schema pairs, policy/fixture/bootstrap protected configuration,
+scenario core/application factories, scenario coverage fixture, profile plan,
+package/source-currentness pins, focused tests and append-only delivery records.
+Only actual changed provenance/package/bootstrap projections may be re-signed,
+inside the unchanged exact174 allowlist. P2a/P2b evidence remains historical and
+must not be rewritten or presented as current P2c evidence.
+
+Primary risks are treating ordered behavior as a set, comparing graph counts
+instead of exact directed edges, embedding a threshold in code, accepting floats
+or booleans as integers, trusting caller-reported equality, evaluating a later
+gate after an earlier failure, losing the refactor proof across CAS/restart, or
+calling post-mutation rejection a zero-write result. Mitigation is a protected
+config-owned closed contract, exact A-before/B-after observations, canonical path
+and edge identity, generic integer comparator dispatch, ordered fail-fast gate
+results, conditional typed proof validation and explicit mutation accounting.
+
+No database/event/GraphRef/API, dependency, daemon, runtime adapter, network,
+real repository or production operation changes. The existing assessment 1.3
+projection and one task-referenced CAS remain the durable carrier. This refines
+ADR-0008 implementation without a new ADR. A needed target expansion, Support
+Matrix change, material architecture choice, cumulative execution, P2d/P3 work
+or irreversible action returns to Human first.

@@ -22,6 +22,7 @@ import graph_engineering
 from graph_engineering.application.scenario_truth import ScenarioTruthRegistryFactory
 from graph_engineering.core import scenario_truth as scenario_core
 from graph_engineering.core import profile_coverage as coverage_core
+from graph_engineering.core.contracts.immutable import freeze, thaw
 from graph_engineering.core.scenario_truth import ScenarioTruthError
 
 
@@ -1693,6 +1694,185 @@ class GuardedScenarioTruthTests(unittest.TestCase):
                         self.assertEqual(observer.mutation_count, 0)
 
 
+class RefactorScenarioTruthTests(unittest.TestCase):
+    scenarios = {
+        "behavior-characterization": ("behavior-equivalence",),
+        "architecture-invariant": (
+            "behavior-equivalence", "architecture-invariant",
+        ),
+        "nonfunctional-target": (
+            "behavior-equivalence", "nonfunctional-target",
+        ),
+    }
+
+    def setUp(self) -> None:
+        self.factory = ScenarioTruthRegistryFactory.from_installation()
+        self.addCleanup(self.factory.close)
+
+    def observer(self, scenario: str):  # type: ignore[no-untyped-def]
+        binding = ScenarioTruthAuthorityTests.binding()
+        task_id = f"task:wp08-scenario:refactor-debt:{scenario}:p"
+        binding.update(
+            task_id=task_id,
+            profile_id="refactor-debt",
+            scenario_id=scenario,
+            branch_id="branch:" + task_id,
+            ref_id="ref:" + task_id,
+        )
+        root = tempfile.TemporaryDirectory(prefix="gew-p2c-unit-")
+        self.addCleanup(root.cleanup)
+        return self.factory.observation_factory(
+            self.factory.registry(), binding=binding, private_root=root.name,
+        )
+
+    def test_refactor_scenarios_emit_ordered_config_owned_proofs(self) -> None:
+        for scenario, expected_gates in self.scenarios.items():
+            with self.subTest(scenario=scenario):
+                observer = self.observer(scenario)
+                contract = observer._fixture_row["refactor_contract"]
+                self.assertEqual(tuple(contract["gate_ids"]), expected_gates)
+                observation = observer.execute(observer.request())
+                self.factory.require_current(observation)
+                proof = observation.to_dict()["refactor_proof"]
+                self.assertEqual(
+                    tuple(row["gate_id"] for row in proof["gate_results"]),
+                    expected_gates,
+                )
+                self.assertEqual(proof["before"]["state_id"], "A")
+                self.assertEqual(proof["after"]["state_id"], "B")
+                self.assertEqual(observer.mutation_count, 1)
+
+    def test_refactor_post_gate_candidate_drift_cannot_issue_evidence(self) -> None:
+        import graph_engineering.application.scenario_truth as application_truth
+
+        observer = self.observer("nonfunctional-target")
+        target = observer._fixture_row["target_roles"][0]
+        target_path = observer._root / target["path_id"]
+        original_evaluator = application_truth.evaluate_refactor_gates
+
+        def drift_after_gates(contract, before, after):  # type: ignore[no-untyped-def]
+            results = original_evaluator(contract, before, after)
+            changed = copy.deepcopy(after)
+            changed["environment_id"] = "foreign-after-gates"
+            target_path.write_text(
+                json.dumps(changed, sort_keys=True, separators=(",", ":")),
+                encoding="ascii",
+            )
+            return results
+
+        with mock.patch.object(
+            application_truth,
+            "evaluate_refactor_gates",
+            side_effect=drift_after_gates,
+        ), self.assertRaises(ScenarioTruthError):
+            observer.execute(observer.request())
+        self.assertEqual(observer.mutation_count, 1)
+        self.assertFalse(observer._executed)
+        self.assertEqual(self.factory._issued_observations, {})
+        self.assertNotEqual(
+            target_path.read_bytes(), target["candidate_value"].encode("ascii"),
+        )
+
+    def test_refactor_contract_validation_is_generic_and_closed(self) -> None:
+        self.assertTrue(hasattr(scenario_core, "validate_refactor_contract"))
+        rows = self.factory.registry().registry.fixture_document["fixtures"]
+        refactor_rows = tuple(
+            row for row in rows if "refactor_contract" in row
+        )
+        self.assertEqual(len(refactor_rows), 3)
+        for row in refactor_rows:
+            scenario_core.validate_refactor_contract(
+                row["refactor_contract"], row["target_roles"],
+            )
+            for mutate in (
+                lambda value: value.update(extra=True),
+                lambda value: (
+                    value["gate_ids"].reverse()
+                    if len(value["gate_ids"]) > 1
+                    else value["gate_ids"].append("architecture-invariant")
+                ),
+                lambda value: value["behavior_cases"].append(
+                    copy.deepcopy(value["behavior_cases"][0])
+                ),
+                lambda value: value["required_edges"].append(
+                    copy.deepcopy(value["required_edges"][0])
+                ) if value["required_edges"] else value.update(
+                    required_edges=[
+                        {"from_path_id": "layer/a", "to_path_id": "layer/a"},
+                        {"from_path_id": "layer/a", "to_path_id": "layer/a"},
+                    ]
+                ),
+                lambda value: value["nonfunctional_target"].update(threshold=True)
+                if value["nonfunctional_target"] is not None else value.update(
+                    nonfunctional_target={
+                        "environment_id": "local",
+                        "metric_id": "metric",
+                        "comparator": "less-than-or-equal",
+                        "threshold": 1.5,
+                    }
+                ),
+            ):
+                changed = thaw(freeze(row["refactor_contract"]))
+                mutate(changed)
+                with self.assertRaises(ScenarioTruthError):
+                    scenario_core.validate_refactor_contract(
+                        changed, row["target_roles"],
+                    )
+
+    def test_behavior_failure_short_circuits_every_later_gate(self) -> None:
+        self.assertTrue(hasattr(scenario_core, "evaluate_refactor_gates"))
+        for scenario in ("architecture-invariant", "nonfunctional-target"):
+            observer = self.observer(scenario)
+            row = observer._fixture_row
+            before = json.loads(row["target_roles"][0]["baseline_value"])
+            after = json.loads(row["target_roles"][0]["candidate_value"])
+            after["behavior_observations"][0]["output_digest"] = (
+                "sha256-jcs-v1:" + "f" * 64
+            )
+            later_name = (
+                "_evaluate_architecture_gate"
+                if scenario == "architecture-invariant"
+                else "_evaluate_nonfunctional_gate"
+            )
+            with mock.patch.object(
+                scenario_core, later_name, wraps=getattr(scenario_core, later_name),
+            ) as later, self.assertRaises(ScenarioTruthError):
+                scenario_core.evaluate_refactor_gates(
+                    row["refactor_contract"], before, after,
+                )
+            self.assertEqual(later.call_count, 0)
+
+    def test_architecture_and_nonfunctional_negative_vectors_fail_closed(self) -> None:
+        attacks = {
+            "architecture-invariant": (
+                lambda value, contract: value["architecture_edges"].remove(
+                    dict(contract["required_edges"][0])
+                ),
+                lambda value, contract: value["architecture_edges"].append(
+                    dict(contract["forbidden_edges"][0])
+                ),
+            ),
+            "nonfunctional-target": (
+                lambda value, contract: value.update(environment_id="foreign"),
+                lambda value, contract: value["metric_observations"][0].update(
+                    value=contract["nonfunctional_target"]["threshold"] + 1
+                ),
+            ),
+        }
+        for scenario, mutations in attacks.items():
+            observer = self.observer(scenario)
+            row = observer._fixture_row
+            before = json.loads(row["target_roles"][0]["baseline_value"])
+            for mutate in mutations:
+                with self.subTest(scenario=scenario, mutate=mutate):
+                    after = json.loads(row["target_roles"][0]["candidate_value"])
+                    mutate(after, row["refactor_contract"])
+                    with self.assertRaises(ScenarioTruthError):
+                        scenario_core.evaluate_refactor_gates(
+                            row["refactor_contract"], before, after,
+                        )
+
+
 class CumulativeEntryTests(unittest.TestCase):
     """Entry/control-flow evidence only; never launches cumulative workloads."""
 
@@ -1963,7 +2143,7 @@ class OracleClosureEntryTests(unittest.TestCase):
             stack.enter_context(redirect_stderr(StringIO()))
             yield
 
-    def test_checkpoint_sets_preserve_exact_historical_p2a(self):
+    def test_checkpoint_sets_preserve_history_and_extend_current_p2c(self):
         from tests.support import wp08_release_coverage as fixture
 
         p2a = fixture.expected_oracle_binding_identities(
@@ -1985,21 +2165,41 @@ class OracleClosureEntryTests(unittest.TestCase):
                          (113, 113, 115, 115))
         self.assertEqual(set(p2b), set(p2a) | additions)
         self.assertFalse(set(p2a) & additions)
-        self.assertEqual(fixture.expected_oracle_binding_identities(), p2b)
+        current = fixture.expected_oracle_binding_identities()
+        refactor_additions = {
+            (
+                "ORA-PROFILE-REFACTOR-DEBT",
+                "refactor-debt",
+                "scenario",
+                "boundary",
+                scenario,
+            )
+            for scenario in fixture.REFACTOR_SCENARIO_IDS
+        }
+        self.assertEqual((len(current), len(set(current))), (118, 118))
+        self.assertEqual(set(current), set(p2b) | refactor_additions)
+        self.assertFalse(set(p2b) & refactor_additions)
 
     def test_real_installed_loader_uses_current_or_explicit_checkpoint(self):
         from tests.support import wp08_release_coverage as fixture
 
         with self.forbid_workloads():
-            for selector in (None, fixture.P2B_CUMULATIVE_R1_SELECTOR):
-                with self.subTest(selector=selector):
-                    _, _, _, matrix, _, _, plan = fixture._verified_plan(selector=selector)
-                    self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (230, 115))
-                    fixture._validate_cumulative_plan(
-                        plan, matrix, fixture._cumulative_checkpoint(fixture.P2B_CUMULATIVE_R1_SELECTOR),
-                    )
-            with self.assertRaisesRegex(AssertionError, "oracle closure"):
-                fixture._verified_plan(selector=fixture.P2A_CUMULATIVE_R2_SELECTOR)
+            _, _, _, matrix, _, _, plan = fixture._verified_plan()
+            self.assertEqual(
+                (len(plan.bindings), len(plan.oracle_bindings)),
+                (236, 118),
+            )
+            fixture._validate_cumulative_plan(
+                plan, matrix, fixture._P2C_CURRENT_CHECKPOINT,
+            )
+            for selector in (
+                fixture.P2A_CUMULATIVE_R2_SELECTOR,
+                fixture.P2B_CUMULATIVE_R1_SELECTOR,
+            ):
+                with self.subTest(selector=selector), self.assertRaisesRegex(
+                    AssertionError, "oracle closure",
+                ):
+                    fixture._verified_plan(selector=selector)
 
     def test_real_cumulative_entry_loads_plan_before_p1_work(self):
         from tests.support import wp08_release_coverage as fixture
@@ -2008,10 +2208,9 @@ class OracleClosureEntryTests(unittest.TestCase):
             fixture, "_run_performance_remaining_r1_child",
             side_effect=self.WorkloadBoundaryReached,
         ) as boundary:
-            with self.assertRaises(self.WorkloadBoundaryReached):
+            with self.assertRaisesRegex(AssertionError, "oracle closure"):
                 fixture._run_p2b_cumulative_r1_child()
-            boundary.assert_called_once_with(cumulative_selector=fixture.P2B_CUMULATIVE_R1_SELECTOR)
-            boundary.reset_mock()
+            boundary.assert_not_called()
             with self.assertRaisesRegex(AssertionError, "oracle closure"):
                 fixture._run_p2a_cumulative_r2_child()
             boundary.assert_not_called()
@@ -2019,20 +2218,27 @@ class OracleClosureEntryTests(unittest.TestCase):
     def test_real_p1_sibling_loads_plan_before_performance_work(self):
         from tests.support import wp08_release_coverage as fixture
 
-        for selector in (None, fixture.P2B_CUMULATIVE_R1_SELECTOR):
-            with self.subTest(selector=selector), self.forbid_workloads(), mock.patch.object(
-                fixture, "_scenario_attack_receipt", side_effect=self.WorkloadBoundaryReached,
-            ) as boundary:
-                with self.assertRaises(self.WorkloadBoundaryReached):
-                    fixture._run_performance_remaining_r1_child(cumulative_selector=selector)
-                self.assertEqual(boundary.call_count, 1)
-                self.assertEqual(len(boundary.call_args.kwargs["plan"].oracle_bindings), 115)
         with self.forbid_workloads(), mock.patch.object(
             fixture, "_scenario_attack_receipt", side_effect=self.WorkloadBoundaryReached,
         ) as boundary:
-            with self.assertRaisesRegex(AssertionError, "oracle closure"):
+            with self.assertRaises(self.WorkloadBoundaryReached):
                 fixture._run_performance_remaining_r1_child(
-                    cumulative_selector=fixture.P2A_CUMULATIVE_R2_SELECTOR,
+                    cumulative_selector=None,
+                )
+            self.assertEqual(boundary.call_count, 1)
+            self.assertEqual(
+                len(boundary.call_args.kwargs["plan"].oracle_bindings),
+                118,
+            )
+        for selector in (
+            fixture.P2A_CUMULATIVE_R2_SELECTOR,
+            fixture.P2B_CUMULATIVE_R1_SELECTOR,
+        ):
+            with self.subTest(selector=selector), self.forbid_workloads(), mock.patch.object(
+                fixture, "_scenario_attack_receipt", side_effect=self.WorkloadBoundaryReached,
+            ) as boundary, self.assertRaisesRegex(AssertionError, "oracle closure"):
+                fixture._run_performance_remaining_r1_child(
+                    cumulative_selector=selector,
                 )
             boundary.assert_not_called()
 

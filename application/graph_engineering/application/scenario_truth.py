@@ -22,6 +22,7 @@ from graph_engineering.core.scenario_truth import (
     ScenarioTruthError,
     ScenarioTruthObservation,
     ScenarioTruthRegistry,
+    evaluate_refactor_gates,
     evaluate_scenario_assertions,
     issue_scenario_truth_observation,
     minimal_change_bytes,
@@ -69,6 +70,32 @@ def _text(value: object, label: str) -> str:
     ):
         raise ScenarioTruthError(f"{label} is not exact text")
     return value
+
+
+def _rejection_input_projection(value: object) -> object:
+    """Project configured malformed scalars into an exact, auditable value."""
+
+    if value is None or type(value) in (bool, int, str):
+        return value
+    if type(value) in (list, tuple):
+        return [_rejection_input_projection(item) for item in value]
+    if isinstance(value, Mapping):
+        if any(type(key) is not str for key in value):
+            raise ScenarioTruthError(
+                "scenario rejected request has a non-text object key"
+            )
+        return {
+            key: _rejection_input_projection(item)
+            for key, item in value.items()
+        }
+    if type(value) is float:
+        return {
+            "rejected_type": "float",
+            "exact_value": value.hex(),
+        }
+    raise ScenarioTruthError(
+        "scenario rejected request contains an unprojectable value"
+    )
 
 
 def _semantic(document: Mapping[str, object], name: str) -> str:
@@ -381,6 +408,71 @@ def _guarded_proof(binding, fixture, pins, root, root_identity):
     return {"baseline": baseline, "ordered_phases": phases, "gate_results": results}
 
 
+def _refactor_proof(binding, fixture, pins, root, root_identity):
+    """Freshly observe one config-owned refactor target and ordered gates."""
+
+    task_id = _text(binding["task_id"], "refactor task ID")
+    if (
+        binding["branch_id"] != "branch:" + task_id
+        or binding["ref_id"] != "ref:" + task_id
+        or _read_private_target(
+            root, ".scenario-truth-root", root_identity=root_identity,
+        ) != task_id.encode("ascii")
+    ):
+        raise ScenarioTruthError("scenario refactor private root binding changed")
+    targets = fixture["target_roles"]
+    if len(targets) != 1:
+        raise ScenarioTruthError("scenario refactor target closure changed")
+    target = targets[0]
+    baseline_bytes = target["baseline_value"].encode("ascii")
+    candidate_bytes = _read_private_target(
+        root, target["path_id"], root_identity=root_identity,
+    )
+    if candidate_bytes != target["candidate_value"].encode("ascii"):
+        raise ScenarioTruthError("scenario refactor candidate is stale")
+    before = _strict_json(baseline_bytes, "scenario refactor baseline")
+    after = _strict_json(candidate_bytes, "scenario refactor candidate")
+    contract = fixture["refactor_contract"]
+    results = evaluate_refactor_gates(contract, before, after)
+    if _read_private_target(
+        root, target["path_id"], root_identity=root_identity,
+    ) != candidate_bytes:
+        raise ScenarioTruthError("scenario refactor candidate changed during gate")
+
+    def proof_observation(document, body):  # type: ignore[no-untyped-def]
+        value = copy.deepcopy(document)
+        value["value_digest"] = "sha256:" + hashlib.sha256(body).hexdigest()
+        return value
+
+    metric = None
+    if contract["nonfunctional_target"] is not None:
+        target_metric = contract["nonfunctional_target"]
+        observed = next(
+            row for row in after["metric_observations"]
+            if row["metric_id"] == target_metric["metric_id"]
+        )
+        metric = {
+            "environment_id": target_metric["environment_id"],
+            "metric_id": target_metric["metric_id"],
+            "comparator": target_metric["comparator"],
+            "threshold": target_metric["threshold"],
+            "observed_value": observed["value"],
+            "passed": True,
+        }
+    return {
+        "binding": thaw(binding),
+        "installation_pins": thaw(pins),
+        "root_path": os.fspath(root),
+        "root_identity": list(root_identity),
+        "contract": thaw(contract),
+        "before": proof_observation(before, baseline_bytes),
+        "after": proof_observation(after, candidate_bytes),
+        "gate_results": list(results),
+        "metric_comparison": metric,
+        "fresh_candidate_digest": "sha256:" + hashlib.sha256(candidate_bytes).hexdigest(),
+    }
+
+
 class ScenarioTruthObservationFactory:
     """One opaque task/profile/scenario observer over a private local root."""
 
@@ -468,14 +560,19 @@ class ScenarioTruthObservationFactory:
             "attack_id": attack_id, "binding": thaw(self._binding),
             "root_path": os.fspath(self._root),
             "root_identity": list(self._root_identity),
-            "request": before_request, "error_message": error_message,
+            "request": _rejection_input_projection(before_request),
+            "error_message": error_message,
             "targets": [{"role_id": role, "sha256": hashlib.sha256(body).hexdigest()}
                         for role, body in before_targets],
             "mutation_count": 0, "request_unchanged": True,
             "target_bytes_unchanged": True,
         }
-        if "execution_contract" in self._fixture_row:
+        if (
+            "execution_contract" in self._fixture_row
+            or "refactor_contract" in self._fixture_row
+        ):
             raw_projection["root_marker_digest"] = root_marker_digest
+        if "execution_contract" in self._fixture_row:
             baseline = self._baseline_receipts.get(id(baseline_receipt))
             raw_projection["baseline_argument"] = (thaw(baseline[1]) if baseline else None)
             raw_projection["controls"] = [{"control_id": key, "sha256": hashlib.sha256(body).hexdigest()}
@@ -492,7 +589,10 @@ class ScenarioTruthObservationFactory:
         return receipt
 
     def _guarded_root_marker_digest(self):
-        if "execution_contract" not in self._fixture_row:
+        if (
+            "execution_contract" not in self._fixture_row
+            and "refactor_contract" not in self._fixture_row
+        ):
             return None
         task_id = self._binding["task_id"]
         marker = self._read_target(".scenario-truth-root")
@@ -535,6 +635,62 @@ class ScenarioTruthObservationFactory:
                 return (type(request.get("ordered_gate_ids")) is list
                         and request["ordered_gate_ids"] != self._request["ordered_gate_ids"]
                         and sorted(request["ordered_gate_ids"]) == sorted(self._request["ordered_gate_ids"]))
+        if "refactor_contract" in self._fixture_row:
+            actual = request.get("refactor_contract")
+            expected_contract = self._request["refactor_contract"]
+            if type(actual) is not dict:
+                return False
+            actual_cases = actual.get("behavior_cases")
+            expected_cases = expected_contract["behavior_cases"]
+            if attack_id == "behavior-case-omission":
+                return type(actual_cases) is list and len(actual_cases) < len(expected_cases)
+            if attack_id == "behavior-case-addition":
+                return type(actual_cases) is list and len(actual_cases) > len(expected_cases)
+            if attack_id == "behavior-case-reorder":
+                return (
+                    type(actual_cases) is list
+                    and actual_cases != expected_cases
+                    and sorted(actual_cases, key=lambda item: item.get("case_id", ""))
+                    == sorted(expected_cases, key=lambda item: item.get("case_id", ""))
+                )
+            if attack_id == "behavior-delta":
+                return type(actual_cases) is list and actual_cases != expected_cases
+            if attack_id == "expected-vector-alias":
+                return (
+                    type(actual_cases) is list and len(actual_cases) > 1
+                    and actual_cases[0] == actual_cases[1]
+                )
+            if attack_id == "caller-behavior-equivalent":
+                return request.get("behavior_equivalent") is True
+            if attack_id == "architecture-missing-edge":
+                return len(actual.get("required_edges", ())) < len(
+                    expected_contract["required_edges"]
+                )
+            if attack_id == "architecture-forbidden-edge":
+                return actual.get("required_edges") == expected_contract["forbidden_edges"]
+            if attack_id == "architecture-path-alias":
+                edges = actual.get("required_edges", ())
+                return bool(edges) and edges[0].get("from_path_id") == edges[0].get("to_path_id")
+            if attack_id == "architecture-count-only":
+                return request.get("architecture_edge_count") is not None
+            if attack_id == "architecture-set-only":
+                return request.get("architecture_nodes") is not None
+            if attack_id == "behavior-gate-skip":
+                return actual.get("gate_ids", [None])[0] != "behavior-equivalence"
+            target = actual.get("nonfunctional_target")
+            expected_target = expected_contract["nonfunctional_target"]
+            if attack_id == "environment-drift":
+                return actual.get("environment_id") != expected_contract["environment_id"]
+            if attack_id == "hardcoded-threshold":
+                return isinstance(target, dict) and target.get("threshold") != expected_target["threshold"]
+            if attack_id == "threshold-float":
+                return isinstance(target, dict) and type(target.get("threshold")) is float
+            if attack_id == "threshold-bool":
+                return isinstance(target, dict) and type(target.get("threshold")) is bool
+            if attack_id == "metric-miss":
+                return isinstance(target, dict) and target.get("metric_id") != expected_target["metric_id"]
+            if attack_id == "caller-metric-pass":
+                return request.get("metric_passed") is True
         if attack_id == "missing-role":
             return len(rows) == len(expected) and any("role_id" not in row for row in rows)
         if attack_id == "extra-role":
@@ -559,9 +715,17 @@ class ScenarioTruthObservationFactory:
         fields = _REQUEST_FIELDS
         if "execution_contract" in self._fixture_row:
             fields = (*fields, "environment", "ordered_gate_ids")
+        if "refactor_contract" in self._fixture_row:
+            fields = (*fields, "refactor_contract")
         if type(request) is not dict or tuple(request) != fields:
             raise ScenarioTruthError("scenario request fields/order are not exact")
-        if freeze(request) != freeze(self._request):
+        try:
+            frozen_request = freeze(request)
+        except TypeError as error:
+            raise ScenarioTruthError(
+                "scenario request is not exact JSON"
+            ) from error
+        if frozen_request != freeze(self._request):
             raise ScenarioTruthError("scenario request differs from installed policy")
         targets = request["targets"]
         if type(targets) is not list:
@@ -585,6 +749,7 @@ class ScenarioTruthObservationFactory:
         if self._executed or self._mutation_count:
             raise ScenarioTruthError("scenario observer is one-shot")
         guarded = "execution_contract" in self._fixture_row
+        refactor = "refactor_contract" in self._fixture_row
         baseline = self._require_baseline(baseline_receipt) if guarded else None
         if not guarded and baseline_receipt is not None:
             raise ScenarioTruthError("unguarded scenario cannot consume a baseline authority")
@@ -697,6 +862,11 @@ class ScenarioTruthObservationFactory:
             if freeze(proof["baseline"]) != baseline:
                 raise ScenarioTruthError("scenario baseline changed during execution")
             body["execution_proof"] = proof
+        if refactor:
+            body["refactor_proof"] = _refactor_proof(
+                self._binding, self._fixture_row,
+                self._owner.installation_pins, self._root, self._root_identity,
+            )
         observation = issue_scenario_truth_observation(body, authority=self)
         self._executed = True
         self._owner.register_observation(self, observation)
@@ -970,6 +1140,9 @@ class ScenarioTruthRegistryFactory:
                 "classification": contract["environment_classification"],
             }
             result._request["ordered_gate_ids"] = [row["gate_id"] for row in contract["ordered_gates"]]
+        refactor_contract = fixture_row.get("refactor_contract")
+        if refactor_contract is not None:
+            result._request["refactor_contract"] = thaw(refactor_contract)
         self._issued_observers[id(result)] = result
         return result
 
@@ -1010,7 +1183,8 @@ class ScenarioTruthRegistryFactory:
             raise ScenarioTruthError("scenario rejection receipt is missing, cloned, or foreign")
         _, observer, projection, targets = issued
         self.require_observer(observer)
-        if ("execution_contract" in observer._fixture_row
+        if (("execution_contract" in observer._fixture_row
+             or "refactor_contract" in observer._fixture_row)
                 and observer._guarded_root_marker_digest() != projection.get("root_marker_digest")):
             raise ScenarioTruthError("scenario rejection root marker digest changed")
         if (value.projection != projection
@@ -1117,6 +1291,10 @@ class ScenarioTruthRegistryFactory:
                 raise ScenarioTruthError("scenario target changed after observation")
         if "execution_contract" in observer._fixture_row:
             self._validate_guarded_projection(value.to_dict(), observer._root, observer._root_identity)
+        elif "refactor_contract" in observer._fixture_row:
+            self._validate_refactor_projection(
+                value.to_dict(), observer._root, observer._root_identity,
+            )
         return value
 
     def projection(self, value: object) -> FrozenMap:
@@ -1177,8 +1355,10 @@ class ScenarioTruthRegistryFactory:
             raise ScenarioTruthError("scenario projection differs from installed registry")
         if "execution_contract" in installed_fixture:
             self._validate_guarded_projection(body, root, _identity(metadata))
-        elif "execution_proof" in body:
-            raise ScenarioTruthError("unguarded projection carries a guarded proof")
+        elif "refactor_contract" in installed_fixture:
+            self._validate_refactor_projection(body, root, _identity(metadata))
+        elif "execution_proof" in body or "refactor_proof" in body:
+            raise ScenarioTruthError("unguarded projection carries a conditional proof")
         after = body.get("after_targets")
         if type(after) is not list or len(after) != len(fixture["target_roles"]):
             raise ScenarioTruthError("scenario projection target set changed")
@@ -1234,6 +1414,72 @@ class ScenarioTruthRegistryFactory:
                     {"assertion_id": row["assertion_id"], "passed": True}
                     for row in fixture["assertion_expectations"]]):
             raise ScenarioTruthError("scenario guarded observation relationships changed")
+
+    def _validate_refactor_projection(self, body, root, root_identity):
+        policy = self._registry.policy_row(
+            body.get("profile_id"), body.get("scenario_id"),
+        )
+        fixture = self._registry.fixture_row(policy["fixture_id"])
+        if (
+            freeze(body.get("fixture_row")) != fixture
+            or freeze(body.get("policy_row")) != policy
+            or freeze(body.get("installation_pins")) != self.installation_pins
+        ):
+            raise ScenarioTruthError("scenario refactor installation binding changed")
+        binding = {field: body.get(field) for field in _BINDING_FIELDS[:-2]}
+        branch = body.get("branch_binding", {})
+        binding.update({
+            "branch_id": branch.get("branch_id"),
+            "ref_id": branch.get("ref_id"),
+        })
+        if (
+            type(binding["task_revision"]) is not int
+            or binding["task_revision"] < 1
+            or type(binding["invalidation_epoch"]) is not int
+            or binding["invalidation_epoch"] < 0
+            or binding["profile_version"] != policy["profile_version"]
+        ):
+            raise ScenarioTruthError("scenario refactor task revision is invalid")
+        _digest(binding["snapshot_digest"], "refactor snapshot")
+        pins = binding["graph_ref_pins"]
+        if type(pins) is not dict or set(pins) != set(_PIN_FIELDS):
+            raise ScenarioTruthError("scenario refactor GraphRef closure changed")
+        for digest in pins.values():
+            _digest(digest, "refactor GraphRef pin")
+        expected = _refactor_proof(
+            freeze(binding), fixture, self.installation_pins,
+            root, root_identity,
+        )
+        if freeze(body.get("refactor_proof")) != freeze(expected):
+            raise ScenarioTruthError("scenario refactor proof is missing or changed")
+        before = [ScenarioTruthObservationFactory._target_observation(
+            row, row["baseline_value"].encode("ascii"), row["baseline_state_id"],
+        ) for row in fixture["target_roles"]]
+        after = [ScenarioTruthObservationFactory._target_observation(
+            row, row["candidate_value"].encode("ascii"), row["candidate_state_id"],
+        ) for row in fixture["target_roles"]]
+        transitions = [{
+            "phase_id": fixture["phase_expectations"][0]["phase_id"],
+            "role_id": row["role_id"],
+            "before_digest": first["value_digest"],
+            "after_digest": last["value_digest"],
+        } for row, first, last in zip(
+            fixture["target_roles"], before, after, strict=True,
+        )]
+        if (
+            body.get("before_targets") != before
+            or body.get("after_targets") != after
+            or body.get("ordered_transitions") != transitions
+            or body.get("rollback_or_compensation")
+            != thaw(fixture["rollback_or_compensation"])
+            or body.get("owner_route") != policy["owner_route_policy"]
+            or body.get("scenario_outcome") != policy["success_outcome"]
+            or body.get("assertion_results") != [
+                {"assertion_id": row["assertion_id"], "passed": True}
+                for row in fixture["assertion_expectations"]
+            ]
+        ):
+            raise ScenarioTruthError("scenario refactor observation relationships changed")
 
     def close(self) -> None:
         self._closed = True

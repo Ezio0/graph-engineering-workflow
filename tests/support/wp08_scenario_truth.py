@@ -1143,6 +1143,94 @@ def reject_current_candidate(
         del observer
         request["rollback_or_compensation"]["expected_state_id"] = "foreign"
 
+    def refactor_contract(request: dict[str, object]) -> dict[str, object]:
+        value = request["refactor_contract"]
+        if type(value) is not dict:
+            raise AssertionError("refactor rejection contract is malformed")
+        return value
+
+    def behavior_case_addition(request: dict[str, object], observer: object) -> None:
+        del observer
+        contract = refactor_contract(request)
+        added = copy.deepcopy(contract["behavior_cases"][0])
+        added["case_id"] += "-added"
+        contract["behavior_cases"].append(added)
+
+    def behavior_case_omission(request: dict[str, object], observer: object) -> None:
+        del observer
+        refactor_contract(request)["behavior_cases"].pop()
+
+    def behavior_case_reorder(request: dict[str, object], observer: object) -> None:
+        del observer
+        refactor_contract(request)["behavior_cases"].reverse()
+
+    def behavior_delta(request: dict[str, object], observer: object) -> None:
+        del observer
+        refactor_contract(request)["behavior_cases"][0]["output_digest"] = (
+            "sha256-jcs-v1:" + "f" * 64
+        )
+
+    def expected_vector_alias(request: dict[str, object], observer: object) -> None:
+        del observer
+        contract = refactor_contract(request)
+        contract["behavior_cases"][1] = copy.deepcopy(contract["behavior_cases"][0])
+
+    def caller_behavior_equivalent(request: dict[str, object], observer: object) -> None:
+        del observer
+        request["behavior_equivalent"] = True
+
+    def architecture_missing_edge(request: dict[str, object], observer: object) -> None:
+        del observer
+        refactor_contract(request)["required_edges"].pop()
+
+    def architecture_forbidden_edge(request: dict[str, object], observer: object) -> None:
+        del observer
+        contract = refactor_contract(request)
+        contract["required_edges"] = copy.deepcopy(contract["forbidden_edges"])
+
+    def architecture_path_alias(request: dict[str, object], observer: object) -> None:
+        del observer
+        edge = refactor_contract(request)["required_edges"][0]
+        edge["to_path_id"] = edge["from_path_id"]
+
+    def architecture_count_only(request: dict[str, object], observer: object) -> None:
+        del observer
+        request["architecture_edge_count"] = 1
+
+    def architecture_set_only(request: dict[str, object], observer: object) -> None:
+        del observer
+        request["architecture_nodes"] = ["layers/core", "layers/domain"]
+
+    def behavior_gate_skip(request: dict[str, object], observer: object) -> None:
+        del observer
+        refactor_contract(request)["gate_ids"].pop(0)
+
+    def environment_drift(request: dict[str, object], observer: object) -> None:
+        del observer
+        refactor_contract(request)["environment_id"] += "-foreign"
+
+    def hardcoded_threshold(request: dict[str, object], observer: object) -> None:
+        del observer
+        target = refactor_contract(request)["nonfunctional_target"]
+        target["threshold"] -= 1
+
+    def threshold_float(request: dict[str, object], observer: object) -> None:
+        del observer
+        target = refactor_contract(request)["nonfunctional_target"]
+        target["threshold"] = float(target["threshold"])
+
+    def threshold_bool(request: dict[str, object], observer: object) -> None:
+        del observer
+        refactor_contract(request)["nonfunctional_target"]["threshold"] = True
+
+    def metric_miss(request: dict[str, object], observer: object) -> None:
+        del observer
+        refactor_contract(request)["nonfunctional_target"]["metric_id"] += "-foreign"
+
+    def caller_metric_pass(request: dict[str, object], observer: object) -> None:
+        del observer
+        request["metric_passed"] = True
+
     attacks = dict((
         ("missing-role", missing_role),
         ("extra-role", extra_role),
@@ -1152,6 +1240,24 @@ def reject_current_candidate(
         ("partial-success", partial_success),
         ("stale-target", stale_target),
         ("wrong-rollback", wrong_rollback),
+        ("behavior-case-addition", behavior_case_addition),
+        ("behavior-case-omission", behavior_case_omission),
+        ("behavior-case-reorder", behavior_case_reorder),
+        ("behavior-delta", behavior_delta),
+        ("expected-vector-alias", expected_vector_alias),
+        ("caller-behavior-equivalent", caller_behavior_equivalent),
+        ("architecture-missing-edge", architecture_missing_edge),
+        ("architecture-forbidden-edge", architecture_forbidden_edge),
+        ("architecture-path-alias", architecture_path_alias),
+        ("architecture-count-only", architecture_count_only),
+        ("architecture-set-only", architecture_set_only),
+        ("behavior-gate-skip", behavior_gate_skip),
+        ("environment-drift", environment_drift),
+        ("hardcoded-threshold", hardcoded_threshold),
+        ("threshold-float", threshold_float),
+        ("threshold-bool", threshold_bool),
+        ("metric-miss", metric_miss),
+        ("caller-metric-pass", caller_metric_pass),
     ))
     try:
         for attack_id in registry_factory.rejection_attack_ids(binding["profile_id"], scenario_id):

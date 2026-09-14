@@ -3909,6 +3909,108 @@
       "selector_kind": "scenario",
       "task_id": "task:wp08-coverage:gew-psc-performance-stable-baseline-r",
       "test_id": "GEW-PSC-PERFORMANCE-STABLE-BASELINE-R"
+    },
+    {
+      "category_boundary_case_id": "GEW-PSC-REFACTOR-DEBT-ARCHITECTURE-INVARIANT-P",
+      "column_id": "boundary",
+      "disposition": "P",
+      "execution_kind": "contract-test",
+      "expected_result": "COMPLETED",
+      "oracle_digest": "sha256-jcs-v1:72c6f13e45b41965cc0a6770cf92faedf9a04b7d094086f7ad356639d0d97e76",
+      "oracle_id": "ORA-PROFILE-REFACTOR-DEBT",
+      "overlay_id": "full-planned",
+      "profile_id": "refactor-debt",
+      "request_digest": null,
+      "scenario_id": "architecture-invariant",
+      "selector_digest": "sha256-jcs-v1:e1f5f187216c3bc9970e508478ee4b322c416a2dfa4a7633614045d86467ee9b",
+      "selector_kind": "scenario",
+      "task_id": "task:wp08-coverage:gew-psc-refactor-debt-architecture-invariant-p",
+      "test_id": "GEW-PSC-REFACTOR-DEBT-ARCHITECTURE-INVARIANT-P"
+    },
+    {
+      "category_boundary_case_id": "GEW-PSC-REFACTOR-DEBT-ARCHITECTURE-INVARIANT-P",
+      "column_id": "boundary",
+      "disposition": "R",
+      "execution_kind": "contract-test",
+      "expected_result": "EXPECTED_REJECTION",
+      "oracle_digest": "sha256-jcs-v1:72c6f13e45b41965cc0a6770cf92faedf9a04b7d094086f7ad356639d0d97e76",
+      "oracle_id": "ORA-PROFILE-REFACTOR-DEBT",
+      "overlay_id": "full-planned",
+      "profile_id": "refactor-debt",
+      "request_digest": "sha256-jcs-v1:ae5620f61988333b2228ec75970a7cb2a24a6ccdb9414c5bd1cb661044730545",
+      "scenario_id": "architecture-invariant",
+      "selector_digest": "sha256-jcs-v1:a143804cdf2116d0bd5b212c79ae85a9bc410616c7299b85c1309a6fb62cb137",
+      "selector_kind": "scenario",
+      "task_id": "task:wp08-coverage:gew-psc-refactor-debt-architecture-invariant-r",
+      "test_id": "GEW-PSC-REFACTOR-DEBT-ARCHITECTURE-INVARIANT-R"
+    },
+    {
+      "category_boundary_case_id": "GEW-PSC-REFACTOR-DEBT-BEHAVIOR-CHARACTERIZATION-P",
+      "column_id": "boundary",
+      "disposition": "P",
+      "execution_kind": "contract-test",
+      "expected_result": "COMPLETED",
+      "oracle_digest": "sha256-jcs-v1:2967d66f7c89d8114a3a1ce8e81c5ef2a09d00d8962e91bd9d54e2d7b1948bda",
+      "oracle_id": "ORA-PROFILE-REFACTOR-DEBT",
+      "overlay_id": "full-planned",
+      "profile_id": "refactor-debt",
+      "request_digest": null,
+      "scenario_id": "behavior-characterization",
+      "selector_digest": "sha256-jcs-v1:182384a5ab714091b2039added9abb8b71bb63821f04f36ad96573365b093571",
+      "selector_kind": "scenario",
+      "task_id": "task:wp08-coverage:gew-psc-refactor-debt-behavior-characterization-p",
+      "test_id": "GEW-PSC-REFACTOR-DEBT-BEHAVIOR-CHARACTERIZATION-P"
+    },
+    {
+      "category_boundary_case_id": "GEW-PSC-REFACTOR-DEBT-BEHAVIOR-CHARACTERIZATION-P",
+      "column_id": "boundary",
+      "disposition": "R",
+      "execution_kind": "contract-test",
+      "expected_result": "EXPECTED_REJECTION",
+      "oracle_digest": "sha256-jcs-v1:2967d66f7c89d8114a3a1ce8e81c5ef2a09d00d8962e91bd9d54e2d7b1948bda",
+      "oracle_id": "ORA-PROFILE-REFACTOR-DEBT",
+      "overlay_id": "full-planned",
+      "profile_id": "refactor-debt",
+      "request_digest": "sha256-jcs-v1:eee57d717faf066c9fca301ee9943b60f290d8b9367fad05e6a42dffaaf2f775",
+      "scenario_id": "behavior-characterization",
+      "selector_digest": "sha256-jcs-v1:c417ed02c858ef6494069712b3cf468443c4b35b22c747c8bb1d101769c5e698",
+      "selector_kind": "scenario",
+      "task_id": "task:wp08-coverage:gew-psc-refactor-debt-behavior-characterization-r",
+      "test_id": "GEW-PSC-REFACTOR-DEBT-BEHAVIOR-CHARACTERIZATION-R"
+    },
+    {
+      "category_boundary_case_id": "GEW-PSC-REFACTOR-DEBT-NONFUNCTIONAL-TARGET-P",
+      "column_id": "boundary",
+      "disposition": "P",
+      "execution_kind": "contract-test",
+      "expected_result": "COMPLETED",
+      "oracle_digest": "sha256-jcs-v1:36a98569f5e53b1c62b5ce33d9663a9c633e89c3372f8cfbe6bddc9faebe207a",
+      "oracle_id": "ORA-PROFILE-REFACTOR-DEBT",
+      "overlay_id": "full-planned",
+      "profile_id": "refactor-debt",
+      "request_digest": null,
+      "scenario_id": "nonfunctional-target",
+      "selector_digest": "sha256-jcs-v1:243b457b09a75300daf7eacb6166dc728fa69c98c80b339408c5f60ea639d46c",
+      "selector_kind": "scenario",
+      "task_id": "task:wp08-coverage:gew-psc-refactor-debt-nonfunctional-target-p",
+      "test_id": "GEW-PSC-REFACTOR-DEBT-NONFUNCTIONAL-TARGET-P"
+    },
+    {
+      "category_boundary_case_id": "GEW-PSC-REFACTOR-DEBT-NONFUNCTIONAL-TARGET-P",
+      "column_id": "boundary",
+      "disposition": "R",
+      "execution_kind": "contract-test",
+      "expected_result": "EXPECTED_REJECTION",
+      "oracle_digest": "sha256-jcs-v1:36a98569f5e53b1c62b5ce33d9663a9c633e89c3372f8cfbe6bddc9faebe207a",
+      "oracle_id": "ORA-PROFILE-REFACTOR-DEBT",
+      "overlay_id": "full-planned",
+      "profile_id": "refactor-debt",
+      "request_digest": "sha256-jcs-v1:1364246b47b8b26e51fc5219767bb5cef4ba21175efe8ccdfd2ac87f1057822f",
+      "scenario_id": "nonfunctional-target",
+      "selector_digest": "sha256-jcs-v1:3572b1e7d1537c624f2696e21d7cafb3f5d21e41e816d6b810e45f1d8de1f6d2",
+      "selector_kind": "scenario",
+      "task_id": "task:wp08-coverage:gew-psc-refactor-debt-nonfunctional-target-r",
+      "test_id": "GEW-PSC-REFACTOR-DEBT-NONFUNCTIONAL-TARGET-R"
     }
   ],
   "oracle_bindings": [
@@ -5751,6 +5853,54 @@
         "P": "task:wp08-coverage:gew-pro-refactor-debt-target-p",
         "R": "task:wp08-coverage:gew-pro-refactor-debt-target-r"
       }
+    },
+    {
+      "category_boundary_case_id": "GEW-PSC-REFACTOR-DEBT-ARCHITECTURE-INVARIANT-P",
+      "column_id": "boundary",
+      "oracle_digest": "sha256-jcs-v1:72c6f13e45b41965cc0a6770cf92faedf9a04b7d094086f7ad356639d0d97e76",
+      "oracle_id": "ORA-PROFILE-REFACTOR-DEBT",
+      "oracle_member": "config/test-oracles/profile-refactor-debt-architecture-invariant-v1.json",
+      "oracle_raw_sha256": "b42ce5fa05ec00e822684add786da3e7a0804f85e499e39b93be16a3dda25d0b",
+      "overlay_id": "full-planned",
+      "profile_id": "refactor-debt",
+      "scenario_id": "architecture-invariant",
+      "selector_kind": "scenario",
+      "task_ids": {
+        "P": "task:wp08-coverage:gew-psc-refactor-debt-architecture-invariant-p",
+        "R": "task:wp08-coverage:gew-psc-refactor-debt-architecture-invariant-r"
+      }
+    },
+    {
+      "category_boundary_case_id": "GEW-PSC-REFACTOR-DEBT-BEHAVIOR-CHARACTERIZATION-P",
+      "column_id": "boundary",
+      "oracle_digest": "sha256-jcs-v1:2967d66f7c89d8114a3a1ce8e81c5ef2a09d00d8962e91bd9d54e2d7b1948bda",
+      "oracle_id": "ORA-PROFILE-REFACTOR-DEBT",
+      "oracle_member": "config/test-oracles/profile-refactor-debt-behavior-characterization-v1.json",
+      "oracle_raw_sha256": "dd69032b22cc59808a27f4ea0881172444f6bfb8871010cf626e0b90799e0fcd",
+      "overlay_id": "full-planned",
+      "profile_id": "refactor-debt",
+      "scenario_id": "behavior-characterization",
+      "selector_kind": "scenario",
+      "task_ids": {
+        "P": "task:wp08-coverage:gew-psc-refactor-debt-behavior-characterization-p",
+        "R": "task:wp08-coverage:gew-psc-refactor-debt-behavior-characterization-r"
+      }
+    },
+    {
+      "category_boundary_case_id": "GEW-PSC-REFACTOR-DEBT-NONFUNCTIONAL-TARGET-P",
+      "column_id": "boundary",
+      "oracle_digest": "sha256-jcs-v1:36a98569f5e53b1c62b5ce33d9663a9c633e89c3372f8cfbe6bddc9faebe207a",
+      "oracle_id": "ORA-PROFILE-REFACTOR-DEBT",
+      "oracle_member": "config/test-oracles/profile-refactor-debt-nonfunctional-target-v1.json",
+      "oracle_raw_sha256": "fa150e7b0cdd7c8cbb93b9a544ffca184acd25ba63602ddd98fe42026a92204b",
+      "overlay_id": "full-planned",
+      "profile_id": "refactor-debt",
+      "scenario_id": "nonfunctional-target",
+      "selector_kind": "scenario",
+      "task_ids": {
+        "P": "task:wp08-coverage:gew-psc-refactor-debt-nonfunctional-target-p",
+        "R": "task:wp08-coverage:gew-psc-refactor-debt-nonfunctional-target-r"
+      }
     }
   ],
   "plan_id": "urn:gew:profile-coverage-execution-plan:wp08-s4-v1",
@@ -5761,5 +5911,5 @@
   },
   "schema_version": "1.0.0",
   "support_matrix_digest": "sha256-jcs-v1:3a38e5159b08c81413b39fa156f5544eb3d56e0841081413f05d2103af9f7a95",
-  "plan_digest": "sha256-jcs-v1:1a5fc4cddfa63dd049bb4827ba90643fee3bf055848e19cc6b543bead5d80c47"
+  "plan_digest": "sha256-jcs-v1:956699afab0c7725a2eb80eba241ae13689b36d0e102dadeb1b7f00e26ff4c52"
 }

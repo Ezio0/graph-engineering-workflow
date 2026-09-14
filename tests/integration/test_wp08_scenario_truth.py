@@ -751,8 +751,8 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
         plan = api4.ProfileCoverageExecutionPlan.from_installation(
             matrix=self.matrix()
         )
-        self.assertEqual(len(plan.bindings), 230)
-        self.assertEqual(len(plan.oracle_bindings), 115)
+        self.assertEqual(len(plan.bindings), 236)
+        self.assertEqual(len(plan.oracle_bindings), 118)
         positive = fixture.run_serial_scenario_binding(
             api4=api4,
             plan=plan,
@@ -876,6 +876,156 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
         finally:
             positive.close()
             rejected.close()
+
+    def test_refactor_p_r_bindings_are_current_and_fail_closed(self) -> None:
+        api, coverage, matrix, profile, overlay = (
+            fixture._verified_runner_contracts("refactor-debt")
+        )
+        api4 = fixture.load_slice4_api()
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (236, 118))
+        for scenario in fixture.REFACTOR_SCENARIO_IDS:
+            for disposition in ("P", "R"):
+                with self.subTest(scenario=scenario, disposition=disposition):
+                    result = fixture.run_serial_scenario_binding(
+                        api4=api4,
+                        plan=plan,
+                        scenario_id=scenario,
+                        disposition=disposition,
+                        quiescent=True,
+                    )
+                    record_factory = None
+                    closed = False
+                    try:
+                        context = result.scenario_truth_context
+                        lifecycle = result.binding_lifecycle
+                        self.assertIsNotNone(context)
+                        self.assertEqual(
+                            (lifecycle.state, lifecycle.generation),
+                            ("QUIESCED", 0),
+                        )
+                        if disposition == "P":
+                            proof = context.evidence.to_dict()["refactor_proof"]
+                            self.assertEqual(
+                                tuple(
+                                    row["gate_id"]
+                                    for row in proof["gate_results"]
+                                ),
+                                tuple(
+                                    context.observer._fixture_row[
+                                        "refactor_contract"
+                                    ]["gate_ids"]
+                                ),
+                            )
+                            self.assertEqual(context.observer.mutation_count, 1)
+                        else:
+                            expected_attacks = context.registry_factory.rejection_attack_ids(
+                                "refactor-debt", scenario,
+                            )
+                            self.assertEqual(
+                                tuple(receipt.attack_id for receipt in context.receipts),
+                                expected_attacks,
+                            )
+                            self.assertTrue(
+                                all(receipt.mutation_count == 0 for receipt in context.receipts)
+                            )
+                            self.assertEqual(result.state_after, result.state_before)
+                        observation = result.observe_current()
+                        self.assertEqual(
+                            (lifecycle.state, lifecycle.generation),
+                            ("QUIESCED", 1),
+                        )
+                        record_factory = api.CoverageRecordFactory(
+                            execution_authority=result.authority,
+                            coverage_policy=coverage,
+                        )
+                        record = record_factory.issue_execution(
+                            observation,
+                            matrix=matrix,
+                            profile=profile,
+                            overlay=overlay,
+                        )
+                        decision = api.ReleaseCoverageGate.evaluate(
+                            matrix,
+                            coverage_records=(record,),
+                            coverage_factory=record_factory,
+                        )
+                        self.assertFalse(decision.passed)
+                        self.assertEqual(
+                            (lifecycle.state, lifecycle.generation),
+                            ("QUIESCED", 4),
+                        )
+                        fixture.abort_uncommitted_coverage_factory(record_factory)
+                        closed = True
+                        self.assertEqual(lifecycle.state, "PERMANENTLY_CLOSED")
+                    finally:
+                        if record_factory is not None and not closed:
+                            fixture.abort_uncommitted_coverage_factory(record_factory)
+                        result.close()
+
+    def test_refactor_proof_restores_from_cas_with_a_fresh_factory_without_replay(
+        self,
+    ) -> None:
+        from graph_engineering.application.scenario_truth import (
+            ScenarioTruthObservationFactory,
+        )
+        from graph_engineering.core.contracts.immutable import thaw
+
+        api4 = fixture.load_slice4_api()
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(
+            matrix=self.matrix(),
+        )
+        result = fixture.run_serial_scenario_binding(
+            api4=api4,
+            plan=plan,
+            scenario_id="behavior-characterization",
+            disposition="P",
+        )
+        restarted_factory = None
+        try:
+            durable_before = fixture._serial_state_signature(
+                result.probe, result.target, real_e2e=False,
+            )
+            original_projection = result.scenario_truth_context.evidence.to_dict()
+            with mock.patch.object(
+                ScenarioTruthObservationFactory,
+                "execute",
+                side_effect=AssertionError("refactor replay is forbidden"),
+            ):
+                restarted = result.application.restart(
+                    result.probe.task_application,
+                    result.probe.runtime,
+                    result.target,
+                )
+                restarted_factory = restarted._oracle._scenario_truth_factory
+                restored = restarted.current_assessment(
+                    result.probe.task_id,
+                    expected_profile_id="refactor-debt",
+                )
+            self.assertIsNotNone(restarted_factory)
+            self.assertIsNot(
+                restarted_factory,
+                result.scenario_truth_context.registry_factory,
+            )
+            self.assertEqual(
+                thaw(restored.scenario_truth_projection),
+                original_projection,
+            )
+            self.assertEqual(
+                len(restarted_factory._restored_evidence),
+                2,
+            )
+            self.assertEqual(
+                fixture._serial_state_signature(
+                    result.probe, result.target, real_e2e=False,
+                ),
+                durable_before,
+            )
+            self.assertEqual(result.scenario_truth_context.observer.mutation_count, 1)
+        finally:
+            if restarted_factory is not None:
+                restarted_factory.close()
+            result.close()
 
     def test_representative_binding_is_quiesced_before_coverage_use(self) -> None:
         fd_before = len(os.listdir("/dev/fd"))
@@ -1459,7 +1609,7 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
         api, coverage, matrix, profile, overlay = fixture._verified_runner_contracts("hotfix")
         api4 = fixture.load_slice4_api()
         plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
-        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (230, 115))
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (236, 118))
         identities = []
         for scenario in fixture.HOTFIX_GUARDED_SCENARIO_IDS:
             for disposition in ("P", "R"):
@@ -1985,7 +2135,7 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
             "GEW-PSC-MIGRATION-PARTIAL-DATA-P",
             "GEW-PSC-HOTFIX-MINIMAL-PATCH-R",
         )
-        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (230, 115))
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (236, 118))
         self.assertEqual(len(test_ids), len(set(test_ids)))
 
         results = []

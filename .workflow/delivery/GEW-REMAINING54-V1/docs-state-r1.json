@@ -1,4 +1,33 @@
 {
+  "p2c_records": [
+    {
+      "record_id": "p2c-document-check-2026-09-14-r0",
+      "state": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "node": "test-plan",
+        "artifact": "test_plan",
+        "author_id": "/root",
+        "reviewer_id": "/root/p2c_docs_reviewer_r0",
+        "targets": [
+          ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "docs/impact/graph-engineering-workflow.md",
+          "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "docs/specs/graph-engineering-workflow.md",
+          "docs/test-plans/graph-engineering-workflow.md"
+        ],
+        "revision": 0,
+        "artifact_digest": "eac07c6fed8704e47d3cc4171df8ac671f74f58385fa4c15a70ab9bc0c89da7b",
+        "previous_artifact_digest": null,
+        "open_finding_ids": []
+      },
+      "entry_commit": "551979fb6a98691ff9ebde2968f42f5052ea0a90",
+      "authority_ref": "human-decision-p1-p2-p3-r0.json#p2c_continuation_amendment",
+      "upstream": "Human-approved Intent Baseline v2 and ADR-0008; scoped P2c documentation refinement before implementation."
+    }
+  ],
   "p2b_oracle_repair_records": [
     {
       "record_id": "p2b-oracle-repair-docs-2026-09-12-r0",

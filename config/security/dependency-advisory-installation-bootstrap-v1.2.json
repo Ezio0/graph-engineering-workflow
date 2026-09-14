@@ -3,9 +3,9 @@
   "bootstrap_id": "urn:gew:dependency-advisory-installation-bootstrap:v1.2",
   "fallback": "disabled",
   "network_mode": "offline-only",
-  "profile_schema_registry_digest": "sha256-jcs-v1:72a711820c831c2f62e4eb38e481b889485fb195dcb53fe324e1a47171eb4d82",
+  "profile_schema_registry_digest": "sha256-jcs-v1:0744afb599285cc0727e6bfc578158155bffc7a762125ad8c5c048e3624e25d3",
   "profile_schema_registry_id": "urn:gew:schema-registry:profiles:1.0.0",
-  "profile_schema_registry_raw_sha256": "3ba21cb1f5c270c5c4d2eb7ec97a1818a53d4a7d82258a36cdac6f1e6b353c72",
+  "profile_schema_registry_raw_sha256": "61ade26ba81b2a461efdeb43a7f60c32156ffaeae0fed7f2fab4464a3de49b05",
   "registry_digest": "sha256-jcs-v1:c6de560d8e720780d7810788636819a05968093213dc1adb2f287b0468b3dec6",
   "registry_generation": 2,
   "registry_history_digests": [
@@ -137,5 +137,5 @@
       "source_attestation_raw_sha256": "a7fa8a37db55b536fa24bf65a3cccd7e157c37009a41d2e42bde7ebc9926f937"
     }
   ],
-  "bootstrap_digest": "sha256-jcs-v1:42194f526a2a48a217e8d509b6cc39e68666a03a224aa4adaa9b7d8cc271d694"
+  "bootstrap_digest": "sha256-jcs-v1:2e648e2cae1f61e6352ee107d8225a74104ec4d46df2d5cecbd1e12bce24e401"
 }

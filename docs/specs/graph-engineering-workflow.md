@@ -2230,3 +2230,69 @@ expensive boundary is replaced with a distinctive stopping sentinel. Forbid
 native subprocess launch and binding/performance operations within those tests.
 Reaching that boundary proves loader integration only, never a successful
 cumulative receipt or performance measurement.
+
+### P2c bounded refactor-debt contract — 2026-09-14
+
+Authority is `human-decision-p1-p2-p3-r0.json#p2c_continuation_amendment`.
+This slice implements only the three ADR-0008 refactor-debt scenarios and does
+not change Positioning, PRD intent, ADR choice, Support Matrix, runtime budget or
+the exact174 target boundary. The plan shape after this slice is exactly
+236 bindings / 118 oracle members / 38 missing; those counts are configuration
+shape and are not cumulative acceptance evidence.
+
+The installed fixture row gains an optional closed `refactor_contract` only for
+the three refactor-debt rows. All case identities, ordered input digests,
+expected output/error/side-effect digests, directed architecture edges, metric
+identity, comparator, threshold and environment identity are protected config
+data. Engine/application code contains only generic validation, observation and
+ordered-gate logic; it must not branch on profile/scenario IDs or embed fixture
+values. A refactor target's configured A and B bytes are exact JSON documents
+containing its state ID, environment ID, ordered behavior observations, directed
+architecture-edge observations and integer metric observations. Unknown fields,
+duplicate IDs/edges, noncanonical paths, non-exact scalar types, booleans where
+integers are required and unsafe integers fail closed.
+
+`refactor_contract` has an exact ordered `gate_ids` vector and closed data for:
+
+1. `behavior-equivalence`: a nonempty ordered case vector. Each case binds an
+   exact `case_id` and `input_digest` to expected output, error and side-effect
+   digests. The observer reads A before mutation and B after mutation, preserves
+   case order and requires each complete A/B vector to equal the installed
+   expectation and each other. Set/count equality, aliasing one expected vector,
+   caller equality booleans and omitted/added/reordered cases are invalid.
+2. `architecture-invariant`: a nonempty exact directed required-edge vector and
+   an exact directed forbidden-edge vector over canonical installed path IDs.
+   This gate may appear only after `behavior-equivalence`. Fresh B must contain
+   every required edge and no forbidden edge; direction and path identity are
+   material, so node-set or edge-count equality is insufficient.
+3. `nonfunctional-target`: one config-owned environment, metric ID, comparator
+   from the closed generic comparator set and safe integer threshold. This gate
+   may appear only after `behavior-equivalence` and, if an architecture gate is
+   installed, after it. Fresh B's environment and integer metric observation
+   must be exact and must satisfy the comparator. Floats, booleans, hardcoded
+   thresholds, caller-supplied results and current-environment drift fail closed.
+
+The three installed gate closures are respectively
+`[behavior-equivalence]`, `[behavior-equivalence, architecture-invariant]` and
+`[behavior-equivalence, nonfunctional-target]`, matching their ADR meanings.
+The executor evaluates the exact vector in order and appends a result only after
+that gate succeeds. Any failure raises before a later gate is evaluated. It then
+freshly rereads B and the protected installation before issuing a typed
+`refactor_proof`; a proof contains the exact A/B observations, ordered successful
+gate results, metric comparison inputs when applicable, environment identity and
+fresh-B digest. The proof is required iff `refactor_contract` is installed and
+participates in observation digesting, factory identity, issue/use/precommit,
+CAS restart rehydration and coverage currentness. Unguarded P2a and P2b guarded
+proof semantics remain unchanged.
+
+Each scenario gets one independent frozen oracle member and distinct P/R task
+bindings. Rejection closure owns the complete installed attack vector: behavior
+case omission/addition/reorder, expected alias and delta; architecture forbidden
+or missing edge, path alias, count/set-only comparison and skipped behavior gate;
+nonfunctional hardcoded/float threshold, environment drift, metric miss and
+behavior regression. Pre-mutation invalid request/config failures have zero
+target/task/event/CAS/ref/action writes. A fault observed after the fenced B write
+must issue no observation/assessment/coverage evidence and must report truthful
+nonzero mutation accounting; it may not be mislabeled as a zero-write rejection.
+No caller-provided receipt, vector, edge set, metric or pass flag can substitute
+for the installed contract plus fresh local observation.

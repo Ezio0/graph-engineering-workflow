@@ -1,4 +1,55 @@
 {
+  "p2c_packets": [
+    {
+      "record_id": "p2c-document-check-2026-09-14-r0",
+      "author_id": "/root",
+      "revision": 0,
+      "scope": "P2c bounded documentation refinement only, before implementation.",
+      "entry_commit": "551979fb6a98691ff9ebde2968f42f5052ea0a90",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "raw_sha256": "e11a939b7719b56c5955567faf6d9bfeb93dee2e3f1fd34a024d1f324a215554",
+          "bytes": 13360
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "raw_sha256": "221c5051a2ee8060b06aaa082da781bbc98a6f0e1715477dee41bcc9180a08c3",
+          "bytes": 45402
+        },
+        {
+          "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "raw_sha256": "3d920bebfc0d97adb8cabd3e7e8ba71058950f5109c58bf3c235220799a05add",
+          "bytes": 31739
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "raw_sha256": "55f94c11523675f27b394bb06f4b8a57eded8e9f3b3b899ebc7d67f78043f289",
+          "bytes": 79437
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "raw_sha256": "532c57f9245bedd614d08aa4b46e5c3836554d792da11fef0ebc579a98f20146",
+          "bytes": 71807
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "raw_sha256": "e78b3748adf6a527636fb97588b5a6b8d87e96387f077f5f75147b139e1108ba",
+          "bytes": 171788
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "raw_sha256": "995d377315ec3ba37d381f5f5b8f19b59dea12a9e714825eb116d0fc8bc8e6ae",
+          "bytes": 150610
+        }
+      ],
+      "ordered_raw_aggregate_sha256": "eac07c6fed8704e47d3cc4171df8ac671f74f58385fa4c15a70ab9bc0c89da7b",
+      "aggregate_algorithm": "SHA256 of sorted project-relative path + NUL + raw bytes + NUL",
+      "authority": "human-decision-p1-p2-p3-r0.json#p2c_continuation_amendment",
+      "prior_record_preservation": "All earlier top-level record fields are unchanged; exact committed bytes remain available at the entry commit.",
+      "evidence_boundary": "Plan236/oracle118 is target shape, not a cumulative coverage result. No implementation or cumulative execution yet."
+    }
+  ],
   "p2b_oracle_repair_packets": [
     {
       "record_id": "p2b-oracle-repair-docs-2026-09-12-r0",

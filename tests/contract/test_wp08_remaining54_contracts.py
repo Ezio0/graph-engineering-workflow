@@ -183,8 +183,8 @@ class Remaining54P1ContractsTest(unittest.TestCase):
             matrix=matrix,
         )
 
-        self.assertEqual(len(plan.bindings), 230)
-        self.assertEqual(len(plan.oracle_bindings), 115)
+        self.assertEqual(len(plan.bindings), 236)
+        self.assertEqual(len(plan.oracle_bindings), 118)
         self.assertEqual(
             tuple(
                 test_id
@@ -226,8 +226,8 @@ class Remaining54P1ContractsTest(unittest.TestCase):
         self.assertEqual(
             receipt["selector"], fixture.PERFORMANCE_REMAINING_R1_SELECTOR,
         )
-        self.assertEqual(receipt["plan_bindings"], 230)
-        self.assertEqual(receipt["oracle_bindings"], 115)
+        self.assertEqual(receipt["plan_bindings"], 236)
+        self.assertEqual(receipt["oracle_bindings"], 118)
         self.assertEqual(receipt["restart"], "current-launcher-zero")
         self.assertEqual(
             tuple(sorted(receipt["scenario_attacks"])),
@@ -265,10 +265,11 @@ class Remaining54P1ContractsTest(unittest.TestCase):
 
 
 class Remaining54P2bContractsTest(unittest.TestCase):
-    def test_p2b_cumulative_entry_uses_exact_current_checkpoint_without_running(self):
+    def test_p2b_cumulative_entry_rejects_the_newer_current_plan_without_running(self):
         _, _, _, matrix, _, _, plan = fixture._verified_plan()
         checkpoint = fixture._cumulative_checkpoint("p2b-cumulative-r1")
-        fixture._validate_cumulative_plan(plan, matrix, checkpoint)
+        with self.assertRaises(AssertionError):
+            fixture._validate_cumulative_plan(plan, matrix, checkpoint)
         self.assertEqual((checkpoint.plan_bindings, checkpoint.oracle_bindings,
                           checkpoint.missing_records), (230, 115, 44))
         self.assertEqual(checkpoint.new_test_ids, frozenset(
@@ -277,7 +278,11 @@ class Remaining54P2bContractsTest(unittest.TestCase):
             for disposition in ("P", "R")))
         self.assertTrue(callable(fixture.run_p2b_cumulative_r1_verified))
         with self.assertRaises(AssertionError):
-            fixture._validate_cumulative_plan(plan, matrix, fixture._cumulative_checkpoint("p2a-cumulative-r2"))
+            fixture._validate_cumulative_plan(
+                plan,
+                matrix,
+                fixture._cumulative_checkpoint("p2a-cumulative-r2"),
+            )
 
     def test_all_touched_schemas_conform_to_frozen_schema_profile(self):
         from graph_engineering.core.contracts.schema import SchemaProfilePolicy, validate_schema_profile
@@ -329,7 +334,7 @@ class Remaining54P2bContractsTest(unittest.TestCase):
         from tests.integration.test_wp08_scenario_truth import ScenarioTruthIntegrationTests
         plan = fixture.load_slice4_api().ProfileCoverageExecutionPlan.from_installation(
             matrix=ScenarioTruthIntegrationTests.matrix())
-        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (230, 115))
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (236, 118))
         manifest = tomllib.loads((ROOT / "pyproject.toml").read_text())
         table = manifest["tool"]["gew"]["profile"]["coverage-execution-plan"]
         for scenario in fixture.HOTFIX_GUARDED_SCENARIO_IDS:
@@ -346,6 +351,80 @@ class Remaining54P2bContractsTest(unittest.TestCase):
                 self.assertEqual(binding["disposition"], disposition)
                 self.assertEqual(binding["request_digest"], None if disposition == "P" else
                                  fixture.coverage_request_digest(fixture.hotfix_guarded_candidate(scenario, accepted=False)))
+
+
+class Remaining54P2cContractsTest(unittest.TestCase):
+    scenarios = (
+        "architecture-invariant",
+        "behavior-characterization",
+        "nonfunctional-target",
+    )
+
+    def test_p2c_plan_oracles_and_package_membership_are_exact(self) -> None:
+        import tomllib
+        from graph_engineering import _SOURCE_FILES
+        from tests.support.source_checkout_attestation import SOURCE_FILES
+        from tests.integration.test_wp08_scenario_truth import ScenarioTruthIntegrationTests
+
+        plan = fixture.load_slice4_api().ProfileCoverageExecutionPlan.from_installation(
+            matrix=ScenarioTruthIntegrationTests.matrix(),
+        )
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (236, 118))
+        manifest = tomllib.loads((ROOT / "pyproject.toml").read_text())
+        vectors = manifest["tool"]["gew"]["profile"]["coverage-execution-plan"]["oracle-vectors"]
+        for scenario in self.scenarios:
+            path = f"config/test-oracles/profile-refactor-debt-{scenario}-v1.json"
+            self.assertTrue((ROOT / path).is_file())
+            self.assertIn(path, _SOURCE_FILES)
+            self.assertIn(path, SOURCE_FILES)
+            vector = next(
+                row for row in vectors
+                if row.get("profile-id") == "refactor-debt"
+                and row.get("scenario-id") == scenario
+            )
+            self.assertEqual(vector["oracle-source"], path)
+            self.assertEqual(vector["oracle-resource"], "graph_engineering/" + path)
+            self.assertEqual(
+                vector["oracle-raw-sha256"],
+                hashlib.sha256((ROOT / path).read_bytes()).hexdigest(),
+            )
+            for disposition in ("P", "R"):
+                test_id = f"GEW-PSC-REFACTOR-DEBT-{scenario.upper()}-{disposition}"
+                binding = plan.binding(test_id)
+                self.assertEqual(binding["profile_id"], "refactor-debt")
+                self.assertEqual(binding["scenario_id"], scenario)
+                self.assertEqual(binding["disposition"], disposition)
+
+    def test_refactor_values_are_config_owned_not_embedded_in_logic(self) -> None:
+        rows = json.loads(
+            (ROOT / "config/profiles/scenario-truth-fixture-registry-v1.json").read_text()
+        )["fixtures"]
+        refactor = [row for row in rows if "refactor_contract" in row]
+        self.assertEqual(
+            {(row["profile_id"], row["scenario_id"]) for row in refactor},
+            {("refactor-debt", scenario) for scenario in self.scenarios},
+        )
+        sources = "\n".join(
+            path.read_text()
+            for path in (
+                ROOT / "core/graph_engineering/core/scenario_truth.py",
+                ROOT / "application/graph_engineering/application/scenario_truth.py",
+            )
+        )
+        for row in refactor:
+            contract = row["refactor_contract"]
+            self.assertNotIn(contract["contract_id"], sources)
+            self.assertNotIn(contract["environment_id"], sources)
+            for case in contract["behavior_cases"]:
+                self.assertNotIn(case["case_id"], sources)
+            for edge in (*contract["required_edges"], *contract["forbidden_edges"]):
+                self.assertNotIn(edge["from_path_id"], sources)
+                self.assertNotIn(edge["to_path_id"], sources)
+            if contract["nonfunctional_target"] is not None:
+                self.assertNotIn(
+                    contract["nonfunctional_target"]["metric_id"], sources,
+                )
+                self.assertNotIn(str(contract["nonfunctional_target"]["threshold"]), sources)
 
 
 if __name__ == "__main__":
