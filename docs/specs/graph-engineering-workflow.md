@@ -2296,3 +2296,67 @@ must issue no observation/assessment/coverage evidence and must report truthful
 nonzero mutation accounting; it may not be mislabeled as a zero-write rejection.
 No caller-provided receipt, vector, edge set, metric or pass flag can substitute
 for the installed contract plus fresh local observation.
+
+### P2d bounded incident-response contract — 2026-09-14
+
+Authority is `human-decision-p1-p2-p3-r0.json#p2d_continuation_amendment`.
+This slice implements only the four ADR-0008 incident-response scenarios and
+does not change Positioning, PRD intent, ADR choice, Support Matrix, runtime
+budget or the exact174 target boundary. The post-slice plan shape is exactly
+244 bindings / 122 oracle members / 30 missing; this is configuration shape,
+not a cumulative acceptance result.
+
+The installed fixture gains an optional closed `incident_contract` on exactly
+the four incident rows. It owns the exact effect classification, ordered gate
+IDs, signal identity and freshness, impact roles and severity, affected and
+unaffected roles, authority and fence identities, residual state, compensation
+identity, prohibited original action, fresh service predicates, follow-up fact,
+unknown claim, allowed/forbidden action vectors, owner route and expected inner
+outcome. Scenario target bytes carry closed incident observations. Core and
+application code validate these generically and must not branch on profile or
+scenario IDs or embed incident values.
+
+The four config-owned closures are cumulative in meaning but independently
+evidenced:
+
+1. Detection accepts only the installed fresh signal and its exact impact scope
+   and severity; missing, stale or foreign signals, scope substitution and
+   caller-provided severity/detection claims fail closed.
+2. Containment requires the known detected effect, current authority/fence and
+   exact affected isolation, while every unaffected observation remains
+   byte-exact and residual state plus owner route remain current. Over/under
+   containment, unaffected mutation or stale authority/fence/target fails.
+3. Recovery requires a known and contained effect, the authorized compensation
+   rather than replay of the original action, fresh complete service predicates,
+   and nonempty follow-up/residual facts. Unknown/uncontained, partial/stale
+   verification, replay or missing follow-up fails.
+4. Unknown-effects has the exact inner outcome `blocked-owner-route`. It retains
+   the unknown claim and residual state, performs no target mutation, replay,
+   recovery or compensation, emits no `service-restored` claim, and routes the
+   config-owned nonempty owner. Its outer P record means only that this blocking
+   behavior was correctly proven.
+
+The executor evaluates the configured gate vector in order and appends a result
+only after that gate succeeds. A failure prevents every later gate. It issues a
+typed `incident_proof` only after fresh target/config reads. The proof binds the
+exact incident observation, ordered successful gates and actions, mutation
+accounting, unknown-claim disposition, owner route and inner outcome. It is
+required iff `incident_contract` is installed and participates in observation
+digesting, factory identity, issue/use/precommit, CAS restart rehydration and
+coverage currentness. P2a, P2b and P2c proof semantics stay unchanged.
+
+Each scenario receives one independent frozen oracle member and distinct P/R
+task bindings. Scenario recovery uses only
+`profile-incident-response-scenario-recovery-v1.json`; the mandatory
+`profile-incident-response-recovery-v1.json` remains byte-identical. Pre-mutation
+invalid request/config failures have zero target/task/event/CAS/ref/action writes.
+Any fault after a started write issues no observation/assessment/coverage and
+reports truthful nonzero mutation accounting. Unknown-effects positive execution
+is a separately proven zero-mutation blocked outcome, not a rejection receipt.
+
+No database/event/GraphRef/API, dependency, daemon, runtime-adapter, network,
+real-repository or production-operation change is introduced. Existing
+assessment 1.3 and one task-referenced CAS remain the durable carriers. This
+refines ADR-0008 without a new ADR. Target expansion, material architecture
+change, cumulative/performance execution, P3 or irreversible work returns to
+Human first.

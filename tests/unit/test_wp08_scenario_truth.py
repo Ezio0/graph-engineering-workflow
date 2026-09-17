@@ -1873,6 +1873,277 @@ class RefactorScenarioTruthTests(unittest.TestCase):
                         )
 
 
+class IncidentScenarioTruthTests(unittest.TestCase):
+    scenarios = {
+        "detection": ("detection",),
+        "containment": ("detection", "containment"),
+        "recovery": ("detection", "containment", "recovery"),
+        "unknown-effects": ("owner-route",),
+    }
+
+    def setUp(self) -> None:
+        self.factory = ScenarioTruthRegistryFactory.from_installation()
+        self.addCleanup(self.factory.close)
+
+    def observer(self, scenario: str):  # type: ignore[no-untyped-def]
+        binding = ScenarioTruthAuthorityTests.binding()
+        task_id = f"task:wp08-scenario:incident-response:{scenario}:p"
+        binding.update(
+            task_id=task_id,
+            profile_id="incident-response",
+            scenario_id=scenario,
+            branch_id="branch:" + task_id,
+            ref_id="ref:" + task_id,
+        )
+        root = tempfile.TemporaryDirectory(prefix="gew-p2d-unit-")
+        self.addCleanup(root.cleanup)
+        return self.factory.observation_factory(
+            self.factory.registry(), binding=binding, private_root=root.name,
+        )
+
+    def test_incident_scenarios_emit_ordered_config_owned_proofs(self) -> None:
+        for scenario, expected_gates in self.scenarios.items():
+            with self.subTest(scenario=scenario):
+                observer = self.observer(scenario)
+                contract = observer._fixture_row["incident_contract"]
+                self.assertEqual(tuple(contract["gate_ids"]), expected_gates)
+                before = observer.target_bytes()
+                observation = observer.execute(observer.request())
+                self.factory.require_current(observation)
+                proof = observation.to_dict()["incident_proof"]
+                self.assertEqual(
+                    tuple(row["gate_id"] for row in proof["gate_results"]),
+                    expected_gates,
+                )
+                self.assertEqual(proof["inner_outcome"], contract["expected_outcome"])
+                self.assertEqual(proof["owner_route"], contract["owner_route"])
+                if scenario == "unknown-effects":
+                    self.assertEqual(observation.scenario_outcome, "blocked-owner-route")
+                    self.assertEqual(observer.mutation_count, 0)
+                    self.assertEqual(observer.target_bytes(), before)
+                    self.assertEqual(observation.ordered_transitions, ())
+                    self.assertEqual(proof["action_ids"], [])
+                    self.assertTrue(proof["unknown_claim_retained"])
+                    self.assertFalse(proof["service_restored"])
+                else:
+                    self.assertEqual(observation.scenario_outcome, "scenario-completed")
+                    self.assertEqual(observer.mutation_count, 1)
+
+    def test_incident_contract_validation_is_generic_and_closed(self) -> None:
+        self.assertTrue(hasattr(scenario_core, "validate_incident_contract"))
+        rows = self.factory.registry().registry.fixture_document["fixtures"]
+        incident_rows = tuple(row for row in rows if "incident_contract" in row)
+        self.assertEqual(len(incident_rows), 4)
+        for row in incident_rows:
+            scenario_core.validate_incident_contract(
+                row["incident_contract"], row["target_roles"],
+            )
+            for mutate in (
+                lambda value: value.update(extra=True),
+                lambda value: value["gate_ids"].__setitem__(0, "foreign-gate"),
+                lambda value: value["impact_roles"].append(
+                    value["impact_roles"][0]
+                ),
+                lambda value: value.update(owner_route=""),
+                lambda value: value["forbidden_action_ids"].append(
+                    value["forbidden_action_ids"][0]
+                ),
+            ):
+                from graph_engineering.core.contracts.immutable import freeze, thaw
+                changed = thaw(freeze(row["incident_contract"]))
+                mutate(changed)
+                with self.assertRaises(ScenarioTruthError):
+                    scenario_core.validate_incident_contract(
+                        changed, row["target_roles"],
+                    )
+
+    def test_recovery_requires_contained_input_and_complete_current_proof(
+        self,
+    ) -> None:
+        from graph_engineering.core.contracts.immutable import freeze, thaw
+
+        rows = self.factory.registry().registry.fixture_document["fixtures"]
+        row = next(
+            item for item in rows
+            if item["profile_id"] == "incident-response"
+            and item["scenario_id"] == "recovery"
+        )
+        contract = thaw(freeze(row["incident_contract"]))
+        target = row["target_roles"][0]
+        before = json.loads(target["baseline_value"])
+        after = json.loads(target["candidate_value"])
+
+        for mutate in (
+            lambda value: value.update(compensation_id=None),
+            lambda value: value.update(service_predicates=[]),
+            lambda value: value.update(follow_up_id=None),
+            lambda value: value.update(contained_input=None),
+        ):
+            changed = thaw(freeze(contract))
+            mutate(changed)
+            with self.subTest(contract_mutation=mutate), self.assertRaises(
+                ScenarioTruthError
+            ):
+                scenario_core.validate_incident_contract(
+                    changed, row["target_roles"],
+                )
+
+        for field, replacement in (
+            ("affected_roles", []),
+            ("authority_id", None),
+            ("fence_id", None),
+            ("action_ids", []),
+        ):
+            changed_before = thaw(freeze(before))
+            changed_before[field] = replacement
+            with self.subTest(uncontained_field=field), self.assertRaises(
+                ScenarioTruthError
+            ):
+                scenario_core.evaluate_incident_gates(
+                    contract, changed_before, after,
+                )
+
+        partial = thaw(freeze(after))
+        partial["service_observations"].pop()
+        stale = thaw(freeze(after))
+        stale["service_observations"][0]["current_epoch"] += 1
+        fabricated = thaw(freeze(after))
+        fabricated["service_restored"] = False
+        missing_follow_up = thaw(freeze(after))
+        missing_follow_up["follow_up_id"] = None
+        for label, changed_after in (
+            ("partial", partial),
+            ("stale", stale),
+            ("fabricated", fabricated),
+            ("missing-follow-up", missing_follow_up),
+        ):
+            with self.subTest(recovery_proof=label), self.assertRaises(
+                ScenarioTruthError
+            ):
+                scenario_core.evaluate_incident_gates(
+                    contract, before, changed_after,
+                )
+
+    def test_configured_incident_rejections_cover_the_approved_matrix(self) -> None:
+        expected = {
+            "detection": {
+                "caller-detection-claim",
+                "impact-scope-substitution",
+                "severity-substitution",
+                "signal-missing",
+                "signal-stale",
+                "signal-substitution",
+            },
+            "containment": {
+                "affected-scope-substitution",
+                "authority-omission",
+                "authority-substitution",
+                "caller-scope-claim",
+                "fence-omission",
+                "fence-substitution",
+                "over-containment",
+                "residual-state-substitution",
+                "stale-target",
+                "unaffected-mutation",
+            },
+            "recovery": {
+                "follow-up-omission",
+                "original-action-replay",
+                "service-restored-claim",
+                "service-verification-omission",
+                "service-verification-stale",
+                "uncontained-recovery-input",
+                "unknown-recovery-input",
+            },
+            "unknown-effects": {
+                "forbidden-unknown-action",
+                "owner-route-empty",
+                "owner-route-substitution",
+                "service-restored-claim",
+                "unknown-claim-consumed",
+                "unknown-recovery-attempt",
+            },
+        }
+        rows = self.factory.registry().registry.fixture_document["fixtures"]
+        actual = {
+            row["scenario_id"]: set(row["rejection_attack_ids"])
+            for row in rows
+            if row["profile_id"] == "incident-response"
+        }
+        self.assertEqual(actual, expected)
+
+    def test_incident_gate_negatives_fail_before_later_gates(self) -> None:
+        from graph_engineering.core.contracts.immutable import freeze, thaw
+
+        rows = {
+            row["scenario_id"]: row
+            for row in self.factory.registry().registry.fixture_document["fixtures"]
+            if row["profile_id"] == "incident-response"
+        }
+        containment = rows["containment"]
+        contract = thaw(freeze(containment["incident_contract"]))
+        before = json.loads(containment["target_roles"][0]["baseline_value"])
+        after = json.loads(containment["target_roles"][0]["candidate_value"])
+        containment_attacks = []
+        over = thaw(freeze(after))
+        over["affected_roles"].append("foreign-target")
+        containment_attacks.append(over)
+        unaffected = thaw(freeze(after))
+        unaffected["unaffected_observations"][0]["value_digest"] = (
+            "sha256-jcs-v1:" + "f" * 64
+        )
+        containment_attacks.append(unaffected)
+        stale_authority = thaw(freeze(after))
+        stale_authority["authority_id"] = None
+        containment_attacks.append(stale_authority)
+        stale_fence = thaw(freeze(after))
+        stale_fence["fence_id"] = None
+        containment_attacks.append(stale_fence)
+        stale_residual = thaw(freeze(after))
+        stale_residual["residual_state_id"] += "-foreign"
+        containment_attacks.append(stale_residual)
+        for changed in containment_attacks:
+            with self.assertRaises(ScenarioTruthError):
+                scenario_core.evaluate_incident_gates(contract, before, changed)
+
+        recovery = rows["recovery"]
+        recovery_contract = thaw(freeze(recovery["incident_contract"]))
+        recovery_before = json.loads(
+            recovery["target_roles"][0]["baseline_value"]
+        )
+        recovery_after = json.loads(
+            recovery["target_roles"][0]["candidate_value"]
+        )
+        recovery_before["affected_roles"] = []
+        with mock.patch.object(
+            scenario_core,
+            "_evaluate_recovery_gate",
+            side_effect=AssertionError("recovery gate must not run"),
+        ) as later, self.assertRaises(ScenarioTruthError):
+            scenario_core.evaluate_incident_gates(
+                recovery_contract, recovery_before, recovery_after,
+            )
+        later.assert_not_called()
+
+        unknown = rows["unknown-effects"]
+        unknown_contract = thaw(freeze(unknown["incident_contract"]))
+        unknown_before = json.loads(unknown["target_roles"][0]["baseline_value"])
+        for field, value in (
+            ("action_ids", ["action:incident:recovery-v1"]),
+            ("service_restored", True),
+            ("owner_route", ""),
+            ("unknown_claim_retained", False),
+        ):
+            changed = thaw(freeze(unknown_before))
+            changed[field] = value
+            with self.subTest(unknown_field=field), self.assertRaises(
+                ScenarioTruthError
+            ):
+                scenario_core.evaluate_incident_gates(
+                    unknown_contract, unknown_before, changed,
+                )
+
+
 class CumulativeEntryTests(unittest.TestCase):
     """Entry/control-flow evidence only; never launches cumulative workloads."""
 
@@ -2143,7 +2414,7 @@ class OracleClosureEntryTests(unittest.TestCase):
             stack.enter_context(redirect_stderr(StringIO()))
             yield
 
-    def test_checkpoint_sets_preserve_history_and_extend_current_p2c(self):
+    def test_checkpoint_sets_preserve_history_and_extend_current_p2d(self):
         from tests.support import wp08_release_coverage as fixture
 
         p2a = fixture.expected_oracle_binding_identities(
@@ -2176,9 +2447,22 @@ class OracleClosureEntryTests(unittest.TestCase):
             )
             for scenario in fixture.REFACTOR_SCENARIO_IDS
         }
-        self.assertEqual((len(current), len(set(current))), (118, 118))
-        self.assertEqual(set(current), set(p2b) | refactor_additions)
+        incident_additions = {
+            (
+                "ORA-PROFILE-INCIDENT-RESPONSE",
+                "incident-response",
+                "scenario",
+                "boundary",
+                scenario,
+            )
+            for scenario in fixture.INCIDENT_SCENARIO_IDS
+        }
+        self.assertEqual((len(current), len(set(current))), (122, 122))
+        self.assertEqual(
+            set(current), set(p2b) | refactor_additions | incident_additions,
+        )
         self.assertFalse(set(p2b) & refactor_additions)
+        self.assertFalse((set(p2b) | refactor_additions) & incident_additions)
 
     def test_real_installed_loader_uses_current_or_explicit_checkpoint(self):
         from tests.support import wp08_release_coverage as fixture
@@ -2187,10 +2471,28 @@ class OracleClosureEntryTests(unittest.TestCase):
             _, _, _, matrix, _, _, plan = fixture._verified_plan()
             self.assertEqual(
                 (len(plan.bindings), len(plan.oracle_bindings)),
-                (236, 118),
+                (244, 122),
             )
             fixture._validate_cumulative_plan(
-                plan, matrix, fixture._P2C_CURRENT_CHECKPOINT,
+                plan, matrix, fixture._P2D_CURRENT_CHECKPOINT,
+            )
+            recovery = next(
+                row for row in plan.oracle_bindings
+                if row["oracle_member"]
+                == "config/test-oracles/profile-incident-response-recovery-v1.json"
+            )
+            scenario_recovery = next(
+                row for row in plan.oracle_bindings
+                if row["oracle_member"]
+                == "config/test-oracles/profile-incident-response-scenario-recovery-v1.json"
+            )
+            self.assertEqual(
+                recovery["oracle_raw_sha256"],
+                "6e223a032f5549ce5489bd11877ec1309c437cf858568539e437da694024527c",
+            )
+            self.assertNotEqual(
+                recovery["oracle_raw_sha256"],
+                scenario_recovery["oracle_raw_sha256"],
             )
             for selector in (
                 fixture.P2A_CUMULATIVE_R2_SELECTOR,
@@ -2228,7 +2530,7 @@ class OracleClosureEntryTests(unittest.TestCase):
             self.assertEqual(boundary.call_count, 1)
             self.assertEqual(
                 len(boundary.call_args.kwargs["plan"].oracle_bindings),
-                118,
+                122,
             )
         for selector in (
             fixture.P2A_CUMULATIVE_R2_SELECTOR,

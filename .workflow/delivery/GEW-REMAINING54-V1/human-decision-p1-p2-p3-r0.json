@@ -1,4 +1,61 @@
 {
+  "p2d_continuation_amendment": {
+    "amendment_id": "GEW-REMAINING54-P2D-BOUNDED-V1",
+    "observed_at_utc": "2026-09-14T07:16:40Z",
+    "human_approval": "批准",
+    "approval_context": "Approval of the immediately preceding focused request for P2d documentation cross-check, TDD implementation, bounded strict-serial tests and independent review only. No cumulative run, performance workload, monitoring, commit, push or network action was requested or approved.",
+    "baseline_commit": "4dd633441be244ca4c19cac54f8011b0a6bdfcb0",
+    "scope": "Implement and independently review only incident-response/detection, incident-response/containment, incident-response/recovery and incident-response/unknown-effects under ADR-0008, with eight P/R bindings and four oracle members. Preserve the exact174 source-edit target allowlist.",
+    "authorized_actions": [
+      "documentation",
+      "implementation",
+      "verification",
+      "independent-review",
+      "candidate",
+      "review"
+    ],
+    "ordered_incident_contract": [
+      "detect-and-bind-exact-impact-scope",
+      "contain-known-effect-with-exact-unaffected-state",
+      "recover-known-contained-effect-with-fresh-service-verification",
+      "block-and-owner-route-unknown-effect-without-replay-or-recovery"
+    ],
+    "failure_contract": "Any failed earlier incident gate prevents every later gate from running. Unknown-effects positive coverage proves the exact blocked-owner-route inner outcome only; it performs no replay or recovery, preserves the unknown claim and cannot claim service-restored. Rejection evidence proves fail-closed behavior only and cannot substitute for positive scenario evidence.",
+    "expected_plan_shape": {
+      "bindings": 244,
+      "oracle_bindings": 122,
+      "remaining_bindings": 30
+    },
+    "oracle_identity_boundary": "The scenario recovery oracle must use config/test-oracles/profile-incident-response-scenario-recovery-v1.json. The mandatory config/test-oracles/profile-incident-response-recovery-v1.json remains byte-identical and retains its existing identity and meaning.",
+    "evidence_boundary": "The expected plan shape is configuration shape only, not a cumulative dynamic-gate result. Historical P2a, P2b and P2c receipts remain bound to their committed sources. This authorization permits bounded local evidence and independent review only.",
+    "test_boundary": "TDD RED before implementation; strict serial fresh private roots; individually bounded native test commands at most 600 seconds; stop on first failure or timeout and investigate. Do not invoke any cumulative selector, performance workload or monitor.",
+    "allowed_targets_unchanged": 174,
+    "no_new_source_edit_targets": true,
+    "protected_files": [
+      "config/verification/wp-07a-gate.json",
+      "tests/support/wp08_dependency_security.py",
+      "tests/support/wp08_migration_rehearsal.py",
+      "config/test-oracles/profile-incident-response-recovery-v1.json"
+    ],
+    "prohibited": [
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "WP10",
+      "external-communication",
+      "cumulative-run",
+      "cumulative-rerun",
+      "performance-workload",
+      "monitoring-restoration",
+      "P3",
+      "source-edit-target-expansion",
+      "budget-change"
+    ],
+    "preservation": "Use append-only P2d records in existing authorized record paths and preserve every P2a/P2b/P2c approval, finding, digest, run result and acceptance record. Do not migrate workflow record formats or modify the original Envelope, PRD Intent Baseline v2 or ADR-0008 intent."
+  },
   "p2c_continuation_amendment": {
     "amendment_id": "GEW-REMAINING54-P2C-BOUNDED-V1",
     "observed_at_utc": "2026-09-14T02:05:18Z",

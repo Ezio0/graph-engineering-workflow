@@ -263,11 +263,11 @@
           "role_id": "primary-target",
           "path_id": "targets/primary-target.state",
           "baseline_state_id": "A",
-          "baseline_value": "incident-response:containment:primary-target:A\n",
+          "baseline_value": "{\"state_id\":\"A\",\"signal\":{\"signal_id\":\"signal:incident:detected-v1\",\"observed_epoch\":10,\"current_epoch\":10,\"max_age_epochs\":1},\"impact_roles\":[\"primary-target\"],\"severity\":\"high\",\"affected_roles\":[],\"unaffected_observations\":[{\"observation_id\":\"service:secondary\",\"value_digest\":\"sha256-jcs-v1:5462e5c029236b23ea410b4321fbfe429b19792f12f94e2e73f1372a8d0ba016\"}],\"authority_id\":null,\"fence_id\":null,\"residual_state_id\":\"residual:incident:detected-v1\",\"action_ids\":[],\"service_observations\":[],\"follow_up_id\":null,\"unknown_claim_id\":null,\"unknown_claim_retained\":false,\"service_restored\":false,\"owner_route\":\"owner:incident-response:containment\",\"inner_outcome\":\"incident-detected\"}\n",
           "candidate_state_id": "B",
-          "candidate_value": "incident-response:containment:primary-target:B\n",
+          "candidate_value": "{\"state_id\":\"B\",\"signal\":{\"signal_id\":\"signal:incident:detected-v1\",\"observed_epoch\":10,\"current_epoch\":10,\"max_age_epochs\":1},\"impact_roles\":[\"primary-target\"],\"severity\":\"high\",\"affected_roles\":[\"primary-target\"],\"unaffected_observations\":[{\"observation_id\":\"service:secondary\",\"value_digest\":\"sha256-jcs-v1:5462e5c029236b23ea410b4321fbfe429b19792f12f94e2e73f1372a8d0ba016\"}],\"authority_id\":\"authority:incident:containment-v1\",\"fence_id\":\"fence:incident:containment-v1\",\"residual_state_id\":\"residual:incident:contained-v1\",\"action_ids\":[\"action:incident:contain-primary-v1\"],\"service_observations\":[],\"follow_up_id\":null,\"unknown_claim_id\":null,\"unknown_claim_retained\":false,\"service_restored\":false,\"owner_route\":\"owner:incident-response:containment\",\"inner_outcome\":\"scenario-completed\"}\n",
           "rollback_state_id": "A",
-          "rollback_value": "incident-response:containment:primary-target:A\n"
+          "rollback_value": "{\"state_id\":\"A\",\"signal\":{\"signal_id\":\"signal:incident:detected-v1\",\"observed_epoch\":10,\"current_epoch\":10,\"max_age_epochs\":1},\"impact_roles\":[\"primary-target\"],\"severity\":\"high\",\"affected_roles\":[],\"unaffected_observations\":[{\"observation_id\":\"service:secondary\",\"value_digest\":\"sha256-jcs-v1:5462e5c029236b23ea410b4321fbfe429b19792f12f94e2e73f1372a8d0ba016\"}],\"authority_id\":null,\"fence_id\":null,\"residual_state_id\":\"residual:incident:detected-v1\",\"action_ids\":[],\"service_observations\":[],\"follow_up_id\":null,\"unknown_claim_id\":null,\"unknown_claim_retained\":false,\"service_restored\":false,\"owner_route\":\"owner:incident-response:containment\",\"inner_outcome\":\"incident-detected\"}\n"
         }
       ],
       "phase_expectations": [
@@ -294,12 +294,68 @@
           "expected": true
         }
       ],
-      "rollback_or_compensation": {
-        "kind": "rollback",
-        "expected_state_id": "A",
-        "required": true
+  "rollback_or_compensation": {
+    "kind": "rollback",
+    "expected_state_id": "A",
+    "required": true
+  },
+  "rejection_attack_ids": [
+    "affected-scope-substitution",
+    "authority-omission",
+    "authority-substitution",
+    "caller-scope-claim",
+    "fence-omission",
+    "fence-substitution",
+    "over-containment",
+    "residual-state-substitution",
+    "stale-target",
+    "unaffected-mutation"
+  ],
+  "incident_contract": {
+        "contract_id": "incident-contract:containment:v1",
+        "effect_classification": "known",
+        "gate_ids": [
+          "detection",
+          "containment"
+        ],
+        "signal": {
+          "signal_id": "signal:incident:detected-v1",
+          "observed_epoch": 10,
+          "current_epoch": 10,
+          "max_age_epochs": 1
+        },
+        "impact_roles": [
+          "primary-target"
+        ],
+        "severity": "high",
+        "affected_roles": [
+          "primary-target"
+        ],
+        "unaffected_observations": [
+          {
+            "observation_id": "service:secondary",
+            "value_digest": "sha256-jcs-v1:5462e5c029236b23ea410b4321fbfe429b19792f12f94e2e73f1372a8d0ba016"
+          }
+        ],
+        "authority_id": "authority:incident:containment-v1",
+        "fence_id": "fence:incident:containment-v1",
+        "residual_state_id": "residual:incident:contained-v1",
+        "action_ids": [
+          "action:incident:contain-primary-v1"
+        ],
+        "forbidden_action_ids": [
+          "action:incident:original-v1"
+        ],
+        "compensation_id": null,
+        "original_action_id": "action:incident:original-v1",
+        "service_predicates": [],
+        "follow_up_id": null,
+        "contained_input": null,
+        "unknown_claim_id": null,
+        "owner_route": "owner:incident-response:containment",
+        "expected_outcome": "scenario-completed"
       },
-      "fixture_digest": "sha256-jcs-v1:899507bacaa5199eb8798248233feb5a71e0aff6474c994fbf76a4c28753aa16"
+      "fixture_digest": "sha256-jcs-v1:9ef8e2d8d4153961e7c02efe6156eb5b387a3ba93b703efdbe25c1f439223e5f"
     },
     {
       "fixture_id": "fixture:incident-response:detection:v1",
@@ -310,11 +366,11 @@
           "role_id": "primary-target",
           "path_id": "targets/primary-target.state",
           "baseline_state_id": "A",
-          "baseline_value": "incident-response:detection:primary-target:A\n",
+          "baseline_value": "{\"state_id\":\"A\",\"signal\":{\"signal_id\":\"signal:incident:detected-v1\",\"observed_epoch\":10,\"current_epoch\":10,\"max_age_epochs\":1},\"impact_roles\":[\"primary-target\"],\"severity\":\"high\",\"affected_roles\":[],\"unaffected_observations\":[],\"authority_id\":null,\"fence_id\":null,\"residual_state_id\":\"residual:incident:unassessed-v1\",\"action_ids\":[],\"service_observations\":[],\"follow_up_id\":null,\"unknown_claim_id\":null,\"unknown_claim_retained\":false,\"service_restored\":false,\"owner_route\":\"owner:incident-response:detection\",\"inner_outcome\":\"pending-detection\"}\n",
           "candidate_state_id": "B",
-          "candidate_value": "incident-response:detection:primary-target:B\n",
+          "candidate_value": "{\"state_id\":\"B\",\"signal\":{\"signal_id\":\"signal:incident:detected-v1\",\"observed_epoch\":10,\"current_epoch\":10,\"max_age_epochs\":1},\"impact_roles\":[\"primary-target\"],\"severity\":\"high\",\"affected_roles\":[],\"unaffected_observations\":[],\"authority_id\":null,\"fence_id\":null,\"residual_state_id\":\"residual:incident:detected-v1\",\"action_ids\":[],\"service_observations\":[],\"follow_up_id\":null,\"unknown_claim_id\":null,\"unknown_claim_retained\":false,\"service_restored\":false,\"owner_route\":\"owner:incident-response:detection\",\"inner_outcome\":\"scenario-completed\"}\n",
           "rollback_state_id": "A",
-          "rollback_value": "incident-response:detection:primary-target:A\n"
+          "rollback_value": "{\"state_id\":\"A\",\"signal\":{\"signal_id\":\"signal:incident:detected-v1\",\"observed_epoch\":10,\"current_epoch\":10,\"max_age_epochs\":1},\"impact_roles\":[\"primary-target\"],\"severity\":\"high\",\"affected_roles\":[],\"unaffected_observations\":[],\"authority_id\":null,\"fence_id\":null,\"residual_state_id\":\"residual:incident:unassessed-v1\",\"action_ids\":[],\"service_observations\":[],\"follow_up_id\":null,\"unknown_claim_id\":null,\"unknown_claim_retained\":false,\"service_restored\":false,\"owner_route\":\"owner:incident-response:detection\",\"inner_outcome\":\"pending-detection\"}\n"
         }
       ],
       "phase_expectations": [
@@ -341,12 +397,54 @@
           "expected": true
         }
       ],
-      "rollback_or_compensation": {
-        "kind": "rollback",
-        "expected_state_id": "A",
-        "required": true
+  "rollback_or_compensation": {
+    "kind": "rollback",
+    "expected_state_id": "A",
+    "required": true
+  },
+  "rejection_attack_ids": [
+    "caller-detection-claim",
+    "impact-scope-substitution",
+    "severity-substitution",
+    "signal-missing",
+    "signal-stale",
+    "signal-substitution"
+  ],
+  "incident_contract": {
+        "contract_id": "incident-contract:detection:v1",
+        "effect_classification": "known",
+        "gate_ids": [
+          "detection"
+        ],
+        "signal": {
+          "signal_id": "signal:incident:detected-v1",
+          "observed_epoch": 10,
+          "current_epoch": 10,
+          "max_age_epochs": 1
+        },
+        "impact_roles": [
+          "primary-target"
+        ],
+        "severity": "high",
+        "affected_roles": [],
+        "unaffected_observations": [],
+        "authority_id": null,
+        "fence_id": null,
+        "residual_state_id": "residual:incident:detected-v1",
+        "action_ids": [],
+        "forbidden_action_ids": [
+          "action:incident:original-v1"
+        ],
+        "compensation_id": null,
+        "original_action_id": "action:incident:original-v1",
+        "service_predicates": [],
+        "follow_up_id": null,
+        "contained_input": null,
+        "unknown_claim_id": null,
+        "owner_route": "owner:incident-response:detection",
+        "expected_outcome": "scenario-completed"
       },
-      "fixture_digest": "sha256-jcs-v1:937f47a35118bfd9b7cffe51338fc422c5ecfda47c89500fd8bc7cb80199821e"
+      "fixture_digest": "sha256-jcs-v1:1d86a1d51f52f735b1cd5f9f20726c2c95bb491ab50dee189f028c24647a68d0"
     },
     {
       "fixture_id": "fixture:incident-response:recovery:v1",
@@ -357,11 +455,11 @@
           "role_id": "primary-target",
           "path_id": "targets/primary-target.state",
           "baseline_state_id": "A",
-          "baseline_value": "incident-response:recovery:primary-target:A\n",
+          "baseline_value": "{\"state_id\":\"A\",\"signal\":{\"signal_id\":\"signal:incident:detected-v1\",\"observed_epoch\":10,\"current_epoch\":10,\"max_age_epochs\":1},\"impact_roles\":[\"primary-target\"],\"severity\":\"high\",\"affected_roles\":[\"primary-target\"],\"unaffected_observations\":[{\"observation_id\":\"service:secondary\",\"value_digest\":\"sha256-jcs-v1:5462e5c029236b23ea410b4321fbfe429b19792f12f94e2e73f1372a8d0ba016\"}],\"authority_id\":\"authority:incident:containment-v1\",\"fence_id\":\"fence:incident:containment-v1\",\"residual_state_id\":\"residual:incident:contained-v1\",\"action_ids\":[\"action:incident:contain-primary-v1\"],\"service_observations\":[],\"follow_up_id\":null,\"unknown_claim_id\":null,\"unknown_claim_retained\":false,\"service_restored\":false,\"owner_route\":\"owner:incident-response:recovery\",\"inner_outcome\":\"incident-contained\"}\n",
           "candidate_state_id": "B",
-          "candidate_value": "incident-response:recovery:primary-target:B\n",
+          "candidate_value": "{\"state_id\":\"B\",\"signal\":{\"signal_id\":\"signal:incident:detected-v1\",\"observed_epoch\":10,\"current_epoch\":10,\"max_age_epochs\":1},\"impact_roles\":[\"primary-target\"],\"severity\":\"high\",\"affected_roles\":[\"primary-target\"],\"unaffected_observations\":[{\"observation_id\":\"service:secondary\",\"value_digest\":\"sha256-jcs-v1:5462e5c029236b23ea410b4321fbfe429b19792f12f94e2e73f1372a8d0ba016\"}],\"authority_id\":\"authority:incident:recovery-v1\",\"fence_id\":\"fence:incident:recovery-v1\",\"residual_state_id\":\"residual:incident:post-recovery-follow-up-v1\",\"action_ids\":[\"action:incident:compensate-primary-v1\"],\"service_observations\":[{\"predicate_id\":\"service:data-consistency\",\"value_digest\":\"sha256-jcs-v1:b4abea114bc73accc9456f15c2180dfd19d7b3584a7834c71078aea60d98a7f6\",\"observed_epoch\":12,\"current_epoch\":12,\"max_age_epochs\":0},{\"predicate_id\":\"service:health\",\"value_digest\":\"sha256-jcs-v1:a1e5dcf4b3dcf9d4c5cf5c5f72948bab0d9d3ceed48018df563991cc1e094d32\",\"observed_epoch\":12,\"current_epoch\":12,\"max_age_epochs\":0}],\"follow_up_id\":\"follow-up:incident:postmortem-v1\",\"unknown_claim_id\":null,\"unknown_claim_retained\":false,\"service_restored\":true,\"owner_route\":\"owner:incident-response:recovery\",\"inner_outcome\":\"scenario-completed\"}\n",
           "rollback_state_id": "A",
-          "rollback_value": "incident-response:recovery:primary-target:A\n"
+          "rollback_value": "{\"state_id\":\"A\",\"signal\":{\"signal_id\":\"signal:incident:detected-v1\",\"observed_epoch\":10,\"current_epoch\":10,\"max_age_epochs\":1},\"impact_roles\":[\"primary-target\"],\"severity\":\"high\",\"affected_roles\":[\"primary-target\"],\"unaffected_observations\":[{\"observation_id\":\"service:secondary\",\"value_digest\":\"sha256-jcs-v1:5462e5c029236b23ea410b4321fbfe429b19792f12f94e2e73f1372a8d0ba016\"}],\"authority_id\":\"authority:incident:containment-v1\",\"fence_id\":\"fence:incident:containment-v1\",\"residual_state_id\":\"residual:incident:contained-v1\",\"action_ids\":[\"action:incident:contain-primary-v1\"],\"service_observations\":[],\"follow_up_id\":null,\"unknown_claim_id\":null,\"unknown_claim_retained\":false,\"service_restored\":false,\"owner_route\":\"owner:incident-response:recovery\",\"inner_outcome\":\"incident-contained\"}\n"
         }
       ],
       "phase_expectations": [
@@ -388,12 +486,90 @@
           "expected": true
         }
       ],
-      "rollback_or_compensation": {
-        "kind": "rollback",
-        "expected_state_id": "A",
-        "required": true
+  "rollback_or_compensation": {
+    "kind": "rollback",
+    "expected_state_id": "A",
+    "required": true
+  },
+  "rejection_attack_ids": [
+    "follow-up-omission",
+    "original-action-replay",
+    "service-restored-claim",
+    "service-verification-omission",
+    "service-verification-stale",
+    "uncontained-recovery-input",
+    "unknown-recovery-input"
+  ],
+  "incident_contract": {
+        "contract_id": "incident-contract:recovery:v1",
+        "effect_classification": "known",
+        "gate_ids": [
+          "detection",
+          "containment",
+          "recovery"
+        ],
+        "signal": {
+          "signal_id": "signal:incident:detected-v1",
+          "observed_epoch": 10,
+          "current_epoch": 10,
+          "max_age_epochs": 1
+        },
+        "impact_roles": [
+          "primary-target"
+        ],
+        "severity": "high",
+        "affected_roles": [
+          "primary-target"
+        ],
+        "unaffected_observations": [
+          {
+            "observation_id": "service:secondary",
+            "value_digest": "sha256-jcs-v1:5462e5c029236b23ea410b4321fbfe429b19792f12f94e2e73f1372a8d0ba016"
+          }
+        ],
+        "authority_id": "authority:incident:recovery-v1",
+        "fence_id": "fence:incident:recovery-v1",
+        "residual_state_id": "residual:incident:post-recovery-follow-up-v1",
+        "action_ids": [
+          "action:incident:compensate-primary-v1"
+        ],
+        "forbidden_action_ids": [
+          "action:incident:original-v1"
+        ],
+        "compensation_id": "action:incident:compensate-primary-v1",
+        "original_action_id": "action:incident:original-v1",
+        "service_predicates": [
+          {
+            "predicate_id": "service:data-consistency",
+            "value_digest": "sha256-jcs-v1:b4abea114bc73accc9456f15c2180dfd19d7b3584a7834c71078aea60d98a7f6",
+            "observed_epoch": 12,
+            "current_epoch": 12,
+            "max_age_epochs": 0
+          },
+          {
+            "predicate_id": "service:health",
+            "value_digest": "sha256-jcs-v1:a1e5dcf4b3dcf9d4c5cf5c5f72948bab0d9d3ceed48018df563991cc1e094d32",
+            "observed_epoch": 12,
+            "current_epoch": 12,
+            "max_age_epochs": 0
+          }
+        ],
+        "follow_up_id": "follow-up:incident:postmortem-v1",
+        "contained_input": {
+          "state_id": "A",
+          "authority_id": "authority:incident:containment-v1",
+          "fence_id": "fence:incident:containment-v1",
+          "residual_state_id": "residual:incident:contained-v1",
+          "action_ids": [
+            "action:incident:contain-primary-v1"
+          ],
+          "inner_outcome": "incident-contained"
+        },
+        "unknown_claim_id": null,
+        "owner_route": "owner:incident-response:recovery",
+        "expected_outcome": "scenario-completed"
       },
-      "fixture_digest": "sha256-jcs-v1:d25b5df80dd8d1321314a22ac6a5901c457f27edbc9241b250ff49d5969023c4"
+      "fixture_digest": "sha256-jcs-v1:2f94489c4369fe30393172db9a1602451093a6e7097372105c2cb148d22044c5"
     },
     {
       "fixture_id": "fixture:incident-response:unknown-effects:v1",
@@ -404,43 +580,92 @@
           "role_id": "primary-target",
           "path_id": "targets/primary-target.state",
           "baseline_state_id": "A",
-          "baseline_value": "incident-response:unknown-effects:primary-target:A\n",
-          "candidate_state_id": "B",
-          "candidate_value": "incident-response:unknown-effects:primary-target:B\n",
+          "baseline_value": "{\"state_id\":\"A\",\"signal\":{\"signal_id\":\"signal:incident:unknown-v1\",\"observed_epoch\":10,\"current_epoch\":10,\"max_age_epochs\":1},\"impact_roles\":[\"primary-target\"],\"severity\":\"unknown\",\"affected_roles\":[],\"unaffected_observations\":[{\"observation_id\":\"service:secondary\",\"value_digest\":\"sha256-jcs-v1:5462e5c029236b23ea410b4321fbfe429b19792f12f94e2e73f1372a8d0ba016\"}],\"authority_id\":null,\"fence_id\":null,\"residual_state_id\":\"residual:incident:unknown-v1\",\"action_ids\":[],\"service_observations\":[],\"follow_up_id\":null,\"unknown_claim_id\":\"claim:incident:unknown-effects-v1\",\"unknown_claim_retained\":true,\"service_restored\":false,\"owner_route\":\"owner:incident-response:unknown-effects\",\"inner_outcome\":\"blocked-owner-route\"}\n",
+          "candidate_state_id": "A",
+          "candidate_value": "{\"state_id\":\"A\",\"signal\":{\"signal_id\":\"signal:incident:unknown-v1\",\"observed_epoch\":10,\"current_epoch\":10,\"max_age_epochs\":1},\"impact_roles\":[\"primary-target\"],\"severity\":\"unknown\",\"affected_roles\":[],\"unaffected_observations\":[{\"observation_id\":\"service:secondary\",\"value_digest\":\"sha256-jcs-v1:5462e5c029236b23ea410b4321fbfe429b19792f12f94e2e73f1372a8d0ba016\"}],\"authority_id\":null,\"fence_id\":null,\"residual_state_id\":\"residual:incident:unknown-v1\",\"action_ids\":[],\"service_observations\":[],\"follow_up_id\":null,\"unknown_claim_id\":\"claim:incident:unknown-effects-v1\",\"unknown_claim_retained\":true,\"service_restored\":false,\"owner_route\":\"owner:incident-response:unknown-effects\",\"inner_outcome\":\"blocked-owner-route\"}\n",
           "rollback_state_id": "A",
-          "rollback_value": "incident-response:unknown-effects:primary-target:A\n"
+          "rollback_value": "{\"state_id\":\"A\",\"signal\":{\"signal_id\":\"signal:incident:unknown-v1\",\"observed_epoch\":10,\"current_epoch\":10,\"max_age_epochs\":1},\"impact_roles\":[\"primary-target\"],\"severity\":\"unknown\",\"affected_roles\":[],\"unaffected_observations\":[{\"observation_id\":\"service:secondary\",\"value_digest\":\"sha256-jcs-v1:5462e5c029236b23ea410b4321fbfe429b19792f12f94e2e73f1372a8d0ba016\"}],\"authority_id\":null,\"fence_id\":null,\"residual_state_id\":\"residual:incident:unknown-v1\",\"action_ids\":[],\"service_observations\":[],\"follow_up_id\":null,\"unknown_claim_id\":\"claim:incident:unknown-effects-v1\",\"unknown_claim_retained\":true,\"service_restored\":false,\"owner_route\":\"owner:incident-response:unknown-effects\",\"inner_outcome\":\"blocked-owner-route\"}\n"
         }
       ],
       "phase_expectations": [
         {
-          "phase_id": "apply-candidate",
+          "phase_id": "block-owner-route",
           "from_state_id": "A",
-          "to_state_id": "B"
+          "to_state_id": "A"
         }
       ],
       "assertion_expectations": [
         {
-          "assertion_id": "acceptance:primary-target",
-          "kind": "acceptance",
+          "assertion_id": "blocked:primary-target",
+          "kind": "blocked",
           "expected": true
         },
         {
-          "assertion_id": "fresh-target:primary-target",
-          "kind": "fresh-target",
+          "assertion_id": "claim-retained:primary-target",
+          "kind": "claim-retained",
           "expected": true
         },
         {
-          "assertion_id": "regression:primary-target",
-          "kind": "regression",
+          "assertion_id": "no-action:primary-target",
+          "kind": "no-action",
           "expected": true
         }
       ],
-      "rollback_or_compensation": {
-        "kind": "rollback",
-        "expected_state_id": "A",
-        "required": true
+  "rollback_or_compensation": {
+    "kind": "none",
+    "expected_state_id": "A",
+    "required": false
+  },
+  "rejection_attack_ids": [
+    "forbidden-unknown-action",
+    "owner-route-empty",
+    "owner-route-substitution",
+    "service-restored-claim",
+    "unknown-claim-consumed",
+    "unknown-recovery-attempt"
+  ],
+  "incident_contract": {
+        "contract_id": "incident-contract:unknown-effects:v1",
+        "effect_classification": "unknown",
+        "gate_ids": [
+          "owner-route"
+        ],
+        "signal": {
+          "signal_id": "signal:incident:unknown-v1",
+          "observed_epoch": 10,
+          "current_epoch": 10,
+          "max_age_epochs": 1
+        },
+        "impact_roles": [
+          "primary-target"
+        ],
+        "severity": "unknown",
+        "affected_roles": [],
+        "unaffected_observations": [
+          {
+            "observation_id": "service:secondary",
+            "value_digest": "sha256-jcs-v1:5462e5c029236b23ea410b4321fbfe429b19792f12f94e2e73f1372a8d0ba016"
+          }
+        ],
+        "authority_id": null,
+        "fence_id": null,
+        "residual_state_id": "residual:incident:unknown-v1",
+        "action_ids": [],
+        "forbidden_action_ids": [
+          "action:incident:original-v1",
+          "action:incident:recovery-v1",
+          "claim:service-restored"
+        ],
+        "compensation_id": null,
+        "original_action_id": "action:incident:original-v1",
+        "service_predicates": [],
+        "follow_up_id": null,
+        "contained_input": null,
+        "unknown_claim_id": "claim:incident:unknown-effects-v1",
+        "owner_route": "owner:incident-response:unknown-effects",
+        "expected_outcome": "blocked-owner-route"
       },
-      "fixture_digest": "sha256-jcs-v1:430a5535815862551e82769bec267aa1fc086d5662e4ae1f7546f2e0fbd8f1f7"
+      "fixture_digest": "sha256-jcs-v1:21c4542a1c567b72186b5053e1e5246b7f712362100d53af7bd2bd74086ead28"
     },
     {
       "fixture_id": "fixture:new-feature:multi-target:v1",
@@ -787,5 +1012,5 @@
       "fixture_digest": "sha256-jcs-v1:584d5e4651c6f14c5469b43271eec2d1db5b85d5c89c1e9770364e9d0bef327f"
     }
   ],
-  "registry_digest": "sha256-jcs-v1:d2fc4483e25bb7f4869c012b5c321cbdfed724427447df00812c8b926be51254"
+  "registry_digest": "sha256-jcs-v1:c770fada0716fa36336ed076793321ba9252025df2be4452bb3c95bb48341818"
 }

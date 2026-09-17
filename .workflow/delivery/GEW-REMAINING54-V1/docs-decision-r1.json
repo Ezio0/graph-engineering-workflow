@@ -1,4 +1,27 @@
 {
+  "p2d_records": [
+    {
+      "record_id": "p2d-document-check-2026-09-14-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "implementation",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "test-plan",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:66da510f2bcdb9c56f8a4f17639087be2aced6c79a12e4babb0ef5b9bc1980cd",
+          "state": "sha256:e2919a7699e153cd706d89bdd4011603e54fe29c401b78abee6f31d3a8ccc07f",
+          "verdict": "sha256:5a2ac3b4c4bedd7a0eefd93ad0d13793a1eac87d1ce1e91f3928fa2001ce8914"
+        }
+      }
+    }
+  ],
   "p2c_records": [
     {
       "record_id": "p2c-document-check-2026-09-14-r0",

@@ -32,11 +32,11 @@
   "maximum_repetition_count": 999,
   "maximum_warmup_count": 31,
   "network_mode": "offline-only",
-  "profile_schema_registry_digest": "sha256-jcs-v1:0744afb599285cc0727e6bfc578158155bffc7a762125ad8c5c048e3624e25d3",
-  "profile_schema_registry_raw_sha256": "61ade26ba81b2a461efdeb43a7f60c32156ffaeae0fed7f2fab4464a3de49b05",
+  "profile_schema_registry_digest": "sha256-jcs-v1:6edff2b2bc8469319d3e1df5d17740fadb0b4629822a90c9e97ceafc11073095",
+  "profile_schema_registry_raw_sha256": "9ffa41240d0ab89a2171c798bf49918fa299b7a3120e680694a64bfa9a25d33d",
   "profile_schema_registry_resource": "graph_engineering/config/contracts/profile-schema-registry-v1.json",
   "profile_schema_registry_source": "config/contracts/profile-schema-registry-v1.json",
-  "protected_closure_digest": "sha256-jcs-v1:a27cc83da5328e52e482b439590e0a2fcdfe124c4f93f589a7c2e662ea574efa",
+  "protected_closure_digest": "sha256-jcs-v1:1d3e89e803625182bd63b4d2d0f7b6e30c464e4943a9d7c8f56299a36f1bb782",
   "protected_resources": [
     {
       "raw_sha256": "9de5fcfdc5fdcbf6a84aa5adb4e58ecd4291af571210c4ae38b6fc74aae07f32",
@@ -64,7 +64,7 @@
       "source": "application/graph_engineering/application/profile_execution.py"
     },
     {
-      "raw_sha256": "61ade26ba81b2a461efdeb43a7f60c32156ffaeae0fed7f2fab4464a3de49b05",
+      "raw_sha256": "9ffa41240d0ab89a2171c798bf49918fa299b7a3120e680694a64bfa9a25d33d",
       "resource": "graph_engineering/config/contracts/profile-schema-registry-v1.json",
       "source": "config/contracts/profile-schema-registry-v1.json"
     },
@@ -356,5 +356,5 @@
   "source_registry_raw_sha256": "8e61edb0f2ba802d8b6e6c9ceb04808e308f4566d7b85a9b5b8651d9d748d3e4",
   "source_registry_resource": "graph_engineering/config/performance/performance-source-registry-v1.json",
   "source_registry_source": "config/performance/performance-source-registry-v1.json",
-  "bootstrap_digest": "sha256-jcs-v1:9fcc804423494561b186a8267a503cf3867c182623b27f5268dcf6bf86a1cd90"
+  "bootstrap_digest": "sha256-jcs-v1:cc4b957d074733a6286c42f8be56601e5813edc75ea6e58e09ffc57de3fefc0e"
 }

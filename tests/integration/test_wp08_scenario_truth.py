@@ -751,8 +751,8 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
         plan = api4.ProfileCoverageExecutionPlan.from_installation(
             matrix=self.matrix()
         )
-        self.assertEqual(len(plan.bindings), 236)
-        self.assertEqual(len(plan.oracle_bindings), 118)
+        self.assertEqual(len(plan.bindings), 244)
+        self.assertEqual(len(plan.oracle_bindings), 122)
         positive = fixture.run_serial_scenario_binding(
             api4=api4,
             plan=plan,
@@ -883,7 +883,7 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
         )
         api4 = fixture.load_slice4_api()
         plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
-        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (236, 118))
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (244, 122))
         for scenario in fixture.REFACTOR_SCENARIO_IDS:
             for disposition in ("P", "R"):
                 with self.subTest(scenario=scenario, disposition=disposition):
@@ -955,6 +955,105 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
                             (lifecycle.state, lifecycle.generation),
                             ("QUIESCED", 4),
                         )
+                        fixture.abort_uncommitted_coverage_factory(record_factory)
+                        closed = True
+                        self.assertEqual(lifecycle.state, "PERMANENTLY_CLOSED")
+                    finally:
+                        if record_factory is not None and not closed:
+                            fixture.abort_uncommitted_coverage_factory(record_factory)
+                        result.close()
+
+    def test_incident_response_p_r_bindings_are_current_and_fail_closed(
+        self,
+    ) -> None:
+        api, coverage, matrix, profile, overlay = (
+            fixture._verified_runner_contracts("incident-response")
+        )
+        api4 = fixture.load_slice4_api()
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (244, 122))
+        mandatory_recovery = next(
+            row for row in plan.oracle_bindings
+            if row["oracle_member"]
+            == "config/test-oracles/profile-incident-response-recovery-v1.json"
+        )
+        self.assertEqual(
+            mandatory_recovery["oracle_raw_sha256"],
+            "6e223a032f5549ce5489bd11877ec1309c437cf858568539e437da694024527c",
+        )
+        for scenario in fixture.INCIDENT_SCENARIO_IDS:
+            for disposition in ("P", "R"):
+                with self.subTest(scenario=scenario, disposition=disposition):
+                    result = fixture.run_serial_scenario_binding(
+                        api4=api4,
+                        plan=plan,
+                        scenario_id=scenario,
+                        disposition=disposition,
+                        quiescent=True,
+                    )
+                    record_factory = None
+                    closed = False
+                    try:
+                        context = result.scenario_truth_context
+                        lifecycle = result.binding_lifecycle
+                        self.assertIsNotNone(context)
+                        self.assertEqual(
+                            (lifecycle.state, lifecycle.generation),
+                            ("QUIESCED", 0),
+                        )
+                        if disposition == "P":
+                            projection = context.evidence.to_dict()
+                            proof = projection["incident_proof"]
+                            self.assertEqual(
+                                tuple(row["gate_id"] for row in proof["gate_results"]),
+                                tuple(
+                                    context.observer._fixture_row[
+                                        "incident_contract"
+                                    ]["gate_ids"]
+                                ),
+                            )
+                            if scenario == "unknown-effects":
+                                self.assertEqual(context.observer.mutation_count, 0)
+                                self.assertEqual(projection["ordered_transitions"], [])
+                                self.assertEqual(proof["action_ids"], [])
+                                self.assertTrue(proof["unknown_claim_retained"])
+                                self.assertFalse(proof["service_restored"])
+                            else:
+                                self.assertEqual(context.observer.mutation_count, 1)
+                        else:
+                            expected_attacks = context.registry_factory.rejection_attack_ids(
+                                "incident-response", scenario,
+                            )
+                            self.assertEqual(
+                                tuple(receipt.attack_id for receipt in context.receipts),
+                                expected_attacks,
+                            )
+                            self.assertTrue(
+                                all(
+                                    receipt.mutation_count == 0
+                                    and receipt.request_unchanged
+                                    and receipt.target_bytes_unchanged
+                                    for receipt in context.receipts
+                                )
+                            )
+                            self.assertEqual(result.state_after, result.state_before)
+                        observation = result.observe_current()
+                        record_factory = api.CoverageRecordFactory(
+                            execution_authority=result.authority,
+                            coverage_policy=coverage,
+                        )
+                        record = record_factory.issue_execution(
+                            observation,
+                            matrix=matrix,
+                            profile=profile,
+                            overlay=overlay,
+                        )
+                        decision = api.ReleaseCoverageGate.evaluate(
+                            matrix,
+                            coverage_records=(record,),
+                            coverage_factory=record_factory,
+                        )
+                        self.assertFalse(decision.passed)
                         fixture.abort_uncommitted_coverage_factory(record_factory)
                         closed = True
                         self.assertEqual(lifecycle.state, "PERMANENTLY_CLOSED")
@@ -1609,7 +1708,7 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
         api, coverage, matrix, profile, overlay = fixture._verified_runner_contracts("hotfix")
         api4 = fixture.load_slice4_api()
         plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
-        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (236, 118))
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (244, 122))
         identities = []
         for scenario in fixture.HOTFIX_GUARDED_SCENARIO_IDS:
             for disposition in ("P", "R"):
@@ -2135,7 +2234,7 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
             "GEW-PSC-MIGRATION-PARTIAL-DATA-P",
             "GEW-PSC-HOTFIX-MINIMAL-PATCH-R",
         )
-        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (236, 118))
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (244, 122))
         self.assertEqual(len(test_ids), len(set(test_ids)))
 
         results = []

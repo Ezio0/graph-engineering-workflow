@@ -951,3 +951,34 @@ Authority: `human-decision-p1-p2-p3-r0.json#p2c_continuation_amendment`.
 Do not launch a cumulative selector or performance workload, restore monitoring,
 enter P2d/P3, expand targets/budgets, use network or perform commit/push/merge/
 deploy/release/external communication. Stop at the next Human authority gate.
+
+### P2d bounded delivery plan — 2026-09-14
+
+Authority: `human-decision-p1-p2-p3-r0.json#p2d_continuation_amendment`.
+
+1. Cross-check ADR-0008, Spec, Impact, this Plan and Test Plan; freeze the closed
+   config-owned incident contract, exact blocked unknown-effects semantics,
+   P/R/oracle identities and 244/122/30 plan shape. Persist append-only document
+   evidence and obtain independent artifact review before implementation.
+2. Add focused RED tests first for absent incident contracts/proofs/oracles/plan
+   bindings; signal/scope/freshness; affected/unaffected containment; known,
+   authorized and freshly verified recovery; exact unknown blocking; fail-fast
+   ordering; mutation accounting; identity/currentness and mandatory-oracle bytes.
+3. Extend the existing scenario schema/core/application path generically. Populate
+   only the four installed fixture contracts/observations from config; never
+   embed scenario IDs, signals, roles, severity, authority/fence, action IDs,
+   predicates or routes in logic. Add eight bindings and four independent oracle
+   members and reconcile only actual downstream digests/package resources.
+4. Run strict-serial focused RED/GREEN and retained P2a/P2b/P2c regressions in
+   fresh private roots. Bound every native command to at most600 seconds and stop
+   on first failure. Verify exact244/122/30 shape, source/package/current pins,
+   zero replay on restart, lifecycle closure and protected-file preservation.
+5. Freeze an exact current implementation manifest, obtain independent
+   implementation review, run bounded verification and obtain independent
+   Candidate and technical reviews in existing authorized record containers.
+   Findings follow the deterministic reducer; all eight bindings stay missing on
+   failure.
+
+Do not launch cumulative or performance work, restore monitoring, enter P3,
+expand targets/budgets, use network or commit/push/merge/deploy/release/external
+communication. Stop at the next Human authority gate.

@@ -514,6 +514,372 @@ def validate_refactor_contract(value: object, targets: object) -> None:
     evaluate_refactor_gates(contract, before, after)
 
 
+_INCIDENT_CONTRACT_FIELDS = (
+    "contract_id", "effect_classification", "gate_ids", "signal",
+    "impact_roles", "severity", "affected_roles", "unaffected_observations",
+    "authority_id", "fence_id", "residual_state_id", "action_ids",
+    "forbidden_action_ids", "compensation_id", "original_action_id",
+    "service_predicates", "follow_up_id", "contained_input",
+    "unknown_claim_id", "owner_route", "expected_outcome",
+)
+_INCIDENT_SIGNAL_FIELDS = (
+    "signal_id", "observed_epoch", "current_epoch", "max_age_epochs",
+)
+_INCIDENT_UNAFFECTED_FIELDS = ("observation_id", "value_digest")
+_INCIDENT_SERVICE_FIELDS = (
+    "predicate_id", "value_digest", "observed_epoch", "current_epoch",
+    "max_age_epochs",
+)
+_INCIDENT_CONTAINED_INPUT_FIELDS = (
+    "state_id", "authority_id", "fence_id", "residual_state_id",
+    "action_ids", "inner_outcome",
+)
+_INCIDENT_OBSERVATION_FIELDS = (
+    "state_id", "signal", "impact_roles", "severity", "affected_roles",
+    "unaffected_observations", "authority_id", "fence_id",
+    "residual_state_id", "action_ids", "service_observations", "follow_up_id",
+    "unknown_claim_id", "unknown_claim_retained", "service_restored",
+    "owner_route", "inner_outcome",
+)
+_INCIDENT_GATE_ORDERS = {
+    ("detection",),
+    ("detection", "containment"),
+    ("detection", "containment", "recovery"),
+    ("owner-route",),
+}
+
+
+def _optional_text(value: object, label: str) -> str | None:
+    if value is None:
+        return None
+    return _text(value, label)
+
+
+def _fresh_record(
+    value: object, fields: tuple[str, ...], label: str,
+) -> Mapping[str, object]:
+    row = _exact(value, fields, label)
+    _text(row[fields[0]], f"{label} ID")
+    observed = _integer(row["observed_epoch"], f"{label} observed epoch")
+    current = _integer(row["current_epoch"], f"{label} current epoch")
+    maximum = _integer(row["max_age_epochs"], f"{label} maximum age")
+    if observed > current or current - observed > maximum:
+        raise ScenarioTruthError(f"{label} is stale")
+    return row
+
+
+def _unaffected_vector(value: object, label: str) -> tuple[Mapping[str, object], ...]:
+    if type(value) is not list:
+        raise ScenarioTruthError(f"{label} is not an exact list")
+    rows: list[Mapping[str, object]] = []
+    ids: list[str] = []
+    for item in value:
+        row = _exact(item, _INCIDENT_UNAFFECTED_FIELDS, label)
+        ids.append(_text(row["observation_id"], "unaffected observation ID"))
+        _digest(row["value_digest"], "unaffected observation digest")
+        rows.append(row)
+    if tuple(ids) != tuple(sorted(set(ids))):
+        raise ScenarioTruthError("unaffected observations are not canonical and unique")
+    return tuple(rows)
+
+
+def _service_vector(value: object, label: str) -> tuple[Mapping[str, object], ...]:
+    if type(value) is not list:
+        raise ScenarioTruthError(f"{label} is not an exact list")
+    rows: list[Mapping[str, object]] = []
+    ids: list[str] = []
+    for item in value:
+        row = _fresh_record(item, _INCIDENT_SERVICE_FIELDS, label)
+        ids.append(_text(row["predicate_id"], "service predicate ID"))
+        _digest(row["value_digest"], "service predicate digest")
+        rows.append(row)
+    if tuple(ids) != tuple(sorted(set(ids))):
+        raise ScenarioTruthError("service predicates are not canonical and unique")
+    return tuple(rows)
+
+
+def _contained_input(value: object) -> Mapping[str, object] | None:
+    if value is None:
+        return None
+    row = _exact(
+        value, _INCIDENT_CONTAINED_INPUT_FIELDS, "incident contained input",
+    )
+    _text(row["state_id"], "contained input state ID")
+    _text(row["authority_id"], "contained input authority ID")
+    _text(row["fence_id"], "contained input fence ID")
+    _text(row["residual_state_id"], "contained input residual state ID")
+    _ordered_text(row["action_ids"], "contained input action IDs")
+    _text(row["inner_outcome"], "contained input outcome")
+    return row
+
+
+def _incident_contract(value: object) -> Mapping[str, object]:
+    if isinstance(value, Mapping) and type(value) is not dict:
+        value = thaw(value)
+    contract = _exact(value, _INCIDENT_CONTRACT_FIELDS, "incident contract")
+    _text(contract["contract_id"], "incident contract ID")
+    classification = _text(
+        contract["effect_classification"], "incident effect classification",
+    )
+    gates = _ordered_text(contract["gate_ids"], "incident gate IDs")
+    if gates not in _INCIDENT_GATE_ORDERS:
+        raise ScenarioTruthError("incident gate order is invalid")
+    signal = _fresh_record(
+        contract["signal"], _INCIDENT_SIGNAL_FIELDS, "incident signal",
+    )
+    del signal
+    impact_roles = _ordered_text(contract["impact_roles"], "incident impact roles")
+    _text(contract["severity"], "incident severity")
+    affected = _ordered_text(
+        contract["affected_roles"], "incident affected roles", allow_empty=True,
+    )
+    unaffected = _unaffected_vector(
+        contract["unaffected_observations"], "incident unaffected observations",
+    )
+    authority = _optional_text(contract["authority_id"], "incident authority ID")
+    fence = _optional_text(contract["fence_id"], "incident fence ID")
+    _text(contract["residual_state_id"], "incident residual state ID")
+    actions = _ordered_text(contract["action_ids"], "incident action IDs", allow_empty=True)
+    forbidden = _ordered_text(
+        contract["forbidden_action_ids"], "incident forbidden action IDs",
+    )
+    compensation = _optional_text(
+        contract["compensation_id"], "incident compensation ID",
+    )
+    original = _text(contract["original_action_id"], "incident original action ID")
+    services = _service_vector(contract["service_predicates"], "service predicates")
+    follow_up = _optional_text(contract["follow_up_id"], "incident follow-up ID")
+    contained_input = _contained_input(contract["contained_input"])
+    unknown_claim = _optional_text(
+        contract["unknown_claim_id"], "incident unknown claim ID",
+    )
+    _text(contract["owner_route"], "incident owner route")
+    _text(contract["expected_outcome"], "incident expected outcome")
+    if original not in forbidden or set(actions) & set(forbidden):
+        raise ScenarioTruthError("incident action closure conflicts")
+    recovery = gates[-1] == "recovery"
+    containment = "containment" in gates
+    owner_route = gates == ("owner-route",)
+    if classification not in {"known", "unknown"}:
+        raise ScenarioTruthError("incident effect classification is unsupported")
+    if (
+        (classification == "unknown") != owner_route
+        or (tuple(affected) == tuple(impact_roles)) != containment
+        or (authority is not None) != containment
+        or (fence is not None) != containment
+        or (compensation is not None) != recovery
+        or bool(services) != recovery
+        or (follow_up is not None) != recovery
+        or (contained_input is not None) != recovery
+        or (bool(unknown_claim) != owner_route)
+        or (owner_route and (actions or affected or authority or fence))
+        or (recovery and tuple(actions) != (compensation,))
+        or (not recovery and compensation is not None)
+        or (containment and not unaffected)
+        or (
+            contained_input is not None
+            and (
+                contract["original_action_id"] in contained_input["action_ids"]
+                or set(contained_input["action_ids"]) & set(forbidden)
+            )
+        )
+    ):
+        raise ScenarioTruthError("incident contract gate closure is inconsistent")
+    return contract
+
+
+def _incident_observation(value: object, label: str) -> Mapping[str, object]:
+    if isinstance(value, Mapping) and type(value) is not dict:
+        value = thaw(value)
+    row = _exact(value, _INCIDENT_OBSERVATION_FIELDS, label)
+    _text(row["state_id"], f"{label} state ID")
+    _fresh_record(row["signal"], _INCIDENT_SIGNAL_FIELDS, f"{label} signal")
+    _ordered_text(row["impact_roles"], f"{label} impact roles")
+    _text(row["severity"], f"{label} severity")
+    _ordered_text(row["affected_roles"], f"{label} affected roles", allow_empty=True)
+    _unaffected_vector(row["unaffected_observations"], f"{label} unaffected")
+    _optional_text(row["authority_id"], f"{label} authority")
+    _optional_text(row["fence_id"], f"{label} fence")
+    _text(row["residual_state_id"], f"{label} residual state")
+    _ordered_text(row["action_ids"], f"{label} actions", allow_empty=True)
+    _service_vector(row["service_observations"], f"{label} services")
+    _optional_text(row["follow_up_id"], f"{label} follow-up")
+    _optional_text(row["unknown_claim_id"], f"{label} unknown claim")
+    if type(row["unknown_claim_retained"]) is not bool:
+        raise ScenarioTruthError(f"{label} unknown claim flag is not boolean")
+    if type(row["service_restored"]) is not bool:
+        raise ScenarioTruthError(f"{label} service flag is not boolean")
+    _text(row["owner_route"], f"{label} owner route")
+    _text(row["inner_outcome"], f"{label} inner outcome")
+    return row
+
+
+def _strict_incident_json(value: object, label: str) -> Mapping[str, object]:
+    if type(value) is not str:
+        raise ScenarioTruthError(f"{label} is not exact JSON text")
+
+    def pairs(items: list[tuple[str, object]]) -> dict[str, object]:
+        result: dict[str, object] = {}
+        for key, item in items:
+            if key in result:
+                raise ScenarioTruthError(f"{label} has a duplicate key")
+            result[key] = item
+        return result
+
+    try:
+        parsed = json.loads(value, object_pairs_hook=pairs)
+    except (TypeError, ValueError) as error:
+        raise ScenarioTruthError(f"{label} is malformed") from error
+    return _incident_observation(parsed, label)
+
+
+def _evaluate_detection_gate(
+    contract: Mapping[str, object], after: Mapping[str, object],
+) -> dict[str, object]:
+    if (
+        freeze(after["signal"]) != freeze(contract["signal"])
+        or freeze(after["impact_roles"]) != freeze(contract["impact_roles"])
+        or after["severity"] != contract["severity"]
+    ):
+        raise ScenarioTruthError("incident detection evidence changed")
+    return {"gate_id": "detection", "passed": True}
+
+
+def _evaluate_containment_gate(
+    contract: Mapping[str, object], before: Mapping[str, object],
+    after: Mapping[str, object],
+) -> dict[str, object]:
+    contained_input = contract["contained_input"]
+    if (
+        freeze(after["affected_roles"]) != freeze(contract["affected_roles"])
+        or freeze(before["unaffected_observations"])
+        != freeze(contract["unaffected_observations"])
+        or freeze(after["unaffected_observations"])
+        != freeze(contract["unaffected_observations"])
+        or after["authority_id"] != contract["authority_id"]
+        or after["fence_id"] != contract["fence_id"]
+        or after["residual_state_id"] != contract["residual_state_id"]
+        or after["owner_route"] != contract["owner_route"]
+        or (
+            contained_input is not None
+            and (
+                before["state_id"] != contained_input["state_id"]
+                or freeze(before["signal"]) != freeze(contract["signal"])
+                or freeze(before["impact_roles"])
+                != freeze(contract["impact_roles"])
+                or before["severity"] != contract["severity"]
+                or freeze(before["affected_roles"])
+                != freeze(contract["affected_roles"])
+                or before["authority_id"] != contained_input["authority_id"]
+                or before["fence_id"] != contained_input["fence_id"]
+                or before["residual_state_id"]
+                != contained_input["residual_state_id"]
+                or freeze(before["action_ids"])
+                != freeze(contained_input["action_ids"])
+                or before["service_observations"]
+                or before["follow_up_id"] is not None
+                or before["unknown_claim_id"] is not None
+                or before["unknown_claim_retained"] is not False
+                or before["service_restored"] is not False
+                or before["owner_route"] != contract["owner_route"]
+                or before["inner_outcome"] != contained_input["inner_outcome"]
+            )
+        )
+    ):
+        raise ScenarioTruthError("incident containment evidence changed")
+    return {"gate_id": "containment", "passed": True}
+
+
+def _evaluate_recovery_gate(
+    contract: Mapping[str, object], after: Mapping[str, object],
+) -> dict[str, object]:
+    if (
+        freeze(after["action_ids"]) != freeze(contract["action_ids"])
+        or contract["original_action_id"] in after["action_ids"]
+        or freeze(after["service_observations"])
+        != freeze(contract["service_predicates"])
+        or after["follow_up_id"] != contract["follow_up_id"]
+        or after["service_restored"] is not True
+    ):
+        raise ScenarioTruthError("incident recovery evidence changed")
+    return {"gate_id": "recovery", "passed": True}
+
+
+def _evaluate_owner_route_gate(
+    contract: Mapping[str, object], before: Mapping[str, object],
+    after: Mapping[str, object],
+) -> dict[str, object]:
+    if (
+        freeze(before) != freeze(after)
+        or after["action_ids"]
+        or after["unknown_claim_id"] != contract["unknown_claim_id"]
+        or after["unknown_claim_retained"] is not True
+        or after["service_restored"] is not False
+        or after["owner_route"] != contract["owner_route"]
+        or after["inner_outcome"] != contract["expected_outcome"]
+    ):
+        raise ScenarioTruthError("incident unknown effect was not blocked exactly")
+    return {"gate_id": "owner-route", "passed": True}
+
+
+def evaluate_incident_gates(
+    value: object, before_value: object, after_value: object,
+) -> tuple[dict[str, object], ...]:
+    """Evaluate one config-owned incident closure in exact fail-fast order."""
+
+    contract = _incident_contract(value)
+    before = _incident_observation(before_value, "incident baseline")
+    after = _incident_observation(after_value, "incident candidate")
+    results: list[dict[str, object]] = []
+    for gate_id in contract["gate_ids"]:
+        if gate_id == "detection":
+            result = _evaluate_detection_gate(contract, after)
+        elif gate_id == "containment":
+            result = _evaluate_containment_gate(contract, before, after)
+        elif gate_id == "recovery":
+            result = _evaluate_recovery_gate(contract, after)
+        elif gate_id == "owner-route":
+            result = _evaluate_owner_route_gate(contract, before, after)
+        else:  # _incident_contract rejects this path.
+            raise ScenarioTruthError("incident gate is unsupported")
+        results.append(result)
+    if (
+        after["residual_state_id"] != contract["residual_state_id"]
+        or after["owner_route"] != contract["owner_route"]
+        or after["inner_outcome"] != contract["expected_outcome"]
+        or freeze(after["action_ids"]) != freeze(contract["action_ids"])
+        or after["service_restored"] is ("recovery" not in contract["gate_ids"])
+        or (
+            after["unknown_claim_id"] == contract["unknown_claim_id"]
+            and after["unknown_claim_retained"] is True
+        ) != (tuple(contract["gate_ids"]) == ("owner-route",))
+    ):
+        raise ScenarioTruthError("incident terminal observation changed")
+    return tuple(results)
+
+
+def validate_incident_contract(value: object, targets: object) -> None:
+    """Validate one profile-neutral incident contract and installed bytes."""
+
+    contract = _incident_contract(value)
+    if type(targets) not in {list, tuple} or len(targets) != 1:
+        raise ScenarioTruthError("incident contract requires one exact target")
+    target = targets[0]
+    if not isinstance(target, Mapping):
+        raise ScenarioTruthError("incident target is malformed")
+    before = _strict_incident_json(target["baseline_value"], "incident baseline")
+    after = _strict_incident_json(target["candidate_value"], "incident candidate")
+    rollback = _strict_incident_json(target["rollback_value"], "incident rollback")
+    if (
+        before["state_id"] != target["baseline_state_id"]
+        or after["state_id"] != target["candidate_state_id"]
+        or rollback["state_id"] != target["rollback_state_id"]
+        or freeze(before) != freeze(rollback)
+    ):
+        raise ScenarioTruthError("incident target state or rollback is not exact")
+    evaluate_incident_gates(contract, before, after)
+
+
 def minimal_change_bytes(before: bytes, after: bytes) -> int:
     """Count removed plus inserted bytes in the minimal contiguous edit span."""
     if type(before) is not bytes or type(after) is not bytes:
@@ -638,11 +1004,13 @@ def parse_scenario_truth_registries(
     fixture_fact_ids: dict[str, tuple[str, ...]] = {}
     for value in raw_fixture_rows:
         fields = _FIXTURE_ROW_FIELDS
-        if (
-            isinstance(value, Mapping)
-            and "execution_contract" in value
-            and "refactor_contract" in value
-        ):
+        contract_kinds = tuple(
+            key for key in (
+                "execution_contract", "refactor_contract", "incident_contract",
+            )
+            if isinstance(value, Mapping) and key in value
+        )
+        if len(contract_kinds) > 1:
             raise ScenarioTruthError("scenario fixture contract kinds conflict")
         if isinstance(value, Mapping) and "rejection_attack_ids" in value:
             fields = (*fields[:-1], "rejection_attack_ids", fields[-1])
@@ -650,6 +1018,8 @@ def parse_scenario_truth_registries(
             fields = (*fields[:-1], "execution_contract", fields[-1])
         if isinstance(value, Mapping) and "refactor_contract" in value:
             fields = (*fields[:-1], "refactor_contract", fields[-1])
+        if isinstance(value, Mapping) and "incident_contract" in value:
+            fields = (*fields[:-1], "incident_contract", fields[-1])
         row = _exact(value, fields, "scenario fixture row")
         if "rejection_attack_ids" in row:
             _ordered_text(row["rejection_attack_ids"], "scenario rejection attacks")
@@ -680,6 +1050,8 @@ def parse_scenario_truth_registries(
             validate_execution_contract(row["execution_contract"], targets)
         if "refactor_contract" in row:
             validate_refactor_contract(row["refactor_contract"], targets)
+        if "incident_contract" in row:
+            validate_incident_contract(row["incident_contract"], targets)
         phases = row["phase_expectations"]
         if type(phases) is not list or not phases:
             raise ScenarioTruthError("scenario fixture phases are empty")
@@ -699,7 +1071,10 @@ def parse_scenario_truth_registries(
             assertion = _exact(assertion_value, _ASSERTION_FIELDS, "scenario assertion")
             assertion_id = _text(assertion["assertion_id"], "assertion ID")
             kind = _text(assertion["kind"], "assertion kind")
-            if kind not in {"acceptance", "fresh-target", "regression"}:
+            if kind not in {
+                "acceptance", "fresh-target", "regression", "blocked",
+                "claim-retained", "no-action",
+            }:
                 raise ScenarioTruthError("scenario assertion kind is unsupported")
             matching_roles = tuple(
                 role for role in target_roles
@@ -799,6 +1174,7 @@ class ScenarioTruthObservation:
     scenario_outcome: str
     execution_proof: FrozenMap | None
     refactor_proof: FrozenMap | None
+    incident_proof: FrozenMap | None
     observation_digest: str
     _authority: object
 
@@ -814,6 +1190,8 @@ class ScenarioTruthObservation:
             result["execution_proof"] = thaw(self.execution_proof)
         if self.refactor_proof is not None:
             result["refactor_proof"] = thaw(self.refactor_proof)
+        if self.incident_proof is not None:
+            result["incident_proof"] = thaw(self.incident_proof)
         return result
 
     def to_dict(self) -> dict[str, object]:
@@ -829,21 +1207,28 @@ def issue_scenario_truth_observation(
     body: Mapping[str, object], *, authority: object,
 ) -> ScenarioTruthObservation:
     fields = _OBSERVATION_FIELDS[:-1]
-    if "execution_proof" in body and "refactor_proof" in body:
+    proof_kinds = tuple(
+        key for key in ("execution_proof", "refactor_proof", "incident_proof")
+        if key in body
+    )
+    if len(proof_kinds) > 1:
         raise ScenarioTruthError("scenario observation proof kinds conflict")
     if "execution_proof" in body:
         fields = (*fields, "execution_proof")
     if "refactor_proof" in body:
         fields = (*fields, "refactor_proof")
+    if "incident_proof" in body:
+        fields = (*fields, "incident_proof")
     _exact(dict(body), fields, "scenario truth observation body")
     result = object.__new__(ScenarioTruthObservation)
     object.__setattr__(result, "execution_proof", None)
     object.__setattr__(result, "refactor_proof", None)
+    object.__setattr__(result, "incident_proof", None)
     for field, value in body.items():
         if field in {
             "graph_ref_pins", "installation_pins", "policy_row", "fixture_row",
             "branch_binding", "rollback_or_compensation", "execution_proof",
-            "refactor_proof",
+            "refactor_proof", "incident_proof",
         }:
             value = freeze(value)
         elif field in {
@@ -868,10 +1253,12 @@ __all__ = (
     "ScenarioTruthError",
     "ScenarioTruthObservation",
     "ScenarioTruthRegistry",
+    "evaluate_incident_gates",
     "evaluate_refactor_gates",
     "evaluate_scenario_assertions",
     "issue_scenario_truth_observation",
     "parse_scenario_truth_registries",
     "scenario_observation_object_digest",
+    "validate_incident_contract",
     "validate_refactor_contract",
 )

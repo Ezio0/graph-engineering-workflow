@@ -183,8 +183,8 @@ class Remaining54P1ContractsTest(unittest.TestCase):
             matrix=matrix,
         )
 
-        self.assertEqual(len(plan.bindings), 236)
-        self.assertEqual(len(plan.oracle_bindings), 118)
+        self.assertEqual(len(plan.bindings), 244)
+        self.assertEqual(len(plan.oracle_bindings), 122)
         self.assertEqual(
             tuple(
                 test_id
@@ -226,8 +226,8 @@ class Remaining54P1ContractsTest(unittest.TestCase):
         self.assertEqual(
             receipt["selector"], fixture.PERFORMANCE_REMAINING_R1_SELECTOR,
         )
-        self.assertEqual(receipt["plan_bindings"], 236)
-        self.assertEqual(receipt["oracle_bindings"], 118)
+        self.assertEqual(receipt["plan_bindings"], 244)
+        self.assertEqual(receipt["oracle_bindings"], 122)
         self.assertEqual(receipt["restart"], "current-launcher-zero")
         self.assertEqual(
             tuple(sorted(receipt["scenario_attacks"])),
@@ -334,7 +334,7 @@ class Remaining54P2bContractsTest(unittest.TestCase):
         from tests.integration.test_wp08_scenario_truth import ScenarioTruthIntegrationTests
         plan = fixture.load_slice4_api().ProfileCoverageExecutionPlan.from_installation(
             matrix=ScenarioTruthIntegrationTests.matrix())
-        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (236, 118))
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (244, 122))
         manifest = tomllib.loads((ROOT / "pyproject.toml").read_text())
         table = manifest["tool"]["gew"]["profile"]["coverage-execution-plan"]
         for scenario in fixture.HOTFIX_GUARDED_SCENARIO_IDS:
@@ -369,7 +369,7 @@ class Remaining54P2cContractsTest(unittest.TestCase):
         plan = fixture.load_slice4_api().ProfileCoverageExecutionPlan.from_installation(
             matrix=ScenarioTruthIntegrationTests.matrix(),
         )
-        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (236, 118))
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (244, 122))
         manifest = tomllib.loads((ROOT / "pyproject.toml").read_text())
         vectors = manifest["tool"]["gew"]["profile"]["coverage-execution-plan"]["oracle-vectors"]
         for scenario in self.scenarios:
@@ -425,6 +425,109 @@ class Remaining54P2cContractsTest(unittest.TestCase):
                     contract["nonfunctional_target"]["metric_id"], sources,
                 )
                 self.assertNotIn(str(contract["nonfunctional_target"]["threshold"]), sources)
+
+
+class Remaining54P2dContractsTest(unittest.TestCase):
+    scenarios = ("containment", "detection", "recovery", "unknown-effects")
+
+    def test_p2d_plan_oracles_and_package_membership_are_exact(self) -> None:
+        import tomllib
+        from graph_engineering import _SOURCE_FILES
+        from tests.support.source_checkout_attestation import SOURCE_FILES
+        from tests.integration.test_wp08_scenario_truth import (
+            ScenarioTruthIntegrationTests,
+        )
+
+        plan = fixture.load_slice4_api().ProfileCoverageExecutionPlan.from_installation(
+            matrix=ScenarioTruthIntegrationTests.matrix(),
+        )
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (244, 122))
+        manifest = tomllib.loads((ROOT / "pyproject.toml").read_text())
+        vectors = manifest["tool"]["gew"]["profile"]["coverage-execution-plan"][
+            "oracle-vectors"
+        ]
+        for scenario in self.scenarios:
+            suffix = "scenario-recovery" if scenario == "recovery" else scenario
+            path = f"config/test-oracles/profile-incident-response-{suffix}-v1.json"
+            self.assertTrue((ROOT / path).is_file())
+            self.assertIn(path, _SOURCE_FILES)
+            self.assertIn(path, SOURCE_FILES)
+            vector = next(
+                row for row in vectors
+                if row.get("profile-id") == "incident-response"
+                and row.get("selector-kind") == "scenario"
+                and row.get("scenario-id") == scenario
+            )
+            self.assertEqual(vector["oracle-source"], path)
+            self.assertEqual(vector["oracle-resource"], "graph_engineering/" + path)
+            self.assertEqual(
+                vector["oracle-raw-sha256"],
+                hashlib.sha256((ROOT / path).read_bytes()).hexdigest(),
+            )
+            for disposition in ("P", "R"):
+                test_id = (
+                    f"GEW-PSC-INCIDENT-RESPONSE-{scenario.upper()}-{disposition}"
+                )
+                binding = plan.binding(test_id)
+                self.assertEqual(binding["profile_id"], "incident-response")
+                self.assertEqual(binding["scenario_id"], scenario)
+                self.assertEqual(binding["disposition"], disposition)
+                self.assertEqual(
+                    binding["request_digest"],
+                    None if disposition == "P" else fixture.coverage_request_digest(
+                        fixture.incident_scenario_candidate(
+                            scenario, accepted=False,
+                        )
+                    ),
+                )
+
+        mandatory_recovery = next(
+            row for row in vectors
+            if row.get("profile-id") == "incident-response"
+            and row.get("selector-kind") == "mandatory"
+            and row.get("column-id") == "recovery"
+        )
+        scenario_recovery = next(
+            row for row in vectors
+            if row.get("profile-id") == "incident-response"
+            and row.get("selector-kind") == "scenario"
+            and row.get("scenario-id") == "recovery"
+        )
+        self.assertEqual(
+            mandatory_recovery["oracle-raw-sha256"],
+            "6e223a032f5549ce5489bd11877ec1309c437cf858568539e437da694024527c",
+        )
+        self.assertNotEqual(
+            mandatory_recovery["oracle-source"], scenario_recovery["oracle-source"],
+        )
+
+    def test_incident_values_are_config_owned_not_embedded_in_logic(self) -> None:
+        rows = json.loads(
+            (ROOT / "config/profiles/scenario-truth-fixture-registry-v1.json").read_text()
+        )["fixtures"]
+        incidents = [row for row in rows if "incident_contract" in row]
+        self.assertEqual(
+            {(row["profile_id"], row["scenario_id"]) for row in incidents},
+            {("incident-response", scenario) for scenario in self.scenarios},
+        )
+        sources = "\n".join(
+            path.read_text()
+            for path in (
+                ROOT / "core/graph_engineering/core/scenario_truth.py",
+                ROOT / "application/graph_engineering/application/scenario_truth.py",
+            )
+        )
+        for row in incidents:
+            contract = row["incident_contract"]
+            for value in (
+                contract["contract_id"],
+                contract["signal"]["signal_id"],
+                contract["residual_state_id"],
+                contract["owner_route"],
+                *contract["action_ids"],
+                *contract["forbidden_action_ids"],
+            ):
+                self.assertNotIn(value, sources)
 
 
 if __name__ == "__main__":

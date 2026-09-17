@@ -81,7 +81,7 @@
       "profile_version": "1.0.0",
       "scenario_id": "containment",
       "fixture_id": "fixture:incident-response:containment:v1",
-      "fixture_digest": "sha256-jcs-v1:899507bacaa5199eb8798248233feb5a71e0aff6474c994fbf76a4c28753aa16",
+      "fixture_digest": "sha256-jcs-v1:9ef8e2d8d4153961e7c02efe6156eb5b387a3ba93b703efdbe25c1f439223e5f",
       "required_target_roles": [
         "primary-target"
       ],
@@ -100,14 +100,14 @@
       "mutation_budget": 1,
       "rollback_required": true,
       "compensation_required": true,
-      "row_digest": "sha256-jcs-v1:0af78a9ad9c07da8fd87c28ec4bde55975da6c086216c7a68ea90c5e459383ef"
+      "row_digest": "sha256-jcs-v1:0d6a83d7aca25e471a836f9d2c5278a5f8ba4665f3182e42ab0e3000098abe38"
     },
     {
       "profile_id": "incident-response",
       "profile_version": "1.0.0",
       "scenario_id": "detection",
       "fixture_id": "fixture:incident-response:detection:v1",
-      "fixture_digest": "sha256-jcs-v1:937f47a35118bfd9b7cffe51338fc422c5ecfda47c89500fd8bc7cb80199821e",
+      "fixture_digest": "sha256-jcs-v1:1d86a1d51f52f735b1cd5f9f20726c2c95bb491ab50dee189f028c24647a68d0",
       "required_target_roles": [
         "primary-target"
       ],
@@ -126,14 +126,14 @@
       "mutation_budget": 1,
       "rollback_required": true,
       "compensation_required": false,
-      "row_digest": "sha256-jcs-v1:2507d2374cb5dead9d0ce757379b56dfcaf22f51aa98bbb56fcdc8e633a721db"
+      "row_digest": "sha256-jcs-v1:114419c48e6178c03e29325412e5db16429d56f3bfbad4b145937ae0b98871a5"
     },
     {
       "profile_id": "incident-response",
       "profile_version": "1.0.0",
       "scenario_id": "recovery",
       "fixture_id": "fixture:incident-response:recovery:v1",
-      "fixture_digest": "sha256-jcs-v1:d25b5df80dd8d1321314a22ac6a5901c457f27edbc9241b250ff49d5969023c4",
+      "fixture_digest": "sha256-jcs-v1:2f94489c4369fe30393172db9a1602451093a6e7097372105c2cb148d22044c5",
       "required_target_roles": [
         "primary-target"
       ],
@@ -152,33 +152,33 @@
       "mutation_budget": 1,
       "rollback_required": true,
       "compensation_required": true,
-      "row_digest": "sha256-jcs-v1:7c23ce13413787d7ff75618547af3207ffe051815b23b44b70c8135b8f68457e"
+      "row_digest": "sha256-jcs-v1:55f34a1f45529c38d4a50288aa064404f03537d09ec8756090848beacb7675fe"
     },
     {
       "profile_id": "incident-response",
       "profile_version": "1.0.0",
       "scenario_id": "unknown-effects",
       "fixture_id": "fixture:incident-response:unknown-effects:v1",
-      "fixture_digest": "sha256-jcs-v1:430a5535815862551e82769bec267aa1fc086d5662e4ae1f7546f2e0fbd8f1f7",
+      "fixture_digest": "sha256-jcs-v1:21c4542a1c567b72186b5053e1e5246b7f712362100d53af7bd2bd74086ead28",
       "required_target_roles": [
         "primary-target"
       ],
       "ordered_phase_ids": [
-        "apply-candidate"
+        "block-owner-route"
       ],
       "required_fact_ids": [
-        "fact:acceptance:primary-target",
-        "fact:fresh-target:primary-target",
-        "fact:regression:primary-target"
+        "fact:blocked:primary-target",
+        "fact:claim-retained:primary-target",
+        "fact:no-action:primary-target"
       ],
-      "success_outcome": "scenario-completed",
+      "success_outcome": "blocked-owner-route",
       "blocked_outcome": "blocked-owner-route",
       "owner_route_policy": "owner:incident-response:unknown-effects",
       "branch_isolation_policy": "task-private-branch-ref-targets",
       "mutation_budget": 1,
-      "rollback_required": true,
+      "rollback_required": false,
       "compensation_required": false,
-      "row_digest": "sha256-jcs-v1:e422da6e8d28e3f2f26eb25ab373f62264d6d8df452a879b45a31f59a98a26bf"
+      "row_digest": "sha256-jcs-v1:9ad38960cd45145879b4681533fd72b0c49cc847bf8352abd92e3f4335733259"
     },
     {
       "profile_id": "new-feature",
@@ -289,5 +289,5 @@
       "row_digest": "sha256-jcs-v1:a3ea93e2648bd0cb3569f1db88e58160cdf4c86cfd118cf1f71667bec579a576"
     }
   ],
-  "registry_digest": "sha256-jcs-v1:51708f60e16481d7a58fe05c72b02aca95bad95d4ebcb38cee071ae5d78d0d4e"
+  "registry_digest": "sha256-jcs-v1:f83242227f66e5217b0a11acf4b1e367301ef22bcb2391722f521f8e6c4cb45e"
 }

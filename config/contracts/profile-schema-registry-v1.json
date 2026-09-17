@@ -1,5 +1,5 @@
 {
-  "registry_digest": "sha256-jcs-v1:0744afb599285cc0727e6bfc578158155bffc7a762125ad8c5c048e3624e25d3",
+  "registry_digest": "sha256-jcs-v1:6edff2b2bc8469319d3e1df5d17740fadb0b4629822a90c9e97ceafc11073095",
   "registry_id": "urn:gew:schema-registry:profiles:1.0.0",
   "resources": [
     {
@@ -467,11 +467,11 @@
       "schema_id": "urn:gew:schema:risk-overlay-definition:1.0.0"
     },
     {
-      "body_digest": "sha256-raw-v1:8f024536fb7939e649592c32b45da6dd133608515ac84696221ce8e196f17e0c",
+      "body_digest": "sha256-raw-v1:deda5cd836234e7de8c8201d38cd1b93fc054a8fb874a878381f5348bc37ca50",
       "schema_id": "urn:gew:schema:scenario-truth-fixture-registry-input:1.0.0"
     },
     {
-      "body_digest": "sha256-raw-v1:ce2994fa2e6b0c5405b7564502e005ce8c787261e8a0ddebe7b9398a59a6d26f",
+      "body_digest": "sha256-raw-v1:f6e2fa320e2576a26278a813b2d072997cbd17ce5a0d09e4f66759aabb293ed7",
       "schema_id": "urn:gew:schema:scenario-truth-fixture-registry:1.0.0"
     },
     {
@@ -483,11 +483,11 @@
       "schema_id": "urn:gew:schema:scenario-truth-installation-bootstrap:1.0.0"
     },
     {
-      "body_digest": "sha256-raw-v1:fc34d7e20b2a9f7bf1105828a198c1de5cfdc7d3aaf0b167dbbc1a89d866369d",
+      "body_digest": "sha256-raw-v1:9f21c4241633d24be49476c8ff3dc5d1c27216cf6b648d8601f2efda666d08f7",
       "schema_id": "urn:gew:schema:scenario-truth-observation-input:1.0.0"
     },
     {
-      "body_digest": "sha256-raw-v1:cb6d450e36aef0ebfefa262c89f1a48db4c4f4631ce7ad40bc3da858d6a37932",
+      "body_digest": "sha256-raw-v1:3ebb1548c67469acd527ad3f129444428e6a161a6bd48a318f76e2fc545b0b2c",
       "schema_id": "urn:gew:schema:scenario-truth-observation:1.0.0"
     },
     {

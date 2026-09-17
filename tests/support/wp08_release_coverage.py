@@ -76,10 +76,17 @@ REFACTOR_SCENARIO_IDS = (
     "behavior-characterization",
     "nonfunctional-target",
 )
+INCIDENT_SCENARIO_IDS = (
+    "containment",
+    "detection",
+    "recovery",
+    "unknown-effects",
+)
 SCENARIO_TRUTH_SCENARIO_IDS = (
     NEW_FEATURE_MULTI_TARGET_SCENARIO_ID,
     *HOTFIX_GUARDED_SCENARIO_IDS,
     *REFACTOR_SCENARIO_IDS,
+    *INCIDENT_SCENARIO_IDS,
 )
 SCENARIO_TRUTH_BOUNDARY_CASE_IDS = (
     NEW_FEATURE_MULTI_TARGET_BOUNDARY_CASE_ID,
@@ -90,6 +97,10 @@ SCENARIO_TRUTH_BOUNDARY_CASE_IDS = (
     *(
         f"GEW-PSC-REFACTOR-DEBT-{scenario.upper()}-P"
         for scenario in REFACTOR_SCENARIO_IDS
+    ),
+    *(
+        f"GEW-PSC-INCIDENT-RESPONSE-{scenario.upper()}-P"
+        for scenario in INCIDENT_SCENARIO_IDS
     ),
 )
 DEPENDENCY_SECURITY_VULNERABLE_GRAPH_PASS_TEST_ID = (
@@ -245,6 +256,16 @@ EXPECTED_ORACLE_SCENARIOS = (
         )
         for scenario_id in REFACTOR_SCENARIO_IDS
     ),
+    *(
+        (
+            "ORA-PROFILE-INCIDENT-RESPONSE",
+            "incident-response",
+            "scenario",
+            "boundary",
+            scenario_id,
+        )
+        for scenario_id in INCIDENT_SCENARIO_IDS
+    ),
 )
 SCAFFOLD_SCENARIO_ID = "scaffold"
 SCAFFOLD_BOUNDARY_CASE_ID = SCAFFOLD_PASS_TEST_ID
@@ -288,10 +309,10 @@ NEW_MANDATORY_COLUMNS = (
 def expected_oracle_binding_identities(
     *, selector: str | None = None,
 ) -> tuple[tuple[str, str, str, str, str | None], ...]:
-    """Return an independent checkpoint closure; default to current P2c."""
+    """Return an independent checkpoint closure; default to current P2d."""
 
     checkpoint = (
-        _P2C_CURRENT_CHECKPOINT
+        _P2D_CURRENT_CHECKPOINT
         if selector is None
         else _cumulative_checkpoint(selector)
     )
@@ -305,7 +326,8 @@ def expected_oracle_binding_identities(
         scenarios = tuple(
             item
             for item in scenarios
-            if item[1] != "refactor-debt" or item[2] != "scenario"
+            if item[1] not in {"refactor-debt", "incident-response"}
+            or item[2] != "scenario"
         )
         scenarios += tuple(
             ("ORA-PROFILE-HOTFIX", "hotfix", "scenario", "boundary", scenario_id)
@@ -317,6 +339,10 @@ def expected_oracle_binding_identities(
             for item in scenarios
             if not (
                 (item[1] == "refactor-debt" and item[2] == "scenario")
+                or (
+                    item[1] == "incident-response"
+                    and item[2] == "scenario"
+                )
                 or (
                     item[1] == "hotfix"
                     and item[4] in HOTFIX_GUARDED_SCENARIO_IDS
@@ -2804,6 +2830,14 @@ def run_serial_scenario_binding(
             (lambda *, accepted, selected=scenario:
              refactor_scenario_candidate(selected, accepted=accepted)),
         ) for scenario in REFACTOR_SCENARIO_IDS},
+        **{scenario: (
+            "incident-response",
+            f"GEW-PSC-INCIDENT-RESPONSE-{scenario.upper()}-P",
+            f"GEW-PSC-INCIDENT-RESPONSE-{scenario.upper()}-R",
+            f"GEW-PSC-INCIDENT-RESPONSE-{scenario.upper()}-P",
+            (lambda *, accepted, selected=scenario:
+             incident_scenario_candidate(selected, accepted=accepted)),
+        ) for scenario in INCIDENT_SCENARIO_IDS},
         BUG_FIX_REPRODUCIBLE_FAILURE_SCENARIO_ID: (
             "bug-fix",
             BUG_FIX_REPRODUCIBLE_FAILURE_PASS_TEST_ID,
@@ -3289,6 +3323,28 @@ def refactor_scenario_candidate(
         + ("pass" if accepted else "reject")
     )
     prefix = f"GEW-PSC-REFACTOR-DEBT-{scenario_id.upper()}"
+    candidate["scenario_id"] = prefix + ("-P" if accepted else "")
+    candidate["task_id"] = coverage_task_id(
+        prefix + ("-P" if accepted else "-R")
+    )
+    return candidate
+
+
+def incident_scenario_candidate(
+    scenario_id: str,
+    *,
+    accepted: bool,
+) -> dict[str, object]:
+    """Return one exact incident-response scenario selector."""
+
+    if scenario_id not in INCIDENT_SCENARIO_IDS:
+        raise ValueError("incident-response scenario is not selected")
+    candidate = category.candidate_document("incident-response", "boundary")
+    candidate["request_id"] = (
+        f"wp08-s4:incident-response:{scenario_id}:"
+        + ("pass" if accepted else "reject")
+    )
+    prefix = f"GEW-PSC-INCIDENT-RESPONSE-{scenario_id.upper()}"
     candidate["scenario_id"] = prefix + ("-P" if accepted else "")
     candidate["task_id"] = coverage_task_id(
         prefix + ("-P" if accepted else "-R")
@@ -4196,6 +4252,20 @@ _P2C_CURRENT_CHECKPOINT = _CumulativeCheckpoint(
     frozenset(
         f"GEW-PSC-REFACTOR-DEBT-{scenario.upper()}-{disposition}"
         for scenario in REFACTOR_SCENARIO_IDS
+        for disposition in ("P", "R")
+    ),
+)
+
+
+_P2D_CURRENT_CHECKPOINT = _CumulativeCheckpoint(
+    "p2d-current-plan",
+    244,
+    122,
+    30,
+    274,
+    frozenset(
+        f"GEW-PSC-INCIDENT-RESPONSE-{scenario.upper()}-{disposition}"
+        for scenario in INCIDENT_SCENARIO_IDS
         for disposition in ("P", "R")
     ),
 )

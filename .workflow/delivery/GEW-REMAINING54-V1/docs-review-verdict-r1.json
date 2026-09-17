@@ -1,4 +1,19 @@
 {
+  "p2d_records": [
+    {
+      "record_id": "p2d-document-check-2026-09-14-r0",
+      "reviewer_id": "/root/p2d_docs_reviewer_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "test_plan",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      },
+      "independent_digest_recomputation": "eb5697614662708e93550e4465048355b772cf008c934f1c52fac040a606bad0"
+    }
+  ],
   "p2c_records": [
     {
       "record_id": "p2c-document-check-2026-09-14-r0",

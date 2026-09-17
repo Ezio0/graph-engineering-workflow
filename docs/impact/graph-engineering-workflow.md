@@ -1003,3 +1003,36 @@ projection and one task-referenced CAS remain the durable carrier. This refines
 ADR-0008 implementation without a new ADR. A needed target expansion, Support
 Matrix change, material architecture choice, cumulative execution, P2d/P3 work
 or irreversible action returns to Human first.
+
+### P2d bounded continuation impact — 2026-09-14
+
+The Human-approved change is limited to four incident-response P/R pairs and
+their four oracle members. Affected layers are the existing scenario fixture and
+observation schema pairs, policy/fixture/bootstrap protected configuration,
+scenario core/application factories, scenario coverage fixture, profile plan,
+package/source-currentness pins, focused tests and append-only delivery records.
+Only actual changed provenance/package/bootstrap projections may be re-signed
+inside the unchanged exact174 allowlist. P2a/P2b/P2c evidence remains historical.
+
+Primary risks are trusting a caller detection/severity claim, losing exact impact
+scope, over- or under-containing, mutating an unaffected target, using stale
+authority/fence/service evidence, replaying the original action as recovery,
+accepting partial recovery, consuming an unknown claim, or treating a blocked
+unknown effect as service restoration. Mitigation is a closed config-owned
+incident contract, exact fresh observations, ordered fail-fast gates, explicit
+action and mutation vectors, conditional typed proof validation and exact inner
+outcome/owner-route binding.
+
+The unknown-effects path is intentionally not the normal A-to-B mutation path:
+its P evidence proves a zero-mutation `blocked-owner-route` outcome with the
+unknown claim retained and no replay/recovery/restored claim. This is distinct
+from R evidence, which proves malformed or unsafe requests fail closed. The
+scenario recovery oracle uses its unique `scenario-recovery` filename; the
+mandatory incident recovery oracle is protected byte-for-byte.
+
+No database/event/GraphRef/API, dependency, daemon, runtime-adapter, network,
+real-repository or production operation changes. The existing assessment 1.3
+projection and task-referenced CAS remain the durable carriers. ADR-0008 already
+freezes these semantics, so no ADR change is needed. Target expansion, Support
+Matrix change, cumulative/performance execution, P3 or irreversible work returns
+to Human first.

@@ -1,4 +1,55 @@
 {
+  "p2d_packets": [
+    {
+      "record_id": "p2d-document-check-2026-09-14-r0",
+      "author_id": "/root",
+      "revision": 0,
+      "scope": "P2d bounded incident-response documentation refinement only, before implementation.",
+      "entry_commit": "4dd633441be244ca4c19cac54f8011b0a6bdfcb0",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "raw_sha256": "e11a939b7719b56c5955567faf6d9bfeb93dee2e3f1fd34a024d1f324a215554",
+          "bytes": 13360
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "raw_sha256": "b995d5d431ad9b8e94ac0656756624f7222075bdbc83b09f82bf84a70539ccef",
+          "bytes": 49030
+        },
+        {
+          "path": "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "raw_sha256": "3d920bebfc0d97adb8cabd3e7e8ba71058950f5109c58bf3c235220799a05add",
+          "bytes": 31739
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "raw_sha256": "23ceeef81e2e4bf1a67b862010c5f92171df1db2b744b85f14af4be37ebca9b4",
+          "bytes": 81484
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "raw_sha256": "28c5067218e0102d6c54b25de79f73b05aa822ef63721cd21b5f82fb4e8daea1",
+          "bytes": 73801
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "raw_sha256": "08a467d3d4f1f33dccae1b3c58305860bb3102e787d361c020e8936ec202719a",
+          "bytes": 175784
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "raw_sha256": "500313f41bc3f130ba5364e1f13835fe75ad69be457c46979595432b1c074152",
+          "bytes": 154543
+        }
+      ],
+      "ordered_raw_aggregate_sha256": "eb5697614662708e93550e4465048355b772cf008c934f1c52fac040a606bad0",
+      "aggregate_algorithm": "SHA256 of sorted project-relative path + NUL + raw bytes + NUL",
+      "authority": "human-decision-p1-p2-p3-r0.json#p2d_continuation_amendment",
+      "prior_record_preservation": "All earlier top-level record fields are unchanged; exact committed bytes remain available at the entry commit.",
+      "evidence_boundary": "Plan244/oracle122 is target shape, not a cumulative coverage result. No implementation or cumulative execution yet."
+    }
+  ],
   "p2c_packets": [
     {
       "record_id": "p2c-document-check-2026-09-14-r0",

@@ -2,13 +2,13 @@
   "schema_version": "1.0.0",
   "bootstrap_id": "urn:gew:scenario-truth-installation-bootstrap:1.0.0",
   "policy_registry_id": "urn:gew:scenario-truth-policy-registry:v1",
-  "policy_registry_digest": "sha256-jcs-v1:51708f60e16481d7a58fe05c72b02aca95bad95d4ebcb38cee071ae5d78d0d4e",
-  "policy_registry_raw_sha256": "c6e6abf52f7c10bbe4b2692656d7abce7350ac2dadba9569cf0c192a4ed62a47",
+  "policy_registry_digest": "sha256-jcs-v1:f83242227f66e5217b0a11acf4b1e367301ef22bcb2391722f521f8e6c4cb45e",
+  "policy_registry_raw_sha256": "3a718cbda3d72d12d77e565eddccd6bda34b65a3959dade0c8169cb1cf7e42fa",
   "fixture_registry_id": "urn:gew:scenario-truth-fixture-registry:v1",
-  "fixture_registry_digest": "sha256-jcs-v1:d2fc4483e25bb7f4869c012b5c321cbdfed724427447df00812c8b926be51254",
-  "fixture_registry_raw_sha256": "07e4bca78ddfe4eda2ed514f2e0511ae494a8756cd0713b8989f0c72fd247ca1",
-  "profile_schema_registry_digest": "sha256-jcs-v1:0744afb599285cc0727e6bfc578158155bffc7a762125ad8c5c048e3624e25d3",
-  "profile_schema_registry_raw_sha256": "61ade26ba81b2a461efdeb43a7f60c32156ffaeae0fed7f2fab4464a3de49b05",
+  "fixture_registry_digest": "sha256-jcs-v1:c770fada0716fa36336ed076793321ba9252025df2be4452bb3c95bb48341818",
+  "fixture_registry_raw_sha256": "9696e8cb199ff88269088894e2242feb538877999a7b1a90f306b2ee0d8f1091",
+  "profile_schema_registry_digest": "sha256-jcs-v1:6edff2b2bc8469319d3e1df5d17740fadb0b4629822a90c9e97ceafc11073095",
+  "profile_schema_registry_raw_sha256": "9ffa41240d0ab89a2171c798bf49918fa299b7a3120e680694a64bfa9a25d33d",
   "schema_vectors": [
     {
       "schema_id": "urn:gew:schema:category-completion-assessment-input:1.3.0",
@@ -20,11 +20,11 @@
     },
     {
       "schema_id": "urn:gew:schema:scenario-truth-fixture-registry-input:1.0.0",
-      "raw_sha256": "8f024536fb7939e649592c32b45da6dd133608515ac84696221ce8e196f17e0c"
+      "raw_sha256": "deda5cd836234e7de8c8201d38cd1b93fc054a8fb874a878381f5348bc37ca50"
     },
     {
       "schema_id": "urn:gew:schema:scenario-truth-fixture-registry:1.0.0",
-      "raw_sha256": "ce2994fa2e6b0c5405b7564502e005ce8c787261e8a0ddebe7b9398a59a6d26f"
+      "raw_sha256": "f6e2fa320e2576a26278a813b2d072997cbd17ce5a0d09e4f66759aabb293ed7"
     },
     {
       "schema_id": "urn:gew:schema:scenario-truth-installation-bootstrap-input:1.0.0",
@@ -36,11 +36,11 @@
     },
     {
       "schema_id": "urn:gew:schema:scenario-truth-observation-input:1.0.0",
-      "raw_sha256": "fc34d7e20b2a9f7bf1105828a198c1de5cfdc7d3aaf0b167dbbc1a89d866369d"
+      "raw_sha256": "9f21c4241633d24be49476c8ff3dc5d1c27216cf6b648d8601f2efda666d08f7"
     },
     {
       "schema_id": "urn:gew:schema:scenario-truth-observation:1.0.0",
-      "raw_sha256": "cb6d450e36aef0ebfefa262c89f1a48db4c4f4631ce7ad40bc3da858d6a37932"
+      "raw_sha256": "3ebb1548c67469acd527ad3f129444428e6a161a6bd48a318f76e2fc545b0b2c"
     },
     {
       "schema_id": "urn:gew:schema:scenario-truth-policy-registry-input:1.0.0",
@@ -58,11 +58,11 @@
     },
     {
       "path": "application/graph_engineering/application/scenario_truth.py",
-      "raw_sha256": "7d284986cd59637fe0ea9bc088735702429a4fa29d106744a9184416e0ea9333"
+      "raw_sha256": "d408db1f4ad1d890259672f8e2a6487a4044f9cf686c33b7c097a71af74bb401"
     },
     {
       "path": "core/graph_engineering/__init__.py",
-      "raw_sha256": "2f63a06d89f8781cc38d7ba76050693d2a1c4299911844d722e6070a5cdc1801"
+      "raw_sha256": "0cd90842891e45140b3d16e9044c59d09b8c84a77c42c139b5f61eacfe819872"
     },
     {
       "path": "core/graph_engineering/core/profile_execution.py",
@@ -74,13 +74,13 @@
     },
     {
       "path": "core/graph_engineering/core/scenario_truth.py",
-      "raw_sha256": "4ce3ba8227714b32467877a2764616ef9f0080e342c4a0c22321cc84a7ab46df"
+      "raw_sha256": "1801635b0a189aeea170501ab293b11935d6ebf358583aa5963732d49c75e3ea"
     },
     {
       "path": "scripts/build_backend.py",
       "raw_sha256": "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:c6cd4d295c7e8a22c9c4559b6602b859293a45bc86ef8a55f82d199f316209bb",
-  "bootstrap_digest": "sha256-jcs-v1:271fccd33218ba81e6d588a5b312e7f83945a06ac1eebce5ada5a60c0a7ee708"
+  "protected_closure_digest": "sha256-jcs-v1:2a68d8fbb5363ed1b1f25bff9dc3375260fa63e17cef820d1aa8da1e7bd22a6a",
+  "bootstrap_digest": "sha256-jcs-v1:9f278ccd7269fed7eb4f15996aa39cd8b47f602786978a31d97986c5bb3924ea"
 }

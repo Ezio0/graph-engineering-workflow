@@ -19,7 +19,14 @@
       "type": "integer",
       "minimum": 0,
       "maximum": 9007199254740991
-    }
+    },
+    "optional_id": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/id"}]},
+    "incident_signal": {"type": "object", "properties": {"signal_id": {"$ref": "#/$defs/id"}, "observed_epoch": {"$ref": "#/$defs/integer"}, "current_epoch": {"$ref": "#/$defs/integer"}, "max_age_epochs": {"$ref": "#/$defs/integer"}}, "required": ["signal_id", "observed_epoch", "current_epoch", "max_age_epochs"], "unevaluatedProperties": false},
+    "incident_unaffected": {"type": "object", "properties": {"observation_id": {"$ref": "#/$defs/id"}, "value_digest": {"$ref": "#/$defs/digest"}}, "required": ["observation_id", "value_digest"], "unevaluatedProperties": false},
+    "incident_service": {"type": "object", "properties": {"predicate_id": {"$ref": "#/$defs/id"}, "value_digest": {"$ref": "#/$defs/digest"}, "observed_epoch": {"$ref": "#/$defs/integer"}, "current_epoch": {"$ref": "#/$defs/integer"}, "max_age_epochs": {"$ref": "#/$defs/integer"}}, "required": ["predicate_id", "value_digest", "observed_epoch", "current_epoch", "max_age_epochs"], "unevaluatedProperties": false},
+    "incident_contained_input": {"type": "object", "properties": {"state_id": {"$ref": "#/$defs/id"}, "authority_id": {"$ref": "#/$defs/id"}, "fence_id": {"$ref": "#/$defs/id"}, "residual_state_id": {"$ref": "#/$defs/id"}, "action_ids": {"type": "array", "minItems": 1, "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "inner_outcome": {"$ref": "#/$defs/id"}}, "required": ["state_id", "authority_id", "fence_id", "residual_state_id", "action_ids", "inner_outcome"], "unevaluatedProperties": false},
+    "incident_contract": {"type": "object", "properties": {"contract_id": {"$ref": "#/$defs/id"}, "effect_classification": {"enum": ["known", "unknown"]}, "gate_ids": {"type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": {"enum": ["detection", "containment", "recovery", "owner-route"]}}, "signal": {"$ref": "#/$defs/incident_signal"}, "impact_roles": {"type": "array", "minItems": 1, "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "severity": {"$ref": "#/$defs/id"}, "affected_roles": {"type": "array", "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "unaffected_observations": {"type": "array", "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/incident_unaffected"}}, "authority_id": {"$ref": "#/$defs/optional_id"}, "fence_id": {"$ref": "#/$defs/optional_id"}, "residual_state_id": {"$ref": "#/$defs/id"}, "action_ids": {"type": "array", "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "forbidden_action_ids": {"type": "array", "minItems": 1, "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "compensation_id": {"$ref": "#/$defs/optional_id"}, "original_action_id": {"$ref": "#/$defs/id"}, "service_predicates": {"type": "array", "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/incident_service"}}, "follow_up_id": {"$ref": "#/$defs/optional_id"}, "contained_input": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/incident_contained_input"}]}, "unknown_claim_id": {"$ref": "#/$defs/optional_id"}, "owner_route": {"$ref": "#/$defs/id"}, "expected_outcome": {"$ref": "#/$defs/id"}}, "required": ["contract_id", "effect_classification", "gate_ids", "signal", "impact_roles", "severity", "affected_roles", "unaffected_observations", "authority_id", "fence_id", "residual_state_id", "action_ids", "forbidden_action_ids", "compensation_id", "original_action_id", "service_predicates", "follow_up_id", "contained_input", "unknown_claim_id", "owner_route", "expected_outcome"], "unevaluatedProperties": false},
+    "incident_observation": {"type": "object", "properties": {"state_id": {"$ref": "#/$defs/id"}, "signal": {"$ref": "#/$defs/incident_signal"}, "impact_roles": {"type": "array", "minItems": 1, "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "severity": {"$ref": "#/$defs/id"}, "affected_roles": {"type": "array", "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "unaffected_observations": {"type": "array", "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/incident_unaffected"}}, "authority_id": {"$ref": "#/$defs/optional_id"}, "fence_id": {"$ref": "#/$defs/optional_id"}, "residual_state_id": {"$ref": "#/$defs/id"}, "action_ids": {"type": "array", "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "service_observations": {"type": "array", "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/incident_service"}}, "follow_up_id": {"$ref": "#/$defs/optional_id"}, "unknown_claim_id": {"$ref": "#/$defs/optional_id"}, "unknown_claim_retained": {"type": "boolean"}, "service_restored": {"type": "boolean"}, "owner_route": {"$ref": "#/$defs/id"}, "inner_outcome": {"$ref": "#/$defs/id"}}, "required": ["state_id", "signal", "impact_roles", "severity", "affected_roles", "unaffected_observations", "authority_id", "fence_id", "residual_state_id", "action_ids", "service_observations", "follow_up_id", "unknown_claim_id", "unknown_claim_retained", "service_restored", "owner_route", "inner_outcome"], "unevaluatedProperties": false}
   },
   "type": "object",
   "properties": {
@@ -371,6 +378,9 @@
         },
         "fixture_digest": {
           "$ref": "#/$defs/digest"
+        },
+        "incident_contract": {
+          "$ref": "#/$defs/incident_contract"
         },
         "execution_contract": {
           "type": "object",
@@ -755,7 +765,7 @@
     },
     "ordered_transitions": {
       "type": "array",
-      "minItems": 1,
+      "minItems": 0,
       "maxItems": 64,
       "items": {
         "type": "object",
@@ -1417,6 +1427,27 @@
         "fresh_candidate_digest"
       ],
       "unevaluatedProperties": false
+    },
+    "incident_proof": {
+      "type": "object",
+      "properties": {
+        "binding": {"type": "object"},
+        "installation_pins": {"type": "object"},
+        "root_path": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "root_identity": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/$defs/integer"}},
+        "contract": {"$ref": "#/$defs/incident_contract"},
+        "observation": {"$ref": "#/$defs/incident_observation"},
+        "gate_results": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"type": "object", "properties": {"gate_id": {"enum": ["detection", "containment", "recovery", "owner-route"]}, "passed": {"const": true}}, "required": ["gate_id", "passed"], "unevaluatedProperties": false}},
+        "action_ids": {"type": "array", "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "mutation_count": {"$ref": "#/$defs/integer"},
+        "unknown_claim_retained": {"type": "boolean"},
+        "service_restored": {"type": "boolean"},
+        "owner_route": {"$ref": "#/$defs/id"},
+        "inner_outcome": {"$ref": "#/$defs/id"},
+        "fresh_candidate_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      },
+      "required": ["binding", "installation_pins", "root_path", "root_identity", "contract", "observation", "gate_results", "action_ids", "mutation_count", "unknown_claim_retained", "service_restored", "owner_route", "inner_outcome", "fresh_candidate_digest"],
+      "unevaluatedProperties": false
     }
   },
   "required": [
@@ -1492,6 +1523,32 @@
         "not": {
           "required": [
             "refactor_proof"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture_row": {
+            "required": [
+              "incident_contract"
+            ]
+          }
+        },
+        "required": [
+          "fixture_row"
+        ]
+      },
+      "then": {
+        "required": [
+          "incident_proof"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "incident_proof"
           ]
         }
       }

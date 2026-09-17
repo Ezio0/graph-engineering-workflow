@@ -1231,6 +1231,135 @@ def reject_current_candidate(
         del observer
         request["metric_passed"] = True
 
+    def incident_contract(request: dict[str, object]) -> dict[str, object]:
+        value = request["incident_contract"]
+        if type(value) is not dict:
+            raise AssertionError("incident contract is unavailable")
+        return value
+
+    def affected_scope_substitution(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["affected_roles"] = []
+
+    def over_containment(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["affected_roles"].append("foreign-target")
+
+    def unaffected_mutation(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["unaffected_observations"][0]["value_digest"] = (
+            "sha256-jcs-v1:" + "f" * 64
+        )
+
+    def authority_omission(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["authority_id"] = None
+
+    def authority_substitution(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["authority_id"] += "-foreign"
+
+    def fence_substitution(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["fence_id"] += "-foreign"
+
+    def fence_omission(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["fence_id"] = None
+
+    def residual_state_substitution(
+        request: dict[str, object], observer: object,
+    ) -> None:
+        del observer
+        incident_contract(request)["residual_state_id"] += "-foreign"
+
+    def caller_scope_claim(request: dict[str, object], observer: object) -> None:
+        del observer
+        request["scope_contained"] = True
+
+    def impact_scope_substitution(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["impact_roles"] = ["foreign-target"]
+
+    def severity_substitution(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["severity"] += "-foreign"
+
+    def signal_substitution(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["signal"]["signal_id"] += "-foreign"
+
+    def signal_missing(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["signal"] = None
+
+    def signal_stale(request: dict[str, object], observer: object) -> None:
+        del observer
+        signal = incident_contract(request)["signal"]
+        signal["current_epoch"] = signal["observed_epoch"] + signal["max_age_epochs"] + 1
+
+    def caller_detection_claim(request: dict[str, object], observer: object) -> None:
+        del observer
+        request["detection_passed"] = True
+
+    def follow_up_omission(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["follow_up_id"] = None
+
+    def original_action_replay(request: dict[str, object], observer: object) -> None:
+        del observer
+        contract = incident_contract(request)
+        contract["action_ids"] = [contract["original_action_id"]]
+
+    def service_verification_omission(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["service_predicates"].pop()
+
+    def service_verification_stale(request: dict[str, object], observer: object) -> None:
+        del observer
+        predicate = incident_contract(request)["service_predicates"][0]
+        predicate["current_epoch"] = (
+            predicate["observed_epoch"] + predicate["max_age_epochs"] + 1
+        )
+
+    def unknown_recovery_input(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["effect_classification"] = "unknown"
+
+    def uncontained_recovery_input(
+        request: dict[str, object], observer: object,
+    ) -> None:
+        del observer
+        incident_contract(request)["contained_input"] = None
+
+    def service_restored_claim(request: dict[str, object], observer: object) -> None:
+        del observer
+        request["service_restored"] = True
+
+    def forbidden_unknown_action(request: dict[str, object], observer: object) -> None:
+        del observer
+        contract = incident_contract(request)
+        contract["action_ids"] = [contract["forbidden_action_ids"][0]]
+
+    def owner_route_substitution(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["owner_route"] += "-foreign"
+
+    def owner_route_empty(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["owner_route"] = ""
+
+    def unknown_claim_consumed(request: dict[str, object], observer: object) -> None:
+        del observer
+        incident_contract(request)["unknown_claim_id"] = None
+
+    def unknown_recovery_attempt(request: dict[str, object], observer: object) -> None:
+        del observer
+        contract = incident_contract(request)
+        recovery = contract["forbidden_action_ids"][1]
+        contract["action_ids"] = [recovery]
+        contract["compensation_id"] = recovery
+
     attacks = dict((
         ("missing-role", missing_role),
         ("extra-role", extra_role),
@@ -1258,6 +1387,33 @@ def reject_current_candidate(
         ("threshold-bool", threshold_bool),
         ("metric-miss", metric_miss),
         ("caller-metric-pass", caller_metric_pass),
+        ("affected-scope-substitution", affected_scope_substitution),
+        ("authority-omission", authority_omission),
+        ("authority-substitution", authority_substitution),
+        ("caller-detection-claim", caller_detection_claim),
+        ("caller-scope-claim", caller_scope_claim),
+        ("fence-omission", fence_omission),
+        ("fence-substitution", fence_substitution),
+        ("impact-scope-substitution", impact_scope_substitution),
+        ("over-containment", over_containment),
+        ("residual-state-substitution", residual_state_substitution),
+        ("severity-substitution", severity_substitution),
+        ("signal-missing", signal_missing),
+        ("signal-stale", signal_stale),
+        ("signal-substitution", signal_substitution),
+        ("follow-up-omission", follow_up_omission),
+        ("original-action-replay", original_action_replay),
+        ("service-restored-claim", service_restored_claim),
+        ("service-verification-omission", service_verification_omission),
+        ("service-verification-stale", service_verification_stale),
+        ("uncontained-recovery-input", uncontained_recovery_input),
+        ("unaffected-mutation", unaffected_mutation),
+        ("unknown-recovery-input", unknown_recovery_input),
+        ("forbidden-unknown-action", forbidden_unknown_action),
+        ("owner-route-empty", owner_route_empty),
+        ("owner-route-substitution", owner_route_substitution),
+        ("unknown-claim-consumed", unknown_claim_consumed),
+        ("unknown-recovery-attempt", unknown_recovery_attempt),
     ))
     try:
         for attack_id in registry_factory.rejection_attack_ids(binding["profile_id"], scenario_id):

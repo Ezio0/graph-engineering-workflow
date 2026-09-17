@@ -1751,3 +1751,57 @@ P2a receipt remains bound to its committed source, not the new working tree.
 - Review: independent implementation and Candidate reviewers receive exact source
   manifests and measured bounded results. Any unresolved finding keeps all six
   current sub-batch bindings missing and routes to the reducer/Human as required.
+
+### P2d bounded acceptance matrix — 2026-09-14
+
+- Documentation gate: exact P2d amendment, unchanged ADR-0008/Intent Baseline,
+  exact174 allowlist and four-document contract pass independent artifact review
+  before implementation files change.
+- RED/config: current236/118 is missing exactly eight incident P/R bindings and
+  four exact oracle paths. Requiring closed `incident_contract`/`incident_proof`
+  fails before implementation. Schema/config negatives cover missing, extra,
+  reordered or duplicate gates/actions/roles/predicates; unknown kinds; unsafe
+  scalars/paths; and coherent fixture/bootstrap/package re-sign attempts.
+- Detection P: installed fresh signal, exact impact roles and exact severity are
+  observed and bound. R covers missing/wrong/stale signal, wrong scope, severity
+  substitution and caller-provided detection/pass claims. No containment or
+  recovery result may appear after detection failure.
+- Containment P: detection is known; affected roles are exactly isolated;
+  unaffected observations remain byte-exact; authority, fence, residual state and
+  owner route are current. R covers over/under containment, any unaffected
+  mutation, stale/foreign authority or fence, stale target and caller scope flags.
+  Recovery evaluation count is zero on containment failure.
+- Recovery P: only a known and contained effect consumes the authorized
+  compensation; the original action is forbidden; all service predicates are
+  freshly and completely observed; follow-up and residual facts are nonempty. R
+  covers unknown/uncontained input, original-action replay, missing/partial/stale
+  predicates, fabricated restored state and missing follow-up.
+- Unknown-effects P: inner outcome is exactly `blocked-owner-route`; unknown claim
+  and residual state remain; route equals the installed nonempty owner; action,
+  replay, recovery, compensation, service-restored, target mutations and ordered
+  transitions are empty. R covers any such action/claim, consumed claim, empty or
+  foreign owner and fabricated restored state. Outer P only proves correct block.
+- Proof/authority: conditional proof binds exact observation, ordered successful
+  gates/actions, mutation accounting, owner route and inner outcome. Reject
+  missing/extra/reordered/cloned/foreign/stale proof/receipt, altered results and
+  P substitution. Issue/use/precommit/gate reread fixture/bootstrap/source/package
+  and targets; CAS restart uses a fresh factory with zero action/mutation replay.
+- Failure accounting: pre-mutation request/config attacks leave target/task/event/
+  CAS/ref/action/input unchanged. Injected post-write drift yields no observation,
+  assessment or coverage and truthful nonzero mutations. Unknown-effects P is an
+  explicit zero-mutation success condition, not a zero-write rejection alias.
+- Counts/oracles: prior236/118 plus eight/four additions gives plan244/oracle122
+  and 30 missing. Exact new paths are detection, containment, scenario-recovery
+  and unknown-effects. Assert mandatory incident recovery bytes remain SHA-256
+  `6e223a032f5549ce5489bd11877ec1309c437cf858568539e437da694024527c`.
+- Regression/currentness: rerun selected P2a multi-target, P2b guarded/hotfix and
+  P2c refactor lifecycle/currentness/loader cases plus scenario bootstrap,
+  package/wheel/RECORD and architecture/diff checks; protected files unchanged.
+- Execution boundary: strict serial, fresh private root per binding, each native
+  test command at most600 seconds, stop on first failure/timeout. Do not run a
+  cumulative selector, performance workload or monitor. Unit/control-flow tests
+  and plan shape are not a 244-valid cumulative receipt.
+- Review: independent implementation, verification, Candidate and technical
+  reviewers consume exact source manifests and measured bounded results. Any
+  unresolved finding keeps all eight current sub-batch bindings missing and
+  routes to the reducer/Human as required.
