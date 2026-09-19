@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:release-deployment-observation-input:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "raw": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "integer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "ids": {
+      "type": "array",
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "openObject": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 128,
+      "additionalProperties": true
+    },
+    "scalar": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "string",
+          "maxLength": 4096
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "action_id": {
+      "$ref": "#/$defs/id"
+    },
+    "claim_id": {
+      "$ref": "#/$defs/id"
+    },
+    "prepared_action_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "authority_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "receipt_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "expected_generation": {
+      "$ref": "#/$defs/integer"
+    },
+    "current_generation": {
+      "$ref": "#/$defs/integer"
+    },
+    "artifact_manifest_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "phase_transitions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "properties": {
+          "phase_id": {
+            "$ref": "#/$defs/id"
+          },
+          "generation": {
+            "$ref": "#/$defs/integer"
+          },
+          "state_digest": {
+            "$ref": "#/$defs/digest"
+          }
+        },
+        "required": [
+          "phase_id",
+          "generation",
+          "state_digest"
+        ],
+        "unevaluatedProperties": false
+      }
+    },
+    "fault_point": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/id"
+        }
+      ]
+    },
+    "reconciliation_state": {
+      "$ref": "#/$defs/id"
+    },
+    "before_target_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "after_target_digest": {
+      "$ref": "#/$defs/digest"
+    }
+  },
+  "required": [
+    "schema_version",
+    "action_id",
+    "claim_id",
+    "prepared_action_digest",
+    "authority_digest",
+    "receipt_digest",
+    "expected_generation",
+    "current_generation",
+    "artifact_manifest_digest",
+    "phase_transitions",
+    "fault_point",
+    "reconciliation_state",
+    "before_target_digest",
+    "after_target_digest"
+  ],
+  "unevaluatedProperties": false
+}

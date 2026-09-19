@@ -1,4 +1,207 @@
 {
+  "p3_foundation_records": [
+    {
+      "record_id": "p3-foundation-verification-2026-09-19-r0",
+      "reviewer_id": "/root/p3_foundation_commit_reviewer",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "verification",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "reviewer_id": "/root/p3_foundation_commit_reviewer",
+          "author_id": "/root",
+          "record_id": "p3-foundation-verification-2026-09-19-r0",
+          "packet_digest": "sha256:9c81ccf6f09321d615a66c2a6553675b7357cf4dc02a82988b641fbe1143245b",
+          "base_commit": "1f77f735f3036c971088fd2a00c1db5ae4064110",
+          "payload_staged_tree": "acf1bb23a776707235c6d6ef9460a20fdc19835f",
+          "payload_patch_sha256": "69dbdea7c3327ac631349deeffcf80d57bf6a2ee405e78df251b84d33e56337c",
+          "integrity_checks": {
+            "source_file_count": 58,
+            "staged_payload_file_count": 62,
+            "source_aggregate_sha256": "664868d13ea2d225f205f7d3b25b9e0f7a9fbe6a27b25e493645cf10f65fc6ac",
+            "implementation_artifact_digest": "sha256:970019018913e0637df4e0a0c0dd616e05cf84dd2d155219946797cddce9b7cd",
+            "result": "All current source and payload hashes independently matched actual bytes and index blobs. Index exactly matched the named payload tree. Nine preserved files matched both recorded hashes and base commit. Verification state binds the packet digest and exact authorized targets.",
+            "reducer_replay": "Attempt 0 REVISE and attempt 1 ADVANCE to verification independently reproduced their complete saved decisions, including input digests, using frozen graph, artifact-review policy and envelope inputs.",
+            "append_only_records": "The two downstream Candidate containers contain only new P3 fields; all previous members equal HEAD. These two expected downstream additions are unstaged. No untracked files were found.",
+            "whitespace_checks": "Both staged and unstaged git diff --check passed."
+          },
+          "authority_checks": {
+            "allowed_target_count": 179,
+            "exact_added_target_count": 5,
+            "historical_target_set_sha256": "dad52f1888bf262ce9ddd4b6528a2ca634e2ff0a06a8cd51c2a1ddffe870a7e9",
+            "result": "Current target set equals the historical exact174 set plus the five explicitly approved paths. Other envelope fields are unchanged. Separate current user authority permits one reviewed local commit only."
+          },
+          "verification_assessment": {
+            "recorded_serial_run": "25 tests passed, zero failures/errors/skips, 39.888 seconds, Python 3.12.12, strict serial execution with a 600-second bound.",
+            "recorded_repair_run": "Two affected authority tests passed, zero failures/errors/skips, 0.077 seconds.",
+            "reuse_validation": "Independent manifest comparison confirms only tests/security/test_wp08_remaining54_authority.py changed after the 25-test run. Its affected original selector and new equal-cardinality substitution negative were rerun. Production, schema, packaging and WP07A inputs remained unchanged.",
+            "coverage_inspection": "Selected tests cover eight exact schema pairs, installed issuance authority, package/source substitutions, coordinator-only mutation capability, root replacement, five fault cuts, receipt-bound restoration, same-claim compensation, typed nested evidence and fail-closed restart.",
+            "historical_failures": "Earlier import errors, concurrent non-acceptance executions and the expected RED regression remain recorded rather than relabeled.",
+            "reviewer_execution": "No test suites or workloads were rerun."
+          },
+          "retained_limits": [
+            "Plan remains 244 bindings and 122 oracle bindings, with 30 release bindings missing; no mandatory or scenario coverage acceptance is claimed.",
+            "Historical scenario_truth.py DATA_VALUE_IN_LOGIC finding remains outside this sub-batch; no whole-project static PASS is claimed.",
+            "Release evidence restart remains fail-closed without durable live-target, journal, claim and receipt revalidation.",
+            "This verdict completes verification review only. Candidate review and final complete staged-tree review remain separate.",
+            "Push, merge, deploy, release, network, WP10, cumulative/performance workloads, monitoring restoration and P3 mandatory/scenario work remain unauthorized."
+          ]
+        }
+      }
+    }
+    ,
+    {
+      "record_id": "p3-foundation-candidate-2026-09-19-r0",
+      "reviewer_id": "/root/p3_foundation_commit_reviewer",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "candidate",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "reviewer_id": "/root/p3_foundation_commit_reviewer",
+          "author_id": "/root",
+          "record_id": "p3-foundation-candidate-2026-09-19-r0",
+          "packet_digest": "sha256:9c81ccf6f09321d615a66c2a6553675b7357cf4dc02a82988b641fbe1143245b",
+          "base_commit": "1f77f735f3036c971088fd2a00c1db5ae4064110",
+          "reviewed_staged_tree": "7e5ff45a8e31fbee64c6b73e5e1bdf9dd7c82e8c",
+          "staged_path_count": 66,
+          "checks": [
+            "Candidate state has revision zero, correct task/node/artifact, distinct author and reviewer identities, no open findings, and the exact packet digest.",
+            "Candidate targets equal the 62 hashed payload paths plus the packet container, all within the current exact179 Authority Envelope.",
+            "The persisted verification verdict retains the previously returned independent PASS and evidence.",
+            "Verification reduction independently replayed to the complete saved ADVANCE-to-candidate decision; Candidate upstream record and all three input digests match it.",
+            "All 62 payload hashes and staged blobs remain unchanged from completed verification review.",
+            "All 66 changed paths are staged; index and worktree agree, no untracked files exist, and the index exactly matches the named staged tree.",
+            "The four downstream record containers preserve every historical HEAD member and add only their P3 packet or records fields.",
+            "Staged whitespace validation passed.",
+            "Reviewed action-coordinator capability/outcome changes, release assessment integration, relevant contracts and tests against the bounded foundation scope."
+          ],
+          "verification_reuse": "Completed verification findings and evidence remain valid because implementation and test inputs are unchanged. No test suite or workload was rerun.",
+          "scope": "Bounded offline release-operations foundation only. The 25-test serial evidence plus two affected authority regressions do not claim cumulative acceptance, whole-project static PASS, portable release restart or any of the 30 missing release bindings.",
+          "next_boundary": "This verdict covers the Candidate node only. Actual reduction and separate independent technical/final staged-tree review remain required before using the user's existing one-local-commit authority. No push, network, deployment, release, monitoring or expanded P3 execution authority is implied."
+        }
+      }
+    }
+    ,
+    {
+      "record_id": "p3-foundation-technical-2026-09-19-r0",
+      "reviewer_id": "/root/p3_foundation_commit_reviewer",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "REVISE",
+        "artifact": "review",
+        "scope_changed": false,
+        "change_kinds": [
+          "testability",
+          "traceability"
+        ],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P3-FOUNDATION-LIVE-CURRENTNESS-001",
+            "severity": "blocking",
+            "status": "open",
+            "evidence": "application/graph_engineering/application/release_operations.py:1023–1043 require_current validates installed resources, factory identity and frozen projection/schema/digests but never reads the issuing simulator session or current coordinator journal/claim/receipt. Evidence issuance at lines 826–1021 retains only the evidence object in _issued, with no evidence-to-live-authorities binding. Consequently an unchanged evidence object remains admissible after session.close(), target mutation, or terminal action-state drift while installation bytes remain unchanged. CategoryCompletionOracle.issue and require_issued rely on this method at profile_execution.py:1118 and :1254, including TaskApplication.complete_category checks. This contradicts ADR-0009 §5, lines 247–249, requiring live target/action revalidation on issue/use/precommit. Separately, issue_evidence checks factory-issued observation identities and the current target but does not revalidate the terminal coordinator outcome after deployment/health observations were issued; journal/claim/receipt drift between observation and final evidence issuance can therefore go undetected.",
+            "required_change": "Within the existing foundation scope, retain an opaque process-local binding from issued evidence and deployment observations to their original session, coordinator and outcomes. At final evidence issuance and every require_current/projection/oracle-use/precommit check, require the same live open session, freshly validate exact target/artifact/generation/slots and health, and rebind the terminal outcome to current coordinator journal/claim/receipt. Fail closed on closed, destroyed, foreign or changed live authorities without replaying apply/restore. For partial compensation, preserve the original manual deployment observation as historical receipt-bound evidence; validate the terminal compensated outcome as current rather than incorrectly requiring the superseded manual outcome to remain current. Keep portable restart unsupported and fail-closed.",
+            "verification": "Add RED-first bounded tests proving valid unchanged evidence still works, but same-process session closure/root destruction, target drift, and terminal journal/claim/receipt drift reject require_current/projection and assessment issuance with zero additional mutation/replay. Add a final-evidence issuance negative for coordinator drift after constituent observations, plus a precommit-hook negative showing closure or drift cannot commit task.category_assessed or a new assessment reference. Preserve a passing same-claim partial-compensation case where the original manual observation is historical and the terminal compensated outcome remains current. Refresh affected protected/package digests and evidence, run only justified bounded serial checks, then obtain independent review of the repaired revision."
+          }
+        ],
+        "evidence": {
+          "reviewer_id": "/root/p3_foundation_commit_reviewer",
+          "author_id": "/root",
+          "record_id": "p3-foundation-technical-2026-09-19-r0",
+          "packet_digest": "sha256:9c81ccf6f09321d615a66c2a6553675b7357cf4dc02a82988b641fbe1143245b",
+          "reviewed_staged_tree": "182217c15f6ddce0d746f953c53fd26dd3458e67",
+          "base_commit": "1f77f735f3036c971088fd2a00c1db5ae4064110",
+          "integrity": "All 62 payload hashes remain unchanged; all 66 changed paths are staged with exact index/worktree agreement and no untracked files. Historical container members remain unchanged. Whitespace validation passed.",
+          "upstream_replay": "Verification ADVANCE-to-candidate and Candidate ADVANCE-to-independent-review independently reproduced their complete saved decisions. Technical state correctly binds the packet, predecessor and reviewer.",
+          "review_method": "Static code-path inspection establishes the defect; no diagnostic workload, test rerun, file write, staging or network action was performed in this review.",
+          "scope_distinction": "The finding concerns already-implemented same-process live evidence use, not the explicitly deferred durable private-root reopening or portable restart design. It requires no new release coverage, target authority or external action.",
+          "commit_status": "Technical review is not approved. Preserve this rejected revision and repair before committing; existing user commit authority does not override the unresolved quality finding."
+        }
+      }
+    }
+    ,
+    {
+      "record_id": "p3-foundation-verification-2026-09-19-r1",
+      "reviewer_id": "/root/p3_foundation_commit_reviewer",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "verification",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "reviewer_id": "/root/p3_foundation_commit_reviewer",
+          "record_id": "p3-foundation-verification-2026-09-19-r1",
+          "packet_digest": "sha256:55746c8fe1bd79321bd713a94e4ddb48bf33e1178c691dd6d9b3cd33d06b6c2f",
+          "payload_files": 63,
+          "capture_tree": "cf2a1659109ba2ec409686f1b65da52701f1e4fe",
+          "checks": "Payload hashes/index bytes, packet/state revision continuity, authorized targets, capture tree/patch/base and preserved historical records all match. Implementation reducer independently replayed exactly to ADVANCE verification.",
+          "acceptance": "Current-source 30/30 bounded serial tests PASS, zero failures/errors/skips; completed repair inspection reused without rerunning workloads.",
+          "boundary": "Only the expected new packet/state records remain unstaged. Final complete-tree review remains pending; scope and known limitations are unchanged."
+        }
+      }
+    }
+    ,
+    {
+      "record_id": "p3-foundation-candidate-2026-09-19-r1",
+      "reviewer_id": "/root/p3_foundation_commit_reviewer",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "candidate",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [],
+        "evidence": {
+          "reviewer_id": "/root/p3_foundation_commit_reviewer",
+          "record_id": "p3-foundation-candidate-2026-09-19-r1",
+          "packet_digest": "sha256:55746c8fe1bd79321bd713a94e4ddb48bf33e1178c691dd6d9b3cd33d06b6c2f",
+          "staged_tree": "4a1b0fdc397ebc2dad9fdc5e0949812e4ca31295",
+          "checks": "All 63 payload hashes remain unchanged; exact67 staged paths match worktree with no untracked files. Candidate revision/binding/authority, historical preservation and whitespace checks passed. Verification r1 independently replayed exactly to ADVANCE candidate.",
+          "acceptance": "Unchanged repaired implementation and current-source 30/30 bounded verification evidence reused.",
+          "boundary": "Independent technical review and final exact-tree binding remain pending. No scope expansion or irreversible authority is implied."
+        }
+      }
+    }
+    ,
+    {
+      "record_id": "p3-foundation-technical-2026-09-19-r1",
+      "reviewer_id": "/root/p3_foundation_commit_reviewer",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "review",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P3-FOUNDATION-LIVE-CURRENTNESS-001",
+            "severity": "blocking",
+            "status": "resolved",
+            "evidence": "Repaired implementation and tests remain identical to independently reviewed attempt2: live authority revalidation and final post-observer transaction fence are present.",
+            "required_change": "None.",
+            "verification": "Current-source bounded serial 30/30 PASS evidence remains bound; closed/changed authority rejection and valid compensation/non-release paths are covered."
+          }
+        ],
+        "evidence": {
+          "reviewer_id": "/root/p3_foundation_commit_reviewer",
+          "record_id": "p3-foundation-technical-2026-09-19-r1",
+          "packet_digest": "sha256:55746c8fe1bd79321bd713a94e4ddb48bf33e1178c691dd6d9b3cd33d06b6c2f",
+          "staged_tree": "c251255e7bd857b7ebde3c86bd2f35d8d81ec43c",
+          "checks": "All 63 payload hashes remain exact; 67 staged paths match worktree. Candidate reduction replayed exactly to independent-review. Technical revision continuity, preserved history, whitespace and one-commit authority rebinding passed.",
+          "boundary": "Final audit must bind the tree after this verdict and actual reducer are persisted. Existing authority covers one local commit only; all other prohibitions and known limitations remain unchanged."
+        }
+      }
+    }
+  ],
   "p2c_records": [
     {
       "record_id": "p2c-implementation-2026-09-14-r0",

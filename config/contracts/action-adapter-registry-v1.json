@@ -17,7 +17,24 @@
         "git.update-ref"
       ],
       "implementation_ref": "builtin:git-native-v1",
-      "implementation_digest": "sha256-jcs-v1:56078d2d41b03231b4eaf082c1904cc56348a91e48d5802e8735da941f317b0b"
+      "implementation_digest": "sha256-jcs-v1:9616507a2dd78e4993e994b2da0f1d0e01f261e61688340a55e76f30c6fcc1e0"
+    },
+    {
+      "adapter_id": "local-release-simulator-v1",
+      "adapter_kind": "local-release-simulator",
+      "adapter_version": "1.0.0",
+      "capabilities": [
+        "fresh-target-query",
+        "generation-cas",
+        "private-filesystem"
+      ],
+      "operation_ids": [
+        "local-release-simulator.apply",
+        "local-release-simulator.query",
+        "local-release-simulator.restore"
+      ],
+      "implementation_ref": "builtin:local-release-simulator-v1",
+      "implementation_digest": "sha256-jcs-v1:512ad626f76ed875badaf7fc42c47c85ceeb8e498b130013a089a77d3322dc90"
     },
     {
       "adapter_id": "project-command-v1",
@@ -32,7 +49,7 @@
         "project.run"
       ],
       "implementation_ref": "builtin:project-command-v1",
-      "implementation_digest": "sha256-jcs-v1:e0fb96de1784f78b720bbafc023625ac05928a3ad6cf5c08a8775cc283bde8dc"
+      "implementation_digest": "sha256-jcs-v1:afc4eddfe365991ce0295ff83b3e3b071dcb81826d4c5f9ab725bf5ae3ec429d"
     },
     {
       "adapter_id": "target-query-v1",
@@ -45,7 +62,7 @@
         "target.observe"
       ],
       "implementation_ref": "builtin:target-query-v1",
-      "implementation_digest": "sha256-jcs-v1:cce86c8d6673561ffc6badb265b0d31a3b8416ee71862d8c2a6ec7393c37aa48"
+      "implementation_digest": "sha256-jcs-v1:8f60d315630bffc10e58e0ef7aaab1cc9831d58d28167cec5ba2489e9cb58e1e"
     },
     {
       "adapter_id": "secret-provider-v1",
@@ -58,7 +75,7 @@
         "secret.resolve"
       ],
       "implementation_ref": "builtin:secret-provider-v1",
-      "implementation_digest": "sha256-jcs-v1:8096bc6dcb7135c8e00422a93feaf723b40409afe84878f7d1dae6b83f519feb"
+      "implementation_digest": "sha256-jcs-v1:b35eab7c555662f32a20d10326d647967e6d6dc0d6a9bfc3c404c31918b1d6a5"
     },
     {
       "adapter_id": "connector-unavailable-v1",
@@ -71,8 +88,8 @@
         "connector.unavailable"
       ],
       "implementation_ref": "builtin:connector-unavailable-v1",
-      "implementation_digest": "sha256-jcs-v1:f53281427c9ebd292172743cefa1ceaec3d7a237543ddd296b77808c6ad7644e"
+      "implementation_digest": "sha256-jcs-v1:ad001364f625d63ecb1ee80764ab29905bc803c12dbb1866a240a7845576b9ae"
     }
   ],
-  "registry_digest": "sha256-jcs-v1:ccb9f1be03441e658b7c4dad8b0fba42948ebeb102364b50bb9e6d5fdd7ee069"
+  "registry_digest": "sha256-jcs-v1:1887efe554928ebde16a6077b239095644132fff36f6a634182f89cc8f092768"
 }

@@ -22,6 +22,7 @@ from graph_engineering.core.contracts.schema import SchemaProfilePolicy
 from graph_engineering.core.graph.budget import LoopBudgetRegistry
 from graph_engineering.core.migration_rehearsal import MIGRATION_REHEARSAL_SCHEMA_IDS
 from graph_engineering.core.performance_benchmark import PERFORMANCE_BENCHMARK_SCHEMA_IDS
+from graph_engineering.core.release_operations import RELEASE_OPERATIONS_SCHEMA_IDS
 from graph_engineering.core.scenario_truth import SCENARIO_TRUTH_SCHEMA_IDS
 
 
@@ -113,7 +114,7 @@ PROFILE_DOMAIN_SCHEMA_IDS = tuple(sorted({
     "urn:gew:schema:support-matrix-definition-input:1.0.0",
     "urn:gew:schema:support-matrix-definition:1.0.0",
 } | set(MIGRATION_REHEARSAL_SCHEMA_IDS) | set(PERFORMANCE_BENCHMARK_SCHEMA_IDS)
-  | set(SCENARIO_TRUTH_SCHEMA_IDS)))
+  | set(RELEASE_OPERATIONS_SCHEMA_IDS) | set(SCENARIO_TRUTH_SCHEMA_IDS)))
 
 
 class ProfileContractError(ValueError):

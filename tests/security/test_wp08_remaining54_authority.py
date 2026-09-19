@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import os
 import pathlib
 import tempfile
 import unittest
+from unittest import mock
 
 from graph_engineering.core.actions import ActionContractError, ActionPolicy
 from graph_engineering.core.security._common import unsigned_digest
@@ -286,10 +288,37 @@ class ScenarioTruthSecurityTests(unittest.TestCase):
             ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json"
         )
         targets = envelope["allowed_targets"]
-        self.assertEqual(len(targets), 174)  # type: ignore[arg-type]
-        self.assertEqual(len(set(targets)), 174)  # type: ignore[arg-type]
+        self.assertEqual(len(targets), 179)  # type: ignore[arg-type]
+        self.assertEqual(len(set(targets)), 179)  # type: ignore[arg-type]
         record = _document(
             ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json"
+        )
+        p3_amendment = record["p3_foundation_record_and_contract_amendment"]
+        p3_targets = {
+            "tests/contract/test_wp07a_action_contracts.py",
+            ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+            ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+            ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+            ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+        }
+        self.assertEqual(
+            set(p3_amendment["approved_target_boundary_addition"]), p3_targets,
+        )
+        self.assertEqual(p3_amendment["human_approval"], "明确批准这五个路径")
+        self.assertEqual(p3_amendment["previous_allowed_target_count"], 174)
+        self.assertEqual(p3_amendment["current_allowed_target_count"], 179)
+        self.assertLessEqual(p3_targets, set(targets))
+        self.assertEqual(len(set(targets) - p3_targets), 174)
+        historical_identity = json.dumps(
+            sorted(set(targets) - p3_targets),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        # Frozen from the approved exact174 envelope at base 1f77f735f3036c9.
+        self.assertEqual(
+            hashlib.sha256(historical_identity).hexdigest(),
+            "dad52f1888bf262ce9ddd4b6528a2ca634e2ff0a06a8cd51c2a1ddffe870a7e9",
+            "historical exact174 target identities changed",
         )
         repair = record["memory_repair_amendment"]
         repair_targets = {
@@ -305,7 +334,7 @@ class ScenarioTruthSecurityTests(unittest.TestCase):
         self.assertEqual(repair["previous_allowed_target_count"], 168)
         self.assertEqual(repair["current_allowed_target_count"], 174)
         self.assertLessEqual(repair_targets, set(targets))
-        historical_targets = set(targets) - repair_targets
+        historical_targets = set(targets) - repair_targets - p3_targets
         f1_target = "application/graph_engineering/application/dependency_security.py"
         d_target = "tests/security/test_wp07a_action_contract_security.py"
         self.assertIn(f1_target, targets)
@@ -337,6 +366,24 @@ class ScenarioTruthSecurityTests(unittest.TestCase):
             _document("config/verification/wp-00-targets.json")["files"]  # type: ignore[arg-type]
         )
         self.assertLessEqual(required, source_targets)
+
+    def test_equal_cardinality_historical_authority_substitution_is_rejected(self) -> None:
+        original_document = _document
+        envelope_path = ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json"
+
+        def substituted_document(relative: str) -> dict[str, object]:
+            document = original_document(relative)
+            if relative == envelope_path:
+                targets = document["allowed_targets"]
+                index = targets.index("docs/adr/0009-offline-release-operations-simulator-authority.md")
+                targets[index] = "docs/adr/unauthorized-equal-cardinality-substitution.md"
+                self.assertEqual(len(targets), 179)
+                self.assertEqual(len(set(targets)), 179)
+            return document
+
+        with mock.patch(__name__ + "._document", side_effect=substituted_document):
+            with self.assertRaisesRegex(AssertionError, "historical exact174 target identities"):
+                self.test_c_envelope_and_dual_runtime_source_membership_are_exact()
 
     def test_registry_and_observer_authorities_are_factory_local(self) -> None:
         first = ScenarioTruthRegistryFactory.from_installation()

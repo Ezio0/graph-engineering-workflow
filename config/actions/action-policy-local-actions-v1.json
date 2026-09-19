@@ -13,6 +13,7 @@
   ],
   "enabled_adapter_capabilities": [
     "fresh-target-query",
+    "local-release-simulator-v1",
     "native-precondition"
   ],
   "required_gate_capabilities": [
@@ -25,11 +26,11 @@
   ],
   "concrete_action_authority": {
     "policy_id": "concrete-action-policy-default",
-    "policy_digest": "sha256-jcs-v1:35dc37f7ea737b452ebaaba3585a3afb458ec332e2737b1ddfffd19f99fcc7a1",
+    "policy_digest": "sha256-jcs-v1:1abac14dbec75bfaa439e5ea1e063d7f59e5a105c930fc04c09acb76623412a5",
     "registry_id": "action-adapter-registry-default",
-    "registry_digest": "sha256-jcs-v1:ccb9f1be03441e658b7c4dad8b0fba42948ebeb102364b50bb9e6d5fdd7ee069",
+    "registry_digest": "sha256-jcs-v1:1887efe554928ebde16a6077b239095644132fff36f6a634182f89cc8f092768",
     "schema_registry_id": "urn:gew:schema-registry:action-adapters:1.0.0",
     "schema_registry_digest": "sha256-jcs-v1:26da6daa65594e6b85635f63df033db3e4b1a0a36f1eb7b4bec36403ba294d9a"
   },
-  "policy_digest": "sha256-jcs-v1:3358897e3486f714ccb22d013ac5140cafa727db8c7d4a71ee61d92466f0d536"
+  "policy_digest": "sha256-jcs-v1:a28ec50bca143ad042b3c0fcf83f6190c6ed0e2ee7b8bbb87063269594044fb5"
 }

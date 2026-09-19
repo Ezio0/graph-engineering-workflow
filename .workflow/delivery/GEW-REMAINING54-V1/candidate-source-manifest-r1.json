@@ -1,4 +1,1536 @@
 {
+  "p3_foundation_packets": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-foundation-precommit-2026-09-19-r0",
+      "scope": "Bounded P3 offline release-operations foundation only; no mandatory/scenario coverage issuance or whole-project completion.",
+      "base_commit": "1f77f735f3036c971088fd2a00c1db5ae4064110",
+      "upstream": {
+        "record_id": "p3-foundation-bounded-2026-09-18-r2-attempt1",
+        "source_manifest_path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        "member": "p3_foundation_revisions[0].source_manifest",
+        "artifact_digest": "sha256:970019018913e0637df4e0a0c0dd616e05cf84dd2d155219946797cddce9b7cd",
+        "decision": {
+          "schema_version": "1.0",
+          "task_id": "GEW-REMAINING54-V1",
+          "artifact": "implementation",
+          "decision": "ADVANCE",
+          "code": "OK_ADVANCE",
+          "message": "artifact passed independent review",
+          "next_node": "verification",
+          "revision": 1,
+          "human_required": false,
+          "current_node": "implementation",
+          "input_verdict": "PASS",
+          "input_digests": {
+            "envelope": "sha256:7f2495ea545487dfbce36795cb0a95f5ee99c318e0c62692a8edc8f80076ad7f",
+            "state": "sha256:2fd729e520babe1788b308823310b33334395e62bd146a2db8b6e83fd5c62dea",
+            "verdict": "sha256:e20a08d541e6a8b70cbdab2e89b5a6e43b9034319f09bba6cb8afd5c461f7ca2"
+          }
+        }
+      },
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "sha256": "f384ab86f2940b9d2f868b820743bd91237ce3dbbe2f204faa2844677a83c2d9"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "sha256": "e24375b4c96099a24d9ea0e769be4a8c6f7e446cbba54ea7d04be9615ae39ab7"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+          "sha256": "a7b887df890f319f4479ca41d3938f9442c37652b94aff5d9aa62d07c4a7ad50"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+          "sha256": "638d8f3549e7000c621af86fb76757a9c50d5bb1a249f015d44fbc025a9a5513"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+          "sha256": "e67afef12553a0579669b595434468ee723c7264bbe2b7ca358da080679152f9"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+          "sha256": "c0d4360795322d0fef08ae2546665654d51d25ebfb87144f0b6e47b08d57a4a5"
+        },
+        {
+          "path": "adapters/graph_engineering/adapters/action_adapters.py",
+          "sha256": "48559ae6f7041ca53c8cd0120147b89cb1a1566cef70978581c82e4565546113"
+        },
+        {
+          "path": "adapters/graph_engineering/adapters/local_release_simulator.py",
+          "sha256": "14a5e928f168cac9ae0366a7fe99248efff1be500774eecff2677408bc186299"
+        },
+        {
+          "path": "application/graph_engineering/application/actions.py",
+          "sha256": "678857e0c0d06b9ce543c0d76cf17e78cfda2dc0578df50dfef5f98c0559c166"
+        },
+        {
+          "path": "application/graph_engineering/application/profile_execution.py",
+          "sha256": "54f08a4ddb7d27b1f18de98de4d785c72a94fd57bb0ffa5c37197512ea654849"
+        },
+        {
+          "path": "application/graph_engineering/application/release_operations.py",
+          "sha256": "e89815c92fd7d96cab9298d7e2dffb9b2cd12adc214ab220b0cdd70b375c158a"
+        },
+        {
+          "path": "config/actions/action-policy-local-actions-v1.json",
+          "sha256": "513678090dbe0e090af0f1f61dabbbbfd5025691e7e908b4c865747593ea4981"
+        },
+        {
+          "path": "config/actions/action-policy-v1.json",
+          "sha256": "1a3162fe04b512bccfc09e2eed90309f3bbd148703d1d46597389846507fb1b3"
+        },
+        {
+          "path": "config/actions/concrete-action-policy-v1.json",
+          "sha256": "de5377b01afcc63ec619d4bac69c89f9958f0fa42490eae283db301e43d42207"
+        },
+        {
+          "path": "config/contracts/action-adapter-registry-v1.json",
+          "sha256": "49a8a279a39de8cf5dbfbf4da1cd706a56b6f1c54e824b47f6762e485abaefca"
+        },
+        {
+          "path": "config/contracts/profile-schema-registry-v1.json",
+          "sha256": "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58"
+        },
+        {
+          "path": "config/contracts/schemas/category-completion-assessment-1.4.0.json",
+          "sha256": "2a443352f7bb3490f567297c74880bf378d538f9a17968450c68b344be036b2f"
+        },
+        {
+          "path": "config/contracts/schemas/category-completion-assessment-input-1.4.0.json",
+          "sha256": "3b3421128d51dccdbb6ce6c32cc6f6ab7715cf9d25d6fc0903e093d80ef02f45"
+        },
+        {
+          "path": "config/contracts/schemas/release-artifact-manifest-1.0.0.json",
+          "sha256": "4310d8a06cc7316e90119b9747e3c6cfcf72bd33f46489a3e07ae4776deaad9c"
+        },
+        {
+          "path": "config/contracts/schemas/release-artifact-manifest-input-1.0.0.json",
+          "sha256": "beb8e6a75ad0419f456a296fd0abced092750947d437fab358b42bfadddbdfbb"
+        },
+        {
+          "path": "config/contracts/schemas/release-deployment-observation-1.0.0.json",
+          "sha256": "30d86746f1e64666673947fe5dbd2079193f9da23112f83447041896ed856bfa"
+        },
+        {
+          "path": "config/contracts/schemas/release-deployment-observation-input-1.0.0.json",
+          "sha256": "a4cd341ff81198f5c211d864a2dde4ec0e7204c46f7e8501f3af1975b85cf489"
+        },
+        {
+          "path": "config/contracts/schemas/release-health-observation-1.0.0.json",
+          "sha256": "c4f2ec66c579853b31c2bab1cd0003cd6c7148f865d33f6b66c47e4997d33d6c"
+        },
+        {
+          "path": "config/contracts/schemas/release-health-observation-input-1.0.0.json",
+          "sha256": "866559fecd73fe8eca119d14aa1aa8db9e16e459976d4122df1ccd275f106082"
+        },
+        {
+          "path": "config/contracts/schemas/release-operations-installation-bootstrap-1.0.0.json",
+          "sha256": "6b564f780f8144813eec388bcb0f9afed4827debf38db20892623ec65390e209"
+        },
+        {
+          "path": "config/contracts/schemas/release-operations-installation-bootstrap-input-1.0.0.json",
+          "sha256": "d1d1ce66905a67364ceaea82ec8622d5e6f6b9df7fad786d5a56f2a9a960fc15"
+        },
+        {
+          "path": "config/contracts/schemas/release-operations-observation-1.0.0.json",
+          "sha256": "8f38ad3c61f445fb8b34cfe68fdf66f4665a20466d7b1f79476248c2c267d644"
+        },
+        {
+          "path": "config/contracts/schemas/release-operations-observation-input-1.0.0.json",
+          "sha256": "88d0f95a29e7a3041862c2c55eb32db052b04a1c257fb8fd3dda4fe599b8e342"
+        },
+        {
+          "path": "config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
+          "sha256": "9bd136522454a76a5ec80cca2bf878873c19dcc72bb5160cb31323adf41f9f27"
+        },
+        {
+          "path": "config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+          "sha256": "7a53ef6dbd83976c8b73a4d809c4155d8580fa6d22cff9fb29c5f3d1f747134f"
+        },
+        {
+          "path": "config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
+          "sha256": "167e43b8617d903674c213dfd2fee0f148a784492355ff5d8967ef6be729f71f"
+        },
+        {
+          "path": "config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
+          "sha256": "32e5960f70cb6c7e3580f12ba21a1bb22731f18a5910632d4f2230674479bfc1"
+        },
+        {
+          "path": "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+          "sha256": "5c17328a63384724cbfb7f1edc481a9ca2fdfe19b91c6f423d79c99b65be90b1"
+        },
+        {
+          "path": "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+          "sha256": "7c742378ba4f1cbee90870e6a3be12099d19c24a5bfc88ba054282693f188cf5"
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "sha256": "c142ae87c7cecc506b6c200f607affa6c4a097dd2af4138790a2ea2a84418d2d"
+        },
+        {
+          "path": "config/release-operations/release-operations-installation-bootstrap-v1.json",
+          "sha256": "79189e7ae8f0d4f08a3fed6bd91d1a7e34b09c4ac28fcf758069b7f8bf169c18"
+        },
+        {
+          "path": "config/release-operations/release-operations-policy-registry-v1.json",
+          "sha256": "462c78c314bdf1c9f73f68be93c0f4a43c96d2b0f2641765c4bfc8da74735667"
+        },
+        {
+          "path": "config/release-operations/release-simulator-fixture-registry-v1.json",
+          "sha256": "490744599b6d528f132278f9301aa986240f0b74a36dd059bd82cb6b2508aa88"
+        },
+        {
+          "path": "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+          "sha256": "c10f32a2e708ff7687237b7a5c6bb92ee175f5e480292a2d04b59a87800cbe36"
+        },
+        {
+          "path": "config/security/security-runtime-local-actions-v1.json",
+          "sha256": "1098966cc36a13413da7fa2c79aac61a91b80603a00d0106236431490a601b80"
+        },
+        {
+          "path": "config/security/security-runtime-v1.json",
+          "sha256": "c13482802c58f2efd0be50ff8d73e67430bf3a899a04cb14e933ebf3b4608ac5"
+        },
+        {
+          "path": "config/verification/wp-00-targets.json",
+          "sha256": "16776927eba6a5f7331d0ec23cf6b149fef32680ebb1a1dc37a82fa04e86bc1f"
+        },
+        {
+          "path": "core/graph_engineering/__init__.py",
+          "sha256": "4e98a884d010f8a894e9c1203c03938f97f2b8cac012d651c404530a6481476a"
+        },
+        {
+          "path": "core/graph_engineering/core/profile_execution.py",
+          "sha256": "99c79e9a3822aa40c0f75d5a30fdfa37551d1bb3782928d836573c0727975e99"
+        },
+        {
+          "path": "core/graph_engineering/core/profiles.py",
+          "sha256": "19935139585751b22bb923c951d2e8267088b9361ad9bee9cf4ab96b85c85c91"
+        },
+        {
+          "path": "core/graph_engineering/core/release_operations.py",
+          "sha256": "259b7b244efe335b1c26077966b66ae2f107873bdbbfe80c75b4e0b774f5e0b6"
+        },
+        {
+          "path": "core/graph_engineering/core/source_checkout.py",
+          "sha256": "57a41257c623f6ebc9862ce973633c97b7bef33faa966442d4cd6b9a90e5e7c3"
+        },
+        {
+          "path": "docs/adr/0009-offline-release-operations-simulator-authority.md",
+          "sha256": "60cae0c53e3f12a0f6a5d79f08a4d8d567f43a0c85b0157cdc9cd323823b3776"
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "sha256": "db176be9d493df487d6ca5cc40a6b9e378a41940c75d52495ba0160aadeb4a6f"
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "sha256": "7d1fb49240fbf8dae06252a442b481bb43d3887262329611a9337848651dfbcd"
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "sha256": "28a3fa0d35703a451b4434167b481439fec34eec42381a13b12b9d1ca4a7c5e3"
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "sha256": "287508209216acbae760563b8e325aed406fb357a15bf8cb31b66b8b565a2ec7"
+        },
+        {
+          "path": "pyproject.toml",
+          "sha256": "7546a5d5d2885f343f3faa2d5c425c8e0eed6915aeff99eed42c0ddf12ac86c7"
+        },
+        {
+          "path": "tests/contract/test_wp07a_action_contracts.py",
+          "sha256": "7f35ca0eaf4e4a57c0e60a29550fefa903437e8760f95b2f27c8c3e129d488cc"
+        },
+        {
+          "path": "tests/contract/test_wp08_remaining54_contracts.py",
+          "sha256": "005be66e0a038eb7ff901b2ac0c5b69239f68b05631c94e1f86c317164493452"
+        },
+        {
+          "path": "tests/e2e/test_wp00_installed_wheel.py",
+          "sha256": "4bd8f5f7dd33e72f249029cb138d7b8d71e0ffb7931545fbd3b6e65588bec686"
+        },
+        {
+          "path": "tests/integration/test_wp08_release_operations.py",
+          "sha256": "2adf1390a8e91ef9213f3baaefcb50fbc9466972242470100dd96b576fa4f42a"
+        },
+        {
+          "path": "tests/security/test_wp08_remaining54_authority.py",
+          "sha256": "0a26429cf5a26f34c88bf2c4ff819b4c91565bd931b659d4a0103180c99e628a"
+        },
+        {
+          "path": "tests/support/source_checkout_attestation.py",
+          "sha256": "6b639eb312627b9d4372bffc8988f965c0d614b1a5edd26a3505f7af0dddb33b"
+        },
+        {
+          "path": "tests/support/wp08_release_operations.py",
+          "sha256": "405d1728ac193692d01cda9ecc44e0b6f7e85efd331bc5f8da9990d46670233f"
+        },
+        {
+          "path": "tests/unit/test_wp08_profile_contracts.py",
+          "sha256": "63901c64f37dcd2467d44bc11270f06377e5753d8391260c82790376de1dcb53"
+        },
+        {
+          "path": "tests/unit/test_wp08_release_operations.py",
+          "sha256": "c0aee236505cb7207d813f49233172bd0801329a79eb6a3da7f3203543eb8f98"
+        }
+      ],
+      "artifact_binding": "SHA-256 of this nested packet serialized as UTF-8 json.dumps(ensure_ascii=False, indent=2) plus one newline; file digests cover the exact 62-file implementation/evidence payload. Downstream record containers are appended separately and the final complete staged tree is independently checked before commit.",
+      "payload_staged_tree": "acf1bb23a776707235c6d6ef9460a20fdc19835f",
+      "payload_patch_digest_algorithm": "SHA-256 of git diff --cached --binary --no-ext-diff --no-textconv at the 62-file payload tree before downstream record additions.",
+      "verification": [
+        {
+          "completed_at_utc": "2026-09-18T02:42:05.172202+00:00",
+          "duration_seconds": 39.888,
+          "errors": 0,
+          "execution": "strict-serial; fresh test-owned roots; failfast",
+          "failures": 0,
+          "label": "p3-foundation-final-bounded-serial",
+          "python_version": "3.12.12",
+          "skipped": 0,
+          "started_at_utc": "2026-09-18T02:41:25.284354+00:00",
+          "status": "PASS",
+          "test_selectors": [
+            "tests.contract.test_wp07a_action_contracts",
+            "tests.security.test_wp08_remaining54_authority.ScenarioTruthSecurityTests.test_c_envelope_and_dual_runtime_source_membership_are_exact",
+            "tests.unit.test_wp08_release_operations",
+            "tests.integration.test_wp08_release_operations",
+            "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_expired_p",
+            "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_live_p",
+            "tests.contract.test_wp08_remaining54_contracts.Remaining54P3FoundationContractsTest",
+            "tests.contract.test_wp00_manifest_contract.GateManifestContractTests.test_source_manifest_is_exact_and_detects_mutation",
+            "tests.e2e.test_wp00_installed_wheel.InstalledWheelTests.test_wheel_runs_inside_decoy_project_without_source_imports"
+          ],
+          "tests_run": 25,
+          "timeout_seconds": 600
+        },
+        {
+          "label": "git-diff-check",
+          "status": "PASS",
+          "exit_code": 0
+        },
+        {
+          "label": "p3-foundation-exact174-substitution-repair",
+          "status": "PASS",
+          "started_at_utc": "2026-09-18T02:47:03.423981+00:00",
+          "completed_at_utc": "2026-09-18T02:47:03.501144+00:00",
+          "duration_seconds": 0.077,
+          "timeout_seconds": 600,
+          "execution": "strict-serial; fresh test-owned root; failfast",
+          "tests_run": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "test_selectors": [
+            "tests.security.test_wp08_remaining54_authority.ScenarioTruthSecurityTests.test_c_envelope_and_dual_runtime_source_membership_are_exact",
+            "tests.security.test_wp08_remaining54_authority.ScenarioTruthSecurityTests.test_equal_cardinality_historical_authority_substitution_is_rejected"
+          ],
+          "python_version": "3.12.12"
+        }
+      ],
+      "verification_reuse": {
+        "original_serial_run": "25/25 evidence remains bound to the preserved attempt 0 source snapshot. Only tests/security/test_wp08_remaining54_authority.py changed afterward; its affected original selector and new negative selector were rerun (2/2 PASS). No runtime, schema, package, action, WP07A contract or installed-source input changed.",
+        "changed_source_paths": [
+          "tests/security/test_wp08_remaining54_authority.py"
+        ]
+      },
+      "known_limitations": [
+        {
+          "id": "historical-scenario-truth-data-value-scan",
+          "status": "OPEN_OUTSIDE_THIS_SUB_BATCH",
+          "path": "core/graph_engineering/core/scenario_truth.py",
+          "detail": "The prior architecture scan reports DATA_VALUE_IN_LOGIC for _BEHAVIOR_FIELDS. This file is unchanged from the baseline; no whole-project static PASS is claimed."
+        },
+        {
+          "id": "release-evidence-restart",
+          "status": "FOUNDATION_LIMITATION",
+          "detail": "Stored release evidence is schema/digest/install checked but fails closed without authorized durable reopening and live target/journal/claim/receipt revalidation. Portable restart and release scenario completion remain unclaimed."
+        }
+      ],
+      "reducer_inputs": {
+        "graph": {
+          "source_path": "/Users/ezio/Documents/MyProjects/data/codex-skill-snapshots/e2d398ee7ea4e965d6f8f1c55f45debff7f69058/config/delivery-graph.json",
+          "raw_sha256": "0509725a3f60ad32712e349a357eb9d11a0c9ca0d71c2a35a4121e8402ed918d",
+          "document": {
+            "schema_version": "1.0",
+            "graph_version": "1.0.0",
+            "entry_node": "positioning",
+            "nodes": {
+              "positioning": {
+                "artifact": "positioning",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "prd"
+              },
+              "prd": {
+                "artifact": "prd",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "spec"
+              },
+              "spec": {
+                "artifact": "spec",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "impact"
+              },
+              "impact": {
+                "artifact": "impact",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "plan"
+              },
+              "plan": {
+                "artifact": "plan",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "test-plan"
+              },
+              "test-plan": {
+                "artifact": "test_plan",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "implementation"
+              },
+              "implementation": {
+                "artifact": "implementation",
+                "required_action": "implementation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "verification"
+              },
+              "verification": {
+                "artifact": "verification",
+                "required_action": "verification",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "candidate"
+              },
+              "candidate": {
+                "artifact": "candidate",
+                "required_action": "candidate",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "independent-review"
+              },
+              "independent-review": {
+                "artifact": "review",
+                "required_action": "review",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "commit"
+              },
+              "commit": {
+                "artifact": "commit",
+                "required_action": "commit",
+                "human_authority_required": true,
+                "terminal": false,
+                "next": "receipt"
+              },
+              "receipt": {
+                "artifact": "receipt",
+                "required_action": "receipt",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "retro"
+              },
+              "retro": {
+                "artifact": "retro",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "complete"
+              },
+              "complete": {
+                "artifact": "complete",
+                "required_action": "none",
+                "human_authority_required": false,
+                "terminal": true,
+                "next": null
+              }
+            }
+          }
+        },
+        "policy": {
+          "source_path": "/Users/ezio/Documents/MyProjects/data/codex-skill-snapshots/e2d398ee7ea4e965d6f8f1c55f45debff7f69058/config/workflow-policy.json",
+          "raw_sha256": "7cefc564ddd39c014d17b5536065a595de62fcf114b17ad3d70ec2aedc61116a",
+          "document": {
+            "artifact_review": {
+              "independent_review_required": true,
+              "max_revision_cycles": 3,
+              "allowed_verdicts": [
+                "PASS",
+                "REVISE",
+                "ESCALATE",
+                "BLOCKED"
+              ],
+              "finding_severities": [
+                "advisory",
+                "blocking"
+              ],
+              "finding_statuses": [
+                "open",
+                "resolved"
+              ],
+              "routine_change_kinds": [
+                "clarification",
+                "traceability",
+                "testability"
+              ],
+              "human_required_change_kinds": [
+                "goal",
+                "non-goal",
+                "scope-expansion",
+                "target-boundary",
+                "tier",
+                "budget",
+                "external-dependency",
+                "data-access",
+                "security-posture",
+                "architecture-choice",
+                "reviewer-conflict"
+              ],
+              "irreversible_actions": [
+                "commit",
+                "push",
+                "merge",
+                "deploy",
+                "release",
+                "external-message"
+              ]
+            }
+          }
+        },
+        "envelope": {
+          "source_path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "raw_sha256": "f384ab86f2940b9d2f868b820743bd91237ce3dbbe2f204faa2844677a83c2d9",
+          "document": {
+            "schema_version": "1.0",
+            "task_id": "GEW-REMAINING54-V1",
+            "goal": "Complete the exact 54 missing WP-08 coverage bindings with Human-approved P1 performance scenarios, P2 local profile scenario truth, and P3 offline release-operations simulation, ending at plan 274, oracle bindings 137, and a dynamic gate with 274 valid, zero missing, and passed true.",
+            "non_goals": [
+              "Change the approved Positioning or PRD Intent Baseline.",
+              "Use or modify a user project or the read-only reference repository.",
+              "Use a real staging or production environment, network access, remote health checks, credentials, or external services.",
+              "Enable or implement WP-10 installation, upgrade, deployment, publication, or release scope.",
+              "Add a database schema, repository event kind, GraphRef field or API, dependency, daemon, or remote state service.",
+              "Treat local production-like or release-simulator evidence as real production, deployment, or release evidence.",
+              "Commit, push, merge, deploy, release, publish, or communicate externally."
+            ],
+            "allowed_targets": [
+              ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-decision-r1.json",
+              "docs/adr/0007-offline-performance-benchmark-authority.md",
+              "docs/adr/0008-local-profile-scenario-truth-authority.md",
+              "docs/adr/0009-offline-release-operations-simulator-authority.md",
+              "docs/specs/graph-engineering-workflow.md",
+              "docs/impact/graph-engineering-workflow.md",
+              "docs/plans/2026-08-13-graph-engineering-workflow.md",
+              "docs/test-plans/graph-engineering-workflow.md",
+              "pyproject.toml",
+              "core/graph_engineering/__init__.py",
+              "core/graph_engineering/core/__init__.py",
+              "core/graph_engineering/core/contracts/resources.py",
+              "core/graph_engineering/core/performance_benchmark.py",
+              "core/graph_engineering/core/profile_coverage.py",
+              "core/graph_engineering/core/profile_execution.py",
+              "core/graph_engineering/core/source_checkout.py",
+              "core/graph_engineering/core/profiles.py",
+              "core/graph_engineering/core/scenario_truth.py",
+              "core/graph_engineering/core/release_operations.py",
+              "application/graph_engineering/application/__init__.py",
+              "application/graph_engineering/application/actions.py",
+              "application/graph_engineering/application/dependency_security.py",
+              "application/graph_engineering/application/performance_benchmark.py",
+              "application/graph_engineering/application/profile_execution.py",
+              "application/graph_engineering/application/profile_coverage.py",
+              "application/graph_engineering/application/profile_coverage_oracle.py",
+              "application/graph_engineering/application/profile_real_e2e.py",
+              "application/graph_engineering/application/profile_real_e2e_verifier.py",
+              "application/graph_engineering/application/runner.py",
+              "application/graph_engineering/application/runtime.py",
+              "application/graph_engineering/application/tasks.py",
+              "application/graph_engineering/application/scenario_truth.py",
+              "application/graph_engineering/application/release_operations.py",
+              "adapters/graph_engineering/adapters/__init__.py",
+              "adapters/graph_engineering/adapters/action_adapters.py",
+              "adapters/graph_engineering/adapters/local_release_simulator.py",
+              "config/actions/action-policy-local-actions-v1.json",
+              "config/actions/action-policy-v1.json",
+              "config/actions/concrete-action-policy-v1.json",
+              "config/actions/connector-registry-v1.json",
+              "config/contracts/action-adapter-registry-v1.json",
+              "config/contracts/action-adapter-schema-registry-v1.json",
+              "config/contracts/profile-schema-registry-v1.json",
+              "config/contracts/schemas/scenario-truth-policy-registry-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-policy-registry-input-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-observation-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-installation-bootstrap-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-installation-bootstrap-input-1.0.0.json",
+              "config/contracts/schemas/category-completion-assessment-1.3.0.json",
+              "config/contracts/schemas/category-completion-assessment-input-1.3.0.json",
+              "config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
+              "config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+              "config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
+              "config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
+              "config/contracts/schemas/release-artifact-manifest-1.0.0.json",
+              "config/contracts/schemas/release-artifact-manifest-input-1.0.0.json",
+              "config/contracts/schemas/release-health-observation-1.0.0.json",
+              "config/contracts/schemas/release-health-observation-input-1.0.0.json",
+              "config/contracts/schemas/release-deployment-observation-1.0.0.json",
+              "config/contracts/schemas/release-deployment-observation-input-1.0.0.json",
+              "config/contracts/schemas/release-operations-observation-1.0.0.json",
+              "config/contracts/schemas/release-operations-observation-input-1.0.0.json",
+              "config/contracts/schemas/release-operations-installation-bootstrap-1.0.0.json",
+              "config/contracts/schemas/release-operations-installation-bootstrap-input-1.0.0.json",
+              "config/contracts/schemas/category-completion-assessment-1.4.0.json",
+              "config/contracts/schemas/category-completion-assessment-input-1.4.0.json",
+              "config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json",
+              "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+              "config/performance/performance-benchmark-registry-v1.json",
+              "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+              "config/profiles/profile-coverage-execution-plan-v1.json",
+              "config/profiles/profile-real-e2e-binding-registry-v1.json",
+              "config/profiles/scenario-truth-policy-registry-v1.json",
+              "config/profiles/scenario-truth-fixture-registry-v1.json",
+              "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+              "config/release-coverage/oracle-manifest-v1.json",
+              "config/release-operations/release-operations-policy-registry-v1.json",
+              "config/release-operations/release-simulator-fixture-registry-v1.json",
+              "config/release-operations/release-operations-installation-bootstrap-v1.json",
+              "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+              "config/security/security-runtime-local-actions-v1.json",
+              "config/security/security-runtime-v1.json",
+              "config/test-oracles/profile-performance-noise-outlier-v1.json",
+              "config/test-oracles/profile-performance-correctness-regression-v1.json",
+              "config/test-oracles/profile-new-feature-multi-target-v1.json",
+              "config/test-oracles/profile-hotfix-emergency-baseline-v1.json",
+              "config/test-oracles/profile-hotfix-production-like-gate-v1.json",
+              "config/test-oracles/profile-refactor-debt-behavior-characterization-v1.json",
+              "config/test-oracles/profile-refactor-debt-architecture-invariant-v1.json",
+              "config/test-oracles/profile-refactor-debt-nonfunctional-target-v1.json",
+              "config/test-oracles/profile-incident-response-detection-v1.json",
+              "config/test-oracles/profile-incident-response-containment-v1.json",
+              "config/test-oracles/profile-incident-response-scenario-recovery-v1.json",
+              "config/test-oracles/profile-incident-response-unknown-effects-v1.json",
+              "config/test-oracles/profile-release-operations-artifacts-v1.json",
+              "config/test-oracles/profile-release-operations-authority-v1.json",
+              "config/test-oracles/profile-release-operations-boundary-v1.json",
+              "config/test-oracles/profile-release-operations-drift-v1.json",
+              "config/test-oracles/profile-release-operations-invalidation-v1.json",
+              "config/test-oracles/profile-release-operations-normal-v1.json",
+              "config/test-oracles/profile-release-operations-real-e2e-v1.json",
+              "config/test-oracles/profile-release-operations-recovery-v1.json",
+              "config/test-oracles/profile-release-operations-review-v1.json",
+              "config/test-oracles/profile-release-operations-revise-v1.json",
+              "config/test-oracles/profile-release-operations-rollback-v1.json",
+              "config/test-oracles/profile-release-operations-target-v1.json",
+              "config/test-oracles/profile-release-operations-artifact-provenance-v1.json",
+              "config/test-oracles/profile-release-operations-health-gate-v1.json",
+              "config/test-oracles/profile-release-operations-partial-deploy-v1.json",
+              "config/verification/wp-00-targets.json",
+              "scripts/check_architecture.py",
+              "tests/fixtures/wp08-release-operations-real-e2e-v1.json",
+              "tests/support/runtime_distribution.py",
+              "tests/support/runtime_resources.py",
+              "tests/support/source_checkout_attestation.py",
+              "tests/support/wp05_actions.py",
+              "tests/support/wp08_category_execution.py",
+              "tests/support/wp08_performance_benchmark.py",
+              "tests/support/wp08_release_coverage.py",
+              "tests/support/wp08_scenario_truth.py",
+              "tests/support/wp08_release_operations.py",
+              "tests/unit/test_wp00_packaging.py",
+              "tests/unit/test_wp08_profile_contracts.py",
+              "tests/unit/test_wp08_profile_expansion.py",
+              "tests/unit/test_wp08_scenario_truth.py",
+              "tests/unit/test_wp08_release_operations.py",
+              "tests/contract/test_wp08_remaining54_contracts.py",
+              "tests/integration/test_wp08_category_execution.py",
+              "tests/integration/test_wp08_release_coverage.py",
+              "tests/integration/test_wp08_scenario_truth.py",
+              "tests/integration/test_wp08_release_operations.py",
+              "tests/security/test_wp07a_action_contract_security.py",
+              "tests/contract/test_wp07a_action_contracts.py",
+              "tests/security/test_wp08_remaining54_authority.py",
+              "tests/e2e/test_wp00_installed_wheel.py"
+            ],
+            "allowed_change_kinds": [
+              "architecture-detail",
+              "clarification",
+              "consistency",
+              "traceability",
+              "testability",
+              "implementation",
+              "configuration",
+              "test",
+              "verification-evidence"
+            ],
+            "human_required_change_kinds": [
+              "goal",
+              "non-goal",
+              "target-boundary",
+              "intent-baseline",
+              "authority-expansion",
+              "material-architecture-choice",
+              "dependency",
+              "data-access",
+              "security-posture",
+              "irreversible-action"
+            ],
+            "authorized_actions": [
+              "documentation",
+              "implementation",
+              "verification",
+              "independent-review",
+              "candidate",
+              "review"
+            ]
+          }
+        }
+      },
+      "authority_boundary": {
+        "local_commit": "Separately authorized by user: commit 然后继续 (2026-09-19). Only one reviewed local commit.",
+        "unchanged_prohibited": [
+          "push",
+          "merge",
+          "deploy",
+          "release",
+          "network",
+          "WP10",
+          "external-communication",
+          "cumulative-run",
+          "cumulative-rerun",
+          "performance-workload",
+          "monitoring-restoration",
+          "P3-mandatory-coverage",
+          "P3-scenario-coverage",
+          "budget-change"
+        ],
+        "plan_shape": {
+          "bindings": 244,
+          "oracle_bindings": 122,
+          "remaining_bindings": 30
+        }
+      },
+      "payload_patch_sha256": "69dbdea7c3327ac631349deeffcf80d57bf6a2ee405e78df251b84d33e56337c"
+    }
+    ,
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-foundation-precommit-2026-09-19-r1",
+      "scope": "Bounded P3 offline release-operations foundation only; no mandatory/scenario coverage issuance or whole-project completion.",
+      "base_commit": "1f77f735f3036c971088fd2a00c1db5ae4064110",
+      "upstream": {
+        "record_id": "p3-foundation-bounded-2026-09-19-r2-attempt2",
+        "source_manifest_path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        "member": "p3_foundation_revisions[1].source_manifest",
+        "artifact_digest": "sha256:8e3916c256deedc62e315b0962bf384c741b9790650abdb835854cd9600c6490",
+        "decision": {
+          "schema_version": "1.0",
+          "task_id": "GEW-REMAINING54-V1",
+          "artifact": "implementation",
+          "decision": "ADVANCE",
+          "code": "OK_ADVANCE",
+          "message": "artifact passed independent review",
+          "next_node": "verification",
+          "revision": 2,
+          "human_required": false,
+          "current_node": "implementation",
+          "input_verdict": "PASS",
+          "input_digests": {
+            "envelope": "sha256:7f2495ea545487dfbce36795cb0a95f5ee99c318e0c62692a8edc8f80076ad7f",
+            "state": "sha256:64b581958e1fb66a2ae015873e4cf2263ddfc5549ed6b4d7d5b2d199de243407",
+            "verdict": "sha256:6f64768c871eaa0b486f1fec039fa6bea7425c52d5b7f93f9c8ed51025f2f591"
+          }
+        }
+      },
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "sha256": "f384ab86f2940b9d2f868b820743bd91237ce3dbbe2f204faa2844677a83c2d9"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "sha256": "e24375b4c96099a24d9ea0e769be4a8c6f7e446cbba54ea7d04be9615ae39ab7"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+          "sha256": "9b78ff40c39c9c86ad8ab2f794d88a0ce1c12f9b44a0ac6b437a5e1f161abbc1"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+          "sha256": "1b6261b26ec6d2cdca683fb5cd17390765a8d44da33a28e9ae0787a11c880b87"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+          "sha256": "fb6cd65c442e526e9d4fd467a19dc6fc59cbb1d86e68b79285683b2f324d3d91"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+          "sha256": "d196780f29e368c71565c6bd9bd2ebe5f52393904bc790f8f5b0fd307d8fd6cd"
+        },
+        {
+          "path": "adapters/graph_engineering/adapters/action_adapters.py",
+          "sha256": "48559ae6f7041ca53c8cd0120147b89cb1a1566cef70978581c82e4565546113"
+        },
+        {
+          "path": "adapters/graph_engineering/adapters/local_release_simulator.py",
+          "sha256": "14a5e928f168cac9ae0366a7fe99248efff1be500774eecff2677408bc186299"
+        },
+        {
+          "path": "application/graph_engineering/application/actions.py",
+          "sha256": "678857e0c0d06b9ce543c0d76cf17e78cfda2dc0578df50dfef5f98c0559c166"
+        },
+        {
+          "path": "application/graph_engineering/application/profile_execution.py",
+          "sha256": "7db57559ffc98906e2dc1d01fc31a7f46986ec61d80f99368da92c22eef12cf9"
+        },
+        {
+          "path": "application/graph_engineering/application/release_operations.py",
+          "sha256": "e988b9290a4e4292043ad834e15d3dc499dd08831feec021c46237c899d1f367"
+        },
+        {
+          "path": "application/graph_engineering/application/tasks.py",
+          "sha256": "4945d02d00f84978f5357c7a37ef719c356bbaeb23d2941174a0b38560661dff"
+        },
+        {
+          "path": "config/actions/action-policy-local-actions-v1.json",
+          "sha256": "513678090dbe0e090af0f1f61dabbbbfd5025691e7e908b4c865747593ea4981"
+        },
+        {
+          "path": "config/actions/action-policy-v1.json",
+          "sha256": "1a3162fe04b512bccfc09e2eed90309f3bbd148703d1d46597389846507fb1b3"
+        },
+        {
+          "path": "config/actions/concrete-action-policy-v1.json",
+          "sha256": "de5377b01afcc63ec619d4bac69c89f9958f0fa42490eae283db301e43d42207"
+        },
+        {
+          "path": "config/contracts/action-adapter-registry-v1.json",
+          "sha256": "49a8a279a39de8cf5dbfbf4da1cd706a56b6f1c54e824b47f6762e485abaefca"
+        },
+        {
+          "path": "config/contracts/profile-schema-registry-v1.json",
+          "sha256": "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58"
+        },
+        {
+          "path": "config/contracts/schemas/category-completion-assessment-1.4.0.json",
+          "sha256": "2a443352f7bb3490f567297c74880bf378d538f9a17968450c68b344be036b2f"
+        },
+        {
+          "path": "config/contracts/schemas/category-completion-assessment-input-1.4.0.json",
+          "sha256": "3b3421128d51dccdbb6ce6c32cc6f6ab7715cf9d25d6fc0903e093d80ef02f45"
+        },
+        {
+          "path": "config/contracts/schemas/release-artifact-manifest-1.0.0.json",
+          "sha256": "4310d8a06cc7316e90119b9747e3c6cfcf72bd33f46489a3e07ae4776deaad9c"
+        },
+        {
+          "path": "config/contracts/schemas/release-artifact-manifest-input-1.0.0.json",
+          "sha256": "beb8e6a75ad0419f456a296fd0abced092750947d437fab358b42bfadddbdfbb"
+        },
+        {
+          "path": "config/contracts/schemas/release-deployment-observation-1.0.0.json",
+          "sha256": "30d86746f1e64666673947fe5dbd2079193f9da23112f83447041896ed856bfa"
+        },
+        {
+          "path": "config/contracts/schemas/release-deployment-observation-input-1.0.0.json",
+          "sha256": "a4cd341ff81198f5c211d864a2dde4ec0e7204c46f7e8501f3af1975b85cf489"
+        },
+        {
+          "path": "config/contracts/schemas/release-health-observation-1.0.0.json",
+          "sha256": "c4f2ec66c579853b31c2bab1cd0003cd6c7148f865d33f6b66c47e4997d33d6c"
+        },
+        {
+          "path": "config/contracts/schemas/release-health-observation-input-1.0.0.json",
+          "sha256": "866559fecd73fe8eca119d14aa1aa8db9e16e459976d4122df1ccd275f106082"
+        },
+        {
+          "path": "config/contracts/schemas/release-operations-installation-bootstrap-1.0.0.json",
+          "sha256": "6b564f780f8144813eec388bcb0f9afed4827debf38db20892623ec65390e209"
+        },
+        {
+          "path": "config/contracts/schemas/release-operations-installation-bootstrap-input-1.0.0.json",
+          "sha256": "d1d1ce66905a67364ceaea82ec8622d5e6f6b9df7fad786d5a56f2a9a960fc15"
+        },
+        {
+          "path": "config/contracts/schemas/release-operations-observation-1.0.0.json",
+          "sha256": "8f38ad3c61f445fb8b34cfe68fdf66f4665a20466d7b1f79476248c2c267d644"
+        },
+        {
+          "path": "config/contracts/schemas/release-operations-observation-input-1.0.0.json",
+          "sha256": "88d0f95a29e7a3041862c2c55eb32db052b04a1c257fb8fd3dda4fe599b8e342"
+        },
+        {
+          "path": "config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
+          "sha256": "9bd136522454a76a5ec80cca2bf878873c19dcc72bb5160cb31323adf41f9f27"
+        },
+        {
+          "path": "config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+          "sha256": "7a53ef6dbd83976c8b73a4d809c4155d8580fa6d22cff9fb29c5f3d1f747134f"
+        },
+        {
+          "path": "config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
+          "sha256": "167e43b8617d903674c213dfd2fee0f148a784492355ff5d8967ef6be729f71f"
+        },
+        {
+          "path": "config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
+          "sha256": "32e5960f70cb6c7e3580f12ba21a1bb22731f18a5910632d4f2230674479bfc1"
+        },
+        {
+          "path": "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+          "sha256": "a5be1d0f594486fe11e22f0d3358f4b8813cbb8b27252ea466ea6fae537a240d"
+        },
+        {
+          "path": "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+          "sha256": "06c6e1d1fe7d9c46920aff46017f11355537b28a4efcf7d948fed70880676bb2"
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "sha256": "d7609ee782dad9a46f87060e31a519c8043ca6e6fffc5720f419f4a083f665ad"
+        },
+        {
+          "path": "config/release-operations/release-operations-installation-bootstrap-v1.json",
+          "sha256": "00c589543f15385c7bd3e13eef3e337fc03a82a2fd39677c834ab1f6295fa00b"
+        },
+        {
+          "path": "config/release-operations/release-operations-policy-registry-v1.json",
+          "sha256": "462c78c314bdf1c9f73f68be93c0f4a43c96d2b0f2641765c4bfc8da74735667"
+        },
+        {
+          "path": "config/release-operations/release-simulator-fixture-registry-v1.json",
+          "sha256": "490744599b6d528f132278f9301aa986240f0b74a36dd059bd82cb6b2508aa88"
+        },
+        {
+          "path": "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+          "sha256": "c10f32a2e708ff7687237b7a5c6bb92ee175f5e480292a2d04b59a87800cbe36"
+        },
+        {
+          "path": "config/security/security-runtime-local-actions-v1.json",
+          "sha256": "1098966cc36a13413da7fa2c79aac61a91b80603a00d0106236431490a601b80"
+        },
+        {
+          "path": "config/security/security-runtime-v1.json",
+          "sha256": "c13482802c58f2efd0be50ff8d73e67430bf3a899a04cb14e933ebf3b4608ac5"
+        },
+        {
+          "path": "config/verification/wp-00-targets.json",
+          "sha256": "16776927eba6a5f7331d0ec23cf6b149fef32680ebb1a1dc37a82fa04e86bc1f"
+        },
+        {
+          "path": "core/graph_engineering/__init__.py",
+          "sha256": "4e98a884d010f8a894e9c1203c03938f97f2b8cac012d651c404530a6481476a"
+        },
+        {
+          "path": "core/graph_engineering/core/profile_execution.py",
+          "sha256": "99c79e9a3822aa40c0f75d5a30fdfa37551d1bb3782928d836573c0727975e99"
+        },
+        {
+          "path": "core/graph_engineering/core/profiles.py",
+          "sha256": "19935139585751b22bb923c951d2e8267088b9361ad9bee9cf4ab96b85c85c91"
+        },
+        {
+          "path": "core/graph_engineering/core/release_operations.py",
+          "sha256": "259b7b244efe335b1c26077966b66ae2f107873bdbbfe80c75b4e0b774f5e0b6"
+        },
+        {
+          "path": "core/graph_engineering/core/source_checkout.py",
+          "sha256": "57a41257c623f6ebc9862ce973633c97b7bef33faa966442d4cd6b9a90e5e7c3"
+        },
+        {
+          "path": "docs/adr/0009-offline-release-operations-simulator-authority.md",
+          "sha256": "60cae0c53e3f12a0f6a5d79f08a4d8d567f43a0c85b0157cdc9cd323823b3776"
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "sha256": "db176be9d493df487d6ca5cc40a6b9e378a41940c75d52495ba0160aadeb4a6f"
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "sha256": "7d1fb49240fbf8dae06252a442b481bb43d3887262329611a9337848651dfbcd"
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "sha256": "28a3fa0d35703a451b4434167b481439fec34eec42381a13b12b9d1ca4a7c5e3"
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "sha256": "287508209216acbae760563b8e325aed406fb357a15bf8cb31b66b8b565a2ec7"
+        },
+        {
+          "path": "pyproject.toml",
+          "sha256": "909f8e61e23dc7604b59902436b8d599e4c815c9716343fede3001f58d62ec61"
+        },
+        {
+          "path": "tests/contract/test_wp07a_action_contracts.py",
+          "sha256": "7f35ca0eaf4e4a57c0e60a29550fefa903437e8760f95b2f27c8c3e129d488cc"
+        },
+        {
+          "path": "tests/contract/test_wp08_remaining54_contracts.py",
+          "sha256": "005be66e0a038eb7ff901b2ac0c5b69239f68b05631c94e1f86c317164493452"
+        },
+        {
+          "path": "tests/e2e/test_wp00_installed_wheel.py",
+          "sha256": "4bd8f5f7dd33e72f249029cb138d7b8d71e0ffb7931545fbd3b6e65588bec686"
+        },
+        {
+          "path": "tests/integration/test_wp08_release_operations.py",
+          "sha256": "b875056a24aaa98d65f829462693bb38f73fdea3415d2e67702f812a2bd3d662"
+        },
+        {
+          "path": "tests/security/test_wp08_remaining54_authority.py",
+          "sha256": "0a26429cf5a26f34c88bf2c4ff819b4c91565bd931b659d4a0103180c99e628a"
+        },
+        {
+          "path": "tests/support/source_checkout_attestation.py",
+          "sha256": "6b639eb312627b9d4372bffc8988f965c0d614b1a5edd26a3505f7af0dddb33b"
+        },
+        {
+          "path": "tests/support/wp08_release_operations.py",
+          "sha256": "405d1728ac193692d01cda9ecc44e0b6f7e85efd331bc5f8da9990d46670233f"
+        },
+        {
+          "path": "tests/unit/test_wp08_profile_contracts.py",
+          "sha256": "63901c64f37dcd2467d44bc11270f06377e5753d8391260c82790376de1dcb53"
+        },
+        {
+          "path": "tests/unit/test_wp08_release_operations.py",
+          "sha256": "c0aee236505cb7207d813f49233172bd0801329a79eb6a3da7f3203543eb8f98"
+        }
+      ],
+      "artifact_binding": "SHA-256 of this nested packet serialized as UTF-8 json.dumps(ensure_ascii=False, indent=2) plus newline. File digests cover the exact63 implementation/evidence payload. The four downstream append-only containers are additionally covered by the final complete staged-tree review before commit.",
+      "verification": [
+        {
+          "label": "p3-foundation-live-currentness-final-bounded-serial",
+          "status": "PASS",
+          "tests_run": 30,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "started_at_utc": "2026-09-19T10:02:42.945283+00:00",
+          "completed_at_utc": "2026-09-19T10:04:26.775943+00:00",
+          "duration_seconds": 103.831,
+          "timeout_seconds": 600,
+          "execution": "strict-serial; fresh test-owned roots; failfast",
+          "test_selectors": [
+            "tests.contract.test_wp07a_action_contracts",
+            "tests.security.test_wp08_remaining54_authority.ScenarioTruthSecurityTests.test_c_envelope_and_dual_runtime_source_membership_are_exact",
+            "tests.unit.test_wp08_release_operations",
+            "tests.integration.test_wp08_release_operations",
+            "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_expired_p",
+            "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_live_p",
+            "tests.contract.test_wp08_remaining54_contracts.Remaining54P3FoundationContractsTest",
+            "tests.contract.test_wp00_manifest_contract.GateManifestContractTests.test_source_manifest_is_exact_and_detects_mutation",
+            "tests.e2e.test_wp00_installed_wheel.InstalledWheelTests.test_wheel_runs_inside_decoy_project_without_source_imports",
+            "tests.security.test_wp08_remaining54_authority.ScenarioTruthSecurityTests.test_equal_cardinality_historical_authority_substitution_is_rejected"
+          ],
+          "python_version": "3.12.12"
+        },
+        {
+          "label": "git-diff-check",
+          "status": "PASS",
+          "exit_code": 0
+        }
+      ],
+      "verification_reuse": {
+        "current_acceptance": "No old runtime acceptance reused after production changes. Full bounded 30-test selection passed on current sources, including unchanged-source manifests, wheel/source/package closure and non-release completion compatibility. No code or test edits afterward.",
+        "historical_evidence": "Original25/2 and repair RED/intermediate outcomes are retained as history only."
+      },
+      "known_limitations": [
+        {
+          "id": "historical-scenario-truth-data-value-scan",
+          "status": "OPEN_OUTSIDE_THIS_SUB_BATCH",
+          "path": "core/graph_engineering/core/scenario_truth.py",
+          "detail": "The prior architecture scan reports DATA_VALUE_IN_LOGIC for _BEHAVIOR_FIELDS. This file is unchanged from the baseline; no whole-project static PASS is claimed."
+        },
+        {
+          "id": "release-evidence-restart",
+          "status": "FOUNDATION_LIMITATION",
+          "detail": "Stored release evidence is schema/digest/install checked but fails closed without authorized durable reopening and live target/journal/claim/receipt revalidation. Portable restart and release scenario completion remain unclaimed."
+        }
+      ],
+      "reducer_inputs": {
+        "graph": {
+          "source_path": "/Users/ezio/Documents/MyProjects/data/codex-skill-snapshots/e2d398ee7ea4e965d6f8f1c55f45debff7f69058/config/delivery-graph.json",
+          "raw_sha256": "0509725a3f60ad32712e349a357eb9d11a0c9ca0d71c2a35a4121e8402ed918d",
+          "document": {
+            "schema_version": "1.0",
+            "graph_version": "1.0.0",
+            "entry_node": "positioning",
+            "nodes": {
+              "positioning": {
+                "artifact": "positioning",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "prd"
+              },
+              "prd": {
+                "artifact": "prd",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "spec"
+              },
+              "spec": {
+                "artifact": "spec",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "impact"
+              },
+              "impact": {
+                "artifact": "impact",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "plan"
+              },
+              "plan": {
+                "artifact": "plan",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "test-plan"
+              },
+              "test-plan": {
+                "artifact": "test_plan",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "implementation"
+              },
+              "implementation": {
+                "artifact": "implementation",
+                "required_action": "implementation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "verification"
+              },
+              "verification": {
+                "artifact": "verification",
+                "required_action": "verification",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "candidate"
+              },
+              "candidate": {
+                "artifact": "candidate",
+                "required_action": "candidate",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "independent-review"
+              },
+              "independent-review": {
+                "artifact": "review",
+                "required_action": "review",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "commit"
+              },
+              "commit": {
+                "artifact": "commit",
+                "required_action": "commit",
+                "human_authority_required": true,
+                "terminal": false,
+                "next": "receipt"
+              },
+              "receipt": {
+                "artifact": "receipt",
+                "required_action": "receipt",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "retro"
+              },
+              "retro": {
+                "artifact": "retro",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "complete"
+              },
+              "complete": {
+                "artifact": "complete",
+                "required_action": "none",
+                "human_authority_required": false,
+                "terminal": true,
+                "next": null
+              }
+            }
+          }
+        },
+        "policy": {
+          "source_path": "/Users/ezio/Documents/MyProjects/data/codex-skill-snapshots/e2d398ee7ea4e965d6f8f1c55f45debff7f69058/config/workflow-policy.json",
+          "raw_sha256": "7cefc564ddd39c014d17b5536065a595de62fcf114b17ad3d70ec2aedc61116a",
+          "document": {
+            "artifact_review": {
+              "independent_review_required": true,
+              "max_revision_cycles": 3,
+              "allowed_verdicts": [
+                "PASS",
+                "REVISE",
+                "ESCALATE",
+                "BLOCKED"
+              ],
+              "finding_severities": [
+                "advisory",
+                "blocking"
+              ],
+              "finding_statuses": [
+                "open",
+                "resolved"
+              ],
+              "routine_change_kinds": [
+                "clarification",
+                "traceability",
+                "testability"
+              ],
+              "human_required_change_kinds": [
+                "goal",
+                "non-goal",
+                "scope-expansion",
+                "target-boundary",
+                "tier",
+                "budget",
+                "external-dependency",
+                "data-access",
+                "security-posture",
+                "architecture-choice",
+                "reviewer-conflict"
+              ],
+              "irreversible_actions": [
+                "commit",
+                "push",
+                "merge",
+                "deploy",
+                "release",
+                "external-message"
+              ]
+            }
+          }
+        },
+        "envelope": {
+          "source_path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "raw_sha256": "f384ab86f2940b9d2f868b820743bd91237ce3dbbe2f204faa2844677a83c2d9",
+          "document": {
+            "schema_version": "1.0",
+            "task_id": "GEW-REMAINING54-V1",
+            "goal": "Complete the exact 54 missing WP-08 coverage bindings with Human-approved P1 performance scenarios, P2 local profile scenario truth, and P3 offline release-operations simulation, ending at plan 274, oracle bindings 137, and a dynamic gate with 274 valid, zero missing, and passed true.",
+            "non_goals": [
+              "Change the approved Positioning or PRD Intent Baseline.",
+              "Use or modify a user project or the read-only reference repository.",
+              "Use a real staging or production environment, network access, remote health checks, credentials, or external services.",
+              "Enable or implement WP-10 installation, upgrade, deployment, publication, or release scope.",
+              "Add a database schema, repository event kind, GraphRef field or API, dependency, daemon, or remote state service.",
+              "Treat local production-like or release-simulator evidence as real production, deployment, or release evidence.",
+              "Commit, push, merge, deploy, release, publish, or communicate externally."
+            ],
+            "allowed_targets": [
+              ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-decision-r1.json",
+              "docs/adr/0007-offline-performance-benchmark-authority.md",
+              "docs/adr/0008-local-profile-scenario-truth-authority.md",
+              "docs/adr/0009-offline-release-operations-simulator-authority.md",
+              "docs/specs/graph-engineering-workflow.md",
+              "docs/impact/graph-engineering-workflow.md",
+              "docs/plans/2026-08-13-graph-engineering-workflow.md",
+              "docs/test-plans/graph-engineering-workflow.md",
+              "pyproject.toml",
+              "core/graph_engineering/__init__.py",
+              "core/graph_engineering/core/__init__.py",
+              "core/graph_engineering/core/contracts/resources.py",
+              "core/graph_engineering/core/performance_benchmark.py",
+              "core/graph_engineering/core/profile_coverage.py",
+              "core/graph_engineering/core/profile_execution.py",
+              "core/graph_engineering/core/source_checkout.py",
+              "core/graph_engineering/core/profiles.py",
+              "core/graph_engineering/core/scenario_truth.py",
+              "core/graph_engineering/core/release_operations.py",
+              "application/graph_engineering/application/__init__.py",
+              "application/graph_engineering/application/actions.py",
+              "application/graph_engineering/application/dependency_security.py",
+              "application/graph_engineering/application/performance_benchmark.py",
+              "application/graph_engineering/application/profile_execution.py",
+              "application/graph_engineering/application/profile_coverage.py",
+              "application/graph_engineering/application/profile_coverage_oracle.py",
+              "application/graph_engineering/application/profile_real_e2e.py",
+              "application/graph_engineering/application/profile_real_e2e_verifier.py",
+              "application/graph_engineering/application/runner.py",
+              "application/graph_engineering/application/runtime.py",
+              "application/graph_engineering/application/tasks.py",
+              "application/graph_engineering/application/scenario_truth.py",
+              "application/graph_engineering/application/release_operations.py",
+              "adapters/graph_engineering/adapters/__init__.py",
+              "adapters/graph_engineering/adapters/action_adapters.py",
+              "adapters/graph_engineering/adapters/local_release_simulator.py",
+              "config/actions/action-policy-local-actions-v1.json",
+              "config/actions/action-policy-v1.json",
+              "config/actions/concrete-action-policy-v1.json",
+              "config/actions/connector-registry-v1.json",
+              "config/contracts/action-adapter-registry-v1.json",
+              "config/contracts/action-adapter-schema-registry-v1.json",
+              "config/contracts/profile-schema-registry-v1.json",
+              "config/contracts/schemas/scenario-truth-policy-registry-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-policy-registry-input-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-observation-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-installation-bootstrap-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-installation-bootstrap-input-1.0.0.json",
+              "config/contracts/schemas/category-completion-assessment-1.3.0.json",
+              "config/contracts/schemas/category-completion-assessment-input-1.3.0.json",
+              "config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
+              "config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+              "config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
+              "config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
+              "config/contracts/schemas/release-artifact-manifest-1.0.0.json",
+              "config/contracts/schemas/release-artifact-manifest-input-1.0.0.json",
+              "config/contracts/schemas/release-health-observation-1.0.0.json",
+              "config/contracts/schemas/release-health-observation-input-1.0.0.json",
+              "config/contracts/schemas/release-deployment-observation-1.0.0.json",
+              "config/contracts/schemas/release-deployment-observation-input-1.0.0.json",
+              "config/contracts/schemas/release-operations-observation-1.0.0.json",
+              "config/contracts/schemas/release-operations-observation-input-1.0.0.json",
+              "config/contracts/schemas/release-operations-installation-bootstrap-1.0.0.json",
+              "config/contracts/schemas/release-operations-installation-bootstrap-input-1.0.0.json",
+              "config/contracts/schemas/category-completion-assessment-1.4.0.json",
+              "config/contracts/schemas/category-completion-assessment-input-1.4.0.json",
+              "config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json",
+              "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+              "config/performance/performance-benchmark-registry-v1.json",
+              "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+              "config/profiles/profile-coverage-execution-plan-v1.json",
+              "config/profiles/profile-real-e2e-binding-registry-v1.json",
+              "config/profiles/scenario-truth-policy-registry-v1.json",
+              "config/profiles/scenario-truth-fixture-registry-v1.json",
+              "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+              "config/release-coverage/oracle-manifest-v1.json",
+              "config/release-operations/release-operations-policy-registry-v1.json",
+              "config/release-operations/release-simulator-fixture-registry-v1.json",
+              "config/release-operations/release-operations-installation-bootstrap-v1.json",
+              "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+              "config/security/security-runtime-local-actions-v1.json",
+              "config/security/security-runtime-v1.json",
+              "config/test-oracles/profile-performance-noise-outlier-v1.json",
+              "config/test-oracles/profile-performance-correctness-regression-v1.json",
+              "config/test-oracles/profile-new-feature-multi-target-v1.json",
+              "config/test-oracles/profile-hotfix-emergency-baseline-v1.json",
+              "config/test-oracles/profile-hotfix-production-like-gate-v1.json",
+              "config/test-oracles/profile-refactor-debt-behavior-characterization-v1.json",
+              "config/test-oracles/profile-refactor-debt-architecture-invariant-v1.json",
+              "config/test-oracles/profile-refactor-debt-nonfunctional-target-v1.json",
+              "config/test-oracles/profile-incident-response-detection-v1.json",
+              "config/test-oracles/profile-incident-response-containment-v1.json",
+              "config/test-oracles/profile-incident-response-scenario-recovery-v1.json",
+              "config/test-oracles/profile-incident-response-unknown-effects-v1.json",
+              "config/test-oracles/profile-release-operations-artifacts-v1.json",
+              "config/test-oracles/profile-release-operations-authority-v1.json",
+              "config/test-oracles/profile-release-operations-boundary-v1.json",
+              "config/test-oracles/profile-release-operations-drift-v1.json",
+              "config/test-oracles/profile-release-operations-invalidation-v1.json",
+              "config/test-oracles/profile-release-operations-normal-v1.json",
+              "config/test-oracles/profile-release-operations-real-e2e-v1.json",
+              "config/test-oracles/profile-release-operations-recovery-v1.json",
+              "config/test-oracles/profile-release-operations-review-v1.json",
+              "config/test-oracles/profile-release-operations-revise-v1.json",
+              "config/test-oracles/profile-release-operations-rollback-v1.json",
+              "config/test-oracles/profile-release-operations-target-v1.json",
+              "config/test-oracles/profile-release-operations-artifact-provenance-v1.json",
+              "config/test-oracles/profile-release-operations-health-gate-v1.json",
+              "config/test-oracles/profile-release-operations-partial-deploy-v1.json",
+              "config/verification/wp-00-targets.json",
+              "scripts/check_architecture.py",
+              "tests/fixtures/wp08-release-operations-real-e2e-v1.json",
+              "tests/support/runtime_distribution.py",
+              "tests/support/runtime_resources.py",
+              "tests/support/source_checkout_attestation.py",
+              "tests/support/wp05_actions.py",
+              "tests/support/wp08_category_execution.py",
+              "tests/support/wp08_performance_benchmark.py",
+              "tests/support/wp08_release_coverage.py",
+              "tests/support/wp08_scenario_truth.py",
+              "tests/support/wp08_release_operations.py",
+              "tests/unit/test_wp00_packaging.py",
+              "tests/unit/test_wp08_profile_contracts.py",
+              "tests/unit/test_wp08_profile_expansion.py",
+              "tests/unit/test_wp08_scenario_truth.py",
+              "tests/unit/test_wp08_release_operations.py",
+              "tests/contract/test_wp08_remaining54_contracts.py",
+              "tests/integration/test_wp08_category_execution.py",
+              "tests/integration/test_wp08_release_coverage.py",
+              "tests/integration/test_wp08_scenario_truth.py",
+              "tests/integration/test_wp08_release_operations.py",
+              "tests/security/test_wp07a_action_contract_security.py",
+              "tests/contract/test_wp07a_action_contracts.py",
+              "tests/security/test_wp08_remaining54_authority.py",
+              "tests/e2e/test_wp00_installed_wheel.py"
+            ],
+            "allowed_change_kinds": [
+              "architecture-detail",
+              "clarification",
+              "consistency",
+              "traceability",
+              "testability",
+              "implementation",
+              "configuration",
+              "test",
+              "verification-evidence"
+            ],
+            "human_required_change_kinds": [
+              "goal",
+              "non-goal",
+              "target-boundary",
+              "intent-baseline",
+              "authority-expansion",
+              "material-architecture-choice",
+              "dependency",
+              "data-access",
+              "security-posture",
+              "irreversible-action"
+            ],
+            "authorized_actions": [
+              "documentation",
+              "implementation",
+              "verification",
+              "independent-review",
+              "candidate",
+              "review"
+            ]
+          }
+        }
+      },
+      "authority_boundary": {
+        "local_commit": "Separately authorized by user: commit 然后继续 (2026-09-19). Only one reviewed local commit.",
+        "unchanged_prohibited": [
+          "push",
+          "merge",
+          "deploy",
+          "release",
+          "network",
+          "WP10",
+          "external-communication",
+          "cumulative-run",
+          "cumulative-rerun",
+          "performance-workload",
+          "monitoring-restoration",
+          "P3-mandatory-coverage",
+          "P3-scenario-coverage",
+          "budget-change"
+        ],
+        "plan_shape": {
+          "bindings": 244,
+          "oracle_bindings": 122,
+          "remaining_bindings": 30
+        }
+      },
+      "staged_tree_at_capture": "cf2a1659109ba2ec409686f1b65da52701f1e4fe",
+      "capture_patch_sha256": "2fb00fa6df91c93e6164c22c994e8a9e19e12339dfd24400bff7cbe8c0d365a3",
+      "capture_note": "Capture tree contains payload63 plus four downstream containers at the rejected-chain checkpoint. Subsequent changes are only appended review records; final exact tree must be independently bound after them.",
+      "invalidates": {
+        "reason": "Routine live-currentness source repair after technical REVISE; prior records retained as history.",
+        "packet_id": "p3-foundation-precommit-2026-09-19-r0",
+        "artifact_digest": "sha256:9c81ccf6f09321d615a66c2a6553675b7357cf4dc02a82988b641fbe1143245b"
+      },
+      "resolved_finding": "GEW-REMAINING54-P3-FOUNDATION-LIVE-CURRENTNESS-001"
+    }
+  ],
   "p2c_packets": [
     {
       "record_id": "p2c-implementation-2026-09-14-r0",

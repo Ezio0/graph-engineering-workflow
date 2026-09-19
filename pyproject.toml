@@ -47,13 +47,13 @@ registry-raw-sha256 = "031df42d9aa2a8c57ee4b720dbae852aaa35b098511c07e9d614c5543
 registry-source = "config/security/dependency-advisory-registry-v2.json"
 registry-resource = "graph_engineering/config/security/dependency-advisory-registry-v2.json"
 bootstrap-id = "urn:gew:dependency-advisory-installation-bootstrap:v1.2"
-bootstrap-digest = "sha256-jcs-v1:ec9df38ce2933c4153e829a4405045b9709e06ed8850b20521cc71a42eb00b81"
-bootstrap-raw-sha256 = "4ee03a25b81d15c5d9b50a89714b9b894b8b0923bcf9015c55f0d7abe6af8823"
+bootstrap-digest = "sha256-jcs-v1:2b64269c05e17574657f08635549968369edcbab25aa987b5cf70ee4055027f0"
+bootstrap-raw-sha256 = "c10f32a2e708ff7687237b7a5c6bb92ee175f5e480292a2d04b59a87800cbe36"
 bootstrap-source = "config/security/dependency-advisory-installation-bootstrap-v1.2.json"
 bootstrap-resource = "graph_engineering/config/security/dependency-advisory-installation-bootstrap-v1.2.json"
 profile-schema-registry-id = "urn:gew:schema-registry:profiles:1.0.0"
-profile-schema-registry-digest = "sha256-jcs-v1:6edff2b2bc8469319d3e1df5d17740fadb0b4629822a90c9e97ceafc11073095"
-profile-schema-registry-raw-sha256 = "9ffa41240d0ab89a2171c798bf49918fa299b7a3120e680694a64bfa9a25d33d"
+profile-schema-registry-digest = "sha256-jcs-v1:6a014b08631b020d8ece3c0e185bac4829ab6a9456e01f13f4930858354424a6"
+profile-schema-registry-raw-sha256 = "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58"
 profile-schema-registry-source = "config/contracts/profile-schema-registry-v1.json"
 profile-schema-registry-resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json"
 source-artifact-id = "urn:gew:dependency-advisory-source-artifact:v2"
@@ -168,13 +168,13 @@ transform-raw-sha256 = "0b68dc63f71cec61ebe014e50ce161b68b129448021d18faa0e45485
 transform-source = "config/migration/migration-rehearsal-transform-manifest-v1.json"
 transform-resource = "graph_engineering/config/migration/migration-rehearsal-transform-manifest-v1.json"
 bootstrap-id = "urn:gew:migration-rehearsal-bootstrap:v1"
-bootstrap-digest = "sha256-jcs-v1:80d3a6c879cb321f027e50f903c606154236601c36e0ae0718ea5bb24410eeed"
-bootstrap-raw-sha256 = "6705e68127181911e999c69acd7ee3d0e7fa6363a7a66890e25442c3eb726e93"
+bootstrap-digest = "sha256-jcs-v1:682a8464842eaef2eb1f7355f8afefef572a6d9aff867e1afd0abc05ed1145af"
+bootstrap-raw-sha256 = "a5be1d0f594486fe11e22f0d3358f4b8813cbb8b27252ea466ea6fae537a240d"
 bootstrap-source = "config/migration/migration-rehearsal-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/migration/migration-rehearsal-installation-bootstrap-v1.json"
 profile-schema-registry-id = "urn:gew:schema-registry:profiles:1.0.0"
-profile-schema-registry-digest = "sha256-jcs-v1:6edff2b2bc8469319d3e1df5d17740fadb0b4629822a90c9e97ceafc11073095"
-profile-schema-registry-raw-sha256 = "9ffa41240d0ab89a2171c798bf49918fa299b7a3120e680694a64bfa9a25d33d"
+profile-schema-registry-digest = "sha256-jcs-v1:6a014b08631b020d8ece3c0e185bac4829ab6a9456e01f13f4930858354424a6"
+profile-schema-registry-raw-sha256 = "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58"
 profile-schema-registry-source = "config/contracts/profile-schema-registry-v1.json"
 profile-schema-registry-resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json"
 distribution-name = "graph-engineering-workflow"
@@ -183,13 +183,13 @@ source-attestation-policy-id = "source-checkout-attestation-v1"
 build-backend-raw-sha256 = "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b"
 build-backend-source = "scripts/build_backend.py"
 build-backend-resource = "graph_engineering/scripts/build_backend.py"
-protected-closure-digest = "sha256-jcs-v1:fa9fe6214f235338157338f1923e165bc3028d5267762ea14a8bc14351ded6ab"
+protected-closure-digest = "sha256-jcs-v1:5503b682e8c38d898be54c953e42250a02aef75ffe9ee071864471ba0c714bce"
 protected-resources = [
   { raw-sha256 = "049000ebc8355e092f960cfeca817223d835c59567b710d0c1eacc56084c0276", source = "application/graph_engineering/application/migration_rehearsal.py", resource = "graph_engineering/application/migration_rehearsal.py" },
-  { raw-sha256 = "259d35a4a2eea5c1ef78604711a3c97bc0f1bcebec9d046e73747ea617d60df5", source = "application/graph_engineering/application/profile_execution.py", resource = "graph_engineering/application/profile_execution.py" },
-  { raw-sha256 = "0cd90842891e45140b3d16e9044c59d09b8c84a77c42c139b5f61eacfe819872", source = "core/graph_engineering/__init__.py", resource = "graph_engineering/__init__.py" },
+  { raw-sha256 = "7db57559ffc98906e2dc1d01fc31a7f46986ec61d80f99368da92c22eef12cf9", source = "application/graph_engineering/application/profile_execution.py", resource = "graph_engineering/application/profile_execution.py" },
+  { raw-sha256 = "4e98a884d010f8a894e9c1203c03938f97f2b8cac012d651c404530a6481476a", source = "core/graph_engineering/__init__.py", resource = "graph_engineering/__init__.py" },
   { raw-sha256 = "2a7d82251d04e517acbf45ba26b9b5382560ce1138e707e576ddd84c1b2a6269", source = "core/graph_engineering/core/migration_rehearsal.py", resource = "graph_engineering/core/migration_rehearsal.py" },
-  { raw-sha256 = "3e46f301b7d0865e8b5150b96a026e102e3609c61c11cc6ad1051c90f8c05aed", source = "core/graph_engineering/core/profile_execution.py", resource = "graph_engineering/core/profile_execution.py" },
+  { raw-sha256 = "99c79e9a3822aa40c0f75d5a30fdfa37551d1bb3782928d836573c0727975e99", source = "core/graph_engineering/core/profile_execution.py", resource = "graph_engineering/core/profile_execution.py" },
   { raw-sha256 = "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b", source = "scripts/build_backend.py", resource = "graph_engineering/scripts/build_backend.py" },
   { raw-sha256 = "1e589bae763e60ac7dec8723d6047df12a454cb938e7006bf4ee4077e800e829", source = "storage/graph_engineering/storage/migration.py", resource = "graph_engineering/storage/migration.py" },
 ]
@@ -219,13 +219,13 @@ registry-raw-sha256 = "132f11c3d7f09da0989e5130e612ee0784dc744d08d030ece3db61c40
 registry-source = "config/performance/performance-benchmark-registry-v1.json"
 registry-resource = "graph_engineering/config/performance/performance-benchmark-registry-v1.json"
 bootstrap-id = "performance-benchmark-installation-v1"
-bootstrap-digest = "sha256-jcs-v1:cc4b957d074733a6286c42f8be56601e5813edc75ea6e58e09ffc57de3fefc0e"
-bootstrap-raw-sha256 = "e7489380f3cb935b4b83efcabbc18009d87c2912726bdcbacd01696d7296dd66"
+bootstrap-digest = "sha256-jcs-v1:9cea1da809405044cfc15b18f1adb87e8356c7b1187c9487f4372f1e6dda05b4"
+bootstrap-raw-sha256 = "06c6e1d1fe7d9c46920aff46017f11355537b28a4efcf7d948fed70880676bb2"
 bootstrap-source = "config/performance/performance-benchmark-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/performance/performance-benchmark-installation-bootstrap-v1.json"
 profile-schema-registry-id = "urn:gew:schema-registry:profiles:1.0.0"
-profile-schema-registry-digest = "sha256-jcs-v1:6edff2b2bc8469319d3e1df5d17740fadb0b4629822a90c9e97ceafc11073095"
-profile-schema-registry-raw-sha256 = "9ffa41240d0ab89a2171c798bf49918fa299b7a3120e680694a64bfa9a25d33d"
+profile-schema-registry-digest = "sha256-jcs-v1:6a014b08631b020d8ece3c0e185bac4829ab6a9456e01f13f4930858354424a6"
+profile-schema-registry-raw-sha256 = "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58"
 profile-schema-registry-source = "config/contracts/profile-schema-registry-v1.json"
 profile-schema-registry-resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json"
 fixture-id = "performance-fixture-v1"
@@ -269,14 +269,14 @@ distribution-version = "0.1.0"
 source-attestation-policy-id = "source-checkout-attestation-v1"
 maximum-warmup-count = 31
 maximum-repetition-count = 999
-protected-closure-digest = "sha256-jcs-v1:1d3e89e803625182bd63b4d2d0f7b6e30c464e4943a9d7c8f56299a36f1bb782"
+protected-closure-digest = "sha256-jcs-v1:2712b532f74d147e3daf1d4328e3f0fe3cf827bfc0628c7ccfe46898694306ae"
 protected-resources = [
   { raw-sha256 = "9de5fcfdc5fdcbf6a84aa5adb4e58ecd4291af571210c4ae38b6fc74aae07f32", source = "adapters/graph_engineering/adapters/performance_correctness.py", resource = "graph_engineering/adapters/performance_correctness.py" },
   { raw-sha256 = "c180f078b5356f9d3cc156136aaa9fce6a64643cee345efe3b9cf4b840087fa1", source = "adapters/graph_engineering/adapters/performance_environment.py", resource = "graph_engineering/adapters/performance_environment.py" },
   { raw-sha256 = "7608f06360739353f012dbcef151049c4c053df54591fbe76787c728ad825976", source = "application/graph_engineering/application/performance_benchmark.py", resource = "graph_engineering/application/performance_benchmark.py" },
   { raw-sha256 = "7f584debcd9b0b9e7d955aca1554aa300210ee8b77cdbf17cb697c3ba416be4c", source = "application/graph_engineering/application/profile_coverage.py", resource = "graph_engineering/application/profile_coverage.py" },
-  { raw-sha256 = "259d35a4a2eea5c1ef78604711a3c97bc0f1bcebec9d046e73747ea617d60df5", source = "application/graph_engineering/application/profile_execution.py", resource = "graph_engineering/application/profile_execution.py" },
-  { raw-sha256 = "9ffa41240d0ab89a2171c798bf49918fa299b7a3120e680694a64bfa9a25d33d", source = "config/contracts/profile-schema-registry-v1.json", resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json" },
+  { raw-sha256 = "7db57559ffc98906e2dc1d01fc31a7f46986ec61d80f99368da92c22eef12cf9", source = "application/graph_engineering/application/profile_execution.py", resource = "graph_engineering/application/profile_execution.py" },
+  { raw-sha256 = "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58", source = "config/contracts/profile-schema-registry-v1.json", resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json" },
   { raw-sha256 = "7a311449277ce2e4418b4e010a53dd416058cf04bbaef730af822b802010774d", source = "config/contracts/schemas/category-completion-assessment-1.1.0.json", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-1.1.0.json" },
   { raw-sha256 = "8acf90c80a85e1bf97e36df82c1f83b1d75f367655b68a78aded14009f5fda72", source = "config/contracts/schemas/category-completion-assessment-1.2.0.json", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-1.2.0.json" },
   { raw-sha256 = "20fa60d0b301ab6ff97e31086f3377996153517b27b072cea90ad7b995a19fa2", source = "config/contracts/schemas/category-completion-assessment-input-1.1.0.json", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-input-1.1.0.json" },
@@ -307,7 +307,7 @@ protected-resources = [
   { raw-sha256 = "8e6353f952ef3bb4f542cfc5ae136a245d15979a727ac2f0e6eb660c14777e72", source = "config/performance/performance-correctness-oracle-v1.json", resource = "graph_engineering/config/performance/performance-correctness-oracle-v1.json" },
   { raw-sha256 = "8e61edb0f2ba802d8b6e6c9ceb04808e308f4566d7b85a9b5b8651d9d748d3e4", source = "config/performance/performance-source-registry-v1.json", resource = "graph_engineering/config/performance/performance-source-registry-v1.json" },
   { raw-sha256 = "0cff91166e91b4519699eb1f4ad5a56f6b20c6976b253580696f0960656a388d", source = "core/graph_engineering/core/performance_benchmark.py", resource = "graph_engineering/core/performance_benchmark.py" },
-  { raw-sha256 = "3e46f301b7d0865e8b5150b96a026e102e3609c61c11cc6ad1051c90f8c05aed", source = "core/graph_engineering/core/profile_execution.py", resource = "graph_engineering/core/profile_execution.py" },
+  { raw-sha256 = "99c79e9a3822aa40c0f75d5a30fdfa37551d1bb3782928d836573c0727975e99", source = "core/graph_engineering/core/profile_execution.py", resource = "graph_engineering/core/profile_execution.py" },
   { raw-sha256 = "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b", source = "scripts/build_backend.py", resource = "graph_engineering/build_backend.py" },
 ]
 schema-vectors = [
@@ -333,8 +333,8 @@ schema-vectors = [
 
 [tool.gew.profile.scenario-truth]
 bootstrap-id = "urn:gew:scenario-truth-installation-bootstrap:1.0.0"
-bootstrap-digest = "sha256-jcs-v1:9f278ccd7269fed7eb4f15996aa39cd8b47f602786978a31d97986c5bb3924ea"
-bootstrap-raw-sha256 = "c38c786dd60a7ad60afaa5723fc3f75851f6d235f4bdb2acd4cbe06e41e33dfc"
+bootstrap-digest = "sha256-jcs-v1:4f14c79780ecbff775aa7afeb0cf340a860ec7e28020010612edb65be17df195"
+bootstrap-raw-sha256 = "d7609ee782dad9a46f87060e31a519c8043ca6e6fffc5720f419f4a083f665ad"
 bootstrap-source = "config/profiles/scenario-truth-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/profiles/scenario-truth-installation-bootstrap-v1.json"
 policy-source = "config/profiles/scenario-truth-policy-registry-v1.json"
@@ -383,6 +383,95 @@ protected-resources = [
   "graph_engineering/core/profile_execution.py",
   "graph_engineering/core/profiles.py",
   "graph_engineering/core/scenario_truth.py",
+  "graph_engineering/scripts/build_backend.py",
+]
+distribution-name = "graph-engineering-workflow"
+distribution-version = "0.1.0"
+
+[tool.gew.profile.release-operations]
+bootstrap-id = "urn:gew:release-operations-installation-bootstrap:1.0.0"
+bootstrap-digest = "sha256-jcs-v1:60cacf9e628625ea2b3b4df896ed031bf4b2d1edd16233d556056e0362f2b871"
+bootstrap-raw-sha256 = "00c589543f15385c7bd3e13eef3e337fc03a82a2fd39677c834ab1f6295fa00b"
+bootstrap-source = "config/release-operations/release-operations-installation-bootstrap-v1.json"
+bootstrap-resource = "graph_engineering/config/release-operations/release-operations-installation-bootstrap-v1.json"
+policy-source = "config/release-operations/release-operations-policy-registry-v1.json"
+policy-resource = "graph_engineering/config/release-operations/release-operations-policy-registry-v1.json"
+fixture-source = "config/release-operations/release-simulator-fixture-registry-v1.json"
+fixture-resource = "graph_engineering/config/release-operations/release-simulator-fixture-registry-v1.json"
+profile-schema-registry-source = "config/contracts/profile-schema-registry-v1.json"
+profile-schema-registry-resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json"
+schema-sources = [
+  "config/contracts/schemas/category-completion-assessment-input-1.4.0.json",
+  "config/contracts/schemas/category-completion-assessment-1.4.0.json",
+  "config/contracts/schemas/release-artifact-manifest-input-1.0.0.json",
+  "config/contracts/schemas/release-artifact-manifest-1.0.0.json",
+  "config/contracts/schemas/release-deployment-observation-input-1.0.0.json",
+  "config/contracts/schemas/release-deployment-observation-1.0.0.json",
+  "config/contracts/schemas/release-health-observation-input-1.0.0.json",
+  "config/contracts/schemas/release-health-observation-1.0.0.json",
+  "config/contracts/schemas/release-operations-installation-bootstrap-input-1.0.0.json",
+  "config/contracts/schemas/release-operations-installation-bootstrap-1.0.0.json",
+  "config/contracts/schemas/release-operations-observation-input-1.0.0.json",
+  "config/contracts/schemas/release-operations-observation-1.0.0.json",
+  "config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+  "config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
+  "config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
+  "config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
+]
+schema-resources = [
+  "graph_engineering/config/contracts/schemas/category-completion-assessment-input-1.4.0.json",
+  "graph_engineering/config/contracts/schemas/category-completion-assessment-1.4.0.json",
+  "graph_engineering/config/contracts/schemas/release-artifact-manifest-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-artifact-manifest-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-deployment-observation-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-deployment-observation-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-health-observation-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-health-observation-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-operations-installation-bootstrap-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-operations-installation-bootstrap-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-operations-observation-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-operations-observation-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
+]
+protected-sources = [
+  "adapters/graph_engineering/adapters/action_adapters.py",
+  "adapters/graph_engineering/adapters/local_release_simulator.py",
+  "application/graph_engineering/application/actions.py",
+  "application/graph_engineering/application/profile_execution.py",
+  "application/graph_engineering/application/release_operations.py",
+  "config/actions/action-policy-local-actions-v1.json",
+  "config/actions/action-policy-v1.json",
+  "config/actions/concrete-action-policy-v1.json",
+  "config/contracts/action-adapter-registry-v1.json",
+  "config/security/security-runtime-local-actions-v1.json",
+  "config/security/security-runtime-v1.json",
+  "core/graph_engineering/__init__.py",
+  "core/graph_engineering/core/profile_execution.py",
+  "core/graph_engineering/core/profiles.py",
+  "core/graph_engineering/core/release_operations.py",
+  "core/graph_engineering/core/source_checkout.py",
+  "scripts/build_backend.py",
+]
+protected-resources = [
+  "graph_engineering/adapters/action_adapters.py",
+  "graph_engineering/adapters/local_release_simulator.py",
+  "graph_engineering/application/actions.py",
+  "graph_engineering/application/profile_execution.py",
+  "graph_engineering/application/release_operations.py",
+  "graph_engineering/config/actions/action-policy-local-actions-v1.json",
+  "graph_engineering/config/actions/action-policy-v1.json",
+  "graph_engineering/config/actions/concrete-action-policy-v1.json",
+  "graph_engineering/config/contracts/action-adapter-registry-v1.json",
+  "graph_engineering/config/security/security-runtime-local-actions-v1.json",
+  "graph_engineering/config/security/security-runtime-v1.json",
+  "graph_engineering/__init__.py",
+  "graph_engineering/core/profile_execution.py",
+  "graph_engineering/core/profiles.py",
+  "graph_engineering/core/release_operations.py",
+  "graph_engineering/core/source_checkout.py",
   "graph_engineering/scripts/build_backend.py",
 ]
 distribution-name = "graph-engineering-workflow"
@@ -561,7 +650,9 @@ protected-sources = [
   "config/contracts/action-adapter-registry-v1.json",
   "config/contracts/profile-schema-registry-v1.json",
   "config/contracts/schemas/category-completion-assessment-1.3.0.json",
+  "config/contracts/schemas/category-completion-assessment-1.4.0.json",
   "config/contracts/schemas/category-completion-assessment-input-1.3.0.json",
+  "config/contracts/schemas/category-completion-assessment-input-1.4.0.json",
   "config/contracts/schemas/category-execution-policy-1.0.0.json",
   "config/contracts/schemas/category-execution-policy-input-1.0.0.json",
   "config/contracts/schemas/coverage-record-1.0.0.json",
@@ -627,7 +718,21 @@ protected-sources = [
   "config/contracts/schemas/profile-coverage-task-state-1.0.0.json",
   "config/contracts/schemas/profile-real-e2e-binding-registry-input-1.0.0.json",
   "config/contracts/schemas/profile-real-e2e-predecessor-record-1.0.0.json",
+  "config/contracts/schemas/release-artifact-manifest-1.0.0.json",
+  "config/contracts/schemas/release-artifact-manifest-input-1.0.0.json",
   "config/contracts/schemas/release-coverage-assessment-1.0.0.json",
+  "config/contracts/schemas/release-deployment-observation-1.0.0.json",
+  "config/contracts/schemas/release-deployment-observation-input-1.0.0.json",
+  "config/contracts/schemas/release-health-observation-1.0.0.json",
+  "config/contracts/schemas/release-health-observation-input-1.0.0.json",
+  "config/contracts/schemas/release-operations-installation-bootstrap-1.0.0.json",
+  "config/contracts/schemas/release-operations-installation-bootstrap-input-1.0.0.json",
+  "config/contracts/schemas/release-operations-observation-1.0.0.json",
+  "config/contracts/schemas/release-operations-observation-input-1.0.0.json",
+  "config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
+  "config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+  "config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
+  "config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
   "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
   "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
   "config/contracts/schemas/scenario-truth-installation-bootstrap-1.0.0.json",
@@ -652,6 +757,9 @@ protected-sources = [
   "config/profiles/scenario-truth-fixture-registry-v1.json",
   "config/profiles/scenario-truth-installation-bootstrap-v1.json",
   "config/profiles/scenario-truth-policy-registry-v1.json",
+  "config/release-operations/release-operations-installation-bootstrap-v1.json",
+  "config/release-operations/release-operations-policy-registry-v1.json",
+  "config/release-operations/release-simulator-fixture-registry-v1.json",
   "config/security/dependency-advisory-installation-bootstrap-v1.1.json",
   "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
   "config/security/dependency-advisory-installation-bootstrap-v1.json",
@@ -821,7 +929,9 @@ protected-resources = [
   "graph_engineering/config/contracts/action-adapter-registry-v1.json",
   "graph_engineering/config/contracts/profile-schema-registry-v1.json",
   "graph_engineering/config/contracts/schemas/category-completion-assessment-1.3.0.json",
+  "graph_engineering/config/contracts/schemas/category-completion-assessment-1.4.0.json",
   "graph_engineering/config/contracts/schemas/category-completion-assessment-input-1.3.0.json",
+  "graph_engineering/config/contracts/schemas/category-completion-assessment-input-1.4.0.json",
   "graph_engineering/config/contracts/schemas/category-execution-policy-1.0.0.json",
   "graph_engineering/config/contracts/schemas/category-execution-policy-input-1.0.0.json",
   "graph_engineering/config/contracts/schemas/coverage-record-1.0.0.json",
@@ -887,7 +997,21 @@ protected-resources = [
   "graph_engineering/config/contracts/schemas/profile-coverage-task-state-1.0.0.json",
   "graph_engineering/config/contracts/schemas/profile-real-e2e-binding-registry-input-1.0.0.json",
   "graph_engineering/config/contracts/schemas/profile-real-e2e-predecessor-record-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-artifact-manifest-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-artifact-manifest-input-1.0.0.json",
   "graph_engineering/config/contracts/schemas/release-coverage-assessment-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-deployment-observation-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-deployment-observation-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-health-observation-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-health-observation-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-operations-installation-bootstrap-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-operations-installation-bootstrap-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-operations-observation-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-operations-observation-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
   "graph_engineering/config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
   "graph_engineering/config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
   "graph_engineering/config/contracts/schemas/scenario-truth-installation-bootstrap-1.0.0.json",
@@ -912,6 +1036,9 @@ protected-resources = [
   "graph_engineering/config/profiles/scenario-truth-fixture-registry-v1.json",
   "graph_engineering/config/profiles/scenario-truth-installation-bootstrap-v1.json",
   "graph_engineering/config/profiles/scenario-truth-policy-registry-v1.json",
+  "graph_engineering/config/release-operations/release-operations-installation-bootstrap-v1.json",
+  "graph_engineering/config/release-operations/release-operations-policy-registry-v1.json",
+  "graph_engineering/config/release-operations/release-simulator-fixture-registry-v1.json",
   "graph_engineering/config/security/dependency-advisory-installation-bootstrap-v1.1.json",
   "graph_engineering/config/security/dependency-advisory-installation-bootstrap-v1.2.json",
   "graph_engineering/config/security/dependency-advisory-installation-bootstrap-v1.json",

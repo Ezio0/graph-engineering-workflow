@@ -1,5 +1,20 @@
 # Graph Engineering Workflow — Test Plan
 
+## 2026-09-18 P3 foundation evidence-path amendment
+
+Human approval `明确批准这五个路径` authorizes
+`GEW-REMAINING54-P3-FOUNDATION-RECORDS-WP07A-V1`: the Envelope grows
+from 174 to 179 exact targets, adding only
+`tests/contract/test_wp07a_action_contracts.py` and the four
+`p3-foundation-{source-manifest,state,review-verdict,decision}-r2.json`
+records under `.workflow/delivery/GEW-REMAINING54-V1/`. Correct only the
+WP07A exact adapter-kind expectation and preserve its substitution tests;
+align the existing authority-membership regression with the five-path delta.
+Persist bounded verification and independent review using the new paths.
+Historical r1 records remain unchanged. The prior exact174 and pending-r2
+statements below describe the 2026-09-17 boundary; all other foundation
+constraints, including 244 bindings / 122 oracles / 30 missing, still apply.
+
 ## 2026-09-10 approved memory-repair regression supplement
 
 The exact174 amendment `GEW-REMAINING54-LOSSLESS-TRACE-MEMORY-REPAIR`
@@ -40,6 +55,46 @@ events; now it retains 1,900,496 bytes in 12,845 runs, decodes all 83,158 events
 and retains 38,760 bytes after dropping the context and collecting garbage.
 These are local tracemalloc observations, not a universal memory ceiling. Full
 decode intentionally still costs O(events) memory. No full-run result is claimed.
+
+## 2026-09-17 P3 foundation bounded test supplement
+
+`GEW-REMAINING54-P3-FOUNDATION-BOUNDED-V1` keeps the current exact174 target
+boundary unchanged; exact168 references below are historical. Before
+implementation, RED must prove the absence of the eight schema pairs, installed
+policy/fixture/bootstrap, local simulator/observer, ActionCoordinator release
+path and assessment 1.4 branch. GREEN verification is strict serial with fresh
+private roots and each native command bounded to 600 seconds. It must cover
+exact schema/config/currentness closure, path and symlink rejection, generation
+CAS, the five ADR-0009 fault cuts, zero-network observation, no mutation on
+foreign/stale authority, no automatic apply/restore replay, package/RECORD
+closure and release-only single-projection assessment 1.4. Plan/oracle remains
+244/122 with all 30 release IDs missing. Do not run mandatory/scenario coverage,
+cumulative/performance selectors, monitoring, network, WP-10 or irreversible
+actions. Historical F2 `p3-foundation-*-r1.json` records remain untouched; new
+append-only review paths require separate Human authority.
+
+The fault matrix additionally requires the staged-B/active-A cuts to issue a
+typed manual deployment observation bound to the original receipt, retain the
+unresolved claim, prepare one rollback authority, and use `compensate_unknown`
+once. The final observer must equal the original A precondition byte-for-byte,
+the claim must be reconciled, and apply invocation count must not increase.
+Final release evidence and assessment schemas must resolve exact artifact,
+deployment and health references and reject extra or structurally incomplete
+nested bodies.
+
+The security-negative closure also requires: the target gate exposes no arming
+method or issuer and direct invocation leaves mutation/claim/journal unchanged;
+unknown fixture artifact IDs cannot acquire provenance; object-constructed or
+foreign ActionOutcome values cannot issue deployment observations; unhealthy
+partial state without rollback cannot issue final evidence; a healthy restored
+partial path requires its typed compensation observation; coherently re-signed
+nested extra/type changes fail exact output schemas; and a destroyed or absent
+simulator target makes restart fail closed. Independently compare pyproject
+distribution name/version with both project metadata and bootstrap package pins.
+Direct-constructor registry injection, coherent fixture/bootstrap replacement,
+permissive schema replacement and non-installation oracle injection must each
+produce zero issuance and zero target mutation; only `from_installation()` may
+grant the opaque production-issuance seal.
 
 ## 1. 文档控制
 

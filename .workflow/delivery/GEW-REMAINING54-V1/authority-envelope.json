@@ -42,6 +42,10 @@
     ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r1.json",
     ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r1.json",
     ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r1.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
     ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
     ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
     ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
@@ -184,6 +188,7 @@
     "tests/integration/test_wp08_scenario_truth.py",
     "tests/integration/test_wp08_release_operations.py",
     "tests/security/test_wp07a_action_contract_security.py",
+    "tests/contract/test_wp07a_action_contracts.py",
     "tests/security/test_wp08_remaining54_authority.py",
     "tests/e2e/test_wp00_installed_wheel.py"
   ],

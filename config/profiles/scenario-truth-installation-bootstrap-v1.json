@@ -7,8 +7,8 @@
   "fixture_registry_id": "urn:gew:scenario-truth-fixture-registry:v1",
   "fixture_registry_digest": "sha256-jcs-v1:c770fada0716fa36336ed076793321ba9252025df2be4452bb3c95bb48341818",
   "fixture_registry_raw_sha256": "9696e8cb199ff88269088894e2242feb538877999a7b1a90f306b2ee0d8f1091",
-  "profile_schema_registry_digest": "sha256-jcs-v1:6edff2b2bc8469319d3e1df5d17740fadb0b4629822a90c9e97ceafc11073095",
-  "profile_schema_registry_raw_sha256": "9ffa41240d0ab89a2171c798bf49918fa299b7a3120e680694a64bfa9a25d33d",
+  "profile_schema_registry_digest": "sha256-jcs-v1:6a014b08631b020d8ece3c0e185bac4829ab6a9456e01f13f4930858354424a6",
+  "profile_schema_registry_raw_sha256": "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58",
   "schema_vectors": [
     {
       "schema_id": "urn:gew:schema:category-completion-assessment-input:1.3.0",
@@ -54,7 +54,7 @@
   "protected_resources": [
     {
       "path": "application/graph_engineering/application/profile_execution.py",
-      "raw_sha256": "259d35a4a2eea5c1ef78604711a3c97bc0f1bcebec9d046e73747ea617d60df5"
+      "raw_sha256": "7db57559ffc98906e2dc1d01fc31a7f46986ec61d80f99368da92c22eef12cf9"
     },
     {
       "path": "application/graph_engineering/application/scenario_truth.py",
@@ -62,15 +62,15 @@
     },
     {
       "path": "core/graph_engineering/__init__.py",
-      "raw_sha256": "0cd90842891e45140b3d16e9044c59d09b8c84a77c42c139b5f61eacfe819872"
+      "raw_sha256": "4e98a884d010f8a894e9c1203c03938f97f2b8cac012d651c404530a6481476a"
     },
     {
       "path": "core/graph_engineering/core/profile_execution.py",
-      "raw_sha256": "3e46f301b7d0865e8b5150b96a026e102e3609c61c11cc6ad1051c90f8c05aed"
+      "raw_sha256": "99c79e9a3822aa40c0f75d5a30fdfa37551d1bb3782928d836573c0727975e99"
     },
     {
       "path": "core/graph_engineering/core/profiles.py",
-      "raw_sha256": "7ba107db943f3e6dfb675e3aa38bfae397de4c7bac820ef175d09a585c325c2f"
+      "raw_sha256": "19935139585751b22bb923c951d2e8267088b9361ad9bee9cf4ab96b85c85c91"
     },
     {
       "path": "core/graph_engineering/core/scenario_truth.py",
@@ -81,6 +81,6 @@
       "raw_sha256": "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:2a68d8fbb5363ed1b1f25bff9dc3375260fa63e17cef820d1aa8da1e7bd22a6a",
-  "bootstrap_digest": "sha256-jcs-v1:9f278ccd7269fed7eb4f15996aa39cd8b47f602786978a31d97986c5bb3924ea"
+  "protected_closure_digest": "sha256-jcs-v1:b0653d777a082d9bd2f4f1124bb892525d19ecbb9853f6748fb000dd0f9b38db",
+  "bootstrap_digest": "sha256-jcs-v1:4f14c79780ecbff775aa7afeb0cf340a860ec7e28020010612edb65be17df195"
 }

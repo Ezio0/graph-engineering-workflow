@@ -1,4 +1,212 @@
 {
+  "p3_foundation_commit_authorizations": [
+    {
+      "record_id": "p3-foundation-local-commit-2026-09-19-r0",
+      "human_approval": "commit 然后继续",
+      "approval_date": "2026-09-19",
+      "scope": "One local commit of the independently reviewed P3 foundation payload and append-only verification/Candidate/review/authority records.",
+      "packet_id": "p3-foundation-precommit-2026-09-19-r0",
+      "packet_digest": "sha256:9c81ccf6f09321d615a66c2a6553675b7357cf4dc02a82988b641fbe1143245b",
+      "base_commit": "1f77f735f3036c971088fd2a00c1db5ae4064110",
+      "prerequisites": [
+        "verification ADVANCE",
+        "candidate ADVANCE",
+        "independent technical review PASS",
+        "final complete staged-tree binding",
+        "commit receipt tree and parent verification"
+      ],
+      "authorization_effect": "Satisfies only the separate local commit human gate for this Candidate. It does not alter the historical envelope or grant another commit.",
+      "unchanged_prohibited": [
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "cumulative-run",
+        "cumulative-rerun",
+        "performance-workload",
+        "monitoring-restoration",
+        "P3-mandatory-coverage",
+        "P3-scenario-coverage",
+        "budget-change"
+      ],
+      "next_step_preparation": {
+        "observed_gap": "Portable release evidence restart lacks durable private-root reopening authority and therefore fails closed.",
+        "proposed_next_sub_batch": "Separately authorize design and bounded implementation of read-only private-root reopening and fresh target/journal/claim/receipt/artifact/health revalidation with zero apply/restore replay. Keep 244/122/30 unchanged until mandatory/scenario issuance is separately authorized.",
+        "executed": false
+      }
+    }
+    ,
+    {
+      "record_id": "p3-foundation-local-commit-2026-09-19-r1",
+      "supersedes_record_id": "p3-foundation-local-commit-2026-09-19-r0",
+      "human_approval": "commit 然后继续",
+      "approval_date": "2026-09-19",
+      "scope": "The same single local commit, now bound to the routine-repaired P3 foundation Candidate. This is not authority for a second commit.",
+      "packet_id": "p3-foundation-precommit-2026-09-19-r1",
+      "packet_digest": "sha256:55746c8fe1bd79321bd713a94e4ddb48bf33e1178c691dd6d9b3cd33d06b6c2f",
+      "base_commit": "1f77f735f3036c971088fd2a00c1db5ae4064110",
+      "prerequisites": [
+        "current-source verification ADVANCE",
+        "candidate ADVANCE",
+        "independent technical review PASS with live-currentness finding resolved",
+        "final complete staged-tree independent binding",
+        "actual commit parent/tree receipt verification"
+      ],
+      "scope_note": "67 exact targets, all within existing exact179. Additional affected tasks.py was already an allowed target. Rejected r0 Candidate cannot be committed; its inputs and decisions remain preserved.",
+      "unchanged_prohibited": [
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "WP10",
+        "external-communication",
+        "cumulative-run",
+        "cumulative-rerun",
+        "performance-workload",
+        "monitoring-restoration",
+        "P3-mandatory-coverage",
+        "P3-scenario-coverage",
+        "budget-change"
+      ]
+    }
+  ],
+  "p3_foundation_records": [
+    {
+      "record_id": "p3-foundation-verification-2026-09-19-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "verification",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "candidate",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "verification",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:7f2495ea545487dfbce36795cb0a95f5ee99c318e0c62692a8edc8f80076ad7f",
+          "state": "sha256:2b3de2211c928be6b4c663b94d139f6a0f982bd2da36aed202b1eeb6f7690146",
+          "verdict": "sha256:bf3f362124d81e0a786a61e8a63b5fabc05deb7facf743e8af5c0af26917b0a3"
+        }
+      }
+    }
+    ,
+    {
+      "record_id": "p3-foundation-candidate-2026-09-19-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "candidate",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "independent-review",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "candidate",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:7f2495ea545487dfbce36795cb0a95f5ee99c318e0c62692a8edc8f80076ad7f",
+          "state": "sha256:be1671c0f0691e83a4d0fe19fcd6492990134d3068b8054a2ba9f4effd7c919a",
+          "verdict": "sha256:292c8cfc659935b260f97ee0b1f5849770b43052972c27291638310fe53ffd9b"
+        }
+      }
+    }
+    ,
+    {
+      "record_id": "p3-foundation-technical-2026-09-19-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "review",
+        "decision": "REVISE",
+        "code": "OK_REVISE",
+        "message": "apply routine findings and request a new independent review",
+        "next_node": "independent-review",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "independent-review",
+        "input_verdict": "REVISE",
+        "input_digests": {
+          "envelope": "sha256:7f2495ea545487dfbce36795cb0a95f5ee99c318e0c62692a8edc8f80076ad7f",
+          "state": "sha256:a43720596c27ce5fab719cbaf0100ab5e922e90d8ec3a2c6b15c22ab10ef4ea9",
+          "verdict": "sha256:1dc59b072a06180427cc58b0f1a77262036a788ffad41b358d78850e5b19b026"
+        }
+      }
+    }
+    ,
+    {
+      "record_id": "p3-foundation-verification-2026-09-19-r1",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "verification",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "candidate",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "verification",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:7f2495ea545487dfbce36795cb0a95f5ee99c318e0c62692a8edc8f80076ad7f",
+          "state": "sha256:f9d44d7c05bcdbb3756cd0e2f1fe4f6cbb209a17989a2a5784d0b2d3b372cf73",
+          "verdict": "sha256:3359a067f7cef3a436f5316828642ffe235377a2c4c8bd938e65a123c9d445fe"
+        }
+      }
+    }
+    ,
+    {
+      "record_id": "p3-foundation-candidate-2026-09-19-r1",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "candidate",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "independent-review",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "candidate",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:7f2495ea545487dfbce36795cb0a95f5ee99c318e0c62692a8edc8f80076ad7f",
+          "state": "sha256:2c9399adefb82cf423f9a2c72be3458679d529d5cfac7d232ba9cec93ff296bb",
+          "verdict": "sha256:ebf7b5889e599bee520e74d352d465e36c69a2fed84b0667434fe1e833621697"
+        }
+      }
+    }
+    ,
+    {
+      "record_id": "p3-foundation-technical-2026-09-19-r1",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "review",
+        "decision": "ESCALATE",
+        "code": "E_AUTHORITY",
+        "message": "next node requires separate authority: commit",
+        "next_node": "commit",
+        "revision": 1,
+        "human_required": true,
+        "current_node": "independent-review",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:7f2495ea545487dfbce36795cb0a95f5ee99c318e0c62692a8edc8f80076ad7f",
+          "state": "sha256:00fbac371d5867ab5d052698591244dfc2184693085ca6a345575d0562515785",
+          "verdict": "sha256:e68fa3e5688f6461322932cab41ff46c68454baab4f11a563ecee85922f6551d"
+        }
+      }
+    }
+  ],
   "p2c_records": [
     {
       "record_id": "p2c-implementation-2026-09-14-r0",

@@ -32,11 +32,11 @@
   "maximum_repetition_count": 999,
   "maximum_warmup_count": 31,
   "network_mode": "offline-only",
-  "profile_schema_registry_digest": "sha256-jcs-v1:6edff2b2bc8469319d3e1df5d17740fadb0b4629822a90c9e97ceafc11073095",
-  "profile_schema_registry_raw_sha256": "9ffa41240d0ab89a2171c798bf49918fa299b7a3120e680694a64bfa9a25d33d",
+  "profile_schema_registry_digest": "sha256-jcs-v1:6a014b08631b020d8ece3c0e185bac4829ab6a9456e01f13f4930858354424a6",
+  "profile_schema_registry_raw_sha256": "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58",
   "profile_schema_registry_resource": "graph_engineering/config/contracts/profile-schema-registry-v1.json",
   "profile_schema_registry_source": "config/contracts/profile-schema-registry-v1.json",
-  "protected_closure_digest": "sha256-jcs-v1:1d3e89e803625182bd63b4d2d0f7b6e30c464e4943a9d7c8f56299a36f1bb782",
+  "protected_closure_digest": "sha256-jcs-v1:2712b532f74d147e3daf1d4328e3f0fe3cf827bfc0628c7ccfe46898694306ae",
   "protected_resources": [
     {
       "raw_sha256": "9de5fcfdc5fdcbf6a84aa5adb4e58ecd4291af571210c4ae38b6fc74aae07f32",
@@ -59,12 +59,12 @@
       "source": "application/graph_engineering/application/profile_coverage.py"
     },
     {
-      "raw_sha256": "259d35a4a2eea5c1ef78604711a3c97bc0f1bcebec9d046e73747ea617d60df5",
+      "raw_sha256": "7db57559ffc98906e2dc1d01fc31a7f46986ec61d80f99368da92c22eef12cf9",
       "resource": "graph_engineering/application/profile_execution.py",
       "source": "application/graph_engineering/application/profile_execution.py"
     },
     {
-      "raw_sha256": "9ffa41240d0ab89a2171c798bf49918fa299b7a3120e680694a64bfa9a25d33d",
+      "raw_sha256": "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58",
       "resource": "graph_engineering/config/contracts/profile-schema-registry-v1.json",
       "source": "config/contracts/profile-schema-registry-v1.json"
     },
@@ -219,7 +219,7 @@
       "source": "core/graph_engineering/core/performance_benchmark.py"
     },
     {
-      "raw_sha256": "3e46f301b7d0865e8b5150b96a026e102e3609c61c11cc6ad1051c90f8c05aed",
+      "raw_sha256": "99c79e9a3822aa40c0f75d5a30fdfa37551d1bb3782928d836573c0727975e99",
       "resource": "graph_engineering/core/profile_execution.py",
       "source": "core/graph_engineering/core/profile_execution.py"
     },
@@ -356,5 +356,5 @@
   "source_registry_raw_sha256": "8e61edb0f2ba802d8b6e6c9ceb04808e308f4566d7b85a9b5b8651d9d748d3e4",
   "source_registry_resource": "graph_engineering/config/performance/performance-source-registry-v1.json",
   "source_registry_source": "config/performance/performance-source-registry-v1.json",
-  "bootstrap_digest": "sha256-jcs-v1:cc4b957d074733a6286c42f8be56601e5813edc75ea6e58e09ffc57de3fefc0e"
+  "bootstrap_digest": "sha256-jcs-v1:9cea1da809405044cfc15b18f1adb87e8356c7b1187c9487f4372f1e6dda05b4"
 }

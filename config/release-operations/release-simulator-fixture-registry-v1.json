@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "urn:gew:release-simulator-fixture-registry:v1",
+  "fixtures": [
+    {
+      "fixture_id": "release-foundation-v1",
+      "stage_relative_path": "stage.json",
+      "active_relative_path": "active.json",
+      "state_relative_path": "state.json",
+      "artifact_vectors": [
+        {
+          "artifact_id": "artifact-a",
+          "artifact_version": "fixture-a-v1",
+          "artifact_base64": "YXJ0aWZhY3QtYQo=",
+          "distribution_name": "gew-local-release-simulator-fixture",
+          "distribution_version": "1.0.0"
+        },
+        {
+          "artifact_id": "artifact-b",
+          "artifact_version": "fixture-b-v1",
+          "artifact_base64": "YXJ0aWZhY3QtYgo=",
+          "distribution_name": "gew-local-release-simulator-fixture",
+          "distribution_version": "1.0.0"
+        }
+      ],
+      "fault_schedule": [
+        {
+          "fault_point": "after-active-switch-durable",
+          "result_class": "unknown"
+        },
+        {
+          "fault_point": "after-stage-durable",
+          "result_class": "unknown"
+        },
+        {
+          "fault_point": "before-active-switch",
+          "result_class": "unknown"
+        },
+        {
+          "fault_point": "before-health-observe",
+          "result_class": "unknown"
+        },
+        {
+          "fault_point": "before-stage-write",
+          "result_class": "unknown"
+        }
+      ],
+      "expected_rollback_artifact_id": "artifact-a"
+    }
+  ],
+  "registry_digest": "sha256-jcs-v1:68e9412ffb9f8323d7c33341cb150fa29b23443054b45e86f429374f4ae4df77"
+}

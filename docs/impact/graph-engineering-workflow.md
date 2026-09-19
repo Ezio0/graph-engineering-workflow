@@ -1,5 +1,20 @@
 # Graph Engineering Workflow — Impact Analysis
 
+## 2026-09-18 P3 foundation evidence-path amendment
+
+Human approval `明确批准这五个路径` authorizes
+`GEW-REMAINING54-P3-FOUNDATION-RECORDS-WP07A-V1`: the Envelope grows
+from 174 to 179 exact targets, adding only
+`tests/contract/test_wp07a_action_contracts.py` and the four
+`p3-foundation-{source-manifest,state,review-verdict,decision}-r2.json`
+records under `.workflow/delivery/GEW-REMAINING54-V1/`. Correct only the
+WP07A exact adapter-kind expectation and preserve its substitution tests;
+align the existing authority-membership regression with the five-path delta.
+Persist bounded verification and independent review using the new paths.
+Historical r1 records remain unchanged. The prior exact174 and pending-r2
+statements below describe the 2026-09-17 boundary; all other foundation
+constraints, including 244 bindings / 122 oracles / 30 missing, still apply.
+
 ## 2026-09-10 approved memory-repair impact
 
 `GEW-REMAINING54-LOSSLESS-TRACE-MEMORY-REPAIR` adds six exact targets to
@@ -25,6 +40,42 @@ choice. Required regressions precede implementation and independent review follo
 verification. No commit is authorized (any later authorized commit must record the
 hotfix exception). Cumulative execution and monitoring remain stopped; focused
 tests are not a Remaining54/Candidate pass.
+
+## 2026-09-17 P3 foundation bounded impact
+
+`GEW-REMAINING54-P3-FOUNDATION-BOUNDED-V1` uses the current exact174 Envelope;
+exact168 is retained only as historical F1 lineage. No target is added. The
+affected surface is limited to ADR-0009 foundation contracts, installed
+policy/fixture/bootstrap and package currentness, local private-root simulator
+and health observation, existing ActionCoordinator wiring, release-only
+assessment 1.4, and focused tests. The plan/oracle shape stays 244/122 with 30
+missing release bindings, so no release CoverageRecord is created. Local
+simulator evidence is not staging, production, deployment or release evidence.
+Mandatory/scenario coverage, cumulative/performance workload, monitoring,
+network, WP-10, commit/push/merge/deploy/release remain outside this impact.
+The occupied historical `p3-foundation-*-r1.json` records are immutable; new
+review-record targets require a separate authority expansion.
+
+Security impact is intentionally local but strict: callers cannot mint accepted
+artifact/evidence objects or invoke mutation directly; the simulator exposes no
+caller path and binds its directory descriptor, owner, mode and inode. Partial
+failure creates a durable queryable staged state and uses the existing
+claim-compensation protocol to restore A, without treating staged B as no-effect
+or replaying apply. No new durable schema, dependency, external process or
+network capability is introduced.
+
+The installed fixture registry, rather than a caller byte argument, owns the two
+simulated artifact byte vectors and their identities. Coordinator-owned gate
+arming and outcome tracking prevent direct target mutation and forged result
+promotion. Health is bound to the terminal typed observation; partial/manual
+state requires rollback before final evidence can pass. Because the private root
+has no authorized durable reopen locator in this sub-batch, restart of stored
+release evidence intentionally fails closed instead of accepting a destroyed or
+drifted target. This is a known foundation limitation, not a coverage PASS.
+Production issuance is additionally confined to an opaque process-local seal
+granted only after `from_installation()` verifies the current protected closure.
+Direct constructors and document-validation factories have zero issuance
+authority, and cannot be injected into the release category oracle.
 
 ## 1. 文档控制
 

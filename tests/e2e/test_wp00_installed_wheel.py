@@ -118,6 +118,7 @@ class InstalledWheelTests(unittest.TestCase):
             coverage = profile_configuration["coverage-execution-plan"]
             migration = profile_configuration["migration-rehearsal"]
             performance = profile_configuration["performance-benchmark"]
+            release = profile_configuration["release-operations"]
             protected_vectors = (
                 tuple(sorted((
                     (category["registry-source"], category["registry-resource"]),
@@ -154,6 +155,25 @@ class InstalledWheelTests(unittest.TestCase):
                     (item["source"], item["resource"])
                     for item in migration["schema-vectors"]
                 )),
+                tuple(sorted((
+                    (release["bootstrap-source"], release["bootstrap-resource"]),
+                    (release["policy-source"], release["policy-resource"]),
+                    (release["fixture-source"], release["fixture-resource"]),
+                    (
+                        release["profile-schema-registry-source"],
+                        release["profile-schema-registry-resource"],
+                    ),
+                ))),
+                tuple(zip(
+                    release["protected-sources"],
+                    release["protected-resources"],
+                    strict=True,
+                )),
+                tuple(sorted(zip(
+                    release["schema-sources"],
+                    release["schema-resources"],
+                    strict=True,
+                ))),
             )
             protected_destinations: dict[str, str] = {}
             for protected in protected_vectors:

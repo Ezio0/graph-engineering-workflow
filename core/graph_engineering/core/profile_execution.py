@@ -1053,6 +1053,7 @@ class CategoryCompletionAssessment:
     migration_rehearsal_projection: FrozenMap | None
     dependency_graph_projection: FrozenMap | None
     scenario_truth_projection: FrozenMap | None
+    release_operations_projection: FrozenMap | None
     assessment_digest: str
     object_digest: str
     _authority: object
@@ -1060,6 +1061,7 @@ class CategoryCompletionAssessment:
     _migration_rehearsal_evidence: object
     _dependency_graph_evidence: object
     _scenario_truth_evidence: object
+    _release_operations_evidence: object
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         del args, kwargs
@@ -1107,6 +1109,10 @@ class CategoryCompletionAssessment:
         if self.scenario_truth_projection is not None:
             result["scenario_truth_projection"] = thaw(
                 self.scenario_truth_projection
+            )
+        if self.release_operations_projection is not None:
+            result["release_operations_projection"] = thaw(
+                self.release_operations_projection
             )
         return result
 

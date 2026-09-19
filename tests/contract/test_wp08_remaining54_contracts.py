@@ -7,6 +7,7 @@ import hashlib
 import json
 import pathlib
 import sys
+import tomllib
 import unittest
 
 
@@ -528,6 +529,134 @@ class Remaining54P2dContractsTest(unittest.TestCase):
                 *contract["forbidden_action_ids"],
             ):
                 self.assertNotIn(value, sources)
+
+
+class Remaining54P3FoundationContractsTest(unittest.TestCase):
+    """Freeze the bounded P3 foundation without issuing release coverage."""
+
+    schema_versions = {
+        "category-completion-assessment": "1.4.0",
+        "release-artifact-manifest": "1.0.0",
+        "release-deployment-observation": "1.0.0",
+        "release-health-observation": "1.0.0",
+        "release-operations-installation-bootstrap": "1.0.0",
+        "release-operations-observation": "1.0.0",
+        "release-operations-policy-registry": "1.0.0",
+        "release-simulator-fixture-registry": "1.0.0",
+    }
+    digest_fields = {
+        "category-completion-assessment": "assessment_digest",
+        "release-artifact-manifest": "manifest_digest",
+        "release-deployment-observation": "observation_digest",
+        "release-health-observation": "observation_digest",
+        "release-operations-installation-bootstrap": "bootstrap_digest",
+        "release-operations-observation": "observation_digest",
+        "release-operations-policy-registry": "registry_digest",
+        "release-simulator-fixture-registry": "registry_digest",
+    }
+
+    def test_p3_eight_schema_pairs_are_closed_registered_and_digest_projected(self) -> None:
+        from graph_engineering.core.contracts.schema import (
+            SchemaProfilePolicy,
+            validate_schema_profile,
+        )
+
+        policy = SchemaProfilePolicy.from_dict(json.loads(
+            (ROOT / "config/contracts/schema-profile-v1.json").read_text()
+        ))
+        registry = json.loads(
+            (ROOT / "config/contracts/profile-schema-registry-v1.json").read_text()
+        )
+        rows = {row["schema_id"]: row["body_digest"] for row in registry["resources"]}
+        expected_ids: set[str] = set()
+        for name, version in self.schema_versions.items():
+            output_id = f"urn:gew:schema:{name}:{version}"
+            input_id = f"urn:gew:schema:{name}-input:{version}"
+            expected_ids.update((input_id, output_id))
+            output_path = ROOT / f"config/contracts/schemas/{name}-{version}.json"
+            input_path = ROOT / f"config/contracts/schemas/{name}-input-{version}.json"
+            output = json.loads(output_path.read_text())
+            digest_input = json.loads(input_path.read_text())
+            digest_field = self.digest_fields[name]
+            with self.subTest(schema=name):
+                self.assertEqual(validate_schema_profile(output, policy), output_id)
+                self.assertEqual(validate_schema_profile(digest_input, policy), input_id)
+                self.assertIs(output["unevaluatedProperties"], False)
+                self.assertIs(digest_input["unevaluatedProperties"], False)
+                self.assertIn(digest_field, output["required"])
+                self.assertNotIn(digest_field, digest_input["required"])
+                self.assertIn(digest_field, output["properties"])
+                self.assertNotIn(digest_field, digest_input["properties"])
+                self.assertEqual(
+                    rows[output_id],
+                    "sha256-raw-v1:" + hashlib.sha256(output_path.read_bytes()).hexdigest(),
+                )
+                self.assertEqual(
+                    rows[input_id],
+                    "sha256-raw-v1:" + hashlib.sha256(input_path.read_bytes()).hexdigest(),
+                )
+        self.assertEqual(
+            [row["schema_id"] for row in registry["resources"]],
+            sorted(row["schema_id"] for row in registry["resources"]),
+        )
+        self.assertLessEqual(expected_ids, set(rows))
+        for filename in (
+            "release-operations-observation-1.0.0.json",
+            "release-operations-observation-input-1.0.0.json",
+            "category-completion-assessment-1.4.0.json",
+            "category-completion-assessment-input-1.4.0.json",
+        ):
+            body = json.loads((ROOT / "config/contracts/schemas" / filename).read_text())
+            encoded = json.dumps(body, sort_keys=True)
+            self.assertIn("urn:gew:schema:release-artifact-manifest:1.0.0", encoded)
+            self.assertIn("urn:gew:schema:release-deployment-observation:1.0.0", encoded)
+            self.assertIn("urn:gew:schema:release-health-observation:1.0.0", encoded)
+
+    def test_p3_configuration_package_and_missing_count_closures_are_current(self) -> None:
+        project = tomllib.loads((ROOT / "pyproject.toml").read_text())
+        pin = project["tool"]["gew"]["profile"]["release-operations"]
+        policy = json.loads((ROOT / pin["policy-source"]).read_text())
+        bootstrap_path = ROOT / pin["bootstrap-source"]
+        bootstrap = json.loads(bootstrap_path.read_text())
+        plan = json.loads((
+            ROOT / "config/profiles/profile-coverage-execution-plan-v1.json"
+        ).read_text())
+        self.assertEqual((len(plan["bindings"]), len(plan["oracle_bindings"])), (244, 122))
+        self.assertFalse(any(
+            row["profile_id"] == "release-operations" for row in plan["bindings"]
+        ))
+        self.assertEqual(policy["deployment_policy"]["operation_roles"], {
+            "apply": "local-release-simulator.apply",
+            "query": "local-release-simulator.query",
+            "restore": "local-release-simulator.restore",
+        })
+        self.assertEqual(len(policy["deployment_policy"]["fault_points"]), 5)
+        self.assertEqual(len(pin["schema-sources"]), 16)
+        self.assertEqual(len(set(pin["schema-sources"])), 16)
+        self.assertEqual(
+            bootstrap["schema_vectors"],
+            [{
+                "schema_id": json.loads((ROOT / path).read_text())["$id"],
+                "raw_sha256": hashlib.sha256((ROOT / path).read_bytes()).hexdigest(),
+            } for path in pin["schema-sources"]],
+        )
+        self.assertEqual(
+            pin["bootstrap-raw-sha256"], hashlib.sha256(bootstrap_path.read_bytes()).hexdigest(),
+        )
+        protected = {row["path"]: row["raw_sha256"] for row in bootstrap["protected_resources"]}
+        self.assertEqual(set(protected), set(pin["protected-sources"]))
+        for path, raw_sha256 in protected.items():
+            self.assertEqual(raw_sha256, hashlib.sha256((ROOT / path).read_bytes()).hexdigest())
+        source_targets = set(json.loads(
+            (ROOT / "config/verification/wp-00-targets.json").read_text()
+        )["files"])
+        self.assertLessEqual({
+            "adapters/graph_engineering/adapters/local_release_simulator.py",
+            "application/graph_engineering/application/release_operations.py",
+            "core/graph_engineering/core/release_operations.py",
+            pin["bootstrap-source"], pin["policy-source"], pin["fixture-source"],
+            *pin["schema-sources"],
+        }, source_targets)
 
 
 if __name__ == "__main__":

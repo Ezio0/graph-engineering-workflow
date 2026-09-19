@@ -160,7 +160,10 @@ class WP07AActionContractTests(unittest.TestCase):
         self.assertTrue(policy.real_local_actions_enabled)
         self.assertEqual(
             tuple(entry.adapter_kind for entry in registry.entries),
-            ("git", "project-command", "target-query", "secret-provider", "connector"),
+            (
+                "git", "local-release-simulator", "project-command", "target-query",
+                "secret-provider", "connector",
+            ),
         )
         self.assertEqual(policy.registry_digest, registry.registry_digest)
 

@@ -3,11 +3,12 @@
   "policy_id": "concrete-action-policy-default",
   "protocol_version": "1.0.0",
   "registry_id": "action-adapter-registry-default",
-  "registry_digest": "sha256-jcs-v1:ccb9f1be03441e658b7c4dad8b0fba42948ebeb102364b50bb9e6d5fdd7ee069",
+  "registry_digest": "sha256-jcs-v1:1887efe554928ebde16a6077b239095644132fff36f6a634182f89cc8f092768",
   "real_local_actions_enabled": true,
   "allowed_adapter_ids": [
     "connector-unavailable-v1",
     "git-native-v1",
+    "local-release-simulator-v1",
     "project-command-v1",
     "secret-provider-v1",
     "target-query-v1"
@@ -17,6 +18,9 @@
     "git.query-ref",
     "git.resolve-identity",
     "git.update-ref",
+    "local-release-simulator.apply",
+    "local-release-simulator.query",
+    "local-release-simulator.restore",
     "project.run",
     "secret.resolve",
     "target.observe"
@@ -40,5 +44,5 @@
   ],
   "secret_handling": "ephemeral-minimal",
   "launcher_mode": "structured-argv-shell-false",
-  "policy_digest": "sha256-jcs-v1:35dc37f7ea737b452ebaaba3585a3afb458ec332e2737b1ddfffd19f99fcc7a1"
+  "policy_digest": "sha256-jcs-v1:1abac14dbec75bfaa439e5ea1e063d7f59e5a105c930fc04c09acb76623412a5"
 }

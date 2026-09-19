@@ -48,6 +48,7 @@ _ATTESTED_ACTION_ADAPTERS: dict[int, tuple[object, object]] = {}
 _IMPLEMENTATION_MODULES = MappingProxyType({
     "builtin:connector-unavailable-v1": "graph_engineering.adapters.connector_unavailable",
     "builtin:git-native-v1": "graph_engineering.adapters.git_native",
+    "builtin:local-release-simulator-v1": "graph_engineering.adapters.local_release_simulator",
     "builtin:project-command-v1": "graph_engineering.adapters.command_native",
     "builtin:secret-provider-v1": "graph_engineering.adapters.command_native",
     "builtin:target-query-v1": "graph_engineering.adapters.git_native",
@@ -61,6 +62,8 @@ _extension_build_tables = (
     "tool.gew.profile.dependency-advisory",
     "tool.gew.profile.migration-rehearsal",
     "tool.gew.profile.performance-benchmark",
+    "tool.gew.profile.release-operations",
+    "tool.gew.profile.scenario-truth",
 )
 _extension_dependencies = ("cryptography==50.0.0", "packaging==26.3")
 _extension_imports = ("cryptography", "packaging")

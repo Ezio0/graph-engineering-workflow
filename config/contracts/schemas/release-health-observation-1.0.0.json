@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:release-health-observation:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "raw": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "integer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "ids": {
+      "type": "array",
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "openObject": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 128,
+      "additionalProperties": true
+    },
+    "scalar": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "string",
+          "maxLength": 4096
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "task_id": {
+      "$ref": "#/$defs/id"
+    },
+    "target_id": {
+      "$ref": "#/$defs/id"
+    },
+    "generation": {
+      "$ref": "#/$defs/integer"
+    },
+    "policy_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "active_artifact_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "state_raw_sha256": {
+      "$ref": "#/$defs/raw"
+    },
+    "predicate_results": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "properties": {
+          "predicate_id": {
+            "$ref": "#/$defs/id"
+          },
+          "passed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "predicate_id",
+          "passed"
+        ],
+        "unevaluatedProperties": false
+      }
+    },
+    "outcome": {
+      "enum": [
+        "healthy",
+        "unhealthy"
+      ]
+    },
+    "observation_digest": {
+      "$ref": "#/$defs/digest"
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_id",
+    "target_id",
+    "generation",
+    "policy_digest",
+    "active_artifact_digest",
+    "state_raw_sha256",
+    "predicate_results",
+    "outcome",
+    "observation_digest"
+  ],
+  "unevaluatedProperties": false
+}

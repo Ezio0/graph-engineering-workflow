@@ -301,6 +301,7 @@ class CategoryTargetObservationAuthority:
         observation: CategoryTargetObservation,
         *,
         locks: object,
+        completion_binding: tuple[CategoryCompletionOracle, CategoryCompletionAssessment] | None = None,
     ) -> TargetObservationFenceRequest:
         """Issue an opaque request that TaskApplication seals under its locks."""
 
@@ -309,6 +310,18 @@ class CategoryTargetObservationAuthority:
         if type(locks) is not LockedFileRegistry:
             raise CategoryExecutionError("target resource lock authority is missing")
         self.require_issued(observation)
+        if completion_binding is not None:
+            if (
+                type(completion_binding) is not tuple or len(completion_binding) != 2
+                or type(completion_binding[0]) is not CategoryCompletionOracle
+                or type(completion_binding[1]) is not CategoryCompletionAssessment
+                or completion_binding[1].task_id != self._policy.require_candidate(candidate)["task_id"]
+            ):
+                raise CategoryExecutionError("category completion fence binding is invalid")
+            try:
+                completion_binding[0].require_issued(completion_binding[1])
+            except ValueError as error:
+                raise CategoryExecutionError("category completion evidence is not current") from error
         request = object.__new__(TargetObservationFenceRequest)
         for name, value in (
             ("resource_id", observation.resource_id),
@@ -316,6 +329,7 @@ class CategoryTargetObservationAuthority:
             ("_candidate", freeze(self._policy.require_candidate(candidate))),
             ("_observation", observation),
             ("_locks", locks),
+            ("_completion_binding", completion_binding),
         ):
             object.__setattr__(request, name, value)
         return request
@@ -345,6 +359,7 @@ class CategoryTargetObservationAuthority:
             ("_candidate", request._candidate),
             ("_observation", current),
             ("_locks", request._locks),
+            ("_completion_binding", request._completion_binding),
         ):
             object.__setattr__(token, name, value)
         self.__fences[id(token)] = token
@@ -371,6 +386,9 @@ class CategoryTargetObservationAuthority:
             current.file_identity != token.file_identity,
         )):
             raise CategoryExecutionError("target changed at the final transaction fence")
+        if token._completion_binding is not None:
+            oracle, assessment = token._completion_binding
+            oracle.require_issued(assessment)
 
 
 @dataclass(frozen=True, slots=True, init=False, eq=False)
@@ -386,6 +404,7 @@ class TargetObservationFence:
     _candidate: FrozenMap
     _observation: CategoryTargetObservation
     _locks: object
+    _completion_binding: tuple[CategoryCompletionOracle, CategoryCompletionAssessment] | None
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         del args, kwargs
@@ -401,6 +420,7 @@ class TargetObservationFenceRequest:
     _candidate: FrozenMap
     _observation: CategoryTargetObservation
     _locks: object
+    _completion_binding: tuple[CategoryCompletionOracle, CategoryCompletionAssessment] | None
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         del args, kwargs
@@ -686,6 +706,9 @@ class CategoryCompletionOracle:
     _SCENARIO_SOURCE_FIELDS = _SOURCE_FIELDS | frozenset({
         "scenario_truth_projection",
     })
+    _RELEASE_SOURCE_FIELDS = _SOURCE_FIELDS | frozenset({
+        "release_operations_projection",
+    })
 
     def __init__(
         self,
@@ -698,6 +721,7 @@ class CategoryCompletionOracle:
         migration_rehearsal_authority: object | None = None,
         dependency_graph_factory: object | None = None,
         scenario_truth_factory: object | None = None,
+        release_operations_factory: object | None = None,
     ) -> None:
         if (
             type(policy) is not CategoryExecutionPolicy
@@ -760,6 +784,7 @@ class CategoryCompletionOracle:
                     migration_rehearsal_factory,
                     dependency_graph_factory,
                     scenario_truth_factory,
+                    release_operations_factory,
                 )
             ) > 1
         ):
@@ -797,6 +822,25 @@ class CategoryCompletionOracle:
                 raise CategoryExecutionError(
                     "scenario truth assessment authority is invalid"
                 ) from error
+        if release_operations_factory is not None:
+            try:
+                from graph_engineering.application.release_operations import (
+                    ReleaseOperationsRegistryFactory,
+                )
+
+                if (
+                    type(release_operations_factory)
+                    is not ReleaseOperationsRegistryFactory
+                    or policy.profile_id != "release-operations"
+                ):
+                    raise CategoryExecutionError(
+                        "release operations assessment factory is foreign"
+                    )
+                release_operations_factory.require_installed_authority()
+            except (ImportError, ValueError) as error:
+                raise CategoryExecutionError(
+                    "release operations assessment authority is invalid"
+                ) from error
         self._policy = policy
         self._target_authority = target_authority
         self._performance_registry_factory = performance_registry_factory
@@ -805,6 +849,7 @@ class CategoryCompletionOracle:
         self._migration_rehearsal_authority = migration_rehearsal_authority
         self._dependency_graph_factory = dependency_graph_factory
         self._scenario_truth_factory = scenario_truth_factory
+        self._release_operations_factory = release_operations_factory
         self.__issued: dict[int, CategoryCompletionAssessment] = {}
 
     def _issue(
@@ -815,6 +860,7 @@ class CategoryCompletionOracle:
         migration_rehearsal_evidence: object | None = None,
         dependency_graph_evidence: object | None = None,
         scenario_truth_evidence: object | None = None,
+        release_operations_evidence: object | None = None,
     ) -> CategoryCompletionAssessment:
         assessment_digest = _value_digest(body, "category-completion-assessment")
         result = object.__new__(CategoryCompletionAssessment)
@@ -825,6 +871,7 @@ class CategoryCompletionOracle:
                 "migration_rehearsal_projection",
                 "dependency_graph_projection",
                 "scenario_truth_projection",
+                "release_operations_projection",
             }:
                 frozen = freeze(item)
                 if not isinstance(frozen, FrozenMap):
@@ -843,6 +890,8 @@ class CategoryCompletionOracle:
             object.__setattr__(result, "dependency_graph_projection", None)
         if "scenario_truth_projection" not in body:
             object.__setattr__(result, "scenario_truth_projection", None)
+        if "release_operations_projection" not in body:
+            object.__setattr__(result, "release_operations_projection", None)
         object.__setattr__(result, "assessment_digest", assessment_digest)
         object.__setattr__(result, "_authority", self)
         object.__setattr__(result, "_performance_evidence", performance_evidence)
@@ -853,6 +902,9 @@ class CategoryCompletionOracle:
             result, "_dependency_graph_evidence", dependency_graph_evidence,
         )
         object.__setattr__(result, "_scenario_truth_evidence", scenario_truth_evidence)
+        object.__setattr__(
+            result, "_release_operations_evidence", release_operations_evidence,
+        )
         object.__setattr__(result, "object_digest", "")
         object.__setattr__(result, "object_digest", category_object_digest(result.to_bytes()))
         self.__issued[id(result)] = result
@@ -872,6 +924,7 @@ class CategoryCompletionOracle:
         migration_rehearsal_evidence: object | None = None,
         dependency_graph_evidence: object | None = None,
         scenario_truth_evidence: object | None = None,
+        release_operations_evidence: object | None = None,
     ) -> CategoryCompletionAssessment:
         value = self._policy.require_candidate(candidate)
         self._target_authority.require_issued(observation)
@@ -1075,9 +1128,47 @@ class CategoryCompletionOracle:
                 )
         elif scenario_truth_evidence is not None:
             raise CategoryExecutionError("scenario truth authority is not installed")
+        release_projection: dict[str, object] | None = None
+        if self._release_operations_factory is not None:
+            if value["profile_id"] != "release-operations":
+                raise CategoryExecutionError(
+                    "release operations factory crossed Profile boundary"
+                )
+            try:
+                evidence = self._release_operations_factory.require_current(
+                    release_operations_evidence
+                )
+                release_projection = thaw(
+                    self._release_operations_factory.projection(evidence)
+                )
+            except Exception as error:
+                raise CategoryExecutionError(
+                    "release operations evidence is absent, stale, or foreign"
+                ) from error
+            if (
+                release_projection.get("task_id") != value["task_id"]
+                or release_projection.get("task_revision") != value["task_revision"]
+                or release_projection.get("snapshot_digest") != value["snapshot_digest"]
+                or release_projection.get("invalidation_epoch")
+                != value["invalidation_epoch"]
+                or release_projection.get("profile_id") != value["profile_id"]
+                or release_projection.get("profile_version") != value["profile_version"]
+                or release_projection.get("column_id") != value["column_id"]
+                or release_projection.get("scenario_id") != value["scenario_id"]
+                or freeze(release_projection.get("graph_ref_pins"))
+                != freeze(value["digest_pins"])
+            ):
+                raise CategoryExecutionError(
+                    "release operations evidence does not match the current task"
+                )
+        elif release_operations_evidence is not None:
+            raise CategoryExecutionError(
+                "release operations authority is not installed"
+            )
         body = {
             "schema_version": (
-                "1.3.0" if scenario_projection is not None
+                "1.4.0" if release_projection is not None
+                else "1.3.0" if scenario_projection is not None
                 else "1.2.0"
                 if migration_projection is not None or dependency_projection is not None
                 else "1.1.0" if performance_projection is not None
@@ -1119,12 +1210,15 @@ class CategoryCompletionOracle:
             body["dependency_graph_projection"] = dependency_projection
         if scenario_projection is not None:
             body["scenario_truth_projection"] = scenario_projection
+        if release_projection is not None:
+            body["release_operations_projection"] = release_projection
         return self._issue(
             body,
             performance_evidence=performance_evidence,
             migration_rehearsal_evidence=migration_rehearsal_evidence,
             dependency_graph_evidence=dependency_evidence,
             scenario_truth_evidence=scenario_truth_evidence,
+            release_operations_evidence=release_operations_evidence,
         )
 
     def require_issued(self, assessment: CategoryCompletionAssessment) -> None:
@@ -1176,6 +1270,19 @@ class CategoryCompletionOracle:
                 )
         elif assessment.scenario_truth_projection is not None:
             raise CategoryExecutionError("scenario truth assessment authority is absent")
+        if self._release_operations_factory is not None:
+            evidence = self._release_operations_factory.require_current(
+                assessment._release_operations_evidence
+            )
+            projection = self._release_operations_factory.projection(evidence)
+            if projection != assessment.release_operations_projection:
+                raise CategoryExecutionError(
+                    "release operations assessment evidence changed"
+                )
+        elif assessment.release_operations_projection is not None:
+            raise CategoryExecutionError(
+                "release operations assessment authority is absent"
+            )
         if (
             assessment.status != "PASS"
             or not hmac.compare_digest(
@@ -1195,6 +1302,12 @@ class CategoryCompletionOracle:
         source_fields = (
             self._PERFORMANCE_SOURCE_FIELDS
             if source.get("schema_version") == "1.1.0"
+            else self._RELEASE_SOURCE_FIELDS
+            if (
+                source.get("schema_version") == "1.4.0"
+                and source.get("profile_id") == "release-operations"
+                and "release_operations_projection" in source
+            )
             else self._SCENARIO_SOURCE_FIELDS
             if (
                 source.get("schema_version") == "1.3.0"
@@ -1314,12 +1427,30 @@ class CategoryCompletionOracle:
             scenario_evidence = self._scenario_truth_factory.restore_projection(
                 projection
             )
+        release_evidence = None
+        if source.get("schema_version") == "1.4.0":
+            if (
+                source.get("profile_id") != "release-operations"
+                or self._release_operations_factory is None
+            ):
+                raise CategoryExecutionError(
+                    "stored release assessment has no current authority"
+                )
+            projection = source.get("release_operations_projection")
+            if type(projection) is not dict:
+                raise CategoryExecutionError(
+                    "stored release operations projection is malformed"
+                )
+            release_evidence = (
+                self._release_operations_factory.restore_projection(projection)
+            )
         result = self._issue(
             source,
             performance_evidence=performance_evidence,
             migration_rehearsal_evidence=migration_evidence,
             dependency_graph_evidence=dependency_evidence,
             scenario_truth_evidence=scenario_evidence,
+            release_operations_evidence=release_evidence,
         )
         if not hmac.compare_digest(result.assessment_digest, expected):
             raise CategoryExecutionError("stored category assessment did not restore exactly")
@@ -1381,6 +1512,12 @@ class CategoryAssessmentResolver:
         source_fields = (
             CategoryCompletionOracle._PERFORMANCE_SOURCE_FIELDS
             if source.get("schema_version") == "1.1.0"
+            else CategoryCompletionOracle._RELEASE_SOURCE_FIELDS
+            if (
+                source.get("schema_version") == "1.4.0"
+                and source.get("profile_id") == "release-operations"
+                and "release_operations_projection" in source
+            )
             else CategoryCompletionOracle._SCENARIO_SOURCE_FIELDS
             if (
                 source.get("schema_version") == "1.3.0"
@@ -2761,6 +2898,7 @@ class CategoryExecutionApplication:
         migration_rehearsal_evidence: object | None = None,
         dependency_graph_evidence: object | None = None,
         scenario_truth_evidence: object | None = None,
+        release_operations_evidence: object | None = None,
     ) -> CategoryAssessmentReceipt:
         selector = _category_selector(candidate)
         if observer is not self._target_observer:
@@ -2818,6 +2956,7 @@ class CategoryExecutionApplication:
             migration_rehearsal_evidence=migration_rehearsal_evidence,
             dependency_graph_evidence=dependency_graph_evidence,
             scenario_truth_evidence=scenario_truth_evidence,
+            release_operations_evidence=release_operations_evidence,
         )
         event, successor = self._reducer.transition(
             state,
@@ -2877,6 +3016,10 @@ class CategoryExecutionApplication:
             value,
             observation,
             locks=self._repository._locks,
+            completion_binding=(
+                (self._oracle, assessment)
+                if assessment.release_operations_projection is not None else None
+            ),
         )
         object_body = assessment.to_bytes()
         snapshot = {
@@ -3020,6 +3163,7 @@ class CategoryExecutionApplication:
         migration_projection: dict[str, object] | None = None
         dependency_projection: dict[str, object] | None = None
         scenario_projection: dict[str, object] | None = None
+        release_projection: dict[str, object] | None = None
         if current_assessment_body is not None:
             _current_snapshot, current_assessment_bytes = current_assessment_body
             current_assessment = _strict_json(current_assessment_bytes)
@@ -3079,6 +3223,30 @@ class CategoryExecutionApplication:
                         "current scenario truth projection is invalid"
                     )
                 scenario_projection = candidate_projection
+            elif current_assessment.get("schema_version") == "1.4.0":
+                if current_assessment.get("profile_id") != "release-operations":
+                    raise CategoryExecutionError(
+                        "current release assessment projection is foreign"
+                    )
+                candidate_projection = current_assessment.get(
+                    "release_operations_projection"
+                )
+                if (
+                    type(candidate_projection) is not dict
+                    or any(
+                        field in current_assessment
+                        for field in (
+                            "performance_evidence_projection",
+                            "migration_rehearsal_projection",
+                            "dependency_graph_projection",
+                            "scenario_truth_projection",
+                        )
+                    )
+                ):
+                    raise CategoryExecutionError(
+                        "current release operations projection is invalid"
+                    )
+                release_projection = candidate_projection
         performance_factory = None
         performance_authority = None
         if self._policy.profile_id == "performance":
@@ -3121,6 +3289,13 @@ class CategoryExecutionApplication:
             )
 
             scenario_factory = ScenarioTruthRegistryFactory.from_installation()
+        release_factory = None
+        if release_projection is not None:
+            from graph_engineering.application.release_operations import (
+                ReleaseOperationsRegistryFactory,
+            )
+
+            release_factory = ReleaseOperationsRegistryFactory.from_installation()
         target_authority = CategoryTargetObservationAuthority(self._policy)
         restarted = CategoryExecutionApplication(
             repository=repository,
@@ -3136,6 +3311,7 @@ class CategoryExecutionApplication:
                 migration_rehearsal_authority=migration_authority,
                 dependency_graph_factory=dependency_factory,
                 scenario_truth_factory=scenario_factory,
+                release_operations_factory=release_factory,
             ),
             rollback_bridge=CategoryRollbackBridge(
                 self._policy, self._rollback._coordinator
@@ -3188,6 +3364,22 @@ class CategoryExecutionApplication:
             ):
                 raise CategoryExecutionError(
                     "current scenario truth assessment did not restart"
+                )
+        if release_projection is not None:
+            restored_assessment = restarted.current_assessment(
+                restart_task_id,
+                expected_profile_id=self._policy.profile_id,
+            )
+            if (
+                restored_assessment is None
+                or restored_assessment.release_operations_projection is None
+                or restored_assessment.performance_evidence_projection is not None
+                or restored_assessment.migration_rehearsal_projection is not None
+                or restored_assessment.dependency_graph_projection is not None
+                or restored_assessment.scenario_truth_projection is not None
+            ):
+                raise CategoryExecutionError(
+                    "current release operations assessment did not restart"
                 )
         return restarted
 

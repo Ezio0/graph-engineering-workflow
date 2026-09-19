@@ -1,5 +1,20 @@
 # ADR-0009: Offline Release Operations Simulator Authority
 
+## 2026-09-18 P3 foundation evidence-path amendment
+
+Human approval `明确批准这五个路径` authorizes
+`GEW-REMAINING54-P3-FOUNDATION-RECORDS-WP07A-V1`: the Envelope grows
+from 174 to 179 exact targets, adding only
+`tests/contract/test_wp07a_action_contracts.py` and the four
+`p3-foundation-{source-manifest,state,review-verdict,decision}-r2.json`
+records under `.workflow/delivery/GEW-REMAINING54-V1/`. Correct only the
+WP07A exact adapter-kind expectation and preserve its substitution tests;
+align the existing authority-membership regression with the five-path delta.
+Persist bounded verification and independent review using the new paths.
+Historical r1 records remain unchanged. The prior exact174 and pending-r2
+statements below describe the 2026-09-17 boundary; all other foundation
+constraints, including 244 bindings / 122 oracles / 30 missing, still apply.
+
 ## Status
 
 Accepted decision，revision 12 remaining54 F1 routine traceability R1 candidate，2026-09-06。Human Owner 已批准 P3：使用 installation-pinned artifact、
@@ -10,6 +25,36 @@ release、DB schema、GraphRef API、新 dependency、commit、push、merge 或�
 
 本 ADR 的独立 architecture review、schema/bootstrap conformance 与 TDD 是 implementation blocking gate。未关闭前，
 release-operations 30 IDs 保持 missing；`local-simulator` evidence 绝不升级为 `production-deployed` 或真实 release proof。
+
+### 2026-09-17 P3 foundation bounded continuation
+
+Human approval `GEW-REMAINING54-P3-FOUNDATION-BOUNDED-V1` enters only the first
+P3 foundation sub-batch. Historical exact168 references below describe the F1
+lineage; the current source-edit boundary is the existing exact174 Envelope and
+this continuation adds no target. The sub-batch is limited to the eight schema
+pairs, installed policy/fixture/bootstrap closure, protected local artifact
+manifest, private filesystem simulator, filesystem-only health observation,
+existing ActionCoordinator integration, assessment 1.4 validation, bounded
+serial tests and independent review. The execution plan remains exactly
+244 bindings / 122 oracle bindings / 30 missing, and all 30 release IDs remain
+missing. Mandatory24, the three scenario pairs, cumulative/performance runs,
+monitoring, network, WP-10, commit, push, merge, deploy and release remain
+prohibited. Existing `p3-foundation-*-r1.json` records belong to historical F2
+and are immutable; persisting this sub-batch's review requires separately
+authorized append-only record paths and may not overwrite them.
+
+Foundation hardening binds every mutation to a one-shot opaque capability armed
+only after the durable ActionCoordinator start commit. Artifact, deployment and
+health bodies are factory-issued typed values; final evidence schemas reference
+their exact closed schemas rather than accepting open nested objects. The private
+root is descriptor-relative, owner/mode/inode checked, no-follow, and rechecked
+after every injected hook. A staged-B/active-A unknown remains manual, never
+reconciles as no-effect, and may return to exact A only through the original
+claim's single authorized compensation bound to its receipt and current state.
+The production factory authority is an opaque process-local seal granted only
+after the exact `from_installation()` path validates the protected closure.
+Direct construction and `from_documents()` are validation-only seams, and the
+category oracle rejects their results even after coherent caller re-signing.
 
 ### Remaining54 docs review and authority lineage
 
@@ -165,6 +210,13 @@ adapter locator 必须由 factory 创建并验证位于 test-owned private root�
 target或 environment expansion。每个 action 仍走 existing `ActionCoordinator`、resource claims/fences、prepared authority、
 journal、receipt与 reconcile；caller不能直调 mutation。query 可重试；apply/restore 不因 unknown自动重放。
 
+当前 foundation 的 target-visible gate 只有 one-shot consume 面；durable-start
+后的 arming/binding保存在 coordinator-owned registry。artifact issuer 只接受
+installed fixture/artifact ID，实际 bytes/version/distribution fields来自raw-pinned
+fixture registry，不接受caller bytes，也不把独立package pins伪装成这些fixture
+bytes的wheel provenance。ActionOutcome必须由同一coordinator签发并重新绑定current
+journal/claim/receipt，health expectation只能从typed terminal observation派生。
+
 fault schedule exact覆盖 `before-stage-write`, `after-stage-durable`, `before-active-switch`, `after-active-switch-durable`,
 `before-health-observe`。每个 cut 的 query只接受完整 A、durable staged-B+active-A 或 active-B；mixed bytes、pointer/manifest
 不一致、generation rollback与unowned residue fail closed。unknown effect保留原 claim并 route owner；只有 query证明效果后
@@ -195,6 +247,11 @@ simulator target和适用 release facts：
 issue/use/precommit/restart/coverage每次重读 task/current GraphRef、policy/fixture/bootstrap/schema/action registries、artifact/
 RECORD/source/build bytes、journal/claim/receipt、simulator generation/pointer/slots/health与 nested digests。precommit在所有
 hooks后 final query+health reobserve，消费token后无 target-sensitive callback。
+
+Foundation尚未拥有可持久化且可重新打开的private-root authority；因此stored
+release projection在restart时即使schema/digest/install pins成立也必须fail closed。
+只有未来单独授权的设计能重开并fresh读取target/journal/claim/receipt/artifact/health
+后，才可满足下述portable restart目标；当前244/122/30状态不声称该目标已完成。
 
 assessment仍只提交既有 `task.category_assessed` 与一个 task-unique referenced CAS。restart从 current task唯一 ref重读
 1.4 bytes并以 fresh installation/factory重验；apply/restore replay count exact为0，仅query/health只读重验。missing/duplicate

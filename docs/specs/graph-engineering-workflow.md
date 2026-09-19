@@ -1,5 +1,20 @@
 # Graph Engineering Workflow — Tech Spec
 
+## 2026-09-18 P3 foundation evidence-path amendment
+
+Human approval `明确批准这五个路径` authorizes
+`GEW-REMAINING54-P3-FOUNDATION-RECORDS-WP07A-V1`: the Envelope grows
+from 174 to 179 exact targets, adding only
+`tests/contract/test_wp07a_action_contracts.py` and the four
+`p3-foundation-{source-manifest,state,review-verdict,decision}-r2.json`
+records under `.workflow/delivery/GEW-REMAINING54-V1/`. Correct only the
+WP07A exact adapter-kind expectation and preserve its substitution tests;
+align the existing authority-membership regression with the five-path delta.
+Persist bounded verification and independent review using the new paths.
+Historical r1 records remain unchanged. The prior exact174 and pending-r2
+statements below describe the 2026-09-17 boundary; all other foundation
+constraints, including 244 bindings / 122 oracles / 30 missing, still apply.
+
 ## 2026-09-10 approved memory-repair supplement
 
 Human approval `批准先修复` and amendment
@@ -28,6 +43,52 @@ Real action/schema contexts remain bound to their existing handles; do not reset
 them between currentness checks or weaken E1 serial fresh-root isolation.
 This is fix-and-review only: the owner-aborted cumulative run has no final
 receipt, monitoring stays paused, and no cumulative rerun is launched here.
+
+## 2026-09-17 P3 foundation bounded supplement
+
+Human approval `GEW-REMAINING54-P3-FOUNDATION-BOUNDED-V1` supersedes historical
+exact168 wording only for the current P3 foundation execution boundary. The
+current Envelope remains exact174 with no new source-edit target. This first
+sub-batch implements only the ADR-0009 schemas, installed closed configuration,
+protected local artifact authority, private filesystem simulator and no-network
+observer, existing ActionCoordinator integration, and release-only assessment
+1.4 validation. It does not issue release coverage records: production shape
+remains 244 bindings / 122 oracles / 30 missing and every release ID remains
+missing. Mandatory24, the three release scenarios, cumulative or performance
+execution, monitoring, network, WP-10 and irreversible actions are excluded.
+Historical `p3-foundation-*-r1.json` evidence is F2-owned and must not be
+overwritten; a later request must authorize new append-only review paths before
+this sub-batch's independent verdict can be persisted.
+
+The foundation implementation uses a one-shot coordinator-issued mutation gate,
+factory-local manifest/session/evidence ledgers, exact nested schema references,
+and descriptor-relative no-follow filesystem operations. Both active-B and
+staged-B/active-A executions retain their exact before/after states. Partial
+unknown state stays owner-routed and its original claim remains unresolved until
+the same-claim compensation verifies the original receipt, generation, staged
+artifact and exact restored-A postcondition; apply is never replayed.
+
+The gate's target-visible facet can only consume; arming state remains in the
+coordinator-owned registry after the durable start commit. Action outcomes have
+no public constructor and release observations accept only outcomes tracked by
+that coordinator and rebound to the current journal, claim and receipt. Artifact
+issuance accepts fixture/artifact IDs only: bytes, version and distribution
+identity come from the raw-pinned installed fixture registry. Their provenance
+identifies that deterministic fixture; independent package/source/build pins are
+still verified but are not attached to arbitrary caller bytes.
+Only an exact factory returned by `from_installation()` receives the opaque
+production-issuance seal. Direct construction and `from_documents()` remain
+validation-only seams: they cannot issue manifests, sessions, observations or
+evidence, and the category oracle rejects them even when caller-owned fixture,
+bootstrap and schemas have been coherently re-signed.
+
+Health expectations are derived from the factory-issued terminal deployment or
+rollback observation. A manual/partial apply cannot issue passing final evidence
+without the configured same-claim rollback and a healthy restored target. Stored
+release projections are schema/digest/install checked but fail closed on restart
+until a future authorized design can reopen and revalidate the live simulator,
+journal, claim, receipt, artifact bytes and health. Foundation work therefore
+does not claim portable release-evidence rehydration or any release scenario PASS.
 
 ## 1. 文档控制
 

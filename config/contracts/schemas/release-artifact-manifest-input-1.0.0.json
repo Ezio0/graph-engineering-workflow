@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:release-artifact-manifest-input:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "raw": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "integer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "ids": {
+      "type": "array",
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "openObject": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 128,
+      "additionalProperties": true
+    },
+    "scalar": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "string",
+          "maxLength": 4096
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "artifact_id": {
+      "$ref": "#/$defs/id"
+    },
+    "artifact_version": {
+      "$ref": "#/$defs/id"
+    },
+    "artifact_path": {
+      "$ref": "#/$defs/id"
+    },
+    "raw_sha256": {
+      "$ref": "#/$defs/raw"
+    },
+    "size": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "distribution_name": {
+      "$ref": "#/$defs/id"
+    },
+    "distribution_version": {
+      "$ref": "#/$defs/id"
+    },
+    "record_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "source_manifest_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "build_attestation_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "protected_closure_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "provenance_digest": {
+      "$ref": "#/$defs/digest"
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_id",
+    "artifact_version",
+    "artifact_path",
+    "raw_sha256",
+    "size",
+    "distribution_name",
+    "distribution_version",
+    "record_digest",
+    "source_manifest_digest",
+    "build_attestation_digest",
+    "protected_closure_digest",
+    "provenance_digest"
+  ],
+  "unevaluatedProperties": false
+}

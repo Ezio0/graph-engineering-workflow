@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "verdict": "REVISE",
+  "artifact": "implementation",
+  "scope_changed": false,
+  "change_kinds": [
+    "testability",
+    "traceability"
+  ],
+  "findings": [
+    {
+      "id": "GEW-REMAINING54-P3-FOUNDATION-R2-AUTHORITY-DELTA-001",
+      "severity": "blocking",
+      "status": "open",
+      "evidence": "tests/security/test_wp08_remaining54_authority.py:284-330 verifies 179 unique targets, the exact five newly approved paths, and a 174-element remainder, but does not freeze or compare the complete identity of that historical exact174 remainder. Replacing any unasserted historical path with an unauthorized path while retaining cardinality and the five approved additions would satisfy the current assertions. Independent base comparison confirms the present authority-envelope.json is actually the prior exact174 plus precisely the five approved paths; the defect is the regression's inability to detect a later equal-cardinality substitution.",
+      "required_change": "Bind `set(targets) - p3_targets` to the complete historical exact174 identity using a stable canonical digest or frozen exact tuple, and add an equal-cardinality historical-path substitution negative case. Preserve the exact five additions and all existing lineage assertions.",
+      "verification": "Rerun the bounded authority selector after adding the exact-history assertion and substitution negative. Because the authorized test file changes, regenerate the r2 source manifest and state, then recheck all raw hashes, aggregate, manifest-to-state binding, and exact179 authority subset."
+    }
+  ],
+  "p3_foundation_revisions": [
+    {
+      "record_id": "p3-foundation-bounded-2026-09-18-r2-attempt1",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P3-FOUNDATION-R2-AUTHORITY-DELTA-001",
+            "severity": "blocking",
+            "status": "resolved",
+            "evidence": "tests/security/test_wp08_remaining54_authority.py:312-322 now binds all historical exact174 identities to the independently reproduced baseline digest dad52f1888bf262ce9ddd4b6528a2ca634e2ff0a06a8cd51c2a1ddffe870a7e9. Lines 370-386 replace one historical path while preserving 179 unique targets and require the shared authority test to reject it. Independent calculation confirms the substitution changes the digest.",
+            "required_change": "Completed: freeze the complete historical exact174 identity and add an equal-cardinality substitution negative while preserving the exact five approved additions and lineage checks.",
+            "verification": "The attempt1 record reports both affected selectors passing 2/2. Independent read-only checks found exactly one source-hash change from attempt0; all 58 hashes and aggregate 664868d13ea2d225f205f7d3b25b9e0f7a9fbe6a27b25e493645cf10f65fc6ac match. Attempt0 source/state hashes reconstruct exactly. Revision1 state binds the nested source manifest at sha256:970019018913e0637df4e0a0c0dd616e05cf84dd2d155219946797cddce9b7cd, points to attempt0, has no open implementation findings, and remains within exact179 authority. The original REVISE and reducer records remain intact. No tests were rerun by the reviewer."
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "p3-foundation-bounded-2026-09-19-r2-attempt2",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P3-FOUNDATION-LIVE-CURRENTNESS-001",
+            "severity": "blocking",
+            "status": "resolved",
+            "evidence": "Reviewed live session/component bindings, fresh target/health checks, terminal coordinator outcome and journal/claim/receipt revalidation, and final-fence validation after the last generic observer callback. Partial compensation preserves historical manual evidence while checking its current terminal outcome.",
+            "required_change": "None.",
+            "verification": "Recorded current-source bounded serial run passed 30/30 tests with zero failures/errors/skips. Regressions cover closed/destroyed/changed targets, action-state drift, final issuance, four assessment cuts, same-claim compensation and non-release compatibility."
+          }
+        ],
+        "evidence": {
+          "reviewer_id": "/root/p3_foundation_commit_reviewer",
+          "record_id": "p3-foundation-bounded-2026-09-19-r2-attempt2",
+          "artifact_digest": "sha256:8e3916c256deedc62e315b0962bf384c741b9790650abdb835854cd9600c6490",
+          "source_file_count": 59,
+          "source_aggregate_sha256": "c5bd0ec9d4af97800c2ef6172999d5e7db246e0f09265b6ce3ace19c021abc1c",
+          "checks": "All source hashes, exact authorized targets, revision continuity, preserved historical members, four protected/bootstrap/TOML closures and whitespace checks passed. Prior technical REVISE independently replayed exactly.",
+          "acceptance": "30/30 PASS, 103.831 seconds, strict serial, 600-second bound; no workloads rerun by reviewer.",
+          "limits": "Portable restart remains fail-closed; historical architecture finding and 244/122/30 coverage boundary remain unchanged. No commit or expanded execution authority follows from this verdict."
+        }
+      }
+    }
+  ]
+}

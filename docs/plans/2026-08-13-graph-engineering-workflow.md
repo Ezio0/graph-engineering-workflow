@@ -1,5 +1,20 @@
 # Graph Engineering Workflow — Implementation Plan
 
+## 2026-09-18 P3 foundation evidence-path amendment
+
+Human approval `明确批准这五个路径` authorizes
+`GEW-REMAINING54-P3-FOUNDATION-RECORDS-WP07A-V1`: the Envelope grows
+from 174 to 179 exact targets, adding only
+`tests/contract/test_wp07a_action_contracts.py` and the four
+`p3-foundation-{source-manifest,state,review-verdict,decision}-r2.json`
+records under `.workflow/delivery/GEW-REMAINING54-V1/`. Correct only the
+WP07A exact adapter-kind expectation and preserve its substitution tests;
+align the existing authority-membership regression with the five-path delta.
+Persist bounded verification and independent review using the new paths.
+Historical r1 records remain unchanged. The prior exact174 and pending-r2
+statements below describe the 2026-09-17 boundary; all other foundation
+constraints, including 244 bindings / 122 oracles / 30 missing, still apply.
+
 ## 2026-09-10 approved fix-first supplement
 
 Human approval `批准先修复` authorizes the exact174 memory-repair amendment;
@@ -12,6 +27,39 @@ tests plus isolated memory probes; bind the current source and evidence in
 Do not start a cumulative run or restore monitoring. Preserve the previous
 owner-aborted outcome and all open Candidate findings. No commit/push/merge,
 deploy/release, network or WP-10 authority is granted by this plan.
+
+## 2026-09-17 P3 foundation bounded execution supplement
+
+Human approval `GEW-REMAINING54-P3-FOUNDATION-BOUNDED-V1` authorizes the first
+P3 sub-batch against the existing exact174 Envelope. Any exact168 wording in
+the historical plan is lineage, not the current gate. Execute RED-first schema,
+config, simulator/observer, ActionCoordinator and assessment-1.4 foundation work
+only, using strict-serial fresh roots and native commands individually bounded
+to 600 seconds. Stop on the first failure. Do not change the execution plan or
+oracle manifest: 244 bindings / 122 oracles / 30 missing remains exact and all
+release IDs stay missing. Mandatory24, release scenarios, cumulative/performance
+runs, monitoring, network, WP-10 and irreversible actions are not authorized.
+Do not overwrite F2-owned `p3-foundation-*-r1.json`; persistence of an
+independent P3 foundation verdict waits for separate approval of new append-only
+record paths.
+
+Implementation order within this sub-batch is: close installed/schema authority;
+add the durable one-shot mutation gate; harden descriptor-relative simulator and
+typed evidence issuance; prove all five cuts; then prove staged-B compensation,
+release-only assessment 1.4, package/source closure and adjacent ActionCoordinator
+regressions. Unknown apply is never replayed and cannot be reduced to no-effect
+while a staged candidate remains.
+
+Security review corrections are part of this same bounded implementation: move
+artifact bytes into the installed fixture registry; split target consume from
+coordinator-only gate arming; make outcomes factory-tracked and journal/claim/
+receipt-current; derive health and scenario success from typed terminal state;
+and reject restart without live target authority. Add direct-arm, arbitrary
+artifact, forged outcome, partial-without-rollback, coherent nested re-sign and
+destroyed-target restart negatives before requesting another independent review.
+Also keep direct construction and `from_documents()` validation-only: only an
+exact `from_installation()` result may receive the process-local issuance seal,
+and both every production operation and the category oracle must require it.
 
 ## 1. 文档控制
 

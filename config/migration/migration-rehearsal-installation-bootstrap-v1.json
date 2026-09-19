@@ -11,10 +11,10 @@
   "fixture_raw_sha256": "1a88d1695ef14bf68ac7ec73378a0490d923f3824c39c7d60c32aa6ff468e326",
   "installation_id": "graph-engineering-workflow:0.1.0:migration-rehearsal",
   "network_mode": "offline-only",
-  "profile_schema_registry_digest": "sha256-jcs-v1:6edff2b2bc8469319d3e1df5d17740fadb0b4629822a90c9e97ceafc11073095",
+  "profile_schema_registry_digest": "sha256-jcs-v1:6a014b08631b020d8ece3c0e185bac4829ab6a9456e01f13f4930858354424a6",
   "profile_schema_registry_id": "urn:gew:schema-registry:profiles:1.0.0",
-  "profile_schema_registry_raw_sha256": "9ffa41240d0ab89a2171c798bf49918fa299b7a3120e680694a64bfa9a25d33d",
-  "protected_closure_digest": "sha256-jcs-v1:fa9fe6214f235338157338f1923e165bc3028d5267762ea14a8bc14351ded6ab",
+  "profile_schema_registry_raw_sha256": "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58",
+  "protected_closure_digest": "sha256-jcs-v1:5503b682e8c38d898be54c953e42250a02aef75ffe9ee071864471ba0c714bce",
   "protected_resources": [
     {
       "raw_sha256": "049000ebc8355e092f960cfeca817223d835c59567b710d0c1eacc56084c0276",
@@ -22,12 +22,12 @@
       "source": "application/graph_engineering/application/migration_rehearsal.py"
     },
     {
-      "raw_sha256": "259d35a4a2eea5c1ef78604711a3c97bc0f1bcebec9d046e73747ea617d60df5",
+      "raw_sha256": "7db57559ffc98906e2dc1d01fc31a7f46986ec61d80f99368da92c22eef12cf9",
       "resource": "graph_engineering/application/profile_execution.py",
       "source": "application/graph_engineering/application/profile_execution.py"
     },
     {
-      "raw_sha256": "0cd90842891e45140b3d16e9044c59d09b8c84a77c42c139b5f61eacfe819872",
+      "raw_sha256": "4e98a884d010f8a894e9c1203c03938f97f2b8cac012d651c404530a6481476a",
       "resource": "graph_engineering/__init__.py",
       "source": "core/graph_engineering/__init__.py"
     },
@@ -37,7 +37,7 @@
       "source": "core/graph_engineering/core/migration_rehearsal.py"
     },
     {
-      "raw_sha256": "3e46f301b7d0865e8b5150b96a026e102e3609c61c11cc6ad1051c90f8c05aed",
+      "raw_sha256": "99c79e9a3822aa40c0f75d5a30fdfa37551d1bb3782928d836573c0727975e99",
       "resource": "graph_engineering/core/profile_execution.py",
       "source": "core/graph_engineering/core/profile_execution.py"
     },
@@ -126,5 +126,5 @@
   "transform_manifest_digest": "sha256-jcs-v1:e5305adc1012d26464ebca7a05f1570e3f13c0b3e8e1ef061d120b17203b16c4",
   "transform_manifest_id": "migration-rehearsal-transform-manifest-v1",
   "transform_raw_sha256": "0b68dc63f71cec61ebe014e50ce161b68b129448021d18faa0e4548577a60d6f",
-  "bootstrap_digest": "sha256-jcs-v1:80d3a6c879cb321f027e50f903c606154236601c36e0ae0718ea5bb24410eeed"
+  "bootstrap_digest": "sha256-jcs-v1:682a8464842eaef2eb1f7355f8afefef572a6d9aff867e1afd0abc05ed1145af"
 }

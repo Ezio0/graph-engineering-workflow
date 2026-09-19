@@ -6,7 +6,9 @@ import copy
 import datetime
 import hmac
 from dataclasses import dataclass
+from types import MappingProxyType
 from typing import Callable, Protocol
+from weakref import WeakKeyDictionary
 
 from graph_engineering.core.actions import (
     ActionGateError,
@@ -50,13 +52,119 @@ class ActionObserverPort(Protocol):
     def observe(self) -> dict[str, object]: ...
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, init=False)
 class ActionOutcome:
     action_id: str
     state: str
     route: str
     claim_id: str
     receipt_digest: str | None
+
+
+class _DurableExecutionGate:
+    """Target-visible one-shot consume facet with no arming capability."""
+
+    __slots__ = ("__weakref__",)
+
+    def consume(
+        self,
+        *,
+        payload: dict[str, object],
+        fencing_token: int,
+        started_was_durable: bool,
+    ) -> MappingProxyType[str, object]:
+        registry = _DURABLE_EXECUTION_GATE_REGISTRIES.get(self)
+        if registry is None:
+            raise ValueError("durable execution gate is not coordinator-issued")
+        return registry.consume(
+            self,
+            payload=payload,
+            fencing_token=fencing_token,
+            started_was_durable=started_was_durable,
+        )
+
+
+class _DurableExecutionGateRegistry:
+    """Coordinator-owned arming state, never handed to an action target."""
+
+    def __init__(self) -> None:
+        self._issued: dict[int, _DurableExecutionGate] = {}
+        self._bindings: dict[int, MappingProxyType[str, object]] = {}
+        self._consumed: set[int] = set()
+
+    def issue(self) -> _DurableExecutionGate:
+        gate = _DurableExecutionGate()
+        self._issued[id(gate)] = gate
+        _DURABLE_EXECUTION_GATE_REGISTRIES[gate] = self
+        return gate
+
+    def arm(
+        self,
+        gate: _DurableExecutionGate,
+        *,
+        action_id: str,
+        claim_id: str,
+        prepared_action_digest: str,
+        payload: dict[str, object],
+        fencing_token: int,
+    ) -> None:
+        key = id(gate)
+        if self._issued.get(key) is not gate or key in self._bindings:
+            raise ValueError("durable execution gate authority or lifecycle changed")
+        if (
+            type(action_id) is not str or not action_id
+            or type(claim_id) is not str or not claim_id.startswith("claim:")
+            or type(prepared_action_digest) is not str
+            or type(payload) is not dict
+            or type(fencing_token) is not int or fencing_token <= 0
+        ):
+            raise ValueError("durable execution gate binding is invalid")
+        exact_payload = thaw(payload)
+        if type(exact_payload) is not dict:
+            raise ValueError("durable execution gate payload did not thaw exactly")
+        self._bindings[key] = MappingProxyType({
+            "action_id": action_id,
+            "claim_id": claim_id,
+            "prepared_action_digest": prepared_action_digest,
+            "payload": exact_payload,
+            "fencing_token": fencing_token,
+        })
+        self._consumed.discard(key)
+
+    def consume(
+        self,
+        gate: _DurableExecutionGate,
+        *,
+        payload: dict[str, object],
+        fencing_token: int,
+        started_was_durable: bool,
+    ) -> MappingProxyType[str, object]:
+        key = id(gate)
+        binding = self._bindings.get(key)
+        if (
+            self._issued.get(key) is not gate
+            or binding is None or key in self._consumed
+            or started_was_durable is not True
+            or type(payload) is not dict
+            or payload != binding["payload"]
+            or type(fencing_token) is not int
+            or fencing_token != binding["fencing_token"]
+        ):
+            raise ValueError("durable execution gate is absent, consumed, or mismatched")
+        self._consumed.add(key)
+        return binding
+
+    def disarm(self, gate: _DurableExecutionGate) -> None:
+        key = id(gate)
+        if self._issued.get(key) is not gate:
+            raise ValueError("durable execution gate authority changed")
+        self._bindings.pop(key, None)
+        self._consumed.discard(key)
+
+
+_DURABLE_EXECUTION_GATE_REGISTRIES: WeakKeyDictionary[
+    _DurableExecutionGate, _DurableExecutionGateRegistry
+] = WeakKeyDictionary()
 
 
 class ActionCoordinator:
@@ -121,6 +229,8 @@ class ActionCoordinator:
         self._concrete_action_policy = concrete_action_policy
         self._concrete_action_registry = concrete_action_registry
         self._fault = fault_hook
+        self._durable_execution_gates = _DurableExecutionGateRegistry()
+        self._issued_outcomes: dict[int, ActionOutcome] = {}
         from graph_engineering.storage.migration import InstallationCommandScope
         if type(installation_scope) is not InstallationCommandScope:
             raise ValueError("action installation command scope is missing or forged")
@@ -131,6 +241,74 @@ class ActionCoordinator:
 
     def _require_installation_context(self) -> None:
         self._installation_validator()
+
+    def issue_durable_execution_gate(self) -> object:
+        """Issue an opaque gate that only this coordinator can arm after start commit."""
+
+        self._require_installation_context()
+        return self._durable_execution_gates.issue()
+
+    def _issue_outcome(
+        self,
+        action_id: str,
+        state: str,
+        route: str,
+        claim_id: str,
+        receipt_digest: str | None,
+    ) -> ActionOutcome:
+        outcome = object.__new__(ActionOutcome)
+        object.__setattr__(outcome, "action_id", action_id)
+        object.__setattr__(outcome, "state", state)
+        object.__setattr__(outcome, "route", route)
+        object.__setattr__(outcome, "claim_id", claim_id)
+        object.__setattr__(outcome, "receipt_digest", receipt_digest)
+        self._issued_outcomes[id(outcome)] = outcome
+        return outcome
+
+    def require_issued_outcome(self, outcome: object) -> ActionOutcome:
+        """Rebind an outcome to current durable journal, claim, and receipt state."""
+
+        self._require_installation_context()
+        if (
+            type(outcome) is not ActionOutcome
+            or self._issued_outcomes.get(id(outcome)) is not outcome
+        ):
+            raise ValueError("action outcome is missing, forged, or foreign")
+        record = self._journal.load(outcome.action_id)
+        claim = self._leases.load_claim(outcome.claim_id)
+        expected_states = {
+            "manual-reconciliation": {"executing", "unknown"},
+            "manual-target-reconciliation": {"succeeded"},
+            "reconciled-effect-verified": {"reconciled"},
+            "reconciled-no-effect": {"reconciled"},
+            "compensation-reconciled": {"compensated"},
+        }
+        if (
+            outcome.claim_id != f"claim:{outcome.action_id}"
+            or outcome.route not in expected_states
+            or record.state not in expected_states[outcome.route]
+            or claim.get("action_id") != outcome.action_id
+        ):
+            raise ValueError("action outcome no longer matches durable state")
+        if outcome.route == "compensation-reconciled":
+            attempt = self._leases.recovery_attempt(outcome.claim_id)
+            receipt = None if attempt is None else attempt.get("receipt")
+            expected_receipt = (
+                receipt.get("receipt_digest") if isinstance(receipt, dict) else None
+            )
+        else:
+            expected_receipt = (
+                record.receipt.get("receipt_digest")
+                if isinstance(record.receipt, dict) else None
+            )
+        if outcome.receipt_digest != expected_receipt:
+            raise ValueError("action outcome receipt no longer matches durable state")
+        unresolved = outcome.route in {
+            "manual-reconciliation", "manual-target-reconciliation",
+        }
+        if (claim.get("state") == "unresolved") is not unresolved:
+            raise ValueError("action outcome claim no longer matches durable state")
+        return outcome
 
     def _publish_bounded_receipt_object(
         self,
@@ -530,10 +708,30 @@ class ActionCoordinator:
                 claim_delta=claim, action_journal_delta=self._journal.start_delta(record),
             ))
             fence = dict(lease.fencing_tokens)[target.resource_id]
+            execution_gate = getattr(target, "_durable_execution_gate", None)
             try:
                 if self._installation_validator is not None:
                     self._installation_validator()
-                raw = target.invoke(payload=dict(prepared.payload), fencing_token=fence, started_was_durable=True)
+                if execution_gate is not None:
+                    if type(execution_gate) is not _DurableExecutionGate:
+                        raise ValueError("action target durable execution gate is foreign")
+                    self._durable_execution_gates.arm(
+                        execution_gate,
+                        action_id=action_id,
+                        claim_id=claim_id,
+                        prepared_action_digest=prepared.prepared_action_digest,
+                        payload=dict(prepared.payload),
+                        fencing_token=fence,
+                    )
+                try:
+                    raw = target.invoke(
+                        payload=dict(prepared.payload),
+                        fencing_token=fence,
+                        started_was_durable=True,
+                    )
+                finally:
+                    if execution_gate is not None:
+                        self._durable_execution_gates.disarm(execution_gate)
                 state = "succeeded" if raw.get("result") == "succeeded" else "failed"
             except TimeoutError as error:
                 raw = {"result": "unknown", "error_type": type(error).__name__}
@@ -593,7 +791,7 @@ class ActionCoordinator:
                 ),
             ))
             if state != "succeeded":
-                return ActionOutcome(action_id, state, "manual-reconciliation", claim_id, receipt["receipt_digest"])
+                return self._issue_outcome(action_id, state, "manual-reconciliation", claim_id, receipt["receipt_digest"])
             try:
                 observed = observer.observe()
             except (LookupError, OSError, RuntimeError, ValueError):
@@ -607,7 +805,7 @@ class ActionCoordinator:
                 )
                 or observed.get("state") != dict(prepared.expected_postcondition)
             ):
-                return ActionOutcome(action_id, "succeeded", "manual-target-reconciliation", claim_id, receipt["receipt_digest"])
+                return self._issue_outcome(action_id, "succeeded", "manual-target-reconciliation", claim_id, receipt["receipt_digest"])
             return self._finish_reconciliation(action_id, lease=lease, outcome="reconciled_effect_verified", body=observed)
         finally:
             if resource_locks is not None:
@@ -655,7 +853,7 @@ class ActionCoordinator:
         ))
         route = "compensation-reconciled" if compensated else outcome.replace("_", "-")
         receipt_digest = None if record.receipt is None else record.receipt.get("receipt_digest")
-        return ActionOutcome(action_id, "compensated" if compensated else "reconciled", route, claim_id, receipt_digest if isinstance(receipt_digest, str) else None)
+        return self._issue_outcome(action_id, "compensated" if compensated else "reconciled", route, claim_id, receipt_digest if isinstance(receipt_digest, str) else None)
 
     def execute_concrete_git(
         self,
@@ -804,7 +1002,7 @@ class ActionCoordinator:
                     None if record.receipt is None else record.receipt.get("receipt_digest")
                 )
                 if record.state == "reconciled":
-                    return ActionOutcome(
+                    return self._issue_outcome(
                         action_id,
                         "reconciled",
                         "reconciled-effect-verified",
@@ -834,7 +1032,7 @@ class ActionCoordinator:
                 try:
                     fresh_recovery = adapter.observe(target_plan_document, expected=target)
                 except (LookupError, OSError, RuntimeError, ValueError):
-                    return ActionOutcome(
+                    return self._issue_outcome(
                         action_id,
                         record.state,
                         "manual-target-reconciliation",
@@ -851,7 +1049,7 @@ class ActionCoordinator:
                     or receipt_value is None
                     or recovery_state != dict(prepared.expected_postcondition)
                 ):
-                    return ActionOutcome(
+                    return self._issue_outcome(
                         action_id,
                         record.state,
                         "manual-target-reconciliation",
@@ -1095,7 +1293,7 @@ class ActionCoordinator:
                     expected=target,
                 )
             except (LookupError, OSError, RuntimeError, ValueError):
-                return ActionOutcome(
+                return self._issue_outcome(
                     action_id,
                     "succeeded",
                     "manual-target-reconciliation",
@@ -1116,7 +1314,7 @@ class ActionCoordinator:
                     for field in identity_fields
                 )
             ):
-                return ActionOutcome(
+                return self._issue_outcome(
                     action_id,
                     "succeeded",
                     "manual-target-reconciliation",
@@ -1128,7 +1326,7 @@ class ActionCoordinator:
                 "head_ref": fresh_git_observation.head_ref,
             }
             if observed_state != dict(prepared.expected_postcondition):
-                return ActionOutcome(
+                return self._issue_outcome(
                     action_id,
                     "succeeded",
                     "manual-target-reconciliation",
@@ -1211,12 +1409,12 @@ class ActionCoordinator:
                 target_digest=record.prepared.target_digest,
                 resource_id=observer.resource_id,
             ):
-                return ActionOutcome(action_id, "unknown", "manual-reconciliation", f"claim:{action_id}", None)
+                return self._issue_outcome(action_id, "unknown", "manual-reconciliation", f"claim:{action_id}", None)
             if observed.get("state") == dict(record.prepared.expected_postcondition):
                 return self._finish_reconciliation(action_id, lease=lease, outcome="reconciled_effect_verified", body=observed)
             if observed.get("state") == dict(record.prepared.precondition):
                 return self._finish_reconciliation(action_id, lease=lease, outcome="reconciled_no_effect", body=observed)
-            return ActionOutcome(action_id, "unknown", "manual-reconciliation", f"claim:{action_id}", None)
+            return self._issue_outcome(action_id, "unknown", "manual-reconciliation", f"claim:{action_id}", None)
         finally:
             if resource_locks is not None:
                 self._locks.release(resource_locks)
@@ -1260,7 +1458,7 @@ class ActionCoordinator:
                     committed_receipt.get("receipt_digest")
                     if isinstance(committed_receipt, dict) else None
                 )
-                return ActionOutcome(
+                return self._issue_outcome(
                     action_id, "compensated", "compensation-reconciled", claim_id,
                     committed_digest if isinstance(committed_digest, str) else None,
                 )
@@ -1402,14 +1600,34 @@ class ActionCoordinator:
                 attempt = self._leases.recovery_attempt(claim_id)
                 assert attempt is not None
                 fence = dict(recovery_lease.fencing_tokens)[target.resource_id]
+                execution_gate = getattr(target, "_durable_execution_gate", None)
                 try:
                     if self._installation_validator is not None:
                         self._installation_validator()
-                    raw = target.invoke(
-                        payload=dict(compensation.prepared.payload),
-                        fencing_token=fence,
-                        started_was_durable=True,
-                    )
+                    if execution_gate is not None:
+                        if type(execution_gate) is not _DurableExecutionGate:
+                            raise ValueError(
+                                "compensation target durable execution gate is foreign"
+                            )
+                        self._durable_execution_gates.arm(
+                            execution_gate,
+                            action_id=compensation.action_id,
+                            claim_id=claim_id,
+                            prepared_action_digest=(
+                                compensation.prepared.prepared_action_digest
+                            ),
+                            payload=dict(compensation.prepared.payload),
+                            fencing_token=fence,
+                        )
+                    try:
+                        raw = target.invoke(
+                            payload=dict(compensation.prepared.payload),
+                            fencing_token=fence,
+                            started_was_durable=True,
+                        )
+                    finally:
+                        if execution_gate is not None:
+                            self._durable_execution_gates.disarm(execution_gate)
                     receipt_state = "succeeded" if raw.get("result") == "succeeded" else "failed"
                     receipt_source = "tool-return"
                 except TimeoutError as error:
@@ -1426,7 +1644,7 @@ class ActionCoordinator:
                 if attempt["state"] == "reconciled":
                     receipt = attempt["receipt"]
                     digest = receipt.get("receipt_digest") if isinstance(receipt, dict) else None
-                    return ActionOutcome(action_id, "compensated", "compensation-reconciled", claim_id, digest if isinstance(digest, str) else None)
+                    return self._issue_outcome(action_id, "compensated", "compensation-reconciled", claim_id, digest if isinstance(digest, str) else None)
                 if attempt["state"] == "started":
                     observed_after_crash = observer.observe()
                     raw = {
@@ -1519,7 +1737,7 @@ class ActionCoordinator:
             receipt = attempt["receipt"]
             receipt_digest = receipt.get("receipt_digest") if isinstance(receipt, dict) else None
             if not isinstance(receipt, dict) or receipt.get("result") != "succeeded":
-                return ActionOutcome(action_id, "unknown", "manual-reconciliation", claim_id, receipt_digest if isinstance(receipt_digest, str) else None)
+                return self._issue_outcome(action_id, "unknown", "manual-reconciliation", claim_id, receipt_digest if isinstance(receipt_digest, str) else None)
             observed = observer.observe()
             observed = dict(observed)
             observed["bound_receipt_digest"] = receipt_digest
@@ -1539,7 +1757,7 @@ class ActionCoordinator:
                 or observed.get("resource_id") != target.resource_id
                 or observed.get("state") != dict(original.prepared.precondition)
             ):
-                return ActionOutcome(action_id, "unknown", "manual-reconciliation", claim_id, receipt_digest if isinstance(receipt_digest, str) else None)
+                return self._issue_outcome(action_id, "unknown", "manual-reconciliation", claim_id, receipt_digest if isinstance(receipt_digest, str) else None)
             reconcile_head = self._journal.current_task_head(original.task_id)
             reconcile_event = make_event(
                 task_id=original.task_id, sequence=reconcile_head.sequence + 1,
@@ -1579,7 +1797,7 @@ class ActionCoordinator:
                     current_original, current_compensation, observed,
                 ),
             ))
-            return ActionOutcome(
+            return self._issue_outcome(
                 action_id, "compensated", "compensation-reconciled", claim_id,
                 receipt_digest if isinstance(receipt_digest, str) else None,
             )

@@ -1,0 +1,285 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:release-operations-policy-registry:1.0.0",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "raw": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "integer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "ids": {
+      "type": "array",
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "openObject": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 128,
+      "additionalProperties": true
+    },
+    "scalar": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "string",
+          "maxLength": 4096
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "registry_id": {
+      "$ref": "#/$defs/id"
+    },
+    "artifact_policy": {
+      "type": "object",
+      "properties": {
+        "required_provenance_fields": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "allowed_evidence_kind": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "required_provenance_fields",
+        "allowed_evidence_kind"
+      ],
+      "unevaluatedProperties": false
+    },
+    "health_policy": {
+      "type": "object",
+      "properties": {
+        "predicate_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "predicate_roles": {
+          "type": "object",
+          "properties": {
+            "artifact_current": {"$ref": "#/$defs/id"},
+            "generation_current": {"$ref": "#/$defs/id"},
+            "service_ready": {"$ref": "#/$defs/id"}
+          },
+          "required": ["artifact_current", "generation_current", "service_ready"],
+          "unevaluatedProperties": false
+        },
+        "healthy_outcome": {
+          "$ref": "#/$defs/id"
+        },
+        "unhealthy_outcome": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "predicate_ids",
+        "predicate_roles",
+        "healthy_outcome",
+        "unhealthy_outcome"
+      ],
+      "unevaluatedProperties": false
+    },
+    "deployment_policy": {
+      "type": "object",
+      "properties": {
+        "operation_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "operation_roles": {
+          "type": "object",
+          "properties": {
+            "apply": {"$ref": "#/$defs/id"},
+            "query": {"$ref": "#/$defs/id"},
+            "restore": {"$ref": "#/$defs/id"}
+          },
+          "required": ["apply", "query", "restore"],
+          "unevaluatedProperties": false
+        },
+        "ordered_phase_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "phase_roles": {
+          "type": "object",
+          "properties": {
+            "baseline": {"$ref": "#/$defs/id"},
+            "staged": {"$ref": "#/$defs/id"},
+            "active": {"$ref": "#/$defs/id"},
+            "health_observed": {"$ref": "#/$defs/id"},
+            "restored": {"$ref": "#/$defs/id"}
+          },
+          "required": ["baseline", "staged", "active", "health_observed", "restored"],
+          "unevaluatedProperties": false
+        },
+        "fault_points": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "fault_roles": {
+          "type": "object",
+          "properties": {
+            "after_active_switch_durable": {"$ref": "#/$defs/id"},
+            "after_stage_durable": {"$ref": "#/$defs/id"},
+            "before_active_switch": {"$ref": "#/$defs/id"},
+            "before_health_observe": {"$ref": "#/$defs/id"},
+            "before_stage_write": {"$ref": "#/$defs/id"}
+          },
+          "required": ["after_active_switch_durable", "after_stage_durable", "before_active_switch", "before_health_observe", "before_stage_write"],
+          "unevaluatedProperties": false
+        },
+        "generation_limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "stage_slot_id": {
+          "$ref": "#/$defs/id"
+        },
+        "active_slot_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "operation_ids",
+        "operation_roles",
+        "ordered_phase_ids",
+        "phase_roles",
+        "fault_points",
+        "fault_roles",
+        "generation_limit",
+        "stage_slot_id",
+        "active_slot_id"
+      ],
+      "unevaluatedProperties": false
+    },
+    "rollback_policy": {
+      "type": "object",
+      "properties": {
+        "required_binding_fields": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "restored_outcome": {
+          "$ref": "#/$defs/id"
+        },
+        "owner_route": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "required_binding_fields",
+        "restored_outcome",
+        "owner_route"
+      ],
+      "unevaluatedProperties": false
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "properties": {
+          "scenario_id": {
+            "$ref": "#/$defs/id"
+          },
+          "required_operation_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 64,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "success_outcome": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "required": [
+          "scenario_id",
+          "required_operation_ids",
+          "success_outcome"
+        ],
+        "unevaluatedProperties": false
+      }
+    },
+    "registry_digest": {
+      "$ref": "#/$defs/digest"
+    }
+  },
+  "required": [
+    "schema_version",
+    "registry_id",
+    "artifact_policy",
+    "health_policy",
+    "deployment_policy",
+    "rollback_policy",
+    "scenarios",
+    "registry_digest"
+  ],
+  "unevaluatedProperties": false
+}

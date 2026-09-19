@@ -984,6 +984,11 @@ class TaskApplication:
                 "category completion requires exact oracle, runtime, and object authority"
             )
         oracle.require_issued(assessment)
+        if (
+            assessment.release_operations_projection is not None
+            and fence_request._completion_binding != (oracle, assessment)
+        ):
+            raise ApplicationError("release completion requires its final live evidence fence")
         view = self.__show(assessment.task_id)
         self._runtime_matches(view.snapshot, runtime)
         if (

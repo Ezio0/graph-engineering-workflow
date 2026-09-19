@@ -31,6 +31,9 @@ from graph_engineering.core.graph.state import (  # noqa: E402
     _validate_graph_ref,
     apply_events,
 )
+from graph_engineering.core.release_operations import (  # noqa: E402
+    RELEASE_OPERATIONS_SCHEMA_IDS,
+)
 from tests.contract.test_wp02_graph import loop_budgets as load_loop_budgets  # noqa: E402
 from tests.support.wp08_dependency_security import (  # noqa: E402
     DEPENDENCY_GRAPH_SCHEMA_IDS,
@@ -174,7 +177,7 @@ PROFILE_DOMAIN_SCHEMA_IDS = frozenset({
     "urn:gew:schema:scenario-truth-policy-registry:1.0.0",
     "urn:gew:schema:support-matrix-definition-input:1.0.0",
     "urn:gew:schema:support-matrix-definition:1.0.0",
-}) | frozenset(DEPENDENCY_SECURITY_SCHEMA_IDS) | frozenset(DEPENDENCY_GRAPH_SCHEMA_IDS) | frozenset(PERFORMANCE_BENCHMARK_SCHEMA_IDS) | frozenset(MIGRATION_REHEARSAL_SCHEMA_IDS)
+}) | frozenset(DEPENDENCY_SECURITY_SCHEMA_IDS) | frozenset(DEPENDENCY_GRAPH_SCHEMA_IDS) | frozenset(PERFORMANCE_BENCHMARK_SCHEMA_IDS) | frozenset(MIGRATION_REHEARSAL_SCHEMA_IDS) | frozenset(RELEASE_OPERATIONS_SCHEMA_IDS)
 
 
 class _DuplicateKeyMapping(Mapping[str, object]):

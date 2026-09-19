@@ -1,4 +1,79 @@
 {
+  "p3_foundation_record_and_contract_amendment": {
+    "amendment_id": "GEW-REMAINING54-P3-FOUNDATION-RECORDS-WP07A-V1",
+    "observed_at_utc": "2026-09-18T02:40:13Z",
+    "human_approval": "明确批准这五个路径",
+    "approval_context": "Explicit approval of the immediately preceding five-path request: correct the WP07A exact adapter-kind expectation, run corresponding bounded tests, and persist P3 foundation source/state/independent-verdict/reducer evidence at new r2 paths.",
+    "previous_allowed_target_count": 174,
+    "current_allowed_target_count": 179,
+    "approved_target_boundary_addition": [
+      "tests/contract/test_wp07a_action_contracts.py",
+      ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+      ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+      ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+      ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json"
+    ],
+    "scope": "Add only these five paths to allowed_targets. Preserve exact adapter ordering, digest/substitution rejection tests and every historical r1 record. Existing authorized authority-membership checks and documentation may be aligned with this explicit five-path delta.",
+    "supersedes": "Only the exact174 target-count/no-new-target and pending-r2-record restrictions in the P3 foundation continuation amendment; all other boundaries retain their meaning.",
+    "prohibited_unchanged": [
+      "commit", "push", "merge", "deploy", "release", "network", "WP10",
+      "external-communication", "cumulative-run", "cumulative-rerun",
+      "performance-workload", "monitoring-restoration", "P3-mandatory-coverage",
+      "P3-scenario-coverage", "budget-change"
+    ]
+  },
+  "p3_foundation_continuation_amendment": {
+    "amendment_id": "GEW-REMAINING54-P3-FOUNDATION-BOUNDED-V1",
+    "observed_at_utc": "2026-09-17T02:16:32Z",
+    "human_approval": "批准",
+    "approval_context": "Approval of the immediately preceding focused request to enter only the first P3 offline release-operations foundation sub-batch for documentation cross-check, RED-first implementation, bounded strict-serial tests and independent review. No P3 mandatory/scenario coverage issuance, cumulative run, performance workload, monitoring, commit, push or network action was requested or approved.",
+    "baseline_commit": "1f77f735f3036c971088fd2a00c1db5ae4064110",
+    "scope": "Implement and independently review the ADR-0009 release-operations foundation only: eight exact schema pairs, closed installed policy/fixture/bootstrap configuration, platform-neutral release contracts, a factory-confined local filesystem simulator and no-network health observation, existing ActionCoordinator integration, and release-only category assessment 1.4 validation. Preserve the current plan244/oracle122/30-missing shape and the exact174 source-edit target allowlist.",
+    "authorized_actions": [
+      "documentation",
+      "implementation",
+      "verification",
+      "independent-review",
+      "candidate",
+      "review"
+    ],
+    "foundation_contract": [
+      "installed-closed-policy-fixture-schema-and-bootstrap-authority",
+      "protected-current-artifact-provenance-manifest",
+      "private-root-config-bound-apply-query-restore-simulator",
+      "filesystem-only-health-observer",
+      "existing-action-coordinator-claim-fence-journal-receipt-and-reconcile",
+      "release-only-category-assessment-1.4-projection"
+    ],
+    "expected_plan_shape": {
+      "bindings": 244,
+      "oracle_bindings": 122,
+      "remaining_bindings": 30
+    },
+    "evidence_boundary": "This sub-batch may prove only the local/offline release foundation against fresh test-owned private roots. It is not production deployment or release evidence and does not issue any of the 24 mandatory or six scenario bindings.",
+    "test_boundary": "TDD RED before implementation; strict serial fresh private roots; individually bounded native test commands at most 600 seconds; stop on first failure or timeout and investigate. Do not invoke any cumulative selector, performance workload or monitor.",
+    "allowed_targets_unchanged": 174,
+    "no_new_source_edit_targets": true,
+    "prohibited": [
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "WP10",
+      "external-communication",
+      "cumulative-run",
+      "cumulative-rerun",
+      "performance-workload",
+      "monitoring-restoration",
+      "P3-mandatory-coverage",
+      "P3-scenario-coverage",
+      "source-edit-target-expansion",
+      "budget-change"
+    ],
+    "preservation": "Preserve every P1/P2 approval, finding, digest, run result and acceptance record. The existing p3-foundation-*-r1.json paths are occupied historical F2 records and are immutable; do not persist this foundation review unless separately authorized append-only r2 paths are added. Do not migrate workflow record formats or modify the original Envelope, PRD Intent Baseline v2, Support Matrix, execution plan or ADR-0009 intent."
+  },
   "p2d_continuation_amendment": {
     "amendment_id": "GEW-REMAINING54-P2D-BOUNDED-V1",
     "observed_at_utc": "2026-09-14T07:16:40Z",

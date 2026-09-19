@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "urn:gew:release-operations-policy-registry:v1",
+  "artifact_policy": {
+    "required_provenance_fields": [
+      "build_attestation_digest",
+      "distribution_name",
+      "distribution_version",
+      "protected_closure_digest",
+      "record_digest",
+      "source_manifest_digest"
+    ],
+    "allowed_evidence_kind": "authoritative-local-release-simulator"
+  },
+    "health_policy": {
+        "predicate_ids": [
+            "artifact-current",
+            "generation-current",
+            "service-ready"
+        ],
+        "predicate_roles": {
+            "artifact_current": "artifact-current",
+            "generation_current": "generation-current",
+            "service_ready": "service-ready"
+        },
+        "healthy_outcome": "healthy",
+    "unhealthy_outcome": "unhealthy"
+  },
+  "deployment_policy": {
+        "operation_ids": [
+      "local-release-simulator.apply",
+      "local-release-simulator.query",
+            "local-release-simulator.restore"
+        ],
+        "operation_roles": {
+            "apply": "local-release-simulator.apply",
+            "query": "local-release-simulator.query",
+            "restore": "local-release-simulator.restore"
+        },
+        "ordered_phase_ids": [
+      "baseline",
+      "staged",
+      "active",
+      "health-observed",
+            "restored"
+        ],
+        "phase_roles": {
+            "baseline": "baseline",
+            "staged": "staged",
+            "active": "active",
+            "health_observed": "health-observed",
+            "restored": "restored"
+        },
+        "fault_points": [
+      "after-active-switch-durable",
+      "after-stage-durable",
+      "before-active-switch",
+      "before-health-observe",
+            "before-stage-write"
+        ],
+        "fault_roles": {
+            "after_active_switch_durable": "after-active-switch-durable",
+            "after_stage_durable": "after-stage-durable",
+            "before_active_switch": "before-active-switch",
+            "before_health_observe": "before-health-observe",
+            "before_stage_write": "before-stage-write"
+        },
+    "generation_limit": 32,
+    "stage_slot_id": "staged",
+    "active_slot_id": "active"
+  },
+  "rollback_policy": {
+    "required_binding_fields": [
+      "original_claim_id",
+      "original_receipt_digest",
+      "expected_generation"
+    ],
+    "restored_outcome": "restored",
+    "owner_route": "release-operations-owner"
+  },
+  "scenarios": [
+    {
+      "scenario_id": "artifact-provenance",
+      "required_operation_ids": [
+        "local-release-simulator.apply",
+        "local-release-simulator.query"
+      ],
+      "success_outcome": "artifact-provenance-verified"
+    },
+    {
+      "scenario_id": "health-gate",
+      "required_operation_ids": [
+        "local-release-simulator.apply",
+        "local-release-simulator.query"
+      ],
+      "success_outcome": "local-health-verified"
+    },
+    {
+      "scenario_id": "partial-deploy",
+      "required_operation_ids": [
+        "local-release-simulator.apply",
+        "local-release-simulator.query",
+        "local-release-simulator.restore"
+      ],
+      "success_outcome": "partial-deploy-restored"
+    }
+  ],
+    "registry_digest": "sha256-jcs-v1:0857a382a94068fd0dd3db3a7d8d581bbf717374ced56cc332d64a41e28c9181"
+}

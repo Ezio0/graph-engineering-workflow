@@ -1,5 +1,5 @@
 {
-  "registry_digest": "sha256-jcs-v1:6edff2b2bc8469319d3e1df5d17740fadb0b4629822a90c9e97ceafc11073095",
+  "registry_digest": "sha256-jcs-v1:6a014b08631b020d8ece3c0e185bac4829ab6a9456e01f13f4930858354424a6",
   "registry_id": "urn:gew:schema-registry:profiles:1.0.0",
   "resources": [
     {
@@ -39,6 +39,10 @@
       "schema_id": "urn:gew:schema:category-completion-assessment-input:1.3.0"
     },
     {
+      "body_digest": "sha256-raw-v1:3b3421128d51dccdbb6ce6c32cc6f6ab7715cf9d25d6fc0903e093d80ef02f45",
+      "schema_id": "urn:gew:schema:category-completion-assessment-input:1.4.0"
+    },
+    {
       "body_digest": "sha256-raw-v1:4365bc46d143771cc918d816363362aeabe80234ed5fbdbc39aeb86870c31d3f",
       "schema_id": "urn:gew:schema:category-completion-assessment:1.0.0"
     },
@@ -53,6 +57,10 @@
     {
       "body_digest": "sha256-raw-v1:3a8cd426a09bf4662954a5fb35b5067ebee80ea18a5070da9588907e6782ad1f",
       "schema_id": "urn:gew:schema:category-completion-assessment:1.3.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:2a443352f7bb3490f567297c74880bf378d538f9a17968450c68b344be036b2f",
+      "schema_id": "urn:gew:schema:category-completion-assessment:1.4.0"
     },
     {
       "body_digest": "sha256-raw-v1:b6ac6c7fd07f120270aa8be0c5d737ed3b60ffdae300a0b8902260fd2422dd23",
@@ -455,8 +463,64 @@
       "schema_id": "urn:gew:schema:project-tightening-policy:1.0.0"
     },
     {
+      "body_digest": "sha256-raw-v1:beb8e6a75ad0419f456a296fd0abced092750947d437fab358b42bfadddbdfbb",
+      "schema_id": "urn:gew:schema:release-artifact-manifest-input:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:4310d8a06cc7316e90119b9747e3c6cfcf72bd33f46489a3e07ae4776deaad9c",
+      "schema_id": "urn:gew:schema:release-artifact-manifest:1.0.0"
+    },
+    {
       "body_digest": "sha256-raw-v1:a7e06ff03a388d20655642b2543de4d1e0b02ee1315e3caac3bbb925c7c71015",
       "schema_id": "urn:gew:schema:release-coverage-assessment:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:a4cd341ff81198f5c211d864a2dde4ec0e7204c46f7e8501f3af1975b85cf489",
+      "schema_id": "urn:gew:schema:release-deployment-observation-input:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:30d86746f1e64666673947fe5dbd2079193f9da23112f83447041896ed856bfa",
+      "schema_id": "urn:gew:schema:release-deployment-observation:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:866559fecd73fe8eca119d14aa1aa8db9e16e459976d4122df1ccd275f106082",
+      "schema_id": "urn:gew:schema:release-health-observation-input:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:c4f2ec66c579853b31c2bab1cd0003cd6c7148f865d33f6b66c47e4997d33d6c",
+      "schema_id": "urn:gew:schema:release-health-observation:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:d1d1ce66905a67364ceaea82ec8622d5e6f6b9df7fad786d5a56f2a9a960fc15",
+      "schema_id": "urn:gew:schema:release-operations-installation-bootstrap-input:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:6b564f780f8144813eec388bcb0f9afed4827debf38db20892623ec65390e209",
+      "schema_id": "urn:gew:schema:release-operations-installation-bootstrap:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:88d0f95a29e7a3041862c2c55eb32db052b04a1c257fb8fd3dda4fe599b8e342",
+      "schema_id": "urn:gew:schema:release-operations-observation-input:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:8f38ad3c61f445fb8b34cfe68fdf66f4665a20466d7b1f79476248c2c267d644",
+      "schema_id": "urn:gew:schema:release-operations-observation:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:7a53ef6dbd83976c8b73a4d809c4155d8580fa6d22cff9fb29c5f3d1f747134f",
+      "schema_id": "urn:gew:schema:release-operations-policy-registry-input:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:9bd136522454a76a5ec80cca2bf878873c19dcc72bb5160cb31323adf41f9f27",
+      "schema_id": "urn:gew:schema:release-operations-policy-registry:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:32e5960f70cb6c7e3580f12ba21a1bb22731f18a5910632d4f2230674479bfc1",
+      "schema_id": "urn:gew:schema:release-simulator-fixture-registry-input:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:167e43b8617d903674c213dfd2fee0f148a784492355ff5d8967ef6be729f71f",
+      "schema_id": "urn:gew:schema:release-simulator-fixture-registry:1.0.0"
     },
     {
       "body_digest": "sha256-raw-v1:bb7b18a77c4d855ec192b5571f4b403f3abf6b0ae92a82d854f45c99b7b085c1",
