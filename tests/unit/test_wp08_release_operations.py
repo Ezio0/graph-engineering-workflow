@@ -110,6 +110,142 @@ class WP08RetainedRootPrimitiveTests(unittest.TestCase):
                     namespace.open_readonly(binding, members=self.MEMBERS, context=security_context())
                 self.assertEqual(list(path.iterdir()), [])
 
+    def test_typed_readonly_handle_keeps_one_gate_and_closes_without_writes(self) -> None:
+        import tempfile
+        from graph_engineering.adapters.local_release_simulator import _RetainedNamespace
+        from tests.support.wp05a_security import security_context
+
+        with tempfile.TemporaryDirectory(prefix="gew-retained-query-") as directory:
+            with _RetainedNamespace(pathlib.Path(directory).resolve()) as namespace:
+                lease, binding = self._create(namespace)
+                path = lease.path
+                before = {p.name: p.read_bytes() for p in path.iterdir()}
+                lease.close()
+                with namespace.open_readonly_handle(binding, members=self.MEMBERS,
+                        context=security_context()) as handle:
+                    self.assertEqual(dict(handle.query()), before)
+                    self.assertEqual(namespace.active_leases, 1)
+                    with self.assertRaises(TypeError):
+                        handle.query()["active.bin"] = b"changed"
+                    for name in ("target", "execute", "compensate", "initialize_file", "seal", "destroy"):
+                        self.assertFalse(hasattr(handle, name))
+                    with self.assertRaisesRegex(ReleaseSimulatorError, "busy"):
+                        namespace.open_readonly_handle(binding, members=self.MEMBERS,
+                            context=security_context())
+                    self.assertEqual(dict(handle.query()), before)
+                self.assertEqual(namespace.active_leases, 0)
+                with self.assertRaises(ReleaseSimulatorError):
+                    handle.query()
+                handle.close()
+                self.assertEqual({p.name: p.read_bytes() for p in path.iterdir()}, before)
+                with namespace.open_readonly_handle(binding, members=self.MEMBERS,
+                        context=security_context()) as reopened:
+                    self.assertEqual(dict(reopened.query()), before)
+
+    def test_typed_readonly_handle_rejects_foreign_identity_without_closing_owner(self) -> None:
+        import pickle
+        import tempfile
+        import threading
+        from graph_engineering.adapters.local_release_simulator import _RetainedNamespace
+        from tests.support.wp05a_security import security_context
+
+        with tempfile.TemporaryDirectory(prefix="gew-retained-query-") as directory:
+            with _RetainedNamespace(pathlib.Path(directory).resolve()) as namespace:
+                lease, binding = self._create(namespace)
+                lease.close()
+                with namespace.open_readonly_handle(binding, members=self.MEMBERS,
+                        context=security_context()) as handle:
+                    expected = dict(handle.query())
+                    with self.assertRaises(TypeError):
+                        type(handle)()
+                    with self.assertRaises(TypeError):
+                        copy.copy(handle)
+                    with self.assertRaises(TypeError):
+                        pickle.dumps(handle)
+                    forged = object.__new__(type(handle))
+                    for action in (forged.query, forged.close):
+                        with self.assertRaises(ReleaseSimulatorError):
+                            action()
+                    errors = []
+                    def foreign():
+                        for action in (handle.query, handle.close):
+                            try:
+                                action()
+                            except ReleaseSimulatorError as error:
+                                errors.append(str(error))
+                    thread = threading.Thread(target=foreign)
+                    thread.start()
+                    thread.join(10)
+                    self.assertFalse(thread.is_alive())
+                    self.assertEqual(len(errors), 2)
+                    self.assertEqual(namespace.active_leases, 1)
+                    self.assertEqual(dict(handle.query()), expected)
+
+    def test_typed_readonly_handle_revalidates_binding_and_member_set_on_query(self) -> None:
+        import tempfile
+        from graph_engineering.adapters.local_release_simulator import _RetainedNamespace, _RetainedRootLease
+        from tests.support.wp05a_security import security_context
+
+        for drift in ("marker", "member", "extra", "read-error", "same-byte-member", "same-byte-marker"):
+            with self.subTest(drift=drift), tempfile.TemporaryDirectory(prefix="gew-retained-query-") as directory:
+                with _RetainedNamespace(pathlib.Path(directory).resolve()) as namespace:
+                    lease, binding = self._create(namespace)
+                    path = lease.path
+                    marker = path / _RetainedRootLease.BINDING_NAME
+                    marker_bytes = marker.read_bytes()
+                    lease.close()
+                    handle = namespace.open_readonly_handle(binding, members=self.MEMBERS,
+                        context=security_context())
+                    self.addCleanup(handle.close)
+                    original = _RetainedRootLease.read
+                    reached = []
+                    replaced_snapshot = {}
+                    def change_after_read(current, name, *, max_bytes):
+                        body = original(current, name, max_bytes=max_bytes)
+                        if name == "state.json" and not reached:
+                            reached.append(drift)
+                            if drift == "marker":
+                                marker.chmod(0o600)
+                                marker.write_bytes(b"{}")
+                                marker.chmod(0o400)
+                            elif drift == "member":
+                                (path / "active.bin").write_bytes(b"changed\n")
+                            elif drift == "extra":
+                                (path / "unexpected").write_bytes(b"extra")
+                            elif drift in ("same-byte-member", "same-byte-marker"):
+                                victim = marker if drift == "same-byte-marker" else path / "active.bin"
+                                metadata, unchanged = victim.stat(), victim.read_bytes()
+                                replacement = path / "replacement"
+                                replacement.write_bytes(unchanged)
+                                replacement.chmod(metadata.st_mode & 0o777)
+                                os.replace(replacement, victim)
+                                current = victim.stat()
+                                self.assertNotEqual((metadata.st_dev, metadata.st_ino),
+                                    (current.st_dev, current.st_ino))
+                                self.assertEqual(victim.read_bytes(), unchanged)
+                                replaced_snapshot.update({p.name: p.read_bytes() for p in path.iterdir()})
+                            else:
+                                raise OSError("injected query read failure")
+                        return body
+                    with mock.patch.object(_RetainedRootLease, "read", change_after_read):
+                        with self.assertRaises((ReleaseSimulatorError, OSError)):
+                            handle.query()
+                    self.assertEqual(reached, [drift])
+                    self.assertEqual(namespace.active_leases, 0)
+                    with self.assertRaises(ReleaseSimulatorError):
+                        handle.query()
+                    if replaced_snapshot:
+                        self.assertEqual({p.name: p.read_bytes() for p in path.iterdir()}, replaced_snapshot)
+                    marker.chmod(0o600)
+                    marker.write_bytes(marker_bytes)
+                    marker.chmod(0o400)
+                    (path / "active.bin").write_bytes(b"artifact-a\n")
+                    if (path / "unexpected").exists():
+                        (path / "unexpected").unlink()
+                    with namespace.open_readonly_handle(binding, members=self.MEMBERS,
+                            context=security_context()) as fresh:
+                        self.assertEqual(fresh.query()["active.bin"], b"artifact-a\n")
+
     def test_competing_thread_is_busy_and_foreign_thread_cannot_close_lease(self) -> None:
         import tempfile
         import threading

@@ -183,6 +183,17 @@ class _RetainedNamespace:
         with self.open_readonly(binding, members=members, context=context) as lease:
             lease._destroy_owned_root(binding, context)
 
+    def open_readonly_handle(self, binding: ReleaseRecoveryBinding, *,
+                             members: Mapping[str, int], context: WorkContext) -> "_RetainedReadOnlyHandle":
+        """Storage queries only; admission does not establish recovery evidence."""
+
+        lease = self.open_readonly(binding, members=members, context=context)
+        try:
+            return _RetainedReadOnlyHandle._issue(lease, binding, context)
+        except BaseException:
+            lease.close()
+            raise
+
     def close(self) -> None:
         if (self._pid, self._thread) != (os.getpid(), threading.get_ident()):
             raise ReleaseSimulatorError("retained namespace close is foreign")
@@ -199,6 +210,87 @@ class _RetainedNamespace:
 
     def __exit__(self, *exc: object) -> None:
         self.close()
+
+
+class _RetainedReadOnlyHandle:
+    """An identity-bound query lifetime with no mutation or evidence surface.
+
+    This internal storage handle is not the RS-3/4 recovery authority. A future
+    application resolver must validate current durable provenance before any
+    of these bytes can support a release assessment.
+    """
+
+    __slots__ = ("_closed",)
+    _ISSUED: dict[int, tuple[object, object, object, object, int, int]] = {}
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        raise TypeError("retained read-only handles require namespace admission")
+
+    @classmethod
+    def _issue(cls, lease: "_RetainedRootLease", binding: ReleaseRecoveryBinding,
+               context: WorkContext) -> "_RetainedReadOnlyHandle":
+        if type(lease) is not _RetainedRootLease or not lease._readonly or not lease._sealed:
+            raise ReleaseSimulatorError("read-only handle requires a new admitted reader lease")
+        result = object.__new__(cls)
+        result._closed = False
+        cls._ISSUED[id(result)] = (result, lease, binding, context, os.getpid(), threading.get_ident())
+        return result
+
+    def _record(self) -> tuple:
+        row = self._ISSUED.get(id(self))
+        if row is None or row[0] is not self or row[-2:] != (os.getpid(), threading.get_ident()):
+            raise ReleaseSimulatorError("retained read-only handle is closed or foreign")
+        return row
+
+    def query(self) -> Mapping[str, bytes]:
+        _handle, lease, binding, context, _pid, _thread = self._record()
+        try:
+            names = tuple(sorted(lease._validate_members()))
+            def signatures() -> dict[str, tuple[int, ...]]:
+                result = {}
+                for name in names:
+                    metadata = lease._member_metadata(name)
+                    result[name] = (metadata.st_dev, metadata.st_ino, metadata.st_mode,
+                        metadata.st_uid, metadata.st_nlink, metadata.st_size,
+                        metadata.st_mtime_ns, metadata.st_ctime_ns)
+                return result
+            initial_signatures = signatures()
+            lease._validate_binding(binding, context)
+            bound = context.profile.limits["raw_document_bytes"]
+            bodies = {name: lease.read(name, max_bytes=bound) for name in names}
+            lease._validate_binding(binding, context)
+            if tuple(sorted(lease._validate_members())) != names or signatures() != initial_signatures:
+                raise ReleaseSimulatorError("retained query member identity or set changed")
+            for name in names:
+                if lease.read(name, max_bytes=bound) != bodies[name]:
+                    raise ReleaseSimulatorError("retained query member content changed")
+            lease._validate_binding(binding, context)
+            if tuple(sorted(lease._validate_members())) != names or signatures() != initial_signatures:
+                raise ReleaseSimulatorError("retained query member identity or set changed")
+            return MappingProxyType(bodies)
+        except BaseException:
+            self.close()
+            raise
+
+    def close(self) -> None:
+        if getattr(self, "_closed", False):
+            return
+        row = self._record()
+        try:
+            row[1].close()
+        finally:
+            del self._ISSUED[id(self)]
+            self._closed = True
+
+    def __enter__(self) -> "_RetainedReadOnlyHandle":
+        self._record()
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        self.close()
+
+    def __reduce__(self) -> object:
+        raise TypeError("retained read-only handles cannot be copied or serialized")
 
 
 class _RetainedRootLease:

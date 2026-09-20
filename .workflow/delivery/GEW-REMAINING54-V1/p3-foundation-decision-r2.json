@@ -1,4 +1,328 @@
 {
+  "p3_restart_readonly_handle_commit_authorizations": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-readonly-handle-commit-human-2026-09-20-r0",
+      "decided_by": "Human Owner",
+      "user_message": "提交本次改动，然后再继续吧",
+      "scope": "One local Git commit of the completed R1 read-only handle slice and its preserved audit records, with the existing Manifest narrowed to this exact staged delta, fresh canonical evidence, independent Candidate review and Receipt verification. After verified Receipt, continue the next bounded approved RS-2/RS-3 implementation slice without automatically committing it.",
+      "base_commit": "1f6dfee57523d5e09947f77d8149cbe7fb508ccf",
+      "target_files": [
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+        ".workflow/manifest.json",
+        "adapters/graph_engineering/adapters/local_release_simulator.py",
+        "config/actions/action-policy-local-actions-v1.json",
+        "config/actions/action-policy-v1.json",
+        "config/actions/concrete-action-policy-v1.json",
+        "config/contracts/action-adapter-registry-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "config/security/security-runtime-local-actions-v1.json",
+        "config/security/security-runtime-v1.json",
+        "pyproject.toml",
+        "tests/unit/test_wp08_release_operations.py"
+      ],
+      "accepted_implementation": {
+        "record_id": "p3-restart-readonly-handle-2026-09-20-r1",
+        "artifact_digest": "9a59b97c9a81549668b0ab773b3fd275deac550c10701826a0ef480cd6bc50b6",
+        "decision": {
+          "schema_version": "1.0",
+          "task_id": "GEW-REMAINING54-V1",
+          "artifact": "implementation",
+          "decision": "ADVANCE",
+          "code": "OK_ADVANCE",
+          "message": "artifact passed independent review",
+          "next_node": "verification",
+          "revision": 1,
+          "human_required": false,
+          "current_node": "implementation",
+          "input_verdict": "PASS",
+          "input_digests": {
+            "envelope": "sha256:bcb6bd51b71787cfe4cdd957dba53328d4f0a1b18a90369d0d00751c8f67f1f4",
+            "state": "sha256:71f62d02750488804d1b566593a950b580bb8a1a38d0faf2057e2e485bbaf9eb",
+            "verdict": "sha256:087fb4a37379ed81257a7c73692a750fce2af4c34dc2f5755c83d71b08644e16"
+          }
+        }
+      },
+      "manifest_delta": "Retain task ID, Tier T2, assigned roles and upstream artifacts; update target_files to this15-file commit and clarify the Tier rationale. The implementation was rehashed and its actual ADVANCE replayed before this administrative Manifest update. The new Candidate will bind the current Manifest and all current staged bytes.",
+      "detached_outputs": {
+        "evidence": ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-readonly-handle-precommit-evidence-r0.json",
+        "candidate": ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-readonly-handle-candidate-r0.json",
+        "review": ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-readonly-handle-review-r0.json",
+        "receipt": ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-readonly-handle-receipt-r0.json"
+      },
+      "workflow_record_authority": "These four fresh untracked records are necessary preparation and receipt for the explicitly requested commit, inside the already approved Policy detached directory. This does not enlarge the183 product implementation targets or change Policy. Earlier canonical records remain immutable.",
+      "verification": {
+        "selectors": [
+          "tests.unit.test_wp08_release_operations.WP08RetainedRootPrimitiveTests",
+          "tests.integration.test_wp08_release_operations.WP08RetainedRootProcessTests",
+          "tests.integration.test_wp08_release_operations.WP08RetainedReleaseSessionTests.test_owner_destroy_quiesced_root_revokes_before_cleanup_without_repository_writes",
+          "tests.integration.test_wp08_release_operations.WP08RetainedReleaseSessionTests.test_same_task_retained_assessment_commits_with_original_lease_and_preserves_root",
+          "tests.contract.test_wp08_remaining54_contracts.Remaining54P3FoundationContractsTest",
+          "tests.security.test_wp08_remaining54_authority.ScenarioTruthSecurityTests.test_c_envelope_and_dual_runtime_source_membership_are_exact",
+          "tests.security.test_wp08_remaining54_authority.ScenarioTruthSecurityTests.test_equal_cardinality_historical_authority_substitution_is_rejected",
+          "tests.e2e.test_wp00_installed_wheel.InstalledWheelTests.test_wheel_runs_inside_decoy_project_without_source_imports",
+          "tests.contract.test_wp07a_action_contracts.WP07AActionContractTests.test_gew_act_001_policy_and_registry_are_closed_self_digested_and_factory_ready",
+          "tests.security.test_wp07a_action_contract_security.WP07AActionContractSecurityTests.test_gew_act_001b_installation_anchor_rejects_re_signed_registry_and_provenance_substitutions"
+        ],
+        "expected_unique_tests": 25,
+        "skips": 0,
+        "mode": "serial fresh private source-checkout attestation; native Python3.12, explicit -X plus matching environment locator; failfast; parent monotonic_ns; native600second cap and unchanged canonical Policy300second outer cap",
+        "reason": "Previous bounded test evidence is valid implementation evidence but is not bound to this new staged-tree Candidate; fresh canonical capture is required by existing Policy."
+      },
+      "prohibited": [
+        "push",
+        "merge",
+        "deployment",
+        "release",
+        "network",
+        "external communication",
+        "monitoring",
+        "cumulative/performance workload",
+        "coverage issuance",
+        "WP10",
+        "automatic commit of subsequent implementation"
+      ]
+    }
+  ],
+  "p3_restart_readonly_handle_repair_approvals": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-restart-readonly-member-identity-human-2026-09-20-r0",
+      "decided_at": "2026-09-20",
+      "decided_by": "Human Owner",
+      "user_message": "批准",
+      "approved_request": "Repair only the diagnosed identical-content member identity replacement defect P3-RS2-READONLY-MEMBER-IDENTITY-R0-001 in the current read-only handle slice; add the prepared same-byte member and marker regressions, refresh mechanical pins, run bounded verification and obtain independent R1 review. Existing paths only; no Policy change or additional commit.",
+      "resolves_record_id": "p3-restart-readonly-handle-2026-09-20-r0",
+      "resolves_artifact_digest": "769f6ec9a802dc98335ba53b9906f0ca707f37ef42d51db49400b7228e4fed84",
+      "preserved_reducer_decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ESCALATE",
+        "code": "E_SCOPE",
+        "message": "human decision required for change kinds: implementation",
+        "next_node": "implementation",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "implementation",
+        "input_verdict": "REVISE",
+        "input_digests": {
+          "envelope": "sha256:bcb6bd51b71787cfe4cdd957dba53328d4f0a1b18a90369d0d00751c8f67f1f4",
+          "state": "sha256:11cd81156079e199f094212cd12e8457b38468e9b394a65e93cccffc0cb9002d",
+          "verdict": "sha256:bc552ddb13c385250814ab4d495aadae25c478b8864f639b48f4fdd78784e411"
+        }
+      },
+      "authorized_paths": [
+        "adapters/graph_engineering/adapters/local_release_simulator.py",
+        "tests/unit/test_wp08_release_operations.py",
+        "config/contracts/action-adapter-registry-v1.json",
+        "config/actions/concrete-action-policy-v1.json",
+        "config/actions/action-policy-v1.json",
+        "config/security/security-runtime-v1.json",
+        "config/actions/action-policy-local-actions-v1.json",
+        "config/security/security-runtime-local-actions-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "pyproject.toml"
+      ],
+      "test_boundary": "Native fresh private attestation, exact serial failfast tests, real parent monotonic_ns,600second cap. Run the focused3 handle tests including the two added subcases, then affected primitive/pin/package tests only as required.",
+      "record_locations": [
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json"
+      ],
+      "preservation": "R0 source, independent verdict and actual ESCALATE/E_SCOPE remain immutable. Current approval authorizes the bounded repair without changing Policy, existing envelope targets or reviewer labels.",
+      "prohibited": [
+        "network",
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "external communication",
+        "monitoring",
+        "coverage issuance",
+        "cumulative/performance workload",
+        "WP10",
+        "stage",
+        "commit"
+      ]
+    }
+  ],
+  "p3_restart_readonly_handle_revisions": [
+    {
+      "record_id": "p3-restart-readonly-handle-2026-09-20-r0",
+      "artifact_digest": "769f6ec9a802dc98335ba53b9906f0ca707f37ef42d51db49400b7228e4fed84",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ESCALATE",
+        "code": "E_SCOPE",
+        "message": "human decision required for change kinds: implementation",
+        "next_node": "implementation",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "implementation",
+        "input_verdict": "REVISE",
+        "input_digests": {
+          "envelope": "sha256:bcb6bd51b71787cfe4cdd957dba53328d4f0a1b18a90369d0d00751c8f67f1f4",
+          "state": "sha256:11cd81156079e199f094212cd12e8457b38468e9b394a65e93cccffc0cb9002d",
+          "verdict": "sha256:bc552ddb13c385250814ab4d495aadae25c478b8864f639b48f4fdd78784e411"
+        }
+      },
+      "cli_exit_code": 1,
+      "execution_kind": "Actual frozen validate_artifact_bundle.py CLI using the approved effective project-local Policy and unchanged independent R0 verdict. All48 raw file hashes and graph/Policy inputs checked before reduction.",
+      "additional_diagnostic": {
+        "label": "readonly-handle-identical-replacement-red",
+        "source_edits": false,
+        "execution": "Fresh private-attested native in-memory unittest in a temporary fixture; exact same bytes and mode, os.replace produces a different inode between query read passes.",
+        "tests": 1,
+        "exit_code": 1,
+        "parent_elapsed_seconds": 0.193130708,
+        "result": "FAIL as expected for the missing guard: ReleaseSimulatorError not raised.",
+        "source_packet_still_unchanged": true
+      },
+      "prepared_repair": {
+        "status": "Proposed only; not applied after ESCALATE",
+        "finding_id": "P3-RS2-READONLY-MEMBER-IDENTITY-R0-001",
+        "request": "Approve only the diagnosed same-byte member-identity repair, two existing same-byte member/marker regression cases, mechanical affected pins, bounded native verification and independent R1 review. No new paths, Policy changes, larger scope or second commit.",
+        "source_paths": [
+          "adapters/graph_engineering/adapters/local_release_simulator.py",
+          "tests/unit/test_wp08_release_operations.py"
+        ],
+        "mechanical_pin_paths": [
+          "config/contracts/action-adapter-registry-v1.json",
+          "config/actions/concrete-action-policy-v1.json",
+          "config/actions/action-policy-v1.json",
+          "config/security/security-runtime-v1.json",
+          "config/actions/action-policy-local-actions-v1.json",
+          "config/security/security-runtime-local-actions-v1.json",
+          "config/release-operations/release-operations-installation-bootstrap-v1.json",
+          "pyproject.toml"
+        ],
+        "patch": "*** Begin Patch\n*** Update File: adapters/graph_engineering/adapters/local_release_simulator.py\n@@\n         _handle, lease, binding, context, _pid, _thread = self._record()\n         try:\n-            lease._validate_binding(binding, context)\n             names = tuple(sorted(lease._validate_members()))\n+            def signatures() -> dict[str, tuple[int, ...]]:\n+                result = {}\n+                for name in names:\n+                    metadata = lease._member_metadata(name)\n+                    result[name] = (metadata.st_dev, metadata.st_ino, metadata.st_mode,\n+                        metadata.st_uid, metadata.st_nlink, metadata.st_size,\n+                        metadata.st_mtime_ns, metadata.st_ctime_ns)\n+                return result\n+            initial_signatures = signatures()\n+            lease._validate_binding(binding, context)\n             bound = context.profile.limits[\"raw_document_bytes\"]\n             bodies = {name: lease.read(name, max_bytes=bound) for name in names}\n             lease._validate_binding(binding, context)\n-            if tuple(sorted(lease._validate_members())) != names:\n-                raise ReleaseSimulatorError(\"retained query member set changed\")\n+            if tuple(sorted(lease._validate_members())) != names or signatures() != initial_signatures:\n+                raise ReleaseSimulatorError(\"retained query member identity or set changed\")\n@@\n             lease._validate_binding(binding, context)\n-            if tuple(sorted(lease._validate_members())) != names:\n-                raise ReleaseSimulatorError(\"retained query member set changed\")\n+            if tuple(sorted(lease._validate_members())) != names or signatures() != initial_signatures:\n+                raise ReleaseSimulatorError(\"retained query member identity or set changed\")\n*** Update File: tests/unit/test_wp08_release_operations.py\n@@\n-        for drift in (\"marker\", \"member\", \"extra\", \"read-error\"):\n+        for drift in (\"marker\", \"member\", \"extra\", \"read-error\", \"same-byte-member\", \"same-byte-marker\"):\n@@\n                     original = _RetainedRootLease.read\n                     reached = []\n+                    replaced_snapshot = {}\n@@\n                             elif drift == \"extra\":\n                                 (path / \"unexpected\").write_bytes(b\"extra\")\n+                            elif drift in (\"same-byte-member\", \"same-byte-marker\"):\n+                                victim = marker if drift == \"same-byte-marker\" else path / \"active.bin\"\n+                                metadata, unchanged = victim.stat(), victim.read_bytes()\n+                                replacement = path / \"replacement\"\n+                                replacement.write_bytes(unchanged)\n+                                replacement.chmod(metadata.st_mode & 0o777)\n+                                os.replace(replacement, victim)\n+                                current = victim.stat()\n+                                self.assertNotEqual((metadata.st_dev, metadata.st_ino),\n+                                    (current.st_dev, current.st_ino))\n+                                self.assertEqual(victim.read_bytes(), unchanged)\n+                                replaced_snapshot.update({p.name: p.read_bytes() for p in path.iterdir()})\n                             else:\n@@\n                     self.assertEqual(namespace.active_leases, 0)\n                     with self.assertRaises(ReleaseSimulatorError):\n                         handle.query()\n+                    if replaced_snapshot:\n+                        self.assertEqual({p.name: p.read_bytes() for p in path.iterdir()}, replaced_snapshot)\n                     marker.chmod(0o600)\n*** End Patch",
+        "acceptance": [
+          "Capture member signatures before the first binding/member read and recheck them across the complete query, including the binding marker.",
+          "An identical-content regular-file replacement must reject; handle is revoked, active_leases is zero, and query makes no product writes or cleanup.",
+          "Existing positives, close/reopen, contention, foreign identity and drift negatives remain passing; refresh actual-source pins and obtain a new independent verdict."
+        ],
+        "test_boundary": "Native fresh private attestation, exact serial failfast tests, real parent monotonic_ns,600second cap. Run the focused3 handle tests including the two added subcases, then affected primitive/pin/package tests only as required."
+      },
+      "handoff": {
+        "status": "human-gate-for-diagnosed-bounded-repair",
+        "commit_sha": "1f6dfee57523d5e09947f77d8149cbe7fb508ccf",
+        "commit_receipt_verified": true,
+        "second_commit_authorized": false,
+        "post_commit_changes_staged": false,
+        "open_finding_ids": [
+          "P3-RS2-READONLY-MEMBER-IDENTITY-R0-001"
+        ],
+        "rs2_complete": false,
+        "cold_recovery_complete": false,
+        "plan_bindings": 244,
+        "oracle_bindings": 122,
+        "missing_bindings": 30,
+        "prohibited": [
+          "network",
+          "push",
+          "merge",
+          "deploy",
+          "release",
+          "external communication",
+          "monitoring",
+          "coverage issuance",
+          "cumulative/performance workload",
+          "WP10"
+        ]
+      }
+    },
+    {
+      "record_id": "p3-restart-readonly-handle-2026-09-20-r1",
+      "artifact_digest": "9a59b97c9a81549668b0ab773b3fd275deac550c10701826a0ef480cd6bc50b6",
+      "authority_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json#p3_restart_readonly_handle_repair_approvals[0]",
+      "input_state_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json#p3_restart_readonly_handle_review_closures[0].state",
+      "input_verdict_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json#p3_restart_readonly_handle_revisions[1].verdict",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:bcb6bd51b71787cfe4cdd957dba53328d4f0a1b18a90369d0d00751c8f67f1f4",
+          "state": "sha256:71f62d02750488804d1b566593a950b580bb8a1a38d0faf2057e2e485bbaf9eb",
+          "verdict": "sha256:087fb4a37379ed81257a7c73692a750fce2af4c34dc2f5755c83d71b08644e16"
+        }
+      },
+      "cli_exit_code": 0,
+      "execution_kind": "Actual frozen validate_artifact_bundle.py CLI with all48 source hashes, approved graph/Policy bytes and Human approval checked. Input digests independently recomputed; independent R1 verdict unchanged.",
+      "reducer_attempts": [
+        {
+          "state_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json#p3_restart_readonly_handle_revisions[1]",
+          "cli_exit_code": 2,
+          "decision": {
+            "decision": "INVALID",
+            "code": "E_FINDINGS",
+            "message": "PASS cannot contain unresolved findings"
+          },
+          "stderr": "",
+          "source_files_verified": 48,
+          "approval_verified": true,
+          "input_digests": {
+            "envelope": "sha256:bcb6bd51b71787cfe4cdd957dba53328d4f0a1b18a90369d0d00751c8f67f1f4",
+            "state": "sha256:ee8f355a3f36d7419a47d8c863f19fb3466c3a80fd5b9956572d9f911ac22514",
+            "verdict": "sha256:087fb4a37379ed81257a7c73692a750fce2af4c34dc2f5755c83d71b08644e16"
+          },
+          "explanation": "The pending-review state still listed the finding as open after the independent reviewer marked it resolved. Preserve that submitted state and this actual INVALID result. Append a closure state that clears only the independently resolved finding; source bytes, revision, envelope, Policy and verdict are unchanged.",
+          "wrapper_diagnostic": "The first wrapper invocation attempted to inspect input_digests on the INVALID response and raised KeyError before printing it. A repeat with identical CLI inputs preserved the actual INVALID/E_FINDINGS response and exit2 shown here; no passing evidence was inferred from the wrapper."
+        }
+      ],
+      "handoff": {
+        "status": "bounded-readonly-member-identity-repair-reviewed",
+        "repaired_finding_ids": [
+          "P3-RS2-READONLY-MEMBER-IDENTITY-R0-001"
+        ],
+        "open_finding_ids": [],
+        "next_node": "verification",
+        "verified_unique_tests": 25,
+        "skipped_tests": 0,
+        "commit_sha": "1f6dfee57523d5e09947f77d8149cbe7fb508ccf",
+        "commit_receipt_verified": true,
+        "second_commit_authorized": false,
+        "post_commit_changes_staged": false,
+        "rs2_complete": false,
+        "cold_recovery_complete": false,
+        "plan_bindings": 244,
+        "oracle_bindings": 122,
+        "missing_bindings": 30,
+        "prohibited": [
+          "network",
+          "push",
+          "merge",
+          "deploy",
+          "release",
+          "external communication",
+          "monitoring",
+          "coverage issuance",
+          "cumulative/performance workload",
+          "WP10",
+          "stage",
+          "commit"
+        ]
+      }
+    }
+  ],
   "p3_restart_retained_session_revisions": [
     {
       "record_id": "p3-restart-retained-session-2026-09-19-r0",

@@ -1,4 +1,53 @@
 {
+  "p3_restart_readonly_handle_revisions": [
+    {
+      "record_id": "p3-restart-readonly-handle-2026-09-20-r0",
+      "artifact_digest": "769f6ec9a802dc98335ba53b9906f0ca707f37ef42d51db49400b7228e4fed84",
+      "reviewer_id": "/root/p3_restart_owner_destruction_reviewer_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "REVISE",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [
+          "implementation",
+          "testability"
+        ],
+        "findings": [
+          {
+            "id": "P3-RS2-READONLY-MEMBER-IDENTITY-R0-001",
+            "severity": "blocking",
+            "evidence": "All 48 files match R0 aggregate 769f6ec9a802dc98335ba53b9906f0ca707f37ef42d51db49400b7228e4fed84. In adapters/graph_engineering/adapters/local_release_simulator.py:245–261, query() compares member names and bytes across passes but retains no member identity snapshot. Replacing active.bin with a different regular, single-link 0600 file containing identical bytes after the first state.json read passes these comparisons. read() checks identity only within each individual read. This violates Spec RS-2's rejection of descriptor/path identity changes and the Test Plan filesystem swap requirement; the three new tests omit identical-content replacement.",
+            "required_change": "Capture and retain each member's filesystem identity and stable metadata across the complete query, including the binding marker, and reject replacement before returning bytes. Preserve automatic handle revocation and lease release on failure. Add an identical-content replacement regression.",
+            "verification": "Inject an identical-content file replacement between query read passes. Verify query raises, the handle cannot be reused, active_leases returns to zero, and no cleanup or product writes occur. Run the affected bounded tests and refresh changed installation pins and artifact hashes.",
+            "status": "open"
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "p3-restart-readonly-handle-2026-09-20-r1",
+      "artifact_digest": "9a59b97c9a81549668b0ab773b3fd275deac550c10701826a0ef480cd6bc50b6",
+      "reviewer_id": "/root/p3_restart_owner_destruction_reviewer_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [
+          {
+            "id": "P3-RS2-READONLY-MEMBER-IDENTITY-R0-001",
+            "severity": "blocking",
+            "evidence": "R1 captures member identity and stable metadata before binding/content reads and compares them after both passes, including the marker. Identical-content member and marker replacement regressions verify rejection, revocation, lease release and no query writes. All 48 files match aggregate 9a59b97c9a81549668b0ab773b3fd275deac550c10701826a0ef480cd6bc50b6; revision continuity and the explicit repair approval match the preserved records.",
+            "required_change": "Capture and retain each member's filesystem identity and stable metadata across the complete query, including the binding marker, and reject replacement before returning bytes. Preserve automatic handle revocation and lease release on failure. Add an identical-content replacement regression.",
+            "verification": "The recorded focused and adjacent runs pass with 25 unique native tests and zero skips, including both replacement subcases. Independent read-only inspection confirms the implementation, test assertions, source hashes and refreshed pins. No further correction is required for this bounded storage prerequisite.",
+            "status": "resolved"
+          }
+        ]
+      }
+    }
+  ],
   "p3_restart_retained_session_revisions": [
     {
       "record_id": "p3-restart-retained-session-2026-09-19-r0",

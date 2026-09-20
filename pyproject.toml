@@ -390,8 +390,8 @@ distribution-version = "0.1.0"
 
 [tool.gew.profile.release-operations]
 bootstrap-id = "urn:gew:release-operations-installation-bootstrap:1.0.0"
-bootstrap-digest = "sha256-jcs-v1:5c72e046f5405cbf4a7916cb98605d97785248f4278078c32e83a760a83518ee"
-bootstrap-raw-sha256 = "c80feddb7b981734241a190d05a9a409c4e71593d04f73cec462bd2d68c556d3"
+bootstrap-digest = "sha256-jcs-v1:fd1e988453304385493511d1a8cada3c0d5af82dbcf31d4c1a522cd139e45b48"
+bootstrap-raw-sha256 = "67c8577293407ad7c70c3838c82a415cbc6a1dc317efa9a8cb7dd395cb31fa42"
 bootstrap-source = "config/release-operations/release-operations-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/release-operations/release-operations-installation-bootstrap-v1.json"
 policy-source = "config/release-operations/release-operations-policy-registry-v1.json"

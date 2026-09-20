@@ -34,7 +34,7 @@
         "local-release-simulator.restore"
       ],
       "implementation_ref": "builtin:local-release-simulator-v1",
-      "implementation_digest": "sha256-jcs-v1:6f08f96f9101b9d6638ecb0fbe3b466cb09815bef977152d6c71f0bdda5258bb"
+      "implementation_digest": "sha256-jcs-v1:49259406714cd99a25524c4485029e382249e23643943ceb9678723cdc3f2338"
     },
     {
       "adapter_id": "project-command-v1",
@@ -91,5 +91,5 @@
       "implementation_digest": "sha256-jcs-v1:ad001364f625d63ecb1ee80764ab29905bc803c12dbb1866a240a7845576b9ae"
     }
   ],
-  "registry_digest": "sha256-jcs-v1:ce10c5f86f8a40568a7f492cc3c3f0be0deca242590d06741bfa72b0b752ea9c"
+  "registry_digest": "sha256-jcs-v1:94130d2ed18260b680ce9a586657f51c926cd0256ad8127b93254a6e307ed661"
 }
