@@ -1,4 +1,285 @@
 {
+  "p3_restart_retained_session_revisions": [
+    {
+      "record_id": "p3-restart-retained-session-2026-09-19-r0",
+      "artifact_digest": "3a33c31e7e2dc6aa2f04a7925a6011a04b34237588d193961e875ff8faabc01f",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ESCALATE",
+        "code": "E_SCOPE",
+        "message": "human decision required for change kinds: implementation, test",
+        "next_node": "implementation",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "implementation",
+        "input_verdict": "REVISE",
+        "input_digests": {
+          "envelope": "sha256:904e7a6aeb96b2cd8197642174a8cfc36872bbfb092d919a6cf527fde5d8063a",
+          "state": "sha256:9c0ae99ad15851144f2532aaaf52070c8b2928e817110a8941eac335aa873cda",
+          "verdict": "sha256:b2a05463dad2013ab22881c6f5075c6ebd3f7c236568bd7c61285a264a820b12"
+        }
+      },
+      "execution_kind": "Actual bundled validate_artifact_bundle.py CLI using frozen narrowed restart Envelope, exact state, unchanged independent verdict, and hash-verified graph/Policy inputs.",
+      "handoff": {
+        "status": "human-decision-required-for-routine-observer-binding-fix",
+        "open_finding_ids": [
+          "GEW-P3-RS2-SESSION-R0-001"
+        ],
+        "next_action": "Request the human decision required by E_SCOPE before editing the reviewed artifact; do not relabel the independent verdict or change frozen Policy to bypass the gate.",
+        "required_human_decision": "Approve the exact retained observer issuing-coordinator binding repair for GEW-P3-RS2-SESSION-R0-001, focused negative/positive bounded tests and a new independent review, retaining exact183 and all existing exclusions.",
+        "prepared_repair": {
+          "implementation_target": "application/graph_engineering/application/actions.py",
+          "test_target": "tests/integration/test_wp08_release_operations.py",
+          "behavior": "Reject retained LocalReleaseObserver values unless this coordinator owns the exact registered action/session/observer before repository acquisition. Reuse existing scope/idle/live-lease checks; preserve disposable behavior.",
+          "verification": "Second same-repository/scope coordinator with live and closed retained observers must fail before locks, journal reads or observation with unchanged durable state; original retained and legacy reconciliation must remain valid.",
+          "pin_targets": "Only existing authorized action/release/runtime/package pin cascade paths as mechanically required by changed implementation bytes.",
+          "test_boundary": "Serial native failfast batches, fresh private attestation, real parent monotonic_ns, 600 seconds per batch; no cumulative/coverage/performance run."
+        },
+        "verified_unique_tests": 65,
+        "test_result_is_not_review_acceptance": true,
+        "implementation_accepted": false,
+        "cold_recovery_completed": false,
+        "rs2_completed": false,
+        "plan_bindings": 244,
+        "oracle_bindings": 122,
+        "missing_bindings": 30,
+        "candidate_created": false,
+        "stage": false,
+        "commit": false,
+        "push": false,
+        "monitoring": false
+      }
+    },
+    {
+      "record_id": "p3-restart-retained-session-2026-09-20-r1",
+      "artifact_digest": "a05ad42f90bd273067bddf1deeb41aa5b8e175d0eec5e8feedd8336407fe1ba4",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:904e7a6aeb96b2cd8197642174a8cfc36872bbfb092d919a6cf527fde5d8063a",
+          "state": "sha256:a7e83f3e23238e7166eb117b45b3a4d46f7be884cc5dc897c5595d3fa9099653",
+          "verdict": "sha256:7d16d587e132a7c6a861814edfe143093a8dc3d262e0ad4ac78283584d282928"
+        }
+      },
+      "execution_kind": "Actual bundled validate_artifact_bundle.py CLI using unchanged narrowed restart Envelope, R1 state, unchanged independent R1 verdict and hash-verified frozen graph/Policy inputs; no new repository record paths.",
+      "human_gate_resolution_ref": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json#p3_restart_retained_observer_repair_amendment",
+      "handoff": {
+        "status": "retained-live-session-slice-accepted-observer-binding-finding-resolved",
+        "resolved_finding_ids": [
+          "GEW-P3-RS2-SESSION-R0-001"
+        ],
+        "pending_finding_ids": [],
+        "completed": [
+          "Runtime-issued retained namespace and original live retained simulator session creation/use/close.",
+          "Pre-repository guard for exact retained observer issuing coordinator/session binding, with live/closed foreign-coordinator zero-effect rejection and original retained/disposable reconciliation proof.",
+          "65 prior selected tests plus two new focused methods and one existing legacy reconciliation selector; 68 unique selected tests pass on the R1 artifact; independent R1 review PASS."
+        ],
+        "remaining_authorized": [
+          "RS-2 completion: owner finalization/destruction facade, typed read-only retained open and retained assessment-commit/fence lifecycle proof.",
+          "RS-3 fresh durable read-only action/compensation provenance validator.",
+          "RS-4 exact six-part normal-column current source and artifact joins.",
+          "RS-5 full fresh-exec committed assessment producer/consumer and negative recovery matrix."
+        ],
+        "verified_unique_tests": 68,
+        "plan_bindings": 244,
+        "oracle_bindings": 122,
+        "missing_bindings": 30,
+        "cold_recovery_completed": false,
+        "rs2_completed": false,
+        "project_completed": false,
+        "candidate_created": false,
+        "stage": false,
+        "commit": false,
+        "push": false,
+        "monitoring": false,
+        "next_action": "The approved observer-binding repair is complete. Remaining RS-2 lifecycle/read-only-open/assessment integration and RS-3 through RS-5 remain separate unfinished work under their existing boundaries; do not claim cold recovery or enter Candidate/irreversible actions."
+      }
+    }
+  ],
+  "p3_restart_root_primitive_revisions": [
+    {
+      "record_id": "p3-restart-root-primitives-2026-09-19-r0",
+      "artifact_digest": "33b681cbf2676ead4da5251ed4f767a9fef67635fcaa664c0868ea3034723596",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:904e7a6aeb96b2cd8197642174a8cfc36872bbfb092d919a6cf527fde5d8063a",
+          "state": "sha256:ab69625fe54496b5cf22231f8c0a6615b95cd13e4d5e30b083a88c574f1e5f70",
+          "verdict": "sha256:88c9f5edc4900da3b2ae67ae5f4b53c8a35d49507774ab2576b97d46bd09843f"
+        }
+      },
+      "execution_kind": "Actual bundled validate_artifact_bundle.py CLI using frozen narrowed restart Envelope, current state, unchanged independent verdict, and hash-verified graph/Policy inputs; input transport only, no new repository paths.",
+      "handoff": {
+        "status": "retained-native-primitives-accepted-next-session-integration",
+        "completed": [
+          "RS-1 binding (prior scoped acceptance)",
+          "RS-BS bridge and read-only security prerequisites (prior scoped acceptance)",
+          "RS-2 internal native retained directory/binding/lease lifecycle primitives"
+        ],
+        "remaining_authorized": [
+          "RS-2 retained session/factory integration with exact RuntimeContext/InstallationCommandScope/repository anchor and entry lock-order enforcement.",
+          "RS-3 fresh durable read-only action/compensation validator.",
+          "RS-4 exact six-part normal-column current source and artifact joins.",
+          "RS-5 full fresh-exec committed assessment producer/consumer and negative recovery matrix."
+        ],
+        "no_repeat_approval_needed_for_same_scope": true,
+        "verified_unique_tests": 54,
+        "plan_bindings": 244,
+        "oracle_bindings": 122,
+        "missing_bindings": 30,
+        "cold_recovery_completed": false,
+        "rs2_completed": false,
+        "candidate_created": false,
+        "commit": false,
+        "push": false,
+        "monitoring": false
+      }
+    }
+  ],
+  "p3_restart_bridge_security_revisions": [
+    {
+      "record_id": "p3-restart-bridge-security-implementation-2026-09-19-r0",
+      "artifact_digest": "53adc8a41e42b63daef67dd28b5d6af3843761414f9de0df2f3fdcbf2b7827ae",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:904e7a6aeb96b2cd8197642174a8cfc36872bbfb092d919a6cf527fde5d8063a",
+          "state": "sha256:c2d0244fdc0e1560e6d59dc533eed0baf03106473549a56cf8f2ba71696b8738",
+          "verdict": "sha256:88c9f5edc4900da3b2ae67ae5f4b53c8a35d49507774ab2576b97d46bd09843f"
+        }
+      },
+      "handoff": {
+        "status": "prerequisites-accepted-next-retained-root-slice",
+        "completed": [
+          "RS-1 binding (prior scoped acceptance)",
+          "RS-BS same-task action/domain bridge",
+          "RS-BS immutable zero-write security projection"
+        ],
+        "remaining_authorized": [
+          "RS-2 retained private root lifecycle/exclusion",
+          "RS-3 fresh durable read-only action/compensation validator",
+          "RS-4 exact six-part normal-column current source and artifact joins",
+          "RS-5 fresh exec producer/consumer proof and bounded recovery negative matrix"
+        ],
+        "no_repeat_approval_needed_for_same_scope": true,
+        "plan_bindings": 244,
+        "oracle_bindings": 122,
+        "missing_bindings": 30,
+        "commit": false,
+        "push": false,
+        "monitoring": false,
+        "cold_recovery_completed": false
+      }
+    }
+  ],
+  "p3_restart_implementation_revisions": [
+    {
+      "record_id": "p3-restart-rs1-2026-09-19-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:911c73805d0b0f9208f26eb1e80c63f4d44a32e7c7d58be0b58a866f49013ef8",
+          "state": "sha256:1e54b2ad68b825096fc0cbfdff22e6a465e47c8d0d5de0f6a01c7bc13b5b0909",
+          "verdict": "sha256:88c9f5edc4900da3b2ae67ae5f4b53c8a35d49507774ab2576b97d46bd09843f"
+        }
+      },
+      "execution_kind": "Actual bundled core.artifact_review.reduce_verdict using frozen effective Human-approved envelope, source-bound state and unchanged independent verdict",
+      "scope": "ADVANCE is for the explicitly partial RS-1 artifact; it cannot accept unfinished RS-2 through RS-5 or authorize material architecture / target changes.",
+      "handoff": {
+        "status": "requires-human-design-and-target-expansion",
+        "completed_scope": "RS-1 binding/schema/provenance partial implementation; 27 unique bounded tests PASS; independent partial artifact review PASS.",
+        "unimplemented_steps": [
+          "RS-2",
+          "RS-3",
+          "RS-4",
+          "RS-5"
+        ],
+        "next_human_decision": "Approve the two named design prerequisites and exact two security path additions; revise affected Spec/Impact/Plan/Test Plan, independently review before bounded implementation and tests; preserve current600s/serial limits and every no-commit/network/performance/coverage/monitor/WP10 boundary.",
+        "additional_targets": [
+          "application/graph_engineering/application/security.py",
+          "storage/graph_engineering/storage/security.py"
+        ],
+        "authority_unchanged_until_approval": true,
+        "remaining_counts": {
+          "plan": 244,
+          "oracle": 122,
+          "missing": 30
+        },
+        "commit_count_this_turn": 0,
+        "push_count": 0,
+        "monitor_count": 0,
+        "cumulative_performance_runs": 0
+      }
+    }
+  ],
+  "p3_restart_implementation_records": [
+    {
+      "record_id": "p3-restart-implementation-2026-09-19-entry",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "implementation",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "test-plan",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:911c73805d0b0f9208f26eb1e80c63f4d44a32e7c7d58be0b58a866f49013ef8",
+          "state": "sha256:3794f66d735df2ae1844873d0eff27e52f51c6a7ba721296d4d0fe6212774b6e",
+          "verdict": "sha256:44065f93651ed29b4517794a7a9fa8b89f13cc83ec69d9d1345e266d0e32e292"
+        }
+      },
+      "execution_kind": "Actual bundled reducer using unchanged accepted R1 state/verdict/graph/policy and newly Human-authorized effective envelope",
+      "source_manifest_record_id": "p3-restart-implementation-2026-09-19-entry",
+      "scope": "Permission to implement only, not implementation review or completion acceptance"
+    }
+  ],
   "schema_version": "1.0",
   "task_id": "GEW-REMAINING54-V1",
   "artifact": "implementation",
@@ -56,6 +337,114 @@
           "state": "sha256:64b581958e1fb66a2ae015873e4cf2263ddfc5549ed6b4d7d5b2d199de243407",
           "verdict": "sha256:6f64768c871eaa0b486f1fec039fa6bea7425c52d5b7f93f9c8ed51025f2f591"
         }
+      }
+    }
+  ],
+  "p3_restart_retained_assessment_revisions": [
+    {
+      "record_id": "p3-restart-retained-assessment-2026-09-20-r0",
+      "artifact_digest": "fb2ec04139c70a28aa8274ef09dfc4c448eb7b47b8f78e4e2576f9a2f96cc904",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:904e7a6aeb96b2cd8197642174a8cfc36872bbfb092d919a6cf527fde5d8063a",
+          "state": "sha256:8d77fd6813a055d5ebf8695e41ec45d2c78acb6e9963b08ad8b0204ea8272cb5",
+          "verdict": "sha256:88c9f5edc4900da3b2ae67ae5f4b53c8a35d49507774ab2576b97d46bd09843f"
+        }
+      },
+      "execution_kind": "Actual bundled validate_artifact_bundle.py CLI with persisted exact state, unchanged independent verdict and embedded effective Envelope; frozen graph/Policy hash verified. No new record paths.",
+      "handoff": {
+        "status": "same-task-retained-live-assessment-slice-accepted",
+        "completed": [
+          "Explicit existing-created-task test fixture bridge via existing domain/runner APIs; no copied rows or post-action snapshot repair.",
+          "Same-task retained original action followed by live assessment 1.4 durable commit with root lease held through repository fences.",
+          "Four close cuts safely reject without assessment commit, reapply, journal/claim mutation or root-content changes; fixture input negatives reject before publication.",
+          "18 unique bounded native test selectors pass; independent review PASS and actual reducer ADVANCE."
+        ],
+        "pending_finding_ids": [],
+        "remaining_authorized": [
+          "Remaining RS-2 owner finalization/destruction facade and typed read-only retained open, without treating a raw reopened directory as evidence authority.",
+          "RS-3 fresh durable read-only action/compensation provenance validator.",
+          "RS-4 exact six-part normal-column current source, target and actual artifact joins.",
+          "RS-5 complete fresh-exec committed assessment producer/consumer and negative recovery matrix."
+        ],
+        "verified_unique_tests": 18,
+        "plan_bindings": 244,
+        "oracle_bindings": 122,
+        "missing_bindings": 30,
+        "rs2_completed": false,
+        "cold_recovery_completed": false,
+        "project_completed": false,
+        "candidate_created": false,
+        "stage": false,
+        "commit": false,
+        "push": false,
+        "monitoring": false,
+        "next_action": "Retain this bounded source/test checkpoint. Remaining RS-2 readonly-open/owner lifecycle and RS-3 durable provenance checks require further authorized bounded implementation; then RS-4 actual source joins and RS-5 fresh-exec proof. Do not promote these synthetic category fixtures to cold evidence authority or enter Candidate/irreversible work."
+      }
+    }
+  ],
+  "p3_restart_owner_destruction_revisions": [
+    {
+      "record_id": "p3-restart-owner-destruction-2026-09-20-r0",
+      "artifact_digest": "f75365e15baf918da5e54e408fec0d9a3093f76c356a1f8e71b7e3cd01006d8c",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:904e7a6aeb96b2cd8197642174a8cfc36872bbfb092d919a6cf527fde5d8063a",
+          "state": "sha256:418edd306288c1d913a37d0e2019d0668d8504afceeba669dee050529a4c20d0",
+          "verdict": "sha256:88c9f5edc4900da3b2ae67ae5f4b53c8a35d49507774ab2576b97d46bd09843f"
+        }
+      },
+      "execution_kind": "Actual frozen validate_artifact_bundle.py CLI with persisted exact state, unchanged independent verdict and embedded effective Envelope, using ephemeral input pipes. Frozen graph/Policy raw hashes and current artifact bytes checked before execution.",
+      "handoff": {
+        "status": "original-quiesced-owner-destruction-slice-accepted",
+        "completed": [
+          "Exact original-session owner destruction facade with current runtime/coordinator/namespace and fresh task target security checks.",
+          "New exclusive owner lease acquired without repository tokens; security/runtime rereads, marker-first fsync and exact member cleanup under that same lease.",
+          "Six new native lifecycle tests, 33 adjacent release regressions and nine contract/authority/package tests accepted: 48 unique tests in serial 600-second-bounded batches; diagnostic failures/retries retained.",
+          "Independent read-only review PASS; actual reducer ADVANCE. Existing source outside declared hunks and all previous nested records preserved."
+        ],
+        "pending_finding_ids": [],
+        "remaining_authorized": [
+          "Remaining RS-2 typed read-only retained opener and lifecycle integration; no evidence issuance before durable provenance validation.",
+          "RS-3 fresh read-only durable action/claim/receipt/compensation joins.",
+          "RS-4 unique current assessment CAS and exact six-part normal source/target/artifact validation.",
+          "RS-5 full fresh-exec committed assessment producer/consumer and rejection matrix."
+        ],
+        "verified_unique_tests": 48,
+        "plan_bindings": 244,
+        "oracle_bindings": 122,
+        "missing_bindings": 30,
+        "rs2_completed": false,
+        "cold_recovery_completed": false,
+        "project_completed": false,
+        "candidate_created": false,
+        "stage": false,
+        "commit": false,
+        "push": false,
+        "monitoring": false,
+        "next_action": "Continue a separately bounded step within the same valid authorization: remaining typed retained read-only opening/lifecycle and RS-3 durable provenance prerequisites, followed by RS-4 actual source joins and RS-5 fresh-exec proof. Original-session cleanup does not authorize raw directory recovery, evidence issuance, automatic orphan repair or irreversible actions."
       }
     }
   ]

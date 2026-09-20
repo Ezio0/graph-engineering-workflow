@@ -8,8 +8,8 @@
   "fixture_registry_digest": "sha256-jcs-v1:68e9412ffb9f8323d7c33341cb150fa29b23443054b45e86f429374f4ae4df77",
   "fixture_registry_raw_sha256": "490744599b6d528f132278f9301aa986240f0b74a36dd059bd82cb6b2508aa88",
   "profile_schema_registry_id": "urn:gew:schema-registry:profiles:1.0.0",
-  "profile_schema_registry_digest": "sha256-jcs-v1:6a014b08631b020d8ece3c0e185bac4829ab6a9456e01f13f4930858354424a6",
-  "profile_schema_registry_raw_sha256": "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58",
+  "profile_schema_registry_digest": "sha256-jcs-v1:913235899306d64a4bc8eff96b3a4bbddd61ec6a7e57b8dfdaafe98041c81f76",
+  "profile_schema_registry_raw_sha256": "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd",
   "schema_vectors": [
     {
       "schema_id": "urn:gew:schema:category-completion-assessment-input:1.4.0",
@@ -68,6 +68,14 @@
       "raw_sha256": "9bd136522454a76a5ec80cca2bf878873c19dcc72bb5160cb31323adf41f9f27"
     },
     {
+      "schema_id": "urn:gew:schema:release-recovery-binding-input:1.0.0",
+      "raw_sha256": "a7d9c530729098ba69b44e76cd26992f0a87528cd42321dd20029d763bec7c61"
+    },
+    {
+      "schema_id": "urn:gew:schema:release-recovery-binding:1.0.0",
+      "raw_sha256": "7ee7297703e73e00913da09f83f3edeaedc051e5544388c627a9b702a7bce1c2"
+    },
+    {
       "schema_id": "urn:gew:schema:release-simulator-fixture-registry-input:1.0.0",
       "raw_sha256": "32e5960f70cb6c7e3580f12ba21a1bb22731f18a5910632d4f2230674479bfc1"
     },
@@ -77,23 +85,23 @@
     }
   ],
   "action_authority_pins": {
-    "adapter_registry_digest": "sha256-jcs-v1:1887efe554928ebde16a6077b239095644132fff36f6a634182f89cc8f092768",
-    "adapter_registry_raw_sha256": "49a8a279a39de8cf5dbfbf4da1cd706a56b6f1c54e824b47f6762e485abaefca",
-    "concrete_policy_digest": "sha256-jcs-v1:1abac14dbec75bfaa439e5ea1e063d7f59e5a105c930fc04c09acb76623412a5",
-    "concrete_policy_raw_sha256": "de5377b01afcc63ec619d4bac69c89f9958f0fa42490eae283db301e43d42207",
-    "default_action_policy_digest": "sha256-jcs-v1:e053cff9dc5e5ad267d8e06fbe970f48113aca08d2911c70238088346266d7ad",
-    "default_action_policy_raw_sha256": "1a3162fe04b512bccfc09e2eed90309f3bbd148703d1d46597389846507fb1b3",
-    "local_action_policy_digest": "sha256-jcs-v1:a28ec50bca143ad042b3c0fcf83f6190c6ed0e2ee7b8bbb87063269594044fb5",
-    "local_action_policy_raw_sha256": "513678090dbe0e090af0f1f61dabbbbfd5025691e7e908b4c865747593ea4981",
-    "default_runtime_digest": "sha256-jcs-v1:8d91fd60ed270b0cca9c7871471a9619d88e2049088208f705ca7db766897076",
-    "default_runtime_raw_sha256": "c13482802c58f2efd0be50ff8d73e67430bf3a899a04cb14e933ebf3b4608ac5",
-    "local_runtime_digest": "sha256-jcs-v1:b4e2042a597b1152b578cfdeb255355f4ab7bbbc78ea6825f9d5220c90c4b972",
-    "local_runtime_raw_sha256": "1098966cc36a13413da7fa2c79aac61a91b80603a00d0106236431490a601b80"
+    "adapter_registry_digest": "sha256-jcs-v1:ce10c5f86f8a40568a7f492cc3c3f0be0deca242590d06741bfa72b0b752ea9c",
+    "adapter_registry_raw_sha256": "d0fa338e93976ce0cb5a9f76bfbffac12c55aba0f29e084daffbddbd6cb38062",
+    "concrete_policy_digest": "sha256-jcs-v1:2581bc90dd98ce956984513e13cf5d5027bb4ba7e37e8a196faeb0c690137066",
+    "concrete_policy_raw_sha256": "b04625815dec9b81ba7b1de87721ae0ed4afa11253438c1cbded6f2ef81e5e5d",
+    "default_action_policy_digest": "sha256-jcs-v1:7a10563b54e171ac12b27622bc96afd2d83af973d444d522fd1183a5a54b76ce",
+    "default_action_policy_raw_sha256": "680a3210b8e6571f00245fbe4ebc4a36ea481f54815d305582736d10e6d18dbe",
+    "local_action_policy_digest": "sha256-jcs-v1:48871ed879827aff54010f46a2c471dc47e8af033bcfabf7e0ded341539a6cef",
+    "local_action_policy_raw_sha256": "0f2b3e77acfa08f297836b66a08c254119f0e3fdb8957890e6d6ae5d6a129b7b",
+    "default_runtime_digest": "sha256-jcs-v1:f7f8f4b98a5e840bdd2211dc8287ba821f93ecea7ae78b89936b13f26089e907",
+    "default_runtime_raw_sha256": "da64b480b6c32624d2151c6254e63430f03bf3389444e2c20c7803a429a4709a",
+    "local_runtime_digest": "sha256-jcs-v1:c14c5448fb93aa18510615b875c9f72f0a3a5899bb06f606cc5d6ac86abab887",
+    "local_runtime_raw_sha256": "c4c7841afb5b51399179e9d3dd3a68dba838c01b006fe31ea3d01bb35dee7ff5"
   },
   "source_authority_pins": {
     "policy_id": "source-checkout-attestation-v1",
-    "source_file_count": 309,
-    "source_issuer_raw_sha256": "57a41257c623f6ebc9862ce973633c97b7bef33faa966442d4cd6b9a90e5e7c3"
+    "source_file_count": 311,
+    "source_issuer_raw_sha256": "d03644ab0db302f260981fb9e38c985c9d6ec2c1bc528d9dfd20b1379c81ba1d"
   },
   "package_authority_pins": {
     "build_backend_raw_sha256": "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b",
@@ -107,11 +115,11 @@
     },
     {
       "path": "adapters/graph_engineering/adapters/local_release_simulator.py",
-      "raw_sha256": "14a5e928f168cac9ae0366a7fe99248efff1be500774eecff2677408bc186299"
+      "raw_sha256": "728d2397ef6aad904fe04faec941732247c03ee21e071e5dd71a1b96b8e77ded"
     },
     {
       "path": "application/graph_engineering/application/actions.py",
-      "raw_sha256": "678857e0c0d06b9ce543c0d76cf17e78cfda2dc0578df50dfef5f98c0559c166"
+      "raw_sha256": "b91faa4e432ed5592c95705ef60f0b993154c9e4e1b716bdce6e93bb613c2909"
     },
     {
       "path": "application/graph_engineering/application/profile_execution.py",
@@ -119,35 +127,35 @@
     },
     {
       "path": "application/graph_engineering/application/release_operations.py",
-      "raw_sha256": "e988b9290a4e4292043ad834e15d3dc499dd08831feec021c46237c899d1f367"
+      "raw_sha256": "0185fc9df4c1103964c6b7ad2c7d47b21e53bdae3668cf8c8d9b63e334cd28f6"
     },
     {
       "path": "config/actions/action-policy-local-actions-v1.json",
-      "raw_sha256": "513678090dbe0e090af0f1f61dabbbbfd5025691e7e908b4c865747593ea4981"
+      "raw_sha256": "0f2b3e77acfa08f297836b66a08c254119f0e3fdb8957890e6d6ae5d6a129b7b"
     },
     {
       "path": "config/actions/action-policy-v1.json",
-      "raw_sha256": "1a3162fe04b512bccfc09e2eed90309f3bbd148703d1d46597389846507fb1b3"
+      "raw_sha256": "680a3210b8e6571f00245fbe4ebc4a36ea481f54815d305582736d10e6d18dbe"
     },
     {
       "path": "config/actions/concrete-action-policy-v1.json",
-      "raw_sha256": "de5377b01afcc63ec619d4bac69c89f9958f0fa42490eae283db301e43d42207"
+      "raw_sha256": "b04625815dec9b81ba7b1de87721ae0ed4afa11253438c1cbded6f2ef81e5e5d"
     },
     {
       "path": "config/contracts/action-adapter-registry-v1.json",
-      "raw_sha256": "49a8a279a39de8cf5dbfbf4da1cd706a56b6f1c54e824b47f6762e485abaefca"
+      "raw_sha256": "d0fa338e93976ce0cb5a9f76bfbffac12c55aba0f29e084daffbddbd6cb38062"
     },
     {
       "path": "config/security/security-runtime-local-actions-v1.json",
-      "raw_sha256": "1098966cc36a13413da7fa2c79aac61a91b80603a00d0106236431490a601b80"
+      "raw_sha256": "c4c7841afb5b51399179e9d3dd3a68dba838c01b006fe31ea3d01bb35dee7ff5"
     },
     {
       "path": "config/security/security-runtime-v1.json",
-      "raw_sha256": "c13482802c58f2efd0be50ff8d73e67430bf3a899a04cb14e933ebf3b4608ac5"
+      "raw_sha256": "da64b480b6c32624d2151c6254e63430f03bf3389444e2c20c7803a429a4709a"
     },
     {
       "path": "core/graph_engineering/__init__.py",
-      "raw_sha256": "4e98a884d010f8a894e9c1203c03938f97f2b8cac012d651c404530a6481476a"
+      "raw_sha256": "4eadd5c8d284476ff5c843525376400d773fb56697b38ba9233cf9836fcd5147"
     },
     {
       "path": "core/graph_engineering/core/profile_execution.py",
@@ -159,17 +167,17 @@
     },
     {
       "path": "core/graph_engineering/core/release_operations.py",
-      "raw_sha256": "259b7b244efe335b1c26077966b66ae2f107873bdbbfe80c75b4e0b774f5e0b6"
+      "raw_sha256": "d67042e59f1ba0a7beb9aabd43a118f90654c9bf1e25fa197e44baae19bb7847"
     },
     {
       "path": "core/graph_engineering/core/source_checkout.py",
-      "raw_sha256": "57a41257c623f6ebc9862ce973633c97b7bef33faa966442d4cd6b9a90e5e7c3"
+      "raw_sha256": "d03644ab0db302f260981fb9e38c985c9d6ec2c1bc528d9dfd20b1379c81ba1d"
     },
     {
       "path": "scripts/build_backend.py",
       "raw_sha256": "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:e082fe7fee914112367f1fbffad983fcdcb9fe1cdcc789ffd99104cdd900d370",
-  "bootstrap_digest": "sha256-jcs-v1:60cacf9e628625ea2b3b4df896ed031bf4b2d1edd16233d556056e0362f2b871"
+  "protected_closure_digest": "sha256-jcs-v1:8cca758c8583215415447a03bf755084fea742c1b6625a8b11d9668532d46611",
+  "bootstrap_digest": "sha256-jcs-v1:5c72e046f5405cbf4a7916cb98605d97785248f4278078c32e83a760a83518ee"
 }

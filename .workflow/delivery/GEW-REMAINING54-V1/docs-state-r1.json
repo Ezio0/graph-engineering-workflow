@@ -1,4 +1,90 @@
 {
+  "p3_restart_bridge_security_records": [
+    {
+      "record_id": "p3-restart-bridge-security-design-2026-09-19-r0",
+      "state": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "node": "test-plan",
+        "artifact": "test_plan",
+        "author_id": "/root",
+        "reviewer_id": "/root/p3_restart_bs_design_reviewer",
+        "targets": [
+          ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "docs/adr/0009-offline-release-operations-simulator-authority.md",
+          "docs/impact/graph-engineering-workflow.md",
+          "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "docs/specs/graph-engineering-workflow.md",
+          "docs/test-plans/graph-engineering-workflow.md"
+        ],
+        "revision": 0,
+        "artifact_digest": "e6eaf946cac3eaa7fc895dc659b9d9f88fce8951cf7705b36f688f1511a97c04",
+        "previous_artifact_digest": null,
+        "open_finding_ids": []
+      }
+    }
+  ],
+  "p3_restart_design_records": [
+    {
+      "record_id": "p3-restart-design-2026-09-19-r0",
+      "state": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "node": "test-plan",
+        "artifact": "test_plan",
+        "author_id": "/root",
+        "reviewer_id": "/root/p3_restart_design_reviewer_r0",
+        "targets": [
+          ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "docs/adr/0009-offline-release-operations-simulator-authority.md",
+          "docs/impact/graph-engineering-workflow.md",
+          "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "docs/specs/graph-engineering-workflow.md",
+          "docs/test-plans/graph-engineering-workflow.md"
+        ],
+        "revision": 0,
+        "artifact_digest": "25591847fb295e6042a361d9f2a347ef4094b69f0a5dc0b941704e3026e183e4",
+        "previous_artifact_digest": null,
+        "open_finding_ids": []
+      },
+      "entry_commit": "ff7feda40cc7e8d68c3a2f48dafe58adf0396400",
+      "authority_ref": "human-decision-p1-p2-p3-r0.json#p3_restart_design_amendment",
+      "upstream": "Human-approved PRD Intent Baseline v2, committed P3 foundation and existing ADR-0009; current proposed architecture is not Human-accepted. Bundled document review follows existing repository docs record convention.",
+      "read_only_input_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json"
+      ]
+    },
+    {
+      "record_id": "p3-restart-design-2026-09-19-r1",
+      "state": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "node": "test-plan",
+        "artifact": "test_plan",
+        "author_id": "/root",
+        "reviewer_id": "/root/p3_restart_design_reviewer_r1",
+        "targets": [
+          ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "docs/adr/0009-offline-release-operations-simulator-authority.md",
+          "docs/impact/graph-engineering-workflow.md",
+          "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "docs/specs/graph-engineering-workflow.md",
+          "docs/test-plans/graph-engineering-workflow.md"
+        ],
+        "revision": 1,
+        "artifact_digest": "5a929b98176920c76d6b1fd48cfa8e91c0c99a239db8a31ce3c794e330f69a5e",
+        "previous_artifact_digest": "25591847fb295e6042a361d9f2a347ef4094b69f0a5dc0b941704e3026e183e4",
+        "open_finding_ids": []
+      },
+      "entry_commit": "ff7feda40cc7e8d68c3a2f48dafe58adf0396400",
+      "authority_ref": "human-decision-p1-p2-p3-r0.json#p3_restart_design_amendment",
+      "upstream": "R0 actual REVISE decision; independent R1 verdict resolves all three stable findings. The proposed material architecture and two schema paths remain unapproved for implementation.",
+      "read_only_input_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json"
+      ]
+    }
+  ],
   "p2d_records": [
     {
       "record_id": "p2d-document-check-2026-09-14-r0",

@@ -47,13 +47,13 @@ registry-raw-sha256 = "031df42d9aa2a8c57ee4b720dbae852aaa35b098511c07e9d614c5543
 registry-source = "config/security/dependency-advisory-registry-v2.json"
 registry-resource = "graph_engineering/config/security/dependency-advisory-registry-v2.json"
 bootstrap-id = "urn:gew:dependency-advisory-installation-bootstrap:v1.2"
-bootstrap-digest = "sha256-jcs-v1:2b64269c05e17574657f08635549968369edcbab25aa987b5cf70ee4055027f0"
-bootstrap-raw-sha256 = "c10f32a2e708ff7687237b7a5c6bb92ee175f5e480292a2d04b59a87800cbe36"
+bootstrap-digest = "sha256-jcs-v1:b2ef7c112e2c72a934cd2acc077249ed505f98426b95f7beefa925d2b702d67e"
+bootstrap-raw-sha256 = "c7668d34fc946b5bb9bc5ea600b5bd7661849e2e5a3ad819a7f054373bbe0424"
 bootstrap-source = "config/security/dependency-advisory-installation-bootstrap-v1.2.json"
 bootstrap-resource = "graph_engineering/config/security/dependency-advisory-installation-bootstrap-v1.2.json"
 profile-schema-registry-id = "urn:gew:schema-registry:profiles:1.0.0"
-profile-schema-registry-digest = "sha256-jcs-v1:6a014b08631b020d8ece3c0e185bac4829ab6a9456e01f13f4930858354424a6"
-profile-schema-registry-raw-sha256 = "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58"
+profile-schema-registry-digest = "sha256-jcs-v1:913235899306d64a4bc8eff96b3a4bbddd61ec6a7e57b8dfdaafe98041c81f76"
+profile-schema-registry-raw-sha256 = "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd"
 profile-schema-registry-source = "config/contracts/profile-schema-registry-v1.json"
 profile-schema-registry-resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json"
 source-artifact-id = "urn:gew:dependency-advisory-source-artifact:v2"
@@ -168,13 +168,13 @@ transform-raw-sha256 = "0b68dc63f71cec61ebe014e50ce161b68b129448021d18faa0e45485
 transform-source = "config/migration/migration-rehearsal-transform-manifest-v1.json"
 transform-resource = "graph_engineering/config/migration/migration-rehearsal-transform-manifest-v1.json"
 bootstrap-id = "urn:gew:migration-rehearsal-bootstrap:v1"
-bootstrap-digest = "sha256-jcs-v1:682a8464842eaef2eb1f7355f8afefef572a6d9aff867e1afd0abc05ed1145af"
-bootstrap-raw-sha256 = "a5be1d0f594486fe11e22f0d3358f4b8813cbb8b27252ea466ea6fae537a240d"
+bootstrap-digest = "sha256-jcs-v1:2f5a42ac8d83b0443480339167e6a4e81759f6a1666893d660fc11a71a09e12c"
+bootstrap-raw-sha256 = "339f394e148540fb5f0c5e2fbc812595b43f495f35d712f6ef10776236f58632"
 bootstrap-source = "config/migration/migration-rehearsal-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/migration/migration-rehearsal-installation-bootstrap-v1.json"
 profile-schema-registry-id = "urn:gew:schema-registry:profiles:1.0.0"
-profile-schema-registry-digest = "sha256-jcs-v1:6a014b08631b020d8ece3c0e185bac4829ab6a9456e01f13f4930858354424a6"
-profile-schema-registry-raw-sha256 = "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58"
+profile-schema-registry-digest = "sha256-jcs-v1:913235899306d64a4bc8eff96b3a4bbddd61ec6a7e57b8dfdaafe98041c81f76"
+profile-schema-registry-raw-sha256 = "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd"
 profile-schema-registry-source = "config/contracts/profile-schema-registry-v1.json"
 profile-schema-registry-resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json"
 distribution-name = "graph-engineering-workflow"
@@ -183,15 +183,15 @@ source-attestation-policy-id = "source-checkout-attestation-v1"
 build-backend-raw-sha256 = "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b"
 build-backend-source = "scripts/build_backend.py"
 build-backend-resource = "graph_engineering/scripts/build_backend.py"
-protected-closure-digest = "sha256-jcs-v1:5503b682e8c38d898be54c953e42250a02aef75ffe9ee071864471ba0c714bce"
+protected-closure-digest = "sha256-jcs-v1:1ac3d790b470ddaa43888e4496093ee5152f7681467bf462d1dfd4f0e08a6049"
 protected-resources = [
-  { raw-sha256 = "049000ebc8355e092f960cfeca817223d835c59567b710d0c1eacc56084c0276", source = "application/graph_engineering/application/migration_rehearsal.py", resource = "graph_engineering/application/migration_rehearsal.py" },
-  { raw-sha256 = "7db57559ffc98906e2dc1d01fc31a7f46986ec61d80f99368da92c22eef12cf9", source = "application/graph_engineering/application/profile_execution.py", resource = "graph_engineering/application/profile_execution.py" },
-  { raw-sha256 = "4e98a884d010f8a894e9c1203c03938f97f2b8cac012d651c404530a6481476a", source = "core/graph_engineering/__init__.py", resource = "graph_engineering/__init__.py" },
-  { raw-sha256 = "2a7d82251d04e517acbf45ba26b9b5382560ce1138e707e576ddd84c1b2a6269", source = "core/graph_engineering/core/migration_rehearsal.py", resource = "graph_engineering/core/migration_rehearsal.py" },
-  { raw-sha256 = "99c79e9a3822aa40c0f75d5a30fdfa37551d1bb3782928d836573c0727975e99", source = "core/graph_engineering/core/profile_execution.py", resource = "graph_engineering/core/profile_execution.py" },
-  { raw-sha256 = "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b", source = "scripts/build_backend.py", resource = "graph_engineering/scripts/build_backend.py" },
-  { raw-sha256 = "1e589bae763e60ac7dec8723d6047df12a454cb938e7006bf4ee4077e800e829", source = "storage/graph_engineering/storage/migration.py", resource = "graph_engineering/storage/migration.py" },
+  { raw-sha256 = "049000ebc8355e092f960cfeca817223d835c59567b710d0c1eacc56084c0276", resource = "graph_engineering/application/migration_rehearsal.py", source = "application/graph_engineering/application/migration_rehearsal.py" },
+  { raw-sha256 = "7db57559ffc98906e2dc1d01fc31a7f46986ec61d80f99368da92c22eef12cf9", resource = "graph_engineering/application/profile_execution.py", source = "application/graph_engineering/application/profile_execution.py" },
+  { raw-sha256 = "4eadd5c8d284476ff5c843525376400d773fb56697b38ba9233cf9836fcd5147", resource = "graph_engineering/__init__.py", source = "core/graph_engineering/__init__.py" },
+  { raw-sha256 = "2a7d82251d04e517acbf45ba26b9b5382560ce1138e707e576ddd84c1b2a6269", resource = "graph_engineering/core/migration_rehearsal.py", source = "core/graph_engineering/core/migration_rehearsal.py" },
+  { raw-sha256 = "99c79e9a3822aa40c0f75d5a30fdfa37551d1bb3782928d836573c0727975e99", resource = "graph_engineering/core/profile_execution.py", source = "core/graph_engineering/core/profile_execution.py" },
+  { raw-sha256 = "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b", resource = "graph_engineering/scripts/build_backend.py", source = "scripts/build_backend.py" },
+  { raw-sha256 = "1e589bae763e60ac7dec8723d6047df12a454cb938e7006bf4ee4077e800e829", resource = "graph_engineering/storage/migration.py", source = "storage/graph_engineering/storage/migration.py" },
 ]
 schema-vectors = [
   { schema-id = "urn:gew:schema:category-completion-assessment-input:1.2.0", raw-sha256 = "684edf2729181e51ccd80bb2815a275bdfa669916c653f15e4a158557a375ef9", source = "config/contracts/schemas/category-completion-assessment-input-1.2.0.json", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-input-1.2.0.json" },
@@ -219,13 +219,13 @@ registry-raw-sha256 = "132f11c3d7f09da0989e5130e612ee0784dc744d08d030ece3db61c40
 registry-source = "config/performance/performance-benchmark-registry-v1.json"
 registry-resource = "graph_engineering/config/performance/performance-benchmark-registry-v1.json"
 bootstrap-id = "performance-benchmark-installation-v1"
-bootstrap-digest = "sha256-jcs-v1:9cea1da809405044cfc15b18f1adb87e8356c7b1187c9487f4372f1e6dda05b4"
-bootstrap-raw-sha256 = "06c6e1d1fe7d9c46920aff46017f11355537b28a4efcf7d948fed70880676bb2"
+bootstrap-digest = "sha256-jcs-v1:215cb08336abcf5c326951228b1f4d6cfc5331f8bea7fdc55a346036ab6b63a8"
+bootstrap-raw-sha256 = "dcce6eb0d4f732fb124fc14ca4968ae65f176c9d800785fa374d05b37cb5955e"
 bootstrap-source = "config/performance/performance-benchmark-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/performance/performance-benchmark-installation-bootstrap-v1.json"
 profile-schema-registry-id = "urn:gew:schema-registry:profiles:1.0.0"
-profile-schema-registry-digest = "sha256-jcs-v1:6a014b08631b020d8ece3c0e185bac4829ab6a9456e01f13f4930858354424a6"
-profile-schema-registry-raw-sha256 = "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58"
+profile-schema-registry-digest = "sha256-jcs-v1:913235899306d64a4bc8eff96b3a4bbddd61ec6a7e57b8dfdaafe98041c81f76"
+profile-schema-registry-raw-sha256 = "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd"
 profile-schema-registry-source = "config/contracts/profile-schema-registry-v1.json"
 profile-schema-registry-resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json"
 fixture-id = "performance-fixture-v1"
@@ -269,46 +269,46 @@ distribution-version = "0.1.0"
 source-attestation-policy-id = "source-checkout-attestation-v1"
 maximum-warmup-count = 31
 maximum-repetition-count = 999
-protected-closure-digest = "sha256-jcs-v1:2712b532f74d147e3daf1d4328e3f0fe3cf827bfc0628c7ccfe46898694306ae"
+protected-closure-digest = "sha256-jcs-v1:c3b0a0dca74937307847f8982e64676a113658d2f38a5aa00b2179b2ba5cc5cb"
 protected-resources = [
-  { raw-sha256 = "9de5fcfdc5fdcbf6a84aa5adb4e58ecd4291af571210c4ae38b6fc74aae07f32", source = "adapters/graph_engineering/adapters/performance_correctness.py", resource = "graph_engineering/adapters/performance_correctness.py" },
-  { raw-sha256 = "c180f078b5356f9d3cc156136aaa9fce6a64643cee345efe3b9cf4b840087fa1", source = "adapters/graph_engineering/adapters/performance_environment.py", resource = "graph_engineering/adapters/performance_environment.py" },
-  { raw-sha256 = "7608f06360739353f012dbcef151049c4c053df54591fbe76787c728ad825976", source = "application/graph_engineering/application/performance_benchmark.py", resource = "graph_engineering/application/performance_benchmark.py" },
-  { raw-sha256 = "7f584debcd9b0b9e7d955aca1554aa300210ee8b77cdbf17cb697c3ba416be4c", source = "application/graph_engineering/application/profile_coverage.py", resource = "graph_engineering/application/profile_coverage.py" },
-  { raw-sha256 = "7db57559ffc98906e2dc1d01fc31a7f46986ec61d80f99368da92c22eef12cf9", source = "application/graph_engineering/application/profile_execution.py", resource = "graph_engineering/application/profile_execution.py" },
-  { raw-sha256 = "54c11a21dc6f954f7a497c13d6394517bda89bd7ff86951f00282d77c386aa58", source = "config/contracts/profile-schema-registry-v1.json", resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json" },
-  { raw-sha256 = "7a311449277ce2e4418b4e010a53dd416058cf04bbaef730af822b802010774d", source = "config/contracts/schemas/category-completion-assessment-1.1.0.json", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-1.1.0.json" },
-  { raw-sha256 = "8acf90c80a85e1bf97e36df82c1f83b1d75f367655b68a78aded14009f5fda72", source = "config/contracts/schemas/category-completion-assessment-1.2.0.json", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-1.2.0.json" },
-  { raw-sha256 = "20fa60d0b301ab6ff97e31086f3377996153517b27b072cea90ad7b995a19fa2", source = "config/contracts/schemas/category-completion-assessment-input-1.1.0.json", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-input-1.1.0.json" },
-  { raw-sha256 = "684edf2729181e51ccd80bb2815a275bdfa669916c653f15e4a158557a375ef9", source = "config/contracts/schemas/category-completion-assessment-input-1.2.0.json", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-input-1.2.0.json" },
-  { raw-sha256 = "c3aff1a2f13de5973d2a6a60d99e70723531b4905dbd0b8b2e178fe099d6feba", source = "config/contracts/schemas/performance-benchmark-case-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-benchmark-case-1.0.0.json" },
-  { raw-sha256 = "d12034513fdd25708c7236434b5ecd5d1c11f6a6f91239dfb29964a53fe4e650", source = "config/contracts/schemas/performance-benchmark-case-input-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-benchmark-case-input-1.0.0.json" },
-  { raw-sha256 = "994307eab5eec4ba03a0e1ee683d3866d44672185d14ea68566c51dfa4d73858", source = "config/contracts/schemas/performance-benchmark-installation-bootstrap-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-benchmark-installation-bootstrap-1.0.0.json" },
-  { raw-sha256 = "0e9b2cd7b6e8c8ee78b19985304a2d9332ec2a6f5b089bfe712f4da562c767e3", source = "config/contracts/schemas/performance-benchmark-installation-bootstrap-input-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-benchmark-installation-bootstrap-input-1.0.0.json" },
-  { raw-sha256 = "37da438ff740ff4919d20b495884900e5a82de06c09abc4a5582ba91f9f49af5", source = "config/contracts/schemas/performance-benchmark-registry-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-benchmark-registry-1.0.0.json" },
-  { raw-sha256 = "5c755da9f33d94eb101b76eee1d1a1f7dfd132950825a82d56ccd7b58c4de2ec", source = "config/contracts/schemas/performance-benchmark-registry-input-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-benchmark-registry-input-1.0.0.json" },
-  { raw-sha256 = "cdc0accf77ccbb5c588a2989b0aa18b0fed142c4dfaf27e9956f6ba489583d1f", source = "config/contracts/schemas/performance-correctness-observation-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-correctness-observation-1.0.0.json" },
-  { raw-sha256 = "29585e0c69cdfc97d5209c7d0f32b59e1cefa49599965298a443aaa5d45b3577", source = "config/contracts/schemas/performance-correctness-observation-input-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-correctness-observation-input-1.0.0.json" },
-  { raw-sha256 = "0382dcff0e035e728c3b660e62421042bd483692d45e92ef7a0eab1fbd0ea005", source = "config/contracts/schemas/performance-environment-observation-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-environment-observation-1.0.0.json" },
-  { raw-sha256 = "a18e051518adac70d15032daf3b130cb1d5aa88d9f4691ab3dc67ae2cd1df85f", source = "config/contracts/schemas/performance-environment-observation-input-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-environment-observation-input-1.0.0.json" },
-  { raw-sha256 = "4067ca9f5936a403e13c10ba4f70959c7a091b50aeee420934f1864542fe558e", source = "config/contracts/schemas/performance-measurement-sample-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-measurement-sample-1.0.0.json" },
-  { raw-sha256 = "bc05f1a752b7e85bb16b1c5a84d79d5ffbf3d4e0341079e4feddc45a1d8d5898", source = "config/contracts/schemas/performance-measurement-sample-input-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-measurement-sample-input-1.0.0.json" },
-  { raw-sha256 = "c842a6823a10802e66b70890e1c20cb4be7b5b58ff5d98085ab1906b69627bc6", source = "config/contracts/schemas/performance-observation-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-observation-1.0.0.json" },
-  { raw-sha256 = "3381f103f54372d8d0a54ea9af9c0750c48a0555ba3012b2f1eed191f0b070f9", source = "config/contracts/schemas/performance-observation-input-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-observation-input-1.0.0.json" },
-  { raw-sha256 = "1fb3309c1aec7493e9a5249b8678d514189c1db17b2c21b45d23035129299c6d", source = "config/contracts/schemas/performance-sample-set-observation-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-sample-set-observation-1.0.0.json" },
-  { raw-sha256 = "a42d416c7835273a583cd4640c1894560cc84c7cf6013b80a1d0a0b805b8495a", source = "config/contracts/schemas/performance-sample-set-observation-input-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-sample-set-observation-input-1.0.0.json" },
-  { raw-sha256 = "f6181b643e89439a9e8746e6e0bc95426bd4f558c6fc2726e3fb2dd490cef2d0", source = "config/contracts/schemas/performance-statistics-observation-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-statistics-observation-1.0.0.json" },
-  { raw-sha256 = "01373559f9492ff54b24a41dfee6853d666df0aca28e0656d98379fc1b5a7102", source = "config/contracts/schemas/performance-statistics-observation-input-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-statistics-observation-input-1.0.0.json" },
-  { raw-sha256 = "9fb7e1d83c1368b692ae5d5469a82c27d06b04083e651c95082ed9b9799c31ee", source = "config/performance/performance-benchmark-fixture-v1.json", resource = "graph_engineering/config/performance/performance-benchmark-fixture-v1.json" },
-  { raw-sha256 = "132f11c3d7f09da0989e5130e612ee0784dc744d08d030ece3db61c40a415e2a", source = "config/performance/performance-benchmark-registry-v1.json", resource = "graph_engineering/config/performance/performance-benchmark-registry-v1.json" },
-  { raw-sha256 = "8b112072e213942620086c8e269c0478f2f0147bf462a9098cd5d8b317f5fb49", source = "config/performance/performance-benchmark-sample-v1.json", resource = "graph_engineering/config/performance/performance-benchmark-sample-v1.json" },
-  { raw-sha256 = "d6dcfe51683da82421233fca22b405bbd02cf77947d2f95fc3494b116d94f73f", source = "config/performance/performance-command-binding-v1.json", resource = "graph_engineering/config/performance/performance-command-binding-v1.json" },
-  { raw-sha256 = "f3057990d39587b60227cf4df642344f0fc8e6777a0b17525ba30e79b1053781", source = "config/performance/performance-command-runtime-policy-v1.json", resource = "graph_engineering/config/performance/performance-command-runtime-policy-v1.json" },
-  { raw-sha256 = "8e6353f952ef3bb4f542cfc5ae136a245d15979a727ac2f0e6eb660c14777e72", source = "config/performance/performance-correctness-oracle-v1.json", resource = "graph_engineering/config/performance/performance-correctness-oracle-v1.json" },
-  { raw-sha256 = "8e61edb0f2ba802d8b6e6c9ceb04808e308f4566d7b85a9b5b8651d9d748d3e4", source = "config/performance/performance-source-registry-v1.json", resource = "graph_engineering/config/performance/performance-source-registry-v1.json" },
-  { raw-sha256 = "0cff91166e91b4519699eb1f4ad5a56f6b20c6976b253580696f0960656a388d", source = "core/graph_engineering/core/performance_benchmark.py", resource = "graph_engineering/core/performance_benchmark.py" },
-  { raw-sha256 = "99c79e9a3822aa40c0f75d5a30fdfa37551d1bb3782928d836573c0727975e99", source = "core/graph_engineering/core/profile_execution.py", resource = "graph_engineering/core/profile_execution.py" },
-  { raw-sha256 = "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b", source = "scripts/build_backend.py", resource = "graph_engineering/build_backend.py" },
+  { raw-sha256 = "9de5fcfdc5fdcbf6a84aa5adb4e58ecd4291af571210c4ae38b6fc74aae07f32", resource = "graph_engineering/adapters/performance_correctness.py", source = "adapters/graph_engineering/adapters/performance_correctness.py" },
+  { raw-sha256 = "c180f078b5356f9d3cc156136aaa9fce6a64643cee345efe3b9cf4b840087fa1", resource = "graph_engineering/adapters/performance_environment.py", source = "adapters/graph_engineering/adapters/performance_environment.py" },
+  { raw-sha256 = "7608f06360739353f012dbcef151049c4c053df54591fbe76787c728ad825976", resource = "graph_engineering/application/performance_benchmark.py", source = "application/graph_engineering/application/performance_benchmark.py" },
+  { raw-sha256 = "7f584debcd9b0b9e7d955aca1554aa300210ee8b77cdbf17cb697c3ba416be4c", resource = "graph_engineering/application/profile_coverage.py", source = "application/graph_engineering/application/profile_coverage.py" },
+  { raw-sha256 = "7db57559ffc98906e2dc1d01fc31a7f46986ec61d80f99368da92c22eef12cf9", resource = "graph_engineering/application/profile_execution.py", source = "application/graph_engineering/application/profile_execution.py" },
+  { raw-sha256 = "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd", resource = "graph_engineering/config/contracts/profile-schema-registry-v1.json", source = "config/contracts/profile-schema-registry-v1.json" },
+  { raw-sha256 = "7a311449277ce2e4418b4e010a53dd416058cf04bbaef730af822b802010774d", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-1.1.0.json", source = "config/contracts/schemas/category-completion-assessment-1.1.0.json" },
+  { raw-sha256 = "8acf90c80a85e1bf97e36df82c1f83b1d75f367655b68a78aded14009f5fda72", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-1.2.0.json", source = "config/contracts/schemas/category-completion-assessment-1.2.0.json" },
+  { raw-sha256 = "20fa60d0b301ab6ff97e31086f3377996153517b27b072cea90ad7b995a19fa2", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-input-1.1.0.json", source = "config/contracts/schemas/category-completion-assessment-input-1.1.0.json" },
+  { raw-sha256 = "684edf2729181e51ccd80bb2815a275bdfa669916c653f15e4a158557a375ef9", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-input-1.2.0.json", source = "config/contracts/schemas/category-completion-assessment-input-1.2.0.json" },
+  { raw-sha256 = "c3aff1a2f13de5973d2a6a60d99e70723531b4905dbd0b8b2e178fe099d6feba", resource = "graph_engineering/config/contracts/schemas/performance-benchmark-case-1.0.0.json", source = "config/contracts/schemas/performance-benchmark-case-1.0.0.json" },
+  { raw-sha256 = "d12034513fdd25708c7236434b5ecd5d1c11f6a6f91239dfb29964a53fe4e650", resource = "graph_engineering/config/contracts/schemas/performance-benchmark-case-input-1.0.0.json", source = "config/contracts/schemas/performance-benchmark-case-input-1.0.0.json" },
+  { raw-sha256 = "994307eab5eec4ba03a0e1ee683d3866d44672185d14ea68566c51dfa4d73858", resource = "graph_engineering/config/contracts/schemas/performance-benchmark-installation-bootstrap-1.0.0.json", source = "config/contracts/schemas/performance-benchmark-installation-bootstrap-1.0.0.json" },
+  { raw-sha256 = "0e9b2cd7b6e8c8ee78b19985304a2d9332ec2a6f5b089bfe712f4da562c767e3", resource = "graph_engineering/config/contracts/schemas/performance-benchmark-installation-bootstrap-input-1.0.0.json", source = "config/contracts/schemas/performance-benchmark-installation-bootstrap-input-1.0.0.json" },
+  { raw-sha256 = "37da438ff740ff4919d20b495884900e5a82de06c09abc4a5582ba91f9f49af5", resource = "graph_engineering/config/contracts/schemas/performance-benchmark-registry-1.0.0.json", source = "config/contracts/schemas/performance-benchmark-registry-1.0.0.json" },
+  { raw-sha256 = "5c755da9f33d94eb101b76eee1d1a1f7dfd132950825a82d56ccd7b58c4de2ec", resource = "graph_engineering/config/contracts/schemas/performance-benchmark-registry-input-1.0.0.json", source = "config/contracts/schemas/performance-benchmark-registry-input-1.0.0.json" },
+  { raw-sha256 = "cdc0accf77ccbb5c588a2989b0aa18b0fed142c4dfaf27e9956f6ba489583d1f", resource = "graph_engineering/config/contracts/schemas/performance-correctness-observation-1.0.0.json", source = "config/contracts/schemas/performance-correctness-observation-1.0.0.json" },
+  { raw-sha256 = "29585e0c69cdfc97d5209c7d0f32b59e1cefa49599965298a443aaa5d45b3577", resource = "graph_engineering/config/contracts/schemas/performance-correctness-observation-input-1.0.0.json", source = "config/contracts/schemas/performance-correctness-observation-input-1.0.0.json" },
+  { raw-sha256 = "0382dcff0e035e728c3b660e62421042bd483692d45e92ef7a0eab1fbd0ea005", resource = "graph_engineering/config/contracts/schemas/performance-environment-observation-1.0.0.json", source = "config/contracts/schemas/performance-environment-observation-1.0.0.json" },
+  { raw-sha256 = "a18e051518adac70d15032daf3b130cb1d5aa88d9f4691ab3dc67ae2cd1df85f", resource = "graph_engineering/config/contracts/schemas/performance-environment-observation-input-1.0.0.json", source = "config/contracts/schemas/performance-environment-observation-input-1.0.0.json" },
+  { raw-sha256 = "4067ca9f5936a403e13c10ba4f70959c7a091b50aeee420934f1864542fe558e", resource = "graph_engineering/config/contracts/schemas/performance-measurement-sample-1.0.0.json", source = "config/contracts/schemas/performance-measurement-sample-1.0.0.json" },
+  { raw-sha256 = "bc05f1a752b7e85bb16b1c5a84d79d5ffbf3d4e0341079e4feddc45a1d8d5898", resource = "graph_engineering/config/contracts/schemas/performance-measurement-sample-input-1.0.0.json", source = "config/contracts/schemas/performance-measurement-sample-input-1.0.0.json" },
+  { raw-sha256 = "c842a6823a10802e66b70890e1c20cb4be7b5b58ff5d98085ab1906b69627bc6", resource = "graph_engineering/config/contracts/schemas/performance-observation-1.0.0.json", source = "config/contracts/schemas/performance-observation-1.0.0.json" },
+  { raw-sha256 = "3381f103f54372d8d0a54ea9af9c0750c48a0555ba3012b2f1eed191f0b070f9", resource = "graph_engineering/config/contracts/schemas/performance-observation-input-1.0.0.json", source = "config/contracts/schemas/performance-observation-input-1.0.0.json" },
+  { raw-sha256 = "1fb3309c1aec7493e9a5249b8678d514189c1db17b2c21b45d23035129299c6d", resource = "graph_engineering/config/contracts/schemas/performance-sample-set-observation-1.0.0.json", source = "config/contracts/schemas/performance-sample-set-observation-1.0.0.json" },
+  { raw-sha256 = "a42d416c7835273a583cd4640c1894560cc84c7cf6013b80a1d0a0b805b8495a", resource = "graph_engineering/config/contracts/schemas/performance-sample-set-observation-input-1.0.0.json", source = "config/contracts/schemas/performance-sample-set-observation-input-1.0.0.json" },
+  { raw-sha256 = "f6181b643e89439a9e8746e6e0bc95426bd4f558c6fc2726e3fb2dd490cef2d0", resource = "graph_engineering/config/contracts/schemas/performance-statistics-observation-1.0.0.json", source = "config/contracts/schemas/performance-statistics-observation-1.0.0.json" },
+  { raw-sha256 = "01373559f9492ff54b24a41dfee6853d666df0aca28e0656d98379fc1b5a7102", resource = "graph_engineering/config/contracts/schemas/performance-statistics-observation-input-1.0.0.json", source = "config/contracts/schemas/performance-statistics-observation-input-1.0.0.json" },
+  { raw-sha256 = "9fb7e1d83c1368b692ae5d5469a82c27d06b04083e651c95082ed9b9799c31ee", resource = "graph_engineering/config/performance/performance-benchmark-fixture-v1.json", source = "config/performance/performance-benchmark-fixture-v1.json" },
+  { raw-sha256 = "132f11c3d7f09da0989e5130e612ee0784dc744d08d030ece3db61c40a415e2a", resource = "graph_engineering/config/performance/performance-benchmark-registry-v1.json", source = "config/performance/performance-benchmark-registry-v1.json" },
+  { raw-sha256 = "8b112072e213942620086c8e269c0478f2f0147bf462a9098cd5d8b317f5fb49", resource = "graph_engineering/config/performance/performance-benchmark-sample-v1.json", source = "config/performance/performance-benchmark-sample-v1.json" },
+  { raw-sha256 = "d6dcfe51683da82421233fca22b405bbd02cf77947d2f95fc3494b116d94f73f", resource = "graph_engineering/config/performance/performance-command-binding-v1.json", source = "config/performance/performance-command-binding-v1.json" },
+  { raw-sha256 = "f3057990d39587b60227cf4df642344f0fc8e6777a0b17525ba30e79b1053781", resource = "graph_engineering/config/performance/performance-command-runtime-policy-v1.json", source = "config/performance/performance-command-runtime-policy-v1.json" },
+  { raw-sha256 = "8e6353f952ef3bb4f542cfc5ae136a245d15979a727ac2f0e6eb660c14777e72", resource = "graph_engineering/config/performance/performance-correctness-oracle-v1.json", source = "config/performance/performance-correctness-oracle-v1.json" },
+  { raw-sha256 = "8e61edb0f2ba802d8b6e6c9ceb04808e308f4566d7b85a9b5b8651d9d748d3e4", resource = "graph_engineering/config/performance/performance-source-registry-v1.json", source = "config/performance/performance-source-registry-v1.json" },
+  { raw-sha256 = "0cff91166e91b4519699eb1f4ad5a56f6b20c6976b253580696f0960656a388d", resource = "graph_engineering/core/performance_benchmark.py", source = "core/graph_engineering/core/performance_benchmark.py" },
+  { raw-sha256 = "99c79e9a3822aa40c0f75d5a30fdfa37551d1bb3782928d836573c0727975e99", resource = "graph_engineering/core/profile_execution.py", source = "core/graph_engineering/core/profile_execution.py" },
+  { raw-sha256 = "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b", resource = "graph_engineering/build_backend.py", source = "scripts/build_backend.py" },
 ]
 schema-vectors = [
   { schema-id = "urn:gew:schema:performance-benchmark-case-input:1.0.0", raw-sha256 = "d12034513fdd25708c7236434b5ecd5d1c11f6a6f91239dfb29964a53fe4e650", source = "config/contracts/schemas/performance-benchmark-case-input-1.0.0.json", resource = "graph_engineering/config/contracts/schemas/performance-benchmark-case-input-1.0.0.json" },
@@ -333,8 +333,8 @@ schema-vectors = [
 
 [tool.gew.profile.scenario-truth]
 bootstrap-id = "urn:gew:scenario-truth-installation-bootstrap:1.0.0"
-bootstrap-digest = "sha256-jcs-v1:4f14c79780ecbff775aa7afeb0cf340a860ec7e28020010612edb65be17df195"
-bootstrap-raw-sha256 = "d7609ee782dad9a46f87060e31a519c8043ca6e6fffc5720f419f4a083f665ad"
+bootstrap-digest = "sha256-jcs-v1:81dcdefb1fc200fd874d47f28fc4e1fbb81d7d6432e9f10e2239111cfed8f0e2"
+bootstrap-raw-sha256 = "e91cb1bc4c355cf6dd313e522a9bb6b62ee4b35fdfbfb8597bd9b11cf9aa1b46"
 bootstrap-source = "config/profiles/scenario-truth-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/profiles/scenario-truth-installation-bootstrap-v1.json"
 policy-source = "config/profiles/scenario-truth-policy-registry-v1.json"
@@ -390,8 +390,8 @@ distribution-version = "0.1.0"
 
 [tool.gew.profile.release-operations]
 bootstrap-id = "urn:gew:release-operations-installation-bootstrap:1.0.0"
-bootstrap-digest = "sha256-jcs-v1:60cacf9e628625ea2b3b4df896ed031bf4b2d1edd16233d556056e0362f2b871"
-bootstrap-raw-sha256 = "00c589543f15385c7bd3e13eef3e337fc03a82a2fd39677c834ab1f6295fa00b"
+bootstrap-digest = "sha256-jcs-v1:5c72e046f5405cbf4a7916cb98605d97785248f4278078c32e83a760a83518ee"
+bootstrap-raw-sha256 = "c80feddb7b981734241a190d05a9a409c4e71593d04f73cec462bd2d68c556d3"
 bootstrap-source = "config/release-operations/release-operations-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/release-operations/release-operations-installation-bootstrap-v1.json"
 policy-source = "config/release-operations/release-operations-policy-registry-v1.json"
@@ -415,6 +415,8 @@ schema-sources = [
   "config/contracts/schemas/release-operations-observation-1.0.0.json",
   "config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
   "config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
+  "config/contracts/schemas/release-recovery-binding-input-1.0.0.json",
+  "config/contracts/schemas/release-recovery-binding-1.0.0.json",
   "config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
   "config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
 ]
@@ -433,6 +435,8 @@ schema-resources = [
   "graph_engineering/config/contracts/schemas/release-operations-observation-1.0.0.json",
   "graph_engineering/config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
   "graph_engineering/config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-recovery-binding-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-recovery-binding-1.0.0.json",
   "graph_engineering/config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
   "graph_engineering/config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
 ]
@@ -731,6 +735,8 @@ protected-sources = [
   "config/contracts/schemas/release-operations-observation-input-1.0.0.json",
   "config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
   "config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+  "config/contracts/schemas/release-recovery-binding-1.0.0.json",
+  "config/contracts/schemas/release-recovery-binding-input-1.0.0.json",
   "config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
   "config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
   "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
@@ -1010,6 +1016,8 @@ protected-resources = [
   "graph_engineering/config/contracts/schemas/release-operations-observation-input-1.0.0.json",
   "graph_engineering/config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
   "graph_engineering/config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-recovery-binding-1.0.0.json",
+  "graph_engineering/config/contracts/schemas/release-recovery-binding-input-1.0.0.json",
   "graph_engineering/config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
   "graph_engineering/config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
   "graph_engineering/config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",

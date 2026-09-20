@@ -388,6 +388,14 @@ class RuntimeSession:
         )
         return runtime
 
+    def bind_release_namespace(self, *, action_coordinator: object, namespace_path: object) -> object:
+        """Bind host configuration, never an evidence-supplied recovery path."""
+
+        self.require_current()
+        from graph_engineering.application.release_operations import _issue_retained_namespace
+
+        return _issue_retained_namespace(self, action_coordinator, namespace_path)
+
     def close(self) -> None:
         self.require_current()
         self._closed = True

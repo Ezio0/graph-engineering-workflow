@@ -1,5 +1,76 @@
 # Graph Engineering Workflow — Implementation Plan
 
+## 2026-09-19 RS-BS authorized prerequisite plan — R0
+
+This supplement supersedes only the historical design-only authority statement
+below: Human accepted P3-RS-A R1 and RS-1 was independently accepted. The latest
+approval also authorizes Spec RS-BS-1/2 and exactly the two security paths;
+no repeated Human gate is required for that same scope. Independent design
+review is required before code.
+
+- [x] BS-H (XS): record exact Human amendment and 183-target boundary; preserve history.
+- [ ] BS-D (S): complete ADR/Spec/Impact/Plan/Test Plan supplement; independent review and actual reducer.
+- [ ] BS-S (S, after BS-D): RED tests, data-only doctor security read and fresh runtime validation, targeted GREEN.
+- [ ] BS-T (M, after BS-D): RED bridge tests, preserve exact action snapshots at all write sites, validate dual sequence mapping and both TaskApplication write paths.
+- [ ] BS-I (S, after BS-S/BS-T): real same-task producer and legacy compatibility, negative/no-write checks; update only affected provenance and exact authority test.
+- [ ] BS-R (S, after BS-I): independent partial implementation review and real reducer, then resume authorized RS-2–RS-5 dependencies below.
+
+Acceptance, data and boundaries are Test Plan RS-BS; implementation follows
+Spec RS-BS. Each failed native selector stops its batch; record the failure and
+perform only a diagnosed targeted retry. One command at a time, fresh private
+fixtures, 600-second native upper bound (the explicit Human boundary overrides
+the generic workflow 300-second default). No background/cumulative/performance
+runs or monitoring. No time promise or coverage completion inference from this
+plan. The next RS-2–RS-5 work remains required after the prerequisite slice.
+
+## 2026-09-19 P3 restart design work package — R1
+
+Current authority is design and independent review only. The task does not
+repeat prior PRD/Intent approvals, invalidate the accepted foundation commit or
+start a new workflow. P3-RS-A remains a material choice pending Human acceptance;
+the two binding schema paths in ADR-0009 require a future exact target addition.
+The implementation steps below are **a plan, not permission to execute**.
+
+| Step | Dependency | Work / completion condition |
+|---|---|---|
+| RS-D | Current approval | Inspect actual restart/lifetime/action/source paths; bind ADR, Spec RS-1–RS-6, Impact and Test Plan; independent design review and real reducer decision |
+| RS-H | Reviewed RS-D | Human accepts P3-RS-A and the precise schema target addition, then authorizes only bounded restart implementation/tests/review |
+| RS-1 | RS-H | RED identity/format/legacy tests; add closed binding schemas and protected installation closure; no compatible-format rewrite |
+| RS-2 | RS-1 | RED retained-lifetime/path/contention tests; implement Spec RS-2 control-scope -> root gate -> per-call repository sequence, retained handles, explicit destruction and read-only opener |
+| RS-3 | RS-2 | RED durable action/claim/receipt/compensation tests; add fresh read-only authority, never recreate mutation outcomes |
+| RS-4 | RS-3 | RED unique-CAS and six-part normal cold-source validator tests; implement normal-only recovery/counter epoch/repeat-use currentness; reject all other columns |
+| RS-5 | RS-4 | Exec-based two-process proof and failure matrix; bounded adjacent compatibility/package checks, then independent source/Candidate review |
+| RS-STOP | RS-5 | Hand off verified restart foundation at 244/122/30; no automatic mandatory/scenario/cumulative/monitor/commit continuation |
+
+Each implementation step is a separately verifiable small slice (roughly one
+to three focused changes, an estimate rather than a time promise). Stop on the
+first failed selector, record it and repair only authorized inputs before a
+targeted retry; do not launch a whole suite repeatedly. Serial fresh roots,
+at most one open retained binding, native commands bounded to the existing
+600-second foundation limit, no background work or monitoring. Do not increase
+timeouts, lower currentness checks or substitute a same-process result.
+
+Use existing docs containers for this design's append-only revision chain.
+Future implementation evidence needs an explicit record location selected from
+the accepted container convention; do not overwrite any foundation attempt.
+No code/schema/test/config or installed-pin file changes happen in RS-D.
+Structural checks here are JSON validity, exact changed-path membership,
+historical-record preservation, digest/reducer binding and documentation
+traceability; they are not execution evidence.
+
+After an accepted design, proposed primary source/test targets are exactly the
+existing files listed in Impact plus the two explicitly named new schemas.
+Protected plan/oracle/Support Matrix and performance workload inputs stay
+untouched. Current performance/migration/scenario/dependency bootstrap pin
+maintenance follows the exact Impact cascade; it is not workload execution or
+a change to benchmark policy/oracle values. Close all five current installed
+factories and the 18-member release loader before RS-5 package checks.
+Expand conditional provenance consumers only when their actual inputs change
+and only within the accepted Envelope; additional files/actions require Human.
+Completion of this plan cannot authorize commit, push, merge, release, deploy,
+network, WP-10, missing-coverage issuance or cumulative/performance execution.
+
+
 ## 2026-09-18 P3 foundation evidence-path amendment
 
 Human approval `明确批准这五个路径` authorizes

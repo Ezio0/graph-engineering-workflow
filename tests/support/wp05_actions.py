@@ -222,6 +222,8 @@ class ActionFixture:
     issuer: SecurityContextIssuer
     manual_time: ManualTime
     factory: object
+    task_application: object | None = None
+    task_runtime: object | None = None
 
     def expire_action_lease(self) -> None:
         self.manual_time.set(self.action_lease.expires_at + 1)
@@ -240,26 +242,47 @@ class ActionFixture:
 def action_stack(
     *,
     action_ttl_ns: int = 10**15,
+    domain_task: bool = False,
     concrete_action_authority: tuple[object, object, object] | None = None,
 ) -> Iterator[ActionFixture]:
     epoch = datetime.datetime(2026, 8, 14, 0, 30, tzinfo=datetime.timezone.utc)
     manual_time = ManualTime(int(epoch.timestamp() * 1_000_000_000))
     with repository_stack(manual_time=manual_time) as (_root, factory, locks, objects, repository, leases):
-        initial_lease = leases.acquire_many(
-            lease_id="lease-create-wp05", task_id="task-wp05", run_id="run-create-wp05",
-            operation_id="create", resources=("task:task-wp05",), ttl_ns=10**15,
-        )
-        event = make_event(
-            task_id="task-wp05", sequence=1, event_id="task-wp05-created", event_type="task.created",
-            occurred_at="2026-08-14T00:00:00Z", actor={"kind": "runtime", "id": "lineage-wp05"},
-            expected_task_revision=0, baseline_digests=[], payload={"task_id": "task-wp05"}, previous_event_digest=None,
-        )
-        repository.commit(CommitBatch(
-            "transaction-create-wp05", "task-wp05", 0, (event,),
-            {"task_id": "task-wp05", "revision": 1, "state": "ready"}, {},
-            {"lease_id": initial_lease.lease_id, "resource_id": "task:task-wp05", "fencing_token": dict(initial_lease.fencing_tokens)["task:task-wp05"]},
-        ))
-        leases.release(initial_lease.lease_id)
+        task_application = task_runtime = None
+        if domain_task:
+            from graph_engineering.application.tasks import TaskApplication
+            from graph_engineering.core.graph.state import TaskCommand
+            from tests.contract.test_wp02_graph import graph_schemas, work_context
+            from tests.support.runtime import runtime_context
+
+            task_application = TaskApplication(
+                repository, repository, leases, schema_registry=graph_schemas(),
+                context=work_context(), materialization_objects=objects,
+            )
+            task_runtime = runtime_context(
+                "owner-wp05", "codex", "lineage-wp05", "actor-wp05",
+                "2026-08-14T00:00:00Z", 10**15,
+            )
+            task_application.execute("task-wp05", TaskCommand("create", 0, {"identity": {
+                "task_id": "task-wp05", "owner_id": "owner-wp05",
+                "runtime_kind": "codex", "runtime_lineage_id": "lineage-wp05",
+            }}), task_runtime)
+        else:
+            initial_lease = leases.acquire_many(
+                lease_id="lease-create-wp05", task_id="task-wp05", run_id="run-create-wp05",
+                operation_id="create", resources=("task:task-wp05",), ttl_ns=10**15,
+            )
+            event = make_event(
+                task_id="task-wp05", sequence=1, event_id="task-wp05-created", event_type="task.created",
+                occurred_at="2026-08-14T00:00:00Z", actor={"kind": "runtime", "id": "lineage-wp05"},
+                expected_task_revision=0, baseline_digests=[], payload={"task_id": "task-wp05"}, previous_event_digest=None,
+            )
+            repository.commit(CommitBatch(
+                "transaction-create-wp05", "task-wp05", 0, (event,),
+                {"task_id": "task-wp05", "revision": 1, "state": "ready"}, {},
+                {"lease_id": initial_lease.lease_id, "resource_id": "task:task-wp05", "fencing_token": dict(initial_lease.fencing_tokens)["task:task-wp05"]},
+            ))
+            leases.release(initial_lease.lease_id)
         command_factory = repository._factory
 
         context = security_context()
@@ -283,6 +306,12 @@ def action_stack(
             "baselines": {"intent": digest("intent")}, "snapshot_digest": digest("snapshot"),
             "targets": [{"target_id": "target-project", "target_kind": "project", "canonical_identity": "project-main", "target_digest": digest("target")}],
         })
+        if domain_task:
+            with command_factory.open("doctor") as connection:
+                task_row = connection.execute(
+                    "SELECT revision,snapshot_digest FROM tasks WHERE task_id=?", ("task-wp05",),
+                ).fetchone()
+            binding["snapshot_digest"] = task_row[1]
         binding["binding_digest"] = SecurityBinding.digest_document(binding)
         document_context = security_context()
         prepared = PreparedAction.from_dict(
@@ -300,7 +329,20 @@ def action_stack(
             compensation_authority["authority_digest"],
         ])
         state["data_refs"] = {"action-payload": {"digest": digest("payload-source"), "sensitivity": "internal", "retention_class": "evidence-body"}}
-        write_durable_task_security_state(command_factory, state)
+        if domain_task:
+            state["task_revision"] = task_row[0]
+            state["task_snapshot_digest"] = task_row[1]
+            # Fixture trust setup only: never rewrite the real producer's task row.
+            with command_factory.open("application") as connection:
+                with connection.transaction():
+                    connection.execute(
+                        "INSERT INTO task_security_states(task_id,task_revision,task_snapshot_digest,"
+                        "state_json,state_digest) VALUES(?,?,?,?,?)",
+                        ("task-wp05", task_row[0], task_row[1], canonical_json(state),
+                         semantic_record_digest({"contract": "task-security-state-v1", "value": state})),
+                    )
+        else:
+            write_durable_task_security_state(command_factory, state)
         issuer = SecurityContextIssuer(SecurityStateRepository(command_factory), schema_registry=schemas, context=context)
         journal = ActionJournalRepository(command_factory, schema_registry=schemas, context=context)
         action_lease = leases.acquire_many(
@@ -344,7 +386,7 @@ def action_stack(
             coordinator, raw_coordinator, repository, objects, locks,
             JournalFixture(journal, command_factory), leases, action_lease, other_lease,
             context, schemas, issuer, manual_time,
-            factory,
+            factory, task_application, task_runtime,
         )
 
 

@@ -18,6 +18,7 @@ from graph_engineering.core.graph.state import (
     DomainEvent,
     TaskCommand,
     TaskSnapshot,
+    TASK_TRANSITIONS,
     apply_events,
     decide_command,
 )
@@ -46,6 +47,45 @@ if TYPE_CHECKING:
 
 class ApplicationError(ValueError):
     """A stable fail-closed application command or query rejection."""
+
+
+def action_task_snapshot(
+    snapshot: Mapping[str, object],
+    *,
+    task_id: str,
+    revision: int,
+    action_state: str,
+) -> dict[str, object]:
+    """Advance repository state without adding action fields to domain state."""
+
+    if (
+        not isinstance(snapshot, Mapping)
+        or type(revision) is not int or revision < 1
+        or type(snapshot.get("revision")) is not int
+        or snapshot.get("revision") != revision or snapshot.get("task_id") != task_id
+    ):
+        raise ApplicationError("action snapshot head binding is invalid")
+    domain_task = "domain" in snapshot or "runner" in snapshot
+    if domain_task:
+        domain = snapshot.get("domain")
+        if (
+            set(snapshot) != {"task_id", "revision", "domain", "runner"}
+            or not isinstance(snapshot.get("runner"), Mapping)
+            or not isinstance(domain, Mapping)
+            or not isinstance(domain.get("identity"), Mapping)
+            or domain["identity"].get("task_id") != task_id
+            or type(domain.get("task_revision")) is not int
+            or domain["task_revision"] < 1
+            or type(domain.get("last_event_seq")) is not int
+            or domain["last_event_seq"] != domain["task_revision"]
+        ):
+            raise ApplicationError("action domain snapshot wrapper is invalid")
+    result = thaw(freeze(snapshot))
+    assert type(result) is dict
+    result.update(task_id=task_id, revision=revision + 1)
+    if not domain_task:
+        result["action_state"] = action_state
+    return result
 
 
 @dataclass(frozen=True, slots=True, init=False)
@@ -287,6 +327,46 @@ class TaskApplication:
         "node.awaiting_human", "node.blocked", "finding.opened", "finding.closed",
         "task.human_decision_required", "task.blocked", "task.completion_started",
     })
+    _ACTION_EVENT_TYPES = frozenset({
+        "action.execution_started", "action.receipt_recorded",
+        "action.reconciled_effect_verified", "action.reconciled_no_effect",
+        "action.compensation_execution_started", "action.compensation_receipt_recorded",
+        "action.compensation_reconciled",
+    })
+
+    @classmethod
+    def _repository_sequence(
+        cls, view: TaskView, replay: tuple[dict[str, object], ...],
+    ) -> int:
+        """Join verified repository ordinals to unchanged domain ordinals."""
+
+        domain_types = {kind for _state, kind in TASK_TRANSITIONS} | cls._RUNNER_EVENT_TYPES
+        domain_count = 0
+        previous_revision = -1
+        previous_action = False
+        for sequence, event in enumerate(replay, start=1):
+            revision = event.get("expected_task_revision")
+            kind = event.get("event_type")
+            is_action = kind in cls._ACTION_EVENT_TYPES
+            if (
+                event.get("task_id") != view.task_id
+                or type(event.get("sequence")) is not int or event["sequence"] != sequence
+                or type(revision) is not int or revision not in {previous_revision, previous_revision + 1}
+                or revision < 0
+                or kind not in domain_types | cls._ACTION_EVENT_TYPES
+                or revision == previous_revision and (is_action or previous_action)
+            ):
+                raise ApplicationError("repository/domain event mapping is invalid")
+            domain_count += int(not is_action)
+            previous_revision, previous_action = revision, is_action
+        if (
+            not replay or domain_count < 1
+            or previous_revision + 1 != view.repository_revision
+            or domain_count != view.snapshot.task_revision
+            or domain_count != view.snapshot.last_event_seq
+        ):
+            raise ApplicationError("repository/domain event mapping is stale")
+        return len(replay)
 
     def __init__(
         self,
@@ -571,6 +651,7 @@ class TaskApplication:
 
         task_id = self._identity(task_id, "task ID")
         view = self._restore(self._repository.load(task_id))
+        self._repository_sequence(view, self._repository.replay(task_id))
         realizations = self._repository.project_realizations(task_id) if view.snapshot.project_scope_ref else ()
         if realizations:
             if self._project_resolver is None:
@@ -1280,6 +1361,7 @@ class TaskApplication:
         if recovered is not None:
             current = self.__show(task_id)
             replay = self._repository.replay(task_id)
+            self._repository_sequence(current, replay)
             head = replay[-1]["event_digest"] if replay else recovered.head_digest
             if type(head) is not str:
                 raise ApplicationError("repository head digest is invalid")
@@ -1289,6 +1371,7 @@ class TaskApplication:
             )
 
         replay = self._repository.replay(task_id)
+        repository_sequence = self._repository_sequence(view, replay)
         previous_digest = replay[-1]["event_digest"] if replay else None
         if previous_digest is not None and type(previous_digest) is not str:
             raise ApplicationError("repository head digest is invalid")
@@ -1301,7 +1384,7 @@ class TaskApplication:
         for offset, (event, event_value) in enumerate(zip(events, event_values, strict=True), start=1):
             envelope = make_event(
                 task_id=task_id,
-                sequence=event.sequence,
+                sequence=repository_sequence + offset,
                 event_id=f"{request_id}:{offset}",
                 event_type=event.event_type,
                 occurred_at=runtime.occurred_at,
@@ -1830,6 +1913,7 @@ class TaskApplication:
             view = self.__show(task_id)
             self._runtime_matches(view.snapshot, runtime)
             replay = self._repository.replay(task_id)
+            self._repository_sequence(view, replay)
             head = replay[-1]["event_digest"] if replay else recovered.head_digest
             if type(head) is not str:
                 raise ApplicationError("repository head digest is invalid")
@@ -1841,6 +1925,7 @@ class TaskApplication:
         if command.command_type == "create":
             current: TaskSnapshot | None = None
             repository_revision = 0
+            repository_sequence = 0
             previous_digest: str | None = None
             lifecycle_assertion: dict[str, object] | None = None
         else:
@@ -1863,6 +1948,7 @@ class TaskApplication:
                 if type(rebase_pin) is str
                 else self._repository.replay(task_id)
             )
+            repository_sequence = self._repository_sequence(view, replay)
             previous_digest = replay[-1]["event_digest"] if replay else None
             if previous_digest is not None and type(previous_digest) is not str:
                 raise ApplicationError("repository head digest is invalid")
@@ -1904,7 +1990,7 @@ class TaskApplication:
                 raise ApplicationError("domain event payload is not an object")
             envelope = make_event(
                 task_id=task_id,
-                sequence=event.sequence,
+                sequence=repository_sequence + offset,
                 event_id=f"{request_id}:{offset}",
                 event_type=event.event_type,
                 occurred_at=runtime.occurred_at,

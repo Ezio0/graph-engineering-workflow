@@ -1,0 +1,282 @@
+{
+  "schema_version": "1.0",
+  "policy_version": "4.0.0",
+  "verification_evidence": {
+    "required_tiers": [
+      "T1",
+      "T2",
+      "T3"
+    ],
+    "passing_exit_codes": [
+      0
+    ],
+    "max_age_seconds": 86400,
+    "timeout_seconds": 300,
+    "detached_path_prefixes": [
+      ".workflow/delivery/GEW-REMAINING54-V1/detached/"
+    ]
+  },
+  "tiers": {
+    "T0": {
+      "lane": "normal",
+      "required_artifacts": [
+        "kanban"
+      ],
+      "required_roles": [],
+      "review_roles": [
+        "human-owner",
+        "technical-reviewer"
+      ],
+      "independent_review_required": false
+    },
+    "T1": {
+      "lane": "normal",
+      "required_artifacts": [
+        "lean_scope"
+      ],
+      "required_roles": [
+        "human-owner",
+        "technical-reviewer",
+        "authorized-committer"
+      ],
+      "review_roles": [
+        "technical-reviewer"
+      ],
+      "independent_review_required": true
+    },
+    "T2": {
+      "lane": "normal",
+      "required_artifacts": [
+        "positioning",
+        "prd",
+        "spec",
+        "plan",
+        "test_plan"
+      ],
+      "required_roles": [
+        "human-owner",
+        "product-reviewer",
+        "technical-reviewer",
+        "authorized-committer"
+      ],
+      "review_roles": [
+        "technical-reviewer"
+      ],
+      "independent_review_required": true
+    },
+    "T3": {
+      "lane": "emergency",
+      "required_artifacts": [
+        "incident",
+        "test_evidence",
+        "review"
+      ],
+      "required_roles": [
+        "human-owner",
+        "technical-reviewer",
+        "authorized-committer"
+      ],
+      "review_roles": [
+        "technical-reviewer"
+      ],
+      "independent_review_required": true
+    }
+  },
+  "classification": {
+    "direct_change_lines": 20,
+    "large_change_lines": 200,
+    "large_change_files": 10,
+    "cross_module_top_level_count": 2,
+    "non_product_path_prefixes": [
+      ".workflow/"
+    ],
+    "non_product_exact_paths": [
+      "AGENTS.md"
+    ],
+    "interface_path_markers": [
+      "api",
+      "endpoint",
+      "route",
+      "handler",
+      "openapi"
+    ],
+    "schema_path_markers": [
+      "migration",
+      "model",
+      "schema",
+      "ddl"
+    ]
+  },
+  "incident": {
+    "follow_up_hours": 48,
+    "required_fields": [
+      "schema_version",
+      "incident_id",
+      "opened_at",
+      "follow_up_deadline",
+      "impact",
+      "eligibility",
+      "owner_role",
+      "reviewer_role",
+      "status",
+      "test_evidence",
+      "review"
+    ],
+    "statuses": [
+      "open",
+      "mitigated",
+      "follow-up-complete"
+    ],
+    "passing_test_outcomes": [
+      "passed"
+    ],
+    "approved_review_outcomes": [
+      "APPROVED"
+    ]
+  },
+  "artifact_review": {
+    "independent_review_required": true,
+    "max_revision_cycles": 3,
+    "allowed_verdicts": [
+      "PASS",
+      "REVISE",
+      "ESCALATE",
+      "BLOCKED"
+    ],
+    "finding_severities": [
+      "advisory",
+      "blocking"
+    ],
+    "finding_statuses": [
+      "open",
+      "resolved"
+    ],
+    "routine_change_kinds": [
+      "clarification",
+      "traceability",
+      "testability"
+    ],
+    "human_required_change_kinds": [
+      "goal",
+      "non-goal",
+      "scope-expansion",
+      "target-boundary",
+      "tier",
+      "budget",
+      "external-dependency",
+      "data-access",
+      "security-posture",
+      "architecture-choice",
+      "reviewer-conflict"
+    ],
+    "irreversible_actions": [
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "external-message"
+    ]
+  },
+  "artifact_requirements": {
+    "lean_scope": {
+      "minimum_h2": 6,
+      "minimum_body_chars": 20,
+      "required_headings": [
+        "Scope",
+        "Acceptance Criteria",
+        "Critical Journeys",
+        "Test Boundary",
+        "Review Boundary",
+        "Commit Boundary"
+      ]
+    },
+    "positioning": {
+      "minimum_h2": 5,
+      "minimum_body_chars": 1
+    },
+    "prd": {
+      "minimum_h2": 13,
+      "minimum_body_chars": 1
+    },
+    "spec": {
+      "minimum_h2": 12,
+      "minimum_body_chars": 1
+    },
+    "plan": {
+      "minimum_h2": 8,
+      "minimum_body_chars": 1
+    },
+    "test_plan": {
+      "minimum_h2": 8,
+      "minimum_body_chars": 1
+    },
+    "incident": {
+      "format": "json"
+    },
+    "test_evidence": {
+      "format": "json"
+    },
+    "review": {
+      "format": "json"
+    }
+  },
+  "bilingual": {
+    "legacy_suffix_pairs": [
+      [
+        "_en.md",
+        "_zh.md"
+      ],
+      [
+        ".en.md",
+        ".zh.md"
+      ]
+    ],
+    "heading_levels": [
+      1,
+      2,
+      3
+    ],
+    "exclude_directories": [
+      ".git",
+      "node_modules",
+      "__pycache__",
+      ".venv",
+      "venv"
+    ]
+  },
+  "content_neutrality": {
+    "scan_roots": [
+      "README.md",
+      "README.zh.md",
+      "QUICKSTART.md",
+      "QUICKSTART.zh.md",
+      "docs/workflow",
+      "docs/platforms",
+      "docs/positioning",
+      "agents",
+      ".qoder-plugin",
+      "docs/prd",
+      "docs/specs",
+      "docs/impact",
+      "docs/plans",
+      "docs/test-plans",
+      "skills",
+      "examples",
+      "scripts",
+      "tests"
+    ],
+    "exclude_paths": [
+      "skills/archive",
+      "config/workflow-policy.json"
+    ],
+    "patterns": {
+      "personal-name": "\\bEzio\\b",
+      "fictional-name-en": "\\bYang Lei\\b",
+      "fictional-name-zh": "杨磊",
+      "private-home-path": "/Users/[A-Za-z0-9._-]+",
+      "personal-profile": "\\bezio-(zero|infinite|quarter|half)\\b"
+    },
+    "exemptions_require_reason": true
+  }
+}

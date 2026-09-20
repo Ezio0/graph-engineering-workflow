@@ -1,4 +1,105 @@
 {
+  "p3_restart_bridge_security_records": [
+    {
+      "record_id": "p3-restart-bridge-security-design-2026-09-19-r0",
+      "artifact_digest": "e6eaf946cac3eaa7fc895dc659b9d9f88fce8951cf7705b36f688f1511a97c04",
+      "reviewer_id": "/root/p3_restart_bs_design_reviewer",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "test_plan",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      }
+    }
+  ],
+  "p3_restart_design_records": [
+    {
+      "record_id": "p3-restart-design-2026-09-19-r0",
+      "reviewer_id": "/root/p3_restart_design_reviewer_r0",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "REVISE",
+        "artifact": "test_plan",
+        "scope_changed": false,
+        "change_kinds": [
+          "clarification",
+          "traceability",
+          "testability"
+        ],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P3-RESTART-DESIGN-R0-001",
+            "severity": "blocking",
+            "evidence": "Spec RS-2 lines 75–83 requires repository command/resource locks before the retained-root lease; RS-5 lines 179–185 rereads the durable source bundle while holding that lease. However, TaskRepository.referenced_objects (storage/graph_engineering/storage/repository.py:2411) and category_source_seal (:2509) acquire installation/object locks internally. LockedFileRegistry rejects reentrant acquisition and lower-ranked acquisition while resources are held (storage/graph_engineering/storage/locks.py:30, :290). The proposal does not distinguish InstallationCommandScope's control lock from these repository locks or provide a compatible acquisition/release sequence.",
+            "required_change": "Specify the exact lock ownership and existing API call sequence for retained creation, mutation, assessment commit, recovery/reuse, and destruction. Explain how source rereads avoid reentrancy/inversion and how original action commits obey the prohibition on acquiring repository write locks under the root lease. Keep storage read-only; identify any genuinely missing capability before requesting implementation authority.",
+            "verification": "The revised sequence must map each acquisition and release to an existing or explicitly proposed in-scope method. Add planned same-process and cross-process contention/cleanup assertions covering non-reentrancy, lock ordering, bounded busy-root rejection, and successful cold recovery without storage changes.",
+            "status": "open"
+          },
+          {
+            "id": "GEW-REMAINING54-P3-RESTART-DESIGN-R0-002",
+            "severity": "blocking",
+            "evidence": "Impact lines 19–35 names the release bootstrap and a conditional action-provenance cascade, while Plan lines 38–42 says performance inputs stay untouched. The proposed changes necessarily affect additional existing pin consumers: performance, migration and scenario-truth bootstraps directly protect application/profile_execution.py; all three plus dependency-advisory bootstrap v1.2 pin the profile schema registry. The installed release loader also enforces exactly 16 schema members (core/graph_engineering/__init__.py:2175–2181), which the proposed additional schema pair changes.",
+            "required_change": "Provide an exact path-level provenance cascade distinguishing required changes from conditional consumers and unchanged workload inputs. Include the affected non-release bootstraps, their pyproject pins, the release loader's closed member count, source-attestation/resource lists, and bounded compatibility checks. Clarify that preserving performance scenarios/workloads does not prohibit necessary bootstrap pin maintenance. Preserve historical bootstraps unless their supported current projection actually requires change.",
+            "verification": "Trace each proposed changed source/schema to every actual current pin consumer and its verification selector. All proposed targets must fit the existing179 plus the two still-unapproved schema paths; planned loader/package checks must detect stale pins without running performance or cumulative workloads.",
+            "status": "open"
+          },
+          {
+            "id": "GEW-REMAINING54-P3-RESTART-DESIGN-R0-003",
+            "severity": "blocking",
+            "evidence": "Spec RS-4 lines 143–149 attributes full durable-source reconstruction to require_assessment_evidence/_expected_evidence_facts. The existing implementation does not provide that complete proof: application/profile_execution.py:2625–2667 checks output presence and finds review history but does not compare the reconstructed independent review with assessment.review_digest or revalidate the complete artifact/target contract. The normal-column branch (:1764–1770) checks only runner-output-digest. A fresh source seal and equal before/after reads establish stability during recovery, not the missing binding to accepted historical evidence.",
+            "required_change": "Define the complete cold-reconstruction validation projection for the first supported foundation column, including independent review identity/body linkage, artifact closure/status, target/resource binding, and current authority facts. Explicitly identify checks that must be added beyond the existing helpers; do not imply those helpers already establish the full proof. Name the supported positive column and the unsupported-column rejection boundary.",
+            "verification": "Add planned cold-process cases independently changing review linkage, artifact closure/status, target/resource binding and authority facts before the first recovery read while retaining the same assessment reference. Each must reject without issuing a source seal or writing/replaying anything; ordinary and completed-compensation positives must still recover identical committed bytes.",
+            "status": "open"
+          }
+        ]
+      },
+      "independent_digest_recomputation": "25591847fb295e6042a361d9f2a347ef4094b69f0a5dc0b941704e3026e183e4"
+    },
+    {
+      "record_id": "p3-restart-design-2026-09-19-r1",
+      "reviewer_id": "/root/p3_restart_design_reviewer_r1",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "test_plan",
+        "scope_changed": false,
+        "change_kinds": [
+          "clarification",
+          "traceability",
+          "testability"
+        ],
+        "findings": [
+          {
+            "id": "GEW-REMAINING54-P3-RESTART-DESIGN-R0-001",
+            "severity": "blocking",
+            "evidence": "Resolved by Spec RS-2, lines 75–109: command control scope is distinguished from repository tokens; root acquisition precedes repository calls; public readers acquire and release their own tokens without outer wrapping; nested target callbacks validate the existing root lease. The lifecycle table covers creation, mutation, assessment commit, cold recovery/reuse, failure cleanup and destruction. This is compatible with InstallationCommandScope, the nonreentrant LockedFileRegistry, and the internal locking of referenced_objects/category_source_seal.",
+            "required_change": "None for this design revision.",
+            "verification": "Read-only source comparison completed. Test Plan lines 77–85 specifies same-process and separate-exec contention, lock-order/nonreentrancy assertions, bounded denial and resource unwind. These are future implementation checks; none was executed.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P3-RESTART-DESIGN-R0-002",
+            "severity": "blocking",
+            "evidence": "Resolved by Impact lines 37–67: the cascade now names the release loader's 16-to-18 closure, current performance/migration/scenario bootstraps, dependency bootstrap v1.2, corresponding pyproject projections, source/resource membership and conditional dual action-runtime branches. Historical dependency bootstraps and workload/oracle values remain frozen. Plan lines 38–46 distinguishes required provenance maintenance from prohibited workload changes; Test Plan lines 98–111 supplies bounded factory, contract and packaging checks.",
+            "required_change": "None for this design revision.",
+            "verification": "Compared the named consumers with actual bootstrap files, pyproject, installed loader and test selectors. Independently recomputed all packet file hashes and ordered aggregate: 5a929b98176920c76d6b1fd48cfa8e91c0c99a239db8a31ce3c794e330f69a5e. No loader, package or product tests were executed.",
+            "status": "resolved"
+          },
+          {
+            "id": "GEW-REMAINING54-P3-RESTART-DESIGN-R0-003",
+            "severity": "blocking",
+            "evidence": "Resolved by Spec RS-4, lines 169–234: normal is the only supported cold column; the proposal explicitly identifies existing helpers as insufficient and defines additional task/authority, runner, independent-review digest, artifact closure/body/review, target/resource and column-evidence joins before issuing a read-only seal. Missing durable proof rejects rather than being synthesized. Test Plan lines 87–96 independently mutates these sources before the first consumer read while retaining the assessment reference, and requires rejection despite stable subsequent reads.",
+            "required_change": "None for this design revision. This document-quality PASS does not accept P3-RS-A, authorize either proposed schema path, or authorize implementation; the design-only reducer must retain that separate Human boundary.",
+            "verification": "Compared the proposed validation with CategoryAssessmentResolver, CategoryFactsAuthority, durable runner review records and existing artifact/source contracts. Ordinary apply-B and completed compensation-A cold positives, all eleven unsupported-column negatives and zero-write/replay assertions are explicitly planned, not claimed as executed.",
+            "status": "resolved"
+          }
+        ]
+      },
+      "independent_digest_recomputation": "5a929b98176920c76d6b1fd48cfa8e91c0c99a239db8a31ce3c794e330f69a5e"
+    }
+  ],
   "p2d_records": [
     {
       "record_id": "p2d-document-check-2026-09-14-r0",

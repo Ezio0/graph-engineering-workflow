@@ -9,18 +9,22 @@ import hashlib
 import json
 import os
 import pathlib
+import secrets
 import stat
 import tempfile
+import threading
 from collections.abc import Callable, Mapping, Sequence
 from types import MappingProxyType
 
 from graph_engineering.core.contracts.canonical import canonical_bytes
 from graph_engineering.core.contracts.digest import semantic_digest
 from graph_engineering.core.contracts.immutable import thaw
+from graph_engineering.core.contracts.resources import WorkContext
 from graph_engineering.core.release_operations import (
     ReleaseArtifactManifest,
     ReleaseOperationsError,
     ReleaseOperationsRegistry,
+    ReleaseRecoveryBinding,
     evaluate_health,
 )
 
@@ -48,6 +52,375 @@ def _json_bytes(value: object) -> bytes:
     ).encode("ascii")
 
 
+def _retained_identity(metadata: os.stat_result) -> dict[str, object]:
+    """Use the platform's stable birth identity, not mutable mtime/ctime."""
+
+    birth = getattr(metadata, "st_birthtime", None)
+    if not isinstance(birth, (int, float)) or not 0 <= birth < 2**53:
+        raise ReleaseSimulatorError("retained directory birth identity is unavailable")
+    seconds = int(birth)
+    return {
+        "kind": "posix-directory-birthtime-f64-v1",
+        "device": metadata.st_dev, "inode": metadata.st_ino, "owner": metadata.st_uid,
+        "birth_seconds": seconds, "birth_nanoseconds": int((birth - seconds) * 1_000_000_000),
+    }
+
+
+def _retained_directory(path: pathlib.Path) -> int:
+    """Open the exact absolute component chain; never resolve a symlink."""
+
+    if (
+        not isinstance(path, pathlib.Path) or not path.is_absolute()
+        or any(part in {".", ".."} for part in path.parts)
+        or not getattr(os, "O_NOFOLLOW", 0) or not getattr(os, "O_DIRECTORY", 0)
+        or os.open not in os.supports_dir_fd or os.stat not in os.supports_dir_fd
+    ):
+        raise ReleaseSimulatorError("retained directory path or primitives are unavailable")
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    descriptor = os.open(path.anchor, flags)
+    try:
+        for part in path.parts[1:]:
+            child = os.open(part, flags, dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = child
+        metadata = os.fstat(descriptor)
+        if (
+            not stat.S_ISDIR(metadata.st_mode) or metadata.st_uid != os.getuid()
+            or stat.S_IMODE(metadata.st_mode) != 0o700
+        ):
+            raise ReleaseSimulatorError("retained namespace is not private and owner-bound")
+        return descriptor
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+class _RetainedNamespace:
+    """Internal physical storage only; not a runtime or recovery capability.
+
+    Production session/evidence issuance must separately enforce the approved
+    typed runtime, repository, installation and lock-entry authority. No such
+    issuance is wired to these primitives by this implementation slice.
+    """
+
+    def __init__(self, path: pathlib.Path) -> None:
+        self._pid, self._thread = os.getpid(), threading.get_ident()
+        self._closed = False
+        self._active: set[int] = set()
+        self.path = path
+        try:
+            self._descriptor = _retained_directory(path)
+        except OSError as error:
+            raise ReleaseSimulatorError("retained namespace cannot be opened") from error
+        try:
+            self.identity = _retained_identity(os.fstat(self._descriptor))
+        except BaseException:
+            os.close(self._descriptor)
+            raise
+
+    @property
+    def active_leases(self) -> int:
+        self._require_current()
+        return len(self._active)
+
+    def _require_current(self) -> None:
+        if self._closed or (self._pid, self._thread) != (os.getpid(), threading.get_ident()):
+            raise ReleaseSimulatorError("retained namespace is closed or foreign")
+        try:
+            current = _retained_directory(self.path)
+            try:
+                if self.identity != _retained_identity(os.fstat(current)) or self.identity != _retained_identity(os.fstat(self._descriptor)):
+                    raise ReleaseSimulatorError("retained namespace identity changed")
+            finally:
+                os.close(current)
+        except OSError as error:
+            raise ReleaseSimulatorError("retained namespace is unavailable") from error
+
+    @staticmethod
+    def _key(task_id: str, target_id: str) -> str:
+        for value in (task_id, target_id):
+            if type(value) is not str or not 1 <= len(value) <= 255 or any(not 33 <= ord(c) <= 126 for c in value):
+                raise ReleaseSimulatorError("retained task/target ID is invalid")
+        return "root-v1-" + hashlib.sha256(canonical_bytes([task_id, target_id])).hexdigest()
+
+    def _open(self, task_id: str, target_id: str, members: Mapping[str, int], *, create: bool) -> "_RetainedRootLease":
+        self._require_current()
+        checked = _RetainedRootLease.check_members(members)
+        key = self._key(task_id, target_id)
+        try:
+            if create:
+                os.mkdir(key, 0o700, dir_fd=self._descriptor)
+                os.fsync(self._descriptor)
+            descriptor = os.open(key, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=self._descriptor)
+        except OSError as error:
+            raise ReleaseSimulatorError("retained root is absent, unsafe or already exists") from error
+        try:
+            lease = _RetainedRootLease(self, key, descriptor, checked, create=create)
+        except BaseException:
+            os.close(descriptor)
+            raise
+        self._active.add(id(lease))
+        return lease
+
+    def create(self, task_id: str, target_id: str, *, members: Mapping[str, int]) -> "_RetainedRootLease":
+        return self._open(task_id, target_id, members, create=True)
+
+    def open_readonly(self, binding: ReleaseRecoveryBinding, *, members: Mapping[str, int], context: WorkContext) -> "_RetainedRootLease":
+        if type(binding) is not ReleaseRecoveryBinding or type(context) is not WorkContext:
+            raise ReleaseSimulatorError("retained read requires exact binding data and work context")
+        value = binding.to_dict()
+        lease = self._open(value["task_id"], value["target_id"], members, create=False)
+        try:
+            lease._validate_binding(binding, context)
+            return lease
+        except BaseException:
+            lease.close()
+            raise
+
+    def destroy(self, binding: ReleaseRecoveryBinding, *, members: Mapping[str, int], context: WorkContext) -> None:
+        """Owner-plane primitive: revoke durably before deleting exact members."""
+
+        with self.open_readonly(binding, members=members, context=context) as lease:
+            lease._destroy_owned_root(binding, context)
+
+    def close(self) -> None:
+        if (self._pid, self._thread) != (os.getpid(), threading.get_ident()):
+            raise ReleaseSimulatorError("retained namespace close is foreign")
+        if self._closed:
+            return
+        if self._active:
+            raise ReleaseSimulatorError("retained namespace still owns a live root")
+        self._closed = True
+        os.close(self._descriptor)
+
+    def __enter__(self) -> "_RetainedNamespace":
+        self._require_current()
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        self.close()
+
+
+class _RetainedRootLease:
+    """PID/thread-bound nonblocking mutex plus an independent OS root lock."""
+
+    BINDING_NAME = ".release-simulator-root"
+    _GATES: dict[tuple[int, ...], int] = {}
+    _GUARD = threading.Lock()
+
+    @classmethod
+    def check_members(cls, members: Mapping[str, int]) -> dict[str, int]:
+        if not isinstance(members, Mapping) or not members:
+            raise ReleaseSimulatorError("retained members are missing")
+        checked = {}
+        for name, mode in members.items():
+            if (
+                type(name) is not str or not name or name in {".", "..", cls.BINDING_NAME}
+                or "/" in name or "\\" in name or "\x00" in name
+                or type(mode) is not int or mode != 0o600
+            ):
+                raise ReleaseSimulatorError("retained member name or mode is unsafe")
+            checked[name] = mode
+        return {**checked, cls.BINDING_NAME: 0o400}
+
+    def __init__(self, namespace: _RetainedNamespace, key: str, descriptor: int, members: dict[str, int], *, create: bool) -> None:
+        import fcntl
+
+        self._namespace, self._key, self._descriptor = namespace, key, descriptor
+        self._pid, self._thread = os.getpid(), threading.get_ident()
+        self._closed, self._sealed, self._readonly = False, False, not create
+        self._members = MappingProxyType(members)
+        self.path = namespace.path / key
+        self.identity = _retained_identity(os.fstat(descriptor))
+        self._nonce = secrets.token_hex(32) if create else None
+        self._gate_key = (self._pid, *[self.identity[k] for k in ("device", "inode", "birth_seconds", "birth_nanoseconds")])
+        self._require_location()
+        with self._GUARD:
+            if self._gate_key in self._GATES:
+                raise ReleaseSimulatorError("retained root is busy")
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as error:
+                raise ReleaseSimulatorError("retained root is busy or OS locking is unavailable") from error
+            self._GATES[self._gate_key] = descriptor
+
+    @classmethod
+    def _after_fork(cls) -> None:
+        for descriptor in cls._GATES.values():
+            os.close(descriptor)
+        cls._GATES = {}
+        cls._GUARD = threading.Lock()
+
+    def _require_owner(self) -> None:
+        if self._closed or (self._pid, self._thread) != (os.getpid(), threading.get_ident()):
+            raise ReleaseSimulatorError("retained root lease is closed or foreign")
+
+    def _require_location(self) -> None:
+        self._require_owner()
+        self._namespace._require_current()
+        try:
+            named = os.stat(self._key, dir_fd=self._namespace._descriptor, follow_symlinks=False)
+            opened = os.fstat(self._descriptor)
+            for metadata in (named, opened):
+                if (
+                    not stat.S_ISDIR(metadata.st_mode) or metadata.st_uid != os.getuid()
+                    or stat.S_IMODE(metadata.st_mode) != 0o700
+                    or _retained_identity(metadata) != self.identity
+                ):
+                    raise ReleaseSimulatorError("retained root identity changed")
+        except OSError as error:
+            raise ReleaseSimulatorError("retained root is unavailable") from error
+
+    def _member_metadata(self, name: str) -> os.stat_result:
+        if name not in self._members:
+            raise ReleaseSimulatorError("retained member is unowned")
+        try:
+            metadata = os.stat(name, dir_fd=self._descriptor, follow_symlinks=False)
+        except OSError as error:
+            raise ReleaseSimulatorError("retained member is unavailable") from error
+        if (
+            not stat.S_ISREG(metadata.st_mode) or metadata.st_uid != os.getuid()
+            or metadata.st_nlink != 1 or stat.S_IMODE(metadata.st_mode) != self._members[name]
+        ):
+            raise ReleaseSimulatorError("retained member identity or permissions are unsafe")
+        return metadata
+
+    def _validate_members(self) -> tuple[str, ...]:
+        self._require_location()
+        names = []
+        seen = set()
+        with os.scandir(self._descriptor) as entries:
+            for entry in entries:
+                if len(names) >= len(self._members):
+                    raise ReleaseSimulatorError("retained directory exceeds member bound")
+                metadata = self._member_metadata(entry.name)
+                identity = (metadata.st_dev, metadata.st_ino)
+                if identity in seen:
+                    raise ReleaseSimulatorError("retained members alias")
+                seen.add(identity)
+                names.append(entry.name)
+        return tuple(names)
+
+    def binding_parts(self) -> dict[str, object]:
+        self._require_location()
+        return {"namespace_identity": dict(self._namespace.identity), "root_identity": dict(self.identity), "root_nonce": self._nonce}
+
+    def initialize_file(self, name: str, body: bytes) -> None:
+        self._require_location()
+        if self._readonly or self._sealed or name == self.BINDING_NAME or name not in self._members or type(body) is not bytes:
+            raise ReleaseSimulatorError("retained initialization write is not allowed")
+        self._write_new(name, body)
+
+    def _write_new(self, name: str, body: bytes) -> None:
+        descriptor = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, self._members[name], dir_fd=self._descriptor)
+        try:
+            with os.fdopen(descriptor, "wb", closefd=False) as stream:
+                stream.write(body)
+                stream.flush()
+                os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+        os.fsync(self._descriptor)
+
+    def seal(self, binding: ReleaseRecoveryBinding) -> None:
+        self._validate_members()
+        if self._readonly or self._sealed or type(binding) is not ReleaseRecoveryBinding:
+            raise ReleaseSimulatorError("retained binding publication is not allowed")
+        value = binding.to_dict()
+        if any(value[k] != v for k, v in self.binding_parts().items()) or self._key != self._namespace._key(value["task_id"], value["target_id"]):
+            raise ReleaseSimulatorError("retained binding differs from physical root")
+        self._write_new(self.BINDING_NAME, canonical_bytes(value))
+        os.fsync(self._namespace._descriptor)
+        self._sealed = True
+
+    def read(self, name: str, *, max_bytes: int) -> bytes:
+        self._validate_members()
+        if type(max_bytes) is not int or max_bytes < 1:
+            raise ReleaseSimulatorError("retained read bound is invalid")
+        before = self._member_metadata(name)
+        if before.st_size > max_bytes:
+            raise ReleaseSimulatorError("retained member exceeds read bound")
+        try:
+            descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=self._descriptor)
+        except OSError as error:
+            raise ReleaseSimulatorError("retained member cannot be opened safely") from error
+        def signature(metadata: os.stat_result) -> tuple[int, ...]:
+            return (metadata.st_dev, metadata.st_ino, metadata.st_mode, metadata.st_uid,
+                    metadata.st_nlink, metadata.st_size, metadata.st_mtime_ns, metadata.st_ctime_ns)
+        try:
+            if signature(os.fstat(descriptor)) != signature(before):
+                raise ReleaseSimulatorError("retained member changed before read")
+            with os.fdopen(descriptor, "rb", closefd=False) as stream:
+                body = stream.read(max_bytes + 1)
+            after = self._member_metadata(name)
+            if len(body) > max_bytes or signature(before) != signature(after) or signature(before) != signature(os.fstat(descriptor)):
+                raise ReleaseSimulatorError("retained member changed during read")
+            self._require_location()
+            return body
+        finally:
+            os.close(descriptor)
+
+    def _validate_binding(self, expected: ReleaseRecoveryBinding, context: WorkContext) -> None:
+        body = self.read(self.BINDING_NAME, max_bytes=context.profile.limits["raw_document_bytes"])
+        try:
+            parsed = ReleaseRecoveryBinding.from_bytes(body, context=context)
+        except ReleaseOperationsError as error:
+            raise ReleaseSimulatorError("retained binding is invalid") from error
+        value = parsed.to_dict()
+        if body != canonical_bytes(value) or value != expected.to_dict():
+            raise ReleaseSimulatorError("retained binding bytes changed")
+        self._nonce = value["root_nonce"]
+        if any(value[k] != v for k, v in self.binding_parts().items()):
+            raise ReleaseSimulatorError("retained binding physical identity changed")
+        self._sealed = True
+
+    def close(self) -> None:
+        import fcntl
+
+        if (self._pid, self._thread) != (os.getpid(), threading.get_ident()):
+            raise ReleaseSimulatorError("retained root close is foreign")
+        if self._closed:
+            return
+        self._closed = True
+        try:
+            with self._GUARD:
+                self._GATES.pop(self._gate_key)
+                fcntl.flock(self._descriptor, fcntl.LOCK_UN)
+        finally:
+            os.close(self._descriptor)
+            self._namespace._active.discard(id(self))
+
+    def _destroy_owned_root(self, binding: ReleaseRecoveryBinding, context: WorkContext) -> None:
+        """Owner-plane cleanup after admission; never borrow a live writer lease."""
+
+        self._require_owner()
+        if not self._readonly or not self._sealed:
+            raise ReleaseSimulatorError("retained destruction requires a new owner lease")
+        self._validate_binding(binding, context)
+        names = self._validate_members()
+        os.unlink(self.BINDING_NAME, dir_fd=self._descriptor)
+        os.fsync(self._descriptor)
+        for name in sorted(set(names) - {self.BINDING_NAME}):
+            self._require_location()
+            self._member_metadata(name)
+            os.unlink(name, dir_fd=self._descriptor)
+        os.fsync(self._descriptor)
+        self._require_location()
+        os.rmdir(self._key, dir_fd=self._namespace._descriptor)
+        os.fsync(self._namespace._descriptor)
+
+    def __enter__(self) -> "_RetainedRootLease":
+        self._require_location()
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        self.close()
+
+
+if hasattr(os, "register_at_fork"):
+    os.register_at_fork(after_in_child=_RetainedRootLease._after_fork)
+
+
 class _PrivateRoot:
     __slots__ = (
         "_temporary", "_root_path", "_root_fd", "root_identity", "target_id",
@@ -55,7 +428,7 @@ class _PrivateRoot:
         "authorized_artifacts", "closed", "mutation_count", "query_count",
         "health_count", "observation_revision", "fault_hook",
         "currentness_check", "phase_roles", "fault_roles", "phase_transitions",
-        "last_fault_point", "last_execution", "original_binding",
+        "last_fault_point", "last_execution", "original_binding", "_retained_lease",
     )
 
     def __init__(
@@ -71,6 +444,7 @@ class _PrivateRoot:
         phase_roles: Mapping[str, str],
         fault_roles: Mapping[str, str],
     ) -> None:
+        self._retained_lease = None
         temporary = tempfile.TemporaryDirectory(prefix="gew-release-simulator-")
         root = pathlib.Path(temporary.name).resolve(strict=True)
         root.chmod(0o700)
@@ -389,6 +763,81 @@ class _PrivateRoot:
             self._temporary.cleanup()
 
 
+def _retained_members(fixture: Mapping[str, object]) -> dict[str, str]:
+    configured = {name: str(fixture[name + "_relative_path"]) for name in ("stage", "active", "state")}
+    for name in configured.values():
+        path = pathlib.PurePosixPath(name)
+        if path.is_absolute() or len(path.parts) != 1 or path.name != name:
+            raise ReleaseSimulatorError("release retained member escaped private root")
+    names = {**configured,
+        "stage_artifact": pathlib.PurePosixPath(configured["stage"]).stem + ".bin",
+        "active_artifact": pathlib.PurePosixPath(configured["active"]).stem + ".bin",
+        "identity": _RetainedRootLease.BINDING_NAME}
+    if len(set(names.values())) != len(names):
+        raise ReleaseSimulatorError("release retained members alias")
+    return names
+
+
+class _RetainedPrivateRoot(_PrivateRoot):
+    """Original live session storage. This is not a cold recovery reader."""
+
+    __slots__ = ("_recovery_binding", "_read_bound", "_close_check")
+
+    def __init__(self, *, lease: _RetainedRootLease, binding: ReleaseRecoveryBinding,
+                 max_read_bytes: int, close_check: Callable[[], None], **values: object) -> None:
+        self._retained_lease = lease
+        self._recovery_binding = binding
+        self._read_bound = max_read_bytes
+        self._close_check = close_check
+        self._temporary = None
+        self._root_path, self._root_fd = lease.path, lease._descriptor
+        self.root_identity = tuple(lease.identity[k] for k in ("device", "inode", "owner"))
+        for name in ("target_id", "fixture", "baseline", "baseline_artifact_bytes", "fault_hook", "currentness_check"):
+            setattr(self, name, values[name])
+        self.names = MappingProxyType(_retained_members(self.fixture))
+        self.authorized_artifacts = MappingProxyType(dict(values["authorized_artifacts"]))
+        self.phase_roles = MappingProxyType(dict(values["phase_roles"]))
+        self.fault_roles = MappingProxyType(dict(values["fault_roles"]))
+        self.closed = False
+        self.mutation_count = self.query_count = self.health_count = self.observation_revision = 0
+        self.phase_transitions = []
+        self.last_fault_point = self.last_execution = self.original_binding = None
+        self._require_artifact_bytes(self.baseline, self.baseline_artifact_bytes)
+        lease.seal(binding)
+        self._durable_write(self.names["active_artifact"], self.baseline_artifact_bytes, 0o600)
+        self._durable_write(self.names["active"], _json_bytes(self.baseline.to_dict()), 0o600)
+        self._write_state({"schema_version": "1.0.0", "generation": 0,
+            "active_artifact_digest": self.baseline.manifest_digest, "staged_artifact_digest": None})
+        self._record_phase(self.phase_roles["baseline"])
+
+    def _require_open(self) -> None:
+        if self.closed:
+            raise ReleaseSimulatorError("retained release session is closed")
+        self.currentness_check()
+        self._retained_lease._validate_members()
+        expected = canonical_bytes(self._recovery_binding.to_dict())
+        if self._retained_lease.read(self.names["identity"], max_bytes=len(expected)) != expected:
+            raise ReleaseSimulatorError("retained release session binding changed")
+
+    def _read(self, name: str, *, require_open: bool = True) -> bytes:
+        if require_open:
+            self._require_open()
+        return self._retained_lease.read(name, max_bytes=self._read_bound)
+
+    def _durable_write(self, name: str, body: bytes, mode: int) -> None:
+        self._require_open()
+        if name == self.names["identity"] or mode != 0o600 or len(body) > self._read_bound:
+            raise ReleaseSimulatorError("retained release write is not allowed")
+        super()._durable_write(name, body, mode)
+        self._require_open()
+
+    def close(self) -> None:
+        if not self.closed:
+            self._close_check()
+            self._retained_lease.close()
+            self.closed = True
+
+
 class LocalReleaseTarget:
     """ActionTargetPort for apply/restore after a durable coordinator start."""
 
@@ -700,6 +1149,13 @@ class LocalReleaseSimulatorSession:
     def tree_digest(self) -> str:
         return self._root.tree_digest()
 
+    @property
+    def recovery_binding(self) -> ReleaseRecoveryBinding | None:
+        if type(self._root) is _RetainedPrivateRoot:
+            self._root._require_open()
+            return self._root._recovery_binding
+        return None
+
     def _release_snapshot(self) -> dict[str, object]:
         return self._root.snapshot()
 
@@ -749,6 +1205,10 @@ class _LocalReleaseSimulatorFactory:
         baseline_artifact_bytes: bytes,
         authorized_artifacts: Sequence[tuple[ReleaseArtifactManifest, bytes]],
         fault_hook: Callable[[str], None] = lambda _step: None,
+        retained_lease: _RetainedRootLease | None = None,
+        recovery_binding: ReleaseRecoveryBinding | None = None,
+        max_read_bytes: int | None = None,
+        retained_close_check: Callable[[], None] | None = None,
     ) -> LocalReleaseSimulatorSession:
         if (
             type(task_id) is not str or not task_id
@@ -777,7 +1237,12 @@ class _LocalReleaseSimulatorFactory:
         if fixture["expected_rollback_artifact_id"] != baseline_manifest.artifact_id:
             raise ReleaseSimulatorError("release baseline is not the configured rollback artifact")
         operation_ids = dict(self._registry.operation_roles)
-        root = _PrivateRoot(
+        root_type = _PrivateRoot if retained_lease is None else _RetainedPrivateRoot
+        retained_args = {} if retained_lease is None else {
+            "lease": retained_lease, "binding": recovery_binding, "max_read_bytes": max_read_bytes,
+            "close_check": retained_close_check}
+        root = root_type(
+            **retained_args,
             target_id=target_id,
             fixture=fixture,
             baseline=baseline_manifest,
@@ -794,6 +1259,8 @@ class _LocalReleaseSimulatorFactory:
             projection_id="urn:gew:digest-projection:local-release-target:1.0.0",
             schema_id="urn:gew:schema:local-release-target:1.0.0",
         )
+        if retained_lease is not None:
+            target_digest = recovery_binding.target_digest()
         generation_limit = self._registry.policy["deployment_policy"]["generation_limit"]
         target = LocalReleaseTarget(
             root,

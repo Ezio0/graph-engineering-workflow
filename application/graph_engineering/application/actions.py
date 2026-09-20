@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import copy
 import datetime
 import hmac
+import threading
 from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Callable, Protocol
@@ -21,6 +21,7 @@ from graph_engineering.core.security._common import parse_timestamp
 from graph_engineering.core.contracts.immutable import thaw
 from graph_engineering.core.security.disclosure import DataDisclosurePlan
 from graph_engineering.application.security import SecurityContextIssuer
+from graph_engineering.application.tasks import action_task_snapshot
 from graph_engineering.storage.actions import ActionJournalRepository
 from graph_engineering.storage.codec import canonical_json, semantic_record_digest
 from graph_engineering.storage.errors import RepositoryConflictError
@@ -231,6 +232,9 @@ class ActionCoordinator:
         self._fault = fault_hook
         self._durable_execution_gates = _DurableExecutionGateRegistry()
         self._issued_outcomes: dict[int, ActionOutcome] = {}
+        self._retained_targets: dict[tuple[str, str], object] = {}
+        self._retained_actions: dict[str, object] = {}
+        self._retained_prepared: dict[str, object] = {}
         from graph_engineering.storage.migration import InstallationCommandScope
         if type(installation_scope) is not InstallationCommandScope:
             raise ValueError("action installation command scope is missing or forged")
@@ -241,6 +245,64 @@ class ActionCoordinator:
 
     def _require_installation_context(self) -> None:
         self._installation_validator()
+
+    def _retained_scope(self, *, require_idle: bool = False) -> object:
+        """Check existing ports/lock state without changing storage lock APIs."""
+
+        self._require_installation_context()
+        scope = self._repository.command_scope
+        for port in (self._repository, self._journal, self._leases, self._objects, self._issuer._repository):
+            factory = port._factory
+            if factory._command_scope is not scope or factory.data_root != scope.repository_root:
+                raise ValueError("retained release repository scope differs across ports")
+        self._locks._check()
+        if self._locks._root != scope.repository_root:
+            raise ValueError("retained release repository lock scope differs")
+        if require_idle:
+            self._require_retained_idle()
+        return scope
+
+    def _require_retained_idle(self) -> None:
+        # Cleanup must still work after runtime revocation; it only checks order.
+        with LockedFileRegistry._ACTIVE_GUARD:
+            registries = tuple(LockedFileRegistry._ACTIVE_ROOTS.values())
+        held = False
+        for registry in registries:
+            with registry._registry_guard:
+                held = held or bool(registry._thread_tokens.get(threading.get_ident()))
+        if held or self._repository.command_scope._connections:
+            raise ValueError("retained release repository token or connection is held")
+
+    def _register_retained_target(self, task_id: str, session: object) -> None:
+        from graph_engineering.adapters.local_release_simulator import LocalReleaseSimulatorSession
+
+        if type(session) is not LocalReleaseSimulatorSession or session.recovery_binding is None:
+            raise ValueError("retained release session is not exact")
+        self._retained_scope(require_idle=True)
+        session._root._require_open()
+        key = (task_id, session.target.target_id)
+        if key in self._retained_targets:
+            raise ValueError("retained release target is already registered")
+        self._retained_targets[key] = session
+
+    def _require_retained_action(self, action_id: str, *, target: object | None = None,
+                                 observer: object | None = None) -> None:
+        session = self._retained_actions.get(action_id)
+        if session is not None:
+            self._retained_scope(require_idle=True)
+            session._root._require_open()
+            if target is not None and target is not session.target:
+                raise ValueError("retained release action target is foreign")
+            if observer is not None and observer is not session.observer:
+                raise ValueError("retained release action observer is foreign")
+        from graph_engineering.adapters.local_release_simulator import LocalReleaseObserver, LocalReleaseTarget
+
+        if type(target) is LocalReleaseTarget and target._root._retained_lease is not None:
+            if session is None or target is not session.target:
+                raise ValueError("retained release action has no live coordinator binding")
+        if type(observer) is LocalReleaseObserver and observer._root._retained_lease is not None:
+            if session is None or observer is not session.observer:
+                raise ValueError("retained release observer has no live coordinator binding")
 
     def issue_durable_execution_gate(self) -> object:
         """Issue an opaque gate that only this coordinator can arm after start commit."""
@@ -425,13 +487,29 @@ class ActionCoordinator:
         prepared = self._policy.load_prepared(value)
         if prepared.action_kind not in self._policy.separately_authorized_action_kinds:
             raise ValueError("action kind has no separately configured authority class")
+        retained = self._retained_targets.get((prepared.task_id, prepared.target_id))
+        if retained is not None:
+            self._retained_scope(require_idle=True)
+            retained._root._require_open()
+            if prepared.target_digest != retained.target.target_digest:
+                raise ValueError("retained release prepared target digest differs")
+            previous = self._retained_actions.get(prepared.action_id)
+            if previous is not None and previous is not retained:
+                raise ValueError("retained release action identity was reused")
         self._journal.record_prepared(prepared)
+        if retained is not None:
+            self._retained_actions[prepared.action_id] = retained
+            self._retained_prepared[prepared.prepared_action_digest] = retained
         return prepared
 
     def authorize(self, value: dict[str, object]) -> AuthorityEnvelope:
         if self._installation_validator is not None:
             self._installation_validator()
         authority = self._policy.load_authority(value)
+        retained = self._retained_prepared.get(authority.prepared_action_digest)
+        if retained is not None:
+            self._retained_scope(require_idle=True)
+            retained._root._require_open()
         prepared_record = self._journal.find_prepared(authority.prepared_action_digest)
         prepared = prepared_record.prepared
         if prepared_record.state == "authorized":
@@ -665,6 +743,7 @@ class ActionCoordinator:
         disclosure_plan: DataDisclosurePlan,
         candidate_action: dict[str, object] | None = None,
     ) -> ActionOutcome:
+        self._require_retained_action(action_id, target=target, observer=observer)
         if self._installation_validator is not None:
             self._installation_validator()
         installation = self._locks.acquire_installation("shared")
@@ -699,8 +778,10 @@ class ActionCoordinator:
                 claim_id=claim_id, action_id=action_id, task_id=prepared.task_id, lease=lease,
                 started_event_digest=event["event_digest"],
             )
-            snapshot = copy.deepcopy(head.snapshot)
-            snapshot.update({"task_id": prepared.task_id, "revision": head.revision + 1, "action_state": "executing"})
+            snapshot = action_task_snapshot(
+                head.snapshot, task_id=prepared.task_id, revision=head.revision,
+                action_state="executing",
+            )
             self._repository.commit(CommitBatch(
                 transaction_id=f"{action_id}:start", task_id=prepared.task_id,
                 expected_task_revision=head.revision, events=(event,), snapshot=snapshot,
@@ -768,12 +849,10 @@ class ActionCoordinator:
                 },
                 previous_event_digest=receipt_head.head_digest,
             )
-            receipt_snapshot = copy.deepcopy(receipt_head.snapshot)
-            receipt_snapshot.update({
-                "task_id": prepared.task_id,
-                "revision": receipt_head.revision + 1,
-                "action_state": state,
-            })
+            receipt_snapshot = action_task_snapshot(
+                receipt_head.snapshot, task_id=prepared.task_id, revision=receipt_head.revision,
+                action_state=state,
+            )
             self._repository.commit(CommitBatch(
                 transaction_id=f"{action_id}:receipt",
                 task_id=prepared.task_id,
@@ -838,8 +917,10 @@ class ActionCoordinator:
             previous_event_digest=head.head_digest,
         )
         delta = self._leases.reconcile_claim(claim_id, outcome, body, event["event_digest"])
-        snapshot = copy.deepcopy(head.snapshot)
-        snapshot.update({"task_id": record.task_id, "revision": head.revision + 1, "action_state": "compensated" if compensated else "reconciled"})
+        snapshot = action_task_snapshot(
+            head.snapshot, task_id=record.task_id, revision=head.revision,
+            action_state="compensated" if compensated else "reconciled",
+        )
         self._repository.commit(CommitBatch(
             transaction_id=f"{action_id}:{outcome}", task_id=record.task_id,
             expected_task_revision=head.revision, events=(event,), snapshot=snapshot,
@@ -869,6 +950,9 @@ class ActionCoordinator:
         disclosure_plan: DataDisclosurePlan,
     ) -> ActionOutcome:
         """Run one authorized built-in Git CAS through the durable action protocol."""
+
+        if action_id in self._retained_actions:
+            raise ValueError("retained release actions cannot use the concrete Git route")
 
         from graph_engineering.adapters.action_adapters import ActionAdapterFactory
         from graph_engineering.adapters.git_native import (
@@ -1190,12 +1274,10 @@ class ActionCoordinator:
                 lease=lease,
                 started_event_digest=event["event_digest"],
             )
-            snapshot = copy.deepcopy(head.snapshot)
-            snapshot.update({
-                "task_id": prepared.task_id,
-                "revision": head.revision + 1,
-                "action_state": "executing",
-            })
+            snapshot = action_task_snapshot(
+                head.snapshot, task_id=prepared.task_id, revision=head.revision,
+                action_state="executing",
+            )
             self._repository.commit(CommitBatch(
                 transaction_id=f"{action_id}:start",
                 task_id=prepared.task_id,
@@ -1260,12 +1342,10 @@ class ActionCoordinator:
                 },
                 previous_event_digest=receipt_head.head_digest,
             )
-            receipt_snapshot = copy.deepcopy(receipt_head.snapshot)
-            receipt_snapshot.update({
-                "task_id": prepared.task_id,
-                "revision": receipt_head.revision + 1,
-                "action_state": "succeeded",
-            })
+            receipt_snapshot = action_task_snapshot(
+                receipt_head.snapshot, task_id=prepared.task_id, revision=receipt_head.revision,
+                action_state="succeeded",
+            )
             self._repository.commit(CommitBatch(
                 transaction_id=f"{action_id}:receipt",
                 task_id=prepared.task_id,
@@ -1381,6 +1461,7 @@ class ActionCoordinator:
             self._locks.release(installation)
 
     def reconcile_unknown(self, action_id: str, *, lease: LeaseGrant, observer: ActionObserverPort) -> ActionOutcome:
+        self._require_retained_action(action_id, observer=observer)
         if self._installation_validator is not None:
             self._installation_validator()
         installation = self._locks.acquire_installation("shared")
@@ -1434,6 +1515,8 @@ class ActionCoordinator:
         disclosure_plan: DataDisclosurePlan,
     ) -> ActionOutcome:
         """Recover an expired-lease claim through its one durable compensation attempt."""
+        self._require_retained_action(action_id, target=target, observer=observer)
+        self._require_retained_action(compensation_action_id, target=target, observer=observer)
         if self._installation_validator is not None:
             self._installation_validator()
         claim_id = f"claim:{action_id}"
@@ -1574,11 +1657,10 @@ class ActionCoordinator:
                     },
                     previous_event_digest=head.head_digest,
                 )
-                snapshot = copy.deepcopy(head.snapshot)
-                snapshot.update({
-                    "task_id": original.task_id, "revision": head.revision + 1,
-                    "action_state": "compensation-executing",
-                })
+                snapshot = action_task_snapshot(
+                    head.snapshot, task_id=original.task_id, revision=head.revision,
+                    action_state="compensation-executing",
+                )
                 self._repository.commit(CommitBatch(
                     transaction_id=f"{attempt_id}:start", task_id=original.task_id,
                     expected_task_revision=head.revision, events=(start_event,), snapshot=snapshot,
@@ -1712,11 +1794,10 @@ class ActionCoordinator:
                         "result": receipt_state,
                     }, previous_event_digest=receipt_head.head_digest,
                 )
-                receipt_snapshot = copy.deepcopy(receipt_head.snapshot)
-                receipt_snapshot.update({
-                    "task_id": original.task_id, "revision": receipt_head.revision + 1,
-                    "action_state": f"compensation-{receipt_state}",
-                })
+                receipt_snapshot = action_task_snapshot(
+                    receipt_head.snapshot, task_id=original.task_id, revision=receipt_head.revision,
+                    action_state=f"compensation-{receipt_state}",
+                )
                 executing_compensation = self._journal.load(compensation_action_id)
                 self._repository.commit(CommitBatch(
                     transaction_id=f"{attempt_id}:receipt", task_id=original.task_id,
@@ -1777,11 +1858,10 @@ class ActionCoordinator:
                     "verified_outcome": "compensation_reconciled",
                 }, previous_event_digest=reconcile_head.head_digest,
             )
-            reconcile_snapshot = copy.deepcopy(reconcile_head.snapshot)
-            reconcile_snapshot.update({
-                "task_id": original.task_id, "revision": reconcile_head.revision + 1,
-                "action_state": "compensated",
-            })
+            reconcile_snapshot = action_task_snapshot(
+                reconcile_head.snapshot, task_id=original.task_id, revision=reconcile_head.revision,
+                action_state="compensated",
+            )
             current_original = self._journal.load(action_id)
             current_compensation = self._journal.load(compensation_action_id)
             self._repository.commit(CommitBatch(

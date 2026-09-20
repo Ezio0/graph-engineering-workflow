@@ -1,5 +1,5 @@
 {
-  "registry_digest": "sha256-jcs-v1:6a014b08631b020d8ece3c0e185bac4829ab6a9456e01f13f4930858354424a6",
+  "registry_digest": "sha256-jcs-v1:913235899306d64a4bc8eff96b3a4bbddd61ec6a7e57b8dfdaafe98041c81f76",
   "registry_id": "urn:gew:schema-registry:profiles:1.0.0",
   "resources": [
     {
@@ -513,6 +513,14 @@
     {
       "body_digest": "sha256-raw-v1:9bd136522454a76a5ec80cca2bf878873c19dcc72bb5160cb31323adf41f9f27",
       "schema_id": "urn:gew:schema:release-operations-policy-registry:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:a7d9c530729098ba69b44e76cd26992f0a87528cd42321dd20029d763bec7c61",
+      "schema_id": "urn:gew:schema:release-recovery-binding-input:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:7ee7297703e73e00913da09f83f3edeaedc051e5544388c627a9b702a7bce1c2",
+      "schema_id": "urn:gew:schema:release-recovery-binding:1.0.0"
     },
     {
       "body_digest": "sha256-raw-v1:32e5960f70cb6c7e3580f12ba21a1bb22731f18a5910632d4f2230674479bfc1",

@@ -11,6 +11,9 @@ from dataclasses import dataclass
 
 from graph_engineering.core.contracts.digest import SEMANTIC_DIGEST, semantic_digest
 from graph_engineering.core.contracts.immutable import FrozenMap, freeze, thaw
+from graph_engineering.core.contracts.errors import ContractError
+from graph_engineering.core.contracts.resources import WorkContext
+from graph_engineering.core.contracts.strict_json import parse_json
 
 
 SAFE_INTEGER = 9_007_199_254_740_991
@@ -22,6 +25,7 @@ _SCHEMA_VERSIONS = {
     "release-operations-installation-bootstrap": "1.0.0",
     "release-operations-observation": "1.0.0",
     "release-operations-policy-registry": "1.0.0",
+    "release-recovery-binding": "1.0.0",
     "release-simulator-fixture-registry": "1.0.0",
 }
 RELEASE_OPERATIONS_SCHEMA_IDS = tuple(sorted(
@@ -109,6 +113,97 @@ def _self_digest(
     if not hmac.compare_digest(expected, _semantic(body, name, version)):
         raise ReleaseOperationsError(f"{name} self digest changed")
     return expected
+
+
+_RECOVERY_BINDING_FIELDS = (
+    "schema_version", "binding_kind", "task_id", "fixture_id", "target_id",
+    "resource_id", "repository_scope_digest", "namespace_identity", "root_identity",
+    "root_nonce", "installation_pins", "binding_digest",
+)
+_RECOVERY_IDENTITY_FIELDS = (
+    "kind", "device", "inode", "owner", "birth_seconds", "birth_nanoseconds",
+)
+_RECOVERY_PIN_FIELDS = (
+    "bootstrap_id", "bootstrap_digest", "policy_registry_digest",
+    "fixture_registry_digest", "profile_schema_registry_digest", "protected_closure_digest",
+)
+
+
+def _recovery_object(value: object, fields: tuple[str, ...], label: str) -> dict[str, object]:
+    if type(value) is not dict or set(value) != set(fields):
+        raise ReleaseOperationsError(f"{label} fields are not exact")
+    return {field: value[field] for field in fields}
+
+
+def _recovery_id(value: object, label: str) -> str:
+    result = _text(value, label)
+    if len(result) > 255 or any(ord(character) < 33 or ord(character) > 126 for character in result):
+        raise ReleaseOperationsError(f"{label} is not a bounded canonical ID")
+    return result
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class ReleaseRecoveryBinding:
+    """Validated immutable lookup data, never an authority to open or mutate a root."""
+
+    projection: FrozenMap
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise TypeError("release recovery bindings require validated input")
+
+    @classmethod
+    def from_bytes(cls, body: bytes, *, context: WorkContext) -> "ReleaseRecoveryBinding":
+        if type(body) is not bytes or type(context) is not WorkContext:
+            raise ReleaseOperationsError("release binding requires bytes and bounded work context")
+        try:
+            value = parse_json(body, context=context, source_id="release-recovery-binding")
+        except (ValueError, TypeError, UnicodeError, ContractError) as error:
+            raise ReleaseOperationsError("release binding JSON or resource bound is invalid") from error
+        return cls.from_dict(value)
+
+    @classmethod
+    def from_dict(cls, value: object) -> "ReleaseRecoveryBinding":
+        document = _recovery_object(value, _RECOVERY_BINDING_FIELDS, "release binding")
+        if (
+            document["schema_version"] != "1.0.0"
+            or document["binding_kind"] != "retained-local-release-root"
+        ):
+            raise ReleaseOperationsError("release binding version or kind changed")
+        for field in ("task_id", "fixture_id", "target_id", "resource_id"):
+            _recovery_id(document[field], field)
+        _digest(document["repository_scope_digest"], "repository scope digest")
+        _raw(document["root_nonce"], "root nonce")
+        for field in ("namespace_identity", "root_identity"):
+            identity = _recovery_object(document[field], _RECOVERY_IDENTITY_FIELDS, field)
+            _recovery_id(identity["kind"], "identity kind")
+            for name in _RECOVERY_IDENTITY_FIELDS[1:]:
+                _integer(identity[name], name)
+            if identity["birth_nanoseconds"] >= 1_000_000_000:
+                raise ReleaseOperationsError("identity birth nanoseconds are out of range")
+            document[field] = identity
+        pins = _recovery_object(document["installation_pins"], _RECOVERY_PIN_FIELDS, "installation pins")
+        _recovery_id(pins["bootstrap_id"], "bootstrap ID")
+        for field in _RECOVERY_PIN_FIELDS[1:]:
+            _digest(pins[field], field)
+        document["installation_pins"] = pins
+        _self_digest(document, "release-recovery-binding", "binding_digest")
+        result = object.__new__(cls)
+        object.__setattr__(result, "projection", freeze(document))
+        return result
+
+    def to_dict(self) -> dict[str, object]:
+        return thaw(self.projection)
+
+    def target_digest(self) -> str:
+        return semantic_digest(
+            {field: self.projection[field] for field in (
+                "fixture_id", "resource_id", "target_id", "task_id", "binding_digest",
+            )},
+            contract_type="urn:gew:contract:local-release-target",
+            projection_id="urn:gew:digest-projection:local-release-target:2.0.0",
+            schema_id="urn:gew:schema:local-release-target:2.0.0",
+        )
 
 
 _POLICY_FIELDS = (

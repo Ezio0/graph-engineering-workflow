@@ -288,11 +288,33 @@ class ScenarioTruthSecurityTests(unittest.TestCase):
             ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json"
         )
         targets = envelope["allowed_targets"]
-        self.assertEqual(len(targets), 179)  # type: ignore[arg-type]
-        self.assertEqual(len(set(targets)), 179)  # type: ignore[arg-type]
+        self.assertEqual(len(targets), 183)  # type: ignore[arg-type]
+        self.assertEqual(len(set(targets)), 183)  # type: ignore[arg-type]
         record = _document(
             ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json"
         )
+        bridge = record["p3_restart_bridge_security_amendment"]
+        bridge_targets = {
+            "application/graph_engineering/application/security.py",
+            "storage/graph_engineering/storage/security.py",
+        }
+        self.assertEqual(set(bridge["approved_target_boundary_additions"]), bridge_targets)
+        self.assertEqual(bridge["user_message"], "批准")
+        self.assertEqual(bridge["previous_allowed_target_count"], 181)
+        self.assertEqual(bridge["current_allowed_target_count"], 183)
+        self.assertLessEqual(bridge_targets, set(targets))
+        targets = set(targets) - bridge_targets
+        restart = record["p3_restart_implementation_amendment"]
+        restart_targets = {
+            "config/contracts/schemas/release-recovery-binding-1.0.0.json",
+            "config/contracts/schemas/release-recovery-binding-input-1.0.0.json",
+        }
+        self.assertEqual(set(restart["approved_target_boundary_additions"]), restart_targets)
+        self.assertEqual(restart["user_message"], "批准")
+        self.assertEqual(restart["previous_allowed_target_count"], 179)
+        self.assertEqual(restart["current_allowed_target_count"], 181)
+        self.assertLessEqual(restart_targets, set(targets))
+        targets = set(targets) - restart_targets
         p3_amendment = record["p3_foundation_record_and_contract_amendment"]
         p3_targets = {
             "tests/contract/test_wp07a_action_contracts.py",
@@ -377,8 +399,8 @@ class ScenarioTruthSecurityTests(unittest.TestCase):
                 targets = document["allowed_targets"]
                 index = targets.index("docs/adr/0009-offline-release-operations-simulator-authority.md")
                 targets[index] = "docs/adr/unauthorized-equal-cardinality-substitution.md"
-                self.assertEqual(len(targets), 179)
-                self.assertEqual(len(set(targets)), 179)
+                self.assertEqual(len(targets), 183)
+                self.assertEqual(len(set(targets)), 183)
             return document
 
         with mock.patch(__name__ + "._document", side_effect=substituted_document):

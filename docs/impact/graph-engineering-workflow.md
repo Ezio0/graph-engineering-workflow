@@ -1,5 +1,120 @@
 # Graph Engineering Workflow — Impact Analysis
 
+## 2026-09-19 RS-BS prerequisite impact — R0
+
+Authority and design: ADR-0009 RS-BS, Spec RS-BS-1/2, Human
+`p3_restart_bridge_security_amendment`. Exact target count grows 181 -> 183
+only for `application/graph_engineering/application/security.py` and
+`storage/graph_engineering/storage/security.py`. Existing actions.py/tasks.py,
+WP-08 release unit/integration tests and authority contract tests are already
+allowed. No core graph state, storage schema, new source file, event or GraphRef.
+
+Task reads gain verified event-to-domain ordinal validation; both write paths
+use repository head ordinals. Action snapshot production preserves the closed
+domain wrapper; legacy action-only behavior remains. Public clock-writing
+security issuance stays unchanged; the new doctor read has no write authority.
+Main risks: mixed history acceptance, stale load/replay join, dropping unknown
+wrapper fields, missing compensation/concrete action write sites, shallow
+immutability and accidental trusted_now calls. Tests are explicit in RS-BS.
+
+Source modifications require fresh source-checkout attestation and affected
+protected-resource hashes. Recompute release/scenario/performance/migration/
+dependency bootstrap or pyproject projections only if their actual inputs
+change. Preserve the paired package source/resource ordering. Recompute action
+registry/policy/security-runtime cascade only if its actual build/source
+projection changes. Existing source membership and schema counts are unchanged
+by these two already-packaged security modules. Preserve historical bootstrap
+bytes, oracle, workload/noise settings, plan shape 244/122/30 and prior records.
+
+Record this design in new append-only RS-BS arrays in existing docs containers,
+and implementation evidence in existing p3-foundation-r2 containers. Capture
+upstream RS-1 hashes before supplements; its 27 tests remain historical evidence
+only and must not be relabeled as tests of new code. Independent reviews and
+actual reducer decisions bind each new raw-byte bundle.
+
+## 2026-09-19 P3 restart design impact — R1
+
+This is a design-only proposal (P3-RS-A), not implementation authorization.
+It follows local commit `ff7feda` and preserves Positioning/PRD, the exact179
+Envelope, all historical review records, and plan244/oracle122/30 missing.
+The current unconditional release restore rejection remains correct until the
+complete proposed trust chain is implemented and verified.
+
+The material change is retention across process exit plus a new, explicitly
+read-only recovery issuer. The trusted runtime namespace and repository anchor
+must remain outside caller evidence. Physical-root binding prevents copied
+logical IDs from substituting another simulator. Destroy/abort remains explicit
+owner work, not a recovery side effect. Orphan retention is a real disk-lifetime
+cost; recovery neither scans nor cleans it. A missing or invalid marker produces
+a safe denial, potentially requiring manual owner cleanup.
+
+| Proposed affected layer | Existing implementation targets / compatibility boundary |
+|---|---|
+| Platform-neutral binding validation | `core/graph_engineering/core/release_operations.py`; adapter-specific physical checks stay out of core |
+| Root identity and lifetime | `adapters/graph_engineering/adapters/local_release_simulator.py`; legacy disposable close and v1 target digest unchanged |
+| Fresh read-only action and release evidence | `application/graph_engineering/application/actions.py`, `release_operations.py`; no resurrected ActionOutcome or mutation gate |
+| Task/CAS/source recovery | `application/graph_engineering/application/profile_execution.py`; read-only reconstruction, no weakened final completion fence |
+| Installed resource closure | Existing profile schema registry, release bootstrap, source/wp-00 manifests and pyproject; only actual input projections re-signed |
+| Focused tests and support | Existing WP08 release unit/integration/Remaining54 authority-contract files and release/category/runtime test support; no coverage plan/oracle edits |
+| Proposed new paths | Two `release-recovery-binding[-input]-1.0.0.json` schemas named in ADR-0009; **not currently allowed and not created** |
+
+Future exact change selection must be a subset of the accepted179 plus those
+two proposed schemas, not a blanket edit of every listed consumer. Required and
+conditional provenance cascades are listed below. A pin cycle, new storage
+API/schema, new file or unverifiable source requires a concrete authority
+decision, not a fallback.
+Storage journal/lease/repository files are read-only references, not proposed
+write targets. Assessment 1.0–1.4 and release-observation 1.0 remain compatible.
+
+### RS provenance cascade (proposed implementation only)
+
+All paths below are exact and project-relative. Derive hashes after actual
+inputs are final, without fixed-point or downstream-to-upstream feedback.
+
+| Trigger | Required existing target / closure |
+|---|---|
+| Binding schema pair | `core/graph_engineering/core/release_operations.py` exact IDs/validator; `config/contracts/profile-schema-registry-v1.json` exact ID/domain/raw mapping; `core/graph_engineering/core/profiles.py` only if closed domain membership requires the new contract |
+| Release schemas grow 16 -> 18 | `core/graph_engineering/__init__.py` exact length/uniqueness, not an unbounded vector; `pyproject.toml` release schema sources/resources/package lists; `config/release-operations/release-operations-installation-bootstrap-v1.json` schema vectors and protected closure |
+| Shared profile_execution.py / loader / schema-registry change | `config/performance/performance-benchmark-installation-bootstrap-v1.json`, `config/migration/migration-rehearsal-installation-bootstrap-v1.json`, `config/profiles/scenario-truth-installation-bootstrap-v1.json`: current source/resource raw pins, profile-schema semantic/raw pins and closure/bootstrap digests |
+| Shared profile-schema registry | `config/security/dependency-advisory-installation-bootstrap-v1.2.json`: current profile-schema pins and bootstrap digest; advisory/history/schema meanings and historical v1/v1.1 bootstrap bytes stay frozen |
+| Current bootstrap changes | `pyproject.toml` tool.gew.profile release-operations, performance-benchmark, migration-rehearsal, scenario-truth and dependency-advisory sections: bootstrap semantic/raw pins and actual protected-source projections |
+| Source/resource closure | `pyproject.toml` coverage-execution-plan source-checkout/package member lists and hashes; `config/verification/wp-00-targets.json` membership; `tests/support/source_checkout_attestation.py`, `tests/support/runtime_resources.py`, `tests/support/runtime_distribution.py` only where their actual enumerations/loaders change; scripts/build_backend.py stays read-only |
+
+Conditional action branch: `pyproject.toml` built-in action implementation
+projection -> `config/contracts/action-adapter-registry-v1.json` ->
+`config/actions/concrete-action-policy-v1.json` -> BOTH
+`config/actions/action-policy-v1.json` and
+`config/actions/action-policy-local-actions-v1.json` -> respectively
+`config/security/security-runtime-v1.json` and
+`config/security/security-runtime-local-actions-v1.json` -> the current
+bootstrap/package consumers above. Re-sign a branch only when its own actual
+frozen projection changes, not whenever an unrelated pyproject table changes.
+Connector/action schema registries stay unchanged: no new operation is proposed.
+
+Plan bindings/oracle members, Support Matrix, scenario policy/fixture/oracle
+values, performance benchmark registry/noise vector/thresholds and historical
+dependency bootstrap versions remain untouched. The current performance
+BOOTSTRAP is a required provenance consumer, not benchmark workload data or
+permission to run a scenario. Same-date Test Plan gives bounded selectors and
+new closed-factory checks; no performance/cumulative execution is needed.
+
+Primary risks and required proof: path/hard-link/root substitution (fresh
+descriptor identity); self-signed root metadata (durable target digest anchor);
+revival after deletion/close (exact lifecycle and marker eligibility); mixed
+action/claim/compensation receipts (full joins); old source issuers (fresh durable
+source reconstruction); lost counter meaning (new read-only epoch); read/write
+races (shared lock order and final closure); cleanup on error (zero recovery
+writes); same-process tests mislabeled cold restart (exec-based fresh process).
+A host/repository-wide malicious rollback is not solved by local hashes.
+
+Implementation rollback, if later required, restores fail-closed recovery and
+preserves retained bytes for explicit owner disposal; it must not rewrite
+committed evidence, silently migrate old roots or restore action replay.
+No data migration, DB/event/GraphRef change, dependency, daemon, service/port,
+credential, production operation, WP-10 or network is proposed. Cold recovery
+does not constitute the missing 30 records or a cumulative acceptance result.
+
+
 ## 2026-09-18 P3 foundation evidence-path amendment
 
 Human approval `明确批准这五个路径` authorizes

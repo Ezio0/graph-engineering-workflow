@@ -1,4 +1,139 @@
 {
+  "p3_restart_record_adapter_approvals": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-restart-record-adapter-human-2026-09-20-r0",
+      "decided_at": "2026-09-20",
+      "decided_by": "Human Owner",
+      "user_message": "是的",
+      "approval_context": "Affirmative answer to: 你是指明确批准六路径适配方案吗？这次只确认新增记录路径和证据目录配置，已有的提交授权仍然有效。",
+      "approved_proposal_record_id": "p3-restart-commit-preflight-2026-09-20-r0",
+      "approved_proposal_digest": "sha256:327170f963da01de44b5b2abfa70bc65d69cecbe56b37acfb703770064170e62",
+      "approved_additional_workflow_paths": [
+        ".workflow/manifest.json",
+        "config/workflow-policy.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-precommit-evidence-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-candidate-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-review-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-receipt-r0.json"
+      ],
+      "approved_policy_adapter": {
+        "json_pointer": "/verification_evidence/detached_path_prefixes",
+        "before": [
+          ".workflow/delivery/"
+        ],
+        "after": [
+          ".workflow/delivery/GEW-REMAINING54-V1/detached/"
+        ]
+      },
+      "effective_policy_path": "config/workflow-policy.json",
+      "product_execution_envelope_preserved": true,
+      "existing_product_execution_targets": 183,
+      "combined_workflow_and_product_target_count": 189,
+      "approved_actions": [
+        "create the approved Manifest and project-local Policy",
+        "capture fresh canonical bounded native evidence using the frozen workflow CLI",
+        "create and independently review the exact staged-tree Candidate",
+        "perform the already authorized single local Git commit after APPROVED",
+        "verify detached commit Receipt",
+        "continue one bounded 1-3-change RS-2/RS-3 step after successful Receipt"
+      ],
+      "original_commit_authority": {
+        "human_message": "那继续吧，先提交一下，提交完之后再继续。",
+        "authorization_scope": "One local commit of the current accepted checkpoint plus previously uncommitted allowed work, normal staging and commit preparation, receipt verification, then one bounded 1-3-change RS-2/RS-3 continuation. Future changes have no automatic commit authority.",
+        "commit_authority_already_granted": true,
+        "commit_authority_consumed": false
+      },
+      "resolves_findings": [
+        "P3-RESTART-COMMIT-MANIFEST",
+        "P3-RESTART-COMMIT-DETACHED-PREFIX"
+      ],
+      "preservation": "Keep the preceding BLOCKED verdict and actual reducer decision unchanged. Preserve every historical record. Exactly one Policy data delta is authorized; all independent-review, role, Tier, digest, snapshot, timeout and irreversible gates remain effective. Detached evidence, Candidate, Review and Receipt remain untracked; no audit-file edits after capture.",
+      "not_authorized": [
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "external communication",
+        "monitoring",
+        "cumulative/performance workload",
+        "mandatory/scenario coverage issuance",
+        "WP10",
+        "an additional automatic commit of subsequent work"
+      ]
+    }
+  ],
+  "p3_restart_commit_preflight_records": [
+    {
+      "record_id": "p3-restart-commit-preflight-2026-09-20-r0",
+      "artifact_digest": "sha256:327170f963da01de44b5b2abfa70bc65d69cecbe56b37acfb703770064170e62",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "verification",
+        "decision": "BLOCKED",
+        "code": "E_BLOCKED",
+        "message": "reviewer blocked the artifact",
+        "next_node": null,
+        "revision": 0,
+        "human_required": false,
+        "current_node": "verification",
+        "input_verdict": "BLOCKED",
+        "input_digests": {
+          "envelope": "sha256:904e7a6aeb96b2cd8197642174a8cfc36872bbfb092d919a6cf527fde5d8063a",
+          "state": "sha256:6829357fc07441a5cf5ec751987bd64d23d8e0a85279166d258fe8ee55e730e2",
+          "verdict": "sha256:c0b70684f32f83ae92007487e93c86a0a2e4a8fd19a6087c415fbfe17d00c03d"
+        }
+      },
+      "cli_exit_code": 1,
+      "execution_kind": "Actual unchanged frozen validate_artifact_bundle.py CLI using the exact persisted verification state, unmodified independent verdict and embedded effective envelope; graph/Policy raw hashes and all 49 initial payload files revalidated first.",
+      "preflight_checks": {
+        "proposal_digest": "327170f963da01de44b5b2abfa70bc65d69cecbe56b37acfb703770064170e62",
+        "prior_records_preserved": true,
+        "staged_49_payload_unchanged": true,
+        "new_paths_created": false,
+        "only_proposed_policy_prefix_delta": true,
+        "manifest_paths_valid": true,
+        "runner_exit_count_skip_timeout_guards": true
+      },
+      "single_local_commit_authorization": {
+        "human_message": "那继续吧，先提交一下，提交完之后再继续。",
+        "scope": "One local commit of the current accepted checkpoint plus previously uncommitted allowed work, normal staging and commit preparation, receipt verification, then one bounded 1-3-change RS-2/RS-3 continuation. Future changes have no automatic commit authority.",
+        "authorized": true,
+        "consumed": false,
+        "base_commit": "ff7feda40cc7e8d68c3a2f48dafe58adf0396400",
+        "prerequisites": [
+          "A valid current canonical Candidate and independent Technical Review",
+          "Explicit approval of the concrete six workflow paths and single project-local Policy prefix adapter, because they exceed the current183 target boundary",
+          "Exact commit parent/tree and detached Receipt verification"
+        ],
+        "note": "Do not ask again for the same single local commit authority. Current blockers concern record-path/effective-Policy authority and binding, not an expired or missing commit instruction."
+      },
+      "handoff": {
+        "status": "precommit-blocked-on-workflow-record-adaptation",
+        "new_product_defects_found": false,
+        "proposal_record": ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json#p3_restart_commit_preflight_packets[0]",
+        "proposal_digest": "sha256:327170f963da01de44b5b2abfa70bc65d69cecbe56b37acfb703770064170e62",
+        "open_finding_ids": [
+          "P3-RESTART-COMMIT-MANIFEST",
+          "P3-RESTART-COMMIT-DETACHED-PREFIX"
+        ],
+        "resolved_preparation_finding_ids": [
+          "P3-RESTART-COMMIT-RUNNER-EXIT"
+        ],
+        "proposal_paths_created": false,
+        "policy_changed": false,
+        "product_tests_rerun": false,
+        "canonical_candidate_created": false,
+        "commit": false,
+        "push": false,
+        "post_commit_implementation_started": false,
+        "next_action": "Ask only for the prepared six-path/effective-Policy record adapter. After approval preserve the existing single-commit authority and execute the ordered canonical capture/review/commit/receipt plan. Then continue the bounded RS-2/RS-3 step without another automatic commit."
+      }
+    }
+  ],
   "p3_foundation_commit_authorizations": [
     {
       "record_id": "p3-foundation-local-commit-2026-09-19-r0",

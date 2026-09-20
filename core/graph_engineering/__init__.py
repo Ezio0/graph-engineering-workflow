@@ -156,6 +156,8 @@ _SOURCE_FILES = (
     "config/contracts/schemas/release-operations-observation-input-1.0.0.json",
     "config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
     "config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+    "config/contracts/schemas/release-recovery-binding-1.0.0.json",
+    "config/contracts/schemas/release-recovery-binding-input-1.0.0.json",
     "config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
     "config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
     "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
@@ -2172,13 +2174,13 @@ def _release_operations_locations(
     schemas = value[f"schema-{location_kind}s"]
     protected = value[f"protected-{location_kind}s"]
     if (
-        type(schemas) is not list or len(schemas) != 16
+        type(schemas) is not list or len(schemas) != 18
         or type(protected) is not list or not protected
     ):
         raise DistributionIdentityError("release operations member vectors are incomplete")
     schema_paths = tuple(safe(item) for item in schemas)
     protected_paths = tuple(safe(item) for item in protected)
-    if len(set(schema_paths)) != 16 or len(set(protected_paths)) != len(protected_paths):
+    if len(set(schema_paths)) != 18 or len(set(protected_paths)) != len(protected_paths):
         raise DistributionIdentityError("release operations member vectors are not unique")
     return fixed, schema_paths, protected_paths
 

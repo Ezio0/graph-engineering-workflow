@@ -8,6 +8,9 @@ import copy
 import hashlib
 import hmac
 import json
+import os
+import pathlib
+import threading
 import tomllib
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
@@ -16,6 +19,8 @@ from weakref import WeakSet
 from graph_engineering.adapters.local_release_simulator import (
     LocalReleaseSimulatorSession,
     _LocalReleaseSimulatorFactory,
+    _RetainedNamespace,
+    _retained_members,
 )
 from graph_engineering.core.contracts.digest import SEMANTIC_DIGEST, semantic_digest
 from graph_engineering.core.contracts.immutable import FrozenMap, freeze, thaw
@@ -25,10 +30,79 @@ from graph_engineering.core.release_operations import (
     ReleaseArtifactManifest,
     ReleaseOperationsError,
     ReleaseOperationsRegistry,
+    ReleaseRecoveryBinding,
 )
 
 
 _INSTALLED_RELEASE_FACTORIES: WeakSet[object] = WeakSet()
+
+_RETAINED_NAMESPACES: dict[int, tuple[object, object, object, object, object, object, int, int]] = {}
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class RetainedReleaseNamespace:
+    """Runtime-issued namespace authority, never reconstructed from binding data."""
+
+    repository_scope_digest: str
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        raise TypeError("retained release namespace requires a live runtime issuer")
+
+    def _record(self) -> tuple:
+        row = _RETAINED_NAMESPACES.get(id(self))
+        if row is None or row[0] is not self or row[-2:] != (os.getpid(), threading.get_ident()):
+            raise ReleaseOperationsError("retained release namespace is missing, closed or foreign")
+        return row
+
+    def require_current(self, coordinator: object) -> _RetainedNamespace:
+        _authority, runtime, expected, scope, native, repository_identity, _pid, _thread = self._record()
+        if coordinator is not expected:
+            raise ReleaseOperationsError("retained release coordinator is foreign")
+        runtime.require_current()
+        if coordinator._retained_scope() is not scope:
+            raise ReleaseOperationsError("retained release installation scope changed")
+        with _RetainedNamespace(scope.repository_root) as repository:
+            if repository.identity != repository_identity:
+                raise ReleaseOperationsError("retained release repository physical identity changed")
+        native._require_current()
+        return native
+
+    def close(self) -> None:
+        row = self._record()
+        row[4].close()
+        del _RETAINED_NAMESPACES[id(self)]
+
+    def __enter__(self) -> "RetainedReleaseNamespace":
+        self.require_current(self._record()[2])
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        self.close()
+
+
+def _issue_retained_namespace(runtime: object, coordinator: object, path: object) -> RetainedReleaseNamespace:
+    from graph_engineering.application.runtime import RuntimeSession
+    from graph_engineering.application.actions import ActionCoordinator
+
+    if type(runtime) is not RuntimeSession or type(coordinator) is not ActionCoordinator or not isinstance(path, pathlib.Path):
+        raise ReleaseOperationsError("retained release runtime configuration is not exact")
+    runtime.require_current()
+    scope = coordinator._retained_scope(require_idle=True)
+    with _RetainedNamespace(scope.repository_root) as repository:
+        identity = dict(repository.identity)
+    native = _RetainedNamespace(path)
+    try:
+        if native.identity == identity:
+            raise ReleaseOperationsError("retained namespace cannot be the repository root")
+        result = object.__new__(RetainedReleaseNamespace)
+        digest = _semantic({"installation_id": scope.installation_id, "repository_id": scope.repository_id,
+            "repository_locator_digest": scope.repository_locator_digest, "physical_identity": identity}, "release-repository-scope")
+        object.__setattr__(result, "repository_scope_digest", digest)
+        _RETAINED_NAMESPACES[id(result)] = (result, runtime, coordinator, scope, native, identity, os.getpid(), threading.get_ident())
+        return result
+    except BaseException:
+        native.close()
+        raise
 
 
 def _strict_json(body: bytes, label: str) -> dict[str, object]:
@@ -627,12 +701,18 @@ class ReleaseOperationsRegistryFactory:
         baseline_manifest: ReleaseArtifactManifest,
         authorized_artifacts: tuple[ReleaseArtifactManifest, ...],
         fault_hook: Callable[[str], None] = lambda _step: None,
+        retained_namespace: RetainedReleaseNamespace | None = None,
     ) -> LocalReleaseSimulatorSession:
         from graph_engineering.application.actions import ActionCoordinator
 
         self.require_installed_authority()
         if type(action_coordinator) is not ActionCoordinator:
             raise ReleaseOperationsError("release simulator coordinator is missing or forged")
+        if retained_namespace is not None:
+            if type(retained_namespace) is not RetainedReleaseNamespace:
+                raise ReleaseOperationsError("release retained namespace authority is not exact")
+            retained_namespace.require_current(action_coordinator)
+            action_coordinator._retained_scope(require_idle=True)
         if any(
             self._issued_manifests.get(id(manifest)) is not manifest
             for manifest in authorized_artifacts
@@ -647,24 +727,107 @@ class ReleaseOperationsRegistryFactory:
             (manifest, self.artifact_bytes(manifest))
             for manifest in authorized_artifacts
         )
-        session = _LocalReleaseSimulatorFactory(
-            self._registry,
-            currentness_check=self._currentness_check,
-            durable_execution_gate=action_coordinator.issue_durable_execution_gate(),
-            issuer=self,
-        ).create(
-            task_id=task_id,
-            fixture_id=fixture_id,
-            target_id=target_id,
-            resource_id=resource_id,
-            baseline_manifest=baseline_manifest,
-            baseline_artifact_bytes=baseline_artifact_bytes,
-            authorized_artifacts=exact_authorized,
-            fault_hook=fault_hook,
-        )
+        lease = binding = None
+        current = self._currentness_check
+        max_read_bytes = None
+        try:
+            if retained_namespace is not None:
+                native = retained_namespace.require_current(action_coordinator)
+                names = _retained_members(self._registry.fixture(fixture_id))
+                lease = native.create(task_id, target_id, members={
+                    name: 0o600 for role, name in names.items() if role != "identity"})
+                # The root gate is already held before the first repository read.
+                security = action_coordinator._issuer.read_task_state(task_id).state["binding"]
+                runtime = retained_namespace._record()[1]
+                if (security["owner_id"], security["runtime_kind"], security["runtime_lineage_id"]) != (
+                    runtime.proof.owner_id, runtime.capabilities.runtime_kind, runtime.proof.lineage_id):
+                    raise ReleaseOperationsError("retained release runtime does not own the task")
+                value = {"schema_version": "1.0.0", "binding_kind": "retained-local-release-root",
+                    "task_id": task_id, "fixture_id": fixture_id, "target_id": target_id, "resource_id": resource_id,
+                    "repository_scope_digest": retained_namespace.repository_scope_digest, **lease.binding_parts(),
+                    "installation_pins": {k: self._bootstrap[k] for k in (
+                        "bootstrap_id", "bootstrap_digest", "policy_registry_digest", "fixture_registry_digest",
+                        "profile_schema_registry_digest", "protected_closure_digest")}}
+                value["binding_digest"] = _semantic(value, "release-recovery-binding")
+                binding = ReleaseRecoveryBinding.from_dict(value)
+                max_read_bytes = action_coordinator._policy._context.profile.limits["raw_document_bytes"]
+                def current() -> None:
+                    self._currentness_check()
+                    retained_namespace.require_current(action_coordinator)
+            session = _LocalReleaseSimulatorFactory(
+                self._registry, currentness_check=current,
+                durable_execution_gate=action_coordinator.issue_durable_execution_gate(), issuer=self,
+            ).create(task_id=task_id, fixture_id=fixture_id, target_id=target_id, resource_id=resource_id,
+                baseline_manifest=baseline_manifest, baseline_artifact_bytes=baseline_artifact_bytes,
+                authorized_artifacts=exact_authorized, fault_hook=fault_hook,
+                retained_lease=lease, recovery_binding=binding, max_read_bytes=max_read_bytes,
+                retained_close_check=action_coordinator._require_retained_idle)
+            if lease is not None:
+                action_coordinator._register_retained_target(task_id, session)
+        except BaseException:
+            if lease is not None:
+                lease.close()
+            raise
         self._issued_sessions[id(session)] = session
         self._session_coordinators[id(session)] = action_coordinator
         return session
+
+    def destroy_retained_simulator(
+        self, *, action_coordinator: object,
+        retained_namespace: RetainedReleaseNamespace,
+        session: LocalReleaseSimulatorSession,
+    ) -> None:
+        """Explicit owner cleanup of an original quiesced session, not recovery.
+
+        The original factory/session registration is required. A serialized
+        binding or a freshly opened directory never grants this authority.
+        """
+        from graph_engineering.application.actions import ActionCoordinator
+
+        self.require_installed_authority()
+        if (
+            type(action_coordinator) is not ActionCoordinator
+            or type(retained_namespace) is not RetainedReleaseNamespace
+            or type(session) is not LocalReleaseSimulatorSession
+            or self._issued_sessions.get(id(session)) is not session
+            or session._factory is not self
+            or self._session_coordinators.get(id(session)) is not action_coordinator
+        ):
+            raise ReleaseOperationsError("retained destruction authority is foreign")
+        native = retained_namespace.require_current(action_coordinator)
+        action_coordinator._retained_scope(require_idle=True)
+        root = session._root
+        if root._retained_lease is None or not root.closed or not root._retained_lease._closed:
+            raise ReleaseOperationsError("retained destruction requires a quiesced original session")
+        binding = root._recovery_binding
+        value = binding.to_dict()
+        if (
+            value["repository_scope_digest"] != retained_namespace.repository_scope_digest
+            or value["installation_pins"] != {k: self._bootstrap[k] for k in value["installation_pins"]}
+            or action_coordinator._retained_targets.get((value["task_id"], value["target_id"])) is not session
+        ):
+            raise ReleaseOperationsError("retained destruction binding is foreign or stale")
+        names = _retained_members(self._registry.fixture(value["fixture_id"]))
+        context = action_coordinator._policy._context
+        with native.open_readonly(binding,
+                members={name: 0o600 for role, name in names.items() if role != "identity"},
+                context=context) as lease:
+            security = action_coordinator._issuer.read_task_state(value["task_id"])
+            current = security.state["binding"]
+            runtime = retained_namespace._record()[1]
+            if (current["task_id"], current["owner_id"], current["runtime_kind"], current["runtime_lineage_id"]) != (
+                value["task_id"], runtime.proof.owner_id, runtime.capabilities.runtime_kind, runtime.proof.lineage_id
+            ):
+                raise ReleaseOperationsError("retained destruction runtime does not own the task")
+            targets = [target for target in current["targets"] if target["target_id"] == value["target_id"]]
+            if len(targets) != 1 or targets[0]["target_digest"] != binding.target_digest():
+                raise ReleaseOperationsError("retained destruction target binding changed")
+            if action_coordinator._issuer.read_task_state(value["task_id"]) != security:
+                raise ReleaseOperationsError("retained destruction security state changed")
+            self.require_installed_authority()
+            retained_namespace.require_current(action_coordinator)
+            action_coordinator._require_retained_idle()
+            lease._destroy_owned_root(binding, context)
 
     def issue_deployment_observation(
         self,
@@ -687,6 +850,8 @@ class ReleaseOperationsRegistryFactory:
         ):
             raise ReleaseOperationsError("release deployment authority is foreign")
         try:
+            if session._root._retained_lease is not None:
+                session._root._require_open()
             outcome = action_coordinator.require_issued_outcome(outcome)
         except ValueError as error:
             raise ReleaseOperationsError(
@@ -1061,6 +1226,8 @@ class ReleaseOperationsRegistryFactory:
             raise ReleaseOperationsError("release live authority is missing or foreign")
         terminal = rollback if rollback is not None else deployment
         try:
+            if session._root._retained_lease is not None:
+                session._root._require_open()
             # A compensated manual observation is history, not a live outcome.
             coordinator.require_issued_outcome(self._deployment_outcomes.get(id(terminal)))
             for item in observations:

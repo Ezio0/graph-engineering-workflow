@@ -1,5 +1,159 @@
 # ADR-0009: Offline Release Operations Simulator Authority
 
+## 2026-09-19 RS-BS: same-task bridge and zero-write security reads — R0
+
+Status: Human approved the two prerequisite design changes and the exact two
+security source paths in `p3_restart_bridge_security_amendment`. This supplement
+is pending independent design review; implementation follows only its PASS.
+The earlier P3-RS-A R1 design is accepted by the implementation amendment;
+its original proposal wording below is historical. RS-1 binding implementation
+has a scoped PASS, not a cold-recovery completion claim.
+
+Decision: retain the existing closed four-field task wrapper and distinguish
+domain event ordinals from repository event ordinals in the application layer.
+Action state remains authoritative in the existing journal/claim rows. Action
+commits on a domain task preserve domain and runner exactly and advance only
+the outer repository revision. Legacy action-only snapshots retain their
+existing action_state projection. Malformed/extra-field domain wrappers reject;
+there is no stripping, conversion, migration or adoption of old malformed rows.
+
+A second, data-only security read path uses the existing doctor connection and
+its SQLite read-only enforcement. It does not read or advance trusted time and
+cannot issue a TaskSecurityContext, action outcome, gate, lease or purge fence.
+The current mutation/security issuance path is unchanged.
+
+Rejected: widening the task wrapper with optional action_state; assigning
+repository ordinals to core DomainEvent; adding no-op domain events; calling
+the clock-writing reader in recovery; using private SQL from the action layer.
+No core state-machine, database schema, event kind or GraphRef change is needed.
+
+The exact rules and tests are Spec RS-BS-1/2 and Test Plan RS-BS. The additional
+allowed targets are application/security.py and storage/security.py at their
+full package paths in the Human record (181 -> 183). All other restrictions,
+including 244/122/30, normal-only recovery and no commit/network, are unchanged.
+
+## 2026-09-19 P3 restart design proposal — R1, not implementation authority
+
+The Human reply `批准 开始吧` approves the previously requested **restart-safe
+recovery design review only**. The local foundation commit is
+`ff7feda40cc7e8d68c3a2f48dafe58adf0396400`; its accepted implementation
+artifact is `sha256:8e3916c256deedc62e315b0962bf384c741b9790650abdb835854cd9600c6490`.
+The accepted foundation and one consumed local-commit authorization remain
+historical. No implementation, product test, coverage issuance, cumulative or
+performance run, monitor, commit, network, WP-10 or external action starts here.
+
+This supplement is a proposed material architecture choice, **P3-RS-A**:
+retain a runtime-owned private simulator root and recover an already committed
+assessment through a fresh, read-only authority. It does not change approved
+product intent or claim the current fail-closed restart is already implemented.
+The exact179 Envelope is unchanged. Design records use append-only siblings in
+the existing four `docs-*-r1.json` containers, not new workflow paths.
+
+### Problem and choice
+
+The current root belongs to `TemporaryDirectory` and `close()` removes it.
+`target_digest` currently covers logical fixture/resource/target IDs, not the
+physical root. Deployment outcomes, phase bookkeeping and source issuers are
+process-local. `restore_projection()` therefore correctly refuses authority;
+`CategoryExecutionApplication.restart()`, which takes an existing application
+and reissues its old sources, is not a cold-process recovery proof.
+
+| Choice | Consequence | Recommendation |
+|---|---|---|
+| P3-RS-A: retained root, repository-bound identity, read-only cold recovery | New lifetime/identity contract; recovers only a completed, committed assessment with all live sources revalidated | Recommend for the next bounded foundation slice |
+| P3-RS-B: process-local quiesce/reopen only | No portable recovery; useful for resource release but cannot satisfy the cold-process goal | Keep E1 semantics, do not relabel as restart completion |
+| Path/digest-only restore, or automatic apply/restore replay | A copied root or stale projection can manufacture authority; unknown effects may be repeated | Reject |
+
+### Proposed trust and lifetime boundary
+
+The trusted local runtime supplies the repository command scope and a private
+retention namespace; neither is obtained from assessment JSON, a caller path,
+an environment fallback or a directory scan. Before any action is prepared,
+the installed simulator factory creates one exclusive child for a task/target,
+writes and fsyncs a closed **release recovery binding**, and derives a new
+versioned target digest from that binding. Existing task security binding,
+prepared action, journal, claim resource set and eventual assessment must all
+bind that exact target digest. A serialized binding is a lookup and validation
+input, never a capability. The fresh runtime opens the exact configured parent
+and child with no-follow descriptor-relative operations and compares actual
+physical identity to the binding and its repository-anchored digest.
+
+This uses the existing trusted repository as an anchor, not a secret embedded in
+a fixture and not a second mutable authority database. A coherently re-signed
+copied descriptor cannot replace the target digest already committed there.
+Compromise or coherent rollback of the entire trusted repository and host
+namespace is outside this local simulator trust model; hashes do not defeat an
+attacker controlling both. Cross-machine/filesystem copying is deliberately
+unsupported. An unavailable identity/locking/fsync primitive fails closed.
+
+Retained mode is opt-in at original creation. Legacy disposable roots, existing
+1.0 logical target digests and foundation projections remain validation-only
+after loss of their live issuer; no in-place adoption or migration is allowed.
+R1's first supported cold-assessment column is exactly `normal`, with ordinary
+apply-B and completed partial-compensation-to-A release histories. Other columns
+remain unsupported; no twelve-column recovery or coverage is claimed. Spec RS-2
+defines control scope -> retained-root gate -> per-call repository locks,
+replacing R0's incompatible repository-before-root order without changing
+storage. RS-4 adds a new full cold-source validator: the existing normal-column
+helper alone is not complete provenance proof.
+Retained handle close releases descriptors but not bytes. Explicit owner
+finalize/abort destroys only its exact root, first durably removing the binding
+under the same exclusive lifecycle lock; interruption leaves an ineligible
+orphan, never a re-openable terminal root. Recovery never performs cleanup,
+creates a missing directory, fixes metadata or upgrades a schema.
+
+### Proposed recovery sequence and limit
+
+```text
+trusted runtime scope + configured retained namespace
+  -> current task's unique assessment CAS reference + fresh installed factory
+  -> exact retained binding / physical identity / exclusive read-only lease
+  -> current journal + original claim + receipt [+ compensation attempt]
+  -> fresh artifact bytes + state + health + current generic category sources
+  -> final unchanged task/source/action/root observation
+  -> new process-local read-only evidence handle (same historical CAS bytes)
+```
+
+A fresh process must not receive any old factory/session/outcome/source issuer.
+It may reconstruct history only from the current task's already committed
+assessment and independently revalidated durable sources. It cannot manufacture
+an `ActionOutcome`, arm a mutation gate, call `reconcile`, renew a claim or
+restart an interrupted apply/restore. Uncommitted, executing, unknown, partial
+without completed compensation, missing-reference and terminal/revoked cases
+stay blocked with zero recovery writes. A completed compensated history can be
+read only if the original compensated action, its original claim, the unique
+recovery attempt and the actual restore journal/receipt all agree, and fresh
+state/health prove the exact recorded A state.
+
+Historical phase transitions stay historical: recovery neither recreates
+`last_execution`/`original_binding` nor claims to observe past phases again.
+Freshness belongs to a new runtime lease/observation epoch; old observer
+counters cannot establish freshness across processes. The immutable 1.4 bytes,
+digests and one-task-reference rule remain unchanged.
+
+### Decision still required after design review
+
+Accepting P3-RS-A, its retained-root lifetime and cold read-only issuer is a
+material architecture decision, not implied by permission to write this design.
+Its proposed implementation also needs **exactly two new schema paths** added
+to the Envelope, after acceptance, for a versioned closed runtime binding:
+
+- `config/contracts/schemas/release-recovery-binding-1.0.0.json`
+- `config/contracts/schemas/release-recovery-binding-input-1.0.0.json`
+
+These files are proposals only and must not be created in this design turn.
+The associated installed schema/resource/bootstrap/source pin cascade uses
+existing targets; no DB schema, event kind, GraphRef change, dependency, daemon,
+new task reference or new evidence schema version is proposed. If implementation
+cannot meet the exact boundary, stop and identify the concrete additional need.
+
+Next implementation authority, if granted, should cover only this restart
+foundation, RED-first bounded serial tests and independent review, maintaining
+244 plan bindings / 122 oracle bindings / 30 missing. It must not include the
+24 mandatory bindings, three scenario pairs, cumulative/performance execution,
+monitoring, commit/push, network, real deployment/release or WP-10.
+
+
 ## 2026-09-18 P3 foundation evidence-path amendment
 
 Human approval `明确批准这五个路径` authorizes

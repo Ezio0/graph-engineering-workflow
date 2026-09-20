@@ -1,4 +1,280 @@
 {
+  "p3_restart_retained_observer_repair_amendment": {
+    "amendment_id": "GEW-REMAINING54-P3-RS2-OBSERVER-BINDING-REPAIR-V1",
+    "decided_at": "2026-09-20",
+    "decided_by": "Human Owner",
+    "user_message": "批准，继续",
+    "approved_request": "Only repair the cross-coordinator retained observer binding omission GEW-P3-RS2-SESSION-R0-001, execute corresponding bounded tests and obtain a new independent review; all other authority boundaries remain unchanged.",
+    "resolves_human_gate": {
+      "record_id": "p3-restart-retained-session-2026-09-19-r0",
+      "artifact_digest": "3a33c31e7e2dc6aa2f04a7925a6011a04b34237588d193961e875ff8faabc01f",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ESCALATE",
+        "code": "E_SCOPE",
+        "message": "human decision required for change kinds: implementation, test",
+        "next_node": "implementation",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "implementation",
+        "input_verdict": "REVISE",
+        "input_digests": {
+          "envelope": "sha256:904e7a6aeb96b2cd8197642174a8cfc36872bbfb092d919a6cf527fde5d8063a",
+          "state": "sha256:9c0ae99ad15851144f2532aaaf52070c8b2928e817110a8941eac335aa873cda",
+          "verdict": "sha256:b2a05463dad2013ab22881c6f5075c6ebd3f7c236568bd7c61285a264a820b12"
+        }
+      }
+    },
+    "allowed_actions": [
+      "implementation",
+      "verification",
+      "independent-review"
+    ],
+    "approved_repair": {
+      "implementation_target": "application/graph_engineering/application/actions.py",
+      "test_target": "tests/integration/test_wp08_release_operations.py",
+      "behavior": "Reject retained LocalReleaseObserver values unless this coordinator owns the exact registered action/session/observer before repository acquisition. Reuse existing scope/idle/live-lease checks; preserve disposable behavior.",
+      "verification": "Second same-repository/scope coordinator with live and closed retained observers must fail before locks, journal reads or observation with unchanged durable state; original retained and legacy reconciliation must remain valid.",
+      "pin_targets": "Only existing authorized action/release/runtime/package pin cascade paths as mechanically required by changed implementation bytes.",
+      "test_boundary": "Serial native failfast batches, fresh private attestation, real parent monotonic_ns, 600 seconds per batch; no cumulative/coverage/performance run."
+    },
+    "limits": {
+      "allowed_target_count": 183,
+      "test_command_timeout_seconds": 600,
+      "test_execution": "serial fresh fixtures; stop on first failure; diagnosed targeted repairs and retries",
+      "plan_bindings": 244,
+      "oracle_bindings": 122,
+      "missing_bindings": 30
+    },
+    "prohibitions": [
+      "stage",
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "external communication",
+      "monitoring",
+      "cumulative/performance workload execution",
+      "mandatory/scenario coverage issuance",
+      "WP10"
+    ],
+    "preservation": "Keep the unchanged R0 independent verdict and actual ESCALATE/E_SCOPE decision as historical evidence. This explicit human decision permits the specific repair; it does not alter Policy, graph, envelope targets, prior verdict labels or revision budget."
+  },
+  "p3_restart_bridge_security_amendment": {
+    "amendment_id": "GEW-REMAINING54-P3-RESTART-BRIDGE-SECURITY-V1",
+    "decided_at": "2026-09-19",
+    "decided_by": "Human Owner",
+    "user_message": "批准",
+    "approved_request": "Supplement same-task action/category snapshot and event-sequence bridge design and add a truly read-only security-state interface; independently review the supplemental design, then continue bounded implementation and tests within the already approved P3-RS-A R1 restart foundation.",
+    "accepted_upstream": {
+      "record_id": "p3-restart-rs1-2026-09-19-r0",
+      "artifact_digest": "6b4da7f6db9b98b364fe79f01482cf019ffb4a67077254dcbabbf259591e7e4d",
+      "scope": "PASS covers RS-1 binding only; RS-2 through RS-5 are not completed."
+    },
+    "approved_target_boundary_additions": [
+      "application/graph_engineering/application/security.py",
+      "storage/graph_engineering/storage/security.py"
+    ],
+    "previous_allowed_target_count": 181,
+    "current_allowed_target_count": 183,
+    "allowed_actions": [
+      "documentation",
+      "implementation",
+      "verification",
+      "independent-review"
+    ],
+    "limits": {
+      "test_command_timeout_seconds": 600,
+      "test_execution": "serial fresh fixtures; stop on first failure; targeted repair and retry only",
+      "cold_columns": [
+        "normal"
+      ],
+      "release_histories": [
+        "ordinary apply-B",
+        "completed partial compensation to A"
+      ],
+      "plan_bindings": 244,
+      "oracle_bindings": 122,
+      "missing_bindings": 30
+    },
+    "prohibitions": [
+      "mandatory/scenario coverage issuance",
+      "cumulative/performance workload execution",
+      "monitoring",
+      "commit",
+      "push",
+      "merge",
+      "network",
+      "deploy",
+      "release",
+      "external communication",
+      "WP10",
+      "new DB schema/event/GraphRef/dependency/daemon"
+    ],
+    "existing_approvals_preserved": true,
+    "tier": "T2",
+    "tier_reason": "cross-module"
+  },
+  "p3_restart_implementation_amendment": {
+    "amendment_id": "GEW-REMAINING54-P3-RESTART-IMPLEMENTATION-V1",
+    "decided_at": "2026-09-19",
+    "decided_by": "Human Owner",
+    "user_message": "批准",
+    "approved_request": "Accept reviewed P3-RS-A R1 and its exact two schema target additions; start bounded restart foundation implementation, RED-first serial tests and independent review. All other boundaries remain unchanged.",
+    "accepted_design_record_id": "p3-restart-design-2026-09-19-r1",
+    "accepted_design_digest": "5a929b98176920c76d6b1fd48cfa8e91c0c99a239db8a31ce3c794e330f69a5e",
+    "accepted_design_files": [
+      {
+        "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+        "raw_sha256": "f384ab86f2940b9d2f868b820743bd91237ce3dbbe2f204faa2844677a83c2d9",
+        "bytes": 13727
+      },
+      {
+        "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        "raw_sha256": "6ad0c3b08f88664d43d5c0d096bf9171502ba91f31f16d65dcca6664425c28bd",
+        "bytes": 57453
+      },
+      {
+        "path": "docs/adr/0009-offline-release-operations-simulator-authority.md",
+        "raw_sha256": "7e3b3ec3f0b753cd21e7a97036ca5fcdc19c1eabd96ea5d96e99cef7959720de",
+        "bytes": 35260
+      },
+      {
+        "path": "docs/impact/graph-engineering-workflow.md",
+        "raw_sha256": "5305f5789a5f6ae60e69424d8156173f18f5a3b4a618b849d1409ffd876da808",
+        "bytes": 91711
+      },
+      {
+        "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "raw_sha256": "d74e2cb2a39f715b1c66249c43a83e576921e05401f984532715e5cce0e7f07f",
+        "bytes": 80528
+      },
+      {
+        "path": "docs/specs/graph-engineering-workflow.md",
+        "raw_sha256": "90eab8fa22add3e4306f006986e27b103c6580b8398e93e79889963dea37ee86",
+        "bytes": 199884
+      },
+      {
+        "path": "docs/test-plans/graph-engineering-workflow.md",
+        "raw_sha256": "b95f2aa383d6b0e3c96af06fa7dd88d049833f880d693b1e4fdaecd4efa91682",
+        "bytes": 168199
+      }
+    ],
+    "architecture": "P3-RS-A: retained runtime-owned root, repository-bound physical identity, fresh read-only committed normal-column recovery; no action replay.",
+    "approved_target_boundary_additions": [
+      "config/contracts/schemas/release-recovery-binding-1.0.0.json",
+      "config/contracts/schemas/release-recovery-binding-input-1.0.0.json"
+    ],
+    "previous_allowed_target_count": 179,
+    "current_allowed_target_count": 181,
+    "allowed_actions": [
+      "implementation",
+      "verification",
+      "independent-review"
+    ],
+    "limits": {
+      "test_command_timeout_seconds": 600,
+      "test_execution": "serial fresh fixtures; stop on first failure; targeted repair and retry only",
+      "cold_columns": [
+        "normal"
+      ],
+      "release_histories": [
+        "ordinary apply-B",
+        "completed partial compensation to A"
+      ],
+      "plan_bindings": 244,
+      "oracle_bindings": 122,
+      "missing_bindings": 30
+    },
+    "prohibitions": [
+      "mandatory/scenario coverage issuance",
+      "cumulative/performance workload execution",
+      "monitoring",
+      "commit",
+      "push",
+      "merge",
+      "network",
+      "deploy",
+      "release",
+      "external communication",
+      "WP10",
+      "new DB schema/event/GraphRef/dependency/daemon"
+    ],
+    "evidence_containers": [
+      ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+      ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+      ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+      ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json"
+    ],
+    "prior_review_preservation": "Historical design-only ESCALATE/E_AUTHORITY and its frozen input envelope remain unchanged. This successor Human approval authorizes the transition, not a retroactive rewrite of that decision.",
+    "tier": "T2",
+    "tier_reason": "large-line-change"
+  },
+  "p3_restart_design_amendment": {
+    "amendment_id": "GEW-REMAINING54-P3-RESTART-DESIGN-V1",
+    "observed_at_utc": "2026-09-19T10:40:53Z",
+    "human_approval": "批准 开始吧",
+    "approval_context": "Approval of the prior request to start P3 restart-safe recovery design review after local foundation commit ff7feda; no implementation or remaining-coverage, cumulative/performance, or monitoring start was requested.",
+    "baseline_commit": "ff7feda40cc7e8d68c3a2f48dafe58adf0396400",
+    "baseline_tree": "c567957de3d95c0468c049c035b515df8c27d657",
+    "scope": "Inspect the accepted foundation, draft a proposed restart architecture plus Spec/Impact/Plan/Test Plan supplements, perform non-mutating structural/digest checks, and obtain independent design review. Proposal is not Human acceptance of a material architecture choice.",
+    "authorized_actions": [
+      "documentation",
+      "independent-review",
+      "review"
+    ],
+    "effective_target_paths": [
+      ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+      ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json",
+      ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json",
+      ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json",
+      ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+      "docs/adr/0009-offline-release-operations-simulator-authority.md",
+      "docs/specs/graph-engineering-workflow.md",
+      "docs/impact/graph-engineering-workflow.md",
+      "docs/plans/2026-08-13-graph-engineering-workflow.md",
+      "docs/test-plans/graph-engineering-workflow.md"
+    ],
+    "base_allowed_target_count_unchanged": 179,
+    "base_envelope_raw_sha256": "f384ab86f2940b9d2f868b820743bd91237ce3dbbe2f204faa2844677a83c2d9",
+    "prior_human_record_raw_sha256": "e24375b4c96099a24d9ea0e769be4a8c6f7e446cbba54ea7d04be9615ae39ab7",
+    "proposed_not_authorized": {
+      "architecture_choice": "P3-RS-A retained runtime-owned root and fresh read-only recovery of an already committed current assessment, with a durable repository-anchored target identity.",
+      "additional_target_paths": [
+        "config/contracts/schemas/release-recovery-binding-1.0.0.json",
+        "config/contracts/schemas/release-recovery-binding-input-1.0.0.json"
+      ],
+      "meaning": "These paths are design proposals only. Do not create or edit them until an explicit later target-boundary approval. The current approval also does not authorize implementation."
+    },
+    "expected_plan_shape_unchanged": {
+      "plan_bindings": 244,
+      "oracle_bindings": 122,
+      "missing_release_bindings": 30
+    },
+    "prohibited": [
+      "implementation",
+      "code/schema/config/test edits",
+      "product test execution",
+      "remaining 30 release coverage bindings",
+      "cumulative execution",
+      "performance execution",
+      "monitoring",
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "WP-10",
+      "external communication",
+      "new dependency/daemon/DB schema/event/GraphRef API"
+    ],
+    "preservation": "Preserve every historical record and base Envelope. Append new design-specific revisions to existing docs containers. Prior local-commit authority was consumed by ff7feda and is not reused."
+  },
   "p3_foundation_record_and_contract_amendment": {
     "amendment_id": "GEW-REMAINING54-P3-FOUNDATION-RECORDS-WP07A-V1",
     "observed_at_utc": "2026-09-18T02:40:13Z",
@@ -16,10 +292,21 @@
     "scope": "Add only these five paths to allowed_targets. Preserve exact adapter ordering, digest/substitution rejection tests and every historical r1 record. Existing authorized authority-membership checks and documentation may be aligned with this explicit five-path delta.",
     "supersedes": "Only the exact174 target-count/no-new-target and pending-r2-record restrictions in the P3 foundation continuation amendment; all other boundaries retain their meaning.",
     "prohibited_unchanged": [
-      "commit", "push", "merge", "deploy", "release", "network", "WP10",
-      "external-communication", "cumulative-run", "cumulative-rerun",
-      "performance-workload", "monitoring-restoration", "P3-mandatory-coverage",
-      "P3-scenario-coverage", "budget-change"
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "WP10",
+      "external-communication",
+      "cumulative-run",
+      "cumulative-rerun",
+      "performance-workload",
+      "monitoring-restoration",
+      "P3-mandatory-coverage",
+      "P3-scenario-coverage",
+      "budget-change"
     ]
   },
   "p3_foundation_continuation_amendment": {
@@ -245,12 +532,38 @@
     "approval_context": "Direct go-ahead to the preceding focused request for P2b cumulative entry documentation, implementation, bounded tests and independent review; not authorization to execute the cumulative selector.",
     "baseline_commit": "f4a47d1e5f46fba013762161e62635684dcaaa1c",
     "scope": "Prepare a distinct P2b cumulative acceptance entry while preserving P2a identity and expectations. Reuse strict-serial lifecycle, current source attestation, config-owned limits and terminal cleanup. Produce bounded control-flow and existing real local scenario evidence only.",
-    "authorized_actions": ["documentation", "implementation", "verification", "independent-review", "candidate", "review"],
+    "authorized_actions": [
+      "documentation",
+      "implementation",
+      "verification",
+      "independent-review",
+      "candidate",
+      "review"
+    ],
     "allowed_targets_unchanged": 174,
     "evidence_limit": "No 230-binding run or 230-valid receipt is authorized. Simulated orchestration tests are unit evidence only, never cumulative acceptance. P2a historical receipts stay historical.",
     "test_boundary": "Strict serial bounded native tests, each command at most 600 seconds; stop on first failure or timeout and investigate. Never invoke the actual cumulative child or launch performance sibling during mocked orchestration tests.",
-    "protected_files": ["config/verification/wp-07a-gate.json", "tests/support/wp08_dependency_security.py", "tests/support/wp08_migration_rehearsal.py"],
-    "prohibited": ["cumulative-rerun", "monitoring-restoration", "commit", "push", "merge", "deploy", "release", "network", "WP10", "external-communication", "P2c", "P2d", "P3", "source-edit-target-expansion"],
+    "protected_files": [
+      "config/verification/wp-07a-gate.json",
+      "tests/support/wp08_dependency_security.py",
+      "tests/support/wp08_migration_rehearsal.py"
+    ],
+    "prohibited": [
+      "cumulative-rerun",
+      "monitoring-restoration",
+      "commit",
+      "push",
+      "merge",
+      "deploy",
+      "release",
+      "network",
+      "WP10",
+      "external-communication",
+      "P2c",
+      "P2d",
+      "P3",
+      "source-edit-target-expansion"
+    ],
     "preservation": "Append new entry-specific sibling records in existing authorized paths. Do not rewrite previous approval, review, decision, test or commit records; do not modify the original Envelope."
   },
   "schema_version": "1.0",

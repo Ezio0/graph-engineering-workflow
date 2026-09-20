@@ -145,6 +145,8 @@ SOURCE_FILES = (
     "config/contracts/schemas/release-operations-observation-input-1.0.0.json",
     "config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
     "config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+    "config/contracts/schemas/release-recovery-binding-1.0.0.json",
+    "config/contracts/schemas/release-recovery-binding-input-1.0.0.json",
     "config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
     "config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
     "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",

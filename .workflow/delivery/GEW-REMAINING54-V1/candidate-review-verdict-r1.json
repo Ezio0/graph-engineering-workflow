@@ -1,4 +1,45 @@
 {
+  "p3_restart_commit_preflight_records": [
+    {
+      "record_id": "p3-restart-commit-preflight-2026-09-20-r0",
+      "reviewer_id": "/root/p3_restart_commit_preflight_reviewer",
+      "artifact_digest": "sha256:327170f963da01de44b5b2abfa70bc65d69cecbe56b37acfb703770064170e62",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "BLOCKED",
+        "artifact": "verification",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [
+          {
+            "id": "P3-RESTART-COMMIT-MANIFEST",
+            "severity": "blocking",
+            "status": "open",
+            "evidence": ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json:353-364 records absent canonical Candidate evidence and the actual candidate CLI failure. Frozen scripts/check_workflow.py:148-174 requires a Manifest. Existing embedded artifact records do not supply the Manifest-bound staged-tree Candidate or canonical Policy4 command evidence.",
+            "required_change": "Obtain explicit approval for the six exact workflow paths in proposed_resolution.additional_workflow_paths. Preserve the existing one-local-commit authority. After approval, create the proposed Manifest and fresh canonical evidence, then create and independently review the exact staged-tree Candidate using the actual source CLI.",
+            "verification": "Manifest roles, Tier and exact tracked target set validate; canonical passing evidence binds the same Manifest, effective Policy, base and staged tree; the Candidate and detached independent Review validate. Do not relabel historical native test summaries or artifact PASS records as canonical Candidate evidence."
+          },
+          {
+            "id": "P3-RESTART-COMMIT-DETACHED-PREFIX",
+            "severity": "blocking",
+            "status": "open",
+            "evidence": "Frozen core/verification_evidence.py:185-186 rejects every tracked file under the effective detached prefix. The frozen Policy uses .workflow/delivery/, where this project already tracks 376 historical records. Adding only a Manifest and evidence output cannot satisfy this contract. The concrete proposed adaptation is recorded at candidate-source-manifest-r1.json:372-398.",
+            "required_change": "Obtain explicit approval for the proposed project-local Policy copy whose sole data change narrows verification_evidence.detached_path_prefixes to .workflow/delivery/GEW-REMAINING54-V1/detached/. Preserve all historical tracked records and every other Policy field; pass this effective Policy explicitly to all subsequent workflow commands.",
+            "verification": "Verify exactly one Policy data difference, unchanged historical records, no tracked files under the new detached prefix, four detached outputs excluded from Manifest target_files, and successful actual snapshot/evidence/Candidate/Review validation before commit."
+          },
+          {
+            "id": "P3-RESTART-COMMIT-RUNNER-EXIT",
+            "severity": "blocking",
+            "status": "resolved",
+            "evidence": "The initial canonical_capture.runner_template printed the unittest child's nonzero result without propagating it, allowing the outer recorder to observe exit zero. The reviewed final proposal now requires successful execution of exactly 48 tests with zero skips, propagates result.returncode, and uses a 240-second child timeout inside the unchanged 300-second Policy limit.",
+            "required_change": "None. Preserve the reviewed runner behavior when instantiating the authorized command.",
+            "verification": "Statically verified in proposal digest 327170f963da01de44b5b2abfa70bc65d69cecbe56b37acfb703770064170e62. Actual canonical execution remains pending the workflow path and Policy adaptation approval."
+          }
+        ]
+      },
+      "review_boundary": "Read-only precommit verification review, not final canonical staged-tree Candidate approval. Product implementation has no newly identified blocking defect; six exact workflow paths and the single effective-Policy data adapter remain unapproved."
+    }
+  ],
   "p3_foundation_records": [
     {
       "record_id": "p3-foundation-verification-2026-09-19-r0",

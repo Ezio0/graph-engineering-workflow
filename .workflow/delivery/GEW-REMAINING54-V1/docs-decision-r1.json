@@ -1,4 +1,85 @@
 {
+  "p3_restart_bridge_security_records": [
+    {
+      "record_id": "p3-restart-bridge-security-design-2026-09-19-r0",
+      "artifact_digest": "e6eaf946cac3eaa7fc895dc659b9d9f88fce8951cf7705b36f688f1511a97c04",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "implementation",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "test-plan",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:904e7a6aeb96b2cd8197642174a8cfc36872bbfb092d919a6cf527fde5d8063a",
+          "state": "sha256:84e3758accb6d74268ceb4f3990407bbefd63cd146d2fad8f5866f5d5af6656d",
+          "verdict": "sha256:5a2ac3b4c4bedd7a0eefd93ad0d13793a1eac87d1ce1e91f3928fa2001ce8914"
+        }
+      }
+    }
+  ],
+  "p3_restart_design_records": [
+    {
+      "record_id": "p3-restart-design-2026-09-19-r0",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "REVISE",
+        "code": "OK_REVISE",
+        "message": "apply routine findings and request a new independent review",
+        "next_node": "test-plan",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "test-plan",
+        "input_verdict": "REVISE",
+        "input_digests": {
+          "envelope": "sha256:a09ad5bed2e4fe7234337531073a834564abf77cf5b81045280c984c8fe6c7dc",
+          "state": "sha256:edbe47678c17274513c8415aa90536232af0cd992dbda998921d224f8fc32b75",
+          "verdict": "sha256:153949b9d315153180d91526a84a52f3aa797478ce2382194b4ce4749fa11416"
+        }
+      },
+      "execution_kind": "actual bundled core.artifact_review.reduce_verdict with frozen graph/policy/design-only envelope inputs",
+      "source_manifest_record_id": "p3-restart-design-2026-09-19-r0"
+    },
+    {
+      "record_id": "p3-restart-design-2026-09-19-r1",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ESCALATE",
+        "code": "E_AUTHORITY",
+        "message": "next node requires separate authority: implementation",
+        "next_node": "implementation",
+        "revision": 1,
+        "human_required": true,
+        "current_node": "test-plan",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:a09ad5bed2e4fe7234337531073a834564abf77cf5b81045280c984c8fe6c7dc",
+          "state": "sha256:3794f66d735df2ae1844873d0eff27e52f51c6a7ba721296d4d0fe6212774b6e",
+          "verdict": "sha256:44065f93651ed29b4517794a7a9fa8b89f13cc83ec69d9d1345e266d0e32e292"
+        }
+      },
+      "execution_kind": "actual bundled core.artifact_review.reduce_verdict with frozen graph/policy/design-only envelope inputs",
+      "source_manifest_record_id": "p3-restart-design-2026-09-19-r1",
+      "quality_disposition": "Independent R1 PASS; all three R0 findings resolved. This is completed design review, not product or implementation acceptance.",
+      "required_human_decision": {
+        "architecture": "Accept proposed P3-RS-A retained runtime-owned root and fresh read-only normal-column cold recovery.",
+        "additional_target_paths": [
+          "config/contracts/schemas/release-recovery-binding-1.0.0.json",
+          "config/contracts/schemas/release-recovery-binding-input-1.0.0.json"
+        ],
+        "next_authority": "Separately authorize only bounded restart foundation implementation, RED-first serial tests and independent review; retain plan244/oracle122/30 missing and all cumulative/performance/monitor/irreversible/network/WP10 prohibitions."
+      }
+    }
+  ],
   "p2d_records": [
     {
       "record_id": "p2d-document-check-2026-09-14-r0",

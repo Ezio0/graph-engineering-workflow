@@ -542,6 +542,7 @@ class Remaining54P3FoundationContractsTest(unittest.TestCase):
         "release-operations-installation-bootstrap": "1.0.0",
         "release-operations-observation": "1.0.0",
         "release-operations-policy-registry": "1.0.0",
+        "release-recovery-binding": "1.0.0",
         "release-simulator-fixture-registry": "1.0.0",
     }
     digest_fields = {
@@ -552,10 +553,11 @@ class Remaining54P3FoundationContractsTest(unittest.TestCase):
         "release-operations-installation-bootstrap": "bootstrap_digest",
         "release-operations-observation": "observation_digest",
         "release-operations-policy-registry": "registry_digest",
+        "release-recovery-binding": "binding_digest",
         "release-simulator-fixture-registry": "registry_digest",
     }
 
-    def test_p3_eight_schema_pairs_are_closed_registered_and_digest_projected(self) -> None:
+    def test_p3_nine_schema_pairs_are_closed_registered_and_digest_projected(self) -> None:
         from graph_engineering.core.contracts.schema import (
             SchemaProfilePolicy,
             validate_schema_profile,
@@ -612,6 +614,69 @@ class Remaining54P3FoundationContractsTest(unittest.TestCase):
             self.assertIn("urn:gew:schema:release-deployment-observation:1.0.0", encoded)
             self.assertIn("urn:gew:schema:release-health-observation:1.0.0", encoded)
 
+    def test_restart_five_installation_provenance_loaders_reject_stale_bytes(self) -> None:
+        from unittest import mock
+        import graph_engineering
+        from graph_engineering.application import (
+            dependency_security, migration_rehearsal, performance_benchmark,
+            release_operations, scenario_truth,
+        )
+
+        project = tomllib.loads((ROOT / "pyproject.toml").read_text())
+        # These are installed-input loaders only: no repository, workload,
+        # observation, execution sequence or coverage authority is issued.
+        loaders = (
+            ("release-operations", "_release_operations_installation_resources",
+             release_operations.ReleaseOperationsRegistryFactory.from_installation),
+            ("scenario-truth", "_scenario_truth_installation_resources",
+             scenario_truth.ScenarioTruthRegistryFactory.from_installation),
+            ("performance-benchmark", "_performance_benchmark_installation_resources",
+             performance_benchmark.PerformanceBenchmarkRegistryFactory.from_installation),
+            ("migration-rehearsal", "_migration_rehearsal_installation_resources",
+             migration_rehearsal._installation_projection),
+            ("dependency-advisory", "_dependency_advisory_installation_resources",
+             dependency_security._bootstrap_projection),
+        )
+        for name, reader_name, load in loaders:
+            with self.subTest(profile=name):
+                self.assertIsNotNone(load())
+                pin = project["tool"]["gew"]["profile"][name]
+                resources = getattr(graph_engineering, reader_name)()
+                schema_path = (
+                    pin["schema-sources"][0] if "schema-sources" in pin
+                    else pin["schema-vectors"][0]["source"]
+                )
+                source_path = (
+                    pin["protected-sources"][0] if "protected-sources" in pin
+                    else pin["protected-resources"][0]["source"]
+                    if "protected-resources" in pin else pin["source-artifact-source"]
+                )
+                for kind, path in (
+                    ("bootstrap", pin["bootstrap-source"]),
+                    ("schema", schema_path), ("source", source_path),
+                ):
+                    with self.subTest(profile=name, stale=kind):
+                        expected = (ROOT / path).read_bytes()
+                        positions = [
+                            index for index, body in enumerate(resources) if body == expected
+                        ]
+                        self.assertTrue(positions)
+                        # Some schemas also belong to the protected-source
+                        # closure. Corrupt each occurrence independently.
+                        for position in positions:
+                            replacement = expected + b"\n"
+                            if kind == "bootstrap":
+                                stale = json.loads(expected)
+                                stale["bootstrap_digest"] = "sha256-jcs-v1:" + "0" * 64
+                                replacement = json.dumps(stale).encode()
+                            changed = tuple(
+                                replacement if index == position else body
+                                for index, body in enumerate(resources)
+                            )
+                            with mock.patch.object(graph_engineering, reader_name, return_value=changed):
+                                with self.assertRaises(ValueError):
+                                    load()
+
     def test_p3_configuration_package_and_missing_count_closures_are_current(self) -> None:
         project = tomllib.loads((ROOT / "pyproject.toml").read_text())
         pin = project["tool"]["gew"]["profile"]["release-operations"]
@@ -631,8 +696,16 @@ class Remaining54P3FoundationContractsTest(unittest.TestCase):
             "restore": "local-release-simulator.restore",
         })
         self.assertEqual(len(policy["deployment_policy"]["fault_points"]), 5)
-        self.assertEqual(len(pin["schema-sources"]), 16)
-        self.assertEqual(len(set(pin["schema-sources"])), 16)
+        self.assertEqual(len(pin["schema-sources"]), 18)
+        self.assertEqual(len(set(pin["schema-sources"])), 18)
+        coverage = project["tool"]["gew"]["profile"]["coverage-execution-plan"]
+        packaged = dict(zip(
+            coverage["protected-sources"], coverage["protected-resources"], strict=True,
+        ))
+        for suffix in ("", "-input"):
+            source = f"config/contracts/schemas/release-recovery-binding{suffix}-1.0.0.json"
+            self.assertEqual(packaged[source], "graph_engineering/" + source)
+            self.assertIn(source, pin["schema-sources"])
         self.assertEqual(
             bootstrap["schema_vectors"],
             [{

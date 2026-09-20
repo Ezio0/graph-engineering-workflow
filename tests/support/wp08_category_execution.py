@@ -886,6 +886,7 @@ def production_category_runtime(
     real_e2e_authority: object | None = None,
     task_id: str | None = None,
     shared_runtime: SharedProductionCategoryRuntime | None = None,
+    existing_created_task: bool = False,
 ):  # type: ignore[no-untyped-def]
     """Build the exact production TaskApplication/TaskRepository authority chain."""
 
@@ -899,6 +900,8 @@ def production_category_runtime(
 
     stack = ExitStack()
     try:
+        if type(existing_created_task) is not bool or (existing_created_task and shared_runtime is None):
+            raise AssertionError("existing category task requires an explicit shared runtime")
         if shared_runtime is None:
             _root, factory, _locks, objects, repository, leases = stack.enter_context(
                 repository_stack()
@@ -944,13 +947,22 @@ def production_category_runtime(
             "digest": scope.scope_digest,
             "status": status,
         }
+        if existing_created_task:
+            # An action may advance the outer repository revision while leaving
+            # the original domain task at create. Continue via domain commands;
+            # never replace its snapshot or import rows from another repository.
+            existing = application.runtime_show(task_id, runtime).snapshot
+            if (existing.task_revision != 1 or existing.last_event_seq != 1
+                    or dict(existing.identity) != identity):
+                raise AssertionError("existing category task is not the exact created domain task")
         materialized = materialized_profile(profile_id)
         materialization_ref = application.preauthorize_materialization(
             materialized.record
         )
-        application.execute(
-            task_id, TaskCommand("create", 0, {"identity": identity}), runtime,
-        )
+        if not existing_created_task:
+            application.execute(
+                task_id, TaskCommand("create", 0, {"identity": identity}), runtime,
+            )
         application.execute_scope(
             task_id,
             TaskCommand("bind_project_scope", 1, {

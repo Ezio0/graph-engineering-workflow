@@ -190,7 +190,11 @@
     "tests/security/test_wp07a_action_contract_security.py",
     "tests/contract/test_wp07a_action_contracts.py",
     "tests/security/test_wp08_remaining54_authority.py",
-    "tests/e2e/test_wp00_installed_wheel.py"
+    "tests/e2e/test_wp00_installed_wheel.py",
+    "config/contracts/schemas/release-recovery-binding-1.0.0.json",
+    "config/contracts/schemas/release-recovery-binding-input-1.0.0.json",
+    "application/graph_engineering/application/security.py",
+    "storage/graph_engineering/storage/security.py"
   ],
   "allowed_change_kinds": [
     "architecture-detail",

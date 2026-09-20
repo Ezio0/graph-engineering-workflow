@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:release-recovery-binding-input:1.0.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "binding_kind": {
+      "const": "retained-local-release-root"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "fixture_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "target_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "resource_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "repository_scope_digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "namespace_identity": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "device": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "inode": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "owner": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "birth_seconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "birth_nanoseconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999999999
+        }
+      },
+      "required": [
+        "kind",
+        "device",
+        "inode",
+        "owner",
+        "birth_seconds",
+        "birth_nanoseconds"
+      ],
+      "additionalProperties": false
+    },
+    "root_identity": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "device": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "inode": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "owner": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "birth_seconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "birth_nanoseconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999999999
+        }
+      },
+      "required": [
+        "kind",
+        "device",
+        "inode",
+        "owner",
+        "birth_seconds",
+        "birth_nanoseconds"
+      ],
+      "additionalProperties": false
+    },
+    "root_nonce": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "installation_pins": {
+      "type": "object",
+      "properties": {
+        "bootstrap_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "bootstrap_digest": {
+          "type": "string",
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+        },
+        "policy_registry_digest": {
+          "type": "string",
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+        },
+        "fixture_registry_digest": {
+          "type": "string",
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+        },
+        "profile_schema_registry_digest": {
+          "type": "string",
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+        },
+        "protected_closure_digest": {
+          "type": "string",
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "bootstrap_id",
+        "bootstrap_digest",
+        "policy_registry_digest",
+        "fixture_registry_digest",
+        "profile_schema_registry_digest",
+        "protected_closure_digest"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "binding_kind",
+    "task_id",
+    "fixture_id",
+    "target_id",
+    "resource_id",
+    "repository_scope_digest",
+    "namespace_identity",
+    "root_identity",
+    "root_nonce",
+    "installation_pins"
+  ],
+  "additionalProperties": false,
+  "unevaluatedProperties": false
+}

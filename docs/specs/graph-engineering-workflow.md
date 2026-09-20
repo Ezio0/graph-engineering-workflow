@@ -1,5 +1,381 @@
 # Graph Engineering Workflow — Tech Spec
 
+## 2026-09-19 RS-BS prerequisite supplement — R0
+
+Authority: `p3_restart_bridge_security_amendment`; ADR-0009 RS-BS. Pending
+independent design review. This refines accepted P3-RS-A R1 without changing
+Intent Baseline, durable formats or existing assessment bytes. RS-1 is accepted;
+RS-2–RS-5 and cold recovery remain incomplete.
+
+### RS-BS-1. Same-task producer bridge
+
+The existing wrapper remains exactly task_id/revision/domain/runner. Add an
+application-owned pure snapshot bridge, used at every ActionCoordinator
+snapshot write, including concrete actions and compensation. If either domain
+or runner is present, require both and the exact wrapper, matching outer/domain
+task identity, positive exact-integer repository/domain counters and domain
+last_event_seq == task_revision. Reject any extra action_state or malformed
+wrapper before constructing the successor; never silently drop unknown data.
+Deep-copy domain and runner byte-equivalent as canonical JSON; increment only
+outer revision. The action journal and claim transaction remains unchanged.
+For a legacy action-only snapshot (neither domain nor runner), preserve existing
+snapshot keys and action_state behavior.
+
+Repository replay already verifies contiguous envelope sequence, digest chain,
+transaction grouping/revision, task head and referenced bytes. A TaskApplication
+bridge validator additionally joins replay to the loaded view: final transaction
+revision equals view.repository_revision; every envelope belongs to that task;
+domain event ordinal is its position after excluding the exact existing action
+event set. That closed action set comprises action.execution_started,
+action.receipt_recorded, action.reconciled_effect_verified,
+action.reconciled_no_effect, action.compensation_execution_started,
+action.compensation_receipt_recorded and action.compensation_reconciled.
+Unknown action events, unknown domain events and mixed action/domain transaction
+groups reject. Domain event kinds must be existing TASK_TRANSITIONS or the
+application's existing runner/finding kinds. The number of domain events must
+equal both snapshot.last_event_seq and snapshot.task_revision. Action groups
+are single-event transactions. Ordinary multi-event domain transactions remain
+valid. This is sequence mapping validation, not a substitute for the six-part
+RS-4 source/artifact validator or a claim of full semantic replay.
+
+Run the validator on normal TaskApplication reads and both domain write paths,
+including extension-rebase's explicitly validated replay variant. Read races
+between snapshot load and replay fail closed on revision mismatch; do not retry
+or conceal drift. New repository envelopes use verified replay head sequence
+plus offset, while core DomainEvent retains domain ordinal/revision. Creation
+starts both at zero. Repository expected_task_revision remains outer revision;
+core reducers keep domain expected_task_revision. Repository CAS still rejects
+a change after validation. Do not call repository replay while holding outer
+repository locks; existing read methods acquire their own locks.
+
+The positive integration fixture must create the category/domain task first,
+then execute a real local simulator action on the same repository and task ID,
+and then read/advance it through TaskApplication. Use genuine existing prepared,
+authority, lease, security and journal ports; fixture trust setup is explicit
+and occurs before execution. No copying an action task's rows or repairing a
+snapshot after action. A legacy action-only positive remains a compatibility
+check. RS-BS does not by itself prove a completed category assessment or restart.
+
+### RS-BS-2. Read-only current security projection
+
+Add SecurityStateRepository.load_current_task_state_readonly(task_id, context).
+Use factory.open("doctor") and the existing _load_task_state SELECT join and
+bounded canonical/digest validation; no transaction(), application connection,
+trusted_now, clock observation, journal write, lease or repair. Freeze the
+complete state recursively (not a shallow MappingProxyType) and return a
+distinct immutable storage record with state and state_digest, but no time.
+
+Add SecurityContextIssuer.read_task_state(task_id), returning a distinct frozen
+data-only ReadOnlyTaskSecurityProjection. Re-read and validate installed runtime
+pins against the issuer's attested runtime on every call; reject replaced
+installation. Validate binding with the existing exact SecurityBinding parser,
+current schema/runtime membership, and the complete current task security row
+(authority digests and destinations/data/evidence/retention registries).
+Expose recursively immutable state and validated binding data, state digest and
+runtime manifest digest. Never return SecurityBinding with issuer authority or
+TaskSecurityContext; the read projection is not a mutation authorization and
+has no current_time. No constructor or serialized projection grants authority.
+
+Downstream RS-3/4 must call this read method afresh at entry and final use, bind
+the expected repository through its configured issuer/factory, compare task,
+owner/runtime lineage, target/baseline/snapshot and current authority membership
+to the durable action/CAS. Previously returned data cannot establish currentness
+or authorize a write. Revocation between calls must be visible; malformed,
+missing, stale, cross-task binding and runtime-pin substitution fail closed.
+Expiry decisions cannot be invented without trusted time; this projection only
+supplies current durable facts and never replaces mutation-time expiry gates.
+
+These two APIs do not complete retained-root lifecycle, durable cold action
+validation, six-part source validation or exec-based recovery proof. Existing
+RS-2–RS-5 gates remain required. No new schema/package member/event/API is added;
+affected installed raw-source pins must be re-signed only from actual bytes.
+
+## 2026-09-19 P3 restart-safe read-only recovery design — R1
+
+Status: design proposal P3-RS-A under
+`human-decision-p1-p2-p3-r0.json#p3_restart_design_amendment`; not accepted
+implementation architecture. ADR-0009's same-date supplement owns the material
+choice. Earlier foundation behavior remains authoritative until separately
+approved implementation is verified. Positioning and PRD Intent Baseline v2
+(`594b4437301853919ce3b4aa93e703a395ed45bff924ea6266b3a8e202a30be7`)
+are unchanged. All names below describe proposed internal contracts, not APIs
+already present. No public CLI, GraphRef, database or repository-event API changes.
+
+### RS-1. Recovery binding and original issuance
+
+A retained namespace is runtime configuration established independently of
+stored evidence. Its exact typed runtime authority binds the current repository
+and installation command scope; accepting a raw path, duck-typed object or
+caller callback is forbidden. OS identity belongs to the local adapter, not
+platform-neutral graph logic. The namespace and target directory must be owned
+by the runtime user, private, non-symlink directories. Configured fixture names
+continue to select stage/active/state members; the existing protocol marker
+`.release-simulator-root` carries the new binding only for retained mode.
+
+The proposed closed binding schema has exact fields:
+
+| Field | Meaning / validation |
+|---|---|
+| `schema_version` | Exact `1.0.0`; duplicate/extra/missing keys rejected |
+| `binding_kind` | Exact `retained-local-release-root`; never production evidence |
+| `task_id, fixture_id, target_id, resource_id` | Nonempty canonical IDs, exact current task/action/installed fixture membership |
+| `repository_scope_digest` | Runtime-attested durable repository-root identity, independent of task-supplied bytes |
+| `namespace_identity, root_identity` | Adapter-typed physical identity: kind plus device/inode/owner/birth identity; fresh lstat/fstat equality, no boolean/float integers |
+| `root_nonce` | Factory-generated random identity, not a credential or user input; no reuse/adoption |
+| `installation_pins` | Exact current installed release bootstrap/policy/fixture/schema/protected closure pins |
+| `binding_digest` | Semantic digest of all preceding fields under the new binding input schema |
+
+The schema/input pair is proposed, not yet in allowed_targets. Bound sizes and
+parse work use existing installed WorkContext/string/integer/object limits;
+all paths, runtime locations and fixture values remain configuration or
+runtime inputs, not engine constants. Identity values are opaque to core
+algorithms; only the configured adapter validates their physical meaning.
+
+The namespace lookup key is a versioned deterministic encoding of the complete
+task/target IDs, with a collision checked against those exact IDs in the binding;
+it contains no caller path component. Creation is exclusive and fails if an
+entry exists, including malformed/orphan entries. It never truncates a file or
+adopts an existing root. The marker and initial target bytes, root directory and
+namespace directory are fsynced before returning an actionable live session.
+
+For retained mode only, the internal `local-release-target:2.0.0` digest
+projection contains fixture/resource/target/task IDs and `binding_digest`.
+The existing disposable `local-release-target:1.0.0` projection is unchanged.
+The new digest must appear in the original task security target binding,
+prepared action, journal and target contract before apply. No grant is inferred
+from a matching root marker alone. Current assessment 1.4 can carry this opaque
+digest without adding fields; assessment 1.0–1.4 and release-observation 1.0
+schema contracts and previously committed bytes are not rewritten.
+
+### RS-2. Lifecycle, crash and exclusion
+
+Proposed retained state machine:
+`LIVE -> QUIESCED -> READ_ONLY_OPEN -> QUIESCED`, with owner-only
+`LIVE/QUIESCED -> DESTROYED`. Process exit releases OS handles; it does not
+change durable eligibility. Reopening after an unexpected exit is permitted
+only for a committed completed assessment after RS-3 through RS-6. An
+uncommitted root may remain as an orphan but has no recovery evidence authority.
+
+Legacy session close still cleans its disposable TemporaryDirectory. Retained
+close/quiesce closes live mutation/session handles and preserves bytes. A fresh
+read-only handle exposes query, health and close only: no mutation target,
+execution gate, prepare/authorize/execute/reconcile/compensate or context manager
+that implicitly deletes files. A revoked/closed handle cannot be reused.
+
+A runtime-wide, nonblocking exclusive OS lock on the exact retained root is
+required even for read-only recovery. Original mutation, lifecycle cleanup and
+every recovery reader use that same lock; one opener is admitted, competitors
+fail closed rather than wait indefinitely. R1 replaces R0's incompatible order
+with **installation command control scope -> retained-root gate -> existing
+repository locks**. InstallationCommandScope's `_ControlLockRegistry` token
+is distinct from LockedFileRegistry installation/object/resource tokens. The
+root gate is an adapter-owned PID/thread-bound process mutex plus OS lock,
+outside the repository lock registry. Acquire it only with no repository token
+or transaction held. Nested session use validates the same opaque lease, never
+reacquires a gate or lets another caller adopt it. Public repository readers
+manage their own locks once, in their existing installation -> object -> sorted
+resources order. Never wrap `runtime_show`, `referenced_objects`,
+`category_source_seal` or journal/claim reads in outer repository tokens.
+
+| Path | Proposed ownership / existing calls / release |
+|---|---|
+| Create retained root | Enter existing InstallationCommandScope; proposed adapter `create_retained` exclusively creates the child and takes its root gate before coordinator/repository calls; fsync binding/bytes; LIVE session owns that gate |
+| Original mutation | Release facade verifies session root lease before ActionCoordinator prepare/authorize/execute/recovery entry. Coordinator then manages existing repository locks and durable-start commit. Target invoke verifies the already-owned lease and consumes the unchanged one-shot gate; it never acquires a root lock under repository locks |
+| Assessment commit | LIVE session holds the root lease through CategoryExecutionApplication and TaskApplication completion. Existing source/target fences retain existing repository locking; retained observer only asserts the same lease. No root acquisition/release inside a fence or transaction |
+| Cold recovery / reuse | Enter fresh command scope; proposed `open_retained_readonly` takes root gate with no repository tokens. Call resolver/runtime_show/referenced_objects/action readers sequentially; each returns after its own tokens close. Perform RS-4 and final RS-5 rereads in that lease. Returned read-only handle retains the lease; repeat use validates it without reacquisition |
+| Close / errors | Close cursors and per-call repository tokens first, revoke handles, release root gate/descriptors, then exit command scope. Failed inner acquisition releases only this attempt's acquired resources |
+| Owner destruction | Current command scope, no repository tokens; acquire root gate nonblocking, validate identity/eligibility, durably remove binding and clean exact owned members; release root gate then scope. Never borrow another live lease |
+
+Retained target issuance/use enforces this additional protocol in the already
+allowed application/actions.py and adapter file; generic coordinator behavior
+and all storage lock APIs/ranks/non-reentrancy rules remain unchanged. If an
+entry cannot verify the root lease before its first repository acquisition,
+implementation must stop, not acquire inside a target callback. Root busy
+rejects immediately; repository busy retains its existing bounded policy and
+unwinds this attempt's root lease. No upgrade, lock handoff or recursive root
+acquisition is allowed. The read path opens members read-only with
+no-follow, rejects nonregular files, hard links, unowned residue, wrong owner/
+mode, aliases and all descriptor/path identity changes, and closes all partial
+handles on failure. No directory scan, parent traversal or fallback path exists.
+
+Owner destruction first removes and fsyncs the binding under the exclusive
+lock, then cleans only the validated owned root. No silent orphan cleanup or
+recreation occurs during recovery. Missing/torn markers and interrupted cleanup
+are permanently ineligible for that attempt. Removing a currently open root is
+prevented by the shared lifecycle lock and additionally detected by final
+identity checks. Any runtime without the required primitives must refuse, not
+replace them with a process-local mutex. Lock metadata and OS access timestamps
+are not product writes; target content, journal, task and CAS writes are forbidden.
+
+### RS-3. Typed read-only authority, not restored mutation authority
+
+The proposed application entry `restore_current_release_assessment` takes
+fresh exact TaskApplication/runtime/installed policy/object ports and a
+runtime-issued retained-root authority plus task ID. It resolves the current
+assessment itself. It cannot take a caller projection as its source of truth.
+`ReleaseOperationsRegistryFactory.restore_projection` may consume an opaque
+read-only binding issued by that resolver, but its no-authority/default call
+continues to reject. Direct factory construction and `from_documents()` remain
+validation-only. No old Python object, pickled issuer or inherited descriptor
+may establish a cold-process PASS.
+
+A proposed coordinator read-only projection method validates the durable action
+bundle but does **not** call `_issue_outcome` or add to `_issued_outcomes`.
+It uses current installed action policy/adapter/security bindings and existing
+journal/lease/receipt APIs, with exact repository identity. Required joins are:
+
+- Ordinary completion: task/action IDs, prepared and authority digests, target
+  ID/digest/resource set/fences, reconciled journal, original claim identity
+  `claim:<original action ID>`, resolved claim and exact receipt/digest.
+- Completed compensation: original journal is compensated; the same original
+  claim is resolved; its unique completed recovery attempt binds original
+  started event, compensation action/prepared/authority/target/resources/fences;
+  the separate restore journal is reconciled and its receipt is exactly the
+  attempt's receipt and recorded rollback observation. The original deployment
+  observation is historical, not incorrectly required to remain reconciled.
+- Receipt objects and their existing references, reconciliation and authority
+  facts must be freshly read and fully digest/schema-validated. Missing,
+  duplicate, substituted, unresolved, revoked or changed records reject.
+  Historical execution authorization need not be renewed for a read; current
+  runtime read authority and all relevant revocation/currentness rules still apply.
+
+The rehydrated evidence is registered only in a fresh factory's **read-only**
+identity registry after complete validation. It cannot be passed to live
+deployment issuance or any mutation path. An independent fresh call can recover
+the same immutable assessment again; the old opaque handle cannot be cloned,
+serialized, cross-bound or reused after close. Recovery never issues a new
+assessment object, task reference, action receipt or coverage record.
+
+### RS-4. Current assessment and source reconstruction
+
+Resolve exactly one current task-referenced 1.4 CAS body through the existing
+CategoryAssessmentResolver. Check raw object digest, schema, assessment and all
+nested digests, selector/request digest, release-only projection, profile and
+six GraphRef pins, epoch, completed lifecycle and
+`current task revision = assessment task revision + 1`, including the exact
+committed evidence reference. Arbitrary CAS enumeration, old refs, duplicate
+refs and resurrecting an unreferenced object are forbidden.
+
+The first supported positive column is exactly **normal**, for both ordinary
+apply-B and completed partial-compensation-to-A histories. The release scenario/
+outcome still comes from installed release policy and the terminal action chain,
+not a new coverage binding. All other eleven columns, including rollback and
+real-e2e, reject at the cold-entry discriminator before source-seal issuance.
+Compensation here is release history inside a normal-column assessment, not
+implementation of the rollback column or any missing coverage binding.
+
+Existing `require_assessment_evidence`/`_expected_evidence_facts` are useful but
+**insufficient**: normal currently checks only runner-output digest, while the
+restore helper does not bind the independent review digest or fully validate
+artifact/target contracts. A proposed `validate_cold_normal_sources` validator
+in the existing application/profile_execution.py must add the following checks
+using fresh verified runtime_show/referenced_objects, installed policy and the
+read-only release/action binding. It copies no old issuer and issues no live
+CategoryFacts or mutation source fence.
+
+1. **Task/authority:** runtime owner/kind/lineage is authorized; completed task
+   matches assessment task/epoch/GraphRef and revision+1; exact authority refs
+   match snapshot, installed policy and assessment; no open findings or
+   unresolved claims. Revalidate RS-3 authority/revocation/resource/fence joins;
+   never accept a caller `authority-status=current` string.
+2. **Runner:** exact installed required-node closure, with no missing/extra/
+   duplicate selected output. Validate node ID, typed body digest, exact
+   independently_reviewed trust, PASS and canonical distinct author/reviewer
+   identities for every output. Recompute normal's category-runner-outputs
+   digest against the unique typed column evidence and its assessment digest.
+   Compare assessment.runner_outputs with installed materialization output.
+3. **Independent review:** resolve the policy-defined final PASS and distinct
+   previous body from verified history; join node/body/reviewer to exactly one
+   required output and its author. Rebuild the original full projection
+   `{author_id, reviewer_id, trust: independently-reviewed, verdict: PASS,
+   body_digest, previous_body_digest}` and require its category-independent-
+   review digest equals assessment.review_digest. Changed identities, bodies,
+   prior body or linkage reject even if another PASS exists.
+4. **Artifacts:** retain object digests from referenced_objects, verify raw CAS
+   bodies, exact record schema/version/semantic digest, task, contract ID,
+   artifact ID/body digest, accepted-for-category status and canonical actor
+   independence. Unique contract closure equals BOTH installed policy and
+   assessment.artifact_contract_ids. Resolve required artifact-body/review
+   linkage through existing committed source contracts; missing proof rejects,
+   never synthesizes it from a label. No unreferenced record, duplicate or
+   equal-cardinality substitution may satisfy this closure.
+5. **Target/resource:** exactly one verified typed target contract; exact
+   task/profile/target/resource IDs, record digest and full expected state.
+   Match original durable action target binding, resource/fence set and fresh
+   retained release terminal target, including generation and active/staged
+   artifacts. Recompute selector/request digest from that target. The generic
+   target_observation_digest remains historical in verified CAS; it is not
+   recomputed from a fresh counter. RS-5 supplies the separate fresh physical
+   proof; neither replaces the other.
+6. **Column evidence:** exact fields, task/profile/normal column, original
+   assessment revision/snapshot/epoch, installed outcome and required facts;
+   record digest equals assessment.column_evidence_digest. Apply the existing
+   expected-facts check only AFTER checks 1–5, not as their substitute.
+
+Seal the complete validated projection (object digests, review/runner/artifact/
+target/authority fields, task head and action revisions) in a new read-only
+registry only after all joins pass. RS-5 rereads compare this full result.
+Stability between two reads is not proof of those joins. Whole trusted-repository
+coherent replacement remains the ADR's explicit trust limit. New producer
+fixtures must provide required sources through existing durable APIs; legacy
+evidence lacking them stays unavailable without upgrade. Existing in-process
+restart and non-release semantics stay unchanged and do not count as cold proof.
+Another column requires its own complete source contract and review, not removal
+of the discriminator.
+
+### RS-5. Fresh observation and final fence
+
+Re-read installation policy/fixture/schema/bootstrap, source/build/package/
+wheel/RECORD closure at entry and use. Validate the retained binding against
+the durable target digest and actual same root. Read complete state, active/
+staged manifests and bytes, pointer/generation and configured health predicates.
+Compare full current observations to committed terminal evidence. Completed
+partial compensation must equal the recorded original A state, including absent
+stage and the recorded generation; do not invent a generation increment.
+
+Committed phase history, fault point and before/after digests are historical
+facts validated against the committed CAS and durable action chain; do not
+repopulate old `last_execution`, `original_binding` or phase counters. Restore
+no execution continuation. Fresh observation revision is local to a new opaque
+read-only lease epoch: compare state and health semantically, leave the old
+projection's revision and digest unchanged, and require strictly newer reads
+within the new epoch on every subsequent use. Seeding a counter from JSON or
+removing freshness checks on live evidence is forbidden.
+
+Capture source/task/action/claim/recovery-attempt revisions/digests, observe
+health and target, then reread the complete durable source bundle and target/
+installation identity before publishing the handle. All exact before/after
+values must agree, under the runtime's read scope and exclusive root lease.
+No retry hides a changed read set. A change rejects and closes the handle.
+No caller callback occurs after this final validation. On subsequent use,
+perform the same fresh closure, not a cache-only check. This is a current-state
+proof at the fenced observation, not a claim that nobody can ever mutate it
+after return. A future coverage/precommit consumer must revalidate while its
+existing fence is held; the foundation's final completion-binding check after
+the generic observer callback must stay intact.
+
+### RS-6. Failure, safety and compatibility contract
+
+Errors are stable categories of existing ReleaseOperationsError/
+CategoryExecutionError, proposed labels: unavailable-authority, unsafe-root,
+stale-installation, noncurrent-assessment, unresolved-action, inconsistent-
+compensation, stale-target, source-currentness and busy-root. They carry
+sanitized logical IDs only, not arbitrary paths, credentials or raw artifacts.
+Any failure returns no live evidence; use of an already issued stale handle
+fails closed. Recovery itself has exactly zero apply, restore, action replay,
+task/event/snapshot/object/reference/claim/receipt/target writes and network/
+DNS/socket/proxy calls. A preceding mutation during setup or an injected
+adversarial mutation is recorded separately, never attributed as zero setup work.
+
+Old installation or format versions fail closed on cold recovery; no automatic
+schema/pin upgrade or historical record re-sign. Only the two new binding
+schemas and actual affected installed pin/resource projections would be added
+after authority. Existing source architecture rules and pre-existing static
+finding remain separate; design review is not a whole-project static PASS.
+No performance claims are made. Unknown effect recovery continues to route
+the configured owner; read-only recovery is not an action-recovery engine.
+
+
 ## 2026-09-18 P3 foundation evidence-path amendment
 
 Human approval `明确批准这五个路径` authorizes

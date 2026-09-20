@@ -1,4 +1,111 @@
 {
+  "p3_restart_retained_session_revisions": [
+    {
+      "record_id": "p3-restart-retained-session-2026-09-19-r0",
+      "artifact_digest": "3a33c31e7e2dc6aa2f04a7925a6011a04b34237588d193961e875ff8faabc01f",
+      "reviewer_id": "/root/p3_restart_retained_session_reviewer_r0",
+      "scope": "RS-2 runtime-issued retained namespace and original live retained simulator session creation, original action use and close. This partial implementation does not expose cold reopen, owner destruction, restored evidence, assessment finalization or recovery authority.",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "REVISE",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [
+          "implementation",
+          "test"
+        ],
+        "findings": [
+          {
+            "id": "GEW-P3-RS2-SESSION-R0-001",
+            "severity": "blocking",
+            "evidence": "application/graph_engineering/application/actions.py:288-302 checks an unregistered retained target but not an unregistered retained observer. A second valid coordinator over the same repository/scope has an empty _retained_actions map, so reconcile_unknown(original_action_id, observer=session.observer) passes this guard. Lines 1464-1481 then acquire repository locks and read the journal before validating the retained lease through observe(); a live matching observer can proceed to _finish_reconciliation. This bypasses the exact issuing-coordinator/session binding and the RS-2 requirement to verify retained authority before repository acquisition. The existing closed-session regression covers only the original registered coordinator.",
+            "required_change": "Reject retained observers without the current coordinator's exact registered action/session binding before any repository access. Apply the same scope, idle-state, live-lease, and exact-observer checks to observer-only reconciliation entries while preserving legacy disposable behavior.",
+            "verification": "Add focused regressions using a second coordinator over the same repository/scope and both live and closed retained observers. Assert rejection before repository lock acquisition, journal reads, or observation, with unchanged task/journal/claim state. Verify valid original-coordinator retained reconciliation and legacy reconciliation still pass.",
+            "status": "open"
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "p3-restart-retained-session-2026-09-20-r1",
+      "artifact_digest": "a05ad42f90bd273067bddf1deeb41aa5b8e175d0eec5e8feedd8336407fe1ba4",
+      "reviewer_id": "/root/p3_restart_retained_session_reviewer_r1",
+      "scope": "RS-2 runtime-issued retained namespace and original live retained simulator session creation, original action use and close. This partial implementation does not expose cold reopen, owner destruction, restored evidence, assessment finalization or recovery authority.",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": [
+          {
+            "id": "GEW-P3-RS2-SESSION-R0-001",
+            "severity": "blocking",
+            "evidence": "Resolved in application/graph_engineering/application/actions.py:288-305. Observer-only entries now reject retained LocalReleaseObserver instances lacking this coordinator's exact registered action/session/observer binding. Registered entries retain scope, idle-state and live-root checks. reconcile_unknown invokes this guard before repository acquisition. Removing only the R1 guard change reproduces the recorded R0 source hash. All 40 artifact hashes and aggregate a05ad42f90bd273067bddf1deeb41aa5b8e175d0eec5e8feedd8336407fe1ba4 match; the five changed paths match the explicitly authorized repair and pin cascade.",
+            "required_change": "None; the requested observer-binding repair is complete within the bounded original live retained-session scope. This verdict does not establish cold recovery, Candidate readiness or project completion.",
+            "verification": "tests/integration/test_wp08_release_operations.py:190-251 covers a second exact coordinator sharing the durable ports and command scope, both live and closed retained observers, rejection before lock acquisition/journal reads/observation, unchanged task/journal/claim state, and successful original-coordinator retained and disposable reconciliation without repeated mutation. The packet records 57 regression tests and 11 authority/package/runtime tests passing in bounded serial batches. This review inspected code, evidence and hashes without rerunning tests.",
+            "status": "resolved"
+          }
+        ]
+      }
+    }
+  ],
+  "p3_restart_root_primitive_revisions": [
+    {
+      "record_id": "p3-restart-root-primitives-2026-09-19-r0",
+      "artifact_digest": "33b681cbf2676ead4da5251ed4f767a9fef67635fcaa664c0868ea3034723596",
+      "reviewer_id": "/root/p3_restart_root_primitives_reviewer_r0",
+      "scope": "RS-2 private native directory/binding/lease lifecycle primitives only; not wired to production session creation, runtime authority, ActionCoordinator or cold evidence publication. The production restore_projection refusal remains unchanged.",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      }
+    }
+  ],
+  "p3_restart_bridge_security_revisions": [
+    {
+      "record_id": "p3-restart-bridge-security-implementation-2026-09-19-r0",
+      "artifact_digest": "53adc8a41e42b63daef67dd28b5d6af3843761414f9de0df2f3fdcbf2b7827ae",
+      "reviewer_id": "/root/p3_restart_bs_impl_reviewer",
+      "scope": "RS-BS prerequisite implementation only: same-task action/domain producer bridge and immutable zero-write security facts. Does not complete retained-root RS-2, durable cold action RS-3, source joins RS-4 or exec-based cold proof RS-5. No Candidate/release/coverage claim.",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      }
+    }
+  ],
+  "p3_restart_implementation_revisions": [
+    {
+      "record_id": "p3-restart-rs1-2026-09-19-r0",
+      "reviewer_id": "/root/p3_restart_rs1_reviewer",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      },
+      "scope": "RS-1 partial artifact only. The reviewer did not accept RS-2 through RS-5, cold recovery completion, or the proposed design/target expansion.",
+      "independent_recomputation": {
+        "file_count": 24,
+        "ordered_raw_aggregate_sha256": "6b4da7f6db9b98b364fe79f01482cf019ffb4a67077254dcbabbf259591e7e4d",
+        "current_bootstrap_pins": 5,
+        "protected_closure_digests": 4,
+        "schema_source_raw_vectors": 153,
+        "upstream_r1_aggregate": "5a929b98176920c76d6b1fd48cfa8e91c0c99a239db8a31ce3c794e330f69a5e",
+        "tests_rerun_by_reviewer": 0
+      }
+    }
+  ],
   "schema_version": "1.0",
   "verdict": "REVISE",
   "artifact": "implementation",
@@ -67,6 +174,40 @@
           "limits": "Portable restart remains fail-closed; historical architecture finding and 244/122/30 coverage boundary remain unchanged. No commit or expanded execution authority follows from this verdict."
         }
       }
+    }
+  ],
+  "p3_restart_retained_assessment_revisions": [
+    {
+      "record_id": "p3-restart-retained-assessment-2026-09-20-r0",
+      "artifact_digest": "fb2ec04139c70a28aa8274ef09dfc4c448eb7b47b8f78e4e2576f9a2f96cc904",
+      "reviewer_id": "/root/p3_restart_retained_assessment_reviewer_r0",
+      "author_id": "/root",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      },
+      "review_protocol": "Independent read-only fresh agent review against raw source bundle/upstream/Authority Envelope/RS-2 acceptance; reviewer did not edit files or run tests. Verdict preserved unchanged."
+    }
+  ],
+  "p3_restart_owner_destruction_revisions": [
+    {
+      "record_id": "p3-restart-owner-destruction-2026-09-20-r0",
+      "artifact_digest": "f75365e15baf918da5e54e408fec0d9a3093f76c356a1f8e71b7e3cd01006d8c",
+      "reviewer_id": "/root/p3_restart_owner_destruction_reviewer_r0",
+      "author_id": "/root",
+      "verdict": {
+        "schema_version": "1.0",
+        "verdict": "PASS",
+        "artifact": "implementation",
+        "scope_changed": false,
+        "change_kinds": [],
+        "findings": []
+      },
+      "review_protocol": "Independent fresh read-only agent reviewed actual source bundle, upstream, effective Envelope, RS-2/RS-BS-2 acceptance and recorded evidence. Reviewer did not edit files or execute product tests. Structured verdict preserved unchanged."
     }
   ]
 }

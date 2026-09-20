@@ -1,5 +1,203 @@
 # Graph Engineering Workflow — Test Plan
 
+## 2026-09-19 RS-BS prerequisite verification — R0
+
+### 1. Scope and CUJs
+
+References: Plan RS-BS, Spec RS-BS-1/2 and ADR-0009 RS-BS; original Positioning,
+PRD and accepted Test Plan sections below remain unchanged. In scope: (B1)
+same task survives local action and resumes domain transitions, (B2) existing
+legacy action-only behavior, (S1) current security facts read with zero writes,
+(S2) rejection of stale/foreign/malformed/revoked substitutions. Every CUJ must
+have executable evidence before BS-R. No new coverage-percentage claim; existing
+project baseline applies to final delivery, not this bounded prerequisite.
+
+Out of scope for BS-R: retained-root/cold restart completion, all non-normal
+columns, coverage issuance, cumulative/performance runs, production, network,
+monitoring and irreversible actions. RS-5 retains its separate exec proof.
+
+### 2. Pyramid and traceability
+
+BS-S: at least four focused unit/read-contract tests for exact immutable shape,
+runtime/binding validation, current revocation and zero-write reads. BS-T: at
+least six pure bridge/mapping tests (positive split ordinals, malformed wrappers,
+unknown/mixed kinds, wrong domain count, stale repository revision, legacy).
+BS-I: two bounded real-repository integration journeys, one same-task simulator
+producer and one legacy execution. Unit > integration > E2E; zero new E2E in
+this prerequisite is a deliberate exemption, because the already-approved
+RS-5 exec-based cold proof depends on later retained-root implementation.
+
+### 3. Strategy per layer
+
+Use native unittest, real repository/journal/lease/security ports and existing
+local simulator. Pure mapping tests may construct exact data; they do not
+substitute for producer proof. Mock only fault injection/observers that assert
+the forbidden write/clock paths are never called; no mocked success at security
+or action authority boundaries. Bound commands to 600 seconds, serial failfast,
+fresh roots; record measured duration, not unsupported per-test speed claims.
+Both domain command and internal runner write paths must be exercised after
+action history. All eight action snapshot sites, including concrete/compensation,
+must use the bridge; adjacent legacy apply/compensation tests preserve behavior.
+
+For security: compare all relevant logical database tables before/after the
+public read (including repository_meta clock row); patch trusted_now to fail
+if called; assert doctor query_only/SQL authorizer rejects mutation. Missing
+state, stale task revision, cross-task binding, malformed digest, nested
+immutability and installed runtime substitution must reject. An explicit
+fixture revocation between two reads must remove authority from the second
+projection; old data remains non-authoritative and cannot enter mutation APIs.
+Setup/tampering writes are outside the measured read interval.
+
+### 4. Data
+
+Synthetic existing fixtures, no user projects or PII. Same-task fixture creates
+a real TaskApplication domain task, then independently attests its fixture
+security/action authority in the same private repository before execution.
+It never imports another task's action rows or strips action_state afterward.
+Close every handle/lease/root even on failure; no retained artifacts outside
+approved detached evidence containers.
+
+### 5. Environments
+
+Local serial native commands only. CI/staging/production are not invoked.
+Installed-wheel/package compatibility is bounded and only rerun when source,
+packaging or a concrete regression invalidates prior evidence.
+
+### 6. Non-functional boundaries
+
+Security/currentness/no-write and legacy compatibility are in scope. Explicit
+negative races must fail closed rather than retry. Performance benchmarking,
+accessibility, production monitoring and cold recovery are out of this slice;
+the latter remains covered by the distinct RS-5 plan.
+
+### 7. Open questions and gates
+
+No new Human choice is required within the approved two designs/paths.
+Independent design findings must resolve before implementation; newly required
+unapproved source or authority stops only that affected work. No full restart
+or Candidate completion claim until remaining RS-2–RS-5 evidence and review.
+
+### 8. References
+
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md),
+[Spec](../specs/graph-engineering-workflow.md),
+[ADR](../adr/0009-offline-release-operations-simulator-authority.md),
+[PRD](../prd/graph-engineering-workflow.md),
+[Positioning](../positioning/graph-engineering-workflow.md).
+This supplement follows the existing eight-section Test Plan; quantitative
+timing, pyramid/E2E exemptions and bounded-vs-final-coverage claims are explicit.
+
+## 2026-09-19 P3 restart design verification proposal — R1
+
+This section defines future bounded acceptance, not test results. Current
+design authority runs no product workload. The accepted foundation's 30 passing
+tests are historical evidence at `ff7feda`, not proof of this proposed recovery.
+P3-RS-A's Spec RS-1–RS-6 and ADR-0009 are the test basis. All scoped CUJs and
+negative groups below are mandatory; no percentile sampling or waiver.
+
+| CUJ / source | Setup and required observation | Layer / proposed existing test home |
+|---|---|---|
+| RS-CUJ-1 / RS-1, RS-2 | New retained root, durable identity in original target/action, completed committed assessment; close does not delete; fresh exec process recovers exact old bytes/digests with no inherited issuer | Integration `tests/integration/test_wp08_release_operations.py` |
+| RS-CUJ-2 / RS-3 | Completed apply-B and separately completed partial-compensation-to-A histories; exact original claim, recovery attempt, actual restore journal/receipt and full health/state | Integration release file plus existing recovery-claim regressions |
+| RS-CUJ-3 / RS-4 | Cold unique current CAS and six-part normal source reconstruction; task rev is assessment rev+1; every other column refuses before source-seal issuance | Integration release/category tests |
+| RS-CUJ-4 / RS-5 | Use handle twice under fresh lease epoch; counter does not trust stored revision; source/target/artifact drift on second use refuses | Unit/integration release tests |
+| RS-CUJ-5 / RS-2, RS-6 | Busy root, abrupt child exit, explicit close and owner destroy/abort, missing marker, interrupted cleanup and orphan | Integration/security Remaining54 tests |
+| RS-CUJ-6 / RS-6 | Legacy disposable/v1 target rejects cold restore; assessment1.0–1.4 schemas and non-release/live completion fence semantics preserved | Existing contracts/unit/category integration/package tests |
+
+The cold-process positive must use independent exec workers, not fork-inherited
+Python objects or `CategoryExecutionApplication.restart()` on the old instance.
+The test owner retains only the configured namespace/repository locations and
+sanitized logical identifiers. Producer exits, then the consumer constructs
+fresh installed/runtime/repository authorities and reads only existing state.
+Observe process IDs and zero inherited live handles/issuer objects. OS tests use
+fresh test-owned storage only, never the user repository as a mutation target.
+
+Mandatory rejection matrix (each row verifies no returned authority, zero
+recovery writes/replay/network and descriptor/lock release):
+
+| Group | Exact attacks / crash cuts |
+|---|---|
+| Binding | Extra/missing/duplicate fields, wrong version, bool/float identity, wrong scope/task/fixture/target/resource/pins, caller-created/from_documents issuer, coherent re-sign against unchanged durable anchor |
+| Filesystem | Namespace/root/member symlink, parent traversal, absolute/caller path, hard link, wrong owner/mode, copied root/new inode, nonce substitution, missing/extra/torn marker, residue, old identity scheme, descriptor/path swap before or during reads |
+| Durable source | Missing/duplicate/stale/unreferenced/replaced CAS, wrong GraphRef/epoch/revision/request/profile, changed source/review/artifact/target contract, copied source seal; never reissue from assessment facts alone |
+| Action chain | Missing/foreign/stale/revoked prepared/authority/receipt/claim; wrong resource/fence; unresolved/unknown action; mismatched original-vs-compensation ID; absent/duplicate/incomplete recovery attempt; restore receipt substitution |
+| Target/health | Missing or changed installed/artifact/manifest bytes, RECORD/source/build/policy drift, generation rollback, staged/active mismatch, partial cleanup, wrong health predicate/outcome; metadata-only state equality is insufficient |
+| Currentness race | Change each bound source after first read; inject at final generic observer callback and before read-only handle publication; repeat-use drift; preserve the existing after-callback completion binding regression |
+| Crash/lifetime | Before binding fsync, after binding before prepare, each existing five apply cuts, after action terminal before assessment CAS ref, after CAS ref, during owner binding removal/cleanup, competing live writer/reopener, process exit while holding lease |
+| Capability | Copy/clone/serialize/foreign/closed handle, use read-only evidence for issue/commit/mutation, attempt apply/restore/reconcile/lease renewal, process-local result falsely presented as cold recovery |
+
+Crash expectations are precise: only a completed assessment whose entire
+durable closure and retained target are current can recover. Cuts before its
+unique committed reference never create a PASS; executing/unknown/partial
+state is reported blocked with owner route and is not repaired. A crash after
+committed reference can succeed if all terminal bytes are durable; a torn or
+mixed state must reject. A completed compensated case proves recovery of the
+recorded restored-A result, not automatic compensation during restart.
+
+Capture counters before and after the recovery phase: apply=0, restore=0,
+coordinator execution/reconciliation/claim-renewal=0, task/event/snapshot/CAS/
+reference/action/claim/receipt/target-content writes=0, DNS/socket/proxy=0.
+Setup work and deliberately injected tampering are counted separately.
+Compare durable object/ref/table and target tree digests with their before
+values, excluding OS access times and ephemeral lock state. Do not claim a
+recovery receipt if a worker times out or cleanup fails.
+
+After implementation authority: RED first, native selector commands individually
+bounded to 600 seconds, serial fresh fixtures, stop on first failure, no automatic
+whole-run retry. Layer order is binding/schema units -> retained root/readonly
+action integrations -> cold-CAS/source/race matrix -> affected authority/contracts
+-> package/installed-wheel and adjacent bounded ActionCoordinator regressions.
+Re-run only changed-input dependents or actual failures. No cumulative,
+performance, mandatory/scenario issuance or monitoring. Existing foundation
+selectors may be reused only where unchanged-input evidence remains valid.
+
+Exit evidence must bind actual commands, interpreter, elapsed time, counts,
+zero-delta counters, independent review, source closure and real reducer result.
+Scope remains plan244/oracle122/30 missing; design or cold-recovery success
+cannot be substituted for dynamic274/137 acceptance or whole-project static
+PASS. Resource acceptance uses exact lifecycle/counter return and at most one
+open root, not a machine-specific RSS threshold. Unsupported OS primitives are
+an explicit fail-closed result and cannot silently skip a required positive.
+
+### R1 review-closure cases (planned, not executed)
+
+For `GEW-REMAINING54-P3-RESTART-DESIGN-R0-001`, instrument each acquire/release
+in create -> apply/compensate -> assessment commit -> quiesce -> cold open ->
+reuse -> close/destroy. Command control token is distinct from repository tokens.
+Assert no outer repository token around public readers, no second acquisition
+of the same root lease, unchanged installation/object/resource rank order,
+and no root acquisition under any repository lock. Both same-process threads
+and separate exec processes compete with a LIVE writer and an open reader:
+loser gets bounded busy-root denial, winner completes; all failures/early exits
+restore descriptor/lock counters, with no storage edits or write side effects.
+
+For `GEW-REMAINING54-P3-RESTART-DESIGN-R0-003`, ordinary apply-B and completed
+compensation-A positives both use the normal column. Before the consumer's FIRST
+read, independently change: final review author/reviewer/node/body/prior body;
+required output trust/verdict/closure; artifact contract/body/status/independence/
+reference closure; target/profile/resource/expected state; owner authority refs,
+open findings or unresolved claims. Retain the same assessment reference and
+use coherent local record digests where applicable. Every attack must reject
+before new read-only source seal, even if before/after reads are identical.
+No unchanged source seal, generic normal-output digest or old issuer may stand
+in for the six-part validation. All eleven unsupported columns reject explicitly.
+
+For `GEW-REMAINING54-P3-RESTART-DESIGN-R0-002`, after future implementation:
+
+| Pin consumer | Bounded selector / test change (no workload execution) |
+|---|---|
+| Release schema/loader/bootstrap | Existing tests.unit.test_wp08_release_operations and Remaining54P3FoundationContractsTest; update exact member assertion to 18, retain missing/extra/equal-cardinality substitution attacks |
+| Performance/migration/scenario/dependency current bootstraps | Add a named factory-only provenance regression to existing tests/contract/test_wp08_remaining54_contracts.py: load all five current installed closures, substitute each stale source/schema/bootstrap pin independently and reject; do not issue benchmark/migration/scenario execution |
+| Shared category/scenario compatibility | Existing test_non_release_completion_preserves_existing_fence_behavior plus bounded installed scenario-currentness tests; no P/R cumulative helper |
+| Dual action-runtime branch, if changed | Existing ScenarioTruthSecurityTests.test_action_provenance_has_two_current_non_interchangeable_runtime_branches and test_runtime_topology_attacks_fail_against_installed_current_pins; WP07A focused action contracts retain substitution negatives |
+| Source/wheel/RECORD | Existing GateManifestContractTests.test_source_manifest_is_exact_and_detects_mutation and InstalledWheelTests.test_wheel_runs_inside_decoy_project_without_source_imports; packaging closure tests and new exact pair membership assertion |
+
+Every selector is subject to the same native 600-second bound, serial fresh
+fixtures and first-failure stop. Loader checks are source/package validation,
+not performance measurements or full-run acceptance. Any test name added later
+must be recorded exactly in implementation evidence before it is executed.
+
+
 ## 2026-09-18 P3 foundation evidence-path amendment
 
 Human approval `明确批准这五个路径` authorizes

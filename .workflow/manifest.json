@@ -1,0 +1,91 @@
+{
+  "schema_version": "1.0",
+  "workflow_version": "4.0.0",
+  "task_id": "GEW-REMAINING54-V1",
+  "tier_decision": {
+    "suggested": "T2",
+    "declared": "T2",
+    "justification": "Existing approved cross-module restart foundation; current source classifier reports cross-module, schema-change, large-line-change and large-file-change."
+  },
+  "roles": {
+    "human-owner": "Human Owner",
+    "product-reviewer": "Human Owner",
+    "technical-reviewer": "/root/p3_restart_commit_preflight_reviewer",
+    "authorized-committer": "/root"
+  },
+  "target_files": [
+    ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/candidate-decision-r1.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/candidate-review-verdict-r1.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/candidate-state-r1.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+    ".workflow/manifest.json",
+    "adapters/graph_engineering/adapters/local_release_simulator.py",
+    "application/graph_engineering/application/actions.py",
+    "application/graph_engineering/application/release_operations.py",
+    "application/graph_engineering/application/runtime.py",
+    "application/graph_engineering/application/security.py",
+    "application/graph_engineering/application/tasks.py",
+    "config/actions/action-policy-local-actions-v1.json",
+    "config/actions/action-policy-v1.json",
+    "config/actions/concrete-action-policy-v1.json",
+    "config/contracts/action-adapter-registry-v1.json",
+    "config/contracts/profile-schema-registry-v1.json",
+    "config/contracts/schemas/release-recovery-binding-1.0.0.json",
+    "config/contracts/schemas/release-recovery-binding-input-1.0.0.json",
+    "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+    "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+    "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+    "config/release-operations/release-operations-installation-bootstrap-v1.json",
+    "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+    "config/security/security-runtime-local-actions-v1.json",
+    "config/security/security-runtime-v1.json",
+    "config/verification/wp-00-targets.json",
+    "config/workflow-policy.json",
+    "core/graph_engineering/__init__.py",
+    "core/graph_engineering/core/release_operations.py",
+    "core/graph_engineering/core/source_checkout.py",
+    "docs/adr/0009-offline-release-operations-simulator-authority.md",
+    "docs/impact/graph-engineering-workflow.md",
+    "docs/plans/2026-08-13-graph-engineering-workflow.md",
+    "docs/specs/graph-engineering-workflow.md",
+    "docs/test-plans/graph-engineering-workflow.md",
+    "pyproject.toml",
+    "storage/graph_engineering/storage/security.py",
+    "tests/contract/test_wp08_remaining54_contracts.py",
+    "tests/integration/test_wp08_release_operations.py",
+    "tests/security/test_wp07a_action_contract_security.py",
+    "tests/security/test_wp08_remaining54_authority.py",
+    "tests/support/source_checkout_attestation.py",
+    "tests/support/wp05_actions.py",
+    "tests/support/wp08_category_execution.py",
+    "tests/unit/test_wp08_release_operations.py"
+  ],
+  "artifacts": {
+    "positioning": [
+      "docs/positioning/graph-engineering-workflow.md"
+    ],
+    "prd": [
+      "docs/prd/graph-engineering-workflow.md"
+    ],
+    "spec": [
+      "docs/specs/graph-engineering-workflow.md"
+    ],
+    "plan": [
+      "docs/plans/2026-08-13-graph-engineering-workflow.md"
+    ],
+    "test_plan": [
+      "docs/test-plans/graph-engineering-workflow.md"
+    ]
+  },
+  "incidents": []
+}

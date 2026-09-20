@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from types import MappingProxyType
 
 from graph_engineering.core.contracts import canonical_text, parse_json
+from graph_engineering.core.contracts.immutable import FrozenMap, freeze
 from graph_engineering.core.contracts.resources import WorkContext
 from graph_engineering.core.security.retention import RetentionDecision
 
@@ -57,6 +58,14 @@ class CurrentTaskSecurityState:
     state: Mapping[str, object]
     state_digest: str
     current_time: str
+
+
+@dataclass(frozen=True, slots=True)
+class ReadOnlyTaskSecurityState:
+    """Immutable current facts, without clock or mutation authority."""
+
+    state: FrozenMap
+    state_digest: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -248,6 +257,19 @@ class SecurityStateRepository:
         for digest in authorities:
             require_jcs_digest(digest)
         return state, state_digest
+
+    def load_current_task_state_readonly(
+        self,
+        task_id: str,
+        context: WorkContext,
+    ) -> ReadOnlyTaskSecurityState:
+        """Read one joined current row with SQLite-enforced zero-write access."""
+
+        with self._factory.open("doctor") as connection:
+            state, state_digest = self._load_task_state(connection, task_id, context)
+        frozen = freeze(state)
+        assert type(frozen) is FrozenMap
+        return ReadOnlyTaskSecurityState(frozen, state_digest)
 
     def load_current_task_state(
         self,

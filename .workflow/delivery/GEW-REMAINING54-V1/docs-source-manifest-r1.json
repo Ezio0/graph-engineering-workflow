@@ -1,4 +1,1757 @@
 {
+  "p3_restart_bridge_security_packets": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-restart-bridge-security-design-2026-09-19-r0",
+      "revision": 0,
+      "author_id": "/root",
+      "scope": "Supplemental design only for RS-BS prerequisites; not implementation or cold recovery evidence.",
+      "authority_ref": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json#p3_restart_bridge_security_amendment",
+      "upstream": {
+        "design_record": "p3-restart-design-2026-09-19-r1",
+        "rs1_record": "p3-restart-rs1-2026-09-19-r0",
+        "rs1_digest": "6b4da7f6db9b98b364fe79f01482cf019ffb4a67077254dcbabbf259591e7e4d"
+      },
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "raw_sha256": "763f8adb4b87485a31eea1ad1434436db3d4e9989a042447a25563c71c16c8ff",
+          "bytes": 13983
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "raw_sha256": "cb473f63564fa6400669150c8dd686c7b2bf18cd89e22aa83e9679773ba8f6bf",
+          "bytes": 63716
+        },
+        {
+          "path": "docs/adr/0009-offline-release-operations-simulator-authority.md",
+          "raw_sha256": "b913067b5680429344597d8941864b9b7eb81703c61b993fa6f2da6cf98e2ab4",
+          "bytes": 37253
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "raw_sha256": "2f5d0f344d9aea04f32aba1b4d8d4d4a09ee2f9dbe7cffc172bc34bd52335270",
+          "bytes": 93733
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "raw_sha256": "4b8e31db20100380b781be9e9a8ac00e51650d659035cde0571bd79162e6be11",
+          "bytes": 82270
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "raw_sha256": "7f1651dd04402845f35935f2f0dd84336a235e1fffac4f24ab1eb03e500a3ad5",
+          "bytes": 205761
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "raw_sha256": "b40fd879ad2022fd0e87f24152391ad288cfea8bfa1e612f48cec2b2a00cded6",
+          "bytes": 172842
+        }
+      ],
+      "ordered_raw_aggregate_sha256": "e6eaf946cac3eaa7fc895dc659b9d9f88fce8951cf7705b36f688f1511a97c04",
+      "aggregate_algorithm": "sha256(sorted project-relative path + NUL + raw bytes + NUL)",
+      "reducer_inputs": {
+        "envelope": {
+          "document": {
+            "schema_version": "1.0",
+            "task_id": "GEW-REMAINING54-V1",
+            "goal": "Implement the Human-approved bounded P3-RS-A R1 restart foundation with RS-BS same-task bridge and read-only security prerequisites; normal-only, no coverage issuance.",
+            "non_goals": [
+              "Change the approved Positioning or PRD Intent Baseline.",
+              "Use or modify a user project or the read-only reference repository.",
+              "Use a real staging or production environment, network access, remote health checks, credentials, or external services.",
+              "Enable or implement WP-10 installation, upgrade, deployment, publication, or release scope.",
+              "Add a database schema, repository event kind, GraphRef field or API, dependency, daemon, or remote state service.",
+              "Treat local production-like or release-simulator evidence as real production, deployment, or release evidence.",
+              "Commit, push, merge, deploy, release, publish, or communicate externally.",
+              "mandatory/scenario coverage issuance",
+              "cumulative/performance workload execution",
+              "monitoring"
+            ],
+            "allowed_targets": [
+              ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-decision-r1.json",
+              "docs/adr/0007-offline-performance-benchmark-authority.md",
+              "docs/adr/0008-local-profile-scenario-truth-authority.md",
+              "docs/adr/0009-offline-release-operations-simulator-authority.md",
+              "docs/specs/graph-engineering-workflow.md",
+              "docs/impact/graph-engineering-workflow.md",
+              "docs/plans/2026-08-13-graph-engineering-workflow.md",
+              "docs/test-plans/graph-engineering-workflow.md",
+              "pyproject.toml",
+              "core/graph_engineering/__init__.py",
+              "core/graph_engineering/core/__init__.py",
+              "core/graph_engineering/core/contracts/resources.py",
+              "core/graph_engineering/core/performance_benchmark.py",
+              "core/graph_engineering/core/profile_coverage.py",
+              "core/graph_engineering/core/profile_execution.py",
+              "core/graph_engineering/core/source_checkout.py",
+              "core/graph_engineering/core/profiles.py",
+              "core/graph_engineering/core/scenario_truth.py",
+              "core/graph_engineering/core/release_operations.py",
+              "application/graph_engineering/application/__init__.py",
+              "application/graph_engineering/application/actions.py",
+              "application/graph_engineering/application/dependency_security.py",
+              "application/graph_engineering/application/performance_benchmark.py",
+              "application/graph_engineering/application/profile_execution.py",
+              "application/graph_engineering/application/profile_coverage.py",
+              "application/graph_engineering/application/profile_coverage_oracle.py",
+              "application/graph_engineering/application/profile_real_e2e.py",
+              "application/graph_engineering/application/profile_real_e2e_verifier.py",
+              "application/graph_engineering/application/runner.py",
+              "application/graph_engineering/application/runtime.py",
+              "application/graph_engineering/application/tasks.py",
+              "application/graph_engineering/application/scenario_truth.py",
+              "application/graph_engineering/application/release_operations.py",
+              "adapters/graph_engineering/adapters/__init__.py",
+              "adapters/graph_engineering/adapters/action_adapters.py",
+              "adapters/graph_engineering/adapters/local_release_simulator.py",
+              "config/actions/action-policy-local-actions-v1.json",
+              "config/actions/action-policy-v1.json",
+              "config/actions/concrete-action-policy-v1.json",
+              "config/actions/connector-registry-v1.json",
+              "config/contracts/action-adapter-registry-v1.json",
+              "config/contracts/action-adapter-schema-registry-v1.json",
+              "config/contracts/profile-schema-registry-v1.json",
+              "config/contracts/schemas/scenario-truth-policy-registry-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-policy-registry-input-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-observation-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-installation-bootstrap-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-installation-bootstrap-input-1.0.0.json",
+              "config/contracts/schemas/category-completion-assessment-1.3.0.json",
+              "config/contracts/schemas/category-completion-assessment-input-1.3.0.json",
+              "config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
+              "config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+              "config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
+              "config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
+              "config/contracts/schemas/release-artifact-manifest-1.0.0.json",
+              "config/contracts/schemas/release-artifact-manifest-input-1.0.0.json",
+              "config/contracts/schemas/release-health-observation-1.0.0.json",
+              "config/contracts/schemas/release-health-observation-input-1.0.0.json",
+              "config/contracts/schemas/release-deployment-observation-1.0.0.json",
+              "config/contracts/schemas/release-deployment-observation-input-1.0.0.json",
+              "config/contracts/schemas/release-operations-observation-1.0.0.json",
+              "config/contracts/schemas/release-operations-observation-input-1.0.0.json",
+              "config/contracts/schemas/release-operations-installation-bootstrap-1.0.0.json",
+              "config/contracts/schemas/release-operations-installation-bootstrap-input-1.0.0.json",
+              "config/contracts/schemas/category-completion-assessment-1.4.0.json",
+              "config/contracts/schemas/category-completion-assessment-input-1.4.0.json",
+              "config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json",
+              "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+              "config/performance/performance-benchmark-registry-v1.json",
+              "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+              "config/profiles/profile-coverage-execution-plan-v1.json",
+              "config/profiles/profile-real-e2e-binding-registry-v1.json",
+              "config/profiles/scenario-truth-policy-registry-v1.json",
+              "config/profiles/scenario-truth-fixture-registry-v1.json",
+              "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+              "config/release-coverage/oracle-manifest-v1.json",
+              "config/release-operations/release-operations-policy-registry-v1.json",
+              "config/release-operations/release-simulator-fixture-registry-v1.json",
+              "config/release-operations/release-operations-installation-bootstrap-v1.json",
+              "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+              "config/security/security-runtime-local-actions-v1.json",
+              "config/security/security-runtime-v1.json",
+              "config/test-oracles/profile-performance-noise-outlier-v1.json",
+              "config/test-oracles/profile-performance-correctness-regression-v1.json",
+              "config/test-oracles/profile-new-feature-multi-target-v1.json",
+              "config/test-oracles/profile-hotfix-emergency-baseline-v1.json",
+              "config/test-oracles/profile-hotfix-production-like-gate-v1.json",
+              "config/test-oracles/profile-refactor-debt-behavior-characterization-v1.json",
+              "config/test-oracles/profile-refactor-debt-architecture-invariant-v1.json",
+              "config/test-oracles/profile-refactor-debt-nonfunctional-target-v1.json",
+              "config/test-oracles/profile-incident-response-detection-v1.json",
+              "config/test-oracles/profile-incident-response-containment-v1.json",
+              "config/test-oracles/profile-incident-response-scenario-recovery-v1.json",
+              "config/test-oracles/profile-incident-response-unknown-effects-v1.json",
+              "config/test-oracles/profile-release-operations-artifacts-v1.json",
+              "config/test-oracles/profile-release-operations-authority-v1.json",
+              "config/test-oracles/profile-release-operations-boundary-v1.json",
+              "config/test-oracles/profile-release-operations-drift-v1.json",
+              "config/test-oracles/profile-release-operations-invalidation-v1.json",
+              "config/test-oracles/profile-release-operations-normal-v1.json",
+              "config/test-oracles/profile-release-operations-real-e2e-v1.json",
+              "config/test-oracles/profile-release-operations-recovery-v1.json",
+              "config/test-oracles/profile-release-operations-review-v1.json",
+              "config/test-oracles/profile-release-operations-revise-v1.json",
+              "config/test-oracles/profile-release-operations-rollback-v1.json",
+              "config/test-oracles/profile-release-operations-target-v1.json",
+              "config/test-oracles/profile-release-operations-artifact-provenance-v1.json",
+              "config/test-oracles/profile-release-operations-health-gate-v1.json",
+              "config/test-oracles/profile-release-operations-partial-deploy-v1.json",
+              "config/verification/wp-00-targets.json",
+              "scripts/check_architecture.py",
+              "tests/fixtures/wp08-release-operations-real-e2e-v1.json",
+              "tests/support/runtime_distribution.py",
+              "tests/support/runtime_resources.py",
+              "tests/support/source_checkout_attestation.py",
+              "tests/support/wp05_actions.py",
+              "tests/support/wp08_category_execution.py",
+              "tests/support/wp08_performance_benchmark.py",
+              "tests/support/wp08_release_coverage.py",
+              "tests/support/wp08_scenario_truth.py",
+              "tests/support/wp08_release_operations.py",
+              "tests/unit/test_wp00_packaging.py",
+              "tests/unit/test_wp08_profile_contracts.py",
+              "tests/unit/test_wp08_profile_expansion.py",
+              "tests/unit/test_wp08_scenario_truth.py",
+              "tests/unit/test_wp08_release_operations.py",
+              "tests/contract/test_wp08_remaining54_contracts.py",
+              "tests/integration/test_wp08_category_execution.py",
+              "tests/integration/test_wp08_release_coverage.py",
+              "tests/integration/test_wp08_scenario_truth.py",
+              "tests/integration/test_wp08_release_operations.py",
+              "tests/security/test_wp07a_action_contract_security.py",
+              "tests/contract/test_wp07a_action_contracts.py",
+              "tests/security/test_wp08_remaining54_authority.py",
+              "tests/e2e/test_wp00_installed_wheel.py",
+              "config/contracts/schemas/release-recovery-binding-1.0.0.json",
+              "config/contracts/schemas/release-recovery-binding-input-1.0.0.json",
+              "application/graph_engineering/application/security.py",
+              "storage/graph_engineering/storage/security.py"
+            ],
+            "allowed_change_kinds": [
+              "architecture-detail",
+              "clarification",
+              "consistency",
+              "traceability",
+              "testability",
+              "implementation",
+              "configuration",
+              "test",
+              "verification-evidence"
+            ],
+            "human_required_change_kinds": [
+              "goal",
+              "non-goal",
+              "target-boundary",
+              "intent-baseline",
+              "authority-expansion",
+              "material-architecture-choice",
+              "dependency",
+              "data-access",
+              "security-posture",
+              "irreversible-action"
+            ],
+            "authorized_actions": [
+              "documentation",
+              "implementation",
+              "verification",
+              "independent-review",
+              "review"
+            ]
+          }
+        },
+        "graph": {
+          "source_path": "/Users/ezio/Documents/MyProjects/data/codex-skill-snapshots/e2d398ee7ea4e965d6f8f1c55f45debff7f69058/config/delivery-graph.json",
+          "raw_sha256": "0509725a3f60ad32712e349a357eb9d11a0c9ca0d71c2a35a4121e8402ed918d",
+          "document": {
+            "schema_version": "1.0",
+            "graph_version": "1.0.0",
+            "entry_node": "positioning",
+            "nodes": {
+              "positioning": {
+                "artifact": "positioning",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "prd"
+              },
+              "prd": {
+                "artifact": "prd",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "spec"
+              },
+              "spec": {
+                "artifact": "spec",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "impact"
+              },
+              "impact": {
+                "artifact": "impact",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "plan"
+              },
+              "plan": {
+                "artifact": "plan",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "test-plan"
+              },
+              "test-plan": {
+                "artifact": "test_plan",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "implementation"
+              },
+              "implementation": {
+                "artifact": "implementation",
+                "required_action": "implementation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "verification"
+              },
+              "verification": {
+                "artifact": "verification",
+                "required_action": "verification",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "candidate"
+              },
+              "candidate": {
+                "artifact": "candidate",
+                "required_action": "candidate",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "independent-review"
+              },
+              "independent-review": {
+                "artifact": "review",
+                "required_action": "review",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "commit"
+              },
+              "commit": {
+                "artifact": "commit",
+                "required_action": "commit",
+                "human_authority_required": true,
+                "terminal": false,
+                "next": "receipt"
+              },
+              "receipt": {
+                "artifact": "receipt",
+                "required_action": "receipt",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "retro"
+              },
+              "retro": {
+                "artifact": "retro",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "complete"
+              },
+              "complete": {
+                "artifact": "complete",
+                "required_action": "none",
+                "human_authority_required": false,
+                "terminal": true,
+                "next": null
+              }
+            }
+          }
+        },
+        "policy": {
+          "source_path": "/Users/ezio/Documents/MyProjects/data/codex-skill-snapshots/e2d398ee7ea4e965d6f8f1c55f45debff7f69058/config/workflow-policy.json",
+          "raw_sha256": "7cefc564ddd39c014d17b5536065a595de62fcf114b17ad3d70ec2aedc61116a",
+          "document": {
+            "schema_version": "1.0",
+            "policy_version": "4.0.0",
+            "verification_evidence": {
+              "required_tiers": [
+                "T1",
+                "T2",
+                "T3"
+              ],
+              "passing_exit_codes": [
+                0
+              ],
+              "max_age_seconds": 86400,
+              "timeout_seconds": 300,
+              "detached_path_prefixes": [
+                ".workflow/delivery/"
+              ]
+            },
+            "tiers": {
+              "T0": {
+                "lane": "normal",
+                "required_artifacts": [
+                  "kanban"
+                ],
+                "required_roles": [],
+                "review_roles": [
+                  "human-owner",
+                  "technical-reviewer"
+                ],
+                "independent_review_required": false
+              },
+              "T1": {
+                "lane": "normal",
+                "required_artifacts": [
+                  "lean_scope"
+                ],
+                "required_roles": [
+                  "human-owner",
+                  "technical-reviewer",
+                  "authorized-committer"
+                ],
+                "review_roles": [
+                  "technical-reviewer"
+                ],
+                "independent_review_required": true
+              },
+              "T2": {
+                "lane": "normal",
+                "required_artifacts": [
+                  "positioning",
+                  "prd",
+                  "spec",
+                  "plan",
+                  "test_plan"
+                ],
+                "required_roles": [
+                  "human-owner",
+                  "product-reviewer",
+                  "technical-reviewer",
+                  "authorized-committer"
+                ],
+                "review_roles": [
+                  "technical-reviewer"
+                ],
+                "independent_review_required": true
+              },
+              "T3": {
+                "lane": "emergency",
+                "required_artifacts": [
+                  "incident",
+                  "test_evidence",
+                  "review"
+                ],
+                "required_roles": [
+                  "human-owner",
+                  "technical-reviewer",
+                  "authorized-committer"
+                ],
+                "review_roles": [
+                  "technical-reviewer"
+                ],
+                "independent_review_required": true
+              }
+            },
+            "classification": {
+              "direct_change_lines": 20,
+              "large_change_lines": 200,
+              "large_change_files": 10,
+              "cross_module_top_level_count": 2,
+              "non_product_path_prefixes": [
+                ".workflow/"
+              ],
+              "non_product_exact_paths": [
+                "AGENTS.md"
+              ],
+              "interface_path_markers": [
+                "api",
+                "endpoint",
+                "route",
+                "handler",
+                "openapi"
+              ],
+              "schema_path_markers": [
+                "migration",
+                "model",
+                "schema",
+                "ddl"
+              ]
+            },
+            "incident": {
+              "follow_up_hours": 48,
+              "required_fields": [
+                "schema_version",
+                "incident_id",
+                "opened_at",
+                "follow_up_deadline",
+                "impact",
+                "eligibility",
+                "owner_role",
+                "reviewer_role",
+                "status",
+                "test_evidence",
+                "review"
+              ],
+              "statuses": [
+                "open",
+                "mitigated",
+                "follow-up-complete"
+              ],
+              "passing_test_outcomes": [
+                "passed"
+              ],
+              "approved_review_outcomes": [
+                "APPROVED"
+              ]
+            },
+            "artifact_review": {
+              "independent_review_required": true,
+              "max_revision_cycles": 3,
+              "allowed_verdicts": [
+                "PASS",
+                "REVISE",
+                "ESCALATE",
+                "BLOCKED"
+              ],
+              "finding_severities": [
+                "advisory",
+                "blocking"
+              ],
+              "finding_statuses": [
+                "open",
+                "resolved"
+              ],
+              "routine_change_kinds": [
+                "clarification",
+                "traceability",
+                "testability"
+              ],
+              "human_required_change_kinds": [
+                "goal",
+                "non-goal",
+                "scope-expansion",
+                "target-boundary",
+                "tier",
+                "budget",
+                "external-dependency",
+                "data-access",
+                "security-posture",
+                "architecture-choice",
+                "reviewer-conflict"
+              ],
+              "irreversible_actions": [
+                "commit",
+                "push",
+                "merge",
+                "deploy",
+                "release",
+                "external-message"
+              ]
+            },
+            "artifact_requirements": {
+              "lean_scope": {
+                "minimum_h2": 6,
+                "minimum_body_chars": 20,
+                "required_headings": [
+                  "Scope",
+                  "Acceptance Criteria",
+                  "Critical Journeys",
+                  "Test Boundary",
+                  "Review Boundary",
+                  "Commit Boundary"
+                ]
+              },
+              "positioning": {
+                "minimum_h2": 5,
+                "minimum_body_chars": 1
+              },
+              "prd": {
+                "minimum_h2": 13,
+                "minimum_body_chars": 1
+              },
+              "spec": {
+                "minimum_h2": 12,
+                "minimum_body_chars": 1
+              },
+              "plan": {
+                "minimum_h2": 8,
+                "minimum_body_chars": 1
+              },
+              "test_plan": {
+                "minimum_h2": 8,
+                "minimum_body_chars": 1
+              },
+              "incident": {
+                "format": "json"
+              },
+              "test_evidence": {
+                "format": "json"
+              },
+              "review": {
+                "format": "json"
+              }
+            },
+            "bilingual": {
+              "legacy_suffix_pairs": [
+                [
+                  "_en.md",
+                  "_zh.md"
+                ],
+                [
+                  ".en.md",
+                  ".zh.md"
+                ]
+              ],
+              "heading_levels": [
+                1,
+                2,
+                3
+              ],
+              "exclude_directories": [
+                ".git",
+                "node_modules",
+                "__pycache__",
+                ".venv",
+                "venv"
+              ]
+            },
+            "content_neutrality": {
+              "scan_roots": [
+                "README.md",
+                "README.zh.md",
+                "QUICKSTART.md",
+                "QUICKSTART.zh.md",
+                "docs/workflow",
+                "docs/platforms",
+                "docs/positioning",
+                "agents",
+                ".qoder-plugin",
+                "docs/prd",
+                "docs/specs",
+                "docs/impact",
+                "docs/plans",
+                "docs/test-plans",
+                "skills",
+                "examples",
+                "scripts",
+                "tests"
+              ],
+              "exclude_paths": [
+                "skills/archive",
+                "config/workflow-policy.json"
+              ],
+              "patterns": {
+                "personal-name": "\\bEzio\\b",
+                "fictional-name-en": "\\bYang Lei\\b",
+                "fictional-name-zh": "杨磊",
+                "private-home-path": "/Users/[A-Za-z0-9._-]+",
+                "personal-profile": "\\bezio-(zero|infinite|quarter|half)\\b"
+              },
+              "exemptions_require_reason": true
+            }
+          }
+        }
+      }
+    }
+  ],
+  "p3_restart_design_packets": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-restart-design-2026-09-19-r0",
+      "author_id": "/root",
+      "revision": 0,
+      "previous_artifact_digest": null,
+      "entry_commit": "ff7feda40cc7e8d68c3a2f48dafe58adf0396400",
+      "scope": "P3-RS-A proposed restart architecture and bounded implementation/test design only; no material choice adoption or implementation.",
+      "authority_ref": "human-decision-p1-p2-p3-r0.json#p3_restart_design_amendment",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "raw_sha256": "f384ab86f2940b9d2f868b820743bd91237ce3dbbe2f204faa2844677a83c2d9",
+          "bytes": 13727
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "raw_sha256": "6ad0c3b08f88664d43d5c0d096bf9171502ba91f31f16d65dcca6664425c28bd",
+          "bytes": 57453
+        },
+        {
+          "path": "docs/adr/0009-offline-release-operations-simulator-authority.md",
+          "raw_sha256": "99d62af78a856af5e7c962ea0ad936780cd8bb8207885eca58c7eb1caea0b670",
+          "bytes": 34745
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "raw_sha256": "645001a98d959293dee799a9c68228d32aade2a3eba324fd5ce4b6e356c12e27",
+          "bytes": 88680
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "raw_sha256": "fe2d77f248a69294bfaf43f8e9d7450f81d101ef81ef2c5fbb057eeeaf9b5b33",
+          "bytes": 80148
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "raw_sha256": "ed2acd13a9f6eb0126debbe04c385212181247b7aa8cb9224009ce9e6e6389bd",
+          "bytes": 193298
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "raw_sha256": "05187d6e8c004e0c438c04601ee17a5091ebc01c731513ed7b1f6dd48925e0e9",
+          "bytes": 164880
+        }
+      ],
+      "ordered_raw_aggregate_sha256": "25591847fb295e6042a361d9f2a347ef4094b69f0a5dc0b941704e3026e183e4",
+      "aggregate_algorithm": "SHA256 of sorted project-relative path + NUL + raw bytes + NUL",
+      "upstream": {
+        "intent_baseline_raw_sha256": "594b4437301853919ce3b4aa93e703a395ed45bff924ea6266b3a8e202a30be7",
+        "foundation_artifact_digest": "sha256:8e3916c256deedc62e315b0962bf384c741b9790650abdb835854cd9600c6490",
+        "candidate_digest": "sha256:55746c8fe1bd79321bd713a94e4ddb48bf33e1178c691dd6d9b3cd33d06b6c2f",
+        "committed_tree": "c567957de3d95c0468c049c035b515df8c27d657",
+        "recovery_check": "Before design edits, all 59 foundation source hashes, artifact digest and real reducer decision and all 63 Candidate payload hashes were recomputed successfully. Historical records now resolve at the entry commit, not at changed live doc bytes."
+      },
+      "structural_checks": {
+        "historical_document_bodies_preserved": 5,
+        "human_record_prior_fields_preserved": true,
+        "base_envelope_unchanged": true,
+        "changed_paths_within_design_only_boundary": true,
+        "proposed_schema_files_absent": true,
+        "product_tests_run": 0
+      },
+      "reducer_inputs": {
+        "graph": {
+          "source_path": "/Users/ezio/Documents/MyProjects/data/codex-skill-snapshots/e2d398ee7ea4e965d6f8f1c55f45debff7f69058/config/delivery-graph.json",
+          "raw_sha256": "0509725a3f60ad32712e349a357eb9d11a0c9ca0d71c2a35a4121e8402ed918d",
+          "document": {
+            "schema_version": "1.0",
+            "graph_version": "1.0.0",
+            "entry_node": "positioning",
+            "nodes": {
+              "positioning": {
+                "artifact": "positioning",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "prd"
+              },
+              "prd": {
+                "artifact": "prd",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "spec"
+              },
+              "spec": {
+                "artifact": "spec",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "impact"
+              },
+              "impact": {
+                "artifact": "impact",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "plan"
+              },
+              "plan": {
+                "artifact": "plan",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "test-plan"
+              },
+              "test-plan": {
+                "artifact": "test_plan",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "implementation"
+              },
+              "implementation": {
+                "artifact": "implementation",
+                "required_action": "implementation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "verification"
+              },
+              "verification": {
+                "artifact": "verification",
+                "required_action": "verification",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "candidate"
+              },
+              "candidate": {
+                "artifact": "candidate",
+                "required_action": "candidate",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "independent-review"
+              },
+              "independent-review": {
+                "artifact": "review",
+                "required_action": "review",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "commit"
+              },
+              "commit": {
+                "artifact": "commit",
+                "required_action": "commit",
+                "human_authority_required": true,
+                "terminal": false,
+                "next": "receipt"
+              },
+              "receipt": {
+                "artifact": "receipt",
+                "required_action": "receipt",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "retro"
+              },
+              "retro": {
+                "artifact": "retro",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "complete"
+              },
+              "complete": {
+                "artifact": "complete",
+                "required_action": "none",
+                "human_authority_required": false,
+                "terminal": true,
+                "next": null
+              }
+            }
+          }
+        },
+        "policy": {
+          "source_path": "/Users/ezio/Documents/MyProjects/data/codex-skill-snapshots/e2d398ee7ea4e965d6f8f1c55f45debff7f69058/config/workflow-policy.json",
+          "raw_sha256": "7cefc564ddd39c014d17b5536065a595de62fcf114b17ad3d70ec2aedc61116a",
+          "document": {
+            "schema_version": "1.0",
+            "policy_version": "4.0.0",
+            "verification_evidence": {
+              "required_tiers": [
+                "T1",
+                "T2",
+                "T3"
+              ],
+              "passing_exit_codes": [
+                0
+              ],
+              "max_age_seconds": 86400,
+              "timeout_seconds": 300,
+              "detached_path_prefixes": [
+                ".workflow/delivery/"
+              ]
+            },
+            "tiers": {
+              "T0": {
+                "lane": "normal",
+                "required_artifacts": [
+                  "kanban"
+                ],
+                "required_roles": [],
+                "review_roles": [
+                  "human-owner",
+                  "technical-reviewer"
+                ],
+                "independent_review_required": false
+              },
+              "T1": {
+                "lane": "normal",
+                "required_artifacts": [
+                  "lean_scope"
+                ],
+                "required_roles": [
+                  "human-owner",
+                  "technical-reviewer",
+                  "authorized-committer"
+                ],
+                "review_roles": [
+                  "technical-reviewer"
+                ],
+                "independent_review_required": true
+              },
+              "T2": {
+                "lane": "normal",
+                "required_artifacts": [
+                  "positioning",
+                  "prd",
+                  "spec",
+                  "plan",
+                  "test_plan"
+                ],
+                "required_roles": [
+                  "human-owner",
+                  "product-reviewer",
+                  "technical-reviewer",
+                  "authorized-committer"
+                ],
+                "review_roles": [
+                  "technical-reviewer"
+                ],
+                "independent_review_required": true
+              },
+              "T3": {
+                "lane": "emergency",
+                "required_artifacts": [
+                  "incident",
+                  "test_evidence",
+                  "review"
+                ],
+                "required_roles": [
+                  "human-owner",
+                  "technical-reviewer",
+                  "authorized-committer"
+                ],
+                "review_roles": [
+                  "technical-reviewer"
+                ],
+                "independent_review_required": true
+              }
+            },
+            "classification": {
+              "direct_change_lines": 20,
+              "large_change_lines": 200,
+              "large_change_files": 10,
+              "cross_module_top_level_count": 2,
+              "non_product_path_prefixes": [
+                ".workflow/"
+              ],
+              "non_product_exact_paths": [
+                "AGENTS.md"
+              ],
+              "interface_path_markers": [
+                "api",
+                "endpoint",
+                "route",
+                "handler",
+                "openapi"
+              ],
+              "schema_path_markers": [
+                "migration",
+                "model",
+                "schema",
+                "ddl"
+              ]
+            },
+            "incident": {
+              "follow_up_hours": 48,
+              "required_fields": [
+                "schema_version",
+                "incident_id",
+                "opened_at",
+                "follow_up_deadline",
+                "impact",
+                "eligibility",
+                "owner_role",
+                "reviewer_role",
+                "status",
+                "test_evidence",
+                "review"
+              ],
+              "statuses": [
+                "open",
+                "mitigated",
+                "follow-up-complete"
+              ],
+              "passing_test_outcomes": [
+                "passed"
+              ],
+              "approved_review_outcomes": [
+                "APPROVED"
+              ]
+            },
+            "artifact_review": {
+              "independent_review_required": true,
+              "max_revision_cycles": 3,
+              "allowed_verdicts": [
+                "PASS",
+                "REVISE",
+                "ESCALATE",
+                "BLOCKED"
+              ],
+              "finding_severities": [
+                "advisory",
+                "blocking"
+              ],
+              "finding_statuses": [
+                "open",
+                "resolved"
+              ],
+              "routine_change_kinds": [
+                "clarification",
+                "traceability",
+                "testability"
+              ],
+              "human_required_change_kinds": [
+                "goal",
+                "non-goal",
+                "scope-expansion",
+                "target-boundary",
+                "tier",
+                "budget",
+                "external-dependency",
+                "data-access",
+                "security-posture",
+                "architecture-choice",
+                "reviewer-conflict"
+              ],
+              "irreversible_actions": [
+                "commit",
+                "push",
+                "merge",
+                "deploy",
+                "release",
+                "external-message"
+              ]
+            },
+            "artifact_requirements": {
+              "lean_scope": {
+                "minimum_h2": 6,
+                "minimum_body_chars": 20,
+                "required_headings": [
+                  "Scope",
+                  "Acceptance Criteria",
+                  "Critical Journeys",
+                  "Test Boundary",
+                  "Review Boundary",
+                  "Commit Boundary"
+                ]
+              },
+              "positioning": {
+                "minimum_h2": 5,
+                "minimum_body_chars": 1
+              },
+              "prd": {
+                "minimum_h2": 13,
+                "minimum_body_chars": 1
+              },
+              "spec": {
+                "minimum_h2": 12,
+                "minimum_body_chars": 1
+              },
+              "plan": {
+                "minimum_h2": 8,
+                "minimum_body_chars": 1
+              },
+              "test_plan": {
+                "minimum_h2": 8,
+                "minimum_body_chars": 1
+              },
+              "incident": {
+                "format": "json"
+              },
+              "test_evidence": {
+                "format": "json"
+              },
+              "review": {
+                "format": "json"
+              }
+            },
+            "bilingual": {
+              "legacy_suffix_pairs": [
+                [
+                  "_en.md",
+                  "_zh.md"
+                ],
+                [
+                  ".en.md",
+                  ".zh.md"
+                ]
+              ],
+              "heading_levels": [
+                1,
+                2,
+                3
+              ],
+              "exclude_directories": [
+                ".git",
+                "node_modules",
+                "__pycache__",
+                ".venv",
+                "venv"
+              ]
+            },
+            "content_neutrality": {
+              "scan_roots": [
+                "README.md",
+                "README.zh.md",
+                "QUICKSTART.md",
+                "QUICKSTART.zh.md",
+                "docs/workflow",
+                "docs/platforms",
+                "docs/positioning",
+                "agents",
+                ".qoder-plugin",
+                "docs/prd",
+                "docs/specs",
+                "docs/impact",
+                "docs/plans",
+                "docs/test-plans",
+                "skills",
+                "examples",
+                "scripts",
+                "tests"
+              ],
+              "exclude_paths": [
+                "skills/archive",
+                "config/workflow-policy.json"
+              ],
+              "patterns": {
+                "personal-name": "\\bEzio\\b",
+                "fictional-name-en": "\\bYang Lei\\b",
+                "fictional-name-zh": "杨磊",
+                "private-home-path": "/Users/[A-Za-z0-9._-]+",
+                "personal-profile": "\\bezio-(zero|infinite|quarter|half)\\b"
+              },
+              "exemptions_require_reason": true
+            }
+          }
+        },
+        "envelope": {
+          "source_path": "human-decision-p1-p2-p3-r0.json#p3_restart_design_amendment derived scope",
+          "base_raw_sha256": "f384ab86f2940b9d2f868b820743bd91237ce3dbbe2f204faa2844677a83c2d9",
+          "document": {
+            "schema_version": "1.0",
+            "task_id": "GEW-REMAINING54-V1",
+            "goal": "Inspect the accepted foundation, draft a proposed restart architecture plus Spec/Impact/Plan/Test Plan supplements, perform non-mutating structural/digest checks, and obtain independent design review. Proposal is not Human acceptance of a material architecture choice.",
+            "non_goals": [
+              "Change the approved Positioning or PRD Intent Baseline.",
+              "Use or modify a user project or the read-only reference repository.",
+              "Use a real staging or production environment, network access, remote health checks, credentials, or external services.",
+              "Enable or implement WP-10 installation, upgrade, deployment, publication, or release scope.",
+              "Add a database schema, repository event kind, GraphRef field or API, dependency, daemon, or remote state service.",
+              "Treat local production-like or release-simulator evidence as real production, deployment, or release evidence.",
+              "Commit, push, merge, deploy, release, publish, or communicate externally.",
+              "Adopt the proposed material architecture or create the two proposed schema paths without a subsequent Human decision.",
+              "Execute implementation, product tests, coverage, cumulative or performance runs, or monitoring in this design-only turn."
+            ],
+            "allowed_targets": [
+              ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+              "docs/adr/0009-offline-release-operations-simulator-authority.md",
+              "docs/specs/graph-engineering-workflow.md",
+              "docs/impact/graph-engineering-workflow.md",
+              "docs/plans/2026-08-13-graph-engineering-workflow.md",
+              "docs/test-plans/graph-engineering-workflow.md"
+            ],
+            "allowed_change_kinds": [
+              "architecture-detail",
+              "clarification",
+              "consistency",
+              "traceability",
+              "testability",
+              "implementation",
+              "configuration",
+              "test",
+              "verification-evidence"
+            ],
+            "human_required_change_kinds": [
+              "goal",
+              "non-goal",
+              "target-boundary",
+              "intent-baseline",
+              "authority-expansion",
+              "material-architecture-choice",
+              "dependency",
+              "data-access",
+              "security-posture",
+              "irreversible-action"
+            ],
+            "authorized_actions": [
+              "documentation",
+              "independent-review",
+              "review"
+            ]
+          }
+        }
+      },
+      "next_boundary": "Independent review and real reducer only. Even a document-quality PASS does not authorize implementation: the design-only effective envelope omits implementation, and P3-RS-A / two schema paths still require Human acceptance.",
+      "prior_record_preservation": "Append-only named p3_restart_design_packets; all older container fields remain identical. Historical artifact bodies are recoverable from the entry commit."
+    },
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-restart-design-2026-09-19-r1",
+      "author_id": "/root",
+      "revision": 1,
+      "previous_artifact_digest": "25591847fb295e6042a361d9f2a347ef4094b69f0a5dc0b941704e3026e183e4",
+      "entry_commit": "ff7feda40cc7e8d68c3a2f48dafe58adf0396400",
+      "scope": "P3-RS-A proposed restart architecture and bounded implementation/test design only; no material choice adoption or implementation.",
+      "authority_ref": "human-decision-p1-p2-p3-r0.json#p3_restart_design_amendment",
+      "files": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          "raw_sha256": "f384ab86f2940b9d2f868b820743bd91237ce3dbbe2f204faa2844677a83c2d9",
+          "bytes": 13727
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          "raw_sha256": "6ad0c3b08f88664d43d5c0d096bf9171502ba91f31f16d65dcca6664425c28bd",
+          "bytes": 57453
+        },
+        {
+          "path": "docs/adr/0009-offline-release-operations-simulator-authority.md",
+          "raw_sha256": "7e3b3ec3f0b753cd21e7a97036ca5fcdc19c1eabd96ea5d96e99cef7959720de",
+          "bytes": 35260
+        },
+        {
+          "path": "docs/impact/graph-engineering-workflow.md",
+          "raw_sha256": "5305f5789a5f6ae60e69424d8156173f18f5a3b4a618b849d1409ffd876da808",
+          "bytes": 91711
+        },
+        {
+          "path": "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "raw_sha256": "d74e2cb2a39f715b1c66249c43a83e576921e05401f984532715e5cce0e7f07f",
+          "bytes": 80528
+        },
+        {
+          "path": "docs/specs/graph-engineering-workflow.md",
+          "raw_sha256": "90eab8fa22add3e4306f006986e27b103c6580b8398e93e79889963dea37ee86",
+          "bytes": 199884
+        },
+        {
+          "path": "docs/test-plans/graph-engineering-workflow.md",
+          "raw_sha256": "b95f2aa383d6b0e3c96af06fa7dd88d049833f880d693b1e4fdaecd4efa91682",
+          "bytes": 168199
+        }
+      ],
+      "ordered_raw_aggregate_sha256": "5a929b98176920c76d6b1fd48cfa8e91c0c99a239db8a31ce3c794e330f69a5e",
+      "aggregate_algorithm": "SHA256 of sorted project-relative path + NUL + raw bytes + NUL",
+      "upstream": {
+        "intent_baseline_raw_sha256": "594b4437301853919ce3b4aa93e703a395ed45bff924ea6266b3a8e202a30be7",
+        "foundation_artifact_digest": "sha256:8e3916c256deedc62e315b0962bf384c741b9790650abdb835854cd9600c6490",
+        "candidate_digest": "sha256:55746c8fe1bd79321bd713a94e4ddb48bf33e1178c691dd6d9b3cd33d06b6c2f",
+        "committed_tree": "c567957de3d95c0468c049c035b515df8c27d657",
+        "recovery_check": "Before design edits, all 59 foundation source hashes, artifact digest and real reducer decision and all 63 Candidate payload hashes were recomputed successfully. Historical records now resolve at the entry commit, not at changed live doc bytes."
+      },
+      "structural_checks": {
+        "historical_document_bodies_preserved": 5,
+        "human_record_prior_fields_preserved": true,
+        "base_envelope_unchanged": true,
+        "changed_paths_within_design_only_boundary": true,
+        "proposed_schema_files_absent": true,
+        "product_tests_run": 0
+      },
+      "reducer_inputs": {
+        "graph": {
+          "source_path": "/Users/ezio/Documents/MyProjects/data/codex-skill-snapshots/e2d398ee7ea4e965d6f8f1c55f45debff7f69058/config/delivery-graph.json",
+          "raw_sha256": "0509725a3f60ad32712e349a357eb9d11a0c9ca0d71c2a35a4121e8402ed918d",
+          "document": {
+            "schema_version": "1.0",
+            "graph_version": "1.0.0",
+            "entry_node": "positioning",
+            "nodes": {
+              "positioning": {
+                "artifact": "positioning",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "prd"
+              },
+              "prd": {
+                "artifact": "prd",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "spec"
+              },
+              "spec": {
+                "artifact": "spec",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "impact"
+              },
+              "impact": {
+                "artifact": "impact",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "plan"
+              },
+              "plan": {
+                "artifact": "plan",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "test-plan"
+              },
+              "test-plan": {
+                "artifact": "test_plan",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "implementation"
+              },
+              "implementation": {
+                "artifact": "implementation",
+                "required_action": "implementation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "verification"
+              },
+              "verification": {
+                "artifact": "verification",
+                "required_action": "verification",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "candidate"
+              },
+              "candidate": {
+                "artifact": "candidate",
+                "required_action": "candidate",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "independent-review"
+              },
+              "independent-review": {
+                "artifact": "review",
+                "required_action": "review",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "commit"
+              },
+              "commit": {
+                "artifact": "commit",
+                "required_action": "commit",
+                "human_authority_required": true,
+                "terminal": false,
+                "next": "receipt"
+              },
+              "receipt": {
+                "artifact": "receipt",
+                "required_action": "receipt",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "retro"
+              },
+              "retro": {
+                "artifact": "retro",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "complete"
+              },
+              "complete": {
+                "artifact": "complete",
+                "required_action": "none",
+                "human_authority_required": false,
+                "terminal": true,
+                "next": null
+              }
+            }
+          }
+        },
+        "policy": {
+          "source_path": "/Users/ezio/Documents/MyProjects/data/codex-skill-snapshots/e2d398ee7ea4e965d6f8f1c55f45debff7f69058/config/workflow-policy.json",
+          "raw_sha256": "7cefc564ddd39c014d17b5536065a595de62fcf114b17ad3d70ec2aedc61116a",
+          "document": {
+            "schema_version": "1.0",
+            "policy_version": "4.0.0",
+            "verification_evidence": {
+              "required_tiers": [
+                "T1",
+                "T2",
+                "T3"
+              ],
+              "passing_exit_codes": [
+                0
+              ],
+              "max_age_seconds": 86400,
+              "timeout_seconds": 300,
+              "detached_path_prefixes": [
+                ".workflow/delivery/"
+              ]
+            },
+            "tiers": {
+              "T0": {
+                "lane": "normal",
+                "required_artifacts": [
+                  "kanban"
+                ],
+                "required_roles": [],
+                "review_roles": [
+                  "human-owner",
+                  "technical-reviewer"
+                ],
+                "independent_review_required": false
+              },
+              "T1": {
+                "lane": "normal",
+                "required_artifacts": [
+                  "lean_scope"
+                ],
+                "required_roles": [
+                  "human-owner",
+                  "technical-reviewer",
+                  "authorized-committer"
+                ],
+                "review_roles": [
+                  "technical-reviewer"
+                ],
+                "independent_review_required": true
+              },
+              "T2": {
+                "lane": "normal",
+                "required_artifacts": [
+                  "positioning",
+                  "prd",
+                  "spec",
+                  "plan",
+                  "test_plan"
+                ],
+                "required_roles": [
+                  "human-owner",
+                  "product-reviewer",
+                  "technical-reviewer",
+                  "authorized-committer"
+                ],
+                "review_roles": [
+                  "technical-reviewer"
+                ],
+                "independent_review_required": true
+              },
+              "T3": {
+                "lane": "emergency",
+                "required_artifacts": [
+                  "incident",
+                  "test_evidence",
+                  "review"
+                ],
+                "required_roles": [
+                  "human-owner",
+                  "technical-reviewer",
+                  "authorized-committer"
+                ],
+                "review_roles": [
+                  "technical-reviewer"
+                ],
+                "independent_review_required": true
+              }
+            },
+            "classification": {
+              "direct_change_lines": 20,
+              "large_change_lines": 200,
+              "large_change_files": 10,
+              "cross_module_top_level_count": 2,
+              "non_product_path_prefixes": [
+                ".workflow/"
+              ],
+              "non_product_exact_paths": [
+                "AGENTS.md"
+              ],
+              "interface_path_markers": [
+                "api",
+                "endpoint",
+                "route",
+                "handler",
+                "openapi"
+              ],
+              "schema_path_markers": [
+                "migration",
+                "model",
+                "schema",
+                "ddl"
+              ]
+            },
+            "incident": {
+              "follow_up_hours": 48,
+              "required_fields": [
+                "schema_version",
+                "incident_id",
+                "opened_at",
+                "follow_up_deadline",
+                "impact",
+                "eligibility",
+                "owner_role",
+                "reviewer_role",
+                "status",
+                "test_evidence",
+                "review"
+              ],
+              "statuses": [
+                "open",
+                "mitigated",
+                "follow-up-complete"
+              ],
+              "passing_test_outcomes": [
+                "passed"
+              ],
+              "approved_review_outcomes": [
+                "APPROVED"
+              ]
+            },
+            "artifact_review": {
+              "independent_review_required": true,
+              "max_revision_cycles": 3,
+              "allowed_verdicts": [
+                "PASS",
+                "REVISE",
+                "ESCALATE",
+                "BLOCKED"
+              ],
+              "finding_severities": [
+                "advisory",
+                "blocking"
+              ],
+              "finding_statuses": [
+                "open",
+                "resolved"
+              ],
+              "routine_change_kinds": [
+                "clarification",
+                "traceability",
+                "testability"
+              ],
+              "human_required_change_kinds": [
+                "goal",
+                "non-goal",
+                "scope-expansion",
+                "target-boundary",
+                "tier",
+                "budget",
+                "external-dependency",
+                "data-access",
+                "security-posture",
+                "architecture-choice",
+                "reviewer-conflict"
+              ],
+              "irreversible_actions": [
+                "commit",
+                "push",
+                "merge",
+                "deploy",
+                "release",
+                "external-message"
+              ]
+            },
+            "artifact_requirements": {
+              "lean_scope": {
+                "minimum_h2": 6,
+                "minimum_body_chars": 20,
+                "required_headings": [
+                  "Scope",
+                  "Acceptance Criteria",
+                  "Critical Journeys",
+                  "Test Boundary",
+                  "Review Boundary",
+                  "Commit Boundary"
+                ]
+              },
+              "positioning": {
+                "minimum_h2": 5,
+                "minimum_body_chars": 1
+              },
+              "prd": {
+                "minimum_h2": 13,
+                "minimum_body_chars": 1
+              },
+              "spec": {
+                "minimum_h2": 12,
+                "minimum_body_chars": 1
+              },
+              "plan": {
+                "minimum_h2": 8,
+                "minimum_body_chars": 1
+              },
+              "test_plan": {
+                "minimum_h2": 8,
+                "minimum_body_chars": 1
+              },
+              "incident": {
+                "format": "json"
+              },
+              "test_evidence": {
+                "format": "json"
+              },
+              "review": {
+                "format": "json"
+              }
+            },
+            "bilingual": {
+              "legacy_suffix_pairs": [
+                [
+                  "_en.md",
+                  "_zh.md"
+                ],
+                [
+                  ".en.md",
+                  ".zh.md"
+                ]
+              ],
+              "heading_levels": [
+                1,
+                2,
+                3
+              ],
+              "exclude_directories": [
+                ".git",
+                "node_modules",
+                "__pycache__",
+                ".venv",
+                "venv"
+              ]
+            },
+            "content_neutrality": {
+              "scan_roots": [
+                "README.md",
+                "README.zh.md",
+                "QUICKSTART.md",
+                "QUICKSTART.zh.md",
+                "docs/workflow",
+                "docs/platforms",
+                "docs/positioning",
+                "agents",
+                ".qoder-plugin",
+                "docs/prd",
+                "docs/specs",
+                "docs/impact",
+                "docs/plans",
+                "docs/test-plans",
+                "skills",
+                "examples",
+                "scripts",
+                "tests"
+              ],
+              "exclude_paths": [
+                "skills/archive",
+                "config/workflow-policy.json"
+              ],
+              "patterns": {
+                "personal-name": "\\bEzio\\b",
+                "fictional-name-en": "\\bYang Lei\\b",
+                "fictional-name-zh": "杨磊",
+                "private-home-path": "/Users/[A-Za-z0-9._-]+",
+                "personal-profile": "\\bezio-(zero|infinite|quarter|half)\\b"
+              },
+              "exemptions_require_reason": true
+            }
+          }
+        },
+        "envelope": {
+          "source_path": "human-decision-p1-p2-p3-r0.json#p3_restart_design_amendment derived scope",
+          "base_raw_sha256": "f384ab86f2940b9d2f868b820743bd91237ce3dbbe2f204faa2844677a83c2d9",
+          "document": {
+            "schema_version": "1.0",
+            "task_id": "GEW-REMAINING54-V1",
+            "goal": "Inspect the accepted foundation, draft a proposed restart architecture plus Spec/Impact/Plan/Test Plan supplements, perform non-mutating structural/digest checks, and obtain independent design review. Proposal is not Human acceptance of a material architecture choice.",
+            "non_goals": [
+              "Change the approved Positioning or PRD Intent Baseline.",
+              "Use or modify a user project or the read-only reference repository.",
+              "Use a real staging or production environment, network access, remote health checks, credentials, or external services.",
+              "Enable or implement WP-10 installation, upgrade, deployment, publication, or release scope.",
+              "Add a database schema, repository event kind, GraphRef field or API, dependency, daemon, or remote state service.",
+              "Treat local production-like or release-simulator evidence as real production, deployment, or release evidence.",
+              "Commit, push, merge, deploy, release, publish, or communicate externally.",
+              "Adopt the proposed material architecture or create the two proposed schema paths without a subsequent Human decision.",
+              "Execute implementation, product tests, coverage, cumulative or performance runs, or monitoring in this design-only turn."
+            ],
+            "allowed_targets": [
+              ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+              "docs/adr/0009-offline-release-operations-simulator-authority.md",
+              "docs/specs/graph-engineering-workflow.md",
+              "docs/impact/graph-engineering-workflow.md",
+              "docs/plans/2026-08-13-graph-engineering-workflow.md",
+              "docs/test-plans/graph-engineering-workflow.md"
+            ],
+            "allowed_change_kinds": [
+              "architecture-detail",
+              "clarification",
+              "consistency",
+              "traceability",
+              "testability",
+              "implementation",
+              "configuration",
+              "test",
+              "verification-evidence"
+            ],
+            "human_required_change_kinds": [
+              "goal",
+              "non-goal",
+              "target-boundary",
+              "intent-baseline",
+              "authority-expansion",
+              "material-architecture-choice",
+              "dependency",
+              "data-access",
+              "security-posture",
+              "irreversible-action"
+            ],
+            "authorized_actions": [
+              "documentation",
+              "independent-review",
+              "review"
+            ]
+          }
+        }
+      },
+      "next_boundary": "Independent review and real reducer only. Even a document-quality PASS does not authorize implementation: the design-only effective envelope omits implementation, and P3-RS-A / two schema paths still require Human acceptance.",
+      "prior_record_preservation": "R0 packet/state/verdict/actual REVISE decision are preserved unchanged. Prior entry-commit historical document bodies remain byte-identical suffixes. Rejected R0 draft bodies are not copied into review records.",
+      "finding_repairs": [
+        {
+          "id": "GEW-REMAINING54-P3-RESTART-DESIGN-R0-001",
+          "author_disposition": "addressed, pending independent review",
+          "evidence": "Spec RS-2 replaces incompatible R0 ordering with explicit control-scope/root-gate/per-call repository ownership and lifetime table; Test Plan adds same/cross-process contention and unwind proofs."
+        },
+        {
+          "id": "GEW-REMAINING54-P3-RESTART-DESIGN-R0-002",
+          "author_disposition": "addressed, pending independent review",
+          "evidence": "Impact gives exact source/schema/non-release-bootstrap/pyproject/resource/action-cascade targets; Plan distinguishes workload data from necessary provenance maintenance; Test Plan names bounded loaders/contracts/package checks."
+        },
+        {
+          "id": "GEW-REMAINING54-P3-RESTART-DESIGN-R0-003",
+          "author_disposition": "addressed, pending independent review",
+          "evidence": "Spec RS-4 adds a six-part cold normal-source validator beyond existing helpers, including review digest/artifact/target/authority joins; normal-only positives and all other columns reject; Test Plan changes records before first read."
+        }
+      ]
+    }
+  ],
   "p2d_packets": [
     {
       "record_id": "p2d-document-check-2026-09-14-r0",

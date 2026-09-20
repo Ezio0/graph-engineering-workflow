@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from graph_engineering.core.contracts.digest import semantic_digest_charged
+from graph_engineering.core.contracts.immutable import FrozenMap, thaw
 from graph_engineering.core.contracts.registry import ClosedSchemaRegistry
 from graph_engineering.core.contracts.resources import WorkContext
 from graph_engineering.core.security._common import (
@@ -29,6 +30,19 @@ from graph_engineering.storage.security import SecurityStateRepository
 
 class SecurityIssuanceError(ValueError):
     """A durable security attestation cannot be issued."""
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class ReadOnlyTaskSecurityProjection:
+    """Validated data only; consumers must reread to establish currentness."""
+
+    state: FrozenMap
+    state_digest: str
+    runtime_manifest_digest: str
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise TypeError("read-only security facts come from a fresh durable read")
 
 
 @dataclass(frozen=True, slots=True, init=False)
@@ -91,6 +105,45 @@ class SecurityContextIssuer:
     @property
     def runtime(self) -> SecurityRuntimeManifest:
         return self._runtime
+
+    def read_task_state(self, task_id: str) -> ReadOnlyTaskSecurityProjection:
+        """Validate current facts without issuing a clock-bearing capability."""
+
+        installed = self._repository.load_installed_runtime(self._context)
+        fields = validate_installed_runtime_document(
+            installed.manifest,
+            expected_manifest_id=installed.manifest_id,
+            expected_manifest_digest=installed.manifest_digest,
+            schema_registry=self._schemas,
+            context=self._context,
+        )
+        if any(fields[name] != getattr(self._runtime, name) for name in (
+            "manifest_id", "manifest_digest", "schema_registry_id",
+            "schema_registry_digest", "allowed_runtime_kinds", "policies",
+        )):
+            raise SecurityIssuanceError("installed security runtime changed")
+        record = self._repository.load_current_task_state_readonly(task_id, self._context)
+        state = thaw(record.state)
+        assert type(state) is dict
+        try:
+            binding = state["binding"]
+            if type(binding) is not dict:
+                raise ValueError("security binding is not an object")
+            # Validate with the existing parser, but never expose its attestation.
+            SecurityBinding._from_attested_dict(
+                binding, runtime=self._runtime, schema_registry=self._schemas,
+                context=self._context, issuer=self._runtime._issuer,
+            )
+            for name in ("destinations", "data_refs", "evidence_expectations", "retention_subjects"):
+                _canonical_frozen_map(state[name], name)
+            require_digest(record.state_digest, "task security state digest")
+        except (KeyError, TypeError, ValueError, SecurityAttestationError) as error:
+            raise SecurityIssuanceError(str(error)) from error
+        result = object.__new__(ReadOnlyTaskSecurityProjection)
+        object.__setattr__(result, "state", record.state)
+        object.__setattr__(result, "state_digest", record.state_digest)
+        object.__setattr__(result, "runtime_manifest_digest", self._runtime.manifest_digest)
+        return result
 
     def issue_task_context(self, task_id: str) -> TaskSecurityContext:
         """Issue from a current task row plus repository-owned high-water clock."""
