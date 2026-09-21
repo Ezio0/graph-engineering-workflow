@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "oracle_id": "ORA-PROFILE-RELEASE-OPERATIONS",
+  "oracle_kind": "independent-frozen-vector",
+  "profile_id": "release-operations",
+  "selector_kind": "mandatory",
+  "column_id": "recovery",
+  "scenario_id": null,
+  "category_boundary_case_id": null,
+  "overlay_id": "full-planned",
+  "evidence_kind": "recovery-record",
+  "required_outcome": "recovered",
+  "required_fact_ids": [
+    "recovery-id",
+    "recovery-status"
+  ],
+  "pass_result": "COMPLETED",
+  "reject_result": "EXPECTED_REJECTION",
+  "reject_error_type": "CategoryExecutionError",
+  "reject_error_message": "typed column evidence does not match authoritative durable facts: recovery",
+  "reject_state_relation": "exact-equality",
+  "reject_input_relation": "exact-equality",
+  "isolated_runner_raw_sha256": "0f52a04ea53f099c10980d6ef1aa613fcdc8bf9e4022b5ba6079011c7f570d01",
+  "task_ids": {
+    "P": "task:wp08-coverage:gew-pro-release-operations-recovery-p",
+    "R": "task:wp08-coverage:gew-pro-release-operations-recovery-r"
+  },
+  "oracle_digest": "sha256-jcs-v1:7ee6437498f636198b966f90a527cd74b49a78e19a3f92c89a4e64a4741e241f"
+}

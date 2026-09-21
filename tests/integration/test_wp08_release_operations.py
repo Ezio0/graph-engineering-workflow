@@ -1813,7 +1813,7 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
                         rewrite(original)
 
 
-    def test_cold_entry_rejects_every_other_column_and_legacy_assessment_before_root_admission(self):
+    def test_cold_entry_rejects_relabelled_columns_and_legacy_assessment_before_root_admission(self):
         import copy
         from graph_engineering.application import release_operations as module
         from graph_engineering.application.profile_execution import _value_digest
@@ -1833,7 +1833,8 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
             original = parse_canonical_json(fixture.objects.get(reference["source_ref"]).decode())
             cases = [("column_id", column) for column in app._policy.column_ids if column != "normal"]
             cases += [("schema_version", version) for version in ("1.0.0", "1.1.0", "1.2.0", "1.3.0")]
-            self.assertEqual(len(cases), 15)
+            cases += [("column_id", malformed) for malformed in (None, True, 7, [], {})]
+            self.assertEqual(len(cases), 20)
             native = fixture.retained_namespace._record()[4]
             physical = {p.name: p.read_bytes() for p in session._root._root_path.iterdir()}
             for field, value in cases:
@@ -2215,11 +2216,345 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
 
 
     def test_cold_partial_assessment_preserves_restored_baseline_and_generation(self):
+        self._assert_cold_partial_assessment("normal")
+
+    def test_cold_recovery_column_requires_same_action_restored_baseline(self):
+        self._assert_cold_partial_assessment("recovery")
+
+    def test_cold_rollback_column_adopts_completed_restore_without_replay(self):
+        self._assert_cold_partial_assessment("rollback")
+
+    def test_private_release_real_e2e_measures_apply_and_preapply_rejection(self):
+        import tempfile
+        from graph_engineering.core.actions import PreparedAction
+        for accepted in (True, False):
+            with self.subTest(accepted=accepted), action_stack(domain_task=True) as fixture, self._runtime() as runtime, \
+                    tempfile.TemporaryDirectory(prefix="gew-release-real-") as directory:
+                with runtime.bind_release_namespace(action_coordinator=fixture.raw_coordinator,
+                        namespace_path=pathlib.Path(directory).resolve()) as namespace:
+                    factory, session, baseline, artifact = self._issue(fixture, namespace)
+                    with session:
+                        retarget_security_binding(fixture, target_digest=session.target.target_digest)
+                        document = release_prepared_document(fixture, target_digest=session.target.target_digest,
+                            baseline=baseline, candidate=artifact, candidate_bytes=factory.artifact_bytes(artifact))
+                        document["snapshot_digest"] = fixture.current_task_snapshot_digest()
+                        if not accepted:
+                            document["precondition"]["generation"] = 1
+                            document["payload"]["expected_generation"] = 1
+                            document["payload_digest"] = PreparedAction.payload_digest_for(document["payload"], fixture.context)
+                        document["prepared_action_digest"] = PreparedAction.digest_document(document, fixture.context)
+                        prepared = fixture.coordinator.prepare(document)
+                        fixture.coordinator.authorize(authority_document(prepared, context=fixture.context))
+                        authority = factory._execute_category_action(action_coordinator=fixture.raw_coordinator,
+                            session=session, action_id=prepared.action_id, owner_id="owner-wp05", runtime_kind="codex",
+                            runtime_lineage_id="lineage-wp05", lease=fixture.action_lease,
+                            disclosure_plan=release_disclosure_plan(fixture, prepared))
+                        self.assertEqual(authority.disposition, "P" if accepted else "R")
+                        self.assertEqual(session._root.mutation_count, int(accepted))
+                        self.assertEqual(session.target.apply_count, int(accepted))
+                        self.assertEqual(authority._execution["mutation_delta"], int(accepted))
+                        self.assertEqual(fixture.journal.load(prepared.action_id).state,
+                                         "reconciled" if accepted else "authorized")
+                        self.assertEqual(fixture.leases.unresolved_claims(), ())
+                        observer = authority.issue_observer()
+                        self.assertEqual(observer.observe()["state"], session._root.state())
+
+    def test_release_real_e2e_category_rejects_actual_preapply_failure_without_writes(self):
+        from graph_engineering.application.profile_execution import CategoryExecutionError
+
+        with self._same_task_assessment(cold=True, column="real-e2e", accepted=False) as values:
+            _api, fixture, session, app, probe, target, candidate, evidence, _ = values
+            before, physical = self._repository_rows(fixture), session._root.state()
+            self.assertIsNone(evidence)
+            self.assertEqual(target._authority.disposition, "R")
+            with self.assertRaisesRegex(CategoryExecutionError, "rejected before mutation"):
+                app.assess_and_commit(candidate, observer=target)
+            self.assertEqual(self._repository_rows(fixture), before)
+            self.assertEqual(session._root.state(), physical)
+            self.assertEqual(session._root.mutation_count, 0)
+            self.assertIsNone(app._resolver.current_body(probe.task_id))
+
+    def test_release_real_e2e_rejects_cloned_authority_observer_and_predecessor(self):
+        import copy
+        from graph_engineering.application.profile_execution import (
+            CategoryExecutionError, _require_real_category_observer,
+        )
+        from graph_engineering.application.release_operations import _ReleaseCategoryObserver
+
+        with self._same_task_assessment(cold=True, column="real-e2e") as values:
+            _api, fixture, session, app, probe, target, candidate, evidence, _ = values
+            authority = target._authority
+            rows, state, mutations = self._repository_rows(fixture), session._root.state(), session._root.mutation_count
+            with self.assertRaises(ValueError):
+                _ReleaseCategoryObserver.require_issued(copy.copy(target))
+            authority._observer = copy.copy(target)
+            try:
+                with self.assertRaises(ValueError):
+                    _ReleaseCategoryObserver.require_issued(authority._observer)
+            finally:
+                authority._observer = target
+            with self.assertRaises(ValueError):
+                copy.copy(authority).require_current(expected_task_id=probe.task_id)
+            with self.assertRaises(ValueError):
+                authority.evidence_facts(copy.copy(authority._record))
+            with self.assertRaises(ValueError):
+                _require_real_category_observer(target, "new-feature")
+            saved = authority._record
+            authority._record = copy.copy(saved)
+            try:
+                with self.assertRaises(ValueError):
+                    authority.require_current(expected_task_id=probe.task_id)
+            finally:
+                authority._record = saved
+            duck = category_fixture.RetainedCategoryTarget(session)
+            duck.is_test_double = False
+            duck.execution_kind = target.execution_kind
+            with self.assertRaises(ValueError):
+                _require_real_category_observer(duck, "release-operations")
+            self.assertEqual(self._repository_rows(fixture), rows)
+            self.assertEqual(session._root.state(), state)
+            self.assertEqual(session._root.mutation_count, mutations)
+
+    def test_release_real_e2e_rejects_alternate_task_snapshot_and_unrelated_revision(self):
+        from graph_engineering.application.release_operations import _ReleaseCategoryAuthority
+        from tests.contract.test_wp02_graph import graph_schemas, work_context
+        stage = _ReleaseCategoryAuthority.stage_task
+        def alternate(authority, snapshot):
+            return stage(authority, replace(snapshot, desired_state="paused",
+                schema_registry=graph_schemas(), context=work_context()))
+        with mock.patch.object(_ReleaseCategoryAuthority, "stage_task", new=alternate):
+            with self.assertRaisesRegex(ValueError, "snapshot|source"):
+                with self._same_task_assessment(cold=True, column="real-e2e"):
+                    self.fail("alternate same-revision predecessor activated")
+        with self._same_task_assessment(cold=True, column="real-e2e") as values:
+            _api, fixture, session, app, probe, target, candidate, evidence, _ = values
+            view = app._task_application.runtime_show(probe.task_id, app._runtime)
+            altered = replace(view.snapshot, task_revision=view.snapshot.task_revision + 1,
+                last_event_seq=view.snapshot.last_event_seq + 1,
+                schema_registry=graph_schemas(), context=work_context())
+            with mock.patch.object(app._task_application, "runtime_show", return_value=replace(view, snapshot=altered)):
+                with self.assertRaisesRegex(ValueError, "snapshot|transition"):
+                    target._authority.require_current(expected_task_id=probe.task_id)
+
+    def test_release_real_e2e_rejects_same_task_unexecuted_journal_substitution(self):
+        from graph_engineering.core.actions import PreparedAction
+        from graph_engineering.core.contracts.immutable import freeze, thaw
+        with self._same_task_assessment(cold=True, column="real-e2e") as values:
+            _api, fixture, session, app, probe, target, candidate, evidence, _ = values
+            authority = target._authority
+            original = authority._journal
+            document = thaw(freeze(fixture.raw_coordinator._journal.prepared_document(original.prepared)))
+            document["action_id"] += ":unexecuted"
+            document["idempotency_key"] += ":unexecuted"
+            document["snapshot_digest"] = fixture.current_task_snapshot_digest()
+            document["prepared_action_digest"] = PreparedAction.digest_document(document, fixture.context)
+            prepared = fixture.coordinator.prepare(document)
+            fixture.coordinator.authorize(authority_document(prepared, context=fixture.context))
+            authority._journal = fixture.journal.load(prepared.action_id)
+            authority._security = fixture.raw_coordinator._issuer.read_task_state(probe.task_id)
+            with self.assertRaisesRegex(ValueError, "capability"):
+                authority.require_current(expected_task_id=probe.task_id)
+            self.assertEqual(session._root.mutation_count, 1)
+
+    def test_release_real_e2e_does_not_count_malformed_precondition_as_stale_generation(self):
+        self._assert_rejected_release_precondition("extra-field")
+
+    def test_release_real_e2e_rejects_boolean_payload_generation(self):
+        self._assert_rejected_release_precondition("boolean-generation")
+
+    def _assert_rejected_release_precondition(self, variant):
+        import tempfile
+        from graph_engineering.core.actions import PreparedAction
+        with action_stack(domain_task=True) as fixture, self._runtime() as runtime, \
+                tempfile.TemporaryDirectory(prefix="gew-release-real-malformed-") as directory:
+            with runtime.bind_release_namespace(action_coordinator=fixture.raw_coordinator,
+                    namespace_path=pathlib.Path(directory).resolve()) as namespace:
+                factory, session, baseline, artifact = self._issue(fixture, namespace)
+                with session:
+                    retarget_security_binding(fixture, target_digest=session.target.target_digest)
+                    document = release_prepared_document(fixture, target_digest=session.target.target_digest,
+                        baseline=baseline, candidate=artifact, candidate_bytes=factory.artifact_bytes(artifact))
+                    document["snapshot_digest"] = fixture.current_task_snapshot_digest()
+                    if variant == "extra-field":
+                        document["precondition"]["irrelevant"] = True
+                    else:
+                        document["precondition"]["generation"] = 1
+                        document["payload"]["expected_generation"] = True
+                        document["payload_digest"] = PreparedAction.payload_digest_for(document["payload"], fixture.context)
+                    document["prepared_action_digest"] = PreparedAction.digest_document(document, fixture.context)
+                    prepared = fixture.coordinator.prepare(document)
+                    fixture.coordinator.authorize(authority_document(prepared, context=fixture.context))
+                    before = self._repository_rows(fixture)
+                    with self.assertRaisesRegex(ReleaseOperationsError, "not an exact stale-generation"):
+                        factory._execute_category_action(action_coordinator=fixture.raw_coordinator,
+                            session=session, action_id=prepared.action_id, owner_id="owner-wp05", runtime_kind="codex",
+                            runtime_lineage_id="lineage-wp05", lease=fixture.action_lease,
+                            disclosure_plan=release_disclosure_plan(fixture, prepared))
+                    self.assertEqual(session._root.mutation_count, 0)
+                    self.assertEqual(self._repository_rows(fixture), before)
+                    self.assertEqual(factory._category_executions, {})
+
+    def test_release_real_e2e_receipt_drift_at_precommit_rejects_without_replay(self):
+        with self._same_task_assessment(cold=True, column="real-e2e") as values:
+            _api, fixture, session, app, probe, target, candidate, evidence, outcome = values
+            before, physical = self._repository_rows(fixture), session._root.state()
+            active = False
+            journal = fixture.raw_coordinator._journal
+            load = journal.load
+            def changed(action_id):
+                record = load(action_id)
+                if active and action_id == outcome.action_id:
+                    return replace(record, receipt={**record.receipt,
+                        "receipt_digest": category_fixture.digest("substituted-real-receipt")})
+                return record
+            def fault(step):
+                nonlocal active
+                if step == "category-assessment.before-commit":
+                    active = True
+            app._fault = fault
+            with mock.patch.object(journal, "load", side_effect=changed):
+                with self.assertRaises(ValueError):
+                    app.assess_and_commit(candidate, observer=target, release_operations_evidence=evidence)
+            self.assertTrue(active)
+            self.assertEqual(self._repository_rows(fixture), before)
+            self.assertEqual(session._root.state(), physical)
+            self.assertEqual(session._root.mutation_count, 1)
+            self.assertIsNone(app._resolver.current_body(probe.task_id))
+
+    def test_release_real_e2e_current_authority_consumes_exact_committed_assessment(self):
+        with self._same_task_assessment(cold=True, column="real-e2e") as values:
+            _api, fixture, session, app, probe, target, candidate, evidence, _ = values
+            assessment = app.assess_and_commit(candidate, observer=target,
+                release_operations_evidence=evidence).assessment
+            before = self._repository_rows(fixture)
+            record = target._authority.require_current(expected_task_id=probe.task_id, require_success=True)
+            self.assertEqual(record.body["snapshot_digest"], assessment.snapshot_digest)
+            self.assertEqual(record.body["task_revision"], assessment.task_revision)
+            self.assertEqual(self._repository_rows(fixture), before)
+            self.assertEqual(session._root.mutation_count, 1)
+
+    def test_release_recovery_column_rejects_normal_apply_as_recovery(self):
+        with self.assertRaisesRegex(ReleaseOperationsError, "requires completed compensation"):
+            with self._same_task_assessment(cold=True, column="recovery"):
+                self.fail("normal apply issued release recovery evidence")
+
+    def test_completed_rollback_rejects_coherently_resigned_successor_snapshot_digest(self):
+        from graph_engineering.application.profile_execution import CategoryExecutionError
+        from graph_engineering.storage.codec import canonical_json, parse_canonical_json, semantic_record_digest
+        from graph_engineering.core.security.identity import SecurityBinding
+        with self._same_task_assessment(cold=True, partial=True, column="rollback") as values:
+            _api, fixture, session, app, probe, target, candidate, evidence, _outcome = values
+            app.assess_and_commit(candidate, observer=target, release_operations_evidence=evidence)
+            facts = probe.resolve_category_evidence(probe.task_id, "rollback")["facts"]
+            app._rollback.require_evidence_facts(facts, final=True)
+            with fixture.repository._factory.open("application") as connection, connection.transaction():
+                old_task = connection.execute("SELECT snapshot_digest FROM tasks WHERE task_id=?", (probe.task_id,)).fetchone()[0]
+                old_security = connection.execute("SELECT state_json,state_digest FROM task_security_states WHERE task_id=?", (probe.task_id,)).fetchone()
+                state = parse_canonical_json(old_security[0])
+                changed = category_fixture.digest("coherently-replaced-successor-snapshot")
+                state["task_snapshot_digest"] = changed
+                state["binding"]["snapshot_digest"] = changed
+                state["binding"]["binding_digest"] = SecurityBinding.digest_document(state["binding"])
+                connection.execute("UPDATE tasks SET snapshot_digest=? WHERE task_id=?", (changed, probe.task_id))
+                connection.execute("UPDATE task_security_states SET task_snapshot_digest=?,state_json=?,state_digest=? WHERE task_id=?",
+                    (changed, canonical_json(state), semantic_record_digest({"contract": "task-security-state-v1", "value": state}), probe.task_id))
+            try:
+                with self.assertRaises(CategoryExecutionError):
+                    app._rollback.require_evidence_facts(facts, final=True)
+            finally:
+                with fixture.repository._factory.open("application") as connection, connection.transaction():
+                    connection.execute("UPDATE tasks SET snapshot_digest=? WHERE task_id=?", (old_task, probe.task_id))
+                    connection.execute("UPDATE task_security_states SET task_snapshot_digest=?,state_json=?,state_digest=? WHERE task_id=?", (old_task, *old_security, probe.task_id))
+            app._rollback.require_evidence_facts(facts, final=True)
+
+    def test_completed_rollback_rejects_foreign_adoption_and_terminal_fact_substitution(self):
+        import copy
+        from graph_engineering.application.profile_execution import CategoryExecutionError
+
+        with self._same_task_assessment(cold=True, partial=True, column="rollback") as values:
+            api, fixture, session, app, probe, target, candidate, evidence, outcome = values
+            rows, physical = self._repository_rows(fixture), session._root.state()
+            mutations = session._root.mutation_count
+            facts = probe.resolve_category_evidence(probe.task_id, "rollback")["facts"]
+            for field, replacement in (("action-id", outcome.action_id),
+                    ("action-status", "compensated"),
+                    ("claim-status", "reconciled_effect_verified")):
+                changed = {**facts, field: replacement}
+                for final in (False, True):
+                    with self.subTest(field=field, final=final), self.assertRaises(CategoryExecutionError):
+                        app._rollback.require_evidence_facts(changed, final=final)
+            with self.assertRaises(TypeError):
+                copy.deepcopy(evidence)
+            for cloned in (copy.copy(evidence),):
+                bridge = api.CategoryRollbackBridge(app._policy, fixture.raw_coordinator)
+                with self.assertRaises((CategoryExecutionError, ReleaseOperationsError)):
+                    bridge._adopt_completed_release(fixture.release_factory, cloned)
+            bridge = api.CategoryRollbackBridge(app._policy, fixture.raw_coordinator)
+            read = fixture.raw_coordinator._read_completed_action_provenance
+            proof = read(task_id=probe.task_id, action_id=outcome.action_id)
+            with mock.patch.object(fixture.raw_coordinator, "_read_completed_action_provenance",
+                    side_effect=[proof, ValueError("second proof rejected")]):
+                with self.assertRaisesRegex(ValueError, "second proof rejected"):
+                    bridge._adopt_completed_release(fixture.release_factory, evidence)
+            for final in (False, True):
+                with self.assertRaises(CategoryExecutionError):
+                    bridge.require_evidence_facts(facts, final=final)
+            bridge = api.CategoryRollbackBridge(app._policy, fixture.raw_coordinator)
+            with self.assertRaises((CategoryExecutionError, ReleaseOperationsError)):
+                bridge._adopt_completed_release(ReleaseOperationsRegistryFactory.from_installation(), evidence)
+            original_claim = fixture.leases.load_claim(outcome.claim_id)
+            original_recovery = fixture.leases.recovery_attempt(outcome.claim_id)
+            for field, changed in (("claim", {**original_claim, "state": "reconciled_effect_verified"}),
+                    ("recovery", {**original_recovery, "compensation_action_id": outcome.action_id})):
+                method = "load_claim" if field == "claim" else "recovery_attempt"
+                with self.subTest(field=field), mock.patch.object(fixture.leases, method, return_value=changed):
+                    with self.assertRaises(CategoryExecutionError):
+                        app._rollback.require_evidence_facts(facts, final=True)
+            self.assertEqual(self._repository_rows(fixture), rows)
+            self.assertEqual(session._root.state(), physical)
+            self.assertEqual(session._root.mutation_count, mutations)
+
+    def test_completed_rollback_rechecks_recovery_at_precommit_without_replay(self):
+        from graph_engineering.application.profile_execution import CategoryExecutionError
+
+        with self._same_task_assessment(cold=True, partial=True, column="rollback") as values:
+            _api, fixture, session, app, probe, target, candidate, evidence, outcome = values
+            rows, physical = self._repository_rows(fixture), session._root.state()
+            mutations = session._root.mutation_count
+            recovery = fixture.leases.recovery_attempt(outcome.claim_id)
+            active = False
+            original = fixture.leases.recovery_attempt
+            def changed(claim_id):
+                result = original(claim_id)
+                return {**result, "original_action_id": "action:foreign"} if active else result
+            def fault(step):
+                nonlocal active
+                if step == "category-assessment.before-commit":
+                    active = True
+            app._fault = fault
+            with mock.patch.object(fixture.leases, "recovery_attempt", side_effect=changed):
+                with self.assertRaises(CategoryExecutionError):
+                    app.assess_and_commit(candidate, observer=target, release_operations_evidence=evidence)
+            self.assertTrue(active)
+            self.assertEqual(fixture.leases.recovery_attempt(outcome.claim_id), recovery)
+            self.assertEqual(self._repository_rows(fixture), rows)
+            self.assertEqual(session._root.state(), physical)
+            self.assertEqual(session._root.mutation_count, mutations)
+
+    def _assert_cold_partial_assessment(self, column):
         from graph_engineering.application.release_operations import restore_current_release_assessment
 
-        with self._same_task_assessment(cold=True, partial=True) as values:
-            _api, fixture, session, app, probe, target, candidate, evidence, _ = values
+        with self._same_task_assessment(cold=True, partial=True, column=column) as values:
+            _api, fixture, session, app, probe, target, candidate, evidence, outcome = values
+            prior_mutations = session._root.mutation_count
+            prior_actions = len(fixture.raw_coordinator._issued_outcomes)
+            prior_journal = fixture.journal.load(outcome.action_id)
+            prior_claim = fixture.leases.load_claim(outcome.claim_id)
             receipt = app.assess_and_commit(candidate, observer=target, release_operations_evidence=evidence)
+            self.assertEqual(session._root.mutation_count, prior_mutations)
+            self.assertEqual(len(fixture.raw_coordinator._issued_outcomes), prior_actions)
+            self.assertEqual(fixture.journal.load(outcome.action_id), prior_journal)
+            self.assertEqual(fixture.leases.load_claim(outcome.claim_id), prior_claim)
             expected = session._root.state()
             self.assertEqual(expected["generation"], 0)
             self.assertIsNone(expected["staged_artifact_digest"])
@@ -2233,9 +2568,14 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
             try:
                 result = handle.query()
                 self.assertEqual(result["assessment_bytes"], receipt.assessment.to_bytes())
+                self.assertEqual(result["assessment"]["column_id"], column)
                 projection = result["assessment"]["release_operations_projection"]
                 self.assertEqual(projection["outcome"], "partial-deploy-restored")
-                self.assertEqual(dict(result["source_projection"]["target"]["expected_state"]), expected)
+                state_key = "rollback_state" if column == "rollback" else "expected_state"
+                self.assertEqual(dict(result["source_projection"]["target"][state_key]), expected)
+                if column == "rollback":
+                    self.assertNotEqual(result["source_projection"]["target"]["expected_state"],
+                                        result["source_projection"]["target"]["rollback_state"])
                 self.assertEqual(projection["rollback_observation"]["artifact_manifest_digest"],
                                  expected["active_artifact_digest"])
             finally:
@@ -2376,13 +2716,19 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
     def test_cold_producer_commits_complete_artifact_and_runner_sources(self):
         self._check_cold_producer_sources()
 
-    def _check_cold_producer_sources(self, *, substitutions=True):
+    def test_cold_revision_control_rejects_missing_ambiguous_and_false_lineage(self):
+        self._check_cold_producer_sources(column="revise")
+
+    def test_cold_drift_control_rejects_missing_ambiguous_and_foreign_target(self):
+        self._check_cold_producer_sources(column="drift")
+
+    def _check_cold_producer_sources(self, *, substitutions=True, column="normal"):
         import json
         from graph_engineering.core.artifacts.records import RECORD_FIELDS
         from graph_engineering.application.profile_execution import _validate_cold_artifact_record
         from graph_engineering.storage.repository import _RecoveryReadBudget
 
-        with self._same_task_assessment(cold=True) as values:
+        with self._same_task_assessment(cold=True, column=column) as values:
             _api, fixture, session, app, probe, target, candidate, evidence, _ = values
             app.assess_and_commit(candidate, observer=target, release_operations_evidence=evidence)
             session.close()
@@ -2481,11 +2827,25 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
                         "anchored-invalid-record": "cold artifact semantic record digest changed",
                         "missing-record-invalid-lookalike": "cold category record has no unique accepted body source",
                     }
+                    control_ref = None
+                    if column != "normal":
+                        control_kind = {"revise": "category-revision-record-v1",
+                                        "drift": "category-drift-record-v1"}[column]
+                        control_ref = next(ref for ref, record in documents.items()
+                            if type(record) is dict and record.get("record_kind") == control_kind)
+                        expected_errors = {change: "cold column control is absent or ambiguous"
+                            for change in ("control-missing", "control-extra", "control-duplicate",
+                                "control-task", "control-snapshot", "control-epoch")}
+                        expected_errors["control-semantic"] = (
+                            "cold revision body or budget control changed" if column == "revise"
+                            else "cold drift target control changed")
                     for change in expected_errors if substitutions else ():
                         with self.subTest(change=change):
                             copies_runner = (change.startswith(("output-", "attempt-", "review-"))
                                 or change.endswith("scenario") or change == "anchored-invalid-record")
                             scratch_size = 2 * len(objects) + len(objects[first_ref]) + len(objects[category_ref])
+                            if control_ref is not None:
+                                scratch_size += 2 * len(objects[control_ref])
                             if copies_runner:
                                 scratch_size += canonical_byte_length(capture["snapshot"])
                             if change.endswith("scenario"):
@@ -2500,7 +2860,22 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
                                 runner = snapshot["runner"] if snapshot is not None else None
                                 output = next(iter(runner["node_outputs"].values())) if runner is not None else None
                                 replacement = None
-                                if change in ("missing-record", "missing-manifest", "missing-physical"):
+                                if change.startswith("control-"):
+                                    record = copy.deepcopy(documents[control_ref])
+                                    if change != "control-duplicate":
+                                        sources.pop(control_ref)
+                                    if change == "control-extra": record["unexpected"] = True
+                                    elif change == "control-task": record["task_id"] = "foreign-task"
+                                    elif change == "control-snapshot": record["snapshot_digest"] = "sha256-jcs-v1:" + "0" * 64
+                                    elif change == "control-epoch": record["invalidation_epoch"] = True
+                                    elif change in ("control-duplicate", "control-semantic"):
+                                        if column == "revise": record["budget_remaining"] = False
+                                        else: record["target_digest"] = "sha256-jcs-v1:" + "0" * 64
+                                    if change != "control-missing":
+                                        category_fixture.resign_durable_record(record)
+                                        body = canonical_bytes(record)
+                                        sources[module.category_object_digest(body)] = body
+                                elif change in ("missing-record", "missing-manifest", "missing-physical"):
                                     sources.pop({"missing-record": first_ref, "missing-manifest": manifest_ref,
                                                  "missing-physical": physical_ref}[change])
                                 elif change in ("anchored-invalid-record", "missing-record-invalid-lookalike"):
@@ -4401,7 +4776,7 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
                 self.assertEqual(namespace._record()[4].active_leases, 0)
 
     @contextmanager
-    def _same_task_assessment(self, *, cold=False, partial=False):
+    def _same_task_assessment(self, *, cold=False, partial=False, column="normal", accepted=True, task_id="task-wp05"):
         """RS-2 live lease proof, not RS-4 artifact/target provenance proof.
 
         The legacy category observer and synthetic runner/artifact records stay
@@ -4415,7 +4790,7 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
         profile_id = "release-operations"
         api = category_fixture.load_slice3_api()
         with ExitStack() as stack:
-            fixture = stack.enter_context(action_stack(domain_task=True))
+            fixture = stack.enter_context(action_stack(domain_task=True, task_id=task_id))
             # action_stack creates the domain before installing its action-aware
             # repository facade. Use one exact facade for subsequent consumers.
             fixture.task_application = TaskApplication(
@@ -4431,6 +4806,7 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
             fixture.release_factory, fixture.retained_namespace = factory, namespace
             stack.enter_context(session)
             deployment = rollback_observation = None
+            real_authority = None
             scenario_id = None
             if partial:
                 self.assertTrue(cold)
@@ -4467,6 +4843,24 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
                 rollback_observation = factory.issue_deployment_observation(
                     action_coordinator=fixture.raw_coordinator, session=session, outcome=restored)
                 scenario_id = "GEW-PSC-RELEASE-OPERATIONS-PARTIAL-DEPLOY-P"
+            elif column == "real-e2e":
+                from graph_engineering.core.actions import PreparedAction
+                retarget_security_binding(fixture, target_digest=session.target.target_digest)
+                document = release_prepared_document(fixture, target_digest=session.target.target_digest,
+                    baseline=baseline, candidate=artifact, candidate_bytes=factory.artifact_bytes(artifact))
+                document["snapshot_digest"] = fixture.current_task_snapshot_digest()
+                if not accepted:
+                    document["precondition"]["generation"] = 1
+                    document["payload"]["expected_generation"] = 1
+                    document["payload_digest"] = PreparedAction.payload_digest_for(document["payload"], fixture.context)
+                document["prepared_action_digest"] = PreparedAction.digest_document(document, fixture.context)
+                prepared = fixture.coordinator.prepare(document)
+                fixture.coordinator.authorize(authority_document(prepared, context=fixture.context))
+                real_authority = factory._execute_category_action(action_coordinator=fixture.raw_coordinator,
+                    session=session, action_id=prepared.action_id, owner_id="owner-wp05", runtime_kind="codex",
+                    runtime_lineage_id="lineage-wp05", lease=fixture.action_lease,
+                    disclosure_plan=release_disclosure_plan(fixture, prepared))
+                outcome, deployment = real_authority._outcome, real_authority._deployment
             else:
                 outcome = WP08ReleaseOperationsIntegrationTests()._assert_apply(
                     fixture, session, baseline, artifact, factory.artifact_bytes(artifact))
@@ -4479,21 +4873,30 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
                 fixture.task_application, fixture.task_runtime)
             target = (category_fixture.RetainedCategoryTarget(session) if cold
                       else category_fixture.DisposableLocalTarget(profile_id))
+            if real_authority is not None:
+                target = real_authority.issue_observer()
+            if column == "rollback":
+                target.expected_state = {"schema_version": "1.0.0", **dict(prepared.expected_postcondition)}
             stack.callback(target.close)
             cold_options = {}
             if cold:
                 from tests.support.wp05_actions import compensation_prepared_document, security_context
                 cold_options = {"cold_release_factory": factory,
-                    "intent_baseline": fixture.raw_coordinator._issuer.read_task_state("task-wp05").state["binding"]["baselines"]["intent"],
+                    "intent_baseline": fixture.raw_coordinator._issuer.read_task_state(task_id).state["binding"]["baselines"]["intent"],
                     "committed_rollback_action_id": compensation_prepared_document(context=security_context())["action_id"]}
+                if column == "rollback":
+                    cold_options["committed_rollback_action_id"] = rollback_observation.to_dict()["action_id"]
+                    cold_options["committed_rollback_claim_status"] = "compensation_reconciled"
             task_application, repository, objects, task_runtime, probe = (
                 category_fixture.production_category_runtime(
-                    profile_id, "normal", target=target, task_id="task-wp05",
-                    shared_runtime=shared, existing_created_task=True, scenario_id=scenario_id, **cold_options))
+                    profile_id, column, target=target, task_id=task_id,
+                    shared_runtime=shared, existing_created_task=True, scenario_id=scenario_id,
+                    real_e2e_authority=real_authority, **cold_options))
             stack.callback(probe.close)
             self.assertIs(repository, fixture.repository)
             self.assertIs(task_application, fixture.task_application)
-            self.assertEqual(probe.task_id, fixture.journal.load(outcome.action_id).prepared.task_id)
+            self.assertEqual(probe.task_id, fixture.journal.load(
+                prepared.action_id if outcome is None else outcome.action_id).prepared.task_id)
             policy = api.CategoryExecutionPolicy.from_installation(
                 profile_document=category_fixture.profile_document(profile_id),
                 support_matrix_document=category_fixture.load_json(category_fixture.SUPPORT_MATRIX_PATH),
@@ -4503,9 +4906,12 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
                 target_authority=target_authority, release_operations_factory=factory)
             # The unused rollback-column source remains the legacy fixture. The
             # normal release apply, task transitions and assessment share ports.
-            rollback_coordinator, rollback_context = category_fixture.action_rollback_binding(probe, target)
-            rollback = api.CategoryRollbackBridge(policy, rollback_coordinator)
-            rollback.prepare_action(**rollback_context)
+            if column == "rollback":
+                rollback = api.CategoryRollbackBridge(policy, fixture.raw_coordinator)
+            else:
+                rollback_coordinator, rollback_context = category_fixture.action_rollback_binding(probe, target)
+                rollback = api.CategoryRollbackBridge(policy, rollback_coordinator)
+                rollback.prepare_action(**rollback_context)
             if not cold:
                 probe.bind_rollback_evidence(rollback)
             application = api.CategoryExecutionApplication(repository=repository,
@@ -4514,13 +4920,16 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
                 assessment_resolver=api.CategoryAssessmentResolver(repository, objects,
                     task_application=task_application, runtime=task_runtime),
                 task_application=task_application, runtime=task_runtime, target_observer=target)
-            application.bind_current_sources(probe.task_id)
-            candidate = category_fixture.candidate_document(profile_id, "normal")
+            candidate = category_fixture.candidate_document(profile_id, column)
             if scenario_id is not None:
                 candidate["scenario_id"] = scenario_id
             candidate["task_id"] = probe.task_id
             if cold:
                 candidate["target_id"] = target.target_id
+            if real_authority is not None and real_authority.disposition == "R":
+                application.bind_current_sources(probe.task_id)
+                yield api, fixture, session, application, probe, target, candidate, None, None
+                return
             _issued, current = application._authoritative_candidate(_category_selector(candidate), target)
             if deployment is None:
                 deployment = factory.issue_deployment_observation(
@@ -4533,9 +4942,79 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
                 artifact_manifest=artifact, deployment_observation=deployment, health_observation=health,
                 rollback_observation=rollback_observation, session=session,
                 owner_route="release-operations-owner" if partial else "reconciled-effect-verified",
-                column_id="normal", scenario_id=str(current["scenario_id"]),
+                column_id=column, scenario_id=str(current["scenario_id"]),
                 outcome="partial-deploy-restored" if partial else "artifact-provenance-verified")
+            if column == "rollback":
+                facts = rollback._adopt_completed_release(factory, evidence)
+                record = probe.resolve_category_evidence(probe.task_id, "rollback")
+                self.assertEqual(record["facts"], dict(facts))
+            application.bind_current_sources(probe.task_id)
             yield api, fixture, session, application, probe, target, candidate, evidence, outcome
+
+    def test_release_coverage_task_identity_is_created_before_action(self):
+        from tests.support.wp08_release_operations import release_mandatory_runtime
+
+        task_id = "task:wp08-coverage:gew-pro-release-operations-normal-p"
+        with release_mandatory_runtime(column="normal", task_id=task_id, accepted=True) as value:
+            _api, fixture, _session, application, probe, target, candidate, evidence, outcome = value
+            self.assertEqual(probe.task_id, task_id)
+            self.assertEqual(fixture.journal.load(outcome.action_id).prepared.task_id, task_id)
+            self.assertEqual(candidate["task_id"], task_id)
+            result = application.assess_and_commit(candidate, observer=target, release_operations_evidence=evidence)
+            self.assertEqual(result.assessment.task_id, task_id)
+            self.assertEqual(result.assessment.schema_version, "1.4.0")
+
+    def test_release_coverage_initial_authorities_use_selected_task(self):
+        from tests.support.wp05_actions import prepared_document, compensation_prepared_document
+        from graph_engineering.core.actions import PreparedAction
+
+        task_id = "task:wp08-coverage:gew-pro-release-operations-normal-r"
+        with action_stack(domain_task=True, task_id=task_id) as fixture:
+            state = fixture.issuer.read_task_state(task_id).state
+            authorities = []
+            for build in (prepared_document, compensation_prepared_document):
+                document = build(context=fixture.context)
+                document["task_id"] = task_id
+                document["resources"] = ["target:project", "task:" + task_id]
+                document["prepared_action_digest"] = PreparedAction.digest_document(document, fixture.context)
+                prepared = PreparedAction.from_dict(document, context=fixture.context)
+                authorities.append(authority_document(prepared)["authority_digest"])
+                if build is prepared_document:
+                    self.assertEqual(state["destinations"]["owner-wp05"]["prepared_action_digest"], prepared.prepared_action_digest)
+            self.assertEqual(sorted(state["authority_digests"]), sorted(authorities))
+
+    def test_cold_mandatory_non_action_columns_restore_complete_sources_without_writes(self):
+        from graph_engineering.application.release_operations import restore_current_release_assessment
+
+        columns = ("boundary", "revise", "authority", "drift", "invalidation",
+                   "artifacts", "review", "target")
+        for column in columns:
+            with self.subTest(column=column), self._same_task_assessment(cold=True, column=column) as values:
+                _api, fixture, session, app, probe, target, candidate, evidence, _ = values
+                receipt = app.assess_and_commit(candidate, observer=target,
+                    release_operations_evidence=evidence)
+                self.assertEqual(receipt.assessment.column_id, column)
+                mutations, applies = session._root.mutation_count, session.target.apply_count
+                physical = {p.name: p.read_bytes() for p in session._root._root_path.iterdir()}
+                session.close()
+                before = self._repository_rows(fixture)
+                handle = restore_current_release_assessment(task_application=app._task_application,
+                    runtime=app._runtime, policy=app._policy,
+                    release_factory=ReleaseOperationsRegistryFactory.from_installation(),
+                    object_repository=fixture.objects, action_coordinator=fixture.raw_coordinator,
+                    retained_namespace=fixture.retained_namespace, task_id=probe.task_id)
+                try:
+                    first, second = handle.query(), handle.query()
+                    self.assertEqual(first["assessment_bytes"], receipt.assessment.to_bytes())
+                    self.assertEqual(second["assessment_bytes"], first["assessment_bytes"])
+                    self.assertEqual(first["assessment"]["column_id"], column)
+                    self.assertGreater(second["observation_revision"], first["observation_revision"])
+                finally:
+                    handle.close()
+                self.assertEqual(self._repository_rows(fixture), before)
+                self.assertEqual((session._root.mutation_count, session.target.apply_count), (mutations, applies))
+                self.assertEqual({p.name: p.read_bytes() for p in session._root._root_path.iterdir()}, physical)
+                self.assertEqual(fixture.retained_namespace._record()[4].active_leases, 0)
 
     def test_same_task_retained_assessment_commits_with_original_lease_and_preserves_root(self):
         with self._same_task_assessment() as values:
@@ -4678,7 +5157,7 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
         baseline = factory.issue_artifact_manifest(fixture_id="release-foundation-v1", artifact_id="artifact-a")
         candidate = factory.issue_artifact_manifest(fixture_id="release-foundation-v1", artifact_id="artifact-b")
         session = factory.issue_simulator(action_coordinator=fixture.raw_coordinator,
-            retained_namespace=namespace, task_id="task-wp05", fixture_id="release-foundation-v1",
+            retained_namespace=namespace, task_id=fixture.task_id, fixture_id="release-foundation-v1",
             target_id="target-project", resource_id="target:project", baseline_manifest=baseline,
             authorized_artifacts=(baseline, candidate))
         return factory, session, baseline, candidate
@@ -5016,7 +5495,8 @@ def produce():
             path.mkdir(mode=0o700)
             yield str(path)
     with mock.patch.object(tempfile, "TemporaryDirectory", directories):
-        with case._same_task_assessment(cold=True, partial=request["partial"]) as values:
+        with case._same_task_assessment(cold=True, partial=request["partial"],
+                column=request.get("column", "normal")) as values:
             _api, fixture, session, app, probe, target, candidate, evidence, _ = values
             receipt = (None if request.get("crash_cut") == "before-reference" else
                 app.assess_and_commit(candidate, observer=target, release_operations_evidence=evidence))
@@ -5148,7 +5628,9 @@ def consume():
                 try:
                     first, second = handle.query(), handle.query()
                     assert first["assessment_bytes"].hex() == second["assessment_bytes"].hex() == source["assessment"]
-                    assert dict(first["source_projection"]["target"]["expected_state"]) == source["expected"]
+                    assert first["assessment"]["column_id"] == request.get("column", "normal")
+                    state_key = "rollback_state" if request.get("column") == "rollback" else "expected_state"
+                    assert dict(first["source_projection"]["target"][state_key]) == source["expected"]
                     assert first["observation_epoch"] == second["observation_epoch"]
                     assert first["observation_revision"] < second["observation_revision"]
                     assert len(release._issued) == len(coordinator._issued_outcomes) == 0
@@ -5170,7 +5652,7 @@ def consume():
 print(json.dumps(produce() if request["mode"] == "produce" else consume()), flush=True)
 '''
 
-    def _child(self, directory, *, mode, partial, producer=None, crash_cut=None):
+    def _child(self, directory, *, mode, partial, producer=None, crash_cut=None, column="normal"):
         import json
         import subprocess
         import sys
@@ -5179,7 +5661,7 @@ print(json.dumps(produce() if request["mode"] == "produce" else consume()), flus
         with tempfile.TemporaryDirectory(prefix="gew-cold-exec-control-") as control:
             completed = subprocess.run([sys.executable, "-B", "-c", self.CHILD, str(ROOT), control],
                 input=json.dumps({"directory": str(directory), "mode": mode,
-                    "partial": partial, "producer": producer, "crash_cut": crash_cut}),
+                    "partial": partial, "producer": producer, "crash_cut": crash_cut, "column": column}),
                 text=True, capture_output=True, timeout=120, check=False)
         self.assertEqual(completed.returncode, 0, completed.stderr)
         return json.loads(completed.stdout)
@@ -5193,6 +5675,35 @@ print(json.dumps(produce() if request["mode"] == "produce" else consume()), flus
                 path = pathlib.Path(directory).resolve()
                 producer = self._child(path, mode="produce", partial=partial)
                 consumer = self._child(path, mode="consume", partial=partial, producer=producer)
+                self.assertNotEqual(producer["pid"], consumer["pid"])
+                self.assertNotEqual(consumer["pid"], os.getpid())
+                self.assertEqual(consumer["generation"], 0 if partial else 1)
+                self.assertGreater(consumer["queries"], 0)
+                self.assertGreater(consumer["revision"], 1)
+                self.assertLessEqual(consumer["peak_units"], 1048576)
+                self.assertLessEqual(consumer["peak_bytes"], 1048576)
+
+    def test_fresh_process_mandatory_boundary_revise_authority_drift(self):
+        self._assert_fresh_mandatory_columns(("boundary", "revise", "authority", "drift"))
+
+    def test_fresh_process_mandatory_invalidation_artifacts_review_target(self):
+        self._assert_fresh_mandatory_columns(("invalidation", "artifacts", "review", "target"))
+
+    def test_fresh_process_mandatory_recovery_and_rollback(self):
+        self._assert_fresh_mandatory_columns(("recovery", "rollback"), partial=True)
+
+    def test_fresh_process_mandatory_real_e2e(self):
+        self._assert_fresh_mandatory_columns(("real-e2e",))
+
+    def _assert_fresh_mandatory_columns(self, columns, *, partial=False):
+        import os
+        import tempfile
+
+        for column in columns:
+            with self.subTest(column=column), tempfile.TemporaryDirectory(prefix="gew-cold-mandatory-") as directory:
+                path = pathlib.Path(directory).resolve()
+                producer = self._child(path, mode="produce", partial=partial, column=column)
+                consumer = self._child(path, mode="consume", partial=partial, column=column, producer=producer)
                 self.assertNotEqual(producer["pid"], consumer["pid"])
                 self.assertNotEqual(consumer["pid"], os.getpid())
                 self.assertEqual(consumer["generation"], 0 if partial else 1)

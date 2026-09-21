@@ -393,14 +393,18 @@ class _ColdReleaseReadScope:
 
     def _select_locator(self, capture):
         from graph_engineering.storage.repository import _recovery_json
+        from graph_engineering.application.profile_execution import _COLD_RELEASE_COLUMN_IDS
 
         with _recovery_json(capture["assessment_body"], self.context, self.budget,
                             source_id="cold-assessment-selector") as value:
             projection = value.get("release_operations_projection")
             target = projection.get("current_target") if type(projection) is dict else None
             if (value.get("schema_version") != "1.4.0" or value.get("profile_id") != "release-operations"
-                    or value.get("column_id") != "normal" or value.get("status") != "PASS"
+                    or type(value.get("column_id")) is not str
+                    or value.get("column_id") not in _COLD_RELEASE_COLUMN_IDS
+                    or value.get("column_id") not in self.policy.column_ids or value.get("status") != "PASS"
                     or value.get("task_id") != self.task_id or type(target) is not dict
+                    or projection.get("column_id") != value.get("column_id")
                     or type(target.get("target_id")) is not str or not target["target_id"]
                     or value.get("assessment_digest") != capture["assessment_ref"]["digest"]):
                 raise ReleaseOperationsError("cold assessment selector is unsupported or malformed")
@@ -409,6 +413,9 @@ class _ColdReleaseReadScope:
             from graph_engineering.storage.repository import _recovery_adopt
             return _recovery_adopt(target["target_id"], self.context, self.budget,
                                    record_fields={}, source_id="cold-target-selector")
+
+    def _read_locator(self):
+        return self.repository.read_category_recovery_sources(self.task_id, phase="locator")
 
     def start(self) -> None:
         from types import MappingProxyType
@@ -434,7 +441,7 @@ class _ColdReleaseReadScope:
                 self._current()
                 self.factory.require_installed_authority()
                 self._require_category_current()
-                locator = self.repository.read_category_recovery_sources(self.task_id, phase="locator")
+                locator = self._read_locator()
                 target_id = self._select_locator(locator)
                 self.coordinator._require_retained_idle()
                 self.lease = self.native._open_cold_marker(self.task_id, target_id, self.context, self.budget)
@@ -446,9 +453,12 @@ class _ColdReleaseReadScope:
                     self.lease._admit_cold_members({name: 0o600 for role, name in names.items() if role != "identity"})
                     self.names = MappingProxyType(names)
                     members.transfer(self)
-                self._refresh(locator=locator)
+                transfer = [locator]
+                locator = None
+                # Transfer the sole retained locator into refresh so it can be
+                # retired after its first complete capture has been joined.
+                self._refresh(locator=transfer.pop())
                 self.budget.release_projection(target_id); target_id = None
-                self.budget.release_projection(locator); locator = None
         except BaseException as error:
             _recovery_clear_exception_frames(error)
             self.close()
@@ -501,7 +511,7 @@ class _ColdReleaseReadScope:
                     policy=self.policy, contracts=contracts, schemas=schemas, context=context,
                     action_target={"task_id":self.task_id, "target_id":binding.projection["target_id"],
                         "target_digest":binding.target_digest()},
-                    action_baselines=owner["baselines"])
+                    action_baselines=owner["baselines"], action_provenance=parts["action"])
                 self._validate_release(parts)
                 self._current()
                 for value in parts.values():
@@ -582,6 +592,9 @@ class _ColdReleaseReadScope:
                             locator[key], captures[0]["capture"][key], self.context, self.budget)
                             for key in ("task", "assessment_ref", "assessment_body")):
                         raise ReleaseOperationsError("cold locator changed after root admission")
+                    if locator is not None:
+                        self.budget.release_projection(locator)
+                        locator = None
                     captures.append(self._capture())
                     if not _cold_read_equal(captures[0], captures[1], self.context, self.budget):
                         raise ReleaseOperationsError("cold complete source or physical closure changed")
@@ -590,10 +603,16 @@ class _ColdReleaseReadScope:
                         {"contract": "cold-category-references-v1", "value": source["capture"]["references"]},
                         self.context, self.budget, source_id="cold-reference-identity")
                     security_identity = source["security"][1:]
+                    coverage_identity = _coverage_capture_identity(self, source)
                     if self.history is None:
+                        # Double capture equality is complete; retire the first
+                        # source before deriving the retained coverage digest.
+                        self.budget.release_projection(captures.pop(0))
                         # A separate admission covers only what this reader
                         # retains after both complete captures are discarded.
                         history = MappingProxyType({
+                            "coverage_state_digest": _coverage_captured_state_digest(self, source["capture"]),
+                            "coverage_source_digest": coverage_identity,
                             "assessment_bytes": source["capture"]["assessment_body"],
                             "assessment": source["sources"]["assessment"],
                             "source_projection": source["sources"],
@@ -605,6 +624,7 @@ class _ColdReleaseReadScope:
                         self.history = _recovery_adopt(history, self.context, self.budget,
                             record_fields={}, source_id="cold-assessment-history")
                     elif any(not _cold_read_equal(left, right, self.context, self.budget) for left, right in (
+                            (self.history["coverage_source_digest"], coverage_identity),
                             (self.history["assessment_bytes"], source["capture"]["assessment_body"]),
                             (self.history["task"], source["capture"]["task"]),
                             (self.history["references_digest"], references_digest),
@@ -621,6 +641,9 @@ class _ColdReleaseReadScope:
             _recovery_clear_exception_frames(error)
             raise
         finally:
+            if locator is not None:
+                self.budget.release_projection(locator)
+                locator = None
             self = captures = history = source = locator = references_digest = security_identity = None
 
     def query(self) -> Mapping[str, object]:
@@ -701,6 +724,190 @@ def restore_current_release_assessment(*, task_application: object, runtime: obj
         task_application = runtime = policy = release_factory = object_repository = None
         action_coordinator = retained_namespace = scope = handle = None
         task_id: str | None = None
+
+
+def _coverage_captured_state_digest(scope, capture):
+    from graph_engineering.core.contracts.canonical import canonical_byte_length
+    from graph_engineering.core.profile_coverage import profile_coverage_digest
+    size = canonical_byte_length(capture["snapshot"]) + canonical_byte_length(capture["events"]) + 512 * len(capture["references"]) + 1024
+    # Semantic replay was already validated by the owner. Alias its immutable
+    # inputs rather than reconstructing another complete TaskView.
+    with scope.budget.reserve(scope.context, units=6 * size, byte_count=4 * size, source_id="coverage-captured-state"):
+        body = {"schema_version": "1.0.0", "task_id": scope.task_id,
+            "snapshot": capture["snapshot"]["domain"], "runner": capture["snapshot"]["runner"],
+            "events": [row["event"] for row in capture["events"]],
+            "object_references": [{"digest": ref, "bytes_sha256": hashlib.sha256(raw).hexdigest()}
+                for ref, raw in capture["objects"]]}
+        scope.context.emit("digest.input_byte", sum(len(raw) for _ref, raw in capture["objects"]) + size,
+            source_id="coverage-captured-state", operation_path=())
+        return profile_coverage_digest(body, contract="profile-coverage-task-state", schema="profile-coverage-task-state")
+
+
+def _coverage_capture_identity(scope, source):
+    from graph_engineering.storage.repository import _recovery_record_digest
+    with scope.budget.reserve(scope.context, units=1024 + 512 * len(source["physical"]),
+            byte_count=1024 + 512 * len(source["physical"]), source_id="coverage-source-fingerprint"):
+        physical = {}
+        for name, (raw, metadata) in source["physical"].items():
+            scope.context.emit("digest.input_byte", len(raw), source_id="coverage-source-fingerprint", operation_path=())
+            physical[name] = {"raw_sha256": hashlib.sha256(raw).hexdigest(), "metadata": tuple(str(value) for value in metadata)}
+        return _recovery_record_digest({"contract": "release-coverage-source-v1",
+            "task": source["capture"]["task"], "references": source["capture"]["references"],
+            "security": source["security"][1:], "action": (source["action"]["provenance"]["source_digest"]
+                if "provenance" in source["action"] else source["action"]), "physical": physical},
+            scope.context, scope.budget, source_id="coverage-source-fingerprint")
+
+
+class _RejectedReleaseReadScope(_ColdReleaseReadScope):
+    """Bounded historical validation for an existing opaque R execution only."""
+
+    def _configuration(self, records):
+        return (super()._configuration(records), self.target_id, self.action_id,
+            self.expected_state_digest, self.pending_digests, self.expected_tree_digest)
+
+    def _read_locator(self):
+        from graph_engineering.storage.repository import _recovery_adopt
+        return _recovery_adopt({"task_id": self.task_id, "target_id": self.target_id},
+            self.context, self.budget, record_fields={}, source_id="rejected-release-locator")
+
+    def _select_locator(self, capture):
+        from graph_engineering.storage.repository import _recovery_adopt
+        if capture != {"task_id": self.task_id, "target_id": self.target_id}:
+            raise ReleaseOperationsError("rejected release locator changed")
+        return _recovery_adopt(self.target_id, self.context, self.budget,
+            record_fields={}, source_id="rejected-release-target")
+
+    def _capture(self):
+        from types import MappingProxyType
+        from graph_engineering.storage.repository import _recovery_json, _recovery_clear_exception_frames
+        parts: dict[str, object] | None = None
+        security = result = None
+        try:
+            with self.budget.reserve(self.context, units=64, byte_count=0,
+                    source_id="rejected-capture-control") as frame:
+                parts = {}
+                frame.transfer(parts)
+                self._current()
+                parts["capture"] = self.repository._read_release_rejection_sources(self.task_id)
+                with self.app._cold_task_view(parts["capture"], policy=self.policy, runtime=self.runtime):
+                    pass
+                if _coverage_captured_state_digest(self, parts["capture"]) != self.expected_state_digest:
+                    raise ReleaseOperationsError("rejected release source changed")
+                security = self.coordinator._issuer.read_task_state(self.task_id)
+                parts["security"] = (security.state, security.state_digest, security.runtime_manifest_digest)
+                self.budget.move_projection(security, parts["security"])
+                if self.pending_digests is None:
+                    parts["action"] = self.coordinator._read_completed_action_provenance_bounded(self.task_id, self.action_id)
+                    if any(item["security_state_digest"] != parts["security"][1]
+                            or item["runtime_manifest_digest"] != parts["security"][2]
+                            for item in parts["action"]["authorities"]):
+                        raise ReleaseOperationsError("rejected release action security differs")
+                else:
+                    parts["action"] = self.repository._read_release_rejected_action_source(self.task_id, self.action_id)
+                    row = parts["action"]["journal"][0]
+                    if (row[5], row[7]) != self.pending_digests:
+                        raise ReleaseOperationsError("rejected predecessor identity changed")
+                    with _recovery_json(row[4], self.context, self.budget, source_id="rejected-prepared") as prepared, \
+                            _recovery_json(row[6], self.context, self.budget, source_id="rejected-authority") as authority:
+                        from graph_engineering.core.contracts.canonical import canonical_byte_length
+                        size = canonical_byte_length(prepared) + canonical_byte_length(authority)
+                        with self.budget.reserve(self.context, units=12 * size, byte_count=8 * size,
+                                source_id="rejected-action-validation"):
+                            p = self.coordinator._policy.load_prepared(prepared)
+                            a = self.coordinator._policy.load_authority(authority)
+                            owner = security.state["binding"]
+                            if (p.action_id != self.action_id or p.task_id != self.task_id
+                                    or a.prepared_action_digest != p.prepared_action_digest
+                                    or a.task_id != self.task_id or a.authority_digest not in security.state["authority_digests"]
+                                    or (a.owner_id, a.runtime_kind, a.runtime_lineage_id) !=
+                                       (self.runtime.owner_id, self.runtime.runtime_kind, self.runtime.runtime_lineage_id)
+                                    or p.baseline_digest != owner["baselines"].get("intent")
+                                    or p.target_digest != self.lease._cold_binding.target_digest()):
+                                raise ReleaseOperationsError("rejected action authority differs from current owner")
+                            p = a = owner = None
+                        prepared = authority = None
+                parts["physical"] = self.lease._capture_cold_members()
+                from graph_engineering.core.contracts.canonical import canonical_bytes
+                import stat
+                with self.budget.reserve(self.context, units=1024 + 512 * len(parts["physical"]),
+                        byte_count=1024 + 512 * len(parts["physical"]), source_id="rejected-tree-identity"):
+                    rows = [(name, stat.S_IMODE(metadata[2]), hashlib.sha256(raw).hexdigest())
+                        for name, (raw, metadata) in sorted(parts["physical"].items())]
+                    self.context.emit("digest.input_byte", sum(len(raw[0]) for raw in parts["physical"].values()),
+                        source_id="rejected-tree-identity", operation_path=())
+                    if hashlib.sha256(canonical_bytes(rows)).hexdigest() != self.expected_tree_digest:
+                        raise ReleaseOperationsError("rejected release physical state differs from issued execution")
+                    rows = None
+                self._validate_binding(parts["security"][0]["binding"])
+                self.factory.require_installed_authority()
+                self._require_category_current()
+                self._current()
+                for value in parts.values():
+                    self.budget.move_projection(value, parts)
+                result = MappingProxyType(parts)
+                self.budget.move_projection(parts, result)
+                return result
+        except BaseException as error:
+            if parts is not None:
+                while parts:
+                    _key, value = parts.popitem()
+                    if id(value) in self.budget._projections:
+                        self.budget.release_projection(value)
+                    value = None
+                if id(parts) in self.budget._projections:
+                    self.budget.release_projection(parts)
+            _recovery_clear_exception_frames(error)
+            raise
+        finally:
+            self = parts = security = result = value = row = prepared = authority = p = a = owner = None
+
+    def _refresh(self, *, locator=None):
+        from graph_engineering.storage.repository import _recovery_adopt
+        first = second = None
+        try:
+            if locator is not None:
+                self.budget.release_projection(locator)
+                locator = None
+            first = self._capture()
+            second = self._capture()
+            if not _cold_read_equal(first, second, self.context, self.budget):
+                raise ReleaseOperationsError("rejected release closure changed between captures")
+            identity = _coverage_capture_identity(self, second)
+            if self.history is None:
+                self.history = _recovery_adopt({"coverage_state_digest": self.expected_state_digest,
+                    "coverage_source_digest": identity}, self.context, self.budget,
+                    record_fields={}, source_id="rejected-release-history")
+            elif identity != self.history["coverage_source_digest"]:
+                raise ReleaseOperationsError("rejected release closure changed since issuance")
+            self.revision += 1
+        finally:
+            for capture in (second, first):
+                if capture is not None:
+                    self.budget.release_projection(capture)
+
+    def query(self) -> Mapping[str, object]:
+        try:
+            with self.budget.bind(ports=self.ports):
+                self._refresh()
+                return dict(self.history)
+        except BaseException:
+            self.close()
+            raise
+
+
+def _open_release_rejection_reader(*, app, runtime, policy, factory, objects, coordinator,
+        namespace, task_id, target_id, action_id, expected_state_digest, pending_digests, expected_tree_digest):
+    factory._cold_artifact_authority()
+    scope = _RejectedReleaseReadScope(app, runtime, policy, factory, objects, coordinator, namespace, task_id)
+    scope.target_id, scope.action_id = target_id, action_id
+    scope.expected_state_digest, scope.pending_digests = expected_state_digest, pending_digests
+    scope.expected_tree_digest = expected_tree_digest
+    try:
+        scope.start()
+        return scope
+    except BaseException:
+        scope.close()
+        raise
 
 
 def _validate_cold_release_projection(scope, parts):
@@ -791,7 +998,7 @@ def _validate_cold_release_projection(scope, parts):
             or current_target["fresh"] is not True or type(current_target["observation_revision"]) is not int
             or current_target["observation_revision"] < 1 or not same(current_target["state"], current_state)
             or target_contract["target_id"] != binding["target_id"] or target_contract["resource_id"] != binding["resource_id"]
-            or not same(target_contract["expected_state"], state)):
+            or not same(target_contract["rollback_state" if assessment["column_id"] == "rollback" else "expected_state"], state)):
         raise ReleaseOperationsError("cold release current physical target differs from committed contract")
 
     action = parts["action"]
@@ -802,6 +1009,8 @@ def _validate_cold_release_projection(scope, parts):
     prepared = original["prepared"]
     recovery = provenance["recovery"]
     partial = recovery is not None
+    if assessment["column_id"] in {"recovery", "rollback"} and not partial:
+        raise ReleaseOperationsError("cold release action column requires completed compensation")
     if (action["action_id"] != deployment["action_id"] or projection["claim_id"] != provenance["claim"]["claim_id"]
             or projection["receipt_digest"] != deployment["receipt_digest"]
             or prepared["action_kind"] != "deploy"
@@ -1145,6 +1354,290 @@ class ReleaseHealthObservation:
         return thaw(self.projection)
 
 
+def _release_category_predecessor(binding, installation, journal, claim_state, before, after, disposition):
+    """Pure private record shared by live issuance and captured cold validation."""
+    body = {"schema_version": "1.0.0", "record_kind": "release-category-predecessor-v1",
+        **dict(binding), "installation_pins": dict(installation),
+        "toolchain_id": "authoritative-local-release-simulator",
+        "action_id": journal["action_id"], "prepared_action_digest": journal["prepared_digest"],
+        "authority_digest": journal["authority_digest"], "journal_state": journal["state"],
+        "claim_state": claim_state, "receipt_digest": None if journal["receipt"] is None else journal["receipt"]["receipt_digest"],
+        "before_state": dict(before), "after_state": dict(after),
+        "mutation_delta": int(disposition == "P"),
+        "result": "COMPLETED" if disposition == "P" else "EXPECTED_REJECTION"}
+    body["record_digest"] = _semantic(body, "release-category-predecessor")
+    return body
+
+
+def _release_category_facts(body):
+    return {"predecessor-record-digest": body["record_digest"],
+        "predecessor-result": body["result"], "toolchain-id": body["toolchain_id"],
+        "target-before-digest": _semantic(body["before_state"], "release-local-target-state"),
+        "target-after-digest": _semantic(body["after_state"], "release-local-target-state")}
+
+
+@dataclass(frozen=True, slots=True, init=False, eq=False)
+class _ReleaseCategoryRecord:
+    body: FrozenMap
+    _authority: object
+
+    def __init__(self, *args, **kwargs):
+        raise TypeError("release category records are factory-issued")
+
+    def to_dict(self) -> dict[str, object]:
+        return thaw(self.body)
+
+    def to_bytes(self) -> bytes:
+        from graph_engineering.core.contracts.canonical import canonical_bytes
+        return canonical_bytes(self.body)
+
+
+class _ReleaseCategoryObserver:
+    is_test_double = False
+    is_read_only_observer = True
+    execution_kind = "authoritative-real-e2e-observer"
+
+    def __init__(self, *args, **kwargs):
+        raise TypeError("release category observers are factory-issued")
+
+    @classmethod
+    def require_issued(cls, observer: object) -> _ReleaseCategoryAuthority:
+        if (type(observer) is not cls or type(observer._authority) is not _ReleaseCategoryAuthority
+                or observer._authority._observer is not observer
+                or observer._authority._factory._category_observers.get(id(observer))
+                    != (observer._authority, observer)):
+            raise ReleaseOperationsError("release category observer is cloned or foreign")
+        observer._authority._require_execution()
+        authority = observer._authority
+        session = authority._session
+        if (observer.target_id != session.target.target_id
+                or observer.target_digest != session.target.target_digest
+                or observer.resource_id != session.target.resource_id
+                or freeze(observer.expected_state) != authority._execution["after_state"]
+                or freeze(observer.rollback_state) != authority._execution["after_state"]):
+            raise ReleaseOperationsError("release category observer target binding changed")
+        return observer._authority
+
+    def observe(self) -> dict[str, object]:
+        from graph_engineering.core.contracts.canonical import canonical_bytes
+
+        authority = self.require_issued(self)
+        root = authority._session._root
+        state = root.state()
+        metadata = os.stat(root._root_path / root.names["state"], follow_symlinks=False)
+        self._revision += 1
+        return {"schema_version": "1.0.0", "execution_kind": self.execution_kind,
+            "target_id": self.target_id, "resource_id": self.resource_id, "fresh": True,
+            "observation_revision": self._revision, "file_identity": [metadata.st_dev, metadata.st_ino],
+            "state": state, "state_bytes_sha256": hashlib.sha256(canonical_bytes(state)).hexdigest()}
+
+    def close(self) -> None:
+        pass
+
+
+class _ReleaseCategoryAuthority:
+    """Private proof of one actual local simulator execute-gate attempt."""
+
+    def __init__(self, *args, **kwargs):
+        raise TypeError("release category execution authority is factory-issued")
+
+    @property
+    def disposition(self) -> str:
+        return self._execution["disposition"]
+
+    @property
+    def profile_id(self) -> str:
+        return "release-operations"
+
+    def _require_execution(self):
+        from graph_engineering.storage.errors import RepositoryConflictError
+
+        factory, session, coordinator = self._factory, self._session, self._coordinator
+        factory.require_installed_authority()
+        issuance = factory._category_executions.get(id(self))
+        if (issuance is None or issuance[0] is not self
+                or any(actual is not expected for actual, expected in zip(issuance[1:],
+                    (session, coordinator, self._journal, self._claim,
+                     self._outcome, self._deployment, self._security, self._execution)))
+                or factory._issued_sessions.get(id(session)) is not session
+                or factory._session_coordinators.get(id(session)) is not coordinator
+                or freeze(self._execution) != self._execution_seal):
+            raise ReleaseOperationsError("release category execution capability changed")
+        session._root._require_open()
+        security = coordinator._issuer.read_task_state(self._journal.task_id)
+        stable = lambda state: {key: (freeze({name: value for name, value in item.items()
+            if name not in {"snapshot_digest", "binding_digest"}}) if key == "binding" else item)
+            for key, item in state.items() if key not in {"task_revision", "task_snapshot_digest"}}
+        checks = {
+            "journal": coordinator._journal.load(self._journal.action_id) == self._journal,
+            "security": stable(security.state) == stable(self._security.state),
+            "runtime": security.runtime_manifest_digest == self._security.runtime_manifest_digest,
+            "mutation": session._root.mutation_count == self._execution["mutation_delta"],
+            "apply": session.target.apply_count == self._execution["mutation_delta"],
+            "target": freeze(session._root.state()) == self._execution["after_state"],
+        }
+        if not all(checks.values()):
+            raise ReleaseOperationsError("release category currentness changed: "
+                + ",".join(key for key, passed in checks.items() if not passed))
+        coordinator._issuer.runtime.require_policy(
+            "action", coordinator._policy.policy_id, coordinator._policy.policy_digest)
+        if coordinator._policy._runtime_issuer is not coordinator._issuer.runtime._issuer:
+            raise ReleaseOperationsError("release category action security issuer changed")
+        if self.disposition == "P":
+            coordinator.require_issued_outcome(self._outcome)
+            if freeze(coordinator._leases.load_claim(self._outcome.claim_id)) != self._claim:
+                raise ReleaseOperationsError("release category terminal claim changed")
+        else:
+            try:
+                coordinator._leases.load_claim("claim:" + self._journal.action_id)
+            except RepositoryConflictError:
+                pass
+            else:
+                raise ReleaseOperationsError("rejected release category action acquired a claim")
+
+    def issue_observer(self) -> _ReleaseCategoryObserver:
+        self._require_execution()
+        if self._observer is not None:
+            raise ReleaseOperationsError("release category observer already issued")
+        observer = object.__new__(_ReleaseCategoryObserver)
+        observer._authority = self
+        observer._revision = 0
+        observer.target_id = self._session.target.target_id
+        observer.target_digest = self._session.target.target_digest
+        observer.resource_id = self._session.target.resource_id
+        observer.expected_state = thaw(self._execution["after_state"])
+        observer.rollback_state = thaw(self._execution["after_state"])
+        self._observer = observer
+        self._factory._category_observers[id(observer)] = (self, observer)
+        return observer
+
+    def stage_task(self, snapshot: object) -> _ReleaseCategoryRecord:
+        from graph_engineering.core.graph.state import TaskSnapshot
+
+        self._require_execution()
+        if (type(snapshot) is not TaskSnapshot or self._record is not None
+                or snapshot.lifecycle != "completing" or not snapshot.graph_ref
+                or snapshot.identity["task_id"] != self._journal.task_id):
+            raise ReleaseOperationsError("release category task binding is invalid")
+        graph = snapshot.graph_ref
+        if graph.get("profile_id") != self.profile_id:
+            raise ReleaseOperationsError("release category task profile is foreign")
+        pins = {key: graph["graph_digest" if key == "base_graph_digest" else key]
+                for key in _GRAPH_PIN_FIELDS}
+        binding = {"task_id": self._journal.task_id, "task_revision": snapshot.task_revision,
+            "snapshot_digest": snapshot.snapshot_digest, "invalidation_epoch": snapshot.invalidation_epoch,
+            "profile_id": self.profile_id, "profile_version": "1.0.0", "materialization_pins": pins}
+        installation = {key: self._factory._bootstrap[key] for key in (
+            "bootstrap_id", "bootstrap_digest", "policy_registry_digest", "fixture_registry_digest",
+            "profile_schema_registry_digest", "protected_closure_digest")}
+        journal = {"action_id": self._journal.action_id,
+            "prepared_digest": self._journal.prepared.prepared_action_digest,
+            "authority_digest": self._journal.authority.authority_digest,
+            "state": self._journal.state, "receipt": self._journal.receipt}
+        body = _release_category_predecessor(binding, installation, journal,
+            None if self._claim is None else self._claim["state"],
+            self._execution["before_state"], self._execution["after_state"], self.disposition)
+        record = object.__new__(_ReleaseCategoryRecord)
+        object.__setattr__(record, "body", freeze(body))
+        object.__setattr__(record, "_authority", self)
+        self._record = record
+        self._record_seal = record.body
+        self._factory._category_records[id(record)] = (self, record, record.body)
+        return record
+
+    def require_installation_current(self) -> None:
+        self._require_execution()
+        record = self._record
+        issuance = self._factory._category_records.get(id(record))
+        if (type(record) is not _ReleaseCategoryRecord or record._authority is not self
+                or issuance is None or issuance[0] is not self or issuance[1] is not record
+                or issuance[2] is not record.body
+                or record.body != self._record_seal
+                or record.body["record_digest"] != _semantic(
+                    {key: value for key, value in record.body.items() if key != "record_digest"},
+                    "release-category-predecessor")):
+            raise ReleaseOperationsError("release category predecessor is missing, cloned or changed")
+
+    def evidence_facts(self, record: object) -> dict[str, object]:
+        self.require_installation_current()
+        if record is not self._record:
+            raise ReleaseOperationsError("release category predecessor is foreign")
+        return _release_category_facts(record.body)
+
+    def activate(self, *, task_application: object, repository: object, objects: object,
+                 runtime: object, object_digest: str) -> None:
+        from graph_engineering.application.tasks import TaskApplication, RuntimeContext
+        from graph_engineering.storage.repository import TaskRepository
+        from graph_engineering.storage.objects import ObjectRepository
+
+        self.require_installation_current()
+        if (self._task_binding is not None or type(task_application) is not TaskApplication
+                or type(runtime) is not RuntimeContext or type(repository) is not TaskRepository
+                or type(objects) is not ObjectRepository or repository is not self._coordinator._repository
+                or objects is not self._coordinator._objects or task_application._repository is not repository
+                or task_application._materialization_objects is not objects
+                or objects.digest(self._record.to_bytes()) != object_digest):
+            raise ReleaseOperationsError("release category task ports are foreign")
+        self._task_binding = (task_application, repository, objects, runtime, object_digest)
+        try:
+            self.require_current(expected_task_id=self._journal.task_id)
+        except BaseException:
+            self._task_binding = None
+            raise
+
+    def require_current(self, *, expected_task_id: str | None,
+                        require_success: bool=False) -> _ReleaseCategoryRecord:
+        self.require_installation_current()
+        if self._task_binding is None or expected_task_id not in (None, self._journal.task_id):
+            raise ReleaseOperationsError("release category task authority is absent or foreign")
+        app, repository, objects, runtime, ref = self._task_binding
+        body = self._record.body
+        view = app.runtime_show(self._journal.task_id, runtime)
+        snapshot = view.snapshot
+        graph = snapshot.graph_ref
+        pins = {key: graph.get("graph_digest" if key == "base_graph_digest" else key)
+                for key in _GRAPH_PIN_FIELDS}
+        raw = self._record.to_bytes()
+        if (snapshot.task_revision not in (body["task_revision"], body["task_revision"] + 1)
+                or snapshot.invalidation_epoch != body["invalidation_epoch"]
+                or freeze(pins) != body["materialization_pins"]
+                or objects.get(ref, require_referenced=False) != raw
+                or tuple(item for item in repository.referenced_objects(self._journal.task_id)
+                         if item == (ref, raw)) != ((ref, raw),)):
+            raise ReleaseOperationsError("release category predecessor task source changed")
+        if snapshot.task_revision == body["task_revision"]:
+            if snapshot.lifecycle != "completing" or snapshot.snapshot_digest != body["snapshot_digest"]:
+                raise ReleaseOperationsError("release category predecessor snapshot changed")
+        else:
+            from graph_engineering.application.profile_execution import (
+                CategoryAssessmentResolver, _strict_json, _value_digest,
+            )
+            if snapshot.lifecycle != "completed" or self.disposition != "P":
+                raise ReleaseOperationsError("release category predecessor advanced by an unrelated transition")
+            resolved = CategoryAssessmentResolver(repository, objects,
+                task_application=app, runtime=runtime).current_body(self._journal.task_id)
+            if resolved is None:
+                raise ReleaseOperationsError("release category assessment transition is absent")
+            assessment = _strict_json(resolved[1])
+            event = repository.replay(self._journal.task_id)[-1]
+            if (assessment.get("schema_version") != "1.4.0" or assessment.get("column_id") != "real-e2e"
+                    or assessment.get("status") != "PASS"
+                    or any(assessment.get(key) != body[key] for key in (
+                        "task_id", "profile_id", "task_revision", "snapshot_digest", "invalidation_epoch"))
+                    or assessment["assessment_digest"] != _value_digest(
+                        {key: value for key, value in assessment.items() if key != "assessment_digest"},
+                        "category-completion-assessment")
+                    or event.get("event_type") != "task.category_assessed"
+                    or event.get("payload", {}).get("evidence_ref", {}).get("source_ref")
+                        != resolved[0]["assessment_object_digest"]
+                    or assessment["release_operations_projection"]["deployment_observation"]["action_id"]
+                        != self._journal.action_id):
+                raise ReleaseOperationsError("release category assessment transition does not consume predecessor snapshot")
+        if require_success and self.disposition != "P":
+            raise ReleaseOperationsError("release real E2E predecessor rejected before mutation")
+        return self._record
+
+
 class ReleaseOperationsRegistryFactory:
     """Validate installation bytes and issue factory-local release capabilities."""
 
@@ -1185,10 +1678,103 @@ class ReleaseOperationsRegistryFactory:
             ]
         ] = {}
         self._issued_health: dict[int, ReleaseHealthObservation] = {}
+        self._category_executions: dict[int, tuple] = {}
+        self._category_records: dict[int, tuple] = {}
+        self._category_observers: dict[int, tuple] = {}
         self._health_bindings: dict[
             int, tuple[LocalReleaseSimulatorSession, ReleaseDeploymentObservation]
         ] = {}
         self._currentness_check()
+
+    def _execute_category_action(self, *, action_coordinator, session, action_id, **arguments):
+        """Execute once and seal measured P or an exact pre-claim rejection."""
+        from graph_engineering.application.actions import ActionCoordinator
+        from graph_engineering.core.actions import ActionGateError
+        from graph_engineering.storage.errors import RepositoryConflictError
+
+        self.require_installed_authority()
+        if (type(action_coordinator) is not ActionCoordinator
+                or type(session) is not LocalReleaseSimulatorSession
+                or self._issued_sessions.get(id(session)) is not session
+                or self._session_coordinators.get(id(session)) is not action_coordinator
+                or set(arguments) != {"owner_id", "runtime_kind", "runtime_lineage_id", "lease", "disclosure_plan"}
+                or session._root.mutation_count != 0 or session.target.apply_count != 0
+                or session._release_snapshot()["last_execution"] is not None):
+            raise ReleaseOperationsError("release category execution inputs are foreign or already used")
+        record = action_coordinator._journal.load(action_id)
+        security = action_coordinator._issuer.read_task_state(record.task_id)
+        before = session._root.state()
+        if (record.state != "authorized" or record.authority is None
+                or record.prepared.action_kind != "deploy"
+                or record.prepared.target_id != session.target.target_id
+                or record.prepared.target_digest != session.target.target_digest
+                or record.prepared.payload["operation_id"] != self._registry.operation_roles["apply"]):
+            raise ReleaseOperationsError("release category action is not an authorized apply")
+        outcome, deployment = None, None
+        rejection = None
+        try:
+            outcome = action_coordinator.execute(action_id, target=session.target,
+                observer=session.observer, **arguments)
+        except ActionGateError as error:
+            if error.code != "GEW-AUT-PRECONDITION-CHANGED":
+                raise
+            rejection = error.code
+        after = session._root.state()
+        terminal = action_coordinator._journal.load(action_id)
+        if rejection is not None:
+            condition = record.prepared.precondition
+            current = {key: value for key, value in before.items() if key != "schema_version"}
+            stale_generation = (set(condition) == set(current)
+                and type(condition.get("generation")) is int
+                and type(record.prepared.payload["expected_generation"]) is int
+                and 0 <= condition["generation"] < self._registry.policy["deployment_policy"]["generation_limit"]
+                and condition["generation"] != current["generation"]
+                and condition["generation"] == record.prepared.payload["expected_generation"]
+                and all(condition[key] == current[key] for key in current if key != "generation"))
+            if not stale_generation:
+                raise ReleaseOperationsError("release real E2E rejection is not an exact stale-generation request")
+            if (terminal != record or after != before or session._root.mutation_count != 0
+                    or session.target.apply_count != 0
+                    or session._release_snapshot()["last_execution"] is not None
+                    or dict(record.prepared.precondition) == {key: value for key, value in before.items() if key != "schema_version"}):
+                raise ReleaseOperationsError("release rejection did not occur before mutation")
+            try:
+                action_coordinator._leases.load_claim("claim:" + action_id)
+            except RepositoryConflictError:
+                claim = None
+            else:
+                raise ReleaseOperationsError("release rejection unexpectedly acquired a claim")
+        else:
+            if (outcome is None or outcome.route != "reconciled-effect-verified"
+                    or session._root.mutation_count != 1 or session.target.apply_count != 1):
+                raise ReleaseOperationsError("release category success is not one reconciled mutation")
+            deployment = self.issue_deployment_observation(action_coordinator=action_coordinator,
+                session=session, outcome=outcome)
+            health = self.issue_health_observation(session=session, terminal_observation=deployment)
+            if health.to_dict()["outcome"] != self._registry.health_outcomes["healthy"]:
+                raise ReleaseOperationsError("release category apply is unhealthy")
+            claim = freeze(action_coordinator._leases.load_claim(outcome.claim_id))
+        authority = object.__new__(_ReleaseCategoryAuthority)
+        authority._factory, authority._session, authority._coordinator = self, session, action_coordinator
+        authority._journal, authority._claim, authority._outcome = terminal, claim, outcome
+        authority._deployment = deployment
+        authority._security = security
+        authority._execution = freeze({"disposition": "P" if rejection is None else "R",
+            "before_state": before, "after_state": after, "mutation_delta": session._root.mutation_count,
+            "rejection_code": rejection})
+        authority._execution_seal = authority._execution
+        authority._observer = None
+        authority._record = None
+        authority._record_seal = None
+        authority._task_binding = None
+        self._category_executions[id(authority)] = (authority, session, action_coordinator,
+            terminal, claim, outcome, deployment, security, authority._execution)
+        try:
+            authority._require_execution()
+        except BaseException:
+            self._category_executions.pop(id(authority), None)
+            raise
+        return authority
 
     def _resolve_schema(
         self, current_id: str, reference: str,
@@ -1562,7 +2148,7 @@ class ReleaseOperationsRegistryFactory:
                              _COLD_CURRENTNESS_INPUTS[self], _COLD_ARTIFACT_INPUTS[self],
                              authority, plan, _COLD_CATEGORY_DOCUMENTS[self])
                     if _operation is not None:
-                        if type(_operation) is not _ColdReleaseReadScope or _operation.factory is not self:
+                        if type(_operation) not in (_ColdReleaseReadScope, _RejectedReleaseReadScope) or _operation.factory is not self:
                             raise ReleaseOperationsError("cold operation configuration is foreign")
                         roots = (*roots, _operation._configuration(records))
                     return _recovery_adopt(roots, context, budget, record_fields=records,
@@ -2132,6 +2718,8 @@ class ReleaseOperationsRegistryFactory:
             )
         scenario = scenario_matches[0]
         partial = scenario["scenario_id"] == "partial-deploy"
+        if column_id in {"recovery", "rollback"} and not partial:
+            raise ReleaseOperationsError("release action column requires completed compensation")
         terminal = rollback if rollback is not None else deployment
         if (
             health["outcome"] != self._registry.health_outcomes["healthy"]
@@ -2452,6 +3040,10 @@ class ReleaseOperationsRegistryFactory:
         }
         if body.get("installation_pins") != expected_installation:
             raise ReleaseOperationsError("stored release installation pins changed")
+        owned = [evidence for evidence in self._issued.values()
+            if evidence.projection == freeze(projection)]
+        if len(owned) == 1:
+            return self.require_current(owned[0])
         raise ReleaseOperationsError(
             "stored release projection requires live target/journal revalidation"
         )

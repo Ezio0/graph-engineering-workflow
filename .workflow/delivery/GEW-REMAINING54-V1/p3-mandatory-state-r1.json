@@ -1,0 +1,964 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-REMAINING54-V1",
+  "record_family": "p3-mandatory24",
+  "nodes": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "node": "spec",
+      "artifact": "spec",
+      "author_id": "/root",
+      "reviewer_id": "/root/p3_mandatory_spec_reviewer",
+      "targets": [
+        "docs/adr/0009-offline-release-operations-simulator-authority.md",
+        "docs/specs/graph-engineering-workflow.md"
+      ],
+      "revision": 0,
+      "artifact_digest": "sha256:652e41ac1a5ee505c9c4dde8c0950b4aea6220c434c2c3e3ee1db8fb1b733ff9",
+      "previous_artifact_digest": null,
+      "open_finding_ids": []
+    },
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "node": "impact",
+      "artifact": "impact",
+      "author_id": "/root",
+      "reviewer_id": "/root/p3_mandatory_impact_reviewer",
+      "targets": [
+        "docs/impact/graph-engineering-workflow.md"
+      ],
+      "revision": 0,
+      "artifact_digest": "sha256:169d0d28b7713a5adb33f91a3131b36b3ac87de88dc5f3b32fd8c6adf4aab373",
+      "previous_artifact_digest": null,
+      "open_finding_ids": []
+    },
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "node": "plan",
+      "artifact": "plan",
+      "author_id": "/root",
+      "reviewer_id": "/root/p3_mandatory_plan_reviewer",
+      "targets": [
+        "docs/plans/2026-08-13-graph-engineering-workflow.md"
+      ],
+      "revision": 0,
+      "artifact_digest": "sha256:ea7eaf01caa21cff67d54f1d1878cdbe29f8321743ce21ff855b1c9656d48d8c",
+      "previous_artifact_digest": null,
+      "open_finding_ids": []
+    },
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "node": "plan",
+      "artifact": "plan",
+      "author_id": "/root",
+      "reviewer_id": "/root/p3_mandatory_plan_reviewer",
+      "targets": [
+        "docs/plans/2026-08-13-graph-engineering-workflow.md"
+      ],
+      "revision": 1,
+      "artifact_digest": "sha256:6bbd3644583d25e811587ee1338c9f9ed4b1175fa21db5b9ea403ec8c5157f6d",
+      "previous_artifact_digest": "sha256:ea7eaf01caa21cff67d54f1d1878cdbe29f8321743ce21ff855b1c9656d48d8c",
+      "open_finding_ids": [
+        "M24-PLAN-001"
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "node": "plan",
+      "artifact": "plan",
+      "author_id": "/root",
+      "reviewer_id": "/root/p3_mandatory_plan_reviewer",
+      "targets": [
+        "docs/plans/2026-08-13-graph-engineering-workflow.md"
+      ],
+      "revision": 1,
+      "artifact_digest": "sha256:6bbd3644583d25e811587ee1338c9f9ed4b1175fa21db5b9ea403ec8c5157f6d",
+      "previous_artifact_digest": "sha256:ea7eaf01caa21cff67d54f1d1878cdbe29f8321743ce21ff855b1c9656d48d8c",
+      "open_finding_ids": []
+    },
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "node": "test-plan",
+      "artifact": "test_plan",
+      "author_id": "/root",
+      "reviewer_id": "/root/p3_mandatory_test_plan_reviewer",
+      "targets": [
+        "docs/test-plans/graph-engineering-workflow.md"
+      ],
+      "revision": 0,
+      "artifact_digest": "sha256:22dd6a78ddba408d4d6abf23be29690c08a9ecff98729c1361eb0fe8f3b41611",
+      "previous_artifact_digest": null,
+      "open_finding_ids": []
+    },
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "node": "implementation",
+      "artifact": "implementation",
+      "author_id": "/root",
+      "reviewer_id": "/root/p3_m24_implementation_reviewer",
+      "targets": [
+        "application/graph_engineering/application/profile_coverage.py",
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/profile-coverage-execution-plan-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "config/test-oracles/profile-release-operations-artifacts-v1.json",
+        "config/test-oracles/profile-release-operations-authority-v1.json",
+        "config/test-oracles/profile-release-operations-boundary-v1.json",
+        "config/test-oracles/profile-release-operations-drift-v1.json",
+        "config/test-oracles/profile-release-operations-invalidation-v1.json",
+        "config/test-oracles/profile-release-operations-normal-v1.json",
+        "config/test-oracles/profile-release-operations-real-e2e-v1.json",
+        "config/test-oracles/profile-release-operations-recovery-v1.json",
+        "config/test-oracles/profile-release-operations-review-v1.json",
+        "config/test-oracles/profile-release-operations-revise-v1.json",
+        "config/test-oracles/profile-release-operations-rollback-v1.json",
+        "config/test-oracles/profile-release-operations-target-v1.json",
+        "config/verification/wp-00-targets.json",
+        "core/graph_engineering/__init__.py",
+        "docs/adr/0009-offline-release-operations-simulator-authority.md",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "storage/graph_engineering/storage/repository.py",
+        "tests/contract/test_wp08_remaining54_contracts.py",
+        "tests/integration/test_wp08_release_coverage.py",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/source_checkout_attestation.py",
+        "tests/support/wp05_actions.py",
+        "tests/support/wp08_category_execution.py",
+        "tests/support/wp08_release_coverage.py",
+        "tests/support/wp08_release_operations.py"
+      ],
+      "revision": 0,
+      "artifact_digest": "sha256:d5a545ab6329034344811409effa1e6712641aee2b618c596f57410a4939915f",
+      "previous_artifact_digest": null,
+      "open_finding_ids": []
+    }
+  ],
+  "implementation_scopes": [
+    {
+      "scope_id": "p3-mandatory24-m24-02-r0",
+      "task_id": "GEW-REMAINING54-V1",
+      "author_id": "/root",
+      "node": "implementation",
+      "targets": [
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/wp08_category_execution.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "pyproject.toml"
+      ],
+      "manifest_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
+        ".workflow/manifest.json",
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "docs/adr/0009-offline-release-operations-simulator-authority.md",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/wp08_category_execution.py"
+      ],
+      "manifest_raw_sha256": "54fb50535635a47a369a72a22591edac3183df16c1d8c2bd49c3dc0f366f9cb7",
+      "upstream_decision": {
+        "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        "member": "nodes[5]"
+      },
+      "baseline_files": [
+        {
+          "path": "application/graph_engineering/application/profile_execution.py",
+          "raw_sha256": "dbdc3576814816c25839c0c3261e0aad9a4706a4851c943daae9e618a83db37e"
+        },
+        {
+          "path": "application/graph_engineering/application/release_operations.py",
+          "raw_sha256": "7f186bc610c80101f15d881b423c13eb06679d2747a372e7dd34e3cdce7678d2"
+        },
+        {
+          "path": "tests/integration/test_wp08_release_operations.py",
+          "raw_sha256": "d8f63658c62f58fd185aae1e8550465216fe0488263106c202a27b31998d4835"
+        },
+        {
+          "path": "tests/support/wp08_category_execution.py",
+          "raw_sha256": "b24530e92667e672df90e7da5e193b7d185728933faecfc375478ad31b6f42e5"
+        },
+        {
+          "path": "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+          "raw_sha256": "a85e8a192f2cfbeefdf8f4f90aef51b911c0ef46056b219bc63a033f73a14985"
+        },
+        {
+          "path": "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+          "raw_sha256": "b37443565c1841b96a45f7734eff31606ce55b1cdbe84d543f3f2d9467ece4bd"
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "raw_sha256": "294e8549e53de4d6efe1dda130a4a35ba9aa940181092c41c8974982d18c9c5e"
+        },
+        {
+          "path": "config/release-operations/release-operations-installation-bootstrap-v1.json",
+          "raw_sha256": "0c66eafaecfb367e9065a8b319d4e6d389fc922e922d1b510da640cf9d023856"
+        },
+        {
+          "path": "pyproject.toml",
+          "raw_sha256": "a92a5be74f7b29cfda5341a2fde3ab4d9fcb045b6aaa6a52027b0ef0e68a36cd"
+        }
+      ],
+      "review_status": "pending implementation review; exact scope is frozen before writes",
+      "acceptance": "M24-02 only: eight new non-action columns plus normal, captured source validation and zero-write rejection. Later action columns stay closed until their own scopes."
+    },
+    {
+      "scope_id": "p3-mandatory24-m24-03-r0",
+      "task_id": "GEW-REMAINING54-V1",
+      "author_id": "/root",
+      "node": "implementation",
+      "targets": [
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/wp08_category_execution.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "pyproject.toml"
+      ],
+      "manifest_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
+        ".workflow/manifest.json",
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "docs/adr/0009-offline-release-operations-simulator-authority.md",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/wp08_category_execution.py"
+      ],
+      "manifest_raw_sha256": "52421b69177e285f6e3a020e4dc16eb69654d3396312a3ed691000bf01c23a99",
+      "upstream_decision": {
+        "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        "member": "nodes[5]"
+      },
+      "baseline_files": [
+        {
+          "path": "application/graph_engineering/application/profile_execution.py",
+          "raw_sha256": "53881347003933e7ebe7cdc78350f3c614ce0b5b76d401e1f4cd03dce8f2a9d2"
+        },
+        {
+          "path": "application/graph_engineering/application/release_operations.py",
+          "raw_sha256": "17acf4dfb31f38e4f5732730d30c1b4be90987ee3e3e2a88504518dbaacf5262"
+        },
+        {
+          "path": "tests/integration/test_wp08_release_operations.py",
+          "raw_sha256": "f414fb78495de3787c1bfc3c3b6ea2922487adf983152a40347fab2176a9ba5d"
+        },
+        {
+          "path": "tests/support/wp08_category_execution.py",
+          "raw_sha256": "b24530e92667e672df90e7da5e193b7d185728933faecfc375478ad31b6f42e5"
+        },
+        {
+          "path": "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+          "raw_sha256": "d6d152a10ffdfd92b8becac2d6882b26f77615693a9108b8fa88e4a1f08bfcff"
+        },
+        {
+          "path": "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+          "raw_sha256": "f18166f81f1c7a5cda58b8b4f8ed7a797cd94e5ae1e5c347b8ed2439d6e6d816"
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "raw_sha256": "13a013323d1355b1735964804693d7f474e2ee2a2119ec357382abd80b137bf0"
+        },
+        {
+          "path": "config/release-operations/release-operations-installation-bootstrap-v1.json",
+          "raw_sha256": "5b391352a06b1a889cfba12e5d3cfab80e1268ce16c5df5fd9dc347e205d3d2d"
+        },
+        {
+          "path": "pyproject.toml",
+          "raw_sha256": "c2639610da366f59ba55d65484f075d14edccf141ae1a02c92c5f10682ec53a0"
+        }
+      ],
+      "review_status": "pending implementation review; exact scope is frozen before writes",
+      "acceptance": "M24-03 only: recovery/rollback same original action, completed authorized restore adoption, restored-A health, cold joins and zero replay; real-e2e remains closed."
+    },
+    {
+      "scope_id": "p3-mandatory24-m24-03-r0",
+      "task_id": "GEW-REMAINING54-V1",
+      "author_id": "/root",
+      "node": "implementation",
+      "targets": [
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/wp08_category_execution.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "pyproject.toml"
+      ],
+      "manifest_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
+        ".workflow/manifest.json",
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "docs/adr/0009-offline-release-operations-simulator-authority.md",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/wp08_category_execution.py"
+      ],
+      "manifest_raw_sha256": "f1fe3d7f7662e406c61660f5358d24dd29cdc883e555a4649c8911919ebf9d3d",
+      "upstream_decision": {
+        "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        "member": "nodes[5]"
+      },
+      "baseline_files": [
+        {
+          "path": "application/graph_engineering/application/profile_execution.py",
+          "raw_sha256": "53881347003933e7ebe7cdc78350f3c614ce0b5b76d401e1f4cd03dce8f2a9d2"
+        },
+        {
+          "path": "application/graph_engineering/application/release_operations.py",
+          "raw_sha256": "17acf4dfb31f38e4f5732730d30c1b4be90987ee3e3e2a88504518dbaacf5262"
+        },
+        {
+          "path": "tests/integration/test_wp08_release_operations.py",
+          "raw_sha256": "f414fb78495de3787c1bfc3c3b6ea2922487adf983152a40347fab2176a9ba5d"
+        },
+        {
+          "path": "tests/support/wp08_category_execution.py",
+          "raw_sha256": "b24530e92667e672df90e7da5e193b7d185728933faecfc375478ad31b6f42e5"
+        },
+        {
+          "path": "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+          "raw_sha256": "d6d152a10ffdfd92b8becac2d6882b26f77615693a9108b8fa88e4a1f08bfcff"
+        },
+        {
+          "path": "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+          "raw_sha256": "f18166f81f1c7a5cda58b8b4f8ed7a797cd94e5ae1e5c347b8ed2439d6e6d816"
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "raw_sha256": "13a013323d1355b1735964804693d7f474e2ee2a2119ec357382abd80b137bf0"
+        },
+        {
+          "path": "config/release-operations/release-operations-installation-bootstrap-v1.json",
+          "raw_sha256": "5b391352a06b1a889cfba12e5d3cfab80e1268ce16c5df5fd9dc347e205d3d2d"
+        },
+        {
+          "path": "pyproject.toml",
+          "raw_sha256": "c2639610da366f59ba55d65484f075d14edccf141ae1a02c92c5f10682ec53a0"
+        }
+      ],
+      "review_status": "pending-implementation-review",
+      "acceptance": "M24-03 only: recovery/rollback same original action, completed authorized restore adoption, restored-A health, cold joins and zero replay; real-e2e remains closed.",
+      "record_id": "p3-mandatory24-m24-04-r0",
+      "purpose": "M24-04 private release simulator real-E2E P/R and typed cold reconstruction",
+      "baseline_raw_sha256": {
+        "application/graph_engineering/application/profile_execution.py": "575b5d0ecf9c4dffd8606920139af0e508eb52493f4ab1811ca3ca52c1a6c790",
+        "application/graph_engineering/application/release_operations.py": "e1c5e0cfa94d94178d482fd9d067ede1573ccf140b5376d0e77317b1d6433901",
+        "tests/integration/test_wp08_release_operations.py": "4f17d25774435ba4e0f20ce06808ca456ddf88cc38091e9fe9385c7fec5cfc57",
+        "tests/support/wp08_category_execution.py": "2c6b01d82bbb157f45a51894dea7de5d092223bac567447850a0b7dcae608d04",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json": "eed4a0361600bb9da6bff53862df9b194bf168667610d648a9dcbb1044b17ea4",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json": "275a057a1ae65aafb802027b13d5da5e1263343cfe6bea2f868b778a2947394a",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json": "18593e096e65cd8157f78f727edf2e15f13fd17b57e903f7b11abccf6c4830f8",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json": "5de12a4c87998dc3b454e7e5e399929d1dda82a913762be6b61180185d38b720",
+        "pyproject.toml": "dab270375a5064717816c0e91e2b8331ab562e68e14957d0357d8fa1f3a50e40"
+      }
+    },
+    {
+      "scope_id": "p3-mandatory24-m24-04-r1",
+      "task_id": "GEW-REMAINING54-V1",
+      "author_id": "/root",
+      "node": "implementation",
+      "targets": [
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/wp08_category_execution.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "pyproject.toml"
+      ],
+      "manifest_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
+        ".workflow/manifest.json",
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "docs/adr/0009-offline-release-operations-simulator-authority.md",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/wp08_category_execution.py"
+      ],
+      "manifest_raw_sha256": "f1fe3d7f7662e406c61660f5358d24dd29cdc883e555a4649c8911919ebf9d3d",
+      "upstream_decision": {
+        "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        "member": "nodes[5]"
+      },
+      "baseline_files": [
+        {
+          "path": "application/graph_engineering/application/profile_execution.py",
+          "raw_sha256": "575b5d0ecf9c4dffd8606920139af0e508eb52493f4ab1811ca3ca52c1a6c790"
+        },
+        {
+          "path": "application/graph_engineering/application/release_operations.py",
+          "raw_sha256": "e1c5e0cfa94d94178d482fd9d067ede1573ccf140b5376d0e77317b1d6433901"
+        },
+        {
+          "path": "tests/integration/test_wp08_release_operations.py",
+          "raw_sha256": "4f17d25774435ba4e0f20ce06808ca456ddf88cc38091e9fe9385c7fec5cfc57"
+        },
+        {
+          "path": "tests/support/wp08_category_execution.py",
+          "raw_sha256": "2c6b01d82bbb157f45a51894dea7de5d092223bac567447850a0b7dcae608d04"
+        },
+        {
+          "path": "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+          "raw_sha256": "eed4a0361600bb9da6bff53862df9b194bf168667610d648a9dcbb1044b17ea4"
+        },
+        {
+          "path": "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+          "raw_sha256": "275a057a1ae65aafb802027b13d5da5e1263343cfe6bea2f868b778a2947394a"
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "raw_sha256": "18593e096e65cd8157f78f727edf2e15f13fd17b57e903f7b11abccf6c4830f8"
+        },
+        {
+          "path": "config/release-operations/release-operations-installation-bootstrap-v1.json",
+          "raw_sha256": "5de12a4c87998dc3b454e7e5e399929d1dda82a913762be6b61180185d38b720"
+        },
+        {
+          "path": "pyproject.toml",
+          "raw_sha256": "dab270375a5064717816c0e91e2b8331ab562e68e14957d0357d8fa1f3a50e40"
+        }
+      ],
+      "review_status": "pending-implementation-review",
+      "acceptance": "M24-04: sealed local simulator P one mutation, actual stale-generation R pre-claim zero mutation, task-bound predecessor, selected real-e2e live/cold authority and negative checks. No coverage issuance or cumulative/irreversible action.",
+      "record_id": "p3-mandatory24-m24-04-r1",
+      "purpose": "M24-04 private release simulator real-E2E P/R and typed cold reconstruction",
+      "baseline_raw_sha256": {
+        "application/graph_engineering/application/profile_execution.py": "575b5d0ecf9c4dffd8606920139af0e508eb52493f4ab1811ca3ca52c1a6c790",
+        "application/graph_engineering/application/release_operations.py": "e1c5e0cfa94d94178d482fd9d067ede1573ccf140b5376d0e77317b1d6433901",
+        "tests/integration/test_wp08_release_operations.py": "4f17d25774435ba4e0f20ce06808ca456ddf88cc38091e9fe9385c7fec5cfc57",
+        "tests/support/wp08_category_execution.py": "2c6b01d82bbb157f45a51894dea7de5d092223bac567447850a0b7dcae608d04",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json": "eed4a0361600bb9da6bff53862df9b194bf168667610d648a9dcbb1044b17ea4",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json": "275a057a1ae65aafb802027b13d5da5e1263343cfe6bea2f868b778a2947394a",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json": "18593e096e65cd8157f78f727edf2e15f13fd17b57e903f7b11abccf6c4830f8",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json": "5de12a4c87998dc3b454e7e5e399929d1dda82a913762be6b61180185d38b720",
+        "pyproject.toml": "dab270375a5064717816c0e91e2b8331ab562e68e14957d0357d8fa1f3a50e40"
+      },
+      "repairs_reference": {
+        "member": "implementation_scopes[2]",
+        "reason": "Earlier pre-write row correctly froze exact nine paths, M24-04 purpose/record_id/Manifest and baseline_raw_sha256, but inherited stale M24-03 scope_id, acceptance and baseline_files metadata. Preserve it; this append-only repair normalizes identifiers and uses its captured pre-write hashes, without changing targets or approved authority."
+      }
+    },
+    {
+      "scope_id": "p3-mandatory24-m24-05-r0",
+      "record_id": "p3-mandatory24-m24-05-r0",
+      "task_id": "GEW-REMAINING54-V1",
+      "author_id": "/root",
+      "node": "implementation",
+      "targets": [
+        "application/graph_engineering/application/profile_coverage.py",
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/profile-coverage-execution-plan-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-coverage/oracle-manifest-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "config/test-oracles/profile-release-operations-artifacts-v1.json",
+        "config/test-oracles/profile-release-operations-authority-v1.json",
+        "config/test-oracles/profile-release-operations-boundary-v1.json",
+        "config/test-oracles/profile-release-operations-drift-v1.json",
+        "config/test-oracles/profile-release-operations-invalidation-v1.json",
+        "config/test-oracles/profile-release-operations-normal-v1.json",
+        "config/test-oracles/profile-release-operations-real-e2e-v1.json",
+        "config/test-oracles/profile-release-operations-recovery-v1.json",
+        "config/test-oracles/profile-release-operations-review-v1.json",
+        "config/test-oracles/profile-release-operations-revise-v1.json",
+        "config/test-oracles/profile-release-operations-rollback-v1.json",
+        "config/test-oracles/profile-release-operations-target-v1.json",
+        "pyproject.toml",
+        "tests/integration/test_wp08_release_coverage.py",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/wp05_actions.py",
+        "tests/support/wp08_category_execution.py",
+        "tests/support/wp08_release_coverage.py",
+        "tests/support/wp08_release_operations.py"
+      ],
+      "manifest_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
+        ".workflow/manifest.json",
+        "application/graph_engineering/application/profile_coverage.py",
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/profile-coverage-execution-plan-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-coverage/oracle-manifest-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "config/test-oracles/profile-release-operations-artifacts-v1.json",
+        "config/test-oracles/profile-release-operations-authority-v1.json",
+        "config/test-oracles/profile-release-operations-boundary-v1.json",
+        "config/test-oracles/profile-release-operations-drift-v1.json",
+        "config/test-oracles/profile-release-operations-invalidation-v1.json",
+        "config/test-oracles/profile-release-operations-normal-v1.json",
+        "config/test-oracles/profile-release-operations-real-e2e-v1.json",
+        "config/test-oracles/profile-release-operations-recovery-v1.json",
+        "config/test-oracles/profile-release-operations-review-v1.json",
+        "config/test-oracles/profile-release-operations-revise-v1.json",
+        "config/test-oracles/profile-release-operations-rollback-v1.json",
+        "config/test-oracles/profile-release-operations-target-v1.json",
+        "docs/adr/0009-offline-release-operations-simulator-authority.md",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "tests/integration/test_wp08_release_coverage.py",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/wp05_actions.py",
+        "tests/support/wp08_category_execution.py",
+        "tests/support/wp08_release_coverage.py",
+        "tests/support/wp08_release_operations.py"
+      ],
+      "manifest_raw_sha256": "c147c32c8a01e0e05db2666ae44d4a0e7339626192b2e74eacdf57d2bc3cb921",
+      "upstream_decision": {
+        "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        "member": "nodes[5]"
+      },
+      "baseline_files": [
+        {
+          "path": "application/graph_engineering/application/profile_coverage.py",
+          "raw_sha256": "7f584debcd9b0b9e7d955aca1554aa300210ee8b77cdbf17cb697c3ba416be4c"
+        },
+        {
+          "path": "application/graph_engineering/application/profile_execution.py",
+          "raw_sha256": "a81e5e2eebfe8b4afbfbc9bf5f33f1e74ae3ba5ec6c425a97150f4aa8f19c6b3"
+        },
+        {
+          "path": "application/graph_engineering/application/release_operations.py",
+          "raw_sha256": "3d77e2b4c8ad17c3875f457b10844bb2c0e114a1b331d7a743abe5b29148544d"
+        },
+        {
+          "path": "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+          "raw_sha256": "f205b788cc9a712897d7b3cc68edeeb2e2dbe1f98abdd22b696d362d8048d917"
+        },
+        {
+          "path": "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+          "raw_sha256": "869568ec0a82d829dfd4af0d295a0e8ee0eb3ccc5f4f01cba31ecf29aeecc467"
+        },
+        {
+          "path": "config/profiles/profile-coverage-execution-plan-v1.json",
+          "raw_sha256": "9b7a4e8e216df452983b835800d9cce5b41a8df766f0ec8eff1805c41c0f8eb8"
+        },
+        {
+          "path": "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "raw_sha256": "5d164abbdaae2a0640726540607ca865855f02138e7188aeed61a6f1f43a3583"
+        },
+        {
+          "path": "config/release-coverage/oracle-manifest-v1.json",
+          "raw_sha256": "6dbdcda71719ce28fb3ba59ff777c125537c1adae576ad6193c86dac8e77fb97"
+        },
+        {
+          "path": "config/release-operations/release-operations-installation-bootstrap-v1.json",
+          "raw_sha256": "9a28492d1abeb9f6a8e5f8a36833d20fc5ed8b3df50cf5affa77aa3589b80ab5"
+        },
+        {
+          "path": "config/test-oracles/profile-release-operations-artifacts-v1.json",
+          "raw_sha256": null
+        },
+        {
+          "path": "config/test-oracles/profile-release-operations-authority-v1.json",
+          "raw_sha256": null
+        },
+        {
+          "path": "config/test-oracles/profile-release-operations-boundary-v1.json",
+          "raw_sha256": null
+        },
+        {
+          "path": "config/test-oracles/profile-release-operations-drift-v1.json",
+          "raw_sha256": null
+        },
+        {
+          "path": "config/test-oracles/profile-release-operations-invalidation-v1.json",
+          "raw_sha256": null
+        },
+        {
+          "path": "config/test-oracles/profile-release-operations-normal-v1.json",
+          "raw_sha256": null
+        },
+        {
+          "path": "config/test-oracles/profile-release-operations-real-e2e-v1.json",
+          "raw_sha256": null
+        },
+        {
+          "path": "config/test-oracles/profile-release-operations-recovery-v1.json",
+          "raw_sha256": null
+        },
+        {
+          "path": "config/test-oracles/profile-release-operations-review-v1.json",
+          "raw_sha256": null
+        },
+        {
+          "path": "config/test-oracles/profile-release-operations-revise-v1.json",
+          "raw_sha256": null
+        },
+        {
+          "path": "config/test-oracles/profile-release-operations-rollback-v1.json",
+          "raw_sha256": null
+        },
+        {
+          "path": "config/test-oracles/profile-release-operations-target-v1.json",
+          "raw_sha256": null
+        },
+        {
+          "path": "pyproject.toml",
+          "raw_sha256": "14fbfc461d6ce62d0d319594297c8f1fd52f6ac86b575039f349d094eb442222"
+        },
+        {
+          "path": "tests/integration/test_wp08_release_coverage.py",
+          "raw_sha256": "8afaa3635c7a1c27d080bfc74cd994354640b77c0be4c0428db58513dc5d5256"
+        },
+        {
+          "path": "tests/integration/test_wp08_release_operations.py",
+          "raw_sha256": "189ef73d0003605e93f94536d2e90fead494920e7d68e71deb1dba0efd960abc"
+        },
+        {
+          "path": "tests/support/wp05_actions.py",
+          "raw_sha256": "12eaf5f7dbcd5fef49ed03640e35ffb4d6878536c6be4e30bd2b0daf6d030fe6"
+        },
+        {
+          "path": "tests/support/wp08_category_execution.py",
+          "raw_sha256": "bd912a54ebc2ed3de6fad52c1684c54a1bb2600944b46c97efca159b720ae856"
+        },
+        {
+          "path": "tests/support/wp08_release_coverage.py",
+          "raw_sha256": "1cfcc8efa3b1c68541a38e8e52ddae03457b0a083124bc150ef65bfe0af108a4"
+        },
+        {
+          "path": "tests/support/wp08_release_operations.py",
+          "raw_sha256": "405d1728ac193692d01cda9ecc44e0b6f7e85efd331bc5f8da9990d46670233f"
+        }
+      ],
+      "review_status": "pending-implementation-review",
+      "acceptance": "M24-05: 24 unique release mandatory P/R bindings, twelve oracles, configured268/134 with six scenario bindings absent; strict release1.4 union/currentness and real simulator authority; actual rejection and cold P lifecycle, revoke/abort/finalize-denial within bounded serial tests.",
+      "purpose": "M24-05 release mandatory coverage and lifecycle"
+    },
+    {
+      "scope_id": "p3-mandatory24-m24-05-installation-r0",
+      "record_id": "p3-mandatory24-m24-05-installation-r0",
+      "node": "implementation",
+      "author_id": "/root",
+      "task_id": "GEW-REMAINING54-V1",
+      "targets": [
+        "core/graph_engineering/__init__.py",
+        "tests/support/source_checkout_attestation.py"
+      ],
+      "manifest_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
+        ".workflow/manifest.json",
+        "application/graph_engineering/application/profile_coverage.py",
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/profile-coverage-execution-plan-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-coverage/oracle-manifest-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "config/test-oracles/profile-release-operations-artifacts-v1.json",
+        "config/test-oracles/profile-release-operations-authority-v1.json",
+        "config/test-oracles/profile-release-operations-boundary-v1.json",
+        "config/test-oracles/profile-release-operations-drift-v1.json",
+        "config/test-oracles/profile-release-operations-invalidation-v1.json",
+        "config/test-oracles/profile-release-operations-normal-v1.json",
+        "config/test-oracles/profile-release-operations-real-e2e-v1.json",
+        "config/test-oracles/profile-release-operations-recovery-v1.json",
+        "config/test-oracles/profile-release-operations-review-v1.json",
+        "config/test-oracles/profile-release-operations-revise-v1.json",
+        "config/test-oracles/profile-release-operations-rollback-v1.json",
+        "config/test-oracles/profile-release-operations-target-v1.json",
+        "core/graph_engineering/__init__.py",
+        "docs/adr/0009-offline-release-operations-simulator-authority.md",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "tests/integration/test_wp08_release_coverage.py",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/source_checkout_attestation.py",
+        "tests/support/wp05_actions.py",
+        "tests/support/wp08_category_execution.py",
+        "tests/support/wp08_release_coverage.py",
+        "tests/support/wp08_release_operations.py"
+      ],
+      "manifest_raw_sha256": "e9082315c47e7fbe7000d6afb3b3e41d80271135cffa564ab514c087b325423f",
+      "baseline_files": [
+        {
+          "path": "core/graph_engineering/__init__.py",
+          "raw_sha256": "013f5019abe5eb638eae78c7d24b4acd51567af8b59d91a86a6fe4fa6f1fe282"
+        },
+        {
+          "path": "tests/support/source_checkout_attestation.py",
+          "raw_sha256": "9acc44af97e9dc20d97533f37b73df41f6fb5e4090f6b8429915ea7826e730e8"
+        }
+      ],
+      "purpose": "Add exact twelve oracle members to existing source attestation closures; required loader prerequisite from M24-06, no builder or evidence utility changes.",
+      "acceptance": "New release mandatory members source-attested, exact counterpart lists, protected source pins refreshed, no closure weakening.",
+      "review_status": "pending-implementation-review",
+      "upstream_decision": {
+        "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        "member": "nodes[5]"
+      }
+    },
+    {
+      "scope_id": "p3-mandatory24-m24-05-bounded-rejection-r0",
+      "record_id": "p3-mandatory24-m24-05-bounded-rejection-r0",
+      "node": "implementation",
+      "author_id": "/root",
+      "task_id": "GEW-REMAINING54-V1",
+      "targets": [
+        "storage/graph_engineering/storage/repository.py"
+      ],
+      "manifest_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
+        ".workflow/manifest.json",
+        "application/graph_engineering/application/profile_coverage.py",
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/profile-coverage-execution-plan-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-coverage/oracle-manifest-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "config/test-oracles/profile-release-operations-artifacts-v1.json",
+        "config/test-oracles/profile-release-operations-authority-v1.json",
+        "config/test-oracles/profile-release-operations-boundary-v1.json",
+        "config/test-oracles/profile-release-operations-drift-v1.json",
+        "config/test-oracles/profile-release-operations-invalidation-v1.json",
+        "config/test-oracles/profile-release-operations-normal-v1.json",
+        "config/test-oracles/profile-release-operations-real-e2e-v1.json",
+        "config/test-oracles/profile-release-operations-recovery-v1.json",
+        "config/test-oracles/profile-release-operations-review-v1.json",
+        "config/test-oracles/profile-release-operations-revise-v1.json",
+        "config/test-oracles/profile-release-operations-rollback-v1.json",
+        "config/test-oracles/profile-release-operations-target-v1.json",
+        "core/graph_engineering/__init__.py",
+        "docs/adr/0009-offline-release-operations-simulator-authority.md",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "storage/graph_engineering/storage/repository.py",
+        "tests/integration/test_wp08_release_coverage.py",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/source_checkout_attestation.py",
+        "tests/support/wp05_actions.py",
+        "tests/support/wp08_category_execution.py",
+        "tests/support/wp08_release_coverage.py",
+        "tests/support/wp08_release_operations.py"
+      ],
+      "manifest_raw_sha256": "8aee069252c10b23f472d6d6d01db62ae5b130af5adf29daf409982877df9616",
+      "baseline_files": [
+        {
+          "path": "storage/graph_engineering/storage/repository.py",
+          "raw_sha256": "07ef630871c38aaccdc6ca6cd4c73f99c8f5fd70d7546715398169aa46a62ebf"
+        }
+      ],
+      "purpose": "Private bounded source capture for existing opaque rejected release execution: no completed P assessment, full unchanged task/source/action/security and physical closure, no new public port or schema.",
+      "acceptance": "Shared budget, bounded SQL/CAS and two captures; source owners released each lifecycle phase; no legacy whole-source rereads or fabricated P.",
+      "review_status": "pending-implementation-review",
+      "upstream_decision": {
+        "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        "member": "nodes[5]"
+      }
+    },
+    {
+      "scope_id": "p3-mandatory24-m24-05-config-regression-r0",
+      "task_id": "GEW-REMAINING54-V1",
+      "author_id": "/root",
+      "node": "implementation",
+      "targets": [
+        "tests/contract/test_wp08_remaining54_contracts.py",
+        "config/verification/wp-00-targets.json"
+      ],
+      "manifest_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
+        ".workflow/manifest.json",
+        "application/graph_engineering/application/profile_coverage.py",
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/profile-coverage-execution-plan-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-coverage/oracle-manifest-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "config/test-oracles/profile-release-operations-artifacts-v1.json",
+        "config/test-oracles/profile-release-operations-authority-v1.json",
+        "config/test-oracles/profile-release-operations-boundary-v1.json",
+        "config/test-oracles/profile-release-operations-drift-v1.json",
+        "config/test-oracles/profile-release-operations-invalidation-v1.json",
+        "config/test-oracles/profile-release-operations-normal-v1.json",
+        "config/test-oracles/profile-release-operations-real-e2e-v1.json",
+        "config/test-oracles/profile-release-operations-recovery-v1.json",
+        "config/test-oracles/profile-release-operations-review-v1.json",
+        "config/test-oracles/profile-release-operations-revise-v1.json",
+        "config/test-oracles/profile-release-operations-rollback-v1.json",
+        "config/test-oracles/profile-release-operations-target-v1.json",
+        "config/verification/wp-00-targets.json",
+        "core/graph_engineering/__init__.py",
+        "docs/adr/0009-offline-release-operations-simulator-authority.md",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "storage/graph_engineering/storage/repository.py",
+        "tests/contract/test_wp08_remaining54_contracts.py",
+        "tests/integration/test_wp08_release_coverage.py",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/support/source_checkout_attestation.py",
+        "tests/support/wp05_actions.py",
+        "tests/support/wp08_category_execution.py",
+        "tests/support/wp08_release_coverage.py",
+        "tests/support/wp08_release_operations.py"
+      ],
+      "baseline_files": [
+        {
+          "path": "tests/contract/test_wp08_remaining54_contracts.py",
+          "raw_sha256": "a43286feb2b23f5dc72b9601cbb6fa09ff42b365825a4f29c2059aba90266fe8"
+        },
+        {
+          "path": "config/verification/wp-00-targets.json",
+          "raw_sha256": "4718c3c4048ef9082f1c287cc236641d6bee10e4b96d45eff8dfe50889f87cdb"
+        }
+      ],
+      "purpose": "Maintain current configured268/134 assertions and verification membership for twelve new mandatory oracles, preserving historical checkpoint values; selected before writes.",
+      "acceptance": "No scenario additions or cumulative execution, exact protected bytes and previous244/122 members remain, independent implementation and Candidate review required.",
+      "review_status": "pending-implementation-review",
+      "upstream_decision": {
+        "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+        "member": "nodes[5]"
+      }
+    }
+  ]
+}

@@ -1228,3 +1228,70 @@ Authority: `human-decision-p1-p2-p3-r0.json#p2d_continuation_amendment`.
 Do not launch cumulative or performance work, restore monitoring, enter P3,
 expand targets/budgets, use network or commit/push/merge/deploy/release/external
 communication. Stop at the next Human authority gate.
+
+### P3 mandatory24 bounded implementation plan — 2026-09-21
+
+Inputs: the approved PRD/Intent Baseline, ADR-0009,
+[Spec mandatory24 contract](../specs/graph-engineering-workflow.md#p3-mandatory24-bounded-contract--2026-09-21),
+[Impact](../impact/graph-engineering-workflow.md#p3-mandatory24-impact--2026-09-21)
+and [Test Plan](../test-plans/graph-engineering-workflow.md#p3-mandatory24-verification--2026-09-21).
+Positioning and PRD remain the upstream approved documents. Root is the sole
+writer; independent agents review immutable bundles read-only. Status starts
+pending; actual elapsed time is recorded at completion, not estimated as actual.
+
+| Task | Size / estimate | Dependency | Work and files | Exit condition |
+|---|---|---|---|---|
+| M24-01 | S / 1–2h | authorized proposal | Five design documents and four mandatory workflow containers | Exact digest-bound Spec→Impact→Plan→Test Plan independent decisions ADVANCE. |
+| M24-02 | M / half day | M24-01 | Existing release/category modules and release/category tests | RED then GREEN for eight new non-action column joins, normal retained, all reject writes zero. |
+| M24-03 | S / 1–2h | M24-02 | Existing category/release modules and release fixtures | Recovery and rollback live/cold joins prove exact original claim, restored A, no second execution. |
+| M24-04 | M / half day | M24-03 | Existing release/category/coverage modules and fixtures | Real-e2e live/cold joins; sealed release P delta=1 / R delta=0; Git/caller/clone substitution rejected. |
+| M24-05 | M / half day | M24-04 | Existing coverage modules/fixtures, execution plan and twelve authorized oracles | 24 distinct mandatory bindings, exact 268/134 shape, lifecycle and quiescent reopen pass. |
+| M24-06 | S / 1–2h | M24-05 | Affected package/bootstrap pins and focused regression tests | Current source/package pins; protected bytes and older profile semantics preserved. |
+| M24-07 | S / 1–2h | M24-06 | Mandatory records and detached canonical evidence/Candidate | Independent implementation/verification and Candidate review accepted; stop before commit. |
+
+Each task's executable acceptance is tracked here:
+
+- [ ] M24-01: validate bundle hashes/targets; persist unchanged independent verdicts
+  and actual sequential reducer decisions.
+- [ ] M24-02: run focused native RED/GREEN tests for boundary, revise, authority,
+  drift, invalidation, artifacts, review and target positive cold restoration and
+  malformed/missing/duplicate/stale proof rejection; retain normal regression.
+- [ ] M24-03: run original/restore provenance and no-replay assertions, including
+  both live precommit and fresh-process cold restore.
+- [ ] M24-04: run real simulator actions and measured mutation accounting; reject
+  forged authority, observer, predecessor and stale before/after evidence.
+- [ ] M24-05: execute all 24 new bindings serially in independent roots; verify
+  twelve frozen oracle identities, record currentness, cold read and six absent
+  scenario bindings without running a cumulative gate. Real bounded candidates
+  have no consumed combined-gate decision: finalize must reject, then cleanup
+  uses the exact-capability abort path. Separately run the existing synthetic
+  test_consumed_cumulative_gate_finalizes_instead_of_aborting regression for
+  post-gate finalization routing. Its double is helper-level lifecycle evidence
+  only, never a real release record or combined-gate acceptance result.
+- [ ] M24-06: run affected prior-profile/native/package/architecture/schema checks
+  and compare protected bytes with the baseline.
+- [ ] M24-07: stage exact Manifest targets; capture fresh canonical evidence in
+  <=300s commands, obtain independent Candidate review, retain the commit boundary.
+
+The tasks form a linear dependency DAG. Each next task is blocked by the previous
+exit condition, and each blocks its successor. Native task status and elapsed
+time belong in the append-only delivery record; no external Kanban is required.
+The graph reducer, not checkbox prose, controls advancement.
+
+Local Python/native tools and installed test fixtures are available. There is no
+external-service dependency or staging/production rollout. Implementation remains
+local until separately authorized commit; no feature flag or deployment percentage
+is relevant. On failed proof/currentness, issue no records and retain existing
+configuration evidence as historical; repair and rerun only affected checks.
+
+Development risks: (1) re-signing pins too early causes repeated invalidation;
+refresh after the smallest complete input batch; (2) broad native selectors exceed
+budget; split serially by concrete methods and fail fast; (3) a helper silently
+uses Git or mutable shared roots; verify exact factory identity and use one fresh
+task/root per binding. These risks are checked at each corresponding task exit.
+No unresolved product/architecture question is assumed. A concrete conflict with
+the approved boundary returns to design before dependent implementation.
+
+Plan checklist uses the project's approved scope rather than template example
+counts or staged rollout requirements. Estimated time is a sizing guide, not a
+runtime-budget change. History: 2026-09-21 — bounded mandatory24 plan added.

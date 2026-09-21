@@ -4785,5 +4785,25 @@
       "previous_artifact_digest": "sha256:296ac04f32f3081fe58c5e17c24fb31c9e1e39e4e681937118440b6fded7dd34",
       "open_finding_ids": []
     }
+  ],
+  "p3_restart_cold_source_retrospectives": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "node": "retro",
+      "artifact": "retro",
+      "author_id": "/root",
+      "reviewer_id": "/root/p3_cold_retrospective_reviewer",
+      "targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json"
+      ],
+      "revision": 0,
+      "artifact_digest": "sha256:2f1604eaaf8cb9b3142f9c361a24573964d710407ed1f4d9131ed5615ccd70c6",
+      "previous_artifact_digest": null,
+      "open_finding_ids": []
+    }
   ]
 }

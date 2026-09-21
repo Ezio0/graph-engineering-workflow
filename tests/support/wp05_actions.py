@@ -224,12 +224,13 @@ class ActionFixture:
     factory: object
     task_application: object | None = None
     task_runtime: object | None = None
+    task_id: str = "task-wp05"
 
     def expire_action_lease(self) -> None:
         self.manual_time.set(self.action_lease.expires_at + 1)
 
     def current_task_snapshot_digest(self) -> str:
-        return self.journal._journal.current_task_snapshot_digest("task-wp05")
+        return self.journal._journal.current_task_snapshot_digest(self.task_id)
 
     def recovery_attempt(self, original_action_id: str) -> dict[str, object]:
         result = self.leases.recovery_attempt(f"claim:{original_action_id}")
@@ -243,6 +244,7 @@ def action_stack(
     *,
     action_ttl_ns: int = 10**15,
     domain_task: bool = False,
+    task_id: str = "task-wp05",
     concrete_action_authority: tuple[object, object, object] | None = None,
 ) -> Iterator[ActionFixture]:
     epoch = datetime.datetime(2026, 8, 14, 0, 30, tzinfo=datetime.timezone.utc)
@@ -263,24 +265,24 @@ def action_stack(
                 "owner-wp05", "codex", "lineage-wp05", "actor-wp05",
                 "2026-08-14T00:00:00Z", 10**15,
             )
-            task_application.execute("task-wp05", TaskCommand("create", 0, {"identity": {
-                "task_id": "task-wp05", "owner_id": "owner-wp05",
+            task_application.execute(task_id, TaskCommand("create", 0, {"identity": {
+                "task_id": task_id, "owner_id": "owner-wp05",
                 "runtime_kind": "codex", "runtime_lineage_id": "lineage-wp05",
             }}), task_runtime)
         else:
             initial_lease = leases.acquire_many(
-                lease_id="lease-create-wp05", task_id="task-wp05", run_id="run-create-wp05",
-                operation_id="create", resources=("task:task-wp05",), ttl_ns=10**15,
+                lease_id="lease-create-wp05", task_id=task_id, run_id="run-create-wp05",
+                operation_id="create", resources=("task:" + task_id,), ttl_ns=10**15,
             )
             event = make_event(
-                task_id="task-wp05", sequence=1, event_id="task-wp05-created", event_type="task.created",
+                task_id=task_id, sequence=1, event_id="task-wp05-created", event_type="task.created",
                 occurred_at="2026-08-14T00:00:00Z", actor={"kind": "runtime", "id": "lineage-wp05"},
-                expected_task_revision=0, baseline_digests=[], payload={"task_id": "task-wp05"}, previous_event_digest=None,
+                expected_task_revision=0, baseline_digests=[], payload={"task_id": task_id}, previous_event_digest=None,
             )
             repository.commit(CommitBatch(
-                "transaction-create-wp05", "task-wp05", 0, (event,),
-                {"task_id": "task-wp05", "revision": 1, "state": "ready"}, {},
-                {"lease_id": initial_lease.lease_id, "resource_id": "task:task-wp05", "fencing_token": dict(initial_lease.fencing_tokens)["task:task-wp05"]},
+                "transaction-create-wp05", task_id, 0, (event,),
+                {"task_id": task_id, "revision": 1, "state": "ready"}, {},
+                {"lease_id": initial_lease.lease_id, "resource_id": "task:" + task_id, "fencing_token": dict(initial_lease.fencing_tokens)["task:" + task_id]},
             ))
             leases.release(initial_lease.lease_id)
         command_factory = repository._factory
@@ -302,23 +304,29 @@ def action_stack(
                 )
         binding = binding_document()
         binding.update({
-            "task_id": "task-wp05", "owner_id": "owner-wp05", "runtime_lineage_id": "lineage-wp05",
+            "task_id": task_id, "owner_id": "owner-wp05", "runtime_lineage_id": "lineage-wp05",
             "baselines": {"intent": digest("intent")}, "snapshot_digest": digest("snapshot"),
             "targets": [{"target_id": "target-project", "target_kind": "project", "canonical_identity": "project-main", "target_digest": digest("target")}],
         })
         if domain_task:
             with command_factory.open("doctor") as connection:
                 task_row = connection.execute(
-                    "SELECT revision,snapshot_digest FROM tasks WHERE task_id=?", ("task-wp05",),
+                    "SELECT revision,snapshot_digest FROM tasks WHERE task_id=?", (task_id,),
                 ).fetchone()
             binding["snapshot_digest"] = task_row[1]
         binding["binding_digest"] = SecurityBinding.digest_document(binding)
         document_context = security_context()
+        def initial_document(build):
+            document = build(context=document_context)
+            document["task_id"] = task_id
+            document["resources"] = ["target:project", "task:" + task_id]
+            document["prepared_action_digest"] = PreparedAction.digest_document(document, document_context)
+            return document
         prepared = PreparedAction.from_dict(
-            prepared_document(context=document_context), context=document_context,
+            initial_document(prepared_document), context=document_context,
         )
         compensation_prepared = PreparedAction.from_dict(
-            compensation_prepared_document(context=document_context), context=document_context,
+            initial_document(compensation_prepared_document), context=document_context,
         )
         destinations = {"owner-wp05": {"kind": "owner", "trust_boundary": "owner-session", "target_digest": digest("owner-session"), "prepared_action_digest": prepared.prepared_action_digest}}
         state = task_security_state_document(binding=binding, destinations=destinations)
@@ -338,7 +346,7 @@ def action_stack(
                     connection.execute(
                         "INSERT INTO task_security_states(task_id,task_revision,task_snapshot_digest,"
                         "state_json,state_digest) VALUES(?,?,?,?,?)",
-                        ("task-wp05", task_row[0], task_row[1], canonical_json(state),
+                        (task_id, task_row[0], task_row[1], canonical_json(state),
                          semantic_record_digest({"contract": "task-security-state-v1", "value": state})),
                     )
         else:
@@ -346,8 +354,8 @@ def action_stack(
         issuer = SecurityContextIssuer(SecurityStateRepository(command_factory), schema_registry=schemas, context=context)
         journal = ActionJournalRepository(command_factory, schema_registry=schemas, context=context)
         action_lease = leases.acquire_many(
-            lease_id="lease-action-wp05", task_id="task-wp05", run_id="run-action-wp05",
-            operation_id="action", resources=("target:project", "task:task-wp05"), ttl_ns=action_ttl_ns,
+            lease_id="lease-action-wp05", task_id=task_id, run_id="run-action-wp05",
+            operation_id="action", resources=("target:project", "task:" + task_id), ttl_ns=action_ttl_ns,
         )
         other_lease = dataclasses.replace(action_lease, lease_id="wrong-lease")
         policy_name = (
@@ -386,7 +394,7 @@ def action_stack(
             coordinator, raw_coordinator, repository, objects, locks,
             JournalFixture(journal, command_factory), leases, action_lease, other_lease,
             context, schemas, issuer, manual_time,
-            factory, task_application, task_runtime,
+            factory, task_application, task_runtime, task_id,
         )
 
 

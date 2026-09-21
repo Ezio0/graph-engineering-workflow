@@ -3991,5 +3991,58 @@
         "协调者须保存本 verdict 并运行实际 reducer。stage/Candidate 权限来自已绑定的 Human 授权；commit、push、merge、部署、发布、网络及外部通信仍被排除。"
       ]
     }
+  ],
+  "p3_restart_cold_source_retrospectives": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "artifact": "retro",
+      "revision": 0,
+      "artifact_digest": "sha256:2f1604eaaf8cb9b3142f9c361a24573964d710407ed1f4d9131ed5615ccd70c6",
+      "reviewer_id": "/root/p3_cold_retrospective_reviewer",
+      "verdict": "PASS",
+      "scope_changed": false,
+      "change_kinds": [],
+      "findings": [],
+      "bindings": {
+        "artifact_digest_and_state_verified": true,
+        "predecessor_member_hashes_verified": 4,
+        "detached_reference_hashes_verified": 7,
+        "graph_and_policy_bytes_and_documents_verified": true,
+        "envelope_matches_verification_r1": true,
+        "retro_targets_within_envelope": 4,
+        "verification_r1": "独立 PASS 与实际 ADVANCE 至 candidate 的记录及成员摘要一致。",
+        "commit_sha": "9ad20d4991b0e98e6b29ce7d1cdb968eaadf2570",
+        "candidate_id": "ebb4ae67458654d839e84e4428de9936cc7340168cdf9b8ae939c4f5c9dc07a7",
+        "tree_oid": "ea5df7577f23b9ce94073507e5de7ebe8458bb9b",
+        "commit_parent_candidate_tree_and_38_paths_verified": true,
+        "candidate_and_review_ids_recomputed": true,
+        "receipt_matches_commit_candidate_and_approved_review": true,
+        "separate_human_commit_authorization_verified": true,
+        "canonical_evidence": {
+          "records_verified": 18,
+          "raw_file_hashes_record_ids_and_candidate_bindings_verified": true,
+          "all_passed_with_exit_zero": true,
+          "native_method_expectations": 122,
+          "strict_counts_zero_skips_and_failure_propagation_reviewed": true,
+          "affected_static_targets": 38,
+          "schema_definitions": 10,
+          "maximum_command_seconds": 211.5961945420131,
+          "policy_timeout_seconds": 300
+        },
+        "current_configuration": {
+          "bindings": 244,
+          "oracle_bindings": 122,
+          "release_operations_bindings": 0
+        }
+      },
+      "limits": [
+        "本次为只读 retrospective 审查；未修改文件、重跑产品测试或执行 Git 写操作。",
+        "122 项测试结论来自已批准 Candidate 的规范证据和独立审查；静态 244/122 为配置记录计数，不代表累计覆盖执行通过。",
+        "完成结论仅限 normal-only RS-C 冷恢复及已完成的部分补偿边界，不代表剩余产品交付完成。",
+        "mandatory24、268/134 与后续场景绑定属于待授权方案，不构成本裁决的实现或执行授权。",
+        "本裁决不授予后续 commit、push、merge、部署、发布、网络或外部通信权限；协调者应保存裁决并运行实际 reducer。"
+      ]
+    }
   ]
 }

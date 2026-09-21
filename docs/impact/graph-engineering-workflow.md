@@ -1370,3 +1370,37 @@ projection and task-referenced CAS remain the durable carriers. ADR-0008 already
 freezes these semantics, so no ADR change is needed. Target expansion, Support
 Matrix change, cumulative/performance execution, P3 or irreversible work returns
 to Human first.
+
+### P3 mandatory24 impact — 2026-09-21
+
+Authority is `p3_mandatory24_bounded_amendments[0]`; the
+[Spec amendment](../specs/graph-engineering-workflow.md#p3-mandatory24-bounded-contract--2026-09-21)
+is the source contract. Affected existing modules are release/category execution,
+coverage and their private test fixtures; installed execution-plan/oracle/package
+closures; focused native tests; and authorized delivery records. Twelve new oracle
+files are within the approved path ceiling. Exact implementation targets must be
+selected from the same 195 paths before writes; this list is not an expansion.
+
+The highest risks are a normal-only check removed without reconstructing other
+column proofs; source reads escaping the two captures; forged or duplicate
+controls; accepting a restored action as fresh mutation authority; double restore;
+Git or caller facts masquerading as local release execution; 1.4 accepted without
+its live/cold currentness joins; and a configuration count mistaken for cumulative
+acceptance. Mitigations are the closed source table, pure captured validation,
+exact identity-sealed private dispatch, journal/claim/receipt joins, read-only
+completed-restore adoption, explicit mutation counters and per-binding lifecycle
+checks. Rejecting a mutated target must not publish zero-write rejection evidence.
+
+The original schema versions, generic category policy, Support Matrix, performance
+thresholds and previous profile semantics stay unchanged. No schema migration,
+DB/event/GraphRef/API/dependency, daemon, network, real-target deployment or new
+adapter is required. Build-backend and evidence utilities remain outside the
+allowlist. Pin refresh uses existing machinery and changes only affected entries;
+re-signing a changed input never substitutes for tests or independent review.
+
+Validation covers all twelve P/R pairs, cold P joins and adversarial source
+mutations, rollback no-replay, actual release real-E2E, lifecycle revocation and
+affected existing regressions. No cumulative/performance workload is executed.
+Retain failed attempts and all prior records. A failed sub-batch publishes no
+accepted partial result; repair stays within the reviewed contract or returns
+to the relevant design node. Commit remains a separate human decision.

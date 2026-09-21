@@ -3329,3 +3329,128 @@ assessment 1.3 and one task-referenced CAS remain the durable carriers. This
 refines ADR-0008 without a new ADR. Target expansion, material architecture
 change, cumulative/performance execution, P3 or irreversible work returns to
 Human first.
+
+### P3 mandatory24 bounded contract — 2026-09-21
+
+Authority is the immutable proposal `GEW-REMAINING54-P3-MANDATORY24-BOUNDED-V1`
+and `human-decision-p1-p2-p3-r0.json#p3_mandatory24_bounded_amendments[0]`.
+This amendment implements the existing ADR-0009 mandatory semantics. It adds
+exactly twelve mandatory P/R pairs and twelve oracle members, with configuration
+shape 268 bindings / 134 oracles / six absent release scenario bindings. These
+counts are not a cumulative dynamic-gate result. No PRD intent changes.
+
+#### Durable column reconstruction
+
+Every successful column assessment uses the existing closed release-only 1.4
+union and exactly one current task-referenced assessment CAS. Reconstruction
+retains the RS-C owner-scoped byte/object/depth budgets, two complete captures,
+full inventory identity checks and zero writes. No live repository helper may
+silently reread sources outside that captured view. Unknown, duplicate, malformed,
+oversized or ambiguous candidate controls fail closed before a handle is issued.
+
+The shared join validates task/profile, six GraphRef pins, revision, previous
+snapshot and invalidation epoch; the unique final category event and CAS ref;
+runner invocations and final independent PASS reviews; every required output's
+ArtifactRecord, logical body manifest, raw bytes, validator/contract, baseline
+and applicable human approval; category artifacts, target contract and selected
+column evidence. Reconstruct the pre-assessment view from captured sources rather
+than trusting caller-supplied task data. All digests are recomputed from bodies.
+The selected column must belong to the unchanged installed support matrix and
+its installed category rule. The release projection selector must equal the
+assessment selector and name an installed positive release case.
+
+| Column | Additional authoritative source and reconstruction rule |
+|---|---|
+| normal | Exact required output vector and its digest, with no missing or extra output. |
+| boundary | Exact installed positive boundary case equals column evidence and assessment scenario. |
+| revise | Unique revision control with task/profile/revision/snapshot/epoch binding; current and previous distinct body digests join the same runner/review lineage; safe integer iteration budget is positive and at most the installed limit; owner route is exact. |
+| authority | Installed authority references equal the reconstructed precommit task authorities; current read authority remains independently valid. |
+| drift | Unique drift control with the five task bindings, resolved status and exact target ID / expected-state digest. |
+| invalidation | Current non-boolean integer epoch and current status, with no reuse across invalidation. |
+| recovery | Unique recovered control with five task bindings and nonempty recovery ID, plus the same-action release query/reconcile/authorized restore proof and fresh restored-A health. |
+| artifacts | Complete category contract set and sorted record-digest vector, each joined to its full artifact/body chain. |
+| review | Exact final independent PASS author/reviewer/node/run/attempt/body and distinct prior body; no open finding; recomputed review-record digest. |
+| target | Exact target ID and expected-state digest join the fresh physical release state; current identity is required. |
+| rollback | Exact original apply claim and completed restore journal, authority, receipt and terminal claim; restored-A artifact and health. Category rollback assessment reconstructs PASS / action-coordinator with the actual target observation digest. |
+| real-e2e | Sealed local-release predecessor and task-bound before/after facts, joined to actual ActionCoordinator provenance and fresh physical state; successful mutation delta is exactly one. |
+
+The existing normal guard is replaced by this closed dispatch, not merely removed.
+Column controls retain their existing private record formats. The cold return is
+historical read authority only; it cannot issue live evidence, create sessions,
+authorize actions, reopen mutation ownership or replay apply/restore. A rejected
+R execution never has a completed P assessment to reconstruct.
+
+#### Release rollback and recovery integration
+
+Recovery and rollback fixtures execute the existing partial-action path: apply
+reaches the installed durable partial cut, query determines the exact original
+claim state, and an explicitly authorized compensation restores A once. The
+original apply and restore action IDs differ and are linked by the existing
+recovery provenance. The release factory validates its own opaque outcomes,
+sessions, component seals and current journal/claim/receipt before producing the
+release projection. Generic recovered controls alone cannot prove restoration.
+
+A private completed-release adoption path in the existing CategoryRollbackBridge
+consumes a factory-issued, current release evidence object and the same exact
+ActionCoordinator. It records the projection, original action ID, restore action
+ID and immutable target binding privately. It rejects other profiles/columns,
+foreign or cloned factories/outcomes, an absent recovery link, a wrong logical
+rollback mapping or a nonterminal/unhealthy target. It does not prepare, authorize
+or execute another action. For this private context, both pre-final and final
+evidence checks read the completed restore's journal and original linked claim;
+facts retain exactly action-id/action-status/claim-status and must equal the
+actual persisted terminal records. No hypothetical future status is accepted.
+
+On rollback assessment, the bridge freshly verifies this context and reobserves
+the target, emits PASS / action-coordinator, then rechecks it at precommit. The
+generic prepared-action branch remains unchanged. Recovery uses the same release
+restoration proof but keeps generic rollback status NOT_REQUESTED because the
+selected category column is recovery. Cold reconstruction reproduces the correct
+branch from captured source bodies and never calls either live bridge path.
+
+#### Local simulator real execution authority
+
+Use a private opaque authority and observer in existing application modules.
+They are issued only by the exact release factory/session/coordinator, registered
+by identity, and bound to task, installed policy/fixture pins, action ID, target,
+before/after observations and actual mutation accounting. Category facts,
+source binding, use/precommit and coverage dispatch accept this exact sealed
+release type only for release-operations; existing exact Git authority checks
+remain in force for other profiles. Duck-typed read-only flags, caller PASS
+values, test doubles or Git predecessors cannot satisfy this release branch.
+
+P uses one authorized simulator apply and fresh query/health, with delta=1.
+R uses an actual stale-generation or stale-artifact request which is rejected
+before adapter mutation; journal/claim and invocation boundaries plus a fresh
+unchanged target prove delta=0. A fault after a write is never counted as such R.
+The private predecessor is deterministically derived from the existing action
+journal/receipt/claim and the release deployment/current-target projection;
+no new database table, event, GraphRef field, public schema or public API is
+introduced. Generic real-toolchain-execution column facts keep their existing
+five-field contract and digest domain; the release projection separately denotes
+authoritative-local-release-simulator. Cold P reconstruction recomputes the
+predecessor from captured action provenance and projection. It never mints a
+live predecessor/observer authority. No R predecessor becomes a P assessment.
+
+#### Coverage and currentness
+
+Coverage accepts release 1.4 only with the release profile and mandatory selector,
+exclusive of every older projection, and exact task/revision/snapshot/epoch/pins,
+column/scenario and unique current CAS bindings. Currentness is checked at issue,
+use, precommit, quiescent reopen, record verification and finalization. Existing
+CoverageRecordFactory revoke/abort/finalized behavior and teardown limits apply.
+Each P/R uses distinct task, request, execution, observation, record and private
+target identity. R evidence proves its actual expected rejection through the
+existing rejection lifecycle; it cannot borrow a positive assessment.
+
+Internal use of an installed positive release scenario to supply mandatory truth
+does not issue any of the six scenario CoverageRecords. Publish all 24 mandatory
+bindings and twelve independent frozen oracles together; failures do not produce
+partial acceptance. Existing records and oracle meanings are unchanged.
+
+Simulator artifacts remain installation-protected fixture bytes. Distribution,
+RECORD/source/build and protected resource closure are verified separately; a
+fixture is never described as a wheel archive. Update only affected authorized
+pins, using existing package/attestation machinery. Keep historical schema bytes,
+Support Matrix and performance thresholds exact. No cumulative/performance run,
+network, real environment operation, commit or external action is implied.

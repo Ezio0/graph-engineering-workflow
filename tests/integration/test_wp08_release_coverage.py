@@ -17,6 +17,459 @@ from tests.unit import test_wp08_profile_contracts as slice1
 class WP08ReleaseCoverageTests(unittest.TestCase):
     maxDiff = None
 
+    def test_release_mandatory_plan_is_exact_24_without_scenarios(self):
+        api4 = fixture.load_slice4_api()
+        _api, _coverage, matrix, _profile, _overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        self.assertEqual(len(plan.bindings), 268)
+        rows = [v for v in plan.bindings.values() if v["profile_id"] == "release-operations"]
+        self.assertEqual(len(rows), 24)
+        self.assertEqual({(v["column_id"], v["disposition"]) for v in rows},
+            {(c, d) for c in fixture.approved_mandatory_columns() for d in ("P", "R")})
+        self.assertTrue(all(v["selector_kind"] == "mandatory" and v["scenario_id"] is None for v in rows))
+        self.assertEqual(len({v["task_id"] for v in rows}), 24)
+        self.assertEqual(len({v["selector_digest"] for v in rows}), 24)
+        self.assertEqual(len({v["oracle_digest"] for v in rows}), 12)
+
+    def _assert_release_mandatory_pair(self, column):
+        api4 = fixture.load_slice4_api()
+        _api, _coverage, matrix, _profile, _overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        identities = []
+        for disposition in ("P", "R"):
+            with self.subTest(column=column, disposition=disposition), fixture.serial_profile_binding(
+                api4=api4, plan=plan, profile_id="release-operations", column=column,
+                disposition=disposition,
+            ) as result:
+                observation = result.observe_current()
+                self.assertEqual(result.execution.result, "COMPLETED" if disposition == "P" else "EXPECTED_REJECTION")
+                self.assertEqual(result.execution.task_id, fixture.coverage_task_id(result.test_id))
+                identities.append((result.execution.task_id, result.execution.execution_digest, observation.observation_digest))
+                if disposition == "P":
+                    assessment = result.application.current_assessment(result.probe.task_id, expected_profile_id="release-operations")
+                    self.assertEqual(assessment.schema_version, "1.4.0")
+                    self.assertEqual(assessment.column_id, column)
+                else:
+                    self.assertIsNone(result.application.current_assessment(result.probe.task_id, expected_profile_id="release-operations"))
+                    self.assertEqual(result.state_before, result.state_after)
+                if column == "real-e2e":
+                    self.assertEqual(result.application._facts._real_e2e_authority._session._root.mutation_count, 1 if disposition == "P" else 0)
+                factory = _api.CoverageRecordFactory(execution_authority=result.authority, coverage_policy=_coverage)
+                record = factory.issue_execution(observation, matrix=matrix, profile=_profile, overlay=_overlay)
+                factory.require_issued(record, matrix=matrix)
+                with self.assertRaisesRegex(ValueError, "combined coverage gate was not consumed"):
+                    factory.finalize_after_gate(object())
+                capability = factory.prepare_abort_uncommitted_candidate()
+                with self.assertRaises(ValueError):
+                    factory.abort_uncommitted_candidate(object())
+                factory.abort_uncommitted_candidate(capability)
+                factory.abort_uncommitted_candidate(capability)
+                with self.assertRaises(ValueError):
+                    factory.require_issued(record, matrix=matrix)
+                with self.assertRaises(ValueError):
+                    result.observe_current()
+        self.assertTrue(all(left != right for left, right in zip(*identities)))
+        self._assert_release_quiescent_pair(column)
+
+    def test_release_mandatory_normal_pair(self):
+        self._assert_release_mandatory_pair("normal")
+
+    def test_release_mandatory_boundary_pair(self):
+        self._assert_release_mandatory_pair("boundary")
+
+    def test_release_mandatory_revise_pair(self):
+        self._assert_release_mandatory_pair("revise")
+
+    def test_release_mandatory_authority_pair(self):
+        self._assert_release_mandatory_pair("authority")
+
+    def test_release_mandatory_drift_pair(self):
+        self._assert_release_mandatory_pair("drift")
+
+    def test_release_mandatory_invalidation_pair(self):
+        self._assert_release_mandatory_pair("invalidation")
+
+    def test_release_mandatory_recovery_pair(self):
+        self._assert_release_mandatory_pair("recovery")
+
+    def test_release_mandatory_artifacts_pair(self):
+        self._assert_release_mandatory_pair("artifacts")
+
+    def test_release_mandatory_review_pair(self):
+        self._assert_release_mandatory_pair("review")
+
+    def test_release_mandatory_target_pair(self):
+        self._assert_release_mandatory_pair("target")
+
+    def test_release_mandatory_rollback_pair(self):
+        self._assert_release_mandatory_pair("rollback")
+
+    def test_release_mandatory_real_e2e_pair(self):
+        self._assert_release_mandatory_pair("real-e2e")
+
+    def test_release_normal_quiescent_binding_reopens_without_live_session(self):
+        self._assert_release_quiescent_pair("normal")
+
+    def test_release_normal_rejection_quiescent_binding_reopens_without_live_session(self):
+        self._assert_release_quiescent_pair("normal", dispositions=("R",))
+
+    def _assert_release_quiescent_pair(self, column, *, dispositions=("P", "R")):
+        api4 = fixture.load_slice4_api()
+        api, coverage, matrix, profile, overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        for disposition in dispositions:
+            result = fixture.run_serial_profile_binding(api4=api4, plan=plan,
+                profile_id="release-operations", column=column, disposition=disposition, quiescent=True)
+            try:
+                self.assertEqual(result.binding_lifecycle.state, "QUIESCED")
+                reader = result.release_operations_reader
+                self.assertTrue(reader.session_closed())
+                self.assertEqual(reader.active_readers(), 0)
+                observation = result.observe_current()
+                self.assertEqual(reader.active_readers(), 0)
+                factory = api.CoverageRecordFactory(execution_authority=result.authority, coverage_policy=coverage)
+                record = factory.issue_execution(observation, matrix=matrix, profile=profile, overlay=overlay)
+                factory.require_issued(record, matrix=matrix)
+                self.assertEqual(reader.active_readers(), 0)
+                with self.assertRaisesRegex(ValueError, "combined coverage gate was not consumed"):
+                    factory.finalize_after_gate(object())
+                fixture.abort_uncommitted_coverage_factory(factory)
+                self.assertEqual(result.binding_lifecycle.state, "PERMANENTLY_CLOSED")
+                self.assertEqual(reader.active_readers(), 0)
+                with self.assertRaises(ValueError):
+                    result.observe_current()
+            finally:
+                result.close()
+
+    def test_release_coverage_rejects_mixed_versions_selectors_and_nested_bindings(self):
+        from graph_engineering.core.contracts.immutable import freeze, thaw
+        api4 = fixture.load_slice4_api()
+        _api, _coverage, matrix, _profile, _overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        with fixture.serial_profile_binding(api4=api4, plan=plan, profile_id="release-operations",
+                column="normal", disposition="P") as result:
+            assessment = result.application.current_assessment(result.probe.task_id, expected_profile_id="release-operations")
+            attacks = [({"schema_version": "1.0.0", "release_operations_projection": None}, None),
+                ({"profile_id": "new-feature"}, None)]
+            for field in ("performance_evidence_projection", "migration_rehearsal_projection",
+                    "dependency_graph_projection", "scenario_truth_projection"):
+                attacks.append(({field: freeze({"foreign": True})}, None))
+            for field in ("task_id", "task_revision", "snapshot_digest", "invalidation_epoch",
+                    "column_id", "scenario_id", "graph_ref_pins"):
+                projection = thaw(assessment.release_operations_projection)
+                old = projection[field]
+                projection[field] = old + 1 if type(old) is int else {} if type(old) is dict else "foreign"
+                attacks.append(({"release_operations_projection": freeze(projection)}, None))
+            attacks.append(({}, {**dict(plan.binding(result.test_id)), "selector_kind": "scenario"}))
+            for changed, binding in attacks:
+                candidate = copy.copy(assessment)
+                for field, value in changed.items():
+                    object.__setattr__(candidate, field, value)
+                with self.subTest(changed=changed, selector=binding is not None), \
+                        mock.patch.object(result.application, "current_assessment", return_value=candidate):
+                    if binding is None:
+                        with self.assertRaises(ValueError):
+                            result.authority._completion_values(result.test_id, task_id=result.probe.task_id,
+                                expected_profile_id="release-operations")
+                    else:
+                        with mock.patch.object(result.authority, "_binding", return_value=binding), self.assertRaises(ValueError):
+                            result.authority._completion_values(result.test_id, task_id=result.probe.task_id,
+                                expected_profile_id="release-operations")
+
+    def test_release_rejection_reader_binds_physical_state_before_session_close(self):
+        from graph_engineering.application import release_operations as release
+        api4 = fixture.load_slice4_api()
+        _api, _coverage, matrix, _profile, _overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        with fixture.serial_profile_binding(api4=api4, plan=plan, profile_id="release-operations",
+                column="normal", disposition="R") as result:
+            factory = result.application._oracle._release_operations_factory
+            session = next(iter(factory._issued_sessions.values()))
+            coordinator = factory._session_coordinators[id(session)]
+            namespace = next(row[0] for row in release._RETAINED_NAMESPACES.values() if row[2] is coordinator)
+            path = session._root._root_path / session._root.names["state"]
+            close = type(session).close
+            changed = []
+            def replace_after_close(current):
+                close(current)
+                if current is session and not changed:
+                    path.write_bytes(b"malformed-after-execution")
+                    changed.append(True)
+            with mock.patch.object(type(session), "close", new=replace_after_close), self.assertRaisesRegex(
+                    ValueError, "physical state differs from issued execution"):
+                result.authority._seal_release_reader(result.execution, namespace)
+            self.assertTrue(changed)
+            self.assertEqual(namespace._record()[4].active_leases, 0)
+
+    def test_release_quiescent_reader_rejects_same_bytes_replacement_and_releases_sources(self):
+        from graph_engineering.core.profile_coverage import BindingLifecycleError
+        from tests.support.wp08_scenario_truth import PrivateBindingReopenPort
+        api4 = fixture.load_slice4_api()
+        _api, _coverage, matrix, _profile, _overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        for disposition in ("P", "R"):
+            result = fixture.run_serial_profile_binding(api4=api4, plan=plan, profile_id="release-operations",
+                column="normal", disposition=disposition, quiescent=True)
+            try:
+                reader = result.release_operations_reader
+                session = reader._context()["session"]
+                path = session._root._root_path / session._root.names["state"]
+                temporary = path.with_suffix(".replacement")
+                temporary.write_bytes(path.read_bytes())
+                temporary.chmod(0o600)
+                temporary.replace(path)
+                with self.assertRaises(BindingLifecycleError):
+                    result.observe_current()
+                self.assertEqual(reader.active_readers(), 0)
+                self.assertEqual(PrivateBindingReopenPort.active_handle_count(), 0)
+                self.assertEqual(PrivateBindingReopenPort.active_reopened_binding_count(), 0)
+
+            finally:
+                result.close()
+
+    def test_release_open_reader_rechecks_physical_fingerprint_within_phase(self):
+        api4 = fixture.load_slice4_api()
+        _api, _coverage, matrix, _profile, _overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        result = fixture.run_serial_profile_binding(api4=api4, plan=plan, profile_id="release-operations",
+            column="normal", disposition="P", quiescent=True)
+        root = result.release_operations_context
+        try:
+            reader = root.open()
+            handle = reader._context()["handle"]
+            owner = handle._record()[1].budget
+            session = reader._context()["session"]
+            path = session._root._root_path / session._root.names["state"]
+            temporary = path.with_suffix(".replacement")
+            temporary.write_bytes(path.read_bytes())
+            temporary.chmod(0o600)
+            temporary.replace(path)
+            with self.assertRaisesRegex(ValueError, "cold assessment sources changed since issuance"):
+                handle.query()
+            self.assertEqual(owner.retained_units, 0)
+            self.assertEqual(owner.retained_bytes, 0)
+            root.close_handle(reader)
+            self.assertEqual(reader.active_readers(), 0)
+        finally:
+            if root._stack is not None:
+                root.close_handle(result.release_operations_reader)
+            result.close()
+
+
+    def _assert_release_rejection_failure_cleanup(self, handle, namespace, budget, contexts, baseline):
+        self.assertTrue(handle.closed)
+        self.assertEqual((budget.retained_units, budget.retained_bytes), (0, 0))
+        self.assertEqual(tuple(c._temporary_units for c in contexts), baseline)
+        self.assertEqual(namespace._record()[4].active_leases, 0)
+
+    def _assert_release_rejection_bounded_failures(self, column):
+        from contextlib import ExitStack
+        from types import SimpleNamespace
+        from graph_engineering.core.contracts.errors import ContractError
+        from tests.integration.test_wp08_release_operations import WP08RetainedReleaseSessionTests
+        api4 = fixture.load_slice4_api()
+        _api, _coverage, matrix, _profile, _overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        result = fixture.run_serial_profile_binding(api4=api4, plan=plan, profile_id="release-operations",
+            column=column, disposition="R", quiescent=True)
+        root = result.release_operations_context
+        try:
+            for mode in ("sql-oversize", "cas-oversize", "second-overflow", "second-fault"):
+                with self.subTest(column=column, mode=mode):
+                    reader = root.open()
+                    handle = reader._context()["handle"]
+                    repository, objects, namespace = handle.repository, handle.objects, handle.namespace
+                    budget, context = handle.budget, handle.context
+                    contexts, baseline = budget.contexts, budget._baseline
+                    rows = lambda: WP08RetainedReleaseSessionTests._repository_rows(SimpleNamespace(repository=repository))
+                    physical = lambda: {p.name: p.read_bytes() for p in reader._context()["session"]._root._root_path.iterdir()}
+                    capture, calls = repository._read_release_rejection_sources, []
+                    original = None
+                    if mode == "sql-oversize":
+                        with repository._factory.open("application") as connection, connection.transaction():
+                            original = connection.execute("SELECT snapshot_json FROM tasks WHERE task_id=?", (handle.task_id,)).fetchone()[0]
+                            connection.execute("UPDATE tasks SET snapshot_json=? WHERE task_id=?",
+                                ("x" * (context.profile.limits["raw_document_bytes"] + 1), handle.task_id))
+                    elif mode == "cas-oversize":
+                        with repository._factory.open("doctor") as connection:
+                            digest = connection.execute("SELECT digest FROM object_references WHERE task_id=? ORDER BY digest LIMIT 1",
+                                (handle.task_id,)).fetchone()[0]
+                        path = objects._path(digest)
+                        original = path.read_bytes()
+                        path.write_bytes(b"x" * (context.profile.limits["raw_document_bytes"] + 1))
+                    before, target_before = rows(), physical()
+                    cas_before = {p: p.read_bytes() for p in objects._objects.rglob("*") if p.is_file()}
+                    def twice(task_id):
+                        calls.append((budget.retained_units, budget.retained_bytes))
+                        if len(calls) == 2:
+                            self.assertGreater(calls[1][1], calls[0][1])
+                            if mode == "second-fault":
+                                raise RuntimeError("injected second rejection capture failure")
+                            with budget.reserve(context, units=0,
+                                    byte_count=budget.byte_limit - budget.retained_bytes - 1, source_id="rejection-overflow-test"):
+                                return capture(task_id)
+                        return capture(task_id)
+                    task_id = handle.task_id
+                    try:
+                        with ExitStack() as guards:
+                            if mode.startswith("second-"):
+                                guards.enter_context(mock.patch.object(repository, "_read_release_rejection_sources", side_effect=twice))
+                            with self.assertRaises((ValueError, RuntimeError, ContractError)) as rejected:
+                                handle.query()
+                            if mode == "sql-oversize":
+                                self.assertIn("recovery SQL value or aggregate is over limit", str(rejected.exception))
+                            elif mode == "second-fault":
+                                self.assertEqual(str(rejected.exception), "injected second rejection capture failure")
+                            else:
+                                self.assertIsInstance(rejected.exception, ContractError)
+                                self.assertIn(rejected.exception.detail.code, {"E_LIMIT", "E_BUDGET"})
+                        if mode.startswith("second-"):
+                            self.assertEqual(len(calls), 2)
+                        self._assert_release_rejection_failure_cleanup(handle, namespace, budget, contexts, baseline)
+                        self.assertEqual(rows(), before)
+                        self.assertEqual(physical(), target_before)
+                        self.assertEqual({p: p.read_bytes() for p in objects._objects.rglob("*") if p.is_file()}, cas_before)
+                        self.assertEqual(result.execution.result, "EXPECTED_REJECTION")
+                    finally:
+                        if mode == "sql-oversize":
+                            with repository._factory.open("application") as connection, connection.transaction():
+                                connection.execute("UPDATE tasks SET snapshot_json=? WHERE task_id=?", (original, task_id))
+                        elif mode == "cas-oversize":
+                            path.write_bytes(original)
+                        root.close_handle(reader)
+                        self.assertEqual(reader.active_readers(), 0)
+        finally:
+            if root._stack is not None:
+                root.close_handle(result.release_operations_reader)
+            result.close()
+
+    def test_release_normal_rejection_shared_bounds_and_double_capture_cleanup(self):
+        self._assert_release_rejection_bounded_failures("normal")
+
+    def test_release_real_rejection_shared_bounds_and_double_capture_cleanup(self):
+        self._assert_release_rejection_bounded_failures("real-e2e")
+
+    def test_release_real_rejection_rechecks_pending_action_and_revocation(self):
+        import json
+        from types import SimpleNamespace
+        from graph_engineering.storage.codec import canonical_json, semantic_record_digest
+        from graph_engineering.application import release_operations as release
+        from tests.integration.test_wp08_release_operations import WP08RetainedReleaseSessionTests
+        from tests.support.wp08_scenario_truth import PrivateBindingReopenPort
+        api4 = fixture.load_slice4_api()
+        _api, _coverage, matrix, _profile, _overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        result = fixture.run_serial_profile_binding(api4=api4, plan=plan, profile_id="release-operations",
+            column="real-e2e", disposition="R", quiescent=True)
+        root = result.release_operations_context
+        try:
+            for mode in ("journal", "prepared", "authority", "revocation", "claim", "recovery", "assessment"):
+                with self.subTest(mode=mode):
+                    reader = root.open()
+                    handle = reader._context()["handle"]
+                    repository, namespace = handle.repository, handle.namespace
+                    budget, contexts = handle.budget, handle.budget.contexts
+                    task_id, action_id = handle.task_id, handle.action_id
+                    database = repository._factory._database
+                    source = reader._context()["session"]._root
+                    physical = {p.name: p.read_bytes() for p in source._root_path.iterdir()}
+                    with repository._factory.open("application") as connection, connection.transaction():
+                        journal = connection.execute("SELECT state,prepared_digest,authority_digest FROM action_journal WHERE action_id=?", (action_id,)).fetchone()
+                        security = connection.execute("SELECT state_json,state_digest FROM task_security_states WHERE task_id=?", (task_id,)).fetchone()
+                        snapshot_row = connection.execute("SELECT snapshot_json,snapshot_digest FROM tasks WHERE task_id=?", (task_id,)).fetchone()
+                        if mode == "journal":
+                            connection.execute("UPDATE action_journal SET state='executing' WHERE action_id=?", (action_id,))
+                        elif mode in {"prepared", "authority"}:
+                            connection.execute("UPDATE action_journal SET " + mode + "_digest=? WHERE action_id=?", ("sha256-jcs-v1:" + "0" * 64, action_id))
+                        elif mode == "revocation":
+                            state = json.loads(security[0])
+                            state["authority_digests"] = []
+                            connection.execute("UPDATE task_security_states SET state_json=?,state_digest=? WHERE task_id=?",
+                                (canonical_json(state), semantic_record_digest({"contract": "task-security-state-v1", "value": state}), task_id))
+                        elif mode in {"claim", "recovery"}:
+                            lease_id = connection.execute("SELECT lease_id FROM leases LIMIT 1").fetchone()[0]
+                            connection.execute("INSERT INTO claims(claim_id,action_id,task_id,lease_id,started_event_digest,state) VALUES(?,?,?,?,?,'unresolved')",
+                                ("claim:injected", action_id if mode == "claim" else "unrelated-action", task_id, lease_id, "injected-event"))
+                            if mode == "recovery":
+                                connection.execute("INSERT INTO claim_recovery_attempts(attempt_id,claim_id,protocol_version,task_id,original_action_id,original_started_event_digest,compensation_action_id,compensation_authority_digest,compensation_prepared_digest,lease_id,resources_json,fencing_tokens_json,target_id,target_digest,baseline_digest,snapshot_digest,disclosure_plan_digest,state,revision,start_event_digest) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'started',1,?)",
+                                    ("injected-recovery", "claim:injected", "1.0.0", task_id, action_id, "event", "compensation", "authority", "prepared", lease_id, "[]", "{}", "target", "digest", "baseline", "snapshot", "disclosure", "start"))
+                        elif mode == "assessment":
+                            snapshot = json.loads(snapshot_row[0])
+                            reference = {"evidence_id": "sha256-jcs-v1:" + "0" * 64,
+                                "evidence_type": "category-completion-assessment",
+                                "source_ref": "sha256:" + "0" * 64,
+                                "digest": "sha256-jcs-v1:" + "0" * 64, "trust": "factory-attested"}
+                            snapshot["domain"]["evidence"].append(reference)
+                            connection.execute("UPDATE tasks SET snapshot_json=?,snapshot_digest=? WHERE task_id=?",
+                                (canonical_json(snapshot), semantic_record_digest({"contract": "repository-snapshot-v1", "value": snapshot}), task_id))
+                    rows = lambda: WP08RetainedReleaseSessionTests._repository_rows(SimpleNamespace(repository=repository))
+                    before = rows()
+                    cas_root = handle.objects._objects
+                    cas_before = {p: p.read_bytes() for p in cas_root.rglob("*") if p.is_file()}
+                    expected = {
+                        "journal": "release rejection acquired a claim or changed journal state",
+                        "prepared": "rejected predecessor identity changed",
+                        "authority": "rejected predecessor identity changed",
+                        "revocation": "rejected action authority differs from current owner",
+                        "claim": "release rejection acquired a claim or changed journal state",
+                        "recovery": "release rejection acquired a claim or changed journal state",
+                        "assessment": "rejected release source has a successful assessment",
+                    }[mode]
+                    try:
+                        with self.assertRaises((ValueError, RuntimeError)) as rejected:
+                            handle.query()
+                        WP08RetainedReleaseSessionTests._assert_cold_semantic_rejection(self, rejected.exception, expected)
+                        self._assert_release_rejection_failure_cleanup(handle, namespace, budget, contexts, budget._baseline)
+                        self.assertEqual(rows(), before)
+                        self.assertEqual({p.name: p.read_bytes() for p in source._root_path.iterdir()}, physical)
+                        self.assertEqual(source.mutation_count, 0)
+                        root.close_handle(reader)
+                        # The same durable fault must also be rejected at the
+                        # first capture of a completely fresh source phase.
+                        fresh, original_start = [], release._RejectedReleaseReadScope.start
+                        def capture_start(scope):
+                            fresh.append((scope, scope.namespace._record()[4], scope.budget, scope.budget.contexts, scope.budget._baseline))
+                            return original_start(scope)
+                        with mock.patch.object(release._RejectedReleaseReadScope, "start", new=capture_start), \
+                                self.assertRaises((ValueError, RuntimeError)) as reopened:
+                            root.open()
+                        WP08RetainedReleaseSessionTests._assert_cold_semantic_rejection(self, reopened.exception, expected)
+                        self.assertEqual(len(fresh), 1)
+                        fresh_scope, fresh_native, fresh_budget, fresh_contexts, baseline = fresh[0]
+                        self.assertTrue(fresh_scope.closed)
+                        self.assertEqual((fresh_budget.retained_units, fresh_budget.retained_bytes), (0, 0))
+                        self.assertEqual(tuple(c._temporary_units for c in fresh_contexts), baseline)
+                        self.assertFalse(fresh_native._active)
+                        self.assertTrue(fresh_native._closed)
+                        # root.open() closes the namespace itself on failure.
+                        self.assertTrue(root._resources is None and root._stack is None)
+                        import sqlite3
+                        with sqlite3.connect(database) as connection:
+                            names = connection.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
+                            after = tuple((name, tuple(connection.execute('SELECT * FROM "' + name.replace('"', '""') + '"').fetchall())) for name, in names)
+                        self.assertEqual(after, before)
+                        self.assertEqual({p: p.read_bytes() for p in cas_root.rglob("*") if p.is_file()}, cas_before)
+                        self.assertEqual({p.name: p.read_bytes() for p in source._root_path.iterdir()}, physical)
+                        self.assertEqual(reader.active_readers(), 0)
+                        self.assertEqual(PrivateBindingReopenPort.active_handle_count(), 0)
+                        self.assertEqual(PrivateBindingReopenPort.active_reopened_binding_count(), 0)
+                    finally:
+                        # Restore only controlled fault rows using a fresh test
+                        # connection; the failed production reader stays closed.
+                        import sqlite3
+                        with sqlite3.connect(database) as connection:
+                            connection.execute("UPDATE action_journal SET state=?,prepared_digest=?,authority_digest=? WHERE action_id=?", (*journal, action_id))
+                            connection.execute("UPDATE task_security_states SET state_json=?,state_digest=? WHERE task_id=?", (*security, task_id))
+                            connection.execute("DELETE FROM claim_recovery_attempts WHERE attempt_id='injected-recovery'")
+                            connection.execute("DELETE FROM claims WHERE claim_id='claim:injected'")
+                            if mode == "assessment":
+                                connection.execute("UPDATE tasks SET snapshot_json=?,snapshot_digest=? WHERE task_id=?", (*snapshot_row, task_id))
+            self.assertEqual(result.execution.result, "EXPECTED_REJECTION")
+        finally:
+            if root._stack is not None:
+                root.close_handle(result.release_operations_reader)
+            result.close()
+
     @staticmethod
     def _profile_contracts(
         profile_id: str = "new-feature",
@@ -306,8 +759,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 244)
-                self.assertEqual(len(plan.oracle_bindings), 122)
+                self.assertEqual(len(plan.bindings), 268)
+                self.assertEqual(len(plan.oracle_bindings), 134)
                 self.assertIn(
                     "dependency-graph-scenarios-r1",
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -323,8 +776,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 244)
-                self.assertEqual(len(plan.oracle_bindings), 122)
+                self.assertEqual(len(plan.bindings), 268)
+                self.assertEqual(len(plan.oracle_bindings), 134)
                 self.assertIn(
                     fixture.MIGRATION_SCENARIOS_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -346,8 +799,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 244)
-                self.assertEqual(len(plan.oracle_bindings), 122)
+                self.assertEqual(len(plan.bindings), 268)
+                self.assertEqual(len(plan.oracle_bindings), 134)
                 self.assertIn(
                     fixture.VULNERABLE_GRAPH_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -367,8 +820,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 244)
-                self.assertEqual(len(plan.oracle_bindings), 122)
+                self.assertEqual(len(plan.bindings), 268)
+                self.assertEqual(len(plan.oracle_bindings), 134)
                 self.assertIn(
                     fixture.STABLE_BASELINE_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -432,7 +885,7 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     plan.binding(test_id)["task_id"]
                     for test_id in sorted(plan.bindings)
                 )
-                self.assertEqual(len(task_ids), 244)
+                self.assertEqual(len(task_ids), 268)
                 self.assertEqual(len(task_ids), len(set(task_ids)))
                 for test_id, task_id in zip(
                     sorted(plan.bindings), task_ids, strict=True,
@@ -2669,8 +3122,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 244)
-                self.assertEqual(len(plan.oracle_bindings), 122)
+                self.assertEqual(len(plan.bindings), 268)
+                self.assertEqual(len(plan.oracle_bindings), 134)
                 self.assertIn(
                     fixture.VULNERABLE_GRAPH_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,

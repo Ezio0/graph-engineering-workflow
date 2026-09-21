@@ -2304,3 +2304,67 @@ P2a receipt remains bound to its committed source, not the new working tree.
   reviewers consume exact source manifests and measured bounded results. Any
   unresolved finding keeps all eight current sub-batch bindings missing and
   routes to the reducer/Human as required.
+
+### P3 mandatory24 verification — 2026-09-21
+
+Scope is the [mandatory24 Plan](../plans/2026-08-13-graph-engineering-workflow.md#p3-mandatory24-bounded-implementation-plan--2026-09-21)
+and [Spec](../specs/graph-engineering-workflow.md#p3-mandatory24-bounded-contract--2026-09-21),
+within the approved PRD and Positioning. Every CUJ below is required. There is no
+new percentage threshold: acceptance is exact behavior and evidence closure.
+Template test counts, pyramids and millisecond examples do not override the
+approved serial <=600s native / <=300s canonical per-command budgets.
+
+| CUJ | Required positive behavior | Required rejection / invalidation |
+|---|---|---|
+| M24-C1, columns normal/boundary/revise/authority/drift/invalidation/artifacts/review/target | Each independent P commits one current release 1.4 assessment and restores from fresh-process captured sources with exact column joins. | Missing, duplicate, wrong-shape or coherent re-signed foreign controls; wrong selector/pins/revision/epoch; wrong body/review lineage, authority, budget, output/artifact set or target must reject with zero restore writes. |
+| M24-C2, recovery/rollback | Partial apply is queried, authorized compensation restores exact A with fresh health; recovery proof is task-bound; rollback assessment is PASS/action-coordinator; cold reconstruction is read-only. | Wrong original/restore claim, authority, receipt, generation, mapping, incomplete A or health; generic recovered label alone; second restore or replay; generic NOT_REQUESTED digest used for rollback. |
+| M24-C3, real-e2e | Actual local simulator apply/query/health with P mutation delta=1 and sealed task-bound facts. | Actual stale generation/artifact request rejects before apply, delta=0; Git authority, caller PASS, test doubles, forged/cloned/foreign seals and stale predecessor rejected. Post-write faults cannot count as zero-write R. |
+| M24-C4, all 24 bindings | Unique task/request/execution/observation/record/root; exact installed plan and independent oracle; issue/use/precommit/reopen verification is current. | Mixed 1.0–1.3 projections in 1.4, foreign profile/column/scenario/task/CAS, stale release state or resource pins; R must have no successful assessment. |
+| M24-C5, lifecycle | Actual revoke/abort and quiescent reopen, with source owners released within the existing teardown bound; finalize remains denied without the exact consumed combined-gate decision. | Reuse after revoke/abort, partial or forged finalize decisions, deleted/replaced/symlinked or swapped retained roots, leaked handles and borrowed identities. |
+| M24-C6, compatibility | Normal RS-C cold behavior, complete artifact provenance, shared budgets, two captures, installation/package closure and affected prior profile behavior remain valid. | Oversized/deep/multiplied candidates, escaped rereads, cross-capture changes, coherent re-signing, fixture-as-wheel substitution, old schema/Support Matrix/threshold mutation. |
+| M24-C7, configuration | Exact 268 bindings / 134 oracles with 24 distinct new mandatory IDs and twelve independent oracle members. | Missing/extra/duplicate IDs, scenario registrations, static PASS or a configuration-only claim of cumulative dynamic acceptance. |
+
+Testing layers and ownership:
+
+- Unit tests cover pure captured column reconstruction and exact shape/type/digest
+  joins at the lowest effective layer, using real validators and synthetic
+  controlled bytes. They do not mock the validator under test.
+- Integration tests use real TaskApplication, repository/CAS, runner provenance,
+  retained namespace, ActionCoordinator and release factory. Fresh-process tests
+  destroy the live issuer context; cold reads must show zero task/event/snapshot/
+  object/ref/action/target/input writes and zero apply/restore replay.
+- Local real-E2E tests execute the existing simulator adapter in fresh private
+  roots. No Git substitution or mocked simulator success. Negative tests observe
+  actual rejection and mutation counters. Network/DNS/socket/proxy use stays zero.
+- Focused compatibility tests exercise affected category/coverage consumers and
+  package/source authority. Existing exhaustive RS-C tests are rerun only where
+  changed inputs invalidate their evidence. No new tests merely mirror prose.
+
+Fixtures contain synthetic IDs and installation-pinned artifact bytes, no real
+PII or credentials. Each binding owns its root, task and mutable authority;
+cleanup closes owners and releases all handles. Never parallelize mutable
+executions. External services are absent, not mocked into a release-success
+claim. Local/native execution is the verification environment; CI may replay the
+same portable tests. Staging/production/canary/monitoring are not authorized.
+
+TDD sequence is a failing behavior test before the implementation that satisfies
+it. Selectors are recorded exactly, run serially and stop at first failure;
+failures/timeouts/skips cannot be accepted as PASS. Freeze the actual method
+inventory for canonical evidence after implementation, respecting 300s per
+command and current Policy freshness. Each row's P/R result and changed-input
+regressions must be present before independent verification review. These are
+bounded per-binding results, not a combined 268/274 execution. Successful combined
+finalization and its subsequent finalized-state reuse checks for real combined
+candidates remain deferred to separately authorized cumulative verification.
+For the new real bounded candidates, assert no combined decision, rejected
+finalize and exact-capability abort. Separately run the existing synthetic
+test_consumed_cumulative_gate_finalizes_instead_of_aborting unit regression to
+verify the helper routes a consumed decision to finalize, not abort. Its double
+is helper-level evidence only; it neither runs a cumulative workload nor proves
+real release acceptance or real post-gate currentness.
+
+Security, integrity, recovery and backward compatibility are in scope through
+these CUJs. Performance workloads and thresholds, accessibility, real production
+release and cumulative acceptance are excluded by authority. No unresolved test
+decision remains; newly discovered contract ambiguity returns to the design
+review node, while routine test corrections remain in this bounded graph.

@@ -973,6 +973,7 @@ def production_category_runtime(
     cold_release_factory: object | None = None,
     intent_baseline: str | None = None,
     committed_rollback_action_id: str | None = None,
+    committed_rollback_claim_status: str = "reconciled_effect_verified",
 ):  # type: ignore[no-untyped-def]
     """Build the exact production TaskApplication/TaskRepository authority chain."""
 
@@ -1221,17 +1222,21 @@ def production_category_runtime(
         }
         if committed_rollback_action_id is not None:
             durable_sources["rollback_facts"] = {"action-id": committed_rollback_action_id,
-                "action-status": "reconciled", "claim-status": "reconciled_effect_verified"}
+                "action-status": "reconciled", "claim-status": committed_rollback_claim_status}
         real_e2e_record = None
         if real_e2e_authority is not None:
             from graph_engineering.application.profile_real_e2e import (
                 ProfileRealE2EAuthority,
                 ProfileRealE2EObserver,
             )
+            from graph_engineering.application.release_operations import (
+                _ReleaseCategoryAuthority, _ReleaseCategoryObserver,
+            )
 
             if (
-                type(real_e2e_authority) is not ProfileRealE2EAuthority
-                or type(target) is not ProfileRealE2EObserver
+                (type(real_e2e_authority), type(target)) not in (
+                    (ProfileRealE2EAuthority, ProfileRealE2EObserver),
+                    (_ReleaseCategoryAuthority, _ReleaseCategoryObserver))
                 or target._authority is not real_e2e_authority
             ):
                 raise AssertionError("real-E2E fixture authority is foreign")

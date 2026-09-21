@@ -2240,5 +2240,29 @@
       },
       "boundary": "185 product/195 effective allowed targets unchanged. Candidate selection may exclude unchanged paths within original42, with unchanged bytes retained as reviewed dependencies. No expansion."
     }
+  ],
+  "p3_restart_cold_source_retrospectives": [
+    {
+      "cli_exit_code": 0,
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "retro",
+        "decision": "COMPLETE",
+        "code": "OK_COMPLETE",
+        "message": "delivery graph is complete",
+        "next_node": null,
+        "revision": 0,
+        "human_required": false,
+        "current_node": "retro",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:105758c818b8a3a1b68eca77c7b451cb796b117e6fe0ef99a0b1aef3a9caedb7",
+          "state": "sha256:5f2c154573fa497986dd346f55d2769f280d7bf17d75e34449bafdff30f8ec0b",
+          "verdict": "sha256:a02984a358eeb2c934c7e08223854a4db281cdfd9e27f26a17242f90c44342f4"
+        }
+      },
+      "stderr": ""
+    }
   ]
 }

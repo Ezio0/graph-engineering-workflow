@@ -14,7 +14,7 @@
   "profile_schema_registry_digest": "sha256-jcs-v1:913235899306d64a4bc8eff96b3a4bbddd61ec6a7e57b8dfdaafe98041c81f76",
   "profile_schema_registry_id": "urn:gew:schema-registry:profiles:1.0.0",
   "profile_schema_registry_raw_sha256": "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd",
-  "protected_closure_digest": "sha256-jcs-v1:6d000e3dcd371607421ecfeb89c7b6e4138e8edf6594962ced159857de9076d4",
+  "protected_closure_digest": "sha256-jcs-v1:f3164d4d42a6da7b23e1da5fc35dc1b65160ac3bebde89dbd452d057ebe568b7",
   "protected_resources": [
     {
       "raw_sha256": "049000ebc8355e092f960cfeca817223d835c59567b710d0c1eacc56084c0276",
@@ -22,12 +22,12 @@
       "source": "application/graph_engineering/application/migration_rehearsal.py"
     },
     {
-      "raw_sha256": "dbdc3576814816c25839c0c3261e0aad9a4706a4851c943daae9e618a83db37e",
+      "raw_sha256": "ff88c598e8d7e6964fa1dd9d90caeb22935cb499c43ee6b6b47bba982fa34101",
       "resource": "graph_engineering/application/profile_execution.py",
       "source": "application/graph_engineering/application/profile_execution.py"
     },
     {
-      "raw_sha256": "013f5019abe5eb638eae78c7d24b4acd51567af8b59d91a86a6fe4fa6f1fe282",
+      "raw_sha256": "957084e513d329c83f39070e1017c281d4c5ab1d17411c2d01f82e93c755efb8",
       "resource": "graph_engineering/__init__.py",
       "source": "core/graph_engineering/__init__.py"
     },
@@ -126,5 +126,5 @@
   "transform_manifest_digest": "sha256-jcs-v1:e5305adc1012d26464ebca7a05f1570e3f13c0b3e8e1ef061d120b17203b16c4",
   "transform_manifest_id": "migration-rehearsal-transform-manifest-v1",
   "transform_raw_sha256": "0b68dc63f71cec61ebe014e50ce161b68b129448021d18faa0e4548577a60d6f",
-  "bootstrap_digest": "sha256-jcs-v1:8d4032f69eeed230907248e3f510a555bee45ac17473a948722182767b00bc04"
+  "bootstrap_digest": "sha256-jcs-v1:d9177cace72e6d1de0c687c5d36b433ce97fb65e2a5d85e152c9f59f25bf3579"
 }

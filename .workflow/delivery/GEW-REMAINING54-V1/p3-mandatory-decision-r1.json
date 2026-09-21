@@ -1,0 +1,120 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-REMAINING54-V1",
+  "record_family": "p3-mandatory24",
+  "nodes": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "artifact": "spec",
+      "decision": "ADVANCE",
+      "code": "OK_ADVANCE",
+      "message": "artifact passed independent review",
+      "next_node": "impact",
+      "revision": 0,
+      "human_required": false,
+      "current_node": "spec",
+      "input_verdict": "PASS",
+      "input_digests": {
+        "envelope": "sha256:53238fa1fba0d3b51473c0d4d9fde4113c6ea5e05937d867c0a7517970b7133f",
+        "state": "sha256:fd6fc2d173d65c344a90d3a9ab4c8d84389cd85293c773f03d1a657b017e3da0",
+        "verdict": "sha256:8031390aa07fcbbe4a8ef0e1865b392bd0eeb630ad6e97e853e60ee073c5a74a"
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "artifact": "impact",
+      "decision": "ADVANCE",
+      "code": "OK_ADVANCE",
+      "message": "artifact passed independent review",
+      "next_node": "plan",
+      "revision": 0,
+      "human_required": false,
+      "current_node": "impact",
+      "input_verdict": "PASS",
+      "input_digests": {
+        "envelope": "sha256:53238fa1fba0d3b51473c0d4d9fde4113c6ea5e05937d867c0a7517970b7133f",
+        "state": "sha256:9b4354cfdd820761b03acf0e950ca1a0aa8e8e777feaeaf7569e8c6b4c615f94",
+        "verdict": "sha256:29752fa376dd7e589ff914f71da3c67703801b2d199a4b21327c5374442821bc"
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "artifact": "plan",
+      "decision": "REVISE",
+      "code": "OK_REVISE",
+      "message": "apply routine findings and request a new independent review",
+      "next_node": "plan",
+      "revision": 1,
+      "human_required": false,
+      "current_node": "plan",
+      "input_verdict": "REVISE",
+      "input_digests": {
+        "envelope": "sha256:53238fa1fba0d3b51473c0d4d9fde4113c6ea5e05937d867c0a7517970b7133f",
+        "state": "sha256:d88e8f8d3ff5deed45f6aafb8f7c638e5d92f76fde9d57fd87917b8dca8f6dfe",
+        "verdict": "sha256:364c09a3fc66e42ca4c378a13c078e56c4ab4f366e574f239035aa6eb371609a"
+      }
+    },
+    {
+      "decision": "INVALID",
+      "code": "E_FINDINGS",
+      "message": "PASS cannot contain unresolved findings"
+    },
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "artifact": "plan",
+      "decision": "ADVANCE",
+      "code": "OK_ADVANCE",
+      "message": "artifact passed independent review",
+      "next_node": "test-plan",
+      "revision": 1,
+      "human_required": false,
+      "current_node": "plan",
+      "input_verdict": "PASS",
+      "input_digests": {
+        "envelope": "sha256:53238fa1fba0d3b51473c0d4d9fde4113c6ea5e05937d867c0a7517970b7133f",
+        "state": "sha256:8166b55febe8ed47f48a62df5d4c9f7167d821b2434337044ae82c3156cbf24f",
+        "verdict": "sha256:42db5b6df1b85c81caca685e475f6e39c9f0c1b5e7403606220494b2690e7aea"
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "artifact": "test_plan",
+      "decision": "ADVANCE",
+      "code": "OK_ADVANCE",
+      "message": "artifact passed independent review",
+      "next_node": "implementation",
+      "revision": 0,
+      "human_required": false,
+      "current_node": "test-plan",
+      "input_verdict": "PASS",
+      "input_digests": {
+        "envelope": "sha256:53238fa1fba0d3b51473c0d4d9fde4113c6ea5e05937d867c0a7517970b7133f",
+        "state": "sha256:f4dc5535fbcfc400c43a6730d743aed38dbb644a06a6854949d8460cc9cedde3",
+        "verdict": "sha256:5a2ac3b4c4bedd7a0eefd93ad0d13793a1eac87d1ce1e91f3928fa2001ce8914"
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "artifact": "implementation",
+      "decision": "ADVANCE",
+      "code": "OK_ADVANCE",
+      "message": "artifact passed independent review",
+      "next_node": "verification",
+      "revision": 0,
+      "human_required": false,
+      "current_node": "implementation",
+      "input_verdict": "PASS",
+      "input_digests": {
+        "envelope": "sha256:53238fa1fba0d3b51473c0d4d9fde4113c6ea5e05937d867c0a7517970b7133f",
+        "state": "sha256:2d88135428c0758cecba5213c1e50b0c45180cf2db8572e7815deb9847fe5671",
+        "verdict": "sha256:88c9f5edc4900da3b2ae67ae5f4b53c8a35d49507774ab2576b97d46bd09843f"
+      }
+    }
+  ]
+}

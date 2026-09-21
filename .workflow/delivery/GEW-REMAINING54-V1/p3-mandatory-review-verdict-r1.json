@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-REMAINING54-V1",
+  "record_family": "p3-mandatory24",
+  "nodes": [
+    {
+      "schema_version": "1.0",
+      "verdict": "PASS",
+      "artifact": "spec",
+      "scope_changed": false,
+      "change_kinds": [],
+      "findings": []
+    },
+    {
+      "schema_version": "1.0",
+      "verdict": "PASS",
+      "artifact": "impact",
+      "scope_changed": false,
+      "change_kinds": [],
+      "findings": []
+    },
+    {
+      "schema_version": "1.0",
+      "verdict": "REVISE",
+      "artifact": "plan",
+      "scope_changed": false,
+      "change_kinds": [],
+      "findings": [
+        {
+          "id": "M24-PLAN-001",
+          "severity": "blocking",
+          "evidence": "Plan M24-05 requires executing the 24 bounded bindings and verifying revoke/abort/finalization without a cumulative gate, but does not distinguish the permitted terminal paths. core/graph_engineering/core/profiles.py:2621 requires the exact combined-gate-consumed decision for successful finalize_after_gate; a partial candidate cannot obtain that decision. Existing tests/support/wp08_release_coverage.py separates abort_uncommitted_coverage_factory from finalize_consumed_coverage_factory.",
+          "required_change": "Make M24-05 acceptance explicit: bounded real mandatory24 candidates must reject finalization before gate consumption, then close through the exact-capability abort path. Verify successful post-gate finalization separately through an existing bounded synthetic lifecycle regression, without executing cumulative or performance workloads or treating synthetic evidence as release coverage acceptance.",
+          "verification": "The revised Plan identifies both terminal paths and their evidence boundaries, requires zero gate decision for the real partial candidates, and keeps cumulative execution excluded. Independent review can map each acceptance clause to the existing lifecycle guards and focused regression mechanism.",
+          "status": "open"
+        }
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "verdict": "PASS",
+      "artifact": "plan",
+      "scope_changed": false,
+      "change_kinds": [],
+      "findings": [
+        {
+          "id": "M24-PLAN-001",
+          "severity": "blocking",
+          "evidence": "Revised M24-05 explicitly requires real bounded candidates to reject finalization without a consumed combined-gate decision and then use exact-capability abort. Post-gate finalization routing is separately checked by the existing synthetic helper regression, explicitly excluded from real release coverage acceptance. Revision 1 bytes match sha256:6bbd3644583d25e811587ee1338c9f9ed4b1175fa21db5b9ea403ec8c5157f6d; upstream Spec/Impact bindings and the prior REVISE decision remain intact.",
+          "required_change": "None; the requested lifecycle and evidence boundary clarification is complete.",
+          "verification": "Read-only inspection confirms both terminal paths match the existing lifecycle guards and helper regression at tests/unit/test_wp08_scenario_truth.py:504. Cumulative and performance execution remain excluded. No tests were run.",
+          "status": "resolved"
+        }
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "verdict": "PASS",
+      "artifact": "plan",
+      "scope_changed": false,
+      "change_kinds": [],
+      "findings": [
+        {
+          "id": "M24-PLAN-001",
+          "severity": "blocking",
+          "evidence": "Revised M24-05 explicitly requires real bounded candidates to reject finalization without a consumed combined-gate decision and then use exact-capability abort. Post-gate finalization routing is separately checked by the existing synthetic helper regression, explicitly excluded from real release coverage acceptance. Revision 1 bytes match sha256:6bbd3644583d25e811587ee1338c9f9ed4b1175fa21db5b9ea403ec8c5157f6d; upstream Spec/Impact bindings and the prior REVISE decision remain intact.",
+          "required_change": "None; the requested lifecycle and evidence boundary clarification is complete.",
+          "verification": "Read-only inspection confirms both terminal paths match the existing lifecycle guards and helper regression at tests/unit/test_wp08_scenario_truth.py:504. Cumulative and performance execution remain excluded. No tests were run.",
+          "status": "resolved"
+        }
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "verdict": "PASS",
+      "artifact": "test_plan",
+      "scope_changed": false,
+      "change_kinds": [],
+      "findings": []
+    },
+    {
+      "schema_version": "1.0",
+      "verdict": "PASS",
+      "artifact": "implementation",
+      "scope_changed": false,
+      "change_kinds": [],
+      "findings": []
+    }
+  ]
+}

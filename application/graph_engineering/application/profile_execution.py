@@ -242,9 +242,15 @@ def _cold_control_candidate(body, context, budget, *, source_id):
         del value
 
 
+_COLD_RELEASE_COLUMN_IDS = frozenset({
+    "normal", "boundary", "revise", "authority", "drift", "invalidation",
+    "artifacts", "review", "target", "recovery", "rollback", "real-e2e",
+})
+
+
 def _validate_cold_category_sources(
     *, capture, task_application, runtime, policy, contracts, schemas, context,
-    action_target, action_baselines,
+    action_target, action_baselines, action_provenance=None,
 ):
     """Join captured task/body/review facts without issuing live acceptance."""
     from contextlib import ExitStack
@@ -262,6 +268,14 @@ def _validate_cold_category_sources(
     owned = budget._projections.get(id(capture))
     if owned is None or owned[0] is not capture:
         raise CategoryExecutionError("cold category source capture is not owned")
+    control_common_fields = {"schema_version", "record_kind", "record_digest",
+        "task_id", "profile_id", "task_revision", "snapshot_digest", "invalidation_epoch"}
+    control_fields = {
+        "category-revision-record-v1": control_common_fields
+            | {"budget_remaining", "current_body_digest", "previous_body_digest", "owner_route"},
+        "category-drift-record-v1": control_common_fields | {"target_id", "target_digest", "status"},
+        "category-recovery-record-v1": control_common_fields | {"recovery_id", "status"},
+    }
     def digest(value: object, name: str, *, internal: bool=False) -> str:
         size = canonical_byte_length(value) + len(name) + 256
         with budget.reserve(context, units=8 * size, byte_count=4 * size,
@@ -296,7 +310,13 @@ def _validate_cold_category_sources(
                     and set(value) == {"schema_version", "record_kind", "task_id", "profile_id", "target_id",
                         "resource_id", "expected_state", "rollback_state", "record_digest"}
                     or value.get("record_kind") == "category-column-evidence-v1"
-                    and value.get("column_id") == "normal" and set(value) == CategoryFactsAuthority._EVIDENCE_FIELDS)
+                    and type(value.get("column_id")) is str
+                    and value.get("column_id") in _COLD_RELEASE_COLUMN_IDS
+                    and set(value) == CategoryFactsAuthority._EVIDENCE_FIELDS
+                    or type(value.get("record_kind")) is str
+                    and value.get("record_kind") in control_fields
+                    and value.get("profile_id") == policy.profile_id
+                    and set(value) == control_fields[value["record_kind"]])
                 if ref == assessment_ref or manifest or category or same_task and set(value) == RECORD_FIELDS:
                     # Parsing needs overlapping input/token buffers only until
                     # this context exits. Retain the actual parsed JSON graph,
@@ -308,13 +328,16 @@ def _validate_cold_category_sources(
         assessment = documents.get(assessment_ref)
         if (type(assessment) is not dict or set(assessment) != CategoryCompletionOracle._RELEASE_SOURCE_FIELDS
                 or assessment.get("schema_version") != "1.4.0" or assessment.get("profile_id") != "release-operations"
-                or assessment.get("column_id") != "normal" or assessment.get("status") != "PASS"
+                or type(assessment.get("column_id")) is not str
+                or assessment.get("column_id") not in _COLD_RELEASE_COLUMN_IDS
+                or assessment.get("column_id") not in policy.column_ids or assessment.get("status") != "PASS"
                 or assessment.get("task_id") != budget.task_id
                 or assessment.get("assessment_digest") != capture["assessment_ref"]["digest"]
                 or assessment["assessment_digest"] != digest(
                     {key: value for key, value in assessment.items() if key != "assessment_digest"},
                     "category-completion-assessment")):
             raise CategoryExecutionError("cold category assessment is unsupported or changed")
+        column = assessment["column_id"]
         if (assessment["scenario_id"] not in policy.category_boundary_case_ids
                 or not assessment["scenario_id"].endswith("-P")):
             raise CategoryExecutionError("category boundary scenario is not an approved PASS member")
@@ -415,8 +438,8 @@ def _validate_cold_category_sources(
                         if (record["record_digest"] != assessment["column_evidence_digest"]
                                 or any(record[key] != assessment[key] or type(record[key]) is not type(assessment[key])
                                     for key in ("task_id", "task_revision", "snapshot_digest", "invalidation_epoch", "profile_id", "column_id"))
-                                or record["evidence_kind"] != policy.transition_rules["normal"]["evidence_kind"]
-                                or record["outcome"] != policy.transition_rules["normal"]["required_outcome"]):
+                                or record["evidence_kind"] != policy.transition_rules[column]["evidence_kind"]
+                                or record["outcome"] != policy.transition_rules[column]["required_outcome"]):
                             continue
                     result.append((ref, record))
             return result
@@ -433,7 +456,7 @@ def _validate_cold_category_sources(
                 or not _text(target["resource_id"], "cold resource ID")):
             raise CategoryExecutionError("cold target contract binding changed")
         selector = {"schema_version": "1.0.0", "request_id": assessment["request_id"],
-            "task_id": budget.task_id, "column_id": "normal", "scenario_id": assessment["scenario_id"],
+            "task_id": budget.task_id, "column_id": column, "scenario_id": assessment["scenario_id"],
             "target_id": target["target_id"]}
         if digest(_category_selector(selector), "category-assessment-selector", internal=True) != assessment["request_digest"]:
             raise CategoryExecutionError("cold assessment selector digest changed")
@@ -519,21 +542,148 @@ def _validate_cold_category_sources(
         if digest(review_value, "category-independent-review", internal=True) != assessment["review_digest"]:
             raise CategoryExecutionError("cold independent review digest changed")
         evidence_rows = [(ref, record) for ref, record in records("category-column-evidence-v1")
-                         if record.get("column_id") == "normal"]
+                         if record.get("column_id") == column]
         if len(evidence_rows) != 1:
-            raise CategoryExecutionError("cold normal evidence is absent or ambiguous")
+            raise CategoryExecutionError("cold column evidence is absent or ambiguous")
         evidence_ref, evidence = evidence_rows[0]
-        rule = policy.transition_rules["normal"]
+        rule = policy.transition_rules[column]
+        facts_size = canonical_byte_length(evidence["facts"]) + 512
+        stack.enter_context(budget.reserve(context,
+            units=64 * (len(documents) + len(categories)) + 8 * facts_size,
+            byte_count=4 * facts_size, source_id="cold-column-reconstruction"))
+        common = {key: assessment[key] for key in (
+            "task_id", "profile_id", "task_revision", "snapshot_digest", "invalidation_epoch")}
+
+        def bound_control(kind: str, fields: set[str]) -> Mapping[str, object]:
+            # Resolve only the captured graph; a live source lookup here would
+            # escape the read scope's two complete captures and shared budget.
+            candidates = [record for record in documents.values()
+                          if record.get("record_kind") == kind]
+            expected_fields = {"schema_version", "record_kind", "record_digest", *common, *fields}
+            matches = []
+            for record in candidates:
+                if (set(record) != expected_fields or record.get("schema_version") != "1.0.0"
+                        or any(type(record[key]) is not type(value) or record[key] != value
+                               for key, value in common.items())):
+                    continue
+                unsigned = {key: value for key, value in record.items() if key != "record_digest"}
+                if record["record_digest"] == digest(unsigned, kind, internal=True):
+                    matches.append(record)
+            if len(matches) != 1:
+                raise CategoryExecutionError("cold column control is absent or ambiguous: " + kind)
+            return matches[0]
+
+        target_digest = digest(target["expected_state"], "category-target-state", internal=True)
+        if column == "normal":
+            expected_facts = {"runner-output-digest": digest(outputs, "category-runner-outputs", internal=True)}
+        elif column == "boundary":
+            expected_facts = {"scenario-id": assessment["scenario_id"]}
+        elif column == "revise":
+            source = bound_control("category-revision-record-v1",
+                {"budget_remaining", "current_body_digest", "previous_body_digest", "owner_route"})
+            remaining, limits = source["budget_remaining"], policy.materialization_output.get("budget_limits")
+            if (type(remaining) is not int or remaining <= 0 or not isinstance(limits, FrozenMap)
+                    or not limits or remaining > max(int(item) for item in limits.values())
+                    or source["current_body_digest"] != final["body_digest"]
+                    or source["previous_body_digest"] != prior["body_digest"]
+                    or source["owner_route"] != rule["owner_route"]):
+                raise CategoryExecutionError("cold revision body or budget control changed")
+            expected_facts = {"budget-remaining": remaining, "current-body-digest": source["current_body_digest"],
+                "previous-body-digest": source["previous_body_digest"], "owner-route": source["owner_route"]}
+        elif column == "authority":
+            if not policy.authority_refs:
+                raise CategoryExecutionError("cold category authority is absent")
+            expected_facts = {"authority-ref": policy.authority_refs[0], "authority-status": "current"}
+        elif column == "drift":
+            source = bound_control("category-drift-record-v1", {"target_id", "target_digest", "status"})
+            if (source["target_id"] != target["target_id"] or source["target_digest"] != target_digest
+                    or source["status"] != "resolved"):
+                raise CategoryExecutionError("cold drift target control changed")
+            expected_facts = {"drift-status": source["status"], "target-digest": source["target_digest"]}
+        elif column == "invalidation":
+            expected_facts = {"invalidation-epoch": invalidation_epoch, "invalidation-status": "current"}
+        elif column == "recovery":
+            source = bound_control("category-recovery-record-v1", {"recovery_id", "status"})
+            owned_action = budget._projections.get(id(action_provenance))
+            if (type(source["recovery_id"]) is not str or not source["recovery_id"]
+                    or source["status"] != "recovered" or owned_action is None
+                    or owned_action[0] is not action_provenance
+                    or action_provenance.get("task_id") != budget.task_id
+                    or action_provenance.get("completion") != "compensation_reconciled"
+                    or action_provenance.get("action_id") != assessment["release_operations_projection"][
+                        "deployment_observation"]["action_id"]):
+                raise CategoryExecutionError("cold recovery lacks same-action completed compensation")
+            expected_facts = {"recovery-id": source["recovery_id"], "recovery-status": source["status"]}
+        elif column == "artifacts":
+            expected_facts = {"artifact-record-digests": sorted(record["record_digest"] for _, record in categories)}
+        elif column == "review":
+            expected_facts = {"author-id": output["author_id"], "reviewer-id": final["reviewer_id"],
+                "review-record-digest": digest(final, "category-runner-review", internal=True)}
+        elif column == "target":
+            expected_facts = {"target-id": target["target_id"], "expected-state-digest": target_digest}
+        elif column == "rollback":
+            owned_action = budget._projections.get(id(action_provenance))
+            projection = assessment["release_operations_projection"]
+            if (owned_action is None or owned_action[0] is not action_provenance
+                    or action_provenance.get("task_id") != budget.task_id
+                    or action_provenance.get("completion") != "compensation_reconciled"
+                    or action_provenance.get("action_id") != projection["deployment_observation"]["action_id"]
+                    or projection["rollback_observation"] is None):
+                raise CategoryExecutionError("cold rollback has no owned completed restore")
+            provenance = action_provenance["provenance"]
+            restore_id = projection["rollback_observation"]["action_id"]
+            journals = {item["action_id"]: item for item in provenance["journals"]}
+            if (provenance["recovery"]["compensation_action_id"] != restore_id
+                    or provenance["claim"]["claim_id"] != projection["claim_id"]
+                    or journals[restore_id]["state"] != "reconciled"
+                    or provenance["claim"]["state"] != "compensation_reconciled"):
+                raise CategoryExecutionError("cold rollback terminal journal/claim changed")
+            expected_facts = {"action-id": restore_id, "action-status": journals[restore_id]["state"],
+                              "claim-status": provenance["claim"]["state"]}
+        elif column == "real-e2e":
+            from graph_engineering.application.release_operations import (
+                _release_category_predecessor, _release_category_facts,
+            )
+            owned_action = budget._projections.get(id(action_provenance))
+            projection = assessment["release_operations_projection"]
+            if (owned_action is None or owned_action[0] is not action_provenance
+                    or action_provenance.get("task_id") != budget.task_id
+                    or action_provenance.get("action_id") != projection["deployment_observation"]["action_id"]
+                    or projection["rollback_observation"] is not None):
+                raise CategoryExecutionError("cold real E2E lacks owned apply provenance")
+            provenance = action_provenance["provenance"]
+            journals = provenance["journals"]
+            if (len(journals) != 1 or provenance["recovery"] is not None
+                    or journals[0]["state"] != "reconciled"
+                    or provenance["claim"]["state"] != "reconciled_effect_verified"):
+                raise CategoryExecutionError("cold real E2E apply is not reconciled")
+            binding = {key: assessment[key] for key in (
+                "task_id", "task_revision", "snapshot_digest", "invalidation_epoch", "profile_id", "profile_version",
+                "materialization_pins")}
+            before = {"schema_version": "1.0.0", **journals[0]["prepared"]["precondition"]}
+            after = {"schema_version": "1.0.0", **projection["current_target"]["state"]}
+            size = canonical_byte_length(binding) + canonical_byte_length(projection["installation_pins"]) + 4096
+            with budget.reserve(context, units=12 * size, byte_count=4 * size,
+                    source_id="cold-real-predecessor"):
+                predecessor = _release_category_predecessor(binding, projection["installation_pins"],
+                    journals[0], provenance["claim"]["state"], before, after, "P")
+                raw = canonical_bytes(predecessor)
+                ref = "sha256:" + hashlib.sha256(raw).hexdigest()
+                if objects.get(ref) != raw:
+                    raise CategoryExecutionError("cold real E2E predecessor differs from captured provenance")
+                expected_facts = _release_category_facts(predecessor)
+        else:
+            raise CategoryExecutionError("cold column reconstruction is unsupported")
         if (set(evidence) != CategoryFactsAuthority._EVIDENCE_FIELDS
                 or any(evidence[key] != assessment[key] or type(evidence[key]) is not type(assessment[key])
                        for key in ("task_id", "task_revision", "snapshot_digest", "invalidation_epoch", "profile_id", "column_id"))
                 or evidence["schema_version"] != "1.0.0" or evidence["evidence_kind"] != rule["evidence_kind"]
                 or evidence["outcome"] != rule["required_outcome"]
-                or evidence["facts"] != {"runner-output-digest": digest(outputs, "category-runner-outputs", internal=True)}
+                or not _recovery_equal(evidence["facts"], expected_facts, context, budget)
                 or evidence["record_digest"] != assessment["column_evidence_digest"]):
-            raise CategoryExecutionError("cold normal evidence differs from complete runner facts")
+            raise CategoryExecutionError("cold column evidence differs from captured authoritative facts")
         initial = {"schema_version": "1.0.0", "task_id": budget.task_id, "profile_id": policy.profile_id,
-            "column_id": "normal", "lifecycle": rule["from_state"], "revision": 0,
+            "column_id": column, "lifecycle": rule["from_state"], "revision": 0,
             "snapshot_digest": assessment["snapshot_digest"], "invalidation_epoch": invalidation_epoch,
             "last_event_digest": None}
         logical_kind = policy.rollback_contract["eligible_action_kinds"][0]
@@ -542,7 +692,9 @@ def _validate_cold_category_sources(
             "action_protocol_kind": policy.rollback_protocol_mappings[logical_kind]["action_protocol_kind"],
             "authority_requirement": policy.rollback_contract["authority_requirement"],
             "compensation_graph_ref": policy.rollback_contract["compensation_graph_ref"],
-            "status": "NOT_REQUESTED", "route": "none", "observation_digest": assessment["target_observation_digest"]}
+            "status": "PASS" if column == "rollback" else "NOT_REQUESTED",
+            "route": "action-coordinator" if column == "rollback" else "none",
+            "observation_digest": assessment["target_observation_digest"]}
         if (assessment["state_digest"] != digest(initial, "category-execution-state")
                 or assessment["rollback_assessment_digest"] != digest(rollback, "category-rollback-assessment")):
             raise CategoryExecutionError("cold category reducer or rollback history changed")
@@ -622,6 +774,37 @@ def _strict_json(body: bytes) -> dict[str, object]:
     if type(value) is not dict or canonical_bytes(value) != body:
         raise CategoryExecutionError("category assessment object is not exact canonical JSON")
     return value
+
+
+def _require_real_category_observer(observer, profile_id, *, identity_only=False):
+    from graph_engineering.application.profile_real_e2e import ProfileRealE2EAuthority, ProfileRealE2EObserver, ProfileRealE2EError
+    from graph_engineering.application.release_operations import _ReleaseCategoryObserver
+
+    try:
+        if profile_id == "release-operations":
+            authority = _ReleaseCategoryObserver.require_issued(observer)
+        elif identity_only:
+            if type(observer) is not ProfileRealE2EObserver or type(observer._authority) is not ProfileRealE2EAuthority:
+                raise ValueError("real E2E observer is cloned or foreign")
+            authority = observer._authority
+            authority._require_observer_identity(observer)
+        else:
+            authority = ProfileRealE2EObserver.require_issued(observer)
+        if authority.profile_id != profile_id:
+            raise ValueError("real E2E observer profile differs")
+        return authority
+    except ValueError as error:
+        raise ProfileRealE2EError(str(error)) from error
+
+
+def _require_real_category_authority(authority, profile_id):
+    from graph_engineering.application.profile_real_e2e import ProfileRealE2EAuthority
+    from graph_engineering.application.release_operations import _ReleaseCategoryAuthority
+
+    expected = _ReleaseCategoryAuthority if profile_id == "release-operations" else ProfileRealE2EAuthority
+    if type(authority) is not expected or authority.profile_id != profile_id:
+        raise CategoryExecutionError("real E2E authority is missing or crossed profile boundary")
+    return authority
 
 
 class CategoryTargetObservationAuthority:
@@ -734,6 +917,10 @@ class CategoryTargetObservationAuthority:
         if not callable(observe):
             raise CategoryExecutionError("target observer port is unavailable")
         if value["column_id"] == "real-e2e":
+            # Commit fences already hold repository locks. The observer's own
+            # fresh physical/installation read remains safe inside that fence;
+            # full task currentness is checked by the precommit facts path.
+            _require_real_category_observer(observer, self._policy.profile_id, identity_only=True)
             if getattr(observer, "is_test_double", None) is True:
                 raise CategoryExecutionError("a local fixture cannot satisfy real E2E")
         elif (
@@ -940,6 +1127,156 @@ class CategoryRollbackBridge:
         self._coordinator = coordinator
         self.__issued: dict[int, CategoryRollbackAssessment] = {}
         self.__action_context: dict[str, object] | None = None
+        self.__completed_release: dict[str, object] | None = None
+        self.__task_resolution: tuple[object, object] | None = None
+
+    def _bind_task_resolution(self, application: object, runtime: object) -> None:
+        from graph_engineering.application.tasks import TaskApplication, RuntimeContext
+        if self.__task_resolution is not None and all(actual is expected for actual, expected
+                in zip(self.__task_resolution, (application, runtime))):
+            return
+        if (type(application) is not TaskApplication or type(runtime) is not RuntimeContext
+                or self.__task_resolution is not None or self.__completed_release is not None):
+            raise CategoryExecutionError("rollback task resolution is foreign or already bound")
+        if application._repository is self._coordinator._repository:
+            self.__task_resolution = (application, runtime)
+
+    def _adopt_completed_release(self, factory: object, evidence: object) -> Mapping[str, object]:
+        """Adopt an already completed restore without issuing action authority."""
+        from graph_engineering.application.release_operations import ReleaseOperationsRegistryFactory
+
+        if (type(factory) is not ReleaseOperationsRegistryFactory
+                or self.__action_context is not None or self.__completed_release is not None
+                or self._policy.profile_id != "release-operations"):
+            raise CategoryExecutionError("completed release rollback authority is invalid")
+        factory.require_current(evidence)
+        projection = evidence.to_dict()
+        session, _deployment, restored = factory._evidence_bindings[id(evidence)]
+        logical = self._policy.rollback_contract["eligible_action_kinds"][0]
+        mapping = self._policy.rollback_protocol_mappings[logical]
+        if (factory._session_coordinators.get(id(session)) is not self._coordinator
+                or restored is None or projection["column_id"] != "rollback"
+                or projection["profile_id"] != self._policy.profile_id
+                or mapping["action_protocol_kind"] != "rollback"):
+            raise CategoryExecutionError("completed release rollback binding is foreign")
+        proof = self._coordinator._read_completed_action_provenance(
+            task_id=projection["task_id"], action_id=projection["deployment_observation"]["action_id"])
+        provenance = proof["provenance"]
+        recovery = provenance["recovery"]
+        restore_id = projection["rollback_observation"]["action_id"]
+        if (proof["completion"] != "compensation_reconciled" or recovery is None
+                or recovery["compensation_action_id"] != restore_id
+                or recovery["original_action_id"] != proof["action_id"]
+                or provenance["claim"]["claim_id"] != projection["claim_id"]):
+            raise CategoryExecutionError("completed release has no exact compensation link")
+        facts = {"action-id": restore_id, "action-status": "reconciled",
+                 "claim-status": "compensation_reconciled"}
+        context = {"factory": factory, "evidence": evidence,
+            "projection": freeze(projection), "proof": proof, "facts": freeze(facts),
+            "journals": tuple(self._coordinator._journal.load(item["action_id"])
+                              for item in provenance["journals"]),
+            "claim": freeze(self._coordinator._leases.load_claim(projection["claim_id"])),
+            "recovery": freeze(self._coordinator._leases.recovery_attempt(projection["claim_id"])),
+            "security": self._coordinator._issuer.read_task_state(projection["task_id"])}
+        if self.__task_resolution is not None:
+            application, runtime = self.__task_resolution
+            view = application.runtime_show(projection["task_id"], runtime)
+            if (view.snapshot.snapshot_digest != projection["snapshot_digest"]
+                    or view.snapshot.task_revision != projection["task_revision"]):
+                raise CategoryExecutionError("completed restore task snapshot differs from evidence")
+            context["source_snapshot"] = view.snapshot
+            context["source_runner"] = freeze(view.runner_state)
+        for record, source in zip(context["journals"], provenance["journals"]):
+            if (any(getattr(record, key) != source[key] for key in ("action_id", "task_id", "state", "revision"))
+                    or freeze(self._coordinator._journal.prepared_document(record.prepared)) != source["prepared"]
+                    or freeze(self._coordinator._journal.authority_document(record.authority)) != source["authority"]
+                    or freeze(record.receipt) != source["receipt"]
+                    or freeze(record.reconciliation) != source["reconciliation"]):
+                raise CategoryExecutionError("completed restore journal differs from proof")
+        if (any(any(value != provenance[kind].get(key) for key, value in context[kind].items())
+                for kind in ("claim", "recovery"))
+                or any(authority["security_state_digest"] != context["security"].state_digest
+                       or authority["runtime_manifest_digest"] != context["security"].runtime_manifest_digest
+                       for authority in proof["authorities"])):
+            raise CategoryExecutionError("completed restore owner or claim differs from proof")
+        if self._coordinator._read_completed_action_provenance(
+                task_id=projection["task_id"], action_id=proof["action_id"]) != proof:
+            raise CategoryExecutionError("completed restore changed during adoption")
+        self.__completed_release = context
+        try:
+            self._require_completed_release()
+        except BaseException:
+            self.__completed_release = None
+            raise
+        return facts
+
+    def _require_completed_release(self) -> Mapping[str, object]:
+        context = self.__completed_release
+        if context is None:
+            raise CategoryExecutionError("completed release rollback context is absent")
+        try:
+            context["factory"].require_current(context["evidence"])
+            projection = context["projection"]
+            coordinator = self._coordinator
+            security = coordinator._issuer.read_task_state(projection["task_id"])
+            coordinator._issuer.runtime.require_policy(
+                "action", coordinator._policy.policy_id, coordinator._policy.policy_digest)
+            security_current = security == context["security"]
+            if not security_current:
+                # The only allowed successor is the exact assessment consuming
+                # this completed restore. No other revision may reuse it.
+                stable = lambda state: {key: (freeze({name: value for name, value in item.items()
+                    if name not in {"snapshot_digest", "binding_digest"}}) if key == "binding" else item)
+                    for key, item in state.items() if key not in {"task_revision", "task_snapshot_digest"}}
+                events = coordinator._repository.replay(projection["task_id"])
+                event = events[-1]
+                if event.get("event_type") != "task.category_assessed":
+                    raise CategoryExecutionError("completed restore was followed by an unrelated transition")
+                reference = event.get("payload", {}).get("evidence_ref", {})
+                raw = coordinator._objects.get(reference.get("source_ref"), require_referenced=False)
+                assessment = _strict_json(raw)
+                if self.__task_resolution is None or "source_snapshot" not in context:
+                    raise CategoryExecutionError("completed restore successor has no task resolver")
+                from graph_engineering.core.graph.state import DomainEvent, apply_events
+                application, runtime = self.__task_resolution
+                current = application.runtime_show(projection["task_id"], runtime)
+                original = context["source_snapshot"]
+                expected = apply_events(original, (DomainEvent(original.last_event_seq + 1,
+                    original.task_revision, "task.category_assessed", {"evidence_ref": reference}),),
+                    schema_registry=application._schemas, context=application._context,
+                    materialization_record=self._policy.materialization_record)
+                security_current = (
+                    current.snapshot == expected
+                    and current.repository_revision == security.state["task_revision"]
+                    and freeze(current.runner_state) == context["source_runner"]
+                    and coordinator._issuer.read_task_state(projection["task_id"]) == security
+                    and
+                    stable(security.state) == stable(context["security"].state)
+                    and security.runtime_manifest_digest == context["security"].runtime_manifest_digest
+                    and security.state["task_revision"] == context["security"].state["task_revision"] + 1
+                    and event.get("event_type") == "task.category_assessed"
+                    and assessment.get("schema_version") == "1.4.0"
+                    and assessment.get("profile_id") == "release-operations"
+                    and assessment.get("column_id") == "rollback"
+                    and assessment.get("status") == "PASS"
+                    and freeze(assessment.get("release_operations_projection")) == projection
+                    and all(assessment.get(key) == projection[key] for key in (
+                        "task_id", "task_revision", "snapshot_digest", "invalidation_epoch"))
+                    and assessment.get("assessment_digest") == _value_digest(
+                        {key: value for key, value in assessment.items() if key != "assessment_digest"},
+                        "category-completion-assessment")
+                    and reference.get("digest") == assessment.get("assessment_digest")
+                    and (reference.get("source_ref"), raw) in coordinator._repository.referenced_objects(projection["task_id"]))
+            if (coordinator._policy._runtime_issuer is not coordinator._issuer.runtime._issuer
+                    or not security_current
+                    or any(coordinator._journal.load(record.action_id) != record
+                           for record in context["journals"])
+                    or freeze(coordinator._leases.load_claim(projection["claim_id"])) != context["claim"]
+                    or freeze(coordinator._leases.recovery_attempt(projection["claim_id"])) != context["recovery"]):
+                raise CategoryExecutionError("completed release rollback provenance changed")
+        except (ValueError, OSError, RuntimeError) as error:
+            raise CategoryExecutionError("completed release rollback is no longer current") from error
+        return context
 
     def prepare_action(
         self,
@@ -960,7 +1297,7 @@ class CategoryRollbackBridge:
         from graph_engineering.core.security.disclosure import DataDisclosurePlan
         from graph_engineering.storage.ports import LeaseGrant
 
-        if self.__action_context is not None:
+        if self.__action_context is not None or self.__completed_release is not None:
             raise CategoryExecutionError("rollback action context is already prepared")
         if (
             type(prepared_document) is not dict
@@ -1006,6 +1343,11 @@ class CategoryRollbackBridge:
         if set(facts) != {"action-id", "action-status", "claim-status"}:
             raise CategoryExecutionError("rollback evidence fact closure changed")
         action_id = _text(facts.get("action-id"), "rollback evidence action ID")
+        if self.__completed_release is not None:
+            context = self._require_completed_release()
+            if freeze(facts) != context["facts"]:
+                raise CategoryExecutionError("completed restore journal/claim facts changed")
+            return
         context = self.__action_context
         if not final:
             if context is None or action_id != context["prepared"].action_id:
@@ -1070,7 +1412,21 @@ class CategoryRollbackBridge:
         current_observation = observation
         status = "NOT_REQUESTED"
         route = "none"
-        if requested:
+        if requested and self.__completed_release is not None:
+            context = self._require_completed_release()
+            projection = context["projection"]
+            if (any(value[key] != projection[key] for key in (
+                    "task_id", "task_revision", "snapshot_digest", "invalidation_epoch",
+                    "profile_id", "column_id", "scenario_id"))
+                    or freeze(value["digest_pins"]) != projection["graph_ref_pins"]
+                    or value["target"]["target_id"] != projection["current_target"]["target_id"]):
+                raise CategoryExecutionError("completed release rollback candidate changed")
+            current_observation = target_authority.reobserve_fresh(value, observation)
+            if thaw(current_observation.state) != value["target"]["expected_state"]:
+                raise CategoryExecutionError("completed restore target differs from rollback contract")
+            status = "PASS"
+            route = "action-coordinator"
+        elif requested:
             observation = target_authority.reobserve_fresh(value, observation)
             current_observation = observation
             context = self.__action_context
@@ -1172,6 +1528,8 @@ class CategoryRollbackBridge:
             _value_digest(body, "category-rollback-assessment"),
         ):
             raise CategoryExecutionError("rollback assessment digest changed")
+        if assessment.status == "PASS" and self.__completed_release is not None:
+            self._require_completed_release()
 
 
 class CategoryCompletionOracle:
@@ -2376,7 +2734,7 @@ class CategoryFactsAuthority:
             )
 
             authority = self._real_e2e_authority
-            if type(authority) is not ProfileRealE2EAuthority:
+            if _require_real_category_authority(authority, self._policy.profile_id) is not authority:
                 raise CategoryExecutionError(
                     "Profile real-E2E predecessor authority is absent"
                 )
@@ -2386,7 +2744,7 @@ class CategoryFactsAuthority:
                     require_success=not self.__binding_expected_rejection,
                 )
                 expected = authority.evidence_facts(record)
-            except ProfileRealE2EError as error:
+            except ValueError as error:
                 raise CategoryExecutionError(str(error)) from error
             return expected
         raise CategoryExecutionError("category evidence column is unsupported")
@@ -2408,8 +2766,8 @@ class CategoryFactsAuthority:
             )
 
             try:
-                authority = ProfileRealE2EObserver.require_issued(observer)
-            except ProfileRealE2EError as error:
+                authority = _require_real_category_observer(observer, self._policy.profile_id)
+            except ValueError as error:
                 raise CategoryExecutionError(
                     "Profile real-E2E observer authority is absent"
                 ) from error
@@ -2694,9 +3052,9 @@ class CategoryFactsAuthority:
                 ProfileRealE2EObserver,
             )
 
-            ProfileRealE2EObserver.require_issued(observer)
+            _require_real_category_observer(observer, self._policy.profile_id)
             real_observer = True
-        except ProfileRealE2EError:
+        except ValueError:
             pass
         for column in self._policy.column_ids:
             if real_observer and column != "real-e2e":
@@ -2708,8 +3066,8 @@ class CategoryFactsAuthority:
                 )
 
                 try:
-                    authority = ProfileRealE2EObserver.require_issued(observer)
-                except ProfileRealE2EError:
+                    authority = _require_real_category_observer(observer, self._policy.profile_id)
+                except ValueError:
                     continue
                 self._real_e2e_authority = authority
             scenario = default_scenario
@@ -2843,7 +3201,7 @@ class CategoryFactsAuthority:
             )
 
             authority = self._real_e2e_authority
-            if type(authority) is not ProfileRealE2EAuthority:
+            if _require_real_category_authority(authority, self._policy.profile_id) is not authority:
                 raise CategoryExecutionError(
                     "Profile real-E2E current authority is absent"
                 )
@@ -2855,7 +3213,7 @@ class CategoryFactsAuthority:
                         expected_task_id=str(candidate["task_id"]),
                         require_success=authority.disposition == "P",
                     )
-            except ProfileRealE2EError as error:
+            except ValueError as error:
                 raise CategoryExecutionError(str(error)) from error
 
     def issue_source_fence(
@@ -2990,10 +3348,8 @@ class CategoryFactsAuthority:
             )
 
             try:
-                self._real_e2e_authority = ProfileRealE2EObserver.require_issued(
-                    observer
-                )
-            except ProfileRealE2EError as error:
+                self._real_e2e_authority = _require_real_category_observer(observer, self._policy.profile_id)
+            except ValueError as error:
                 raise CategoryExecutionError(
                     "Profile real-E2E restart observer is foreign"
                 ) from error
@@ -3036,7 +3392,7 @@ class CategoryFactsAuthority:
             )
 
             authority = self._real_e2e_authority
-            if type(authority) is not ProfileRealE2EAuthority:
+            if _require_real_category_authority(authority, self._policy.profile_id) is not authority:
                 raise CategoryExecutionError(
                     "Profile real-E2E assessment authority is absent"
                 )
@@ -3045,7 +3401,7 @@ class CategoryFactsAuthority:
                     expected_task_id=assessment.task_id,
                     require_success=True,
                 )
-            except ProfileRealE2EError as error:
+            except ValueError as error:
                 raise CategoryExecutionError(str(error)) from error
 
     def current_target_id(self, task_id: str) -> str:
@@ -3189,7 +3545,7 @@ class CategoryExecutionApplication:
                 ProfileRealE2EObserver,
             )
 
-            ProfileRealE2EObserver.require_issued(target_observer)
+            _require_real_category_observer(target_observer, policy.profile_id)
             real_e2e_observer = True
         except (ImportError, ValueError):
             pass
@@ -3228,6 +3584,7 @@ class CategoryExecutionApplication:
         self._reducer = reducer
         self._oracle = completion_oracle
         self._rollback = rollback_bridge
+        rollback_bridge._bind_task_resolution(task_application, runtime)
         self._resolver = assessment_resolver
         self._fault = fault_hook
         self._task_application = task_application

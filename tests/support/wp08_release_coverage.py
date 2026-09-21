@@ -534,6 +534,8 @@ class SerialCoverageExecution:
     migration_context: object | None = None
     migration_rehearsal_projection: object | None = None
     scenario_truth_context: object | None = None
+    release_operations_context: object | None = None
+    release_operations_reader: object | None = None
     binding_lifecycle: object | None = None
     private_repository_root: object | None = None
     private_action_root: object | None = None
@@ -1073,6 +1075,10 @@ class SerialCoverageExecution:
                 elif probe is not None:
                     probe.close()
         finally:
+            release_context = self.release_operations_context
+            if release_context is not None:
+                release_context.__exit__(None, None, None)
+                self.release_operations_context = None
             dependency_context = self.dependency_security_context
             close_dependency = getattr(dependency_context, "close", None)
             if callable(close_dependency):
@@ -2507,6 +2513,82 @@ def _serial_state_signature(
     )
 
 
+
+def _run_serial_release_binding(*, api4: Slice4API, plan: object, column: str,
+    disposition: str, quiescent: bool) -> SerialCoverageExecution:
+    from tests.support.wp08_release_operations import release_mandatory_runtime, PrivateReleaseCoverageRoot
+    from tests.integration.test_wp08_release_operations import WP08RetainedReleaseSessionTests
+
+    test_id = profile_mandatory_test_id("release-operations", column, disposition)
+    task_id = str(plan.binding(test_id)["task_id"])
+    private_root = PrivateReleaseCoverageRoot() if quiescent else None
+    context = private_root or release_mandatory_runtime(column=column, task_id=task_id, accepted=disposition == "P")
+    try:
+        values = (private_root.produce(column=column, task_id=task_id, accepted=disposition == "P")
+            if private_root is not None else context.__enter__())
+        _api, action, session, application, probe, target, candidate, evidence, _outcome = values
+        candidate["request_id"] = "wp08-s4:release-operations:" + column + ":" + disposition.lower()
+        if disposition == "R" and column != "real-e2e":
+            # Inject one coherently re-signed wrong fact. Preserve the real
+            # reference transaction so this negative has no unrelated dangling
+            # transaction introduced by the general tamper helper.
+            original_ref = probe._evidence_by_column[column][0]
+            with probe.factory.open("doctor") as connection:
+                original_transaction = connection.execute(
+                    "SELECT transaction_id FROM object_references WHERE task_id=? AND digest=?",
+                    (task_id, original_ref)).fetchone()[0]
+            install_mandatory_rejection_source(probe, column)
+            replacement_ref = probe._evidence_by_column[column][0]
+            with probe.factory.open("application") as connection, connection.transaction():
+                connection.execute("UPDATE object_references SET transaction_id=? WHERE task_id=? AND digest=?",
+                    (original_transaction, task_id, replacement_ref))
+        def signature():
+            return (WP08RetainedReleaseSessionTests._repository_rows(action),
+                {p.name: p.read_bytes() for p in session._root._root_path.iterdir()},
+                session._root.mutation_count, session.target.apply_count)
+        before = signature()
+        original_candidate = copy.deepcopy(candidate)
+        if disposition == "P":
+            application.assess_and_commit(candidate, observer=target, release_operations_evidence=evidence)
+        authority = api4.ProfileCoverageAuthority(plan=plan, category_application=application,
+            task_application=probe.task_application, repository=probe.repository,
+            object_repository=probe.objects, runtime=probe.runtime)
+        execution = (authority.observe_completion(test_id, task_id=task_id,
+            expected_profile_id="release-operations") if disposition == "P"
+            else authority.execute_rejection(test_id, candidate=candidate, observer=target))
+        after = signature()
+        if candidate != original_candidate or (disposition == "R" and before != after):
+            raise AssertionError("release binding changed rejection state or caller request")
+        result = SerialCoverageExecution(test_id=test_id, profile_id="release-operations",
+            column_id=column, disposition=disposition, application=application,
+            authority=authority, execution=execution, probe=probe, target=target,
+            candidate=candidate, state_before=before, state_after=after,
+            release_operations_context=context)
+        if quiescent:
+            from tests.support.wp08_scenario_truth import issue_quiescent_binding
+            reader = authority._seal_release_reader(execution, action.retained_namespace)
+            result.release_operations_reader = reader
+            private_root.seal_producer(reader)
+            private_root.open()
+            reader._bind_source_reopener(private_root.refresh)
+            def projection(handle):
+                if handle is not reader:
+                    raise AssertionError("release lifecycle handle is foreign")
+                return {"authority": authority._binding_lifecycle_projection(execution),
+                    "binding_identity": reader._context()["binding"].to_dict(),
+                    "target_state": {"session_closed": reader.session_closed()}}
+            lifecycle = issue_quiescent_binding(
+                binding_identity=reader._context()["binding"].to_dict(),
+                close_handle=private_root.close_handle, opened_handle=reader,
+                private_root=private_root.path, project_current=projection,
+                reopen_handle=private_root.open, terminate_root=private_root.terminate)
+            result.binding_lifecycle = lifecycle
+            authority._bind_binding_lifecycle(lifecycle)
+        return result
+    except BaseException:
+        context.__exit__(None, None, None)
+        raise
+
 def run_serial_profile_binding(
     *,
     api4: Slice4API,
@@ -2518,6 +2600,12 @@ def run_serial_profile_binding(
     quiescent: bool = False,
 ) -> SerialCoverageExecution:
     """Execute one isolated binding on its consumer-authority thread."""
+
+    if profile_id == "release-operations":
+        if shared_runtime is not None:
+            raise AssertionError("release binding requires its own action and task roots")
+        return _run_serial_release_binding(api4=api4, plan=plan, column=column,
+            disposition=disposition, quiescent=quiescent)
 
     test_id = profile_mandatory_test_id(profile_id, column, disposition)
     binding = plan.binding(test_id)

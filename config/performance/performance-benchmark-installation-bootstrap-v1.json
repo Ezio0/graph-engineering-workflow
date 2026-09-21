@@ -36,7 +36,7 @@
   "profile_schema_registry_raw_sha256": "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd",
   "profile_schema_registry_resource": "graph_engineering/config/contracts/profile-schema-registry-v1.json",
   "profile_schema_registry_source": "config/contracts/profile-schema-registry-v1.json",
-  "protected_closure_digest": "sha256-jcs-v1:6237d1d533b71769f644550baeadde5c62022f237888cb3463f3295545e0f868",
+  "protected_closure_digest": "sha256-jcs-v1:18f4b991feee9eb70e7aec65ee3e5bfc9974ca7a847d21a177920ad9079532f6",
   "protected_resources": [
     {
       "raw_sha256": "9de5fcfdc5fdcbf6a84aa5adb4e58ecd4291af571210c4ae38b6fc74aae07f32",
@@ -54,12 +54,12 @@
       "source": "application/graph_engineering/application/performance_benchmark.py"
     },
     {
-      "raw_sha256": "7f584debcd9b0b9e7d955aca1554aa300210ee8b77cdbf17cb697c3ba416be4c",
+      "raw_sha256": "640d49490db67390754a4119a7938e4d013fab23e9c73253ff15aac68dff28d5",
       "resource": "graph_engineering/application/profile_coverage.py",
       "source": "application/graph_engineering/application/profile_coverage.py"
     },
     {
-      "raw_sha256": "dbdc3576814816c25839c0c3261e0aad9a4706a4851c943daae9e618a83db37e",
+      "raw_sha256": "ff88c598e8d7e6964fa1dd9d90caeb22935cb499c43ee6b6b47bba982fa34101",
       "resource": "graph_engineering/application/profile_execution.py",
       "source": "application/graph_engineering/application/profile_execution.py"
     },
@@ -356,5 +356,5 @@
   "source_registry_raw_sha256": "8e61edb0f2ba802d8b6e6c9ceb04808e308f4566d7b85a9b5b8651d9d748d3e4",
   "source_registry_resource": "graph_engineering/config/performance/performance-source-registry-v1.json",
   "source_registry_source": "config/performance/performance-source-registry-v1.json",
-  "bootstrap_digest": "sha256-jcs-v1:40ac11119d8d9ed11dcefdc9952ce9b27ad6eb39c2dffd55b4aef82b902b025c"
+  "bootstrap_digest": "sha256-jcs-v1:bad0f9bcd70f2e945b19a679c827f2bc01d6fbb96eedddbf92c7881f8d27f6e3"
 }

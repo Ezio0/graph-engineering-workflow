@@ -3271,7 +3271,63 @@ class TaskRepository:
         self._require_provenance_scope()
         return result
 
-    def _capture_category_recovery_sources(self, task_id, phase, context, budget):
+    def _read_release_rejection_sources(self, task_id):
+        """Read only an uncompleted task under the exact caller-owned budget."""
+        self._validate_identity(task_id, "rejected release task ID")
+        context = self._action_journal._context
+        budget = getattr(context, "_recovery_read_budget", None)
+        if (type(budget) is not _RecoveryReadBudget or budget.task_id != task_id
+                or budget.command_scope is not self.command_scope
+                or any(getattr(port, "_recovery_read_budget", None) is not budget
+                    for port in (self, self._objects))):
+            raise RepositoryIntegrityError("rejected release source has no exact recovery budget")
+        budget._require_active()
+        self._require_provenance_scope()
+        installation = self._locks.acquire_installation("shared")
+        try:
+            object_lock = self._locks.acquire_object("shared")
+            try:
+                result = self._capture_category_recovery_sources(task_id, "sources", context, budget, rejected=True)
+            finally:
+                self._locks.release(object_lock)
+        finally:
+            self._locks.release(installation)
+        self._require_provenance_scope()
+        return result
+
+    def _read_release_rejected_action_source(self, task_id, action_id):
+        """Capture the pre-claim rejection journal without issuing an action."""
+        self._validate_identity(task_id, "rejected release task ID")
+        self._validate_identity(action_id, "rejected release action ID")
+        context = self._action_journal._context
+        budget = getattr(context, "_recovery_read_budget", None)
+        if (type(budget) is not _RecoveryReadBudget or budget.task_id != task_id
+                or budget.command_scope is not self.command_scope
+                or getattr(self, "_recovery_read_budget", None) is not budget):
+            raise RepositoryIntegrityError("rejected action has no exact recovery budget")
+        budget._require_active()
+        self._require_provenance_scope()
+        groups = (
+            ("journal", ("action_id", "task_id", "state", "revision", "prepared_json", "prepared_digest",
+                "authority_json", "authority_digest", "receipt_json", "reconciliation_json"),
+                "action_journal WHERE action_id=:action_id"),
+            ("claim", ("claim_id", "action_id", "task_id", "state"),
+                "claims WHERE action_id=:action_id OR claim_id=:claim_id"),
+            ("recovery", ("attempt_id", "original_action_id", "compensation_action_id", "state"),
+                "claim_recovery_attempts WHERE original_action_id=:action_id OR compensation_action_id=:action_id"),
+        )
+        with self._factory.open("doctor") as connection, _recovery_rows(connection, groups,
+                {"task_id": task_id, "action_id": action_id, "claim_id": "claim:" + action_id},
+                context, budget, source_id="release-rejected-action") as captured:
+            if (len(captured["journal"]) != 1 or captured["claim"] or captured["recovery"]
+                    or captured["journal"][0][1] != task_id or captured["journal"][0][2] != "authorized"
+                    or any(value is not None for value in captured["journal"][0][-2:])):
+                raise RepositoryIntegrityError("release rejection acquired a claim or changed journal state")
+            result = _recovery_freeze(captured, context, budget, source_id="release-rejected-action-result")
+        self._require_provenance_scope()
+        return result
+
+    def _capture_category_recovery_sources(self, task_id, phase, context, budget, *, rejected=False):
         from graph_engineering.core.contracts.canonical import canonical_byte_length
 
         source_id = "category-recovery-" + phase
@@ -3327,15 +3383,20 @@ class TaskRepository:
             if type(evidence) is not list or any(type(item) is not dict for item in evidence):
                 raise RepositoryIntegrityError("cold source task evidence is invalid")
             selected = [item for item in evidence if item.get("evidence_type") == "category-completion-assessment"]
-            if len(selected) != 1:
-                raise RepositoryIntegrityError("cold source assessment is missing or ambiguous")
-            assessment_ref = selected[0]
-            if (set(assessment_ref) != {"evidence_id", "evidence_type", "source_ref", "digest", "trust"}
-                    or assessment_ref["trust"] != "factory-attested"
-                    or assessment_ref["evidence_id"] != assessment_ref["digest"]):
-                raise RepositoryIntegrityError("cold source assessment reference is invalid")
-            require_jcs_digest(assessment_ref["digest"])
-            assessment_digest = require_object_digest(assessment_ref["source_ref"])
+            if rejected:
+                if selected:
+                    raise RepositoryIntegrityError("rejected release source has a successful assessment")
+                assessment_ref = assessment_digest = None
+            else:
+                if len(selected) != 1:
+                    raise RepositoryIntegrityError("cold source assessment is missing or ambiguous")
+                assessment_ref = selected[0]
+                if (set(assessment_ref) != {"evidence_id", "evidence_type", "source_ref", "digest", "trust"}
+                        or assessment_ref["trust"] != "factory-attested"
+                        or assessment_ref["evidence_id"] != assessment_ref["digest"]):
+                    raise RepositoryIntegrityError("cold source assessment reference is invalid")
+                require_jcs_digest(assessment_ref["digest"])
+                assessment_digest = require_object_digest(assessment_ref["source_ref"])
             if phase == "locator":
                 references_capture = stack.enter_context(_recovery_rows(connection,
                     [("reference", reference_columns,
@@ -3370,7 +3431,7 @@ class TaskRepository:
                                    "size": size, "state": state})
             if len({item["digest"] for item in references}) != len(references):
                 raise RepositoryIntegrityError("cold source reference is ambiguous")
-            if sum(item["digest"] == assessment_digest for item in references) != 1:
+            if not rejected and sum(item["digest"] == assessment_digest for item in references) != 1:
                 raise RepositoryIntegrityError("cold source assessment is not uniquely referenced")
             objects, body_reservations, assessment_body = [], [], None
             for reference in references:
@@ -3382,10 +3443,11 @@ class TaskRepository:
                 body_reservations.append(reservation)
                 if reference["digest"] == assessment_digest:
                     assessment_body = body
-            assessment = parsed(assessment_body)
-            if (type(assessment) is not dict or assessment.get("task_id") != task_id
-                    or assessment.get("assessment_digest") != assessment_ref["digest"]):
-                raise RepositoryIntegrityError("cold source assessment body differs from its reference")
+            if not rejected:
+                assessment = parsed(assessment_body)
+                if (type(assessment) is not dict or assessment.get("task_id") != task_id
+                        or assessment.get("assessment_digest") != assessment_ref["digest"]):
+                    raise RepositoryIntegrityError("cold source assessment body differs from its reference")
             projection = {"phase": phase, "task": task, "assessment_ref": assessment_ref,
                           "references": references}
             if phase == "sources":

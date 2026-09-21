@@ -7,6 +7,7 @@ import copy
 import hashlib
 import hmac
 import json
+import os
 import subprocess
 import sys
 import threading
@@ -66,6 +67,220 @@ def _frozen_mapping(value: object, label: str) -> FrozenMap:
     if not isinstance(frozen, FrozenMap):
         raise ProfileCoverageError(f"{label} is not an exact object")
     return frozen
+
+
+_RELEASE_READ_BINDINGS: dict[int, tuple[object, dict[str, object], int, int]] = {}
+
+
+class _ReleaseCoverageReadBinding:
+    """Process-local validation of an existing record, never execution authority."""
+
+    __slots__ = ()
+
+    def __new__(cls, *args: object, **kwargs: object) -> object:
+        raise TypeError("release coverage readers are authority-issued")
+
+    @classmethod
+    def _issue(cls, authority: object, record: object, namespace: object) -> _ReleaseCoverageReadBinding:
+        from graph_engineering.application.release_operations import (
+            ReleaseOperationsRegistryFactory, RetainedReleaseNamespace,
+        )
+        if type(authority) is not ProfileCoverageAuthority:
+            raise ProfileCoverageError("release reader has a foreign coverage authority")
+        authority._require_record(record)
+        factory = authority._category._oracle._release_operations_factory
+        if (type(factory) is not ReleaseOperationsRegistryFactory
+                or type(namespace) is not RetainedReleaseNamespace
+                or record.profile_id != "release-operations" or record.selector_kind != "mandatory"):
+            raise ProfileCoverageError("release reader selector or factory is foreign")
+        sessions = [session for session in factory._issued_sessions.values()
+            if session.recovery_binding is not None
+            and session.recovery_binding.projection["task_id"] == record.task_id]
+        if len(sessions) != 1:
+            raise ProfileCoverageError("release reader session is not unique")
+        session = sessions[0]
+        coordinator = factory._session_coordinators[id(session)]
+        namespace.require_current(coordinator)
+        if (coordinator._repository is not authority._repository
+                or coordinator._objects is not authority._objects):
+            raise ProfileCoverageError("release reader ports are foreign")
+        real = authority._category._facts._real_e2e_authority
+        if record.column_id == "real-e2e":
+            authority._require_real_e2e_current(authority._plan.binding(record.test_id), task_id=record.task_id)
+            if real._session is not session or real._coordinator is not coordinator:
+                raise ProfileCoverageError("release reader predecessor is foreign")
+            action_id = real._journal.action_id
+        else:
+            evidence = [item for item in factory._issued.values()
+                if item.projection["task_id"] == record.task_id
+                and item.projection["column_id"] == record.column_id]
+            if len(evidence) != 1:
+                raise ProfileCoverageError("release reader evidence is not unique")
+            factory.require_current(evidence[0])
+            action_id = evidence[0].projection["deployment_observation"]["action_id"]
+        raw = None if record.result == "EXPECTED_REJECTION" else authority._objects.get(
+            record.assessment_object_digest, require_referenced=False)
+        root = session._root
+        tree_digest = root.tree_digest()
+        authority._require_record(record)
+        if root.tree_digest() != tree_digest:
+            raise ProfileCoverageError("release target changed while sealing read contract")
+        result = object.__new__(cls)
+        context = {"authority": authority, "record": record, "factory": factory,
+            "session": session, "coordinator": coordinator, "namespace": namespace,
+            "binding": session.recovery_binding, "record_document": freeze(record.to_dict()),
+            "assessment_bytes": raw, "action_id": action_id, "handle": None,
+            "source_digest": None, "reopen_sources": None, "read_generation": 0, "expected_tree_digest": tree_digest, "pending_digests": ((real._journal.prepared.prepared_action_digest,
+                real._journal.authority.authority_digest) if record.column_id == "real-e2e"
+                and record.result == "EXPECTED_REJECTION" else None),
+            "policy": authority._category._policy,
+            "ports": (authority._tasks, authority._runtime, authority._objects, coordinator, namespace, factory, authority._category._policy)}
+        _RELEASE_READ_BINDINGS[id(result)] = (result, context, os.getpid(), threading.get_ident())
+        try:
+            factory._cold_artifact_authority()
+            session.close()
+            result.open()
+            return result
+        except BaseException:
+            result.terminate("revoke")
+            raise
+
+    def _context(self) -> dict[str, object]:
+        row = _RELEASE_READ_BINDINGS.get(id(self))
+        if row is None or row[0] is not self or row[2:] != (os.getpid(), threading.get_ident()):
+            raise ProfileCoverageError("release coverage reader is closed or foreign")
+        return row[1]
+
+    def _bind_read_ports(self, *, app: object, runtime: object, objects: object, coordinator: object,
+                         namespace: object, factory: object, policy: object) -> None:
+        from graph_engineering.application.actions import ActionCoordinator
+        from graph_engineering.application.release_operations import ReleaseOperationsRegistryFactory, RetainedReleaseNamespace
+        from graph_engineering.core.profile_execution import CategoryExecutionPolicy
+        context = self._context()
+        if (context["handle"] is not None or type(app) is not TaskApplication
+                or type(runtime) is not RuntimeContext or type(objects) is not ObjectRepository
+                or type(coordinator) is not ActionCoordinator or type(namespace) is not RetainedReleaseNamespace
+                or type(factory) is not ReleaseOperationsRegistryFactory or type(policy) is not CategoryExecutionPolicy
+                or app._repository is not coordinator._repository or app._materialization_objects is not objects
+                or coordinator._objects is not objects
+                or namespace.repository_scope_digest != context["binding"].projection["repository_scope_digest"]
+                or policy.materialization_graph_ref != context["policy"].materialization_graph_ref
+                or policy.policy_digest != context["policy"].policy_digest):
+            raise ProfileCoverageError("release reader reopened ports are foreign")
+        namespace.require_current(coordinator)
+        factory._cold_artifact_authority()
+        if any(factory._bootstrap.get(key) != value for key, value in context["binding"].projection["installation_pins"].items()):
+            raise ProfileCoverageError("release reader reopened installation changed")
+        context["ports"] = (app, runtime, objects, coordinator, namespace, factory, policy)
+        authority = context["authority"]
+        authority._tasks, authority._runtime, authority._objects, authority._repository = app, runtime, objects, app._repository
+
+    def open(self) -> _ReleaseCoverageReadBinding:
+        from graph_engineering.application.release_operations import restore_current_release_assessment, _open_release_rejection_reader
+        context = self._context()
+        if context["handle"] is not None or not context["session"]._root.closed or context["ports"] is None:
+            raise ProfileCoverageError("release reader is already open or has no reopened source ports")
+        app, runtime, objects, coordinator, namespace, factory, policy = context["ports"]
+        record = context["record"]
+        try:
+            if record.result == "COMPLETED":
+                handle = restore_current_release_assessment(task_application=app,
+                    runtime=runtime, policy=policy, release_factory=factory,
+                    object_repository=objects, action_coordinator=coordinator,
+                    retained_namespace=namespace, task_id=record.task_id)
+            else:
+                handle = _open_release_rejection_reader(app=app, runtime=runtime, policy=policy,
+                    factory=factory, objects=objects, coordinator=coordinator, namespace=namespace,
+                    task_id=record.task_id, target_id=context["binding"].projection["target_id"],
+                    action_id=context["action_id"], expected_state_digest=record.after_state_digest,
+                    pending_digests=context["pending_digests"], expected_tree_digest=context["expected_tree_digest"])
+            context["handle"] = handle
+            context["read_generation"] += 1
+            self._check_captured_history()
+            return self
+        except BaseException:
+            self.quiesce(self)
+            raise
+
+    def _bind_source_reopener(self, reopen_sources: object) -> None:
+        context = self._context()
+        if context["reopen_sources"] is not None or not callable(reopen_sources):
+            raise ProfileCoverageError("release source reopener is foreign")
+        context["reopen_sources"] = reopen_sources
+
+    def require_current(self) -> None:
+        context = self._context()
+        context["authority"]._require_active()
+        if context["handle"] is None:
+            raise ProfileCoverageError("release reader has no open phase")
+        reopen = context["reopen_sources"]
+        if reopen is None:
+            context["handle"].query()
+        else:
+            previous, generation = context["handle"], context["read_generation"]
+            reopen()
+            if context["handle"] is previous or context["read_generation"] != generation + 1:
+                raise ProfileCoverageError("release source reopener did not complete a fresh read")
+        self._check_captured_history()
+
+    def _check_captured_history(self) -> None:
+        context = self._context()
+        authority, record = context["authority"], context["record"]
+        authority._require_active()
+        if (context["handle"] is None or not context["session"]._root.closed
+                or freeze(record.to_dict()) != context["record_document"]):
+            raise ProfileCoverageError("release reader record or lifetime changed")
+        history = (context["handle"]._record()[1].history if record.result == "COMPLETED"
+                   else context["handle"].history)
+        if (history["coverage_state_digest"] != record.after_state_digest
+                or record.result == "COMPLETED" and history["assessment_bytes"] != context["assessment_bytes"]):
+            raise ProfileCoverageError("release reader assessment or source state changed")
+        current = history["coverage_source_digest"]
+        if context["source_digest"] is None:
+            context["source_digest"] = current
+        elif current != context["source_digest"]:
+            raise ProfileCoverageError("release reader source/action/security/physical closure changed")
+
+    def state_digest(self) -> str:
+        self.require_current()
+        return self._context()["record"].after_state_digest
+
+    def completion_values(self, test_id: str) -> dict[str, object]:
+        self.require_current()
+        context = self._context()
+        record = context["record"]
+        if record.test_id != test_id or record.result != "COMPLETED":
+            raise ProfileCoverageError("release reader completion selector is foreign")
+        return {key: value for key, value in thaw(context["record_document"]).items()
+            if key not in {"schema_version", "execution_digest", "execution_object_digest"}}
+
+    def quiesce(self, handle: object) -> None:
+        if handle is not self:
+            raise ProfileCoverageError("release reader close handle is foreign")
+        context = self._context()
+        current, context["handle"] = context["handle"], None
+        context["ports"] = None
+        if current is not None:
+            from graph_engineering.application.release_operations import _ReadOnlyReleaseAssessment, _COLD_ASSESSMENT_HANDLES
+            if type(current) is not _ReadOnlyReleaseAssessment or id(current) in _COLD_ASSESSMENT_HANDLES:
+                current.close()
+
+    def terminate(self, action: str) -> None:
+        if action not in {"revoke", "finalize"}:
+            raise ProfileCoverageError("release reader terminal action is foreign")
+        if id(self) not in _RELEASE_READ_BINDINGS:
+            return
+        try:
+            self.quiesce(self)
+        finally:
+            _RELEASE_READ_BINDINGS.pop(id(self), None)
+
+    def session_closed(self) -> bool:
+        return self._context()["session"]._root.closed
+
+    def active_readers(self) -> int:
+        row = _RELEASE_READ_BINDINGS.get(id(self))
+        return 0 if row is None else int(row[1]["handle"] is not None)
 
 
 class ProfileCoverageBindingLifecycle:
@@ -291,6 +506,7 @@ class ProfileCoverageAuthority:
         self._performance_registration = None
         self._performance_rejection_binding = None
         self._binding_lifecycle: ProfileCoverageBindingLifecycle | None = None
+        self.__release_reader: _ReleaseCoverageReadBinding | None = None
         if performance_factory is not None:
             from graph_engineering.application.performance_benchmark import (
                 PerformanceBenchmarkError,
@@ -342,6 +558,13 @@ class ProfileCoverageAuthority:
             raise ProfileCoverageError("coverage binding lifecycle is foreign")
         lifecycle._require_process_local_current()
         self._binding_lifecycle = lifecycle
+
+    def _seal_release_reader(self, record: object, namespace: object) -> _ReleaseCoverageReadBinding:
+        if self.__release_reader is not None:
+            raise ProfileCoverageError("release reader is already sealed")
+        reader = _ReleaseCoverageReadBinding._issue(self, record, namespace)
+        self.__release_reader = reader
+        return reader
 
     def _run_binding_phase(self, purpose: str, phase: object) -> object:
         lifecycle = self._binding_lifecycle
@@ -567,7 +790,8 @@ class ProfileCoverageAuthority:
                 if item[1] is issued
             ),
             "plan_digest": self._plan.plan_digest,
-            "task_state": self._state_document(issued.task_id),
+            "task_state": (self._state_document(issued.task_id) if self.__release_reader is None
+                else {"source_state_digest": issued.after_state_digest}),
         }
 
     def _require_active(self) -> None:
@@ -731,6 +955,9 @@ class ProfileCoverageAuthority:
                 self.__issued.clear()
                 self.__scenario_rejections.clear()
                 self.__scenario_rejection_factory = None
+                if self.__release_reader is not None:
+                    self.__release_reader.terminate(terminal_action)
+                    self.__release_reader = None
                 self._category = None
                 self._tasks = None
                 self._repository = None
@@ -848,22 +1075,18 @@ class ProfileCoverageAuthority:
             or binding.get("execution_kind") != "real-target"
         ):
             return
-        from graph_engineering.application.profile_real_e2e import (
-            ProfileRealE2EAuthority,
-            ProfileRealE2EError,
-        )
-
         authority = self._category._facts._real_e2e_authority
-        if type(authority) is not ProfileRealE2EAuthority:
-            raise ProfileCoverageError(
-                "Profile real-E2E coverage authority is unavailable"
-            )
+        if self.__release_reader is not None:
+            self.__release_reader.require_current()
+            return
         try:
+            from graph_engineering.application.profile_execution import _require_real_category_authority
+            _require_real_category_authority(authority, str(binding["profile_id"]))
             authority.require_current(
                 expected_task_id=task_id,
                 require_success=binding.get("disposition") == "P",
             )
-        except ProfileRealE2EError as error:
+        except ValueError as error:
             raise ProfileCoverageError(str(error)) from error
 
     @staticmethod
@@ -952,6 +1175,8 @@ class ProfileCoverageAuthority:
             raise ProfileCoverageError("coverage completion Profile is foreign")
         if task_id != binding["task_id"]:
             raise ProfileCoverageError("coverage completion task identity is foreign")
+        if self.__release_reader is not None:
+            return self.__release_reader.completion_values(test_id)
         self._require_real_e2e_current(binding, task_id=task_id)
         try:
             assessment = self._category.current_assessment(
@@ -1073,6 +1298,26 @@ class ProfileCoverageAuthority:
                 )
         elif assessment.schema_version == "1.3.0":
             raise ProfileCoverageError("scenario truth projection is missing")
+        release_projection = getattr(assessment, "release_operations_projection", None)
+        if assessment.profile_id == "release-operations" or release_projection is not None or assessment.schema_version == "1.4.0":
+            if (
+                assessment.schema_version != "1.4.0"
+                or assessment.profile_id != "release-operations"
+                or binding["selector_kind"] != "mandatory"
+                or not isinstance(release_projection, FrozenMap)
+                or any(getattr(assessment, field) is not None for field in (
+                    "performance_evidence_projection", "migration_rehearsal_projection",
+                    "dependency_graph_projection", "scenario_truth_projection"))
+            ):
+                raise ProfileCoverageError("release category projection is absent or foreign")
+            projection_body = thaw(release_projection)
+            if (
+                any(projection_body.get(field) != getattr(assessment, field) for field in (
+                    "task_id", "task_revision", "snapshot_digest", "invalidation_epoch",
+                    "column_id", "scenario_id"))
+                or projection_body.get("graph_ref_pins") != thaw(assessment.materialization_pins)
+            ):
+                raise ProfileCoverageError("release category projection binding changed")
         reference = {
             "evidence_id": assessment.assessment_digest,
             "evidence_type": "category-completion-assessment",
@@ -1500,14 +1745,16 @@ class ProfileCoverageAuthority:
                     "coverage rejection request projection is absent"
                 )
             binding = self._binding(record.test_id, "R")
-            self._require_real_e2e_current(binding, task_id=record.task_id)
+            if self.__release_reader is None:
+                self._require_real_e2e_current(binding, task_id=record.task_id)
             request = thaw(request_projection)
             request_digest = _semantic(request, "profile-coverage-request")
-            current_state = self._state_document(record.task_id)
-            current_digest = _semantic(
-                current_state,
-                "profile-coverage-task-state",
-            )
+            if self.__release_reader is None:
+                current_state = self._state_document(record.task_id)
+                current_digest = _semantic(current_state, "profile-coverage-task-state")
+            else:
+                current_digest = self.__release_reader.state_digest()
+                current_state = {"source_state_digest": current_digest}
             oracle_digest = self._isolated_rejection_oracle(
                 test_id=record.test_id,
                 result=record.result,

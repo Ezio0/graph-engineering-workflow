@@ -454,3 +454,25 @@ waiver、修改Support Matrix或从真实环境补证。
 若实现或review不收敛，停止注册release factories/adapter，移除尚未采用的1.4/config/schema/code/tests，保留既有 plan244、
 assessment1.0～1.3、action/repository/GraphRef semantics与所有通过records。不得回退为真实deploy、网络health、WP-10、
 caller PASS或partial deployment成功。
+
+## Mandatory24 implementation refinement — 2026-09-21
+
+The approved mandatory24 amendment implements sections 4–5 in a bounded batch.
+The current RS-C retained-source implementation already supports cold normal
+assessment reads; the earlier foundation-only restart paragraph is historical.
+The new batch extends that captured-source mechanism to the other eleven
+mandatory columns under the same owner lifetime, limits and two-capture rule.
+It issues 24 mandatory bindings / twelve oracles only; the six scenario bindings
+and any cumulative gate execution remain outside this authorization.
+
+The [Spec mandatory24 amendment](../specs/graph-engineering-workflow.md#p3-mandatory24-bounded-contract--2026-09-21)
+defines exact per-column joins, private adoption of completed release rollback,
+and a factory-sealed local real-execution authority. These are implementation
+refinements of the adopted simulator/action-protocol boundary, with no new public
+contract, database, event, GraphRef, dependency or runtime adapter. Completed
+restore adoption verifies the existing action; it cannot execute a second restore.
+The Git real-E2E authority remains exclusive to its existing profiles.
+
+Artifact provenance distinguishes installed fixture bytes from distribution and
+package-resource provenance. Cold historical handles carry no mutation or live
+evidence authority. Configuration 268/134 is not a dynamic acceptance claim.

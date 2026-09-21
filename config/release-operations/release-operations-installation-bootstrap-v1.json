@@ -100,7 +100,7 @@
   },
   "source_authority_pins": {
     "policy_id": "source-checkout-attestation-v1",
-    "source_file_count": 327,
+    "source_file_count": 339,
     "source_issuer_raw_sha256": "d03644ab0db302f260981fb9e38c985c9d6ec2c1bc528d9dfd20b1379c81ba1d"
   },
   "package_authority_pins": {
@@ -123,11 +123,11 @@
     },
     {
       "path": "application/graph_engineering/application/profile_execution.py",
-      "raw_sha256": "dbdc3576814816c25839c0c3261e0aad9a4706a4851c943daae9e618a83db37e"
+      "raw_sha256": "ff88c598e8d7e6964fa1dd9d90caeb22935cb499c43ee6b6b47bba982fa34101"
     },
     {
       "path": "application/graph_engineering/application/release_operations.py",
-      "raw_sha256": "7f186bc610c80101f15d881b423c13eb06679d2747a372e7dd34e3cdce7678d2"
+      "raw_sha256": "635198db29ad67738d2cdcc1a9ef5ffa5a448ee0f3b5178bc297baa20796017b"
     },
     {
       "path": "application/graph_engineering/application/security.py",
@@ -199,7 +199,7 @@
     },
     {
       "path": "core/graph_engineering/__init__.py",
-      "raw_sha256": "013f5019abe5eb638eae78c7d24b4acd51567af8b59d91a86a6fe4fa6f1fe282"
+      "raw_sha256": "957084e513d329c83f39070e1017c281d4c5ab1d17411c2d01f82e93c755efb8"
     },
     {
       "path": "core/graph_engineering/core/artifacts/__init__.py",
@@ -239,13 +239,13 @@
     },
     {
       "path": "storage/graph_engineering/storage/repository.py",
-      "raw_sha256": "07ef630871c38aaccdc6ca6cd4c73f99c8f5fd70d7546715398169aa46a62ebf"
+      "raw_sha256": "deb7fa85199ecbbdd39402dc5754d2418940d7ae7ff05f8b079532c8712fbbe8"
     },
     {
       "path": "storage/graph_engineering/storage/security.py",
       "raw_sha256": "7f1aba74e0ddc66d68b015425eba6919585066327a6ea64983739015dda2be2e"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:5505b9938d5a0324eea37b6a2957d0880df3aa30db54976ae9cbe9ba3201a016",
-  "bootstrap_digest": "sha256-jcs-v1:835ef30c39602a6f276dfe250be0b619a115d774e635e9885b6c020daecf72af"
+  "protected_closure_digest": "sha256-jcs-v1:c8a0d769b1dcb0c5f13feec9542345bbeb84839f488782878780226c16d5f39d",
+  "bootstrap_digest": "sha256-jcs-v1:cd9bb190580553352444d9b0db21692b67b1e65fe96aeb9b78a242e77a34a1f2"
 }

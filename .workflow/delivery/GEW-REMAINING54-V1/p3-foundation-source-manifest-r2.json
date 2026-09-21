@@ -39755,5 +39755,747 @@
       },
       "clarification": "The result equals earlier R2 because both runs had no findings. Frozen verification.static_checks was populated from R3. This is affected42 lint/type/architecture, not whole-project static."
     }
+  ],
+  "p3_restart_cold_source_retrospectives": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-restart-cold-retrospective-r0",
+      "revision": 0,
+      "author_id": "/root",
+      "scope": "Retrospective and bounded handoff of the committed normal-only RS-C cold recovery slice; no later product implementation.",
+      "predecessors": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+          "member": "p3_restart_cold_source_verification_revisions[1]",
+          "canonical_sha256": "sha256:7f8af730e34dfa2c41edcf3245308e10716e836b09a9a3a8c0e87bf5d5a0dcde"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+          "member": "p3_restart_cold_source_verification_revisions[1]",
+          "canonical_sha256": "sha256:c91e7fcdf4f00bf7d7aea2a0162f85b75a3b11d87abe59e04b60f4741467aa27"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+          "member": "p3_restart_cold_source_verification_revisions[1]",
+          "canonical_sha256": "sha256:cfa4353dc8266833156fbbbc4f6dd0d986e374be72e52c2aaa59fb00343192b1"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+          "member": "p3_restart_cold_source_verification_revisions[1]",
+          "canonical_sha256": "sha256:513533f98a1458b55c1961a4a755a3c70ffb0d10889737d39b41404932f309b0"
+        }
+      ],
+      "references": [
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-cold-candidate-r0.json",
+          "raw_sha256": "b53a285f704c9da23a66b62495b040e73a7423a2168f617a93ae761b58f3b887"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-cold-review-r0.json",
+          "raw_sha256": "e7ba780225d4828e826d1807527ea9fc82cbcda49889949404eb5e3d3472dd71"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-cold-review-verdict-r0.json",
+          "raw_sha256": "49ebe880ccad4728d0bfb5f2e1853c30915ef6a5493f7c1405534470c34c24c5"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-cold-receipt-r0.json",
+          "raw_sha256": "8b9c53b682fc51f1dc17eea6079e6663f2b87dbe868f9eb1122f434a9de68131"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-cold-commit-authorization-r0.json",
+          "raw_sha256": "ead87a2c7d89d55ef2e70eca57b1e1c14ae196e13585bb347d2be08d6945d9cd"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-cold-canonical-plan-r0.json",
+          "raw_sha256": "a08d5d0aa7c9ea281dc71bfe95803202672dd983bca9d3639125c70d715256f5"
+        },
+        {
+          "path": ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-cold-canonical-summary-r0.json",
+          "raw_sha256": "ae09cc3243118b39c3b4cb5b2da6b98014da24e647578a8ebd0abcc844b3110f"
+        }
+      ],
+      "reducer_inputs": {
+        "graph": {
+          "source_path": "/Users/ezio/Documents/MyProjects/data/codex-skill-snapshots/e2d398ee7ea4e965d6f8f1c55f45debff7f69058/config/delivery-graph.json",
+          "raw_sha256": "0509725a3f60ad32712e349a357eb9d11a0c9ca0d71c2a35a4121e8402ed918d",
+          "document": {
+            "schema_version": "1.0",
+            "graph_version": "1.0.0",
+            "entry_node": "positioning",
+            "nodes": {
+              "positioning": {
+                "artifact": "positioning",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "prd"
+              },
+              "prd": {
+                "artifact": "prd",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "spec"
+              },
+              "spec": {
+                "artifact": "spec",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "impact"
+              },
+              "impact": {
+                "artifact": "impact",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "plan"
+              },
+              "plan": {
+                "artifact": "plan",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "test-plan"
+              },
+              "test-plan": {
+                "artifact": "test_plan",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "implementation"
+              },
+              "implementation": {
+                "artifact": "implementation",
+                "required_action": "implementation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "verification"
+              },
+              "verification": {
+                "artifact": "verification",
+                "required_action": "verification",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "candidate"
+              },
+              "candidate": {
+                "artifact": "candidate",
+                "required_action": "candidate",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "independent-review"
+              },
+              "independent-review": {
+                "artifact": "review",
+                "required_action": "review",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "commit"
+              },
+              "commit": {
+                "artifact": "commit",
+                "required_action": "commit",
+                "human_authority_required": true,
+                "terminal": false,
+                "next": "receipt"
+              },
+              "receipt": {
+                "artifact": "receipt",
+                "required_action": "receipt",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "retro"
+              },
+              "retro": {
+                "artifact": "retro",
+                "required_action": "documentation",
+                "human_authority_required": false,
+                "terminal": false,
+                "next": "complete"
+              },
+              "complete": {
+                "artifact": "complete",
+                "required_action": "none",
+                "human_authority_required": false,
+                "terminal": true,
+                "next": null
+              }
+            }
+          }
+        },
+        "policy": {
+          "source_path": "config/workflow-policy.json",
+          "raw_sha256": "9261231a09a889620ae06efa385bf323bad5cd149683259341a659b89018283c",
+          "document": {
+            "schema_version": "1.0",
+            "policy_version": "4.0.0",
+            "verification_evidence": {
+              "required_tiers": [
+                "T1",
+                "T2",
+                "T3"
+              ],
+              "passing_exit_codes": [
+                0
+              ],
+              "max_age_seconds": 86400,
+              "timeout_seconds": 300,
+              "detached_path_prefixes": [
+                ".workflow/delivery/GEW-REMAINING54-V1/detached/"
+              ]
+            },
+            "tiers": {
+              "T0": {
+                "lane": "normal",
+                "required_artifacts": [
+                  "kanban"
+                ],
+                "required_roles": [],
+                "review_roles": [
+                  "human-owner",
+                  "technical-reviewer"
+                ],
+                "independent_review_required": false
+              },
+              "T1": {
+                "lane": "normal",
+                "required_artifacts": [
+                  "lean_scope"
+                ],
+                "required_roles": [
+                  "human-owner",
+                  "technical-reviewer",
+                  "authorized-committer"
+                ],
+                "review_roles": [
+                  "technical-reviewer"
+                ],
+                "independent_review_required": true
+              },
+              "T2": {
+                "lane": "normal",
+                "required_artifacts": [
+                  "positioning",
+                  "prd",
+                  "spec",
+                  "plan",
+                  "test_plan"
+                ],
+                "required_roles": [
+                  "human-owner",
+                  "product-reviewer",
+                  "technical-reviewer",
+                  "authorized-committer"
+                ],
+                "review_roles": [
+                  "technical-reviewer"
+                ],
+                "independent_review_required": true
+              },
+              "T3": {
+                "lane": "emergency",
+                "required_artifacts": [
+                  "incident",
+                  "test_evidence",
+                  "review"
+                ],
+                "required_roles": [
+                  "human-owner",
+                  "technical-reviewer",
+                  "authorized-committer"
+                ],
+                "review_roles": [
+                  "technical-reviewer"
+                ],
+                "independent_review_required": true
+              }
+            },
+            "classification": {
+              "direct_change_lines": 20,
+              "large_change_lines": 200,
+              "large_change_files": 10,
+              "cross_module_top_level_count": 2,
+              "non_product_path_prefixes": [
+                ".workflow/"
+              ],
+              "non_product_exact_paths": [
+                "AGENTS.md"
+              ],
+              "interface_path_markers": [
+                "api",
+                "endpoint",
+                "route",
+                "handler",
+                "openapi"
+              ],
+              "schema_path_markers": [
+                "migration",
+                "model",
+                "schema",
+                "ddl"
+              ]
+            },
+            "incident": {
+              "follow_up_hours": 48,
+              "required_fields": [
+                "schema_version",
+                "incident_id",
+                "opened_at",
+                "follow_up_deadline",
+                "impact",
+                "eligibility",
+                "owner_role",
+                "reviewer_role",
+                "status",
+                "test_evidence",
+                "review"
+              ],
+              "statuses": [
+                "open",
+                "mitigated",
+                "follow-up-complete"
+              ],
+              "passing_test_outcomes": [
+                "passed"
+              ],
+              "approved_review_outcomes": [
+                "APPROVED"
+              ]
+            },
+            "artifact_review": {
+              "independent_review_required": true,
+              "max_revision_cycles": 3,
+              "allowed_verdicts": [
+                "PASS",
+                "REVISE",
+                "ESCALATE",
+                "BLOCKED"
+              ],
+              "finding_severities": [
+                "advisory",
+                "blocking"
+              ],
+              "finding_statuses": [
+                "open",
+                "resolved"
+              ],
+              "routine_change_kinds": [
+                "clarification",
+                "traceability",
+                "testability"
+              ],
+              "human_required_change_kinds": [
+                "goal",
+                "non-goal",
+                "scope-expansion",
+                "target-boundary",
+                "tier",
+                "budget",
+                "external-dependency",
+                "data-access",
+                "security-posture",
+                "architecture-choice",
+                "reviewer-conflict"
+              ],
+              "irreversible_actions": [
+                "commit",
+                "push",
+                "merge",
+                "deploy",
+                "release",
+                "external-message"
+              ]
+            },
+            "artifact_requirements": {
+              "lean_scope": {
+                "minimum_h2": 6,
+                "minimum_body_chars": 20,
+                "required_headings": [
+                  "Scope",
+                  "Acceptance Criteria",
+                  "Critical Journeys",
+                  "Test Boundary",
+                  "Review Boundary",
+                  "Commit Boundary"
+                ]
+              },
+              "positioning": {
+                "minimum_h2": 5,
+                "minimum_body_chars": 1
+              },
+              "prd": {
+                "minimum_h2": 13,
+                "minimum_body_chars": 1
+              },
+              "spec": {
+                "minimum_h2": 12,
+                "minimum_body_chars": 1
+              },
+              "plan": {
+                "minimum_h2": 8,
+                "minimum_body_chars": 1
+              },
+              "test_plan": {
+                "minimum_h2": 8,
+                "minimum_body_chars": 1
+              },
+              "incident": {
+                "format": "json"
+              },
+              "test_evidence": {
+                "format": "json"
+              },
+              "review": {
+                "format": "json"
+              }
+            },
+            "bilingual": {
+              "legacy_suffix_pairs": [
+                [
+                  "_en.md",
+                  "_zh.md"
+                ],
+                [
+                  ".en.md",
+                  ".zh.md"
+                ]
+              ],
+              "heading_levels": [
+                1,
+                2,
+                3
+              ],
+              "exclude_directories": [
+                ".git",
+                "node_modules",
+                "__pycache__",
+                ".venv",
+                "venv"
+              ]
+            },
+            "content_neutrality": {
+              "scan_roots": [
+                "README.md",
+                "README.zh.md",
+                "QUICKSTART.md",
+                "QUICKSTART.zh.md",
+                "docs/workflow",
+                "docs/platforms",
+                "docs/positioning",
+                "agents",
+                ".qoder-plugin",
+                "docs/prd",
+                "docs/specs",
+                "docs/impact",
+                "docs/plans",
+                "docs/test-plans",
+                "skills",
+                "examples",
+                "scripts",
+                "tests"
+              ],
+              "exclude_paths": [
+                "skills/archive",
+                "config/workflow-policy.json"
+              ],
+              "patterns": {
+                "personal-name": "\\bEzio\\b",
+                "fictional-name-en": "\\bYang Lei\\b",
+                "fictional-name-zh": "杨磊",
+                "private-home-path": "/Users/[A-Za-z0-9._-]+",
+                "personal-profile": "\\bezio-(zero|infinite|quarter|half)\\b"
+              },
+              "exemptions_require_reason": true
+            }
+          }
+        },
+        "envelope": {
+          "document": {
+            "schema_version": "1.0",
+            "task_id": "GEW-REMAINING54-V1",
+            "goal": "Implement the Human-approved bounded RS-C R2 task/source read API and fixed consumers, existing action/security read hardening and shared reservation lifetime, then complete normal-only RS-4/RS-5 under P3-RS-A; no coverage or irreversible action. Include the explicitly confirmed private installation-control read extension in migration.py.",
+            "non_goals": [
+              "Change the approved Positioning or PRD Intent Baseline.",
+              "Use or modify a user project or the read-only reference repository.",
+              "Use a real staging or production environment, network access, remote health checks, credentials, or external services.",
+              "Enable or implement WP-10 installation, upgrade, deployment, publication, or release scope.",
+              "Add a database schema, repository event kind, GraphRef field or API, dependency, daemon, or remote state service.",
+              "Treat local production-like or release-simulator evidence as real production, deployment, or release evidence.",
+              "Commit, push, merge, deploy, release, publish, or communicate externally.",
+              "mandatory/scenario coverage issuance",
+              "cumulative/performance workload execution",
+              "monitoring"
+            ],
+            "allowed_targets": [
+              ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p1-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-state-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-review-verdict-r1.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/candidate-decision-r1.json",
+              "docs/adr/0007-offline-performance-benchmark-authority.md",
+              "docs/adr/0008-local-profile-scenario-truth-authority.md",
+              "docs/adr/0009-offline-release-operations-simulator-authority.md",
+              "docs/specs/graph-engineering-workflow.md",
+              "docs/impact/graph-engineering-workflow.md",
+              "docs/plans/2026-08-13-graph-engineering-workflow.md",
+              "docs/test-plans/graph-engineering-workflow.md",
+              "pyproject.toml",
+              "core/graph_engineering/__init__.py",
+              "core/graph_engineering/core/__init__.py",
+              "core/graph_engineering/core/contracts/resources.py",
+              "core/graph_engineering/core/performance_benchmark.py",
+              "core/graph_engineering/core/profile_coverage.py",
+              "core/graph_engineering/core/profile_execution.py",
+              "core/graph_engineering/core/source_checkout.py",
+              "core/graph_engineering/core/profiles.py",
+              "core/graph_engineering/core/scenario_truth.py",
+              "core/graph_engineering/core/release_operations.py",
+              "application/graph_engineering/application/__init__.py",
+              "application/graph_engineering/application/actions.py",
+              "application/graph_engineering/application/dependency_security.py",
+              "application/graph_engineering/application/performance_benchmark.py",
+              "application/graph_engineering/application/profile_execution.py",
+              "application/graph_engineering/application/profile_coverage.py",
+              "application/graph_engineering/application/profile_coverage_oracle.py",
+              "application/graph_engineering/application/profile_real_e2e.py",
+              "application/graph_engineering/application/profile_real_e2e_verifier.py",
+              "application/graph_engineering/application/runner.py",
+              "application/graph_engineering/application/runtime.py",
+              "application/graph_engineering/application/tasks.py",
+              "application/graph_engineering/application/scenario_truth.py",
+              "application/graph_engineering/application/release_operations.py",
+              "adapters/graph_engineering/adapters/__init__.py",
+              "adapters/graph_engineering/adapters/action_adapters.py",
+              "adapters/graph_engineering/adapters/local_release_simulator.py",
+              "config/actions/action-policy-local-actions-v1.json",
+              "config/actions/action-policy-v1.json",
+              "config/actions/concrete-action-policy-v1.json",
+              "config/actions/connector-registry-v1.json",
+              "config/contracts/action-adapter-registry-v1.json",
+              "config/contracts/action-adapter-schema-registry-v1.json",
+              "config/contracts/profile-schema-registry-v1.json",
+              "config/contracts/schemas/scenario-truth-policy-registry-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-policy-registry-input-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-observation-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-installation-bootstrap-1.0.0.json",
+              "config/contracts/schemas/scenario-truth-installation-bootstrap-input-1.0.0.json",
+              "config/contracts/schemas/category-completion-assessment-1.3.0.json",
+              "config/contracts/schemas/category-completion-assessment-input-1.3.0.json",
+              "config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
+              "config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+              "config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
+              "config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
+              "config/contracts/schemas/release-artifact-manifest-1.0.0.json",
+              "config/contracts/schemas/release-artifact-manifest-input-1.0.0.json",
+              "config/contracts/schemas/release-health-observation-1.0.0.json",
+              "config/contracts/schemas/release-health-observation-input-1.0.0.json",
+              "config/contracts/schemas/release-deployment-observation-1.0.0.json",
+              "config/contracts/schemas/release-deployment-observation-input-1.0.0.json",
+              "config/contracts/schemas/release-operations-observation-1.0.0.json",
+              "config/contracts/schemas/release-operations-observation-input-1.0.0.json",
+              "config/contracts/schemas/release-operations-installation-bootstrap-1.0.0.json",
+              "config/contracts/schemas/release-operations-installation-bootstrap-input-1.0.0.json",
+              "config/contracts/schemas/category-completion-assessment-1.4.0.json",
+              "config/contracts/schemas/category-completion-assessment-input-1.4.0.json",
+              "config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json",
+              "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+              "config/performance/performance-benchmark-registry-v1.json",
+              "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+              "config/profiles/profile-coverage-execution-plan-v1.json",
+              "config/profiles/profile-real-e2e-binding-registry-v1.json",
+              "config/profiles/scenario-truth-policy-registry-v1.json",
+              "config/profiles/scenario-truth-fixture-registry-v1.json",
+              "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+              "config/release-coverage/oracle-manifest-v1.json",
+              "config/release-operations/release-operations-policy-registry-v1.json",
+              "config/release-operations/release-simulator-fixture-registry-v1.json",
+              "config/release-operations/release-operations-installation-bootstrap-v1.json",
+              "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+              "config/security/security-runtime-local-actions-v1.json",
+              "config/security/security-runtime-v1.json",
+              "config/test-oracles/profile-performance-noise-outlier-v1.json",
+              "config/test-oracles/profile-performance-correctness-regression-v1.json",
+              "config/test-oracles/profile-new-feature-multi-target-v1.json",
+              "config/test-oracles/profile-hotfix-emergency-baseline-v1.json",
+              "config/test-oracles/profile-hotfix-production-like-gate-v1.json",
+              "config/test-oracles/profile-refactor-debt-behavior-characterization-v1.json",
+              "config/test-oracles/profile-refactor-debt-architecture-invariant-v1.json",
+              "config/test-oracles/profile-refactor-debt-nonfunctional-target-v1.json",
+              "config/test-oracles/profile-incident-response-detection-v1.json",
+              "config/test-oracles/profile-incident-response-containment-v1.json",
+              "config/test-oracles/profile-incident-response-scenario-recovery-v1.json",
+              "config/test-oracles/profile-incident-response-unknown-effects-v1.json",
+              "config/test-oracles/profile-release-operations-artifacts-v1.json",
+              "config/test-oracles/profile-release-operations-authority-v1.json",
+              "config/test-oracles/profile-release-operations-boundary-v1.json",
+              "config/test-oracles/profile-release-operations-drift-v1.json",
+              "config/test-oracles/profile-release-operations-invalidation-v1.json",
+              "config/test-oracles/profile-release-operations-normal-v1.json",
+              "config/test-oracles/profile-release-operations-real-e2e-v1.json",
+              "config/test-oracles/profile-release-operations-recovery-v1.json",
+              "config/test-oracles/profile-release-operations-review-v1.json",
+              "config/test-oracles/profile-release-operations-revise-v1.json",
+              "config/test-oracles/profile-release-operations-rollback-v1.json",
+              "config/test-oracles/profile-release-operations-target-v1.json",
+              "config/test-oracles/profile-release-operations-artifact-provenance-v1.json",
+              "config/test-oracles/profile-release-operations-health-gate-v1.json",
+              "config/test-oracles/profile-release-operations-partial-deploy-v1.json",
+              "config/verification/wp-00-targets.json",
+              "scripts/check_architecture.py",
+              "tests/fixtures/wp08-release-operations-real-e2e-v1.json",
+              "tests/support/runtime_distribution.py",
+              "tests/support/runtime_resources.py",
+              "tests/support/source_checkout_attestation.py",
+              "tests/support/wp05_actions.py",
+              "tests/support/wp08_category_execution.py",
+              "tests/support/wp08_performance_benchmark.py",
+              "tests/support/wp08_release_coverage.py",
+              "tests/support/wp08_scenario_truth.py",
+              "tests/support/wp08_release_operations.py",
+              "tests/unit/test_wp00_packaging.py",
+              "tests/unit/test_wp08_profile_contracts.py",
+              "tests/unit/test_wp08_profile_expansion.py",
+              "tests/unit/test_wp08_scenario_truth.py",
+              "tests/unit/test_wp08_release_operations.py",
+              "tests/contract/test_wp08_remaining54_contracts.py",
+              "tests/integration/test_wp08_category_execution.py",
+              "tests/integration/test_wp08_release_coverage.py",
+              "tests/integration/test_wp08_scenario_truth.py",
+              "tests/integration/test_wp08_release_operations.py",
+              "tests/security/test_wp07a_action_contract_security.py",
+              "tests/contract/test_wp07a_action_contracts.py",
+              "tests/security/test_wp08_remaining54_authority.py",
+              "tests/e2e/test_wp00_installed_wheel.py",
+              "config/contracts/schemas/release-recovery-binding-1.0.0.json",
+              "config/contracts/schemas/release-recovery-binding-input-1.0.0.json",
+              "application/graph_engineering/application/security.py",
+              "storage/graph_engineering/storage/security.py",
+              ".workflow/manifest.json",
+              "config/workflow-policy.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-precommit-evidence-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-candidate-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-review-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-receipt-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-readonly-handle-precommit-evidence-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-readonly-handle-candidate-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-readonly-handle-review-r0.json",
+              ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-readonly-handle-receipt-r0.json",
+              "storage/graph_engineering/storage/repository.py",
+              "storage/graph_engineering/storage/migration.py"
+            ],
+            "allowed_change_kinds": [
+              "architecture-detail",
+              "clarification",
+              "consistency",
+              "traceability",
+              "testability",
+              "implementation",
+              "configuration",
+              "test",
+              "verification-evidence"
+            ],
+            "human_required_change_kinds": [
+              "goal",
+              "non-goal",
+              "target-boundary",
+              "intent-baseline",
+              "authority-expansion",
+              "material-architecture-choice",
+              "dependency",
+              "data-access",
+              "security-posture",
+              "irreversible-action"
+            ],
+            "authorized_actions": [
+              "documentation",
+              "implementation",
+              "verification",
+              "independent-review",
+              "review",
+              "stage",
+              "candidate"
+            ]
+          },
+          "derivation": "The preserved approved183 product targets plus the one storage repository path explicitly approved by Human in p3_restart_action_provenance_amendment, and the same ten separately authorized workflow/immutable canonical record paths.184 product /194 effective targets. No new irreversible authority. Human p3_restart_cold_source_read_api_amendment additionally approves the final RS-C R2 task/source query, fixed consumers and existing-reader/resource hardening without changing targets or irreversible boundaries. Human p3_restart_cold_installation_control_amendment adds exactly migration.py:185 product/195 effective targets,41 selected. All earlier excluded actions remain excluded. Human user authorizes exact42-path staging, canonical verification and Candidate review; four unchanged dependencies omitted from exact staged38. No irreversible authority."
+        }
+      },
+      "artifact_binding": {
+        "method": "SHA256 canonical JSON of this immutable source-manifest member; UTF8 ensure_ascii=False, sort_keys=True, separators comma/colon; source member binds exact immutable predecessor members and detached evidence by raw hashes.",
+        "member": "p3_restart_cold_source_retrospectives[0]"
+      },
+      "outcome": {
+        "commit_sha": "9ad20d4991b0e98e6b29ce7d1cdb968eaadf2570",
+        "candidate_id": "ebb4ae67458654d839e84e4428de9936cc7340168cdf9b8ae939c4f5c9dc07a7",
+        "tree_oid": "ea5df7577f23b9ce94073507e5de7ebe8458bb9b",
+        "independent_candidate_review": "APPROVED",
+        "receipt_verified": true,
+        "native_methods": 122,
+        "canonical_records": 18,
+        "affected_static_targets": 38,
+        "schema_definitions": 10,
+        "maximum_command_seconds": 211.5961945420131,
+        "scope": "normal-only retained cold recovery and already-completed partial compensation; no coverage/performance/cumulative completion claim"
+      },
+      "lessons": [
+        "Bind canonical evidence only after exact Manifest/index stabilization; reclassify byte-unchanged targets as readonly dependencies.",
+        "Preserve whole-operation owner/resource bounds, typed durable-source joins, identity currentness and no-write rejection; do not substitute synthetic fixture proof for real specialist authoring.",
+        "Canonical batches must respect Policy300 seconds; exact count, zero skips and failure propagation are enforced; no test rerun solely due to context recovery."
+      ],
+      "remaining": {
+        "configured_records": 244,
+        "configured_oracles": 122,
+        "release_bindings": 0,
+        "next_product_batch": "mandatory24 (12 columns x P/R), proposed268/134 with6 remaining release scenario bindings",
+        "gaps": [
+          "Design typed cold recovery for the11 non-normal mandatory columns, retaining the existing normal-only boundary until separately authorized.",
+          "Integrate release assessment1.4 and local simulator real-E2E authority into the coverage lifecycle.",
+          "Preserve installed-fixture artifact truth and distinct package closure; do not claim fixture bytes are wheel bytes."
+        ],
+        "authority": "Current envelope excludes mandatory/scenario coverage issuance and cumulative/performance execution. The current continue request permits preparation; a concrete separate mandatory24 expansion remains required before implementation."
+      }
+    }
   ]
 }
