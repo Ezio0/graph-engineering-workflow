@@ -3,9 +3,13 @@
 from __future__ import annotations
 
 import base64
+import csv
+import ctypes
+import errno
 import fcntl
 import hashlib
 import hmac
+import importlib.machinery
 import importlib.metadata
 import json
 import os
@@ -50,12 +54,22 @@ _SOURCE_FILES = (
     "application/graph_engineering/application/profile_real_e2e_verifier.py",
     "application/graph_engineering/application/release_operations.py",
     "application/graph_engineering/application/scenario_truth.py",
+    "application/graph_engineering/application/security.py",
+    "application/graph_engineering/application/tasks.py",
     "config/actions/action-policy-local-actions-v1.json",
     "config/actions/action-policy-v1.json",
     "config/actions/concrete-action-policy-v1.json",
     "config/contracts/action-adapter-registry-v1.json",
     "config/contracts/action-adapter-schema-registry-v1.json",
+    "config/contracts/artifact-contracts-v1.json",
+    "config/contracts/artifact-schema-registry-v1.json",
+    "config/contracts/cost-schedule-v1.json",
     "config/contracts/profile-schema-registry-v1.json",
+    "config/contracts/resource-profile-v1.json",
+    "config/contracts/schema-profile-v1.json",
+    "config/contracts/schemas/artifact-contract-registry-1.0.0.json",
+    "config/contracts/schemas/artifact-lifecycle-event-1.0.0.json",
+    "config/contracts/schemas/artifact-record-1.0.0.json",
     "config/contracts/schemas/category-completion-assessment-1.1.0.json",
     "config/contracts/schemas/category-completion-assessment-1.2.0.json",
     "config/contracts/schemas/category-completion-assessment-1.3.0.json",
@@ -100,6 +114,7 @@ _SOURCE_FILES = (
     "config/contracts/schemas/dependency-security-observation-1.1.0.json",
     "config/contracts/schemas/dependency-security-observation-input-1.0.0.json",
     "config/contracts/schemas/dependency-security-observation-input-1.1.0.json",
+    "config/contracts/schemas/logical-body-manifest-1.0.0.json",
     "config/contracts/schemas/migration-crash-recovery-observation-1.0.0.json",
     "config/contracts/schemas/migration-crash-recovery-observation-input-1.0.0.json",
     "config/contracts/schemas/migration-rehearsal-fixture-manifest-1.0.0.json",
@@ -327,6 +342,10 @@ _SOURCE_FILES = (
     "config/test-oracles/profile-refactor-debt-rollback-v1.json",
     "config/test-oracles/profile-refactor-debt-target-v1.json",
     "core/graph_engineering/__init__.py",
+    "core/graph_engineering/core/artifacts/__init__.py",
+    "core/graph_engineering/core/artifacts/contracts.py",
+    "core/graph_engineering/core/artifacts/manifest.py",
+    "core/graph_engineering/core/artifacts/records.py",
     "core/graph_engineering/core/contracts/schema.py",
     "core/graph_engineering/core/dependency_security.py",
     "core/graph_engineering/core/migration_rehearsal.py",
@@ -342,6 +361,7 @@ _SOURCE_FILES = (
     "storage/graph_engineering/storage/clock.py",
     "storage/graph_engineering/storage/migration.py",
     "storage/graph_engineering/storage/repository.py",
+    "storage/graph_engineering/storage/security.py",
 )
 
 
@@ -363,6 +383,14 @@ def _source_checkout_root(module_path: pathlib.Path) -> pathlib.Path | None:
     if module_path != source_root / "core/graph_engineering/__init__.py":
         return None
     return source_root
+
+
+def _source_attestation_transport_limit() -> int:
+    # Each closed path occurs twice (digest and size). The fixed overhead
+    # covers signed installation fields, independently of task resource limits.
+    return max(65536, 4096 + sum(
+        2 * len(relative.encode("utf-8")) + 96 for relative in _SOURCE_FILES
+    ))
 
 
 def _canonical(value: object) -> bytes:
@@ -446,7 +474,7 @@ def _source_file_projection(source_root: pathlib.Path, owner: int) -> tuple[dict
     return digests, sizes
 
 
-def _validate_source_checkout_attestation(source_root: pathlib.Path) -> None:
+def _validate_source_checkout_attestation(source_root: pathlib.Path, *, _capture=False):
     configured = sys._xoptions.get(_CONTROL_OPTION)
     option_prefix = _CONTROL_OPTION + "="
     explicit_values: list[str] = []
@@ -507,7 +535,9 @@ def _validate_source_checkout_attestation(source_root: pathlib.Path) -> None:
         key = _read_owner_only_file(control_root / _ATTESTATION_KEY, maximum=32)
         if len(key) != 32:
             raise DistributionIdentityError("source checkout attestation key is invalid")
-        raw = _read_owner_only_file(control_root / _ATTESTATION_FILE, maximum=65536)
+        raw = _read_owner_only_file(
+            control_root / _ATTESTATION_FILE, maximum=_source_attestation_transport_limit(),
+        )
         try:
             document = json.loads(raw)
         except (UnicodeDecodeError, json.JSONDecodeError) as error:
@@ -574,6 +604,13 @@ def _validate_source_checkout_attestation(source_root: pathlib.Path) -> None:
         }
         if document != expected:
             raise DistributionIdentityError("source checkout attestation binding changed")
+        if _capture:
+            return _SourceInstallationReadPlan(
+                source_root, control_root, source_metadata, control_metadata,
+                tuple((name, file_sizes[name], file_digests[name]) for name in _SOURCE_FILES),
+                (len(key), hashlib.sha256(key).hexdigest()),
+                (len(raw), hashlib.sha256(raw).hexdigest()),
+            )
     finally:
         try:
             fcntl.flock(lock_descriptor, fcntl.LOCK_UN)
@@ -999,9 +1036,11 @@ def _category_policy_installation_resources() -> tuple[bytes, bytes, bytes]:
     raw_module_path = pathlib.Path(__file__)
     try:
         module_path = raw_module_path.resolve(strict=True)
-    except OSError as error:
-        raise DistributionIdentityError("loaded distribution module is unavailable") from error
-    source_root = _source_checkout_root(module_path)
+    except OSError:
+        # Archive members have no standalone filesystem path. The distribution
+        # branch still verifies the loaded module origin and each current RECORD.
+        module_path = None
+    source_root = None if module_path is None else _source_checkout_root(module_path)
     if source_root is None:
         provenance = _current_distribution_resource(_PROVENANCE_RESOURCE)
         registry_resource, policy_resource = _category_policy_locations(
@@ -1591,7 +1630,7 @@ def _migration_rehearsal_installation_identity(
             )
         control_root = pathlib.Path(configured).resolve(strict=True)
         attestation = _read_owner_only_file(
-            control_root / _ATTESTATION_FILE, maximum=65536,
+            control_root / _ATTESTATION_FILE, maximum=_source_attestation_transport_limit(),
         )
         document = json.loads(attestation)
         projection = _canonical({
@@ -2185,22 +2224,861 @@ def _release_operations_locations(
     return fixed, schema_paths, protected_paths
 
 
+def _standard_discovery_functions():
+    metadata = importlib.metadata
+    return (
+        importlib.machinery.PathFinder.find_distributions,
+        metadata.distributions, metadata.Distribution.discover.__func__,
+        metadata.Distribution._discover_resolvers, metadata.Distribution.metadata.fget,
+        metadata.MetadataPathFinder.find_distributions.__func__,
+        metadata.MetadataPathFinder._search_paths.__func__,
+        metadata.FastPath.children, metadata.FastPath.zip_children,
+        metadata.FastPath.search, metadata.Lookup.__init__,
+        metadata.PathDistribution.read_text, metadata.PathDistribution.locate_file,
+    )
+
+
+try:
+    _STANDARD_DISCOVERY_FUNCTIONS = tuple(
+        (function, function.__code__) for function in _standard_discovery_functions()
+    )
+except (AttributeError, TypeError):
+    # An unsupported interpreter can keep ordinary installed behavior, but
+    # cannot issue a cold proof based on an unknown discovery implementation.
+    _STANDARD_DISCOVERY_FUNCTIONS = ()
+
+
+def _require_standard_discovery(context):
+    if not _STANDARD_DISCOVERY_FUNCTIONS or type(sys.meta_path) not in (tuple, list):
+        raise DistributionIdentityError("cold discovery implementation is unsupported")
+    context.check_limit("array_items", len(sys.meta_path), source_id="cold-discovery-providers")
+    providers = 0
+    for finder in sys.meta_path:
+        resolver = getattr(finder, "find_distributions", None)
+        if resolver is not None:
+            if finder is not importlib.machinery.PathFinder:
+                raise DistributionIdentityError("cold discovery provider is unsupported")
+            providers += 1
+    if providers != 1:
+        raise DistributionIdentityError("cold discovery provider is unavailable")
+    try:
+        current = _standard_discovery_functions()
+        changed = any(function is not expected or function.__code__ is not code
+            for function, (expected, code) in zip(current, _STANDARD_DISCOVERY_FUNCTIONS, strict=True))
+    except (AttributeError, TypeError, ValueError) as error:
+        raise DistributionIdentityError("cold discovery implementation changed") from error
+    if changed:
+        raise DistributionIdentityError("cold discovery implementation changed")
+
+
+_PATH_LIBC = ctypes.CDLL(None, use_errno=True)
+_PATH_LIBC.getcwd.argtypes = (ctypes.c_void_p, ctypes.c_size_t)
+_PATH_LIBC.getcwd.restype = ctypes.c_void_p
+_PATH_LIBC.readlink.argtypes = (ctypes.c_char_p, ctypes.c_void_p, ctypes.c_size_t)
+_PATH_LIBC.readlink.restype = ctypes.c_ssize_t
+
+
+def _bounded_path_text(context, budget, path_limit, *, link=None):
+    """Use a fixed native buffer; callers keep their path-scratch lease live."""
+    buffer = encoded = raw = result = None
+    try:
+        with budget.reserve(context, units=16 * (path_limit + 1), byte_count=16 * (path_limit + 1),
+                            source_id="cold-path-native-buffer"):
+            try:
+                buffer = ctypes.create_string_buffer(path_limit + 1)
+                if link is None:
+                    if not _PATH_LIBC.getcwd(buffer, path_limit + 1):
+                        raise DistributionIdentityError("cold cwd is unavailable or exceeds its path bound")
+                    raw = buffer.value
+                else:
+                    if type(link) is not str or len(link) > path_limit:
+                        raise DistributionIdentityError("cold link path exceeds its bound")
+                    encoded = os.fsencode(link)
+                    if len(encoded) > path_limit:
+                        raise DistributionIdentityError("cold encoded link path exceeds its bound")
+                    count = _PATH_LIBC.readlink(encoded, buffer, path_limit + 1)
+                    if count < 0 or count > path_limit:
+                        raise DistributionIdentityError("cold link changed or exceeds its path bound")
+                    raw = buffer.raw[:count]
+                result = os.fsdecode(raw)
+                return result
+            finally:
+                buffer = encoded = raw = result = link = None
+    finally:
+        link = buffer = encoded = raw = result = context = budget = None
+
+
+def _bounded_resolve_path(original, cwd, context, budget, path_limit):
+    """Iterative real-path semantics with admitted links/components and frames."""
+    resolved_location: str | None = None
+    frames = frame = rest = name = candidate = target = None
+    try:
+        with budget.reserve(context, units=16 * (path_limit + 1), byte_count=16 * (path_limit + 1),
+                            source_id="cold-path-component-scratch"), \
+                budget.reserve(context, units=8, byte_count=0, source_id="cold-path-frames") as retained:
+            try:
+                if type(original) is not str or len(original) > path_limit:
+                    raise DistributionIdentityError("cold discovery path exceeds its bound")
+                resolved_location = "/" if original.startswith("/") else cwd
+                frames, steps = [(original, 0, 0)], 0
+                while frames:
+                    rest, offset, charge = frames[-1]
+                    if offset >= len(rest):
+                        frames.pop()
+                        rest = None
+                        if charge:
+                            retained.shrink(units=retained.units - charge - 4,
+                                            byte_count=retained.byte_count - charge)
+                        continue
+                    steps += 1
+                    context.check_limit("array_items", steps, source_id="cold-path-components")
+                    context.emit("registry.resource", 1, source_id="cold-path-component", operation_path=())
+                    end = rest.find("/", offset)
+                    if end < 0: end = len(rest)
+                    name = rest[offset:end]
+                    frames[-1] = (rest, end + 1, charge)
+                    if not name or name == ".": continue
+                    if name == "..":
+                        resolved_location = resolved_location.rpartition("/")[0] or "/"
+                        continue
+                    if len(resolved_location) + len(name) + (resolved_location != "/") > path_limit:
+                        raise DistributionIdentityError("cold intermediate path exceeds its bound")
+                    candidate = resolved_location.rstrip("/") + "/" + name
+                    try:
+                        metadata = os.lstat(candidate)
+                    except OSError:
+                        resolved_location = candidate
+                        continue
+                    if not stat.S_ISLNK(metadata.st_mode):
+                        resolved_location = candidate
+                        continue
+                    target = _bounded_path_text(context, budget, path_limit, link=candidate)
+                    if _SourceInstallationReadPlan._file_identity(os.lstat(candidate)) != \
+                            _SourceInstallationReadPlan._file_identity(metadata):
+                        raise DistributionIdentityError("cold discovery link changed during resolution")
+                    context.check_limit("parse_depth", len(frames) + 1, source_id="cold-path-links")
+                    charge = 4 * len(target)
+                    retained.grow(units=charge + 4, byte_count=charge, source_id="cold-path-link-frame")
+                    frames.append((target, 0, charge))
+                    if target.startswith("/"): resolved_location = "/"
+                    target = None
+                return resolved_location
+            finally:
+                if frames is not None: frames.clear()
+                original = cwd = frames = frame = rest = name = resolved_location = candidate = target = None
+    finally:
+        original = cwd = frames = frame = rest = name = resolved_location = candidate = target = context = budget = None
+
+
+def _discovery_file_state(directory, relative, context, budget, retained, *, archive=False):
+    """Read a discovery member's full bytes; retain only identity and hash."""
+    retained.grow(units=96, byte_count=64, source_id="cold-discovery-file-state")
+    descriptor: int | None = None
+    chunk: bytes | None = None
+    named = None
+    try:
+        named = os.stat(relative, dir_fd=directory, follow_symlinks=False)
+        if stat.S_ISLNK(named.st_mode):
+            raise DistributionIdentityError("cold discovery symlink member is unsupported")
+        descriptor = os.open(relative, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,
+                             dir_fd=directory)
+        before = os.fstat(descriptor)
+        identity = _SourceInstallationReadPlan._file_identity(before)
+        if identity != _SourceInstallationReadPlan._file_identity(named):
+            raise DistributionIdentityError("cold discovery member changed before read")
+        if stat.S_ISDIR(before.st_mode):
+            return ("directory", _SourceInstallationReadPlan._root_identity(before))
+        if not stat.S_ISREG(before.st_mode):
+            raise DistributionIdentityError("cold discovery special member is unsupported")
+        if not archive:
+            context.check_limit("raw_document_bytes", before.st_size, source_id="cold-discovery-metadata")
+        with budget.reserve(context, units=65, byte_count=65, source_id="cold-discovery-digest"):
+            hashed, remaining = hashlib.sha256(), before.st_size
+            while remaining:
+                units, byte_count = budget.remaining(context)
+                count = min(remaining, units, byte_count)
+                if count <= 0:
+                    context.check_limit("result_bytes", context.profile.limits["result_bytes"] + 1,
+                                        source_id="cold-discovery-buffer")
+                with budget.reserve(context, units=count, byte_count=count, source_id="cold-discovery-buffer"):
+                    try:
+                        chunk = os.read(descriptor, count)
+                        if len(chunk) != count:
+                            raise DistributionIdentityError("cold discovery member short read")
+                        context.emit("digest.input_byte", count, source_id="cold-discovery", operation_path=())
+                        hashed.update(chunk)
+                    finally:
+                        chunk = None
+                remaining -= count
+            if os.read(descriptor, 1):
+                raise DistributionIdentityError("cold discovery member grew")
+            if (identity != _SourceInstallationReadPlan._file_identity(os.fstat(descriptor))
+                    or identity != _SourceInstallationReadPlan._file_identity(
+                        os.stat(relative, dir_fd=directory, follow_symlinks=False))):
+                raise DistributionIdentityError("cold discovery member changed during read")
+            return ("file", identity, hashed.hexdigest())
+    except (FileNotFoundError, NotADirectoryError, PermissionError) as error:
+        # These are exactly the filesystem failures suppressed by the standard
+        # PathDistribution reader. Preserve the failure and any known identity;
+        # a later readable/earlier fallback is consequently a different proof.
+        if descriptor is not None:
+            raise DistributionIdentityError("cold discovery member changed after opening") from error
+        return ("unavailable", error.errno, None if named is None else
+                _SourceInstallationReadPlan._file_identity(named))
+    finally:
+        chunk = None
+        if descriptor is not None:
+            os.close(descriptor)
+
+
+def _discovery_candidate_state(directory, name, context, budget, retained):
+    """Hold a no-follow candidate descriptor throughout the fallback reads."""
+    states: list[object] | None = None
+    candidate = result = before = named = identity = None
+    with budget.reserve(context, units=96, byte_count=0, source_id="cold-discovery-candidate-scratch"):
+        try:
+            named = os.stat(name, dir_fd=directory, follow_symlinks=False)
+            if stat.S_ISLNK(named.st_mode):
+                raise DistributionIdentityError("cold discovery symlink candidate is unsupported")
+            flags = os.O_RDONLY
+            if stat.S_ISDIR(named.st_mode):
+                flags = getattr(os, "O_SEARCH", getattr(os, "O_PATH", os.O_RDONLY))
+            try:
+                candidate = os.open(name, flags | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,
+                                    dir_fd=directory)
+            except PermissionError as error:
+                # Without directory search permission both child fallbacks are
+                # unreadable; a regular file's child paths are non-directories.
+                retained.grow(units=64, byte_count=0, source_id="cold-discovery-unreadable-candidate")
+                identity = _SourceInstallationReadPlan._file_identity(named)
+                if identity != _SourceInstallationReadPlan._file_identity(
+                        os.stat(name, dir_fd=directory, follow_symlinks=False)):
+                    raise DistributionIdentityError("cold discovery candidate changed during read") from error
+                child_error = error.errno if stat.S_ISDIR(named.st_mode) else errno.ENOTDIR
+                return (("unavailable", child_error, None), ("unavailable", child_error, None),
+                        ("unavailable", error.errno, identity))
+            before = os.fstat(candidate)
+            identity = _SourceInstallationReadPlan._file_identity(before)
+            if identity != _SourceInstallationReadPlan._file_identity(named):
+                raise DistributionIdentityError("cold discovery candidate changed before read")
+            if not (stat.S_ISDIR(before.st_mode) or stat.S_ISREG(before.st_mode)):
+                raise DistributionIdentityError("cold discovery special candidate is unsupported")
+            states = []
+            for suffix in ("METADATA", "PKG-INFO"):
+                states.append(_discovery_file_state(candidate, suffix, context, budget, retained))
+            if stat.S_ISDIR(before.st_mode):
+                states.append(_discovery_file_state(candidate, ".", context, budget, retained))
+            else:
+                states.append(_discovery_file_state(directory, name, context, budget, retained))
+            if (identity != _SourceInstallationReadPlan._file_identity(os.fstat(candidate))
+                    or identity != _SourceInstallationReadPlan._file_identity(
+                        os.stat(name, dir_fd=directory, follow_symlinks=False))):
+                raise DistributionIdentityError("cold discovery candidate changed during read")
+            result = tuple(states)
+            return result
+        finally:
+            states = result = before = named = identity = None
+            if candidate is not None: os.close(candidate)
+
+
+def _capture_installation_discovery(context, budget):
+    """Fresh bounded path-based discovery proof, with no metadata parsing.
+
+    Every directory entry is admitted and charged before filtering. Archive
+    roots are hashed in full, including archives unrelated to this package.
+    Metadata fallbacks retain absent, empty, directory and unreadable states.
+    The initial semantic installation validation must bind this complete view.
+    """
+    paths: list[tuple[object, ...]] | None = None
+    members: dict[str, object] | None = None
+    result = entry = iterator = None
+    descriptor = None
+    with budget.reserve(context, units=64, byte_count=0, source_id="cold-discovery-control"), \
+            budget.reserve(context, units=1, byte_count=0, source_id="cold-discovery-proof") as retained:
+        try:
+            _require_standard_discovery(context)
+            if type(sys.path) not in (tuple, list):
+                raise DistributionIdentityError("cold discovery path collection changed")
+            context.check_limit("array_items", len(sys.path), source_id="cold-discovery-paths")
+            retained.grow(units=len(sys.path) + 1, byte_count=0, source_id="cold-discovery-input-paths")
+            input_paths = tuple(sys.path)
+            # Filesystem-defined maxima bound temporary native path/DirEntry
+            # representations before those operations return their actual text.
+            path_limit = os.pathconf("/", "PC_PATH_MAX")
+            if path_limit <= 0:
+                raise DistributionIdentityError("cold discovery path bound is unavailable")
+            paths = []
+            entry_count = 0
+            with budget.reserve(context, units=8 * path_limit, byte_count=8 * path_limit,
+                                source_id="cold-discovery-path-scratch"):
+                cwd = _bounded_path_text(context, budget, path_limit)
+                retained.grow(units=4 * len(cwd) + 2, byte_count=4 * len(cwd), source_id="cold-discovery-cwd")
+                for original in input_paths:
+                    if type(original) is not str or len(original) > path_limit:
+                        raise DistributionIdentityError("cold discovery path is unsupported")
+                    resolved = _bounded_resolve_path(original, cwd, context, budget, path_limit)
+                    context.emit("registry.resource", 1, source_id="cold-discovery-root", operation_path=())
+                    retained.grow(units=4 * (len(original) + len(resolved)) + 64,
+                                  byte_count=4 * (len(original) + len(resolved)),
+                                  source_id="cold-discovery-root")
+                    try:
+                        metadata = os.stat(resolved, follow_symlinks=False)
+                    except (FileNotFoundError, NotADirectoryError, PermissionError) as error:
+                        paths.append((original, resolved, "unavailable", error.errno))
+                        continue
+                    if not stat.S_ISDIR(metadata.st_mode):
+                        state = _discovery_file_state(None, resolved, context, budget, retained, archive=True)
+                        paths.append((original, resolved, "archive", state))
+                        state = None
+                        continue
+                    root_identity = _SourceInstallationReadPlan._root_identity(metadata)
+                    root_metadata = _SourceInstallationReadPlan._file_identity(metadata)
+                    try:
+                        descriptor = os.open(resolved, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+                    except PermissionError as error:
+                        if root_metadata != _SourceInstallationReadPlan._file_identity(
+                                os.stat(resolved, follow_symlinks=False)):
+                            raise DistributionIdentityError("cold discovery unavailable root changed") from error
+                        # Standard FastPath cannot enumerate this directory;
+                        # its archive fallback also cannot read a directory.
+                        paths.append((original, resolved, "unavailable-directory", root_metadata, error.errno))
+                        continue
+                    if _SourceInstallationReadPlan._file_identity(os.fstat(descriptor)) != root_metadata:
+                        raise DistributionIdentityError("cold discovery root descriptor changed")
+                    name_limit = os.fpathconf(descriptor, "PC_NAME_MAX")
+                    if name_limit <= 0:
+                        raise DistributionIdentityError("cold discovery name bound is unavailable")
+                    members: dict[str, object] | None = {}
+                    iterator = os.scandir(descriptor)
+                    try:
+                        while True:
+                            with budget.reserve(context, units=8 * name_limit + 32,
+                                                byte_count=8 * name_limit + 32,
+                                                source_id="cold-discovery-entry"):
+                                try:
+                                    entry = next(iterator)
+                                except StopIteration:
+                                    break
+                                entry_count += 1
+                                context.check_limit("array_items", entry_count, source_id="cold-discovery-entries")
+                                context.emit("registry.resource", 1, source_id="cold-discovery-entry", operation_path=())
+                                name = entry.name
+                                low = name.lower()
+                                if low.endswith((".dist-info", ".egg-info")) or (
+                                        os.path.basename(original).lower().endswith(".egg") and low == "egg-info"):
+                                    retained.grow(units=4 * len(name) + 16, byte_count=4 * len(name),
+                                                  source_id="cold-discovery-candidate")
+                                    members[name] = _discovery_candidate_state(
+                                        descriptor, name, context, budget, retained)
+                                entry = name = low = None
+                    finally:
+                        try:
+                            iterator.close()
+                        finally:
+                            iterator = entry = None
+                    if (root_metadata != _SourceInstallationReadPlan._file_identity(os.fstat(descriptor))
+                            or root_metadata != _SourceInstallationReadPlan._file_identity(os.stat(resolved))):
+                        raise DistributionIdentityError("cold discovery root changed")
+                    os.close(descriptor)
+                    descriptor = None
+                    paths.append((original, resolved, "directory", root_metadata, members))
+                    members = None
+                if _bounded_path_text(context, budget, path_limit) != cwd:
+                    raise DistributionIdentityError("cold discovery cwd topology changed")
+                for original, resolved, kind, *details in paths:
+                    if _bounded_resolve_path(original, cwd, context, budget, path_limit) != resolved:
+                        raise DistributionIdentityError("cold discovery resolved topology changed")
+                    try:
+                        metadata = os.stat(resolved, follow_symlinks=False)
+                    except (FileNotFoundError, NotADirectoryError, PermissionError) as error:
+                        if kind != "unavailable" or error.errno != details[0]:
+                            raise DistributionIdentityError("cold discovery unavailable topology changed") from error
+                    else:
+                        if kind == "unavailable-directory":
+                            if details[0] != _SourceInstallationReadPlan._file_identity(metadata):
+                                raise DistributionIdentityError("cold discovery unavailable root topology changed")
+                            try:
+                                descriptor = os.open(resolved,
+                                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+                            except PermissionError as error:
+                                if error.errno != details[1]:
+                                    raise DistributionIdentityError("cold discovery unavailable root state changed") from error
+                                continue
+                            else:
+                                os.close(descriptor)
+                                descriptor = None
+                                raise DistributionIdentityError("cold discovery root readability changed")
+                        if (kind == "unavailable" or (kind == "directory") != stat.S_ISDIR(metadata.st_mode)
+                                or (kind == "directory" and details[0] !=
+                                    _SourceInstallationReadPlan._file_identity(metadata))
+                                or (kind == "archive" and details[0][0] == "file" and details[0][1] !=
+                                    _SourceInstallationReadPlan._file_identity(metadata))):
+                            raise DistributionIdentityError("cold discovery root topology changed")
+                if _bounded_path_text(context, budget, path_limit) != cwd:
+                    raise DistributionIdentityError("cold discovery cwd topology changed")
+            _require_standard_discovery(context)
+            if (type(sys.path) not in (tuple, list) or len(sys.path) != len(input_paths)
+                    or any(type(current) is not str or current != original
+                           for current, original in zip(sys.path, input_paths))):
+                raise DistributionIdentityError("cold discovery search path changed during capture")
+            retained.grow(units=len(paths) + 4, byte_count=0, source_id="cold-discovery-result")
+            result = (cwd, tuple(paths))
+            retained.transfer(result)
+            return result
+        except BaseException as error:
+            import traceback
+            pending, seen = [error], set()
+            while pending:
+                cause = pending.pop()
+                if cause is None or id(cause) in seen: continue
+                seen.add(id(cause))
+                traceback.clear_frames(cause.__traceback__)
+                pending.extend((cause.__cause__, cause.__context__))
+            raise
+        finally:
+            paths = result = members = entry = states = relative = None
+            input_paths = original = resolved = cwd = name = low = state = root_identity = root_metadata = metadata = None
+            details = None
+            try:
+                if iterator is not None: iterator.close()
+            finally:
+                if descriptor is not None: os.close(descriptor)
+
+
+class _SourceInstallationReadPlan:
+    """Previously validated identities; each use hashes their current bytes.
+
+    Only immutable path/size/digest data is retained. A successful earlier
+    check is never a substitute for the next complete current capture.
+    """
+
+    def __init__(self, source, control, source_metadata, control_metadata, files, key, attestation):
+        self._source_path, self._control_path = str(source), str(control)
+        self.source_identity = self._root_identity(source_metadata)
+        self.control_identity = self._root_identity(control_metadata)
+        self.files, self.key, self.attestation = files, key, attestation
+
+    @property
+    def source(self) -> pathlib.Path:
+        return pathlib.Path(self._source_path)
+
+    @property
+    def control(self) -> pathlib.Path:
+        return pathlib.Path(self._control_path)
+
+    @staticmethod
+    def _root_identity(metadata):
+        return (metadata.st_dev, metadata.st_ino, metadata.st_uid, metadata.st_mode)
+
+    @staticmethod
+    def _file_identity(metadata):
+        return (metadata.st_dev, metadata.st_ino, metadata.st_uid, metadata.st_mode,
+                metadata.st_nlink, metadata.st_size, metadata.st_mtime_ns, metadata.st_ctime_ns)
+
+    def _roots_current(self):
+        if pathlib.Path(__file__).resolve(strict=True) != self.source / "core/graph_engineering/__init__.py":
+            raise DistributionIdentityError("cold source loaded module identity changed")
+        configured = sys._xoptions.get(_CONTROL_OPTION)
+        if type(configured) is not str or pathlib.Path(configured) != self.control:
+            raise DistributionIdentityError("cold source control option changed")
+        prefix, explicit = _CONTROL_OPTION + "=", []
+        arguments = tuple(getattr(sys, "orig_argv", ()))
+        for index, argument in enumerate(arguments):
+            if argument == "-X" and index + 1 < len(arguments) and arguments[index + 1].startswith(prefix):
+                explicit.append(arguments[index + 1][len(prefix):])
+            elif argument.startswith("-X" + prefix):
+                explicit.append(argument[len("-X" + prefix):])
+        if len(explicit) > 1 or explicit and explicit[0] != configured:
+            raise DistributionIdentityError("cold source explicit control option changed")
+        for path, expected in ((self.source, self.source_identity), (self.control, self.control_identity)):
+            if path.resolve(strict=True) != path or self._root_identity(path.lstat()) != expected:
+                raise DistributionIdentityError("cold source installation root changed")
+
+    def _check_file(self, root, relative, expected, context, budget, *, private=False):
+        """Hash one admitted descriptor without constructing a complete body."""
+        size, digest = expected
+        context.check_limit("raw_document_bytes", size, source_id=relative)
+        descriptor = directory = None
+        chunk = None
+        try:
+            directory = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+            expected_root = self.control_identity if private else self.source_identity
+            if self._root_identity(os.fstat(directory)) != expected_root:
+                raise DistributionIdentityError("cold source root descriptor changed")
+            parts = pathlib.PurePosixPath(relative).parts
+            for part in parts[:-1]:
+                child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC,
+                                dir_fd=directory)
+                try:
+                    metadata = os.fstat(child)
+                    if (not stat.S_ISDIR(metadata.st_mode) or metadata.st_uid != self.source_identity[2]
+                            or stat.S_IMODE(metadata.st_mode) & 0o022):
+                        raise DistributionIdentityError("cold source parent is untrusted")
+                except BaseException:
+                    os.close(child)
+                    raise
+                previous, directory = directory, child
+                os.close(previous)
+            named = os.stat(parts[-1], dir_fd=directory, follow_symlinks=False)
+            descriptor = os.open(parts[-1], os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,
+                                 dir_fd=directory)
+            before = os.fstat(descriptor)
+            mode = stat.S_IMODE(before.st_mode)
+            if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1
+                    or before.st_uid != self.source_identity[2]
+                    or (mode != 0o600 if private else mode & 0o022)
+                    or self._file_identity(named) != self._file_identity(before)
+                    or before.st_size != size):
+                raise DistributionIdentityError("cold source member identity or size changed")
+            context.check_limit("raw_document_bytes", before.st_size, source_id=relative)
+            hashed, remaining = hashlib.sha256(), size
+            with budget.reserve(context, units=65, byte_count=65, source_id="cold-source-digest"):
+                while remaining:
+                    units, available = budget.remaining(context)
+                    count = min(remaining, units, available)
+                    if count <= 0:
+                        context.check_limit("result_bytes", context.profile.limits["result_bytes"] + 1,
+                                            source_id=relative)
+                    with budget.reserve(context, units=count, byte_count=count, source_id=relative):
+                        try:
+                            chunk = os.read(descriptor, count)
+                            if len(chunk) != count:
+                                raise DistributionIdentityError("cold source member short read")
+                            context.emit("digest.input_byte", count, source_id=relative, operation_path=())
+                            hashed.update(chunk)
+                        finally:
+                            chunk = None
+                    remaining -= count
+                if os.read(descriptor, 1):
+                    raise DistributionIdentityError("cold source member grew")
+                if (self._file_identity(os.fstat(descriptor)) != self._file_identity(before)
+                        or self._file_identity(os.stat(parts[-1], dir_fd=directory, follow_symlinks=False))
+                        != self._file_identity(before)
+                        or self._file_identity((root / relative).lstat()) != self._file_identity(before)
+                        or not hmac.compare_digest(hashed.hexdigest(), digest)):
+                    raise DistributionIdentityError("cold source member changed")
+        except OSError as error:
+            raise DistributionIdentityError("cold source member is unavailable") from error
+        finally:
+            try:
+                if descriptor is not None: os.close(descriptor)
+            finally:
+                if directory is not None: os.close(directory)
+
+    def require_current(self, context: object, budget: object) -> None:
+        budget._require_active()
+        if tuple(name for name, _size, _digest in self.files) != _SOURCE_FILES:
+            raise DistributionIdentityError("cold source installation membership changed")
+        context.check_limit("array_items", len(self.files), source_id="cold-source-members")
+        # The compact retained plan is adopted here until the caller adopts
+        # its complete factory cache for the full cold operation.
+        size = sum(len(name.encode("utf-8")) + len(digest) + 8 for name, _size, digest in self.files)
+        with budget.reserve(context, units=size + 4 * len(self.files), byte_count=size,
+                            source_id="cold-source-read-plan"):
+            self._roots_current()
+            lock = os.open(self.control / _CONTROL_LOCK,
+                           os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+            locked = False
+            try:
+                metadata = os.fstat(lock)
+                if (not stat.S_ISREG(metadata.st_mode) or metadata.st_uid != self.control_identity[2]
+                        or metadata.st_nlink != 1 or stat.S_IMODE(metadata.st_mode) != 0o600
+                        or self._file_identity((self.control / _CONTROL_LOCK).lstat()) != self._file_identity(metadata)):
+                    raise DistributionIdentityError("cold source installation lock changed")
+                fcntl.flock(lock, fcntl.LOCK_SH)
+                locked = True
+                for _pass in range(2):
+                    self._check_file(self.control, _ATTESTATION_KEY, self.key, context, budget, private=True)
+                    self._check_file(self.control, _ATTESTATION_FILE, self.attestation, context, budget, private=True)
+                    for name, count, digest in self.files:
+                        self._check_file(self.source, name, (count, digest), context, budget)
+                    self._roots_current()
+                    if self._file_identity((self.control / _CONTROL_LOCK).lstat()) != self._file_identity(metadata):
+                        raise DistributionIdentityError("cold source installation lock changed")
+                self._check_file(self.control, _ATTESTATION_KEY, self.key, context, budget, private=True)
+                self._check_file(self.control, _ATTESTATION_FILE, self.attestation, context, budget, private=True)
+            finally:
+                try:
+                    if locked: fcntl.flock(lock, fcntl.LOCK_UN)
+                finally:
+                    os.close(lock)
+
+
+class _WheelInstallationReadPlan:
+    """Closed data from a validated wheel; cold use only streams current bytes."""
+
+    def __init__(self, root, *, archive, names):
+        self._root_path = str(root)
+        self.archive = archive
+        self.root_identity = _SourceInstallationReadPlan._root_identity(root.lstat())
+        self.module_origin = __file__
+        self.names = names
+        self.discovery = self.members = None
+
+    def _capture_members(self, context, budget):
+        states: list[object] | None = None
+        descriptor = child = result = state = parts = None
+        try:
+            with budget.reserve(context, units=96, byte_count=0, source_id="cold-wheel-member-control"), \
+                    budget.reserve(context, units=len(self.names) + 2, byte_count=0,
+                                   source_id="cold-wheel-members") as retained:
+                try:
+                    context.check_limit("array_items", len(self.names), source_id="cold-wheel-member-count")
+                    path_limit = os.pathconf("/", "PC_PATH_MAX")
+                    with budget.reserve(context, units=8 * path_limit, byte_count=8 * path_limit,
+                                        source_id="cold-wheel-member-paths"):
+                        if (type(__file__) is not str or len(__file__) > path_limit
+                                or __file__ != self.module_origin):
+                            raise DistributionIdentityError("cold wheel loaded module changed")
+                        if _SourceInstallationReadPlan._root_identity(os.lstat(self._root_path)) != self.root_identity:
+                            raise DistributionIdentityError("cold wheel root changed")
+                        if self.archive:
+                            state = _discovery_file_state(None, self._root_path, context, budget, retained, archive=True)
+                            result = (state,)
+                        else:
+                            states = []
+                            for name in self.names:
+                                if len(name) > path_limit:
+                                    raise DistributionIdentityError("cold wheel member path is over limit")
+                                descriptor = os.open(self._root_path,
+                                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+                                if _SourceInstallationReadPlan._root_identity(os.fstat(descriptor)) != self.root_identity:
+                                    raise DistributionIdentityError("cold wheel root descriptor changed")
+                                parts = name.split("/")
+                                for part in parts[:-1]:
+                                    child = os.open(part,
+                                        os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC,
+                                        dir_fd=descriptor)
+                                    previous, descriptor, child = descriptor, child, None
+                                    os.close(previous)
+                                state = _discovery_file_state(descriptor, parts[-1], context, budget, retained)
+                                if state[0] != "file" or state[1] != _SourceInstallationReadPlan._file_identity(
+                                        os.lstat(os.path.join(self._root_path, name))):
+                                    raise DistributionIdentityError("cold wheel member path changed")
+                                states.append(state)
+                                os.close(descriptor)
+                                descriptor = state = parts = None
+                            result = tuple(states)
+                        if _SourceInstallationReadPlan._root_identity(os.lstat(self._root_path)) != self.root_identity:
+                            raise DistributionIdentityError("cold wheel root changed during capture")
+                        retained.transfer(result)
+                        return result
+                except BaseException as error:
+                    import traceback
+                    pending, seen = [error], set()
+                    while pending:
+                        cause = pending.pop()
+                        if cause is None or id(cause) in seen: continue
+                        seen.add(id(cause))
+                        traceback.clear_frames(cause.__traceback__)
+                        pending.extend((cause.__cause__, cause.__context__))
+                    raise
+                finally:
+                    result = states = state = parts = self = None
+                    try:
+                        if child is not None: os.close(child)
+                    finally:
+                        if descriptor is not None: os.close(descriptor)
+        finally:
+            self = result = states = state = parts = name = part = context = budget = None
+
+    def require_current(self, context: object, budget: object) -> None:
+        proofs: list[object] | None = None
+        try:
+            budget._require_active()
+            with budget.reserve(context, units=8, byte_count=0, source_id="cold-wheel-proof-control"):
+                proofs = []
+                try:
+                    # Fixed-depth proofs already own all payloads. Keep both
+                    # complete pairs charged through their direct comparison.
+                    for attempt in range(2):
+                        proofs.append(_capture_installation_discovery(context, budget))
+                        proofs.append(self._capture_members(context, budget))
+                        if proofs[-2] != self.discovery or proofs[-1] != self.members:
+                            raise DistributionIdentityError("cold wheel discovery or member changed")
+                        if attempt and (proofs[-2] != proofs[0] or proofs[-1] != proofs[1]):
+                            raise DistributionIdentityError("cold wheel changed between captures")
+                finally:
+                    # pop removes the caller's last temporary reference before
+                    # the owner releases its matching retained allocation.
+                    while proofs:
+                        budget.release_projection(proofs.pop())
+        except BaseException as error:
+            import traceback
+            pending, seen = [error], set()
+            while pending:
+                cause = pending.pop()
+                if cause is None or id(cause) in seen: continue
+                seen.add(id(cause))
+                traceback.clear_frames(cause.__traceback__)
+                pending.extend((cause.__cause__, cause.__context__))
+            raise
+        finally:
+            self = proofs = context = budget = None
+
+
+def _release_operations_wheel_read_plan(resources, context, budget, *, category_resources=None):
+    """Bracket ordinary bootstrap validation with fresh bounded physical proofs.
+
+    Called only while constructing the installed factory, before a cold caller
+    can receive it. Legacy bootstrap parsing stays outside the bound read owner;
+    the resulting closed plan is adopted with the factory at cold entry.
+    """
+    try:
+        _require_standard_discovery(context)
+    except (DistributionIdentityError, AttributeError, TypeError):
+        return None
+    first_discovery = first_members = after_discovery = after_members = None
+    try:
+        with budget.bind():
+            first_discovery = _capture_installation_discovery(context, budget)
+        # Force the same standard provider to discover against current directory
+        # entries, including changes that preserved an earlier directory mtime.
+        importlib.metadata.MetadataPathFinder.invalidate_caches()
+        matches = _matching_installed_distributions()
+        if len(matches) != 1 or type(matches[0]) is not importlib.metadata.PathDistribution:
+            raise DistributionIdentityError("cold wheel distribution is not unique or standard")
+        distribution = matches[0]
+        location = distribution.locate_file("")
+        archive_name = getattr(getattr(location, "root", None), "filename", None)
+        archive = type(archive_name) is str
+        root = pathlib.Path(archive_name if archive else location).resolve(strict=True)
+        fixed, schemas, protected = _release_operations_locations(resources[0], location_kind="resource")
+        category_names = () if category_resources is None else _category_policy_locations(
+            resources[0], location_kind="resource")
+        if category_resources is not None and category_resources[0] != resources[0]:
+            raise DistributionIdentityError("cold category and release provenance differ")
+        record_snapshot = distribution.read_text("RECORD")
+        if type(record_snapshot) is not str:
+            raise DistributionIdentityError("cold wheel selected RECORD is absent")
+        # Derive every member from this exact snapshot. A separate files
+        # property read can observe a transient RECORD and omit an adapter even
+        # when both surrounding physical reads see the original bytes.
+        records = []
+        try:
+            for row in csv.reader(record_snapshot.splitlines()):
+                if not 1 <= len(row) <= 3:
+                    raise ValueError("invalid RECORD row")
+                name, digest, size = (*row, *(None for _ in range(3 - len(row))))
+                item = importlib.metadata.PackagePath(name)
+                item.hash = importlib.metadata.FileHash(digest) if digest else None
+                item.size = int(size) if size else None
+                item.dist = distribution
+                records.append(item)
+        except (csv.Error, TypeError, ValueError) as error:
+            raise DistributionIdentityError("cold wheel RECORD is malformed") from error
+        record_paths = tuple(str(item) for item in records if str(item).endswith(".dist-info/RECORD"))
+        if len(record_paths) != 1:
+            raise DistributionIdentityError("cold wheel RECORD is not unique")
+        names = tuple(sorted(set((record_paths[0], _MODULE_RESOURCE, _PROVENANCE_RESOURCE,
+            *fixed, *schemas, *protected, *category_names, *_profile_coverage_protected_resources(resources[0]),
+            *(str(item) for item in records if str(item).startswith("graph_engineering/adapters/")
+              and str(item).endswith(".py"))))))
+        for name in names:
+            if (not name or "\\" in name or pathlib.PurePosixPath(name).is_absolute()
+                    or any(part in ("", ".", "..") for part in name.split("/"))):
+                raise DistributionIdentityError("cold wheel member path is unsafe")
+        plan = _WheelInstallationReadPlan(root, archive=archive, names=names)
+        with budget.bind():
+            first_members = plan._capture_members(context, budget)
+        current = _release_operations_installation_resources()
+        if len(current) != len(resources) or any(left != right for left, right in zip(current, resources)):
+            raise DistributionIdentityError("cold wheel plan differs from factory inputs")
+        if category_resources is not None and _category_policy_installation_resources() != category_resources:
+            raise DistributionIdentityError("cold wheel category inputs changed during plan issuance")
+        if not archive:
+            for name, state in zip(names, first_members, strict=True):
+                if name == record_paths[0]:
+                    if hashlib.sha256(record_snapshot.encode("utf-8")).hexdigest() != state[2]:
+                        raise DistributionIdentityError("cold wheel selected RECORD changed")
+                    continue
+                body = _record_resource(distribution, root, None, name)
+                entries = tuple(item for item in records if str(item) == name)
+                if (len(entries) != 1 or entries[0].size != len(body)
+                        or len(body) != state[1][5] or hashlib.sha256(body).hexdigest() != state[2]):
+                    raise DistributionIdentityError("cold wheel member differs from its RECORD")
+                if name in category_names and body != category_resources[category_names.index(name) + 1]:
+                    raise DistributionIdentityError("cold wheel category member differs from factory inputs")
+        with budget.bind():
+            after_discovery = _capture_installation_discovery(context, budget)
+            after_members = plan._capture_members(context, budget)
+            if after_discovery != first_discovery or after_members != first_members:
+                raise DistributionIdentityError("cold wheel changed during plan issuance")
+        plan.discovery, plan.members = first_discovery, first_members
+        return plan
+    finally:
+        for value in (first_discovery, first_members, after_discovery, after_members):
+            if value is not None: budget.release_projection(value)
+
+
+def _release_operations_read_plan(resources, *, category_resources=None):
+    try:
+        module_path = pathlib.Path(__file__).resolve(strict=True)
+    except OSError:
+        module_path = None
+    source_root = None if module_path is None else _source_checkout_root(module_path)
+    if source_root is None:
+        return None
+    plan = _validate_source_checkout_attestation(source_root, _capture=True)
+    fixed, schemas, protected = _release_operations_locations(resources[0], location_kind="source")
+    expected = {name: (size, digest) for name, size, digest in plan.files}
+    for name, body in zip(("pyproject.toml", *fixed, *schemas, *protected), resources, strict=True):
+        if expected.get(name) != (len(body), hashlib.sha256(body).hexdigest()):
+            raise DistributionIdentityError("cold installation plan differs from factory inputs")
+    if category_resources is not None:
+        names = ("pyproject.toml", *_category_policy_locations(resources[0], location_kind="source"))
+        for name, body in zip(names, category_resources, strict=True):
+            if expected.get(name) != (len(body), hashlib.sha256(body).hexdigest()):
+                raise DistributionIdentityError("cold category plan differs from factory inputs")
+    return plan
+
+
 def _release_operations_installation_resources() -> tuple[bytes, ...]:
     """Re-read the complete current ADR-0009 installed/source projection."""
 
-    module_path = pathlib.Path(__file__).resolve(strict=True)
-    source_root = _source_checkout_root(module_path)
+    try:
+        module_path = pathlib.Path(__file__).resolve(strict=True)
+    except OSError:
+        # A module inside a validated wheel archive has no filesystem member
+        # path. Its resources must still pass the current distribution RECORD.
+        module_path = None
+    source_root = None if module_path is None else _source_checkout_root(module_path)
     if source_root is None:
-        provenance = _current_distribution_resource(_PROVENANCE_RESOURCE)
+        # Verify the distribution around one complete capture. Each member
+        # still gets its own current RECORD/path/hash checks; no cached bytes
+        # or earlier validation stand in for a current installation read.
+        _validate_distribution_identity()
+        distributions = _matching_installed_distributions()
+        if len(distributions) != 1:
+            raise DistributionIdentityError("release distribution identity is not unique")
+        distribution = distributions[0]
+        root_location = distribution.locate_file("")
+        archive_name = getattr(getattr(root_location, "root", None), "filename", None)
+        archive_prefix = getattr(root_location, "at", None)
+        archive = (pathlib.Path(archive_name).resolve(strict=True)
+                   if type(archive_name) is str and type(archive_prefix) is str else None)
+        root = pathlib.Path(root_location).resolve(strict=True) if archive is None else None
+        identity = None if archive is None else _archive_identity(archive)
+        record = distribution.read_text("RECORD")
+        if type(record) is not str:
+            raise DistributionIdentityError("release distribution RECORD is absent")
+        def read(resource: str) -> bytes:
+            return _record_resource(distribution, root, archive, resource)
+
+        provenance = read(_PROVENANCE_RESOURCE)
         fixed, schemas, protected = _release_operations_locations(
             provenance, location_kind="resource",
         )
-        return (
-            provenance,
-            *(_current_distribution_resource(item) for item in fixed),
-            *(_current_distribution_resource(item) for item in schemas),
-            *(_current_distribution_resource(item) for item in protected),
-        )
+        locations = (*fixed, *schemas, *protected)
+        if archive is not None:
+            _validate_archive_resource_uniqueness(distribution, archive,
+                (_PROVENANCE_RESOURCE, *locations))
+        bodies = tuple(read(item) for item in locations)
+        _validate_distribution_identity()
+        if (record != distribution.read_text("RECORD") or read(_PROVENANCE_RESOURCE) != provenance
+                or archive is not None and _archive_identity(archive) != identity):
+            raise DistributionIdentityError("release distribution changed during capture")
+        return provenance, *bodies
     _validate_source_checkout_attestation(source_root)
     owner = os.lstat(source_root).st_uid
     provenance = _attested_source_member(source_root, "pyproject.toml", owner)

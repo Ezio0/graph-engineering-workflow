@@ -5,7 +5,7 @@
   "tier_decision": {
     "suggested": "T2",
     "declared": "T2",
-    "justification": "Approved RS-2 read-only handle storage prerequisite and identity replacement repair; current cross-module implementation and protected pins remain T2. This Manifest binds the15-file checkpoint commit."
+    "justification": "Human-approved RS-C R2 implementation and verification are independently accepted. The owner subsequently authorized staging, canonical verification and Candidate review within the42-file scope. This exact38-file Candidate selection omits four byte-unchanged dependencies from that scope, preserving their read-only bindings and the185/195 allowed boundary. No product, test, policy, budget or irreversible authority changes."
   },
   "roles": {
     "human-owner": "Human Owner",
@@ -14,20 +14,43 @@
     "authorized-committer": "/root"
   },
   "target_files": [
+    ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+    ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
     ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
     ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
     ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
     ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
     ".workflow/manifest.json",
     "adapters/graph_engineering/adapters/local_release_simulator.py",
+    "application/graph_engineering/application/actions.py",
+    "application/graph_engineering/application/profile_execution.py",
+    "application/graph_engineering/application/release_operations.py",
+    "application/graph_engineering/application/security.py",
+    "application/graph_engineering/application/tasks.py",
     "config/actions/action-policy-local-actions-v1.json",
     "config/actions/action-policy-v1.json",
     "config/actions/concrete-action-policy-v1.json",
     "config/contracts/action-adapter-registry-v1.json",
+    "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+    "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+    "config/profiles/scenario-truth-installation-bootstrap-v1.json",
     "config/release-operations/release-operations-installation-bootstrap-v1.json",
     "config/security/security-runtime-local-actions-v1.json",
     "config/security/security-runtime-v1.json",
+    "core/graph_engineering/__init__.py",
+    "core/graph_engineering/core/profile_execution.py",
+    "docs/impact/graph-engineering-workflow.md",
+    "docs/plans/2026-08-13-graph-engineering-workflow.md",
+    "docs/specs/graph-engineering-workflow.md",
+    "docs/test-plans/graph-engineering-workflow.md",
     "pyproject.toml",
+    "storage/graph_engineering/storage/migration.py",
+    "storage/graph_engineering/storage/repository.py",
+    "storage/graph_engineering/storage/security.py",
+    "tests/integration/test_wp08_release_operations.py",
+    "tests/security/test_wp08_remaining54_authority.py",
+    "tests/support/source_checkout_attestation.py",
+    "tests/support/wp08_category_execution.py",
     "tests/unit/test_wp08_release_operations.py"
   ],
   "artifacts": {

@@ -180,15 +180,20 @@ def _installed_policy_document() -> dict[str, object]:
     )
 
     try:
-        provenance_bytes, registry_bytes, policy_bytes = (
-            _category_policy_installation_resources()
-        )
+        return _policy_document_from_installation_resources(_category_policy_installation_resources())
+    except DistributionIdentityError as error:
+        raise CategoryExecutionError("category policy installation bootstrap is unavailable") from error
+
+
+def _policy_document_from_installation_resources(resources) -> dict[str, object]:
+    """Pure bootstrap validation shared with the original installed factory inputs."""
+    try:
+        provenance_bytes, registry_bytes, policy_bytes = resources
         provenance = tomllib.loads(provenance_bytes.decode("utf-8", errors="strict"))
         bootstrap = provenance["tool"]["gew"]["profile"][
             "category-execution-policy"
         ]
     except (
-        DistributionIdentityError,
         KeyError,
         TypeError,
         UnicodeError,
@@ -575,7 +580,10 @@ class CategoryExecutionPolicy:
         return result
 
     def require_current(self) -> None:
-        installed = _installed_policy_document()
+        self._require_current_document(_installed_policy_document())
+
+    def _require_current_document(self, installed) -> None:
+        """Validate data after the private caller has proved its installation bytes."""
         body = thaw(self._policy_body)
         if not isinstance(body, dict):
             raise CategoryExecutionError("category execution policy body changed")

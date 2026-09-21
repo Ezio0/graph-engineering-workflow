@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import ExitStack
 from dataclasses import dataclass
 
 from graph_engineering.core.contracts.digest import semantic_digest_charged
@@ -81,26 +82,34 @@ class SecurityContextIssuer:
         self._repository = repository
         self._schemas = schema_registry
         self._context = context
-        installed = repository.load_installed_runtime(context)
-        fields = validate_installed_runtime_document(
-            installed.manifest,
-            expected_manifest_id=installed.manifest_id,
-            expected_manifest_digest=installed.manifest_digest,
-            schema_registry=schema_registry,
-            context=context,
-        )
-        runtime = object.__new__(SecurityRuntimeManifest)
-        for name in (
-            "manifest_id",
-            "manifest_digest",
-            "schema_registry_id",
-            "schema_registry_digest",
-            "allowed_runtime_kinds",
-            "policies",
-        ):
-            object.__setattr__(runtime, name, fields[name])
-        object.__setattr__(runtime, "_issuer", object())
-        self._runtime = runtime
+        from graph_engineering.storage.repository import _recovery_scope
+        from graph_engineering.core.contracts.canonical import canonical_byte_length
+
+        with _recovery_scope(context, repository) as budget, ExitStack() as stack:
+            installed = repository.load_installed_runtime(context)
+            stack.callback(budget.release_projection, installed)
+            size = canonical_byte_length(installed.manifest)
+            stack.enter_context(budget.reserve(context, units=8 * size, byte_count=3 * size,
+                source_id="security-runtime-validation"))
+            fields = validate_installed_runtime_document(
+                installed.manifest,
+                expected_manifest_id=installed.manifest_id,
+                expected_manifest_digest=installed.manifest_digest,
+                schema_registry=schema_registry,
+                context=context,
+            )
+            runtime = object.__new__(SecurityRuntimeManifest)
+            for name in (
+                "manifest_id",
+                "manifest_digest",
+                "schema_registry_id",
+                "schema_registry_digest",
+                "allowed_runtime_kinds",
+                "policies",
+            ):
+                object.__setattr__(runtime, name, fields[name])
+            object.__setattr__(runtime, "_issuer", object())
+            self._runtime = runtime
 
     @property
     def runtime(self) -> SecurityRuntimeManifest:
@@ -109,41 +118,56 @@ class SecurityContextIssuer:
     def read_task_state(self, task_id: str) -> ReadOnlyTaskSecurityProjection:
         """Validate current facts without issuing a clock-bearing capability."""
 
-        installed = self._repository.load_installed_runtime(self._context)
-        fields = validate_installed_runtime_document(
-            installed.manifest,
-            expected_manifest_id=installed.manifest_id,
-            expected_manifest_digest=installed.manifest_digest,
-            schema_registry=self._schemas,
-            context=self._context,
-        )
-        if any(fields[name] != getattr(self._runtime, name) for name in (
-            "manifest_id", "manifest_digest", "schema_registry_id",
-            "schema_registry_digest", "allowed_runtime_kinds", "policies",
-        )):
-            raise SecurityIssuanceError("installed security runtime changed")
-        record = self._repository.load_current_task_state_readonly(task_id, self._context)
-        state = thaw(record.state)
-        assert type(state) is dict
-        try:
-            binding = state["binding"]
-            if type(binding) is not dict:
-                raise ValueError("security binding is not an object")
-            # Validate with the existing parser, but never expose its attestation.
-            SecurityBinding._from_attested_dict(
-                binding, runtime=self._runtime, schema_registry=self._schemas,
-                context=self._context, issuer=self._runtime._issuer,
+        from graph_engineering.storage.repository import _recovery_scope
+        from graph_engineering.core.contracts.canonical import canonical_byte_length
+
+        with _recovery_scope(self._context, self, self._repository) as budget, ExitStack() as stack:
+            installed = self._repository.load_installed_runtime(self._context)
+            stack.callback(budget.release_projection, installed)
+            size = canonical_byte_length(installed.manifest)
+            stack.enter_context(budget.reserve(self._context, units=8 * size, byte_count=3 * size,
+                source_id="security-runtime-validation"))
+            fields = validate_installed_runtime_document(
+                installed.manifest,
+                expected_manifest_id=installed.manifest_id,
+                expected_manifest_digest=installed.manifest_digest,
+                schema_registry=self._schemas,
+                context=self._context,
             )
-            for name in ("destinations", "data_refs", "evidence_expectations", "retention_subjects"):
-                _canonical_frozen_map(state[name], name)
-            require_digest(record.state_digest, "task security state digest")
-        except (KeyError, TypeError, ValueError, SecurityAttestationError) as error:
-            raise SecurityIssuanceError(str(error)) from error
-        result = object.__new__(ReadOnlyTaskSecurityProjection)
-        object.__setattr__(result, "state", record.state)
-        object.__setattr__(result, "state_digest", record.state_digest)
-        object.__setattr__(result, "runtime_manifest_digest", self._runtime.manifest_digest)
-        return result
+            if any(fields[name] != getattr(self._runtime, name) for name in (
+                "manifest_id", "manifest_digest", "schema_registry_id",
+                "schema_registry_digest", "allowed_runtime_kinds", "policies",
+            )):
+                raise SecurityIssuanceError("installed security runtime changed")
+            record = self._repository.load_current_task_state_readonly(task_id, self._context)
+            stack.callback(budget.release_projection, record)
+            size = canonical_byte_length(record.state)
+            stack.enter_context(budget.reserve(self._context, units=8 * size, byte_count=3 * size,
+                source_id="security-binding-validation"))
+            state = thaw(record.state)
+            assert type(state) is dict
+            try:
+                binding = state["binding"]
+                if type(binding) is not dict:
+                    raise ValueError("security binding is not an object")
+                # Validate with the existing parser, but never expose its attestation.
+                SecurityBinding._from_attested_dict(
+                    binding, runtime=self._runtime, schema_registry=self._schemas,
+                    context=self._context, issuer=self._runtime._issuer,
+                )
+                for name in ("destinations", "data_refs", "evidence_expectations", "retention_subjects"):
+                    _canonical_frozen_map(state[name], name)
+                require_digest(record.state_digest, "task security state digest")
+            except (KeyError, TypeError, ValueError, SecurityAttestationError) as error:
+                raise SecurityIssuanceError(str(error)) from error
+            result = object.__new__(ReadOnlyTaskSecurityProjection)
+            object.__setattr__(result, "state", record.state)
+            object.__setattr__(result, "state_digest", record.state_digest)
+            object.__setattr__(result, "runtime_manifest_digest", self._runtime.manifest_digest)
+            with budget.reserve(self._context, units=4 * size, byte_count=size,
+                    source_id="security-projection") as reservation:
+                reservation.transfer(result)
+            return result
 
     def issue_task_context(self, task_id: str) -> TaskSecurityContext:
         """Issue from a current task row plus repository-owned high-water clock."""

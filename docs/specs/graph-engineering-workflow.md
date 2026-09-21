@@ -1,5 +1,537 @@
 # Graph Engineering Workflow — Tech Spec
 
+## 2026-09-20 RS-C installed currentness implementation detail
+
+The cold operation receives factories already created by the existing installed
+bootstrap. Capture only a private path/size/hash read plan from that validated
+bootstrap, bind it to the exact original factory inputs, and adopt the complete
+plan with the other retained configuration under RS-C-0b. On every cold use,
+freshly verify the raw bytes that established those semantics. An unchanged raw
+digest proves the previously validated schema, pins and signature still apply;
+it does not permit skipping the current reads. Source installations rehash the
+closed327-member attestation set twice and its key/attestation three times,
+including exact root, lock, descriptor and path checks. The ordinary installed
+and validation-only document factory behavior remains available outside cold
+operations. Missing factory/context bindings reject before any legacy fallback.
+
+The wheel branch below remains pending independent implementation-choice
+review. It must preserve the actual supported interpreter's path-based discovery
+semantics, including distribution uniqueness, while avoiding a new unbounded
+RECORD, provenance TOML or zip central-directory materialization during cold use.
+
+- Capture the ordered `sys.path`, including duplicate entries and empty/relative
+  entries resolved against the original cwd. Revalidate their current resolution
+  and filesystem kind; absent roots becoming present or changed roots reject.
+  Accept only the standard path-based distribution discovery provider and its
+  unchanged implementation. Unsupported custom discovery providers cannot issue
+  a cold read plan; ordinary factory construction does not gain a new authority.
+- For directory roots, freshly enumerate with installed row, byte and work
+  bounds before processing every entry, including filtered non-candidates and
+  each repeated sys.path root occurrence. Never list or collect the whole
+  directory before admission, and never return a truncated candidate set on
+  overflow. Close the iterator on rejection or iteration failure. Compare the
+  exact candidate set, covering `*.dist-info`, directory
+  and single-file `*.egg-info`, and `*.egg/EGG-INFO`. Read every initial candidate's
+  metadata, including non-selected distributions, by bounded streaming hash.
+  Preserve `METADATA -> PKG-INFO -> candidate-file` fallback, including absent,
+  empty-file and unreadable states under the standard reader's exact behavior;
+  a new earlier fallback or an in-place Name change rejects. Directory timestamps
+  alone cannot replace this discovery or metadata proof.
+- Rehash every archive used as a discovery root, including non-selected archives.
+  Verify the selected wheel's complete current bytes and physical identity; raw
+  equality preserves the already-validated RECORD entries and central-directory
+  uniqueness without rebuilding those collections. For an unpacked wheel, rehash
+  its selected RECORD and every member required by the existing module,
+  provenance, coverage, adapter and release closure. Bind the loaded module path
+  and original resource inputs, including their recorded hashes and sizes.
+- Capture and recheck the initial discovery and file identities around plan
+  issuance. Repeat current topology, metadata and selected resource proofs before
+  returning from a cold check. No discovery callback or path is supplied by the
+  cold caller. All plan data, enumerator scratch and hashing buffers join the
+  exact common owner before allocation; archive total size is streamed under the
+  existing work allowance, never read as one document or used to raise a limit.
+
+This is a private read strategy within the approved installed-currentness scope.
+No public API, dependency, installed resource member, schema, write authority or
+irreversible action is added by this detail. Complete C-L acceptance still needs
+configuration adoption and repeated source/action/security/physical proof.
+
+## 2026-09-20 RS-C installation-control read amendment — proposed R0
+
+Human update (2026-09-20): the owner replied “确认” to the final one-file
+request, approving GEW-REMAINING54-P3-COLD-INSTALLATION-CONTROL-V1. The
+append-only p3_restart_cold_installation_control_amendment records this exact
+extension. Current boundaries are185 product /195 effective /41 selected
+targets. The reviewed proposal below is historical; its implementation scope
+and all exclusions remain unchanged. Prior RS-C R2 approval stays valid.
+
+Decision requested: `GEW-REMAINING54-P3-COLD-INSTALLATION-CONTROL-V1`.
+This is a proposed one-file extension to approved RS-C R2. Implementation of
+this extension waits for Human authority; the existing R2 approval remains valid.
+
+Cold source and action reads call `InstallationCommandScope.require_current`,
+including each `_connection_opened` callback. In
+`storage/graph_engineering/storage/migration.py`, `_require_command_scope`
+reaches `_current_manifest` and `_resolve_locator` -> `_load_locators`.
+The two control JSON files currently use `read_text()` before any byte or
+collection bound. An outer size check cannot bound a later growing-file read,
+and omitting nested currentness would remove an existing authority check.
+
+Authorize changes only to these private control-read paths and their private
+bounded helper in that file. The cold path must join RS-C-0b's exact installed
+reservation owner before its first control-file read and retain that binding
+through nested connection admission and each reuse. The lexical carrier may
+be a private ContextVar containing the exact installed context; the ledger
+remains operation-owned. Match owner, task, command scope, ports, process and
+thread; reject missing, foreign, overlapping or changed bindings. Restore the
+binding in `finally`. No standalone fallback context is allowed during a cold
+operation. Existing public signatures and ordinary command semantics remain.
+
+Open only the configured active-manifest and locator-registry members beneath
+the already trusted control root. Check descriptor type, owner, mode, size and
+path identity before allocation; admit actual size against installed document
+limits and the owner's remaining aggregate allowance. One size-bounded read
+and a one-byte growth probe must reject growth, short reads and replacement.
+Reserve raw, decoded, parsed, locator and comparison representations for their
+actual overlapping lifetimes; bound locator count before constructing locator
+objects. Keep the first full recovery closure charged while these reads recur.
+Release descriptors and scratch on every success or failure without I/O repair.
+
+Preserve the shared installation lock, exact manifest schema/digest/context,
+ordinary-command mode, locator schema/order/uniqueness/digest, repository ID,
+root device/inode/path and current-scope comparisons. Continue checking every
+connection admission; no memoized PASS can replace a fresh control-file check.
+No new control file, public API, persisted schema/event, migration/upgrade
+write, locator registration, installation activation or WP-10 behavior is
+authorized by this amendment. RS-C's source, action and physical proof and
+separate irreversible boundaries remain unchanged.
+
+## 2026-09-20 RS-C cold-source reconstruction detail — R2
+
+Human update (2026-09-20): the owner's response “继续” to the final R2
+API request authorizes GEW-REMAINING54-P3-COLD-SOURCE-READ-API-V1, recorded
+in p3_restart_cold_source_read_api_amendment. The not-yet-authorized wording
+in the reviewed proposal below is historical and is superseded only for this
+exact API, consumers, resource hardening, tests and independent review.
+The184/194 boundaries and all irreversible exclusions remain unchanged.
+
+This supplement makes RS-4/RS-5's existing source joins and root lookup
+implementable under the accepted P3-RS-A architecture. It does not authorize
+implementation until its independent review and actual reducer advance.
+RS-AP R1 is the accepted action reader. Positioning, PRD Intent Baseline v2,
+the184-target Envelope and all earlier irreversible boundaries remain unchanged.
+
+### RS-C-0. Proposed bounded task/source reader and authority gate
+
+R0 review GEW-REMAINING54-RS-C-SOURCE-BOUNDS-R0-001 found that the
+existing resolver transitively reads unbounded SQL rows and CAS bytes. The
+following repair proposes one additional private storage read API,
+`TaskRepository.read_category_recovery_sources(task_id, *, phase)`, in the
+already-listed `storage/graph_engineering/storage/repository.py`.
+`phase` is the closed discriminator `locator` or `sources`, never a SQL,
+path, record kind or caller query. Both return immutable data, no capability.
+
+This API is **proposed, not yet authorized**. Existing Human RS-AP approval is
+for action provenance. The RS Impact rule requires a concrete decision for a
+new storage API even though the184 file allowlist does not grow. Required
+decision: authorize this bounded query and its exact application consumers,
+focused RED-first tests, installed pin maintenance and independent review.
+No code may implement it before that Human decision.
+
+| Read phase | Bounded source and complete validation |
+|---|---|
+| Preliminary locator | Doctor-only query of this task's exact wrapper/head, current assessment evidence identity and corresponding same-task reference/object row. Bound SQL bytes before returning text, parse wrapper/evidence under WorkContext, reject duplicate/stale/unsupported assessment selectors, then bounded descriptor-read only that assessment body. Output task/head/ref/CAS identity and target logical ID; no authority or source seal. |
+| Gated task/materialization | Requery wrapper, events/transaction heads and task refs/objects in one bounded capture. Validate task snapshot digest, indexed event chain and transaction/revision/head joins; use the captured committed materialization bytes and installed policy's exact MaterializationRecord to validate domain GraphRef. Do not issue a mutable materialization reference or call a legacy resolver. |
+| Gated source bodies | Read only the exact task-reference set from the captured metadata, once per raw digest, through the RS-AP bounded CAS descriptor primitive. Preserve raw IDs for assessment, category records, full ArtifactRecords, manifests, raw bodies and prior-review sources. No arbitrary CAS enumeration or unreferenced body lookup. |
+| Scope/extension state | Capture this task's project-scope metadata and verify its existing digest/approval-event binding from the same bounded event view. Any project realization requiring an external identity resolver, or extension pin requiring authority unavailable in this closed recovery reader, rejects as unavailable-authority before issuance; never skip the existing check or invoke an unbounded/external resolver. |
+| Final capture and every reuse | Invoke the identical bounded `sources` query again; compare full wrapper/head, event/transaction, scope, references and raw object identities, then all RS-C source and RS-AP action/security facts. No old cached bytes, nested repository lock or legacy read follows this capture. |
+
+Inside each query enforce exact current InstallationCommandScope and same
+TaskRepository/ObjectRepository/lock/WorkContext identity. Require no existing
+repository tokens/transaction, then acquire installation -> object locks once.
+Use parameterized fixed SELECT/CTE statements through the existing doctor role.
+Use SQL-side byte-length CASE sentinels for every potentially large text/blob
+field and bounded result rows (installed array limit plus one overflow sentinel);
+never fetch an unbounded row set or materialize an oversized column. Account
+for the complete raw SQL field budget before parsing/retaining, including task
+snapshot, runner, events, transactions, scope and reference metadata. Optional
+source-state rows receive the same bounds, not a separate unchecked query.
+
+Reuse the existing RS-AP `_read_provenance_object` contract rather than
+ObjectRepository.get/_verify_file/_read_descriptor. Actual fstat size must fit
+the per-document and remaining aggregate allowance before allocation, then
+match persisted size. One admitted read plus a one-byte growth probe, exact
+short-read rejection, final descriptor/path identity and raw digest checks
+apply. Reserve aggregate retained bytes across SQL projections, retained raw
+CAS bodies, parsed projections and transient serialization within the installed
+temporary/result limits; count overlapping representations, not only their
+largest member. Release scratch only after its corresponding data is dropped;
+transfer returned-result reservations to the outer owner defined below.
+Reject before allocation if the full immutable result cannot fit. A short read or drift rejects
+without retry, re-sign, repair or metadata normalization.
+
+Application consumers in existing tasks.py and profile_execution.py validate
+the resulting domain/runner state with existing pure validators, installed
+materialization and exact runtime owner/kind/lineage. They resolve the unique
+assessment from these captured bytes themselves. The caller supplies no
+snapshot/projection and cannot substitute a materialization callback. Generic
+runtime_show and CategoryAssessmentResolver behavior for other consumers stays
+unchanged; the dedicated cold locator/capture path must never call them, nor
+TaskRepository.load/replay/referenced_objects/category_source_seal or the
+legacy CAS/materialization helpers. Action joins use the accepted RS-AP bounded
+capture through the complete action/security route below.
+
+Root scope sequence remains preliminary bounded locator -> release all tokens
+-> root gate -> repeated bounded source/action/physical reads. Query failures
+release only their tokens/connections; outer recovery revokes/closes its root
+handle before returning an error. No durable writes, clock persistence, leases,
+mutation results, source-fence capabilities or new persisted records are issued.
+
+
+### RS-C-0a. Action and security reads within the same bound
+
+R1 findings ACTION-SECURITY-BOUNDS-R1-001 and OUTER-RETENTION-R1-001
+apply to the whole cold operation, not just its new task query. In
+application/actions.py, cold completion validates current action authority
+directly from the exact internally obtained RS-AP journal/index projection.
+Reuse current installed policy validators, uniqueness/index checks and the
+terminal-state, prepared/authority digest, action kind/resource, issuer,
+revocation, owner, lineage, baseline and target checks. Do not re-enter
+ActionJournal.load/find_prepared or the legacy _read_action_authority route
+from cold recovery. A private pure validator may share those checks with the
+existing route; callers cannot supply the projection to the cold entry.
+The next complete bounded capture must detect any journal change between
+capture and validation. Existing mutation APIs and standalone authorization
+semantics remain unchanged; storage/actions.py stays read-only.
+
+In storage/security.py, bound every selected text/blob field and row count
+inside the existing load_installed_runtime and _load_task_state statements
+before SQLite returns Python values. This includes manifest/state JSON,
+identifiers, digests and status/index fields, not only the largest JSON column.
+Use installed limits and the outer remaining allowance; validate exact storage
+types, sentinel absence, current task revision/snapshot and canonical security
+digests before returning. Account for encoding, parsing, freezing and current
+manifest comparison, and retain all existing validation. The public method
+signatures, doctor role, no-clock read semantics and issued security types do
+not change. No new security query API or caller-supplied state is introduced.
+
+This covers SecurityContextIssuer construction, read_task_state,
+ReleaseOperationsRegistryFactory._open_retained_storage_query.current and
+every admission/reuse callback. Construction's existing local WorkContext bound
+must hold before a cold owner exists; its retained installed manifest is
+charged when that owner adopts the issuer. During cold reads the security
+methods join the same outer budget as task/action/physical captures. Missing,
+foreign or changed security authority rejects; no issue_task_context,
+trusted_now, renewal, repair or durable write may satisfy the read.
+
+### RS-C-0b. One reservation owner for the complete cold operation
+
+Use one private in-memory reservation ledger implemented in the existing
+repository.py; it performs no I/O and grants no authority. The cold factory
+creates its owner from the exact installed WorkContext instances of category,
+action, security and release readers. Derive aggregate temporary-unit and
+retained-result-byte ceilings from the minimum remaining installed allowance
+across these contexts, including their pre-existing retained use. Do not merge,
+replace, reset or increase any WorkContext's work budget or limits.
+
+A fixed internal lexical scope binds that ledger to the exact task, command
+scope, current thread and participating repository/security/factory ports.
+No public method gains a budget override, callback or caller projection.
+Existing method signatures remain unchanged. Refuse a foreign owner, omitted
+participant, overlapping owner, reentry or changed context identity. Remove
+the lexical port bindings on every exit; the ledger may outlive a call only
+as the private owner of an issued read-only handle's retained data.
+
+Every fixed reader and pure validator uses child reservation frames from this
+owner, including both captures inside read_action_provenance and
+_read_completed_action_provenance, security callbacks and physical member
+reads. Before SQL field return, CAS read, parse, freeze/thaw or serialization,
+admit the allocation against both its own installed limits and the remaining
+common allowance. Bound SQL lengths/rows without first returning the fields;
+use bounded lengths/structural counts to admit parsed and frozen projections.
+Count raw SQL/UTF-8/CAS buffers, retained parsed structure units and every live
+copy/serialized buffer. Keep byte and structural-unit accounting distinct;
+neither a canonical output length nor a maximum single component substitutes
+for the aggregate. Existing WorkContext checks and charges still apply.
+
+A child frame transfers ownership of each returned immutable projection to its
+caller before return; return does not release that projection's reservation.
+Only scratch whose data is no longer retained may release then. The first
+complete closure remains charged while nested currentness checks and the
+second complete closure allocate. Compare under that same owner, then discard
+unneeded closures and release their reservations. No retained bytes disappear
+from accounting between scopes or become uncharged because another reader
+uses a different WorkContext. Tests observe the owner and local reservations
+rather than treating independent query success as composite evidence.
+
+Before publication transfer the minimal historical assessment/identity
+projection retained by the handle to its persistent private reservation.
+Reuse begins with that reservation already charged, then adds both fresh
+closures under the same ceilings. Close/revoke drops all retained projections
+and releases their reservations; failure drops all new allocations and closes
+the partial handle. A successful temporary read returns to its entry accounting;
+an open handle retains exactly its documented projection charge until close.
+No persisted budget record, new limit value, global singleton or cross-task
+ledger is introduced.
+
+
+### RS-C-1. Locator and read scope
+
+The application entry remains `restore_current_release_assessment`, supplied
+with exact current TaskApplication, RuntimeContext, installed category/release
+factories, same-repository object/action ports, runtime-issued retained
+namespace, and task ID. A preliminary bounded cold-resolver read defined by RS-C-0 obtains
+the unique current assessment CAS identity and target ID only. This is the
+locator step in ADR-0009, not evidence or a source seal. It releases all
+repository tokens and connections before entering the root gate. Unsupported
+schema/Profile/column, missing/duplicate ref or malformed target fails here.
+
+The adapter opens exactly the namespace key for these task/target IDs, using
+the existing private directory checks and exclusive nonblocking root gate.
+A new internal marker-only admission step reads the fixed protocol marker with
+no-follow, exact owner/mode/link/descriptor/path/size checks and installed
+WorkContext bounds. It does not scan candidate directories or guess a fixture.
+The parsed binding's exact installed fixture ID selects the allowed member set;
+validate every member and the complete binding before producing a raw reader.
+No caller-provided member selector or callback supplies this authority. Failure
+at either step closes the partial lease. Marker-only admission is unavailable
+for ordinary member reads and never enables a write.
+
+All authoritative reads then occur under that lease. Use RS-C-0 to resolve the same unique
+assessment again and require identical locator/ref/CAS bytes before RS-3–RS-5.
+This clarifies RS-2's table: repository reads used as proof occur after the gate;
+the preliminary locator retains no repository lock when acquiring it. On every
+use, recheck installed scope, task, sources, action history, target and health,
+then the whole closure a second time. No retry hides a change.
+
+### RS-C-2. Durable artifact and runner linkage
+
+Keep every task-reference CAS digest, verify each raw body, and parse exact
+canonical records. The normal category artifact record has precisely its
+existing fields: schema_version, record_kind, task_id, artifact_id, contract_id,
+body_digest, author_id, reviewer_id, status, record_digest. Require version1.0.0,
+accepted-for-category, canonical distinct actors and installed contract closure.
+
+Join each category record to exactly one same-task committed full
+`artifact-record:1.0.0` by task/artifact/contract/body/author/reviewer fields.
+Validate the full record's existing schema, semantic artifact digest, installed
+contract ID/digest/type, accepted exit status, canonical actors, closed findings
+and exact required PASS validation/review records against the same semantic
+body. Human-policy records require their recorded approval to bind the task
+owner and same body. This is verification of committed acceptance/body/review
+facts; it does not rerun semantic validators or issue a new ArtifactRecord
+acceptance. Do not call ArtifactValidator.load with known inputs, requirements
+or baselines copied from the record itself.
+
+The record's logical_body_ref joins uniquely to a committed existing
+LogicalBodyManifest by manifest ID, artifact ID, entry digest and extracted
+digest. Its physical_body_digest locates an already same-task referenced raw
+CAS object. Reuse LogicalBodyManifest's installed schema, selector, physical,
+entry and manifest checks, and recompute semantic_body_digest from verified
+bytes and the record's semantic_fields. Record baseline and target bindings
+must match current task baseline refs and the already verified durable action
+target. Persisted source input/requirement fields remain immutable historical
+facts; this recovery does not claim independent reevaluation of the original
+authoring requirements. Preserve all joined raw object identities in the
+read-only source projection, including historical bodies used by final review.
+
+Runner outputs must have the exact existing RunnerSnapshot shape and installed
+required-node closure. Each selected output's semantic body must resolve through
+exactly one referenced accepted ArtifactRecord/LogicalBodyManifest with matching
+author/reviewer; the output evidence_refs must explicitly include that record's
+raw CAS identity. Verify the record before trusting this join. No string-to-CAS
+digest conversion is allowed: `sha256-jcs-v1` identifies the validated logical
+body; `sha256:` identifies bytes. Existing real NodeCandidate raw bodies are not
+relabelled as semantic bodies. A source unable to satisfy the stored category
+review contract is ineligible.
+
+Reconstruct final review using the original issuance selection: the last PASS
+in verified review history, then the last prior distinct body before that PASS.
+Join the PASS to exactly one selected output and the prior review to the same
+node/run and a distinct committed validated logical body; enforce canonical
+independent actors and monotonic exact-integer attempts. Recompute the exact
+six-field category-independent-review digest. Another unrelated PASS or a label
+digest cannot replace either linked body. The normal runner fact is recomputed
+only after the complete output/body/review closure passes.
+
+Existing synthetic category fixtures lack these sources and remain cold-read
+negative fixtures. New synthetic producers publish complete bodies, manifests,
+records and runner references through existing CAS/runner-transition APIs before
+assessment commit. This proves durable reconstruction, not execution of actual
+specialist agents or new mandatory/scenario coverage.
+
+### RS-C-3. Read-only result and physical proof
+
+Return a factory-registered opaque read-only assessment handle with exact
+historical assessment bytes/digest, source projection and query/close lifetime.
+It is not a CategoryCompletionAssessment issued into a live oracle registry,
+ReleaseOperationsEvidence issued into the live registry, or ActionOutcome.
+Clones, serialization, foreign ports, closed handles and mutation/commit use
+fail. Default restore_projection still rejects absent a resolver-issued binding.
+No historical body, reference, phase counter or execution continuation is written.
+
+Read all configured state/active/staged manifest and artifact members. Validate
+typed state, artifact sizes/raw hashes/provenance, active/stage pointer agreement,
+generation and configured health predicates. Join deployment/rollback fields to
+RS-AP's exact prepared/authority/claim/receipt/attempt records. Match historical
+before/after digests and phase/fault facts against that committed chain; retain
+them as history, without reconstructing last_execution or original_binding.
+Normal apply-B and completed partial compensation-to-A are the two positives.
+The current typed target contract must describe this same terminal state and
+resources. A separate disposable target cannot supply the proof.
+
+Fresh observation revisions start in a new opaque lease epoch, independent of
+stored JSON counters. Every successful reuse advances the local revision after
+two matching complete source/target/health reads; drift revokes and closes the
+handle. Initial/final full source projections include task head, assessment CAS,
+each joined source CAS identity, security and action/claim/attempt revisions.
+Use exact canonical equality, not bool-equals-int language equality.
+
+RS-6 errors, zero recovery writes/replay/network, budget and trust limits apply.
+Remaining open implementation choices must be resolved by independent review
+before source changes; any material boundary change follows the existing Human
+gate. Schema1.0–1.4 bytes and live completion fences are unchanged.
+
+
+## 2026-09-20 RS-AP authorized action provenance read contract — R1
+
+Human approval `p3_restart_action_provenance_amendment` authorizes the existing
+storage repository source in addition to the prior183 targets (184 total).
+This supplement supplies the missing read boundary for RS-3; the approved
+Positioning/PRD/Intent and RS-1–RS-6 remain governing. It adds no database
+schema, persisted record type, event, dependency or mutation permission.
+
+```mermaid
+flowchart LR
+  R[Runtime and retained root read gate] --> A[Coordinator current authority check]
+  A --> S[Repository doctor provenance query]
+  S --> D[(Existing task, journal, claim, event and object records)]
+  S --> A
+  A --> V[Immutable completed action facts]
+  V --> C[Later RS-4 assessment and source validator]
+```
+
+### RS-AP-1. Repository input and output
+
+`TaskRepository.read_action_provenance(task_id, action_id)` is a data-only
+library read for the current command-scoped repository. Exact nonempty IDs are
+lookup hints; callers cannot supply journal bodies, claim digests, references
+or completion truth. The current exact journal verifier, object repository,
+locks and connection factory must share its repository and command scope.
+Maintenance, foreign ports and caller-held repository locks/connections reject.
+The caller owns any required runtime/retained-root authority before this call.
+
+Return a recursively immutable JSON mapping with `schema_version`, `task`,
+`journals`, `claim`, `recovery`, `events`, `references`, `receipt_objects`, and
+`source_digest`. Task includes its ID, revision, head sequence/digest and
+snapshot digest. Journal entries include their row identities/state/revision,
+both persisted digest-index columns and schema/digest-validated prepared,
+authority, optional receipt and reconciliation bodies. Claim includes the
+actual persisted outcome digest, original action/task/lease/start identity,
+state/revision and complete resources/fences. Recovery is null or the actual
+attempt including its persisted receipt digest/index and parsed bodies. Events
+retain their transaction identity; references retain digest, kind, transaction,
+size and availability; receipt objects contain their digest and validated JSON
+document. `source_digest` binds this whole returned value except itself.
+
+Capture the selected task, original/restore journals and digest aliases,
+claims/resources, recovery attempts, complete task event/transaction history
+and task object references in one parameterized SQLite SELECT/CTE/UNION
+statement. This avoids composing an apparent snapshot from separate table
+reads. Stream a bounded result using the installed WorkContext limits; reject
+over-limit strings/row collections before retaining an unbounded result.
+Reuse existing event-chain/transaction validation, bounded canonical parsers
+and closed journal contracts. CAS verification must use the bounded reader
+below. Duplicate candidate rows,
+digest aliases, missing index/body matches, blocked tasks and dangling or
+foreign transaction references fail closed. Select journals by durable IDs,
+not caller projections.
+
+Implement receipt CAS reads within the authorized `repository.py`. Before any
+body allocation, open through the existing bound directory with no-follow
+semantics and validate the actual descriptor/path identity, regular-file type,
+owner, mode and actual `fstat` size. Check actual size against the installed
+`raw_document_bytes` limit and remaining aggregate receipt-byte allowance,
+then require agreement with persisted object size. Database metadata cannot
+establish the bound. Preserve descriptor/path binding checks before and after
+reading, require stable size/identity, and verify the resulting object digest.
+Enforce the same byte ceiling incrementally if the file grows after inspection:
+retain at most the admitted bytes and read at most that allowance plus one
+sentinel byte before rejection. Bound all retained receipt bytes across objects
+by the installed `result_bytes` and `temporary_units` limits, with duplicates
+read/retained only once. Check the final serialized result against result limits.
+Do not reach the existing unbounded object verification/read helpers, including
+through replay; reuse only pure event validation and bound-directory primitives.
+No changes to `objects.py` or `connection.py` are needed or authorized.
+
+Acquire and release installation/object locks within the call, after the root
+gate. Use doctor query-only access, no immediate transaction, clock update,
+lease renewal, reference insertion, cache repair or normalization write.
+Capture and verify again before return; compare complete immutable snapshots
+and revalidate command authority. Changes or read errors reject without retry;
+all descriptors/connections/tokens unwind. The result is data, never a
+durable execution gate, ActionOutcome, recovery issuer or assessment object.
+
+### RS-AP-2. Completed action joins
+
+The coordinator's private `_read_completed_action_provenance(task_id, action_id)`
+combines freshly read provenance with current `_read_action_authority`
+facts for every involved action. Match prepared/authority bodies and persisted
+index digests, task/action/owner/lineage/target/baseline/resource identities and
+current authority membership. Repeat the complete provenance/authority read
+before return. Historical authorization timestamps remain structurally valid;
+do not renew them or compare execution expiry against the current read time.
+
+For ordinary completion require one reconciled original journal, its exact
+`claim:<action_id>` in `reconciled_effect_verified`, no recovery attempt, and
+unique ordered execution-start, receipt and effect-reconciliation events.
+Bind start prepared/authority/snapshot/lease/fences, receipt task/action/claim/
+start/payload/target/fence and recorded receipt digest/object, and reconciliation
+target/resource/fresh observation/postcondition. Recompute `claim-outcome-v1`
+from the recorded reconciliation and compare the persisted claim outcome digest.
+An earlier unknown receipt can legitimately end in verified reconciliation;
+receipt result alone is not the completion verdict. No-effect and unresolved
+histories remain ineligible for this normal-release completion reader.
+
+For compensation require the original journal to be compensated, the same
+original claim in `compensation_reconciled`, one reconciled recovery attempt,
+and its distinct reconciled restore journal. Bind original started event,
+restore action/prepared/authority, target/resources/fences/lease, baseline and
+snapshot, unique ordered compensation start/receipt/reconciliation events,
+and the exact attempt/restore receipt. Its receipt must succeed; both recorded
+reconciliations must be identical and bind that receipt, observation digest,
+revision and rollback postcondition. Compare the persisted claim outcome
+digest with that exact reconciliation. The original receipt may be absent
+only when its history has no receipt event; otherwise validate it as historical
+evidence. Never require the original journal to remain reconciled after rollback.
+
+Each receipt needs a current available CAS object, canonical closed bounded
+receipt body, matching raw-result/object/receipt digests and committed task
+reference. Identical redacted receipt bytes may be reused by several actions:
+the reference's transaction must be a verified same-task transaction at or
+before the receipt event, not necessarily that receipt event's transaction.
+This follows the existing first-reference-preserving insert behavior.
+
+### RS-AP-3. Errors, limits and integration boundary
+
+Use existing RepositoryIntegrityError/RepositoryConflictError/object errors for
+missing, corrupt, duplicate or changed durable facts; propagate current-scope
+and resource-limit failures. Coordinator semantic/current-authority failures
+reject with ValueError. Failure performs no repair, issue, renewal or retry.
+Synthetic tests cover normal/compensation, substitution, coherent digest
+tampering, shared receipt references, drift and no writes. Existing resource
+profiles supply limits; native verification stays serial/failfast/600seconds,
+without new latency, benchmark or coverage claims. No deployment topology or
+privacy changes: the read uses the same local installed repository and existing
+task data. Full assessment recovery and RS-5 fresh-process evidence remain
+separate; this result cannot enter live evidence or mutation registries.
+
+References: [Impact](../impact/graph-engineering-workflow.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md),
+[Test Plan](../test-plans/graph-engineering-workflow.md),
+[PRD](../prd/graph-engineering-workflow.md),
+[Positioning](../positioning/graph-engineering-workflow.md).
+
 ## 2026-09-19 RS-BS prerequisite supplement — R0
 
 Authority: `p3_restart_bridge_security_amendment`; ADR-0009 RS-BS. Pending

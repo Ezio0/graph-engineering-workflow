@@ -1,5 +1,251 @@
 # Graph Engineering Workflow — Test Plan
 
+## 2026-09-20 RS-C installed currentness checks
+
+Source currentness must measure actual owner reservations before each read and
+cover all327 attested members, control key/attestation, both factory read methods,
+missing/foreign context bindings, changed bytes/size, short read, growth, FIFO
+control lock, descriptor cleanup and exact entry accounting on failure.
+
+Before accepting the pending wheel read strategy, test both unpacked and archive
+installations in fresh native processes. Include added/removed duplicates,
+in-place non-selected metadata Name changes, single-file egg-info and
+egg/EGG-INFO fallback (including empty files), new earlier metadata fallback, non-selected archive
+candidate changes, empty/relative sys.path with changed cwd, absent roots becoming
+present, changed discovery provider/implementation, selected RECORD and archive
+central-directory duplicates, loaded-module identity, streaming short read/growth,
+exact common allowance and minus-one rejection, retained first proof, and cleanup.
+Exercise many non-candidate directory entries with few or no candidates, repeated
+root occurrences, overflow without truncation, and iterator closure on exception
+or early rejection. Filtering cannot hide uncounted enumeration work or memory.
+Legacy distribution.files, full resource tuples, TOML and ZipFile metadata paths
+must be unreachable from cold checks; their original installation validation is
+not replaced by a caller-supplied plan. All previous policy limits and the
+failfast600second native-batch boundary remain unchanged.
+
+## 2026-09-20 RS-C installation-control read tests — proposed R0
+
+Human update (2026-09-20): the owner replied “确认” to the final one-file
+request, approving GEW-REMAINING54-P3-COLD-INSTALLATION-CONTROL-V1. The
+append-only p3_restart_cold_installation_control_amendment records this exact
+extension. Current boundaries are185 product /195 effective /41 selected
+targets. The reviewed proposal below is historical; its implementation scope
+and all exclusions remain unchanged. Prior RS-C R2 approval stays valid.
+
+Run these focused RED-first cases only after the one-file authority amendment
+`GEW-REMAINING54-P3-COLD-INSTALLATION-CONTROL-V1`. Use the existing release
+integration/unit tests and Remaining54 authority test; no new test file, stored
+data, configured budget or workload is introduced.
+
+- Active manifest and locator registry each reject actual descriptor bytes
+  above the installed document or remaining aggregate bound before a body
+  allocation; falsely small metadata, growth, short read and path replacement
+  fail without retry. Observe descriptor read counts/maximum requested bytes.
+- Locator array overflow rejects before `_RepositoryLocator` construction.
+  Valid sorted entries remain accepted; duplicate locator/repository IDs,
+  altered locator digest and foreign root device/inode/path remain rejected.
+- Changed manifest digest/context/mode and control-file owner/mode/symlink
+  substitutions still reject. Cover first cold read, every nested
+  `_connection_opened` check and reuse after an earlier successful closure.
+- Hold the first complete closure while admitting the control reads: exact
+  remaining allowance succeeds and one unit/byte less fails. Inspect live raw,
+  decoded, parsed and locator reservations, including distinct participating
+  contexts and pre-existing retained use. A resource failure cannot satisfy a
+  semantic-substitution oracle.
+- Missing/foreign/overlapping/cross-thread lexical owners reject; exceptions
+  restore the binding and release descriptors, tokens and scratch. Success and
+  all failures preserve database/control-file/retained-root bytes with zero
+  clock writes, registration, activation, migration or action replay.
+- Preserve ordinary command/currentness behavior and the full installed
+  provenance checks. Update only the exact185 authority assertion after Human
+  approval; verify subtraction recovers the historical184 and earlier sets.
+
+Fresh private source attestation, serial native execution, the authorized real
+parent600-second timeout and independent review remain required. These are
+proposed cases, not execution evidence or complete cold recovery acceptance.
+
+## 2026-09-20 RS-C source, locator and cold-use verification — R2
+
+Human update (2026-09-20): the owner's response “继续” to the final R2
+API request authorizes GEW-REMAINING54-P3-COLD-SOURCE-READ-API-V1, recorded
+in p3_restart_cold_source_read_api_amendment. The not-yet-authorized wording
+in the reviewed proposal below is historical and is superseded only for this
+exact API, consumers, resource hardening, tests and independent review.
+The184/194 boundaries and all irreversible exclusions remain unchanged.
+
+Scope is Spec RS-C and existing RS-CUJ1–6; all named journeys/negative groups
+remain required. Native unittest uses serial fresh private fixtures, attested
+source checkout, explicit installation scope, parent monotonic_ns and600second
+failfast cap. No code-coverage percentage or performance result is claimed.
+
+| CUJ | Positive and mandatory rejection evidence | Lowest useful layer |
+|---|---|---|
+| C-B | RS-C-0 locator/gated/reuse reads are bounded before SQL/CAS materialization; exact-limit success and oversize/false-size/growth/short/aggregate/row-count failures reject without leaks or writes | Existing release integration |
+| C-P | Exact installed artifact source/schema/wheel closure; changed config/source/RECORD rejects; direct documents do not issue cold authority | Existing release unit and installed-wheel tests |
+| C-S1 | Unique referenced assessment, exact lifecycle/revision/epoch/GraphRef/authorities, normal discriminator; all11 other columns refuse before source issuance | Release integration |
+| C-S2 | Real committed logical bodies, exact runner node/output/actor and final/prior review linkage; digest type confusion, duplicate/missing/unreferenced body, foreign/extra output and unrelated PASS reject | Release integration and source units |
+| C-S3 | Category -> full ArtifactRecord -> manifest -> raw body joins; field/schema/version/status/actor/review/contract/baseline/target/selector/content substitutions reject, including coherent re-signing of only one link | Release integration |
+| C-S4 | Exact same retained target contract, expected terminal state/resources and selector, full typed normal evidence; legacy dummy target/label-only sources reject | Release integration |
+| C-L | Locator is data only; all repository tokens released before gate; altered ref between locator and gated read rejects; marker admission bounds, wrong fixture, residue and partial descriptors refuse safely | Release adapter/integration |
+| C-E | Fresh exec producer exits, consumer rebuilds installed/runtime/repository authorities, recovers exact historical bytes for apply-B and completed partial compensation-A; twice-use revision is local and increasing | Two-process integration |
+| C-R | Each source and physical byte changes after first capture/before publication/on second use; revoke handle and close all resources, preserve existing final callback completion fence | Release integration |
+
+Use actual CAS, SQLite, physical root and factory/currentness code. Mocks may
+inject a race/fault or assert a prohibited call; they cannot supply authoritative
+source success. Producer setup, injected tampering and recovery are separately
+counted. Persist real raw bodies/manifests/records and evidence_refs through
+existing APIs; no product claim that synthetic producer ran actual specialist
+NodeCandidate loops. Keep legacy synthetic fixtures as negative cold tests.
+
+Every successful or rejected recovery measures unchanged task/event/snapshot/
+CAS/reference/action/claim/receipt/target content, zero execution/reconciliation/
+renewal/apply/restore/network calls, and descriptor/root lease release. Count
+first-read and repeat-use failures separately. No assessment is reissued into a
+live oracle or release evidence registry, and no old capability crosses exec.
+
+At each locator, gated capture and repeat-use entry, independently inject
+oversized actual CAS with correct or falsely small metadata, growth after
+fstat, short read, oversized SQL fields, too many SQL rows/references, and
+aggregate overflow from individually admissible bodies. Include exact-limit
+success and a multi-body case measuring overlapping SQL/raw/parsed/serialized
+representations. Count bytes actually read and peak retained allocation;
+post-return length checks alone do not establish a bound.
+
+Patch legacy TaskApplication.runtime_show, TaskRepository.load/replay/
+referenced_objects/category_source_seal, ObjectRepository.get/_verify_file/
+_read_descriptor and legacy materialization lookup to raise if entered during
+cold recovery. Positive and resource-rejection cases must still take the new
+bounded route. Record descriptor, connection, token and reservation cleanup
+after every failure. Resource limits come from installed WorkContext, never
+new fixed constants. Also inject oversized installation-manifest and task-security JSON/index fields
+at issuer construction, root admission, gated capture and reuse. Bound the
+SQLite output before Python receives those fields. Inject journal growth after
+the bounded provenance capture and before its authority validation; the repeat
+capture must reject it. Patch ActionJournal.load/find_prepared and the legacy
+_read_action_authority route to fail during cold success and rejection cases.
+All revocation, installed issuer/policy, owner, lineage, baseline, target and
+currentness negatives remain required; no security check may be skipped.
+
+Use distinct installed WorkContext objects with different limits and existing
+reservations. Construct a case where each source/action/security result fits
+alone but retained first closure plus nested and second captures exceed the
+common remaining allowance. Reject before that allocation. Include exact
+aggregate-limit success, internal RS-AP double captures, physical-member reads,
+parse/freeze/thaw/serialization copies and a handle projection carried into
+reuse. Measure both byte and structural-unit peaks in the shared ledger and
+local contexts. Transfer ownership before return, retain the first closure's
+charge through comparison, and prove no gap or double release. Entry failure
+and closed handles restore entry reservations; a live handle keeps exactly
+its retained projection charge. Foreign/missing/reentrant ledger bindings
+refuse, and port bindings are removed on every exit.
+
+Cold records requiring unsupported extension/external
+realization authority reject before evidence publication. Source schema validation uses installed closed
+artifact schemas; cannot rely on fixture supplied expected digests. Full
+original authoring-input/requirements reevaluation is outside this read proof;
+test that it is never falsely obtained from the record's own fields.
+
+Compatibility covers assessment1.0–1.4 schema validation, unchanged live source/
+target completion fences and disposable behavior, current five installed
+factories,18-member release loader and wheel. Existing RS-5 crash/rejection
+matrix remains required. No mandatory/scenario/cumulative/performance run.
+Independent design review precedes code, and independent source review plus
+actual reducer binds final evidence; these documents alone are not a PASS.
+
+
+## 2026-09-20 RS-AP provenance verification — R1
+
+### 1. Scope and critical journeys
+
+Spec RS-AP and Plan AP-H–AP-V govern this bounded slice. Every listed CUJ needs
+passing evidence: P1 normal apply survives a new coordinator read; P2 completed
+partial-deployment compensation validates original claim plus separate restore
+journal/receipt; P3 genuine shared receipt CAS accepts an earlier committed
+same-task reference; P4 corrupted/duplicate/unresolved/revoked provenance
+rejects; P5 reads and failures preserve every logical repository table and
+target/CAS bytes, leave no locks, and issue no executable authority.
+Full assessment rehydration/RS-5 process proof, all non-normal coverage columns,
+performance/cumulative work, network and production remain outside this slice.
+
+### 2. Layers and traceability
+
+Use existing WP08 unit/integration files plus Remaining54 authority/package
+checks. Database/CAS joins need real integration fixtures; do not invent unit
+tests mirroring SQL text or a pyramid count. Pure shape/digest/resource cases
+may use lower-level helpers when useful. New cold-process E2E is deliberately
+deferred to RS-5; existing retained-root exec/package tests are adjacent checks.
+No percentage or full-suite claim substitutes for these five CUJs.
+
+### 3. Strategies and negative matrix
+
+Use real native SQLite, current security/journal/lease/object ports and local
+release simulator, fresh fixture per corruption group. Mock only explicit
+fault/race injection and forbidden issuance/write hooks. Test missing or altered
+claim outcome digest, both journal digest index columns, equal-digest aliases,
+foreign task/action/resource/fences, receipt digest/object bytes, missing or
+foreign/future reference transactions, broken or duplicate event joins,
+incomplete/substituted recovery attempt and mismatched restore receipt/
+observation/postcondition. Re-sign bodies where appropriate so joins, not
+only stale digests, must reject. Historical expiry must not demand renewal.
+
+Inject a change between snapshots and an object/read failure; assert rejection,
+no retry and released repository tokens/connections. Assert doctor query_only
+and SELECT-only execution with writes/clock/renewal/issuance paths replaced by
+rejecting hooks; compare all SQLite tables, references, CAS and target bytes
+outside fixture setup/tampering. Exercise configured resource limits and deep
+immutability. The previous authorization reader's negative cases remain valid.
+
+For the bounded CAS reader, test (a) an oversized receipt with matching database
+size, (b) oversized actual bytes with falsely small size metadata, (c) growth
+after descriptor inspection, (d) aggregate receipt-byte overflow across unique
+objects and (e) exact-limit success. Preflight oversize must read zero body bytes;
+growth reads at most the admitted allowance plus one sentinel and retains no
+more than the allowance. Measure read sizes/counts and aggregate retained bytes,
+not just the final exception. Assert no repository/CAS writes and release of
+all descriptors, connections and lock tokens on every failure. Exercise
+no-follow/type/owner/mode/path/digest checks and patch existing unbounded CAS
+helpers to fail if reached; independent implementation review must confirm
+neither the new reader nor its event validation can reach them. Smaller limits
+may target the private helper to avoid unrelated journal-parser limits.
+
+### 4. Data and cleanup
+
+Only private synthetic existing action/release fixtures, no user repository or
+PII. Setup/corruption writes are outside read measurements. Close sessions,
+retained handles and every fixture on failure; keep only authorized audit
+records. No success mock may replace provenance or current authority validation.
+
+### 5. Environments and budget
+
+One native Python3.12 command at a time, explicit fresh private source-checkout
+attestation via -X and matching locator, serial failfast and real parent
+monotonic_ns;600second native cap, unchanged300second canonical evidence cap.
+Record measured duration; no invented latency target. Run focused new cases,
+then affected action/compensation/retained-root/authority/package regressions.
+Broaden or repeat only for changed inputs, failure or a concrete concern.
+
+### 6. Non-functional boundaries
+
+Read-only integrity/currentness, resource bounds and compatibility are required.
+Benchmark, monitoring, accessibility, deployment and full recovery issuance are
+not part of this internal read boundary. No DB schema or role changes are tested
+as permissible behavior; current permissions must remain effective.
+
+### 7. Gate and completion
+
+Independent AP-D review precedes code; AP-V requires passing CUJs, pin/Manifest/
+historical-record checks and independent implementation review. The approved
+single-path addition needs no repeat approval. Any further source/authority
+expansion follows existing Policy. Full RS-4/RS-5 evidence remains separate.
+
+### 8. References
+
+[Spec](../specs/graph-engineering-workflow.md),
+[Impact](../impact/graph-engineering-workflow.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md),
+[PRD](../prd/graph-engineering-workflow.md),
+[Positioning](../positioning/graph-engineering-workflow.md).
+
 ## 2026-09-19 RS-BS prerequisite verification — R0
 
 ### 1. Scope and CUJs

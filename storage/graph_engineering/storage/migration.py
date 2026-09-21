@@ -14,7 +14,7 @@ import stat
 import tempfile
 import threading
 from dataclasses import dataclass
-from contextlib import AbstractContextManager
+from contextlib import AbstractContextManager, ExitStack, contextmanager
 from typing import Callable, ClassVar, Mapping
 
 from graph_engineering.core.contracts.canonical import canonical_bytes
@@ -1048,9 +1048,97 @@ class InstallationMigrationRepository:
             _no_fault,
         )
 
-    def _load_locators(self) -> tuple[_RepositoryLocator, ...]:
+    def _cold_control_owner(self):
+        from graph_engineering.core.contracts.resources import WorkContext
+        from .repository import _RECOVERY_INSTALLATION_CONTEXT, _RecoveryReadBudget
+
+        context = _RECOVERY_INSTALLATION_CONTEXT.get()
+        owner = getattr(self, "_recovery_read_budget", None)
+        if context is None:
+            if owner is not None:
+                raise MigrationRepositoryError("cold installation context is missing")
+            return None
+        if (type(context) is not WorkContext or type(owner) is not _RecoveryReadBudget
+                or getattr(context, "_recovery_read_budget", None) is not owner
+                or owner.contexts[0] is not context
+                or type(owner.command_scope) is not InstallationCommandScope
+                or owner.command_scope._manager is not self):
+            raise MigrationRepositoryError("cold installation context is foreign")
+        owner._require_active()
+        self._control_lock.require_held(owner.command_scope._control_token(), "shared")
+        return context, owner
+
+    @contextmanager
+    def _cold_control_document(self, name, context, owner):
+        """Keep admitted raw/parsed control data charged through its caller."""
+        from graph_engineering.core.contracts.strict_json import parse_json
+
+        if name not in (self._policy.active_manifest_filename,
+                        self._policy.repository_locator_registry_filename):
+            raise MigrationRepositoryError("cold control member is not configured")
+        _require_bounded_directory(self._control, mode=self._policy.root_mode)
+        root_before = self._control.lstat()
+        root_fd = descriptor = None
+        body = value = None
+        def identity(metadata: os.stat_result) -> tuple[int, ...]:
+            return (metadata.st_dev, metadata.st_ino, metadata.st_mode, metadata.st_uid,
+                    metadata.st_nlink, metadata.st_size, metadata.st_mtime_ns, metadata.st_ctime_ns)
+        def root_identity(metadata: os.stat_result) -> tuple[int, ...]:
+            return (metadata.st_dev, metadata.st_ino, metadata.st_mode, metadata.st_uid)
+        try:
+            root_fd = os.open(self._control, os.O_RDONLY | os.O_DIRECTORY
+                | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0))
+            root_metadata = os.fstat(root_fd)
+            if (not stat.S_ISDIR(root_metadata.st_mode) or root_metadata.st_uid != os.getuid()
+                    or stat.S_IMODE(root_metadata.st_mode) != self._policy.root_mode
+                    or root_identity(root_metadata) != root_identity(root_before)):
+                raise MigrationRepositoryError("cold control root identity changed")
+            named = os.stat(name, dir_fd=root_fd, follow_symlinks=False)
+            descriptor = os.open(name, os.O_RDONLY | os.O_NONBLOCK
+                | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0), dir_fd=root_fd)
+            metadata = os.fstat(descriptor)
+            if (identity(named) != identity(metadata) or not stat.S_ISREG(metadata.st_mode)
+                    or metadata.st_uid != os.getuid() or metadata.st_nlink != 1
+                    or stat.S_IMODE(metadata.st_mode) != self._policy.file_mode):
+                raise MigrationRepositoryError("cold control descriptor/path is untrusted")
+            size = metadata.st_size
+            context.check_limit("raw_document_bytes", size, source_id=name)
+            # Raw bytes, decoded text, parsed containers, canonical validation,
+            # domain objects and the growth sentinel overlap in this frame.
+            with owner.reserve(context, units=8 * size + 1, byte_count=6 * size + 1, source_id=name):
+                try:
+                    body = os.read(descriptor, size)
+                    if len(body) != size:
+                        raise MigrationRepositoryError("cold control short read")
+                    if os.read(descriptor, 1):
+                        raise MigrationRepositoryError("cold control grew during bounded read")
+                    if (identity(os.fstat(descriptor)) != identity(metadata)
+                            or identity(os.stat(name, dir_fd=root_fd, follow_symlinks=False)) != identity(metadata)
+                            or root_identity(os.fstat(root_fd)) != root_identity(root_before)
+                            or root_identity(self._control.lstat()) != root_identity(root_before)):
+                        raise MigrationRepositoryError("cold control changed during bounded read")
+                    owner._require_active()
+                    value = parse_json(body, context=context, source_id=name,
+                        operation_path=context.child_path(()))
+                    if canonical_bytes(value) != body:
+                        raise MigrationRepositoryError("cold control JSON is not canonical")
+                    yield value
+                finally:
+                    body = value = None
+        except OSError as error:
+            raise MigrationRepositoryError("cold control member is missing or untrusted") from error
+        finally:
+            try:
+                if descriptor is not None:
+                    os.close(descriptor)
+            finally:
+                if root_fd is not None:
+                    os.close(root_fd)
+
+    def _load_locators(self, *, _cold_stack=None) -> tuple[_RepositoryLocator, ...]:
+        cold = self._cold_control_owner()
         target = self._control / self._policy.repository_locator_registry_filename
-        if not target.exists():
+        if cold is None and not target.exists():
             return ()
         metadata = target.lstat()
         if (
@@ -1059,12 +1147,21 @@ class InstallationMigrationRepository:
             or stat.S_IMODE(metadata.st_mode) != self._policy.file_mode
         ):
             raise MigrationRepositoryError("repository locator registry is untrusted")
-        value = parse_canonical_json(target.read_text())
+        if cold is None:
+            value = parse_canonical_json(target.read_text())
+        else:
+            if type(_cold_stack) is not ExitStack:
+                raise MigrationRepositoryError("cold locator read has no retained frame")
+            context, owner = cold
+            value = _cold_stack.enter_context(self._cold_control_document(
+                self._policy.repository_locator_registry_filename, context, owner))
         if not isinstance(value, dict) or set(value) != {"schema_version", "repositories"} or value.get("schema_version") != "1.0":
             raise MigrationRepositoryError("repository locator registry is not exact")
         repositories = value.get("repositories")
         if type(repositories) is not list:
             raise MigrationRepositoryError("repository locator registry entries are invalid")
+        if cold is not None:
+            context.check_limit("array_items", len(repositories), source_id="cold-locators")
         loaded = tuple(_RepositoryLocator.load(item) for item in repositories)
         if tuple(item.locator_ref for item in loaded) != tuple(sorted({item.locator_ref for item in loaded})):
             raise MigrationRepositoryError("repository locator registry is not canonical")
@@ -1099,9 +1196,9 @@ class InstallationMigrationRepository:
         )
         return locator
 
-    def _resolve_locator(self, manifest: ActiveRepositoryManifest) -> pathlib.Path:
+    def _resolve_locator(self, manifest: ActiveRepositoryManifest, *, _cold_stack=None) -> pathlib.Path:
         matches = tuple(
-            item for item in self._load_locators()
+            item for item in self._load_locators(_cold_stack=_cold_stack)
             if item.locator_ref == manifest.repository_locator_ref
         )
         if len(matches) != 1:
@@ -1186,11 +1283,33 @@ class InstallationMigrationRepository:
     def _require_command_scope(self, scope: InstallationCommandScope) -> None:
         control_token = scope._control_token()
         self._control_lock.require_held(control_token, "shared")
-        current = self._current_manifest()
-        if current.manifest_digest != scope.context.manifest_digest:
-            raise MigrationRepositoryError("installation command context is stale")
-        if self._resolve_locator(current) != scope.repository_root:
-            raise MigrationRepositoryError("installation command locator changed")
+        cold = self._cold_control_owner()
+        if cold is not None and cold[1].command_scope is not scope:
+            raise MigrationRepositoryError("cold installation command scope is foreign")
+        with ExitStack() as stack:
+            current = None
+            try:
+                current = self._current_manifest(_cold_stack=stack)
+                if current.manifest_digest != scope.context.manifest_digest:
+                    raise MigrationRepositoryError("installation command context is stale")
+                if self._resolve_locator(current, _cold_stack=stack) != scope.repository_root:
+                    raise MigrationRepositoryError("installation command locator changed")
+            except BaseException as error:
+                if cold is not None:
+                    # Returned failures must not retain charged parse/domain
+                    # payloads through frames that have already unwound.
+                    import traceback
+                    pending, seen = [error], set()
+                    while pending:
+                        cause = pending.pop()
+                        if cause is None or id(cause) in seen:
+                            continue
+                        seen.add(id(cause))
+                        traceback.clear_frames(cause.__traceback__)
+                        pending.extend((cause.__cause__, cause.__context__))
+                raise
+            finally:
+                current = None
 
     def _exit_command_scope(self, scope: InstallationCommandScope) -> None:
         control_token = scope._control_token()
@@ -1291,10 +1410,17 @@ class InstallationMigrationRepository:
                 raise MigrationRepositoryError(str(error)) from error
             node = previous
 
-    def _current_manifest(self) -> ActiveRepositoryManifest:
-        value = parse_canonical_json(
-            (self._control / self._policy.active_manifest_filename).read_text(),
-        )
+    def _current_manifest(self, *, _cold_stack=None) -> ActiveRepositoryManifest:
+        cold = self._cold_control_owner()
+        if cold is None:
+            value = parse_canonical_json(
+                (self._control / self._policy.active_manifest_filename).read_text(),
+            )
+        else:
+            if type(_cold_stack) is not ExitStack:
+                raise MigrationRepositoryError("cold manifest read has no retained frame")
+            value = _cold_stack.enter_context(self._cold_control_document(
+                self._policy.active_manifest_filename, *cold))
         return _load_manifest(value)
 
     def _migration_record(

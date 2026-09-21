@@ -3,7 +3,13 @@
 from __future__ import annotations
 
 import copy
-from collections.abc import Mapping
+import os
+import stat
+import threading
+from collections.abc import Iterator, Mapping
+from contextlib import ExitStack, contextmanager
+from contextvars import ContextVar
+from types import MappingProxyType
 from typing import Callable, Final
 
 from .codec import (
@@ -15,17 +21,533 @@ from .codec import (
 )
 from .clock import strict_trusted_now, trusted_now
 from .connection import ConnectionFactory, ManagedConnection
-from .errors import RepositoryConflictError, RepositoryIntegrityError
+from .errors import ObjectIntegrityError, RepositoryConflictError, RepositoryIntegrityError
 from .locks import LockedFileRegistry
 from .objects import ObjectRepository
 from .ports import CommitBatch, CommitResult
 from graph_engineering.core.security.identity import SecurityBinding
 from graph_engineering.core.graph.definition import GraphDefinition, GraphValidationError
 from graph_engineering.core.project import ProjectScope
+from graph_engineering.core.contracts.immutable import FrozenMap, freeze
 
 
 FaultHook = Callable[[str], None]
 _MAINTENANCE_REPOSITORY_SEAL = object()
+_RECOVERY_INSTALLATION_CONTEXT = ContextVar("recovery_installation_context", default=None)
+
+
+class _RecoveryReadReservation:
+    """One allocation's lifetime; transfer keeps the same charge alive."""
+
+    def __init__(self, owner, context, units, byte_count):
+        self.owner, self.context = owner, context
+        self.units, self.byte_count = units, byte_count
+        self.transferred = False
+        self.closed = False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *ignored):
+        if not self.transferred:
+            self.release()
+
+    def transfer(self, projection: object) -> None:
+        self.owner._require_active()
+        if self.closed or self.transferred:
+            raise ValueError("recovery reservation was already transferred or released")
+        key = id(projection)
+        entry = self.owner._projections.setdefault(key, (projection, []))
+        if entry[0] is not projection:
+            raise ValueError("recovery projection identity changed")
+        entry[1].append(self)
+        self.transferred = True
+
+    def grow(self, *, units: int, byte_count: int, source_id: str) -> None:
+        if self.closed or self.transferred:
+            raise ValueError("recovery reservation cannot grow after transfer or release")
+        self.owner._charge(self.context, units=units, byte_count=byte_count, source_id=source_id)
+        self.units += units
+        self.byte_count += byte_count
+
+    def shrink(self, *, units: int, byte_count: int) -> None:
+        if (self.closed or self.transferred or type(units) is not int
+                or type(byte_count) is not int or not 0 <= units <= self.units
+                or not 0 <= byte_count <= self.byte_count):
+            raise ValueError("recovery reservation can only shrink before transfer")
+        self.context.release_temporary(self.units - units)
+        self.context._recovery_result_bytes -= self.byte_count - byte_count
+        self.owner.retained_units -= self.units - units
+        self.owner.retained_bytes -= self.byte_count - byte_count
+        self.units, self.byte_count = units, byte_count
+
+    def release(self) -> None:
+        if self.closed:
+            raise ValueError("recovery reservation was already released")
+        self.context.release_temporary(self.units)
+        self.context._recovery_result_bytes -= self.byte_count
+        self.owner.retained_units -= self.units
+        self.owner.retained_bytes -= self.byte_count
+        self.owner._reservations.remove(self)
+        self.closed = True
+
+
+class _RecoveryReadBudget:
+    """Private no-I/O owner for the complete cold read's retained allocations.
+
+    The installed WorkContexts still enforce their local limits and work charges.
+    This additional owner prevents their individually bounded results from
+    exceeding the smallest remaining allowance when retained together.
+    """
+
+    def __init__(self, contexts, *, task_id=None, command_scope=None):
+        from graph_engineering.core.contracts.resources import WorkContext
+
+        contexts = tuple(dict.fromkeys(contexts))
+        if not contexts or any(type(context) is not WorkContext for context in contexts):
+            raise ValueError("recovery budget needs exact installed contexts")
+        self.contexts = contexts
+        self.task_id, self.command_scope = task_id, command_scope
+        self._task_binding = (task_id, command_scope)
+        self._profiles = tuple(context.profile for context in contexts)
+        self._baseline = tuple(context._temporary_units for context in contexts)
+        self._byte_baseline = tuple(getattr(context, "_recovery_result_bytes", 0) for context in contexts)
+        self.unit_limit = min(context.profile.limits["temporary_units"] - prior
+                              for context, prior in zip(contexts, self._baseline))
+        self.byte_limit = min(context.profile.limits["result_bytes"] - prior
+                              for context, prior in zip(contexts, self._byte_baseline))
+        if min(self.unit_limit, self.byte_limit) < 0:
+            raise ValueError("installed recovery allowance is already exhausted")
+        self.retained_units = self.retained_bytes = 0
+        self.peak_units = self.peak_bytes = 0
+        self._reservations = set()
+        self._projections = {}
+        self._active = self._closed = False
+        self._pid, self._thread = os.getpid(), threading.get_ident()
+        self._ports = ()
+
+    def _require_owner(self):
+        if self._closed or (self._pid, self._thread) != (os.getpid(), threading.get_ident()):
+            raise ValueError("recovery budget is closed or belongs to another thread")
+
+    def _require_current(self):
+        self._require_owner()
+        if self.task_id != self._task_binding[0] or self.command_scope is not self._task_binding[1]:
+            raise ValueError("recovery task or command scope changed")
+        if any(context.profile is not profile for context, profile in zip(self.contexts, self._profiles)):
+            raise ValueError("installed recovery context changed")
+
+    def _require_active(self):
+        self._require_current()
+        if (self.task_id is not None and self.command_scope is not None
+                and _RECOVERY_INSTALLATION_CONTEXT.get() is not self.contexts[0]):
+            raise ValueError("recovery installation context is missing or foreign")
+        if not self._active or any(getattr(context, "_recovery_read_budget", None) is not self
+                                   for context in self.contexts):
+            raise ValueError("recovery budget is not bound to every exact context")
+        if any(getattr(port, "_recovery_read_budget", None) is not self for port in self._ports):
+            raise ValueError("recovery budget port binding changed")
+
+    @contextmanager
+    def bind(self, *, ports: tuple[object, ...]=()) -> Iterator[None]:
+        self._require_current()
+        control = self.task_id is not None and self.command_scope is not None
+        if _RECOVERY_INSTALLATION_CONTEXT.get() is not None:
+            raise ValueError("overlapping recovery installation context")
+        if control:
+            from .migration import InstallationCommandScope
+            if (type(self.command_scope) is not InstallationCommandScope
+                    or type(self.task_id) is not str or not self.task_id):
+                raise ValueError("recovery installation scope or task is invalid")
+            ports = (*ports, self.command_scope, self.command_scope._manager)
+        ports = tuple(dict.fromkeys(ports))
+        if self._active or any(getattr(value, "_recovery_read_budget", None) is not None
+                               for value in (*self.contexts, *ports)):
+            raise ValueError("overlapping or reentrant recovery budget")
+        if any(getattr(context, "_recovery_read_owner", self) is not self for context in self.contexts):
+            raise ValueError("recovery context has another retained owner")
+        bound, lexical_token = [], None
+        try:
+            for value in (*self.contexts, *ports):
+                value._recovery_read_budget = self
+                bound.append(value)
+            for context in self.contexts:
+                context._recovery_read_owner = self
+                if not hasattr(context, "_recovery_result_bytes"):
+                    context._recovery_result_bytes = 0
+            self._ports, self._active = ports, True
+            if control:
+                lexical_token = _RECOVERY_INSTALLATION_CONTEXT.set(self.contexts[0])
+            yield self
+        finally:
+            if lexical_token is not None:
+                _RECOVERY_INSTALLATION_CONTEXT.reset(lexical_token)
+            self._active = False
+            self._ports = ()
+            for value in reversed(bound):
+                if getattr(value, "_recovery_read_budget", None) is self:
+                    del value._recovery_read_budget
+
+    def _charge(self, context, *, units, byte_count, source_id):
+        self._require_active()
+        if (not any(context is item for item in self.contexts)
+                or type(units) is not int or type(byte_count) is not int
+                or min(units, byte_count) < 0):
+            raise ValueError("recovery allocation context or size is invalid")
+        if self.retained_units + units > self.unit_limit:
+            context.check_limit("temporary_units", context.profile.limits["temporary_units"] + 1,
+                                source_id=source_id)
+        if self.retained_bytes + byte_count > self.byte_limit:
+            context.check_limit("result_bytes", context.profile.limits["result_bytes"] + 1,
+                                source_id=source_id)
+        context.check_limit("result_bytes", context._recovery_result_bytes + byte_count,
+                            source_id=source_id)
+        context.acquire_temporary(units, source_id=source_id, operation_path=())
+        context._recovery_result_bytes += byte_count
+        self.retained_units += units
+        self.retained_bytes += byte_count
+        self.peak_units = max(self.peak_units, self.retained_units)
+        self.peak_bytes = max(self.peak_bytes, self.retained_bytes)
+    def reserve(self, context: object, *, units: int, byte_count: int, source_id: str) -> _RecoveryReadReservation:
+        self._charge(context, units=units, byte_count=byte_count, source_id=source_id)
+        reservation = _RecoveryReadReservation(self, context, units, byte_count)
+        self._reservations.add(reservation)
+        return reservation
+
+    def remaining(self, context: object) -> tuple[int, int]:
+        self._require_active()
+        if not any(context is item for item in self.contexts):
+            raise ValueError("foreign recovery allocation context")
+        return (
+            min(self.unit_limit - self.retained_units,
+                context.profile.limits["temporary_units"] - context._temporary_units),
+            min(self.byte_limit - self.retained_bytes,
+                context.profile.limits["result_bytes"] - context._recovery_result_bytes),
+        )
+
+    def release_projection(self, projection: object) -> None:
+        self._require_owner()
+        entry = self._projections.pop(id(projection), None)
+        if entry is None or entry[0] is not projection:
+            raise ValueError("recovery projection is not owned by this budget")
+        for reservation in entry[1]:
+            reservation.release()
+
+    def move_projection(self, source: object, target: object) -> None:
+        """Move an existing charge when a caller retains the same immutable data."""
+        self._require_active()
+        entry = self._projections.pop(id(source), None)
+        if entry is None or entry[0] is not source:
+            raise ValueError("recovery projection is not owned by this budget")
+        destination = self._projections.setdefault(id(target), (target, []))
+        if destination[0] is not target:
+            raise ValueError("recovery projection identity changed")
+        destination[1].extend(entry[1])
+
+    def close(self) -> None:
+        self._require_owner()
+        if self._active:
+            raise ValueError("cannot close an active recovery budget")
+        self._projections.clear()
+        for reservation in tuple(self._reservations):
+            reservation.release()
+        for context in self.contexts:
+            if getattr(context, "_recovery_read_owner", None) is self:
+                del context._recovery_read_owner
+        self._closed = True
+
+
+def _recovery_text_size(value):
+    # Count without constructing another whole UTF-8 representation.
+    return sum(len(character.encode("utf-8", errors="strict")) for character in value)
+
+
+def _recovery_clear_exception_frames(error):
+    """Drop retired payload frames while preserving the original exception."""
+    import traceback
+
+    pending, seen = [error], set()
+    while pending:
+        cause = pending.pop()
+        if cause is None or id(cause) in seen:
+            continue
+        seen.add(id(cause))
+        traceback.clear_frames(cause.__traceback__)
+        pending.extend((cause.__cause__, cause.__context__))
+
+
+def _recovery_adopt(root, context, budget, *, record_fields, source_id):
+    """Keep existing installed data charged without serializing or copying it.
+
+    The private caller supplies a closed exact-type/field table, never a reader
+    callback. Identity deduplication applies to objects, not to container slots
+    or separately allocated equal payloads. Walker frames and seen identities
+    are admitted before allocation and released after the retained charge moves.
+    """
+    try:
+        if id(root) in budget._projections:
+            raise ValueError("recovery configuration is already adopted")
+
+        def children(value: object, names: tuple[str, ...]) -> Iterator[object]:
+            if type(value) in (dict, MappingProxyType):
+                for key, item in value.items():
+                    yield key
+                    yield item
+            elif type(value) in (tuple, list, set, frozenset):
+                yield from value
+            else:
+                for name in names:
+                    yield object.__getattribute__(value, name)
+
+        frames = seen = value = None
+        with budget.reserve(context, units=12, byte_count=8, source_id=source_id) as scratch, \
+                budget.reserve(context, units=0, byte_count=0, source_id=source_id) as retained:
+            try:
+                seen, frames = set(), [iter((root,))]
+                while frames:
+                    try:
+                        value = next(frames[-1])
+                    except StopIteration:
+                        frames.pop()
+                        scratch.shrink(units=scratch.units - 4, byte_count=scratch.byte_count)
+                        continue
+                    identity = id(value)
+                    if identity in seen:
+                        value = None
+                        continue
+                    # The ID integer and set slot are scratch, not retained data.
+                    scratch.grow(units=2, byte_count=8, source_id=source_id)
+                    seen.add(identity)
+                    kind, names, slots, payload, headers = type(value), (), 0, 0, 1
+                    if kind is str:
+                        payload = _recovery_text_size(value)
+                    elif kind is bytes:
+                        payload = len(value)
+                    elif value is None or kind in (bool, int, object):
+                        pass
+                    elif kind in (tuple, list, set, frozenset):
+                        slots = len(value)
+                        context.check_limit("array_items", slots, source_id=source_id)
+                    elif kind in (dict, MappingProxyType):
+                        slots = 2 * len(value)
+                        # MappingProxyType owns a view plus its backing mapping.
+                        headers += kind is MappingProxyType
+                        context.check_limit("array_items", len(value), source_id=source_id)
+                    elif kind is FrozenMap:
+                        names, slots = ("_values",), 1
+                    elif kind in record_fields:
+                        names = record_fields[kind]
+                        if type(names) is not tuple or any(type(name) is not str for name in names):
+                            raise ValueError("recovery configuration field table is invalid")
+                        slots = len(names)
+                    else:
+                        raise ValueError("unsupported recovery configuration type")
+                    retained.grow(units=headers + slots + payload, byte_count=payload, source_id=source_id)
+                    if slots:
+                        context.check_limit("parse_depth", len(frames), source_id=source_id)
+                        scratch.grow(units=4, byte_count=0, source_id=source_id)
+                        frames.append(children(value, names))
+                    value = None
+                retained.transfer(root)
+                return root
+            except BaseException as error:
+                _recovery_clear_exception_frames(error)
+                raise
+            finally:
+                root = record_fields = None
+                if frames is not None: frames.clear()
+                if seen is not None: seen.clear()
+                frames = seen = value = None
+
+    except BaseException as error:
+        _recovery_clear_exception_frames(error)
+        raise
+    finally:
+        root = record_fields = frames = seen = value = None
+
+
+@contextmanager
+def _recovery_scope(context, *ports):
+    """Join the exact lexical owner, or bound a standalone security read."""
+    budget = getattr(context, "_recovery_read_budget", None)
+    if budget is None:
+        budget = _RecoveryReadBudget((context,))
+        try:
+            with budget.bind(ports=ports):
+                yield budget
+        finally:
+            budget.close()
+    else:
+        if type(budget) is not _RecoveryReadBudget:
+            raise RepositoryIntegrityError("foreign recovery owner")
+        budget._require_active()
+        if any(getattr(port, "_recovery_read_budget", None) is not budget for port in ports):
+            raise RepositoryIntegrityError("recovery participant is not bound")
+        yield budget
+
+
+def _recovery_freeze(value, context, budget, *, source_id):
+    from graph_engineering.core.contracts.canonical import canonical_byte_length
+
+    result = None
+    try:
+        size = canonical_byte_length(value)
+        # A JSON byte bounds a scalar payload unit; punctuation bounds the
+        # container slots/headers (including FrozenMap's proxy). Four units per
+        # byte also cover transient input dictionaries during construction,
+        # including empty mappings. Retain the actual closed graph afterward,
+        # rather than keeping an entire parser/copy allowance for its lifetime.
+        with budget.reserve(context, units=4 * size, byte_count=size, source_id=source_id) as frame:
+            result = freeze(value)
+            # Recursive constructor dictionaries are gone; only the completed
+            # immutable graph overlaps the exact identity walk below.
+            frame.shrink(units=2 * size, byte_count=size)
+            return _recovery_adopt(result, context, budget, record_fields={}, source_id=source_id)
+    except BaseException as error:
+        _recovery_clear_exception_frames(error)
+        raise
+    finally:
+        value = result = context = budget = None
+
+
+def _recovery_record_digest(value, context, budget, *, source_id):
+    """Admit a canonical digest after its parser scratch has been retired."""
+    from graph_engineering.core.contracts.canonical import canonical_byte_length
+
+    try:
+        if budget is None:
+            return semantic_record_digest(value)
+        size = canonical_byte_length(value)
+        with budget.reserve(context, units=6 * size, byte_count=4 * size, source_id=source_id):
+            context.emit("digest.input_byte", size, source_id=source_id, operation_path=())
+            return semantic_record_digest(value)
+    except BaseException as error:
+        _recovery_clear_exception_frames(error)
+        raise
+    finally:
+        value = context = budget = None
+
+
+def _recovery_equal(left, right, context, budget):
+    """Exact JSON equality without allocating either canonical serialization."""
+    def compare(a: object, b: object, depth: int) -> bool:
+        context.check_limit("parse_depth", depth, source_id="recovery-comparison")
+        with budget.reserve(context, units=1, byte_count=0, source_id="recovery-comparison"):
+            if isinstance(a, Mapping) and isinstance(b, Mapping):
+                return len(a) == len(b) and all(key in b and compare(value, b[key], depth + 1)
+                                               for key, value in a.items())
+            if type(a) in (list, tuple) and type(b) in (list, tuple):
+                return len(a) == len(b) and all(compare(x, y, depth + 1) for x, y in zip(a, b))
+            return type(a) is type(b) and type(a) in (str, int, bool, type(None)) and a == b
+    return compare(left, right, 0)
+
+
+@contextmanager
+def _recovery_rows(connection, groups, parameters, context, budget, *, source_id, ctes=()):
+    """Capture fixed internal SELECT groups after a same-statement size gate.
+
+    The metadata branch returns only counts. No large field crosses sqlite3's
+    Python boundary unless the entire bounded result fits the reserved space.
+    Callers supply only source-code-owned expressions, never user SQL.
+    """
+    units, byte_count = budget.remaining(context)
+    width = max(4, max(len(columns) for _tag, columns, _table in groups))
+    # execute returns only the fixed bounds header. Its fresh installation
+    # check must finish before the still-unallocated data fields are reserved.
+    header_bytes = 8 * (width + 1) + len("bounds")
+    header_units = header_bytes + 4 * (width + 1)
+    if units < header_units or byte_count < header_bytes:
+        raise RepositoryIntegrityError("recovery SQL metadata is over limit")
+    with budget.reserve(context, units=header_units, byte_count=header_bytes,
+                        source_id=source_id), ExitStack() as fields_scope:
+        field_units, field_bytes = units - header_units, byte_count - header_bytes
+        ctes, metadata, selections = list(ctes), [], []
+        for index, (tag, columns, table) in enumerate(groups):
+            names = ["v" + str(i) for i in range(len(columns))]
+            projection = ",".join(column + " AS " + name for column, name in zip(columns, names))
+            ctes.append(f"g{index} AS NOT MATERIALIZED (SELECT {projection} FROM {table} LIMIT :row_limit)")
+            sizes = [f"CASE WHEN typeof({name})='text' THEN length(CAST({name} AS BLOB)) ELSE 8 END" for name in names]
+            raw_size = "(" + "+".join(sizes) + ")"
+            invalid = " OR ".join(
+                f"typeof({name}) NOT IN ('text','integer','null') OR "
+                f"(typeof({name})='text' AND length(CAST({name} AS BLOB))>:text_limit)" for name in names)
+            metadata.append(f"SELECT COUNT(*) AS n,COALESCE(SUM({raw_size}),0) AS b,"
+                            f"COALESCE(SUM({raw_size}+{4 * len(columns) + 4}),0) AS u,"
+                            f"COALESCE(SUM(CASE WHEN {invalid} THEN 1 ELSE 0 END),0) AS bad FROM g{index}")
+            padded = names + ["NULL"] * (width - len(names))
+            selections.append("SELECT '" + tag + "'," + ",".join(padded)
+                              + f" FROM g{index},bounds WHERE bounds.n<=:max_rows "
+                              "AND bounds.b<=:byte_limit AND bounds.u<=:unit_limit AND bounds.bad=0")
+        ctes.append("sizes AS (" + " UNION ALL ".join(metadata) + ")")
+        ctes.append("bounds AS (SELECT SUM(n) AS n,SUM(b) AS b,SUM(u) AS u,SUM(bad) AS bad FROM sizes)")
+        header = ["n", "b", "u", "bad"] + ["NULL"] * (width - 4)
+        query = "WITH " + ",".join(ctes) + " SELECT 'bounds'," + ",".join(header) + " FROM bounds"
+        query += " UNION ALL " + " UNION ALL ".join(selections)
+        values = dict(parameters)
+        values.update(row_limit=context.profile.limits["array_items"] + 1,
+                      max_rows=context.profile.limits["array_items"],
+                      text_limit=context.profile.limits["raw_document_bytes"],
+                      byte_limit=field_bytes, unit_limit=field_units)
+        cursor = connection.execute(query, values)
+        captured = {tag: [] for tag, _columns, _table in groups}
+        lengths = {tag: len(columns) for tag, columns, _table in groups}
+        try:
+            row = cursor.fetchone()
+            if row is None or row[0] != "bounds" or any(type(value) is not int for value in row[1:5]):
+                raise RepositoryIntegrityError("recovery SQL bounds are invalid")
+            count, raw_bytes, raw_units, invalid = row[1:5]
+            context.check_limit("array_items", count, source_id=source_id)
+            if invalid or raw_bytes > field_bytes or raw_units > field_units:
+                raise RepositoryIntegrityError("recovery SQL value or aggregate is over limit")
+            fields_scope.enter_context(budget.reserve(context, units=raw_units, byte_count=raw_bytes,
+                source_id=source_id))
+            seen = 0
+            while (row := cursor.fetchone()) is not None:
+                if row[0] not in lengths or seen >= count:
+                    raise RepositoryIntegrityError("recovery SQL result changed")
+                fields = row[1:1 + lengths[row[0]]]
+                if any(type(value) not in (str, int, type(None)) for value in fields):
+                    raise RepositoryIntegrityError("recovery SQL type is invalid")
+                captured[row[0]].append(fields)
+                seen += 1
+            if seen != count:
+                raise RepositoryIntegrityError("recovery SQL capture is incomplete")
+            yield captured
+        finally:
+            try:
+                cursor.close()
+            finally:
+                captured.clear()
+                row = fields = None
+
+
+@contextmanager
+def _recovery_json(encoded, context, budget, *, source_id):
+    from graph_engineering.core.contracts.strict_json import parse_json
+
+    body = value = None
+    try:
+        size = len(encoded) if type(encoded) is bytes else _recovery_text_size(encoded)
+        context.check_limit("raw_document_bytes", size, source_id=source_id)
+        # SQL input is separately owned; encoding, parsed strings and
+        # simultaneous raw/decoded long-token copies must also remain charged.
+        with budget.reserve(context, units=6 * size, byte_count=6 * size, source_id=source_id):
+            try:
+                body = encoded if type(encoded) is bytes else encoded.encode("utf-8")
+                value = parse_json(body, context=context, source_id=source_id, operation_path=context.child_path(()))
+                if canonical_json(value) != body.decode("utf-8"):
+                    raise RepositoryIntegrityError("recovery JSON is not canonical")
+                yield value
+            except BaseException as error:
+                _recovery_clear_exception_frames(error)
+                raise
+            finally:
+                value = body = encoded = None
+    except BaseException as error:
+        _recovery_clear_exception_frames(error)
+        raise
+    finally:
+        value = body = encoded = None
 
 
 def _no_fault(_step: str) -> None:
@@ -197,6 +719,7 @@ class TaskRepository:
         sequence: int,
         expected_revision: int,
         previous_digest: str | None,
+        _copy: bool = True,
     ) -> dict[str, object]:
         if not isinstance(event, dict) or set(event) != EVENT_KEYS:
             raise RepositoryIntegrityError("event envelope shape is not exact")
@@ -227,7 +750,7 @@ class TaskRepository:
         if event["event_digest"] != event_digest(event):
             raise RepositoryIntegrityError("event digest mismatch")
         canonical_json(event)
-        return copy.deepcopy(event)
+        return copy.deepcopy(event) if _copy else event
 
     @classmethod
     def _validate_batch(cls, batch: CommitBatch) -> None:
@@ -733,7 +1256,7 @@ class TaskRepository:
         return bound
 
     @classmethod
-    def _validate_scope_source(cls, source: object) -> dict[str, object]:
+    def _validate_scope_source(cls, source: object, *, _copy: bool = True) -> dict[str, object]:
         if not isinstance(source, dict):
             raise RepositoryIntegrityError("ProjectScope source is not an exact object")
         required = {
@@ -743,7 +1266,7 @@ class TaskRepository:
         if set(source) != required or ProjectScope.digest_document(source) != source.get("scope_digest"):
             raise RepositoryIntegrityError("ProjectScope source digest is invalid")
         canonical_json(source)
-        return copy.deepcopy(source)
+        return copy.deepcopy(source) if _copy else source
 
     @classmethod
     def _apply_project_scope_delta(
@@ -2308,26 +2831,628 @@ class TaskRepository:
             if installation is not None:
                 self._locks.release(installation)
 
-    def _replay_locked(
-        self,
-        connection: ManagedConnection,
-        task_id: str,
-    ) -> tuple[dict[str, object], ...]:
-        head = connection.execute(
-            "SELECT revision,head_sequence,head_digest,integrity_status FROM tasks WHERE task_id=?",
-            (task_id,),
-        ).fetchone()
-        if head is None:
-            raise RepositoryConflictError("unknown task")
+
+    def _require_provenance_scope(self) -> None:
+        """Require exact, idle command ports before entering the read lock order."""
+        from .actions import ActionJournalRepository
+        from graph_engineering.core.contracts.resources import WorkContext
+
+        self._require_command_context()
+        scope = self.command_scope
+        if (
+            type(self._action_journal) is not ActionJournalRepository
+            or type(self._objects) is not ObjectRepository
+            or type(self._locks) is not LockedFileRegistry
+            or type(self._action_journal._context) is not WorkContext
+            or self._objects._locks is not self._locks
+            or self._objects._closed
+            or self._locks._root != scope.repository_root
+        ):
+            raise RepositoryIntegrityError("provenance repository ports are foreign")
+        for port in (self, self._action_journal, self._objects):
+            factory = port._factory
+            if (type(factory) is not ConnectionFactory
+                    or factory._command_scope is not scope
+                    or factory.data_root != scope.repository_root):
+                raise RepositoryIntegrityError("provenance repository scope differs")
+        self._locks._check()
+        with LockedFileRegistry._ACTIVE_GUARD:
+            registries = tuple(LockedFileRegistry._ACTIVE_ROOTS.values())
+        for registry in registries:
+            with registry._registry_guard:
+                if registry._thread_tokens.get(threading.get_ident()):
+                    raise RepositoryIntegrityError("provenance repository token is held")
+        if scope._connections:
+            raise RepositoryIntegrityError("provenance repository connection is held")
+
+    def _read_provenance_object(
+        self, digest: str, size: int, *, retained_bytes: int,
+    ) -> bytes:
+        """Read one CAS body with descriptor preflight and a growth sentinel."""
+        require_object_digest(digest)
+        if type(size) is not int or size < 0 or type(retained_bytes) is not int or retained_bytes < 0:
+            raise ObjectIntegrityError("provenance object size is invalid")
+        context = self._action_journal._context
+        directory = self._objects._object_directory(digest, create=False)
+        descriptor = None
+        reserved = 0
+        try:
+            _fanout, filename = self._objects._object_names(digest)
+            named = directory.stat(filename)
+            descriptor = directory.open_file(filename, os.O_RDONLY | os.O_NONBLOCK)
+            metadata = os.fstat(descriptor)
+
+            def identity(value: os.stat_result) -> tuple[int, ...]:
+                return (value.st_dev, value.st_ino, value.st_mode, value.st_uid,
+                        value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+
+            def trusted(value: os.stat_result) -> bool:
+                return (stat.S_ISREG(value.st_mode) and value.st_uid == os.getuid()
+                        and stat.S_IMODE(value.st_mode) == self._objects._policy.file_mode)
+
+            if not trusted(named) or not trusted(metadata) or identity(named) != identity(metadata):
+                raise ObjectIntegrityError("provenance object descriptor/path binding is invalid")
+            actual = metadata.st_size
+            context.check_limit("raw_document_bytes", actual, source_id=digest)
+            for limit in ("result_bytes", "temporary_units"):
+                context.check_limit(limit, retained_bytes + actual, source_id=digest)
+            if actual != size:
+                raise ObjectIntegrityError("provenance object actual size differs from metadata")
+            context.acquire_temporary(actual, source_id=digest, operation_path=context.child_path(()))
+            reserved = actual
+            # One admitted allocation avoids retaining both chunks and a joined copy.
+            # A short regular-file read rejects; no retry can accumulate more buffers.
+            body = os.read(descriptor, actual)
+            if len(body) != actual:
+                raise ObjectIntegrityError("provenance object short read")
+            if os.read(descriptor, 1):
+                raise ObjectIntegrityError("provenance object grew during bounded read")
+            if (identity(os.fstat(descriptor)) != identity(metadata)
+                    or identity(directory.stat(filename)) != identity(metadata)):
+                raise ObjectIntegrityError("provenance object changed during bounded read")
+            if self._objects.digest(body) != digest:
+                raise ObjectIntegrityError("provenance object digest mismatch")
+            return body
+        except OSError as error:
+            raise ObjectIntegrityError("provenance object is missing or untrusted") from error
+        finally:
+            if reserved:
+                context.release_temporary(reserved)
+            if descriptor is not None:
+                os.close(descriptor)
+            directory.close()
+
+    def _capture_action_provenance(self, task_id: str, action_id: str) -> FrozenMap:
+        participants = (self, self._objects, self._action_journal, self._action_journal._context)
+        budget = next((getattr(port, "_recovery_read_budget", None) for port in participants
+                       if getattr(port, "_recovery_read_budget", None) is not None), None)
+        if budget is not None:
+            if (type(budget) is not _RecoveryReadBudget or budget.task_id != task_id
+                    or budget.command_scope is not self.command_scope
+                    or any(getattr(port, "_recovery_read_budget", None) is not budget
+                           for port in participants)):
+                raise RepositoryIntegrityError("action capture has a foreign recovery owner")
+            budget._require_active()
+        with ExitStack() as stack:
+            return self._capture_action_provenance_scoped(task_id, action_id, stack, budget)
+
+    def _capture_action_provenance_scoped(self, task_id, action_id, stack, budget):
+        """One bounded SQL statement captures all cross-table provenance facts."""
+        from contextlib import nullcontext
+        from graph_engineering.core.actions import AuthorityEnvelope, PreparedAction
+        from graph_engineering.core.contracts.canonical import canonical_byte_length
+        from graph_engineering.core.contracts.strict_json import parse_json
+
+        journal = self._action_journal
+        context = journal._context
+        source_id = "action-provenance"
+        claim_id = "claim:" + action_id
+        recovery_columns = (
+            "attempt_id", "claim_id", "protocol_version", "task_id", "original_action_id",
+            "original_started_event_digest", "compensation_action_id", "compensation_authority_digest",
+            "compensation_prepared_digest", "lease_id", "resources_json", "fencing_tokens_json",
+            "target_id", "target_digest", "baseline_digest", "snapshot_digest", "disclosure_plan_digest",
+            "state", "revision", "start_event_digest", "receipt_event_digest", "receipt_json",
+            "receipt_digest", "receipt_object_digest",
+        )
+        claim_columns = ("claim_id", "action_id", "task_id", "lease_id", "started_event_digest",
+                         "revision", "state", "outcome_digest")
+        journal_columns = ("action_id", "task_id", "state", "revision", "idempotency_key",
+                           "prepared_json", "prepared_digest", "authority_json", "authority_digest",
+                           "receipt_json", "reconciliation_json")
+        groups = (
+            ("task", ("task_id", "revision", "head_sequence", "head_digest",
+                      "snapshot_json", "snapshot_digest", "integrity_status"),
+             "tasks WHERE task_id=:task_id"),
+            ("journal", journal_columns,
+             "action_journal WHERE action_id IN (SELECT action_id FROM selected_ids) "
+             "OR prepared_digest IN (SELECT prepared_digest FROM selected_journals) "
+             "OR authority_digest IN (SELECT authority_digest FROM selected_journals)"),
+            ("claim", claim_columns, "selected_claims"),
+            ("resource", ("claim_id", "resource_id", "fencing_token"),
+             "claim_resources WHERE claim_id IN (SELECT claim_id FROM selected_claims)"),
+            ("recovery", recovery_columns, "selected_attempts"),
+            ("event", ("e.sequence", "e.body_json", "e.event_id", "e.event_type",
+                       "e.previous_event_digest", "e.event_digest", "e.transaction_id",
+                       "t.task_id", "t.revision", "t.head_digest", "t.request_digest"),
+             "events e LEFT JOIN transactions t ON t.transaction_id=e.transaction_id "
+             "WHERE e.task_id=:task_id"),
+            ("reference", ("r.digest", "r.ref_kind", "r.transaction_id", "o.size", "o.state"),
+             "object_references r LEFT JOIN objects o ON o.digest=r.digest WHERE r.task_id=:task_id"),
+        )
+        if budget is not None:
+            ctes = (
+                "selected_attempts AS (SELECT * FROM claim_recovery_attempts "
+                "WHERE claim_id=:claim_id OR original_action_id=:action_id OR compensation_action_id=:action_id)",
+                "selected_ids AS (SELECT :action_id AS action_id UNION "
+                "SELECT compensation_action_id FROM selected_attempts UNION SELECT original_action_id FROM selected_attempts)",
+                "selected_journals AS (SELECT * FROM action_journal WHERE action_id IN (SELECT action_id FROM selected_ids))",
+                "selected_claims AS (SELECT * FROM claims WHERE claim_id=:claim_id "
+                "OR action_id IN (SELECT action_id FROM selected_ids) OR claim_id IN (SELECT claim_id FROM selected_attempts))",
+            )
+            connection = stack.enter_context(self._factory.open("doctor"))
+            captured = stack.enter_context(_recovery_rows(connection, groups,
+                {"task_id": task_id, "action_id": action_id, "claim_id": claim_id},
+                context, budget, source_id=source_id, ctes=ctes))
+        else:
+            # Expressions and table names are fixed above; only IDs/limits are parameters.
+            # A BLOB sentinel prevents SQLite from returning an oversized TEXT value.
+            selects = []
+            for tag, columns, table in groups:
+                bounded = [f"CASE WHEN typeof({column})='text' AND "
+                           f"length(CAST({column} AS BLOB))>:text_limit THEN zeroblob(1) "
+                           f"ELSE {column} END" for column in columns]
+                bounded += ["NULL"] * (24 - len(columns))
+                selects.append("SELECT '" + tag + "'," + ",".join(bounded) + " FROM " + table)
+            query = (
+                "WITH selected_attempts AS (SELECT * FROM claim_recovery_attempts "
+                "WHERE claim_id=:claim_id OR original_action_id=:action_id OR compensation_action_id=:action_id), "
+                "selected_ids AS (SELECT :action_id AS action_id UNION "
+                "SELECT compensation_action_id FROM selected_attempts UNION "
+                "SELECT original_action_id FROM selected_attempts), "
+                "selected_journals AS (SELECT * FROM action_journal WHERE action_id IN (SELECT action_id FROM selected_ids)), "
+                "selected_claims AS (SELECT * FROM claims WHERE claim_id=:claim_id "
+                "OR action_id IN (SELECT action_id FROM selected_ids) "
+                "OR claim_id IN (SELECT claim_id FROM selected_attempts)) "
+                + " UNION ALL ".join(selects) + " LIMIT :row_limit"
+            )
+            captured = {tag: [] for tag, _columns, _table in groups}
+            lengths = {tag: len(columns) for tag, columns, _table in groups}
+            count = retained = 0
+            with self._factory.open("doctor") as connection:
+                cursor = connection.execute(query, {
+                    "task_id": task_id, "action_id": action_id, "claim_id": claim_id,
+                    "text_limit": context.profile.limits["raw_document_bytes"],
+                    "row_limit": context.profile.limits["array_items"] + 1,
+                })
+                try:
+                    while (row := cursor.fetchone()) is not None:
+                        count += 1
+                        context.check_limit("array_items", count, source_id=source_id)
+                        values = row[1:1 + lengths[row[0]]]
+                        for value in values:
+                            if type(value) not in (str, int, type(None)):
+                                raise RepositoryIntegrityError("provenance SQL value is invalid or over limit")
+                            retained += len(value.encode("utf-8")) if type(value) is str else 8
+                        context.check_limit("temporary_units", retained, source_id=source_id)
+                        context.check_limit("result_bytes", retained, source_id=source_id)
+                        captured[row[0]].append(values)
+                finally:
+                    cursor.close()
+
+        def parsed(encoded: str) -> object:
+            if budget is not None:
+                with _recovery_json(encoded, context, budget, source_id=source_id) as value:
+                    _recovery_adopt(value, context, budget, record_fields={}, source_id=source_id)
+                    stack.callback(budget.release_projection, value)
+                    return value
+            value = parse_json(encoded, context=context, source_id=source_id,
+                               operation_path=context.child_path(()))
+            if canonical_json(value) != encoded:
+                raise RepositoryIntegrityError("provenance JSON is not canonical")
+            return value
+
+        if len(captured["task"]) != 1 or len(captured["claim"]) != 1 or len(captured["recovery"]) > 1:
+            raise RepositoryIntegrityError("provenance task, claim or recovery is missing or ambiguous")
+        task = dict(zip(groups[0][1], captured["task"][0]))
+        snapshot = parsed(task.pop("snapshot_json"))
+        if (type(snapshot) is not dict or snapshot.get("task_id") != task_id
+                or type(snapshot.get("revision")) is not int
+                or snapshot.get("revision") != task["revision"]
+                or task["snapshot_digest"] != _recovery_record_digest({
+                    "contract": "repository-snapshot-v1", "value": snapshot}, context, budget,
+                    source_id="cold-action-snapshot-digest")):
+            raise RepositoryIntegrityError("provenance snapshot binding is invalid")
+        event_rows = sorted(captured["event"], key=lambda row: row[0])
+        events = self._validate_replay_rows(
+            task_id, (task["revision"], task["head_sequence"], task["head_digest"], task["integrity_status"]),
+            event_rows, parser=parsed, _budget=budget, _context=context,
+        )
+        task.pop("integrity_status")
+        event_values = [
+            {"event": event, "transaction_id": row[6], "transaction_revision": row[8],
+             "transaction_head_digest": row[9], "transaction_request_digest": row[10]}
+            for row, event in zip(event_rows, events)
+        ]
+        transaction_ids = {row[6] for row in event_rows}
+        references = []
+        for digest, kind, transaction_id, size, state in sorted(captured["reference"]):
+            require_object_digest(digest)
+            if (kind != "task" or transaction_id not in transaction_ids or type(size) is not int
+                    or size < 0 or state != "available"):
+                raise RepositoryIntegrityError("provenance object reference is unavailable or foreign")
+            references.append({"digest": digest, "kind": kind, "transaction_id": transaction_id,
+                               "size": size, "state": state})
+        if len({item["digest"] for item in references}) != len(references):
+            raise RepositoryIntegrityError("provenance object reference is ambiguous")
+
+        claim = dict(zip(claim_columns, captured["claim"][0]))
+        if (claim["claim_id"] != claim_id or claim["action_id"] != action_id
+                or claim["task_id"] != task_id or type(claim["revision"]) is not int
+                or claim["revision"] <= 0):
+            raise RepositoryIntegrityError("provenance original claim identity is invalid")
+        require_jcs_digest(claim["started_event_digest"])
+        if claim["outcome_digest"] is not None:
+            require_jcs_digest(claim["outcome_digest"])
+        resources = {}
+        for selected_claim, resource, token in sorted(captured["resource"]):
+            if (selected_claim != claim_id or type(resource) is not str or not resource
+                    or resource in resources or type(token) is not int or token <= 0):
+                raise RepositoryIntegrityError("provenance claim resource is invalid")
+            resources[resource] = token
+        if not resources:
+            raise RepositoryIntegrityError("provenance claim has no resources")
+        claim["resources"], claim["fencing_tokens"] = list(resources), resources
+        recovery = None
+        selected_ids = {action_id}
+        if captured["recovery"]:
+            recovery = dict(zip(recovery_columns, captured["recovery"][0]))
+            for key in ("resources", "fencing_tokens", "receipt"):
+                encoded = recovery.pop(key + "_json")
+                recovery[key] = None if encoded is None else parsed(encoded)
+            if (recovery["claim_id"] != claim_id or recovery["task_id"] != task_id
+                    or recovery["original_action_id"] != action_id
+                    or recovery["compensation_action_id"] == action_id):
+                raise RepositoryIntegrityError("provenance recovery identity is invalid")
+            selected_ids.add(recovery["compensation_action_id"])
+
+        journals = []
+        for row in sorted(captured["journal"]):
+            value = dict(zip(journal_columns, row))
+            if value["action_id"] not in selected_ids or value["task_id"] != task_id:
+                raise RepositoryIntegrityError("provenance journal digest alias or identity is invalid")
+            for key, schema in (("prepared", "prepared-action"), ("authority", "authority-envelope")):
+                encoded = value.pop(key + "_json")
+                if budget is None:
+                    value[key] = journal._parse_stored(
+                        encoded, schema_id=f"urn:gew:schema:{schema}:1.0.0", source_id=source_id)
+                else:
+                    value[key] = parsed(encoded)
+                    size = canonical_byte_length(value[key]) + 256
+                    with budget.reserve(context, units=6 * size, byte_count=4 * size,
+                                        source_id="provenance-journal-schema"):
+                        if (type(value[key]) is not dict
+                                or journal._schemas.validate(f"urn:gew:schema:{schema}:1.0.0", value[key], context)):
+                            raise RepositoryIntegrityError("provenance journal body fails installed schema")
+            size = 0 if budget is None else canonical_byte_length(value)
+            with (nullcontext() if budget is None else budget.reserve(context,
+                    units=8 * size, byte_count=3 * size, source_id="provenance-journal-validation")):
+                try:
+                    prepared = PreparedAction.from_dict(value["prepared"], context=context)
+                    authority = AuthorityEnvelope.from_dict(value["authority"], context=context)
+                    if (prepared.action_id != value["action_id"] or prepared.task_id != task_id
+                            or value["idempotency_key"] != prepared.idempotency_key
+                            or value["prepared_digest"] != prepared.prepared_action_digest
+                            or value["authority_digest"] != authority.authority_digest
+                            or authority.task_id != task_id
+                            or authority.prepared_action_digest != prepared.prepared_action_digest
+                            or type(value["revision"]) is not int or value["revision"] <= 0):
+                        raise RepositoryIntegrityError("provenance journal index binding is invalid")
+                finally:
+                    prepared = authority = None
+            for key, validator in (("receipt", journal._validate_stored_receipt),
+                                   ("reconciliation", journal._validate_stored_reconciliation)):
+                encoded = value.pop(key + "_json")
+                value[key] = None if encoded is None else (
+                    parsed(encoded) if budget is not None
+                    else journal._parse_stored_generic(encoded, source_id=source_id))
+                if value[key] is not None:
+                    size = 0 if budget is None else canonical_byte_length(value[key]) + 256
+                    with (nullcontext() if budget is None else budget.reserve(context,
+                            units=6 * size, byte_count=4 * size, source_id="provenance-receipt-validation")):
+                        validator(value[key])
+            journals.append(value)
+        if {value["action_id"] for value in journals} != selected_ids or len(journals) != len(selected_ids):
+            raise RepositoryIntegrityError("provenance selected journal is missing or ambiguous")
+
+        receipts = [value["receipt"] for value in journals if value["receipt"] is not None]
+        if recovery is not None and recovery["receipt"] is not None:
+            if type(recovery["receipt"]) is not dict:
+                raise RepositoryIntegrityError("provenance recovery receipt is invalid")
+            size = 0 if budget is None else canonical_byte_length(recovery["receipt"]) + 256
+            with (nullcontext() if budget is None else budget.reserve(context,
+                    units=6 * size, byte_count=4 * size, source_id="provenance-recovery-validation")):
+                journal._validate_stored_receipt(recovery["receipt"])
+            receipts.append(recovery["receipt"])
+        objects = []
+        receipt_bytes = 0
+        for digest in sorted({receipt["raw_receipt_object_digest"] for receipt in receipts}):
+            selected = [reference for reference in references if reference["digest"] == digest]
+            if len(selected) != 1:
+                raise RepositoryIntegrityError("provenance receipt has no committed reference")
+            if budget is not None:
+                stack.enter_context(budget.reserve(context, units=selected[0]["size"],
+                    byte_count=selected[0]["size"], source_id=digest))
+            body = self._read_provenance_object(digest, selected[0]["size"],
+                retained_bytes=receipt_bytes if budget is None else budget.retained_bytes - selected[0]["size"])
+            receipt_bytes += len(body)
+            value = parsed(body.decode("utf-8") if budget is None else body)
+            objects.append({"digest": digest, "document": value})
+        result = {"schema_version": "1.0", "task": task, "journals": journals, "claim": claim,
+                  "recovery": recovery, "events": event_values, "references": references,
+                  "receipt_objects": objects}
+        # Account for the fixed-width digest before serializing the whole result.
+        result["source_digest"] = "sha256-jcs-v1:" + "0" * 64
+        context.check_limit("result_bytes", canonical_byte_length(result), source_id=source_id)
+        result.pop("source_digest")
+        if budget is None:
+            result["source_digest"] = semantic_record_digest({"contract": "action-provenance-v1", "value": result})
+            return freeze(result)
+        size = canonical_byte_length(result)
+        with budget.reserve(context, units=4 * size, byte_count=2 * size, source_id=source_id):
+            result["source_digest"] = semantic_record_digest({"contract": "action-provenance-v1", "value": result})
+        return _recovery_freeze(result, context, budget, source_id=source_id)
+
+    def read_action_provenance(self, task_id: str, action_id: str) -> FrozenMap:
+        """Return bounded immutable durable facts, never execution authority."""
+        for value, label in ((task_id, "task ID"), (action_id, "action ID")):
+            self._validate_identity(value, label)
+            if "\x00" in value:
+                raise RepositoryIntegrityError("provenance identity contains NUL")
+        self._require_provenance_scope()
+        for value in (task_id, action_id):
+            self._action_journal._context.check_limit(
+                "raw_document_bytes", len(value.encode("utf-8")), source_id="action-provenance-identity")
+        installation = self._locks.acquire_installation("shared")
+        try:
+            object_lock = self._locks.acquire_object("shared")
+            try:
+                context = self._action_journal._context
+                budget = getattr(context, "_recovery_read_budget", None)
+                first = self._capture_action_provenance(task_id, action_id)
+                current = None
+                try:
+                    current = self._capture_action_provenance(task_id, action_id)
+                    equal = first == current if budget is None else _recovery_equal(first, current, context, budget)
+                    if not equal:
+                        raise RepositoryConflictError("action provenance changed during query")
+                except BaseException:
+                    if current is not None and budget is not None:
+                        budget.release_projection(current)
+                    raise
+                finally:
+                    if budget is not None:
+                        budget.release_projection(first)
+            finally:
+                self._locks.release(object_lock)
+        finally:
+            self._locks.release(installation)
+        self._require_provenance_scope()
+        return current
+
+    def read_category_recovery_sources(self, task_id: str, *, phase: str) -> Mapping[str, object]:
+        """Return fixed, immutable cold-source facts under the caller's budget.
+
+        The locator is data only. The application must validate the complete
+        sources, current authority and physical target before issuing a handle.
+        """
+        self._validate_identity(task_id, "cold source task ID")
+        if type(phase) is not str or phase not in {"locator", "sources"}:
+            raise RepositoryIntegrityError("cold source phase is not supported")
+        context = self._action_journal._context
+        budget = getattr(context, "_recovery_read_budget", None)
+        if (type(budget) is not _RecoveryReadBudget or budget.task_id != task_id
+                or budget.command_scope is not self.command_scope
+                or any(getattr(port, "_recovery_read_budget", None) is not budget
+                       for port in (self, self._objects))):
+            raise RepositoryIntegrityError("cold source has no exact recovery budget")
+        budget._require_active()
+        self._require_provenance_scope()
+        context.check_limit("raw_document_bytes", _recovery_text_size(task_id), source_id="cold-source-task")
+        installation = self._locks.acquire_installation("shared")
+        try:
+            object_lock = self._locks.acquire_object("shared")
+            try:
+                result = self._capture_category_recovery_sources(task_id, phase, context, budget)
+            finally:
+                self._locks.release(object_lock)
+        finally:
+            self._locks.release(installation)
+        self._require_provenance_scope()
+        return result
+
+    def _capture_category_recovery_sources(self, task_id, phase, context, budget):
+        from graph_engineering.core.contracts.canonical import canonical_byte_length
+
+        source_id = "category-recovery-" + phase
+        task_columns = ("task_id", "revision", "head_sequence", "head_digest",
+                        "snapshot_json", "snapshot_digest", "integrity_status")
+        reference_columns = ("r.digest", "r.ref_kind", "r.transaction_id", "o.size", "o.state",
+                             "t.task_id", "t.revision")
+        scope_columns = ("scope_id", "version", "metadata_revision", "scope_digest", "status",
+                         "source_json", "source_digest", "change_json", "change_digest",
+                         "created_transaction_id", "approved_transaction_id", "approved_event_digest")
+        groups = [("task", task_columns, "tasks WHERE task_id=:task_id")]
+        if phase == "sources":
+            groups.extend((
+                ("event", ("e.sequence", "e.body_json", "e.event_id", "e.event_type",
+                           "e.previous_event_digest", "e.event_digest", "e.transaction_id",
+                           "t.task_id", "t.revision", "t.head_digest", "t.request_digest"),
+                 "events e LEFT JOIN transactions t ON t.transaction_id=e.transaction_id WHERE e.task_id=:task_id"),
+                ("reference", reference_columns, "object_references r LEFT JOIN objects o ON o.digest=r.digest "
+                 "LEFT JOIN transactions t ON t.transaction_id=r.transaction_id WHERE r.task_id=:task_id"),
+                ("scope", scope_columns, "project_scopes WHERE task_id=:task_id"),
+                ("approval", ("scope_digest", "transaction_id", "record_json", "record_digest"),
+                 "project_scope_approvals WHERE task_id=:task_id"),
+                ("realization", ("binding_id",), "project_scope_realizations WHERE task_id=:task_id"),
+                ("extension", ("generation", "pin_digest"), "task_extension_pin_bindings WHERE task_id=:task_id"),
+            ))
+        with ExitStack() as stack:
+            connection = stack.enter_context(self._factory.open("doctor"))
+            captured = stack.enter_context(_recovery_rows(connection, groups, {"task_id": task_id},
+                                                         context, budget, source_id=source_id))
+            def parsed(encoded: str) -> object:
+                with _recovery_json(encoded, context, budget, source_id=source_id) as value:
+                    _recovery_adopt(value, context, budget, record_fields={}, source_id=source_id)
+                    stack.callback(budget.release_projection, value)
+                    return value
+
+            if len(captured["task"]) != 1:
+                raise RepositoryIntegrityError("cold source task is missing or ambiguous")
+            task = dict(zip(task_columns, captured["task"][0]))
+            snapshot = parsed(task.pop("snapshot_json"))
+            if (type(snapshot) is not dict or snapshot.get("task_id") != task_id
+                    or type(snapshot.get("revision")) is not int
+                    or type(task["revision"]) is not int or task["revision"] < 1
+                    or snapshot["revision"] != task["revision"] or task["integrity_status"] != "ok"
+                    or type(task["head_sequence"]) is not int or task["head_sequence"] < 1
+                    or task["snapshot_digest"] != _recovery_record_digest({
+                        "contract": "repository-snapshot-v1", "value": snapshot}, context, budget,
+                        source_id="cold-task-snapshot-digest")):
+                raise RepositoryIntegrityError("cold source task snapshot is stale or invalid")
+            require_jcs_digest(task["head_digest"])
+            task.pop("integrity_status")
+            domain = snapshot.get("domain")
+            evidence = domain.get("evidence") if type(domain) is dict else None
+            if type(evidence) is not list or any(type(item) is not dict for item in evidence):
+                raise RepositoryIntegrityError("cold source task evidence is invalid")
+            selected = [item for item in evidence if item.get("evidence_type") == "category-completion-assessment"]
+            if len(selected) != 1:
+                raise RepositoryIntegrityError("cold source assessment is missing or ambiguous")
+            assessment_ref = selected[0]
+            if (set(assessment_ref) != {"evidence_id", "evidence_type", "source_ref", "digest", "trust"}
+                    or assessment_ref["trust"] != "factory-attested"
+                    or assessment_ref["evidence_id"] != assessment_ref["digest"]):
+                raise RepositoryIntegrityError("cold source assessment reference is invalid")
+            require_jcs_digest(assessment_ref["digest"])
+            assessment_digest = require_object_digest(assessment_ref["source_ref"])
+            if phase == "locator":
+                references_capture = stack.enter_context(_recovery_rows(connection,
+                    [("reference", reference_columns,
+                      "object_references r LEFT JOIN objects o ON o.digest=r.digest "
+                      "LEFT JOIN transactions t ON t.transaction_id=r.transaction_id "
+                      "WHERE r.task_id=:task_id AND r.digest=:digest")],
+                    {"task_id": task_id, "digest": assessment_digest}, context, budget, source_id=source_id))
+                reference_rows = references_capture["reference"]
+                events, event_values, scope = (), [], None
+            else:
+                if captured["extension"] or captured["realization"]:
+                    raise RepositoryIntegrityError("cold source extension or external realization authority is unavailable")
+                event_rows = sorted(captured["event"], key=lambda row: row[0])
+                events = self._validate_replay_rows(task_id,
+                    (task["revision"], task["head_sequence"], task["head_digest"], "ok"), event_rows,
+                    parser=parsed, _budget=budget, _context=context)
+                event_values = [{"event": event, "transaction_id": row[6], "transaction_revision": row[8],
+                                 "transaction_head_digest": row[9], "transaction_request_digest": row[10]}
+                                for row, event in zip(event_rows, events)]
+                reference_rows = captured["reference"]
+                scope = self._validate_captured_recovery_scope(
+                    domain, captured, scope_columns, event_values, parsed, context, budget)
+            transaction_ids = {item["transaction_id"] for item in event_values}
+            references = []
+            for digest, kind, transaction_id, size, state, ref_task, revision in sorted(reference_rows):
+                require_object_digest(digest)
+                if (kind != "task" or ref_task != task_id or type(revision) is not int
+                        or not 0 < revision <= task["revision"] or type(size) is not int or size < 0
+                        or state != "available" or phase == "sources" and transaction_id not in transaction_ids):
+                    raise RepositoryIntegrityError("cold source reference is unavailable or foreign")
+                references.append({"digest": digest, "kind": kind, "transaction_id": transaction_id,
+                                   "size": size, "state": state})
+            if len({item["digest"] for item in references}) != len(references):
+                raise RepositoryIntegrityError("cold source reference is ambiguous")
+            if sum(item["digest"] == assessment_digest for item in references) != 1:
+                raise RepositoryIntegrityError("cold source assessment is not uniquely referenced")
+            objects, body_reservations, assessment_body = [], [], None
+            for reference in references:
+                reservation = stack.enter_context(budget.reserve(context, units=reference["size"],
+                    byte_count=reference["size"], source_id=reference["digest"]))
+                body = self._read_provenance_object(reference["digest"], reference["size"],
+                    retained_bytes=budget.retained_bytes - reference["size"])
+                objects.append((reference["digest"], body))
+                body_reservations.append(reservation)
+                if reference["digest"] == assessment_digest:
+                    assessment_body = body
+            assessment = parsed(assessment_body)
+            if (type(assessment) is not dict or assessment.get("task_id") != task_id
+                    or assessment.get("assessment_digest") != assessment_ref["digest"]):
+                raise RepositoryIntegrityError("cold source assessment body differs from its reference")
+            projection = {"phase": phase, "task": task, "assessment_ref": assessment_ref,
+                          "references": references}
+            if phase == "sources":
+                projection.update(snapshot=snapshot, events=event_values, scope=scope)
+            encoded_size = canonical_byte_length(projection)
+            with budget.reserve(context, units=4 * encoded_size + 4 * len(objects) + 16,
+                                byte_count=encoded_size, source_id=source_id) as frame:
+                result = dict(freeze(projection))
+                result["assessment_body"] = assessment_body
+                result["objects"] = tuple(objects)
+                result = MappingProxyType(result)
+                frame.shrink(units=2 * encoded_size + 4 * len(objects) + 16, byte_count=encoded_size)
+                return _recovery_adopt(result, context, budget, record_fields={}, source_id=source_id)
+
+    def _validate_captured_recovery_scope(self, domain, captured, columns, events, parsed, context, budget):
+        reference = domain.get("project_scope_ref")
+        if not reference:
+            if captured["scope"] or captured["approval"]:
+                raise RepositoryIntegrityError("cold source has unbound ProjectScope state")
+            return None
+        if type(reference) is not dict:
+            raise RepositoryIntegrityError("cold source ProjectScope reference is invalid")
+        matching = [row for row in captured["scope"]
+                    if row[3] == reference.get("digest") and row[4] == reference.get("status")]
+        if len(matching) != 1:
+            raise RepositoryIntegrityError("cold source ProjectScope is missing or ambiguous")
+        value = dict(zip(columns, matching[0]))
+        source = parsed(value.pop("source_json"))
+        from graph_engineering.core.contracts.canonical import canonical_byte_length
+        size = canonical_byte_length(source)
+        with budget.reserve(context, units=8 * size, byte_count=4 * size, source_id="cold-scope-validation"):
+            self._validate_scope_source(source, _copy=False)
+            if value["source_digest"] != self._scope_source_digest(source):
+                raise RepositoryIntegrityError("cold source ProjectScope source digest differs")
+        for column, field in (("scope_id", "scope_id"), ("version", "version"),
+                              ("metadata_revision", "metadata_revision"), ("scope_digest", "scope_digest")):
+            if type(value[column]) is not type(source[field]) or value[column] != source[field]:
+                raise RepositoryIntegrityError("cold source ProjectScope source differs")
+        encoded = value.pop("change_json")
+        change = None if encoded is None else parsed(encoded)
+        if ((change is None) != (value["change_digest"] is None)
+                or change is not None and (type(change) is not dict or change.get("change_digest") != value["change_digest"])):
+            raise RepositoryIntegrityError("cold source ProjectScope change differs")
+        if value["status"] == "frozen":
+            approvals = [row for row in captured["approval"] if row[0] == value["scope_digest"]]
+            accepted = [row for row in events if row["event"]["event_digest"] == value["approved_event_digest"]]
+            if (len(approvals) != 1 or len(accepted) != 1
+                    or accepted[0]["transaction_id"] != value["approved_transaction_id"]
+                    or accepted[0]["event"]["event_type"] not in {"project.scope_frozen", "project.scope_rebased"}):
+                raise RepositoryIntegrityError("cold source ProjectScope approval event differs")
+            approval = parsed(approvals[0][2])
+            if (approvals[0][1] != value["approved_transaction_id"] or type(approval) is not dict
+                    or approval.get("scope_digest") != value["scope_digest"]
+                    or approval.get("scope_event_digest") != value["approved_event_digest"]
+                    or _recovery_record_digest({"contract": "project-scope-approval-v1", "value": approval},
+                        context, budget, source_id="cold-scope-approval-digest") != approvals[0][3]):
+                raise RepositoryIntegrityError("cold source ProjectScope approval record differs")
+        elif value["approved_transaction_id"] is not None or value["approved_event_digest"] is not None:
+            raise RepositoryIntegrityError("cold source non-frozen scope has approval bindings")
+        value.update(source=source, change=change)
+        return value
+
+    def _validate_replay_rows(self, task_id, head, rows, *, parser=parse_canonical_json,
+                              _budget=None, _context=None):
+        """Pure event/index/transaction validation shared with doctor snapshots."""
         if head[3] != "ok":
             raise RepositoryIntegrityError("task is integrity blocked")
-        rows = connection.execute(
-            "SELECT e.sequence,e.body_json,e.event_id,e.event_type,e.previous_event_digest,"
-            "e.event_digest,e.transaction_id,t.task_id,t.revision,t.head_digest,t.request_digest "
-            "FROM events e LEFT JOIN transactions t ON t.transaction_id=e.transaction_id "
-            "WHERE e.task_id=? ORDER BY e.sequence",
-            (task_id,),
-        ).fetchall()
         previous: str | None = None
         result: list[dict[str, object]] = []
         current_transaction: str | None = None
@@ -2335,16 +3460,17 @@ class TaskRepository:
         seen_transactions: set[str] = set()
         transaction_revision = 0
         for expected_sequence, row in enumerate(rows, start=1):
-            value = parse_canonical_json(row[1])
+            value = parser(row[1])
             if not isinstance(value, dict):
                 raise RepositoryIntegrityError("stored event body is not an object")
-            checked = self._validate_event(
-                value,
-                task_id=task_id,
-                sequence=expected_sequence,
-                expected_revision=value["expected_task_revision"],
-                previous_digest=previous,
-            )
+            from contextlib import nullcontext
+            from graph_engineering.core.contracts.canonical import canonical_byte_length
+            size = 0 if _budget is None else canonical_byte_length(value)
+            with (nullcontext() if _budget is None else _budget.reserve(_context,
+                    units=6 * size, byte_count=4 * size, source_id="cold-event-validation")):
+                checked = self._validate_event(value, task_id=task_id, sequence=expected_sequence,
+                    expected_revision=value["expected_task_revision"], previous_digest=previous,
+                    _copy=_budget is None)
             transaction_id = row[6]
             if (
                 type(transaction_id) is not str
@@ -2382,6 +3508,29 @@ class TaskRepository:
             raise RepositoryIntegrityError("stored final transaction head digest is invalid")
         if len(rows) != head[1] or previous != head[2] or transaction_revision != head[0]:
             raise RepositoryIntegrityError("event stream does not match committed head")
+        return tuple(result)
+
+    def _replay_locked(
+        self,
+        connection: ManagedConnection,
+        task_id: str,
+    ) -> tuple[dict[str, object], ...]:
+        head = connection.execute(
+            "SELECT revision,head_sequence,head_digest,integrity_status FROM tasks WHERE task_id=?",
+            (task_id,),
+        ).fetchone()
+        if head is None:
+            raise RepositoryConflictError("unknown task")
+        if head[3] != "ok":
+            raise RepositoryIntegrityError("task is integrity blocked")
+        rows = connection.execute(
+            "SELECT e.sequence,e.body_json,e.event_id,e.event_type,e.previous_event_digest,"
+            "e.event_digest,e.transaction_id,t.task_id,t.revision,t.head_digest,t.request_digest "
+            "FROM events e LEFT JOIN transactions t ON t.transaction_id=e.transaction_id "
+            "WHERE e.task_id=? ORDER BY e.sequence",
+            (task_id,),
+        ).fetchall()
+        result = self._validate_replay_rows(task_id, head, rows)
         references = connection.execute(
             "SELECT r.digest,o.size,o.state FROM object_references r "
             "JOIN objects o ON o.digest=r.digest WHERE r.task_id=? ORDER BY r.digest",

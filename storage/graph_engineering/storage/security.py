@@ -6,6 +6,7 @@ import datetime
 import hmac
 import sqlite3
 from collections.abc import Mapping
+from contextlib import ExitStack
 from dataclasses import dataclass
 from types import MappingProxyType
 
@@ -154,39 +155,42 @@ class SecurityStateRepository:
     ) -> InstalledSecurityRuntimeRecord:
         """Load the one immutable installation pin; callers cannot supply a substitute."""
 
-        with self._factory.open("doctor") as connection:
-            row = connection.execute(
-                "SELECT manifest_json,manifest_id,manifest_digest,schema_registry_id,"
-                "schema_registry_digest FROM security_runtime_installation WHERE singleton=1",
-            ).fetchone()
-        if row is None:
-            raise RepositoryIntegrityError("installed security runtime is missing")
-        manifest = self._parse_document(
-            row[0],
-            context=context,
-            source_id="security-runtime-installation",
-        )
-        if type(manifest) is not dict:
-            raise RepositoryIntegrityError("installed security runtime is not an object")
-        manifest_id = self._identity(row[1], "installed security runtime ID")
-        manifest_digest = require_jcs_digest(row[2])
-        registry_id = self._identity(row[3], "installed security schema registry ID")
-        registry_digest = require_jcs_digest(row[4])
-        if (
-            manifest.get("manifest_id") != manifest_id
-            or manifest.get("manifest_digest") != manifest_digest
-            or not isinstance(manifest.get("schema_registry"), dict)
-            or manifest["schema_registry"].get("registry_id") != registry_id
-            or manifest["schema_registry"].get("registry_digest") != registry_digest
-        ):
-            raise RepositoryIntegrityError("installed security runtime row is inconsistent")
-        return InstalledSecurityRuntimeRecord(
-            MappingProxyType(manifest),
-            manifest_id,
-            manifest_digest,
-            registry_id,
-            registry_digest,
-        )
+        from .repository import _recovery_scope, _recovery_rows, _recovery_json
+        from graph_engineering.core.contracts.canonical import canonical_byte_length
+
+        with _recovery_scope(context, self) as budget, ExitStack() as stack:
+            connection = stack.enter_context(self._factory.open("doctor"))
+            captured = stack.enter_context(_recovery_rows(connection,
+                [("installation", ("manifest_json", "manifest_id", "manifest_digest",
+                   "schema_registry_id", "schema_registry_digest"),
+                  "security_runtime_installation WHERE singleton=1")],
+                {}, context, budget, source_id="security-runtime-installation"))
+            rows = captured["installation"]
+            if len(rows) != 1:
+                raise RepositoryIntegrityError("installed security runtime is missing")
+            row = rows[0]
+            manifest = stack.enter_context(_recovery_json(row[0], context, budget, source_id="security-runtime-installation"))
+            if type(manifest) is not dict:
+                raise RepositoryIntegrityError("installed security runtime is not an object")
+            manifest_id = self._identity(row[1], "installed security runtime ID")
+            manifest_digest = require_jcs_digest(row[2])
+            registry_id = self._identity(row[3], "installed security schema registry ID")
+            registry_digest = require_jcs_digest(row[4])
+            if (
+                manifest.get("manifest_id") != manifest_id
+                or manifest.get("manifest_digest") != manifest_digest
+                or not isinstance(manifest.get("schema_registry"), dict)
+                or manifest["schema_registry"].get("registry_id") != registry_id
+                or manifest["schema_registry"].get("registry_digest") != registry_digest
+            ):
+                raise RepositoryIntegrityError("installed security runtime row is inconsistent")
+            size = canonical_byte_length(manifest)
+            with budget.reserve(context, units=4 * size, byte_count=size,
+                    source_id="security-runtime-installation") as reservation:
+                result = InstalledSecurityRuntimeRecord(MappingProxyType(manifest),
+                    manifest_id, manifest_digest, registry_id, registry_digest)
+                reservation.transfer(result)
+                return result
 
     @classmethod
     def _load_task_state(
@@ -195,68 +199,74 @@ class SecurityStateRepository:
         task_id: str,
         context: WorkContext,
     ) -> tuple[dict[str, object], str]:
+        from .repository import _recovery_scope, _recovery_rows, _recovery_json
+        from graph_engineering.core.contracts.canonical import canonical_byte_length
+
         task_id = cls._identity(task_id, "task ID")
-        row = connection.execute(
-            "SELECT s.task_revision,s.task_snapshot_digest,s.state_json,s.state_digest,"
-            "t.revision,t.snapshot_digest,t.integrity_status "
-            "FROM task_security_states s JOIN tasks t ON t.task_id=s.task_id "
-            "WHERE s.task_id=?",
-            (task_id,),
-        ).fetchone()
-        if row is None:
-            raise RepositoryIntegrityError("current task security state is missing")
-        task_revision, snapshot_digest, state_json, state_digest, current_revision, current_snapshot, status = row
-        if (
-            type(task_revision) is not int
-            or task_revision != current_revision
-            or snapshot_digest != current_snapshot
-            or status != "ok"
-        ):
-            raise RepositoryIntegrityError("task security state is stale or task integrity is blocked")
-        require_jcs_digest(snapshot_digest)
-        require_jcs_digest(state_digest)
-        state = cls._mapping(
-            cls._parse_document(
-                state_json,
-                context=context,
-                source_id=f"task-security-state:{task_id}",
-            ),
-            _STATE_KEYS,
-            "task security state",
-        )
-        if (
-            state.get("schema_version") != "1.0.0"
-            or state.get("task_id") != task_id
-            or state.get("task_revision") != task_revision
-            or state.get("task_snapshot_digest") != snapshot_digest
-            or not isinstance(state.get("binding"), dict)
-            or state["binding"].get("task_id") != task_id
-            or state["binding"].get("snapshot_digest") != snapshot_digest
-        ):
-            raise RepositoryIntegrityError("task security state does not bind the current task")
-        actual = semantic_record_digest({
-            "contract": "task-security-state-v1",
-            "value": state,
-        })
-        if not hmac.compare_digest(state_digest, actual):
-            raise RepositoryIntegrityError("task security state digest mismatch")
-        for field in (
-            "destinations",
-            "data_refs",
-            "evidence_expectations",
-            "retention_subjects",
-        ):
-            if type(state.get(field)) is not dict:
-                raise RepositoryIntegrityError(f"task security {field} is invalid")
-        authorities = state.get("authority_digests")
-        if (
-            type(authorities) is not list
-            or authorities != sorted(set(authorities))
-        ):
-            raise RepositoryIntegrityError("task security authority digests are not canonical")
-        for digest in authorities:
-            require_jcs_digest(digest)
-        return state, state_digest
+        with _recovery_scope(context) as budget, ExitStack() as stack:
+            captured = stack.enter_context(_recovery_rows(connection,
+                [("state", ("s.task_revision", "s.task_snapshot_digest", "s.state_json", "s.state_digest",
+                  "t.revision", "t.snapshot_digest", "t.integrity_status"),
+                  "task_security_states s JOIN tasks t ON t.task_id=s.task_id WHERE s.task_id=:task_id")],
+                {"task_id": task_id}, context, budget, source_id="task-security-state"))
+            rows = captured["state"]
+            if len(rows) != 1:
+                raise RepositoryIntegrityError("current task security state is missing")
+            task_revision, snapshot_digest, state_json, state_digest, current_revision, current_snapshot, status = rows[0]
+            if (
+                type(task_revision) is not int
+                or type(current_revision) is not int
+                or task_revision != current_revision
+                or snapshot_digest != current_snapshot
+                or status != "ok"
+            ):
+                raise RepositoryIntegrityError("task security state is stale or task integrity is blocked")
+            require_jcs_digest(snapshot_digest)
+            require_jcs_digest(state_digest)
+            state = cls._mapping(
+                stack.enter_context(_recovery_json(state_json, context, budget,
+                    source_id=f"task-security-state:{task_id}")),
+                _STATE_KEYS,
+                "task security state",
+            )
+            if (
+                state.get("schema_version") != "1.0.0"
+                or state.get("task_id") != task_id
+                or type(state.get("task_revision")) is not int
+                or state.get("task_revision") != task_revision
+                or state.get("task_snapshot_digest") != snapshot_digest
+                or not isinstance(state.get("binding"), dict)
+                or state["binding"].get("task_id") != task_id
+                or state["binding"].get("snapshot_digest") != snapshot_digest
+            ):
+                raise RepositoryIntegrityError("task security state does not bind the current task")
+            actual = semantic_record_digest({
+                "contract": "task-security-state-v1",
+                "value": state,
+            })
+            if not hmac.compare_digest(state_digest, actual):
+                raise RepositoryIntegrityError("task security state digest mismatch")
+            for field in (
+                "destinations",
+                "data_refs",
+                "evidence_expectations",
+                "retention_subjects",
+            ):
+                if type(state.get(field)) is not dict:
+                    raise RepositoryIntegrityError(f"task security {field} is invalid")
+            authorities = state.get("authority_digests")
+            if (
+                type(authorities) is not list
+                or authorities != sorted(set(authorities))
+            ):
+                raise RepositoryIntegrityError("task security authority digests are not canonical")
+            for digest in authorities:
+                require_jcs_digest(digest)
+            size = canonical_byte_length(state)
+            with budget.reserve(context, units=4 * size, byte_count=size,
+                    source_id="security-state-result") as reservation:
+                reservation.transfer(state)
+            return state, state_digest
 
     def load_current_task_state_readonly(
         self,
@@ -265,11 +275,19 @@ class SecurityStateRepository:
     ) -> ReadOnlyTaskSecurityState:
         """Read one joined current row with SQLite-enforced zero-write access."""
 
-        with self._factory.open("doctor") as connection:
-            state, state_digest = self._load_task_state(connection, task_id, context)
-        frozen = freeze(state)
-        assert type(frozen) is FrozenMap
-        return ReadOnlyTaskSecurityState(frozen, state_digest)
+        from .repository import _recovery_scope, _recovery_freeze
+
+        with _recovery_scope(context, self) as budget:
+            with self._factory.open("doctor") as connection:
+                state, state_digest = self._load_task_state(connection, task_id, context)
+            try:
+                frozen = _recovery_freeze(state, context, budget, source_id="security-state-result")
+                assert type(frozen) is FrozenMap
+                result = ReadOnlyTaskSecurityState(frozen, state_digest)
+                budget.move_projection(frozen, result)
+                return result
+            finally:
+                budget.release_projection(state)
 
     def load_current_task_state(
         self,

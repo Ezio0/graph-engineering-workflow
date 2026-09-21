@@ -6,6 +6,7 @@ import hashlib
 import hmac
 import json
 from collections.abc import Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Callable
 
@@ -58,6 +59,498 @@ def _text(value: object, label: str) -> str:
     ):
         raise CategoryExecutionError(f"{label} is invalid")
     return value
+
+
+def _validate_cold_artifact_record(
+    *, record_ref, documents, objects, task_id, owner_id, baselines, target,
+    contracts, schemas, context,
+):
+    """Validate committed acceptance/body facts; issue no ArtifactRecord."""
+    from graph_engineering.core.artifacts.manifest import LogicalBodyManifest
+    from graph_engineering.core.artifacts.records import ARTIFACT_RECORD_SCHEMA, RECORD_FIELDS, _actor
+    from graph_engineering.core.contracts.canonical import canonical_byte_length
+    from graph_engineering.core.contracts.digest import raw_digest, semantic_digest_charged
+    from graph_engineering.core.contracts.errors import ContractError
+    from graph_engineering.storage.repository import _recovery_freeze
+
+    budget = getattr(context, "_recovery_read_budget", None)
+    if budget is None:
+        raise CategoryExecutionError("cold artifact validation has no reservation owner")
+    budget._require_active()
+    try:
+        record = documents[record_ref]
+        body = objects[record_ref]
+        if (type(record) is not dict or set(record) != RECORD_FIELDS
+                or type(body) is not bytes or category_object_digest(body) != record_ref):
+            raise CategoryExecutionError("cold artifact record identity is invalid")
+        context.check_limit("array_items", len(documents), source_id="cold-artifact-documents")
+        context.check_limit("array_items", len(objects), source_id="cold-artifact-objects")
+        with budget.reserve(context, units=4 * (len(documents) + len(objects)), byte_count=0,
+                            source_id="cold-artifact-index"):
+            logical = record["logical_body_ref"]
+            if type(logical) is not dict or set(logical) != {
+                "manifest_id", "artifact_id", "entry_digest", "extracted_body_digest",
+            }:
+                raise CategoryExecutionError("cold artifact logical reference is invalid")
+            manifests = [(ref, value) for ref, value in documents.items()
+                         if type(value) is dict and set(value) == {
+                             "schema_version", "manifest_id", "mode", "physical_body_digest", "entries", "manifest_digest"}
+                         and value["manifest_id"] == logical["manifest_id"]
+                         and type(value["entries"]) is list
+                         and any(type(entry) is dict and all(entry.get(key) == logical[key]
+                             for key in ("artifact_id", "entry_digest", "extracted_body_digest"))
+                             for entry in value["entries"])]
+            if len(manifests) > 1:
+                valid_manifests = []
+                for candidate_ref, candidate_value in manifests:
+                    candidates = []
+                    for source in objects.values():
+                        context.emit("digest.input_byte", len(source), source_id="cold-manifest-discovery",
+                                     operation_path=context.child_path(()))
+                        if raw_digest(source) == candidate_value["physical_body_digest"]:
+                            candidates.append(source)
+                    if len(candidates) != 1:
+                        continue
+                    size = canonical_byte_length(candidate_value) + len(candidates[0])
+                    with budget.reserve(context, units=12 * size, byte_count=4 * size,
+                                        source_id="cold-manifest-discovery"):
+                        candidate = None
+                        try:
+                            if canonical_bytes(candidate_value) != objects[candidate_ref]:
+                                continue
+                            candidate = LogicalBodyManifest.from_dict(candidate_value, candidates[0],
+                                schema_registry=schemas, context=context)
+                            if (candidate.entry_digest(logical["artifact_id"]) == logical["entry_digest"]
+                                    and candidate.extracted_digest(logical["artifact_id"]) == logical["extracted_body_digest"]
+                                    and candidate.semantic_body_digest(logical["artifact_id"], record["semantic_fields"], context)
+                                        == record["body_digest"]):
+                                valid_manifests.append((candidate_ref, candidate_value))
+                        except ContractError:
+                            raise
+                        except (KeyError, TypeError, ValueError):
+                            # Only pure validation failures are candidate misses.
+                            # Owner admission and reservation are outside this catch.
+                            continue
+                        finally:
+                            del candidate
+                manifests = valid_manifests
+            if len(manifests) != 1:
+                raise CategoryExecutionError("cold artifact manifest is absent or ambiguous")
+            manifest_ref, manifest_value = manifests[0]
+            physical = []
+            for ref, source in objects.items():
+                if type(source) is not bytes or category_object_digest(source) != ref:
+                    raise CategoryExecutionError("cold artifact raw source identity changed")
+                context.emit("digest.input_byte", len(source), source_id="cold-artifact-physical-join",
+                             operation_path=context.child_path(()))
+                if raw_digest(source) == manifest_value.get("physical_body_digest"):
+                    physical.append((ref, source))
+            if len(physical) != 1:
+                raise CategoryExecutionError("cold artifact physical body is absent or ambiguous")
+            physical_ref, physical_body = physical[0]
+            size = len(body) + canonical_byte_length(manifest_value) + len(physical_body)
+            with budget.reserve(context, units=12 * size, byte_count=4 * size,
+                                source_id="cold-artifact-validation"):
+                if (canonical_bytes(record) != body
+                        or canonical_bytes(manifest_value) != objects[manifest_ref]
+                        or schemas.validate(ARTIFACT_RECORD_SCHEMA, record, context)):
+                    raise CategoryExecutionError("cold artifact schema or canonical bytes changed")
+                contract = contracts.resolve(record["artifact_type"])
+                semantic_fields = record["semantic_fields"]
+                if (type(semantic_fields) is not dict
+                        or set(semantic_fields) != set(contract.required_semantic_fields)
+                        or any(type(value) is not str or not value
+                               for value in semantic_fields.values())):
+                    raise CategoryExecutionError("cold artifact semantic field contract changed")
+                if (record["schema_version"] != "1.0.0" or record["task_id"] != task_id
+                        or type(record["revision"]) is not int or record["revision"] < 1
+                        or record["contract_id"] != contract.contract_id
+                        or record["contract_digest"] != contract.contract_digest
+                        or record["status"] != contract.exit_status
+                        or not _actor(record["author_id"]) or not _actor(record["reviewer_id"])
+                        or record["author_id"] == record["reviewer_id"]
+                        or record["baseline_digests"] != baselines
+                        or record["target_refs"] != [dict(target)]):
+                    raise CategoryExecutionError("cold artifact acceptance binding changed")
+                unsigned = {key: value for key, value in record.items() if key != "artifact_digest"}
+                digest = semantic_digest_charged(unsigned, context,
+                    contract_type="urn:gew:contract:artifact-record",
+                    projection_id="urn:gew:digest-projection:identity:1.0.0",
+                    schema_id=ARTIFACT_RECORD_SCHEMA, operation_path=context.child_path(()))
+                if digest != record["artifact_digest"]:
+                    raise CategoryExecutionError("cold artifact semantic record digest changed")
+                findings = record["findings"]
+                if (any(type(item) is not dict or set(item) != {"finding_id", "severity", "status"}
+                        or not _text(item.get("finding_id"), "finding identity")
+                        or item["severity"] not in {"blocker", "major", "minor"}
+                        or item["status"] != "closed" for item in findings)
+                        or len({item["finding_id"] for item in findings}) != len(findings)):
+                    raise CategoryExecutionError("cold artifact findings are not closed")
+                validations = record["validation_records"]
+                if (any(type(item) is not dict or set(item) != {"validator_id", "body_digest", "result"}
+                        or type(item["validator_id"]) is not str
+                        or item["body_digest"] != record["body_digest"] or item["result"] != "PASS"
+                        for item in validations)
+                        or tuple(sorted(item["validator_id"] for item in validations)) != contract.validator_ids
+                        or record["review_records"] != [{"reviewer_id": record["reviewer_id"],
+                            "body_digest": record["body_digest"], "trust": "independently-reviewed", "verdict": "PASS"}]):
+                    raise CategoryExecutionError("cold artifact validation or independent review changed")
+                approvals = ([{"owner_id": owner_id, "body_digest": record["body_digest"], "decision": "approved"}]
+                             if contract.approval_policy == "human" else [])
+                if record["approval_records"] != approvals or approvals and not _actor(owner_id):
+                    raise CategoryExecutionError("cold artifact human approval changed")
+                manifest = LogicalBodyManifest.from_dict(manifest_value, physical_body,
+                    schema_registry=schemas, context=context)
+                artifact_id = _text(record["artifact_id"], "artifact identity")
+                if (logical["artifact_id"] != artifact_id
+                        or logical["entry_digest"] != manifest.entry_digest(artifact_id)
+                        or logical["extracted_body_digest"] != manifest.extracted_digest(artifact_id)
+                        or record["body_digest"] != manifest.semantic_body_digest(
+                            artifact_id, record["semantic_fields"], context)):
+                    raise CategoryExecutionError("cold artifact logical body linkage changed")
+                return _recovery_freeze({
+                    "record_ref": record_ref, "manifest_ref": manifest_ref,
+                    "physical_object_ref": physical_ref,
+                    **{key: record[key] for key in ("artifact_id", "artifact_type", "contract_id",
+                        "contract_digest", "task_id", "body_digest", "author_id", "reviewer_id", "artifact_digest")},
+                }, context, budget, source_id="cold-artifact-result")
+    except ContractError:
+        raise
+    except (KeyError, TypeError, ValueError) as error:
+        raise CategoryExecutionError("cold artifact acceptance/body source is invalid") from error
+
+
+@contextmanager
+def _cold_control_candidate(body, context, budget, *, source_id):
+    """Bound discovery; malformed opaque content is not a control candidate."""
+    from graph_engineering.core.contracts.errors import ContractError
+    from graph_engineering.core.contracts.strict_json import parse_json
+
+    context.check_limit("raw_document_bytes", len(body), source_id=source_id)
+    with budget.reserve(context, units=6 * len(body), byte_count=4 * len(body), source_id=source_id):
+        try:
+            value = parse_json(body, context=context, source_id=source_id, operation_path=context.child_path(()))
+        except ContractError:
+            raise
+        except ValueError:
+            # Only parser syntax/scalar failures are discovery misses. Owner
+            # admission and reservation errors are outside this catch.
+            value = None
+        if type(value) is not dict or canonical_bytes(value) != body:
+            value = None
+        yield value
+        del value
+
+
+def _validate_cold_category_sources(
+    *, capture, task_application, runtime, policy, contracts, schemas, context,
+    action_target, action_baselines,
+):
+    """Join captured task/body/review facts without issuing live acceptance."""
+    from contextlib import ExitStack
+    from graph_engineering.application.runner import RunnerSnapshot
+    from graph_engineering.core.artifacts.records import RECORD_FIELDS, _actor
+    from graph_engineering.core.contracts.canonical import canonical_byte_length
+    from graph_engineering.core.contracts.digest import semantic_digest_charged
+    from graph_engineering.core.graph.state import SNAPSHOT_PROJECTION
+    from graph_engineering.storage.repository import _recovery_freeze, _recovery_equal, _recovery_adopt
+
+    budget = getattr(context, "_recovery_read_budget", None)
+    if budget is None:
+        raise CategoryExecutionError("cold category source has no reservation owner")
+    budget._require_active()
+    owned = budget._projections.get(id(capture))
+    if owned is None or owned[0] is not capture:
+        raise CategoryExecutionError("cold category source capture is not owned")
+    def digest(value: object, name: str, *, internal: bool=False) -> str:
+        size = canonical_byte_length(value) + len(name) + 256
+        with budget.reserve(context, units=8 * size, byte_count=4 * size,
+                            source_id="cold-category-digest"):
+            context.emit("digest.input_byte", size, source_id="cold-category-digest", operation_path=())
+            return (_internal_digest(value, name) if internal else _value_digest(value, name))
+
+    with ExitStack() as stack:
+        stack.enter_context(budget.reserve(context, units=64 * (len(capture["objects"]) + len(policy.required_node_ids)) + 128,
+            byte_count=0, source_id="cold-source-index"))
+        objects, documents = dict(capture["objects"]), {}
+        assessment_ref = capture["assessment_ref"]["source_ref"]
+        for ref, body in objects.items():
+            if body[:1] != b"{":
+                continue
+            with ExitStack() as candidate_scope:
+                value = candidate_scope.enter_context(_cold_control_candidate(body, context, budget, source_id=ref))
+                if value is None:
+                    continue
+                # Shape only selects candidates. Required typed relationships
+                # below determine roles; all raw physical bytes remain retained.
+                manifest = set(value) == {"schema_version", "manifest_id", "mode",
+                    "physical_body_digest", "entries", "manifest_digest"}
+                same_task = value.get("task_id") == budget.task_id
+                category = same_task and (
+                    value.get("record_kind") == "category-artifact-record-v1"
+                    and value.get("contract_id") in policy.artifact_contract_ids
+                    and set(value) == {"schema_version", "record_kind", "task_id", "artifact_id", "contract_id",
+                        "body_digest", "author_id", "reviewer_id", "status", "record_digest"}
+                    or value.get("record_kind") == "category-target-contract-v1"
+                    and value.get("target_id") == action_target["target_id"]
+                    and set(value) == {"schema_version", "record_kind", "task_id", "profile_id", "target_id",
+                        "resource_id", "expected_state", "rollback_state", "record_digest"}
+                    or value.get("record_kind") == "category-column-evidence-v1"
+                    and value.get("column_id") == "normal" and set(value) == CategoryFactsAuthority._EVIDENCE_FIELDS)
+                if ref == assessment_ref or manifest or category or same_task and set(value) == RECORD_FIELDS:
+                    # Parsing needs overlapping input/token buffers only until
+                    # this context exits. Retain the actual parsed JSON graph,
+                    # not every parser scratch copy for all selected records.
+                    _recovery_adopt(value, context, budget, record_fields={}, source_id="cold-source-document")
+                    documents[ref] = value
+                    stack.callback(budget.release_projection, value)
+                del value
+        assessment = documents.get(assessment_ref)
+        if (type(assessment) is not dict or set(assessment) != CategoryCompletionOracle._RELEASE_SOURCE_FIELDS
+                or assessment.get("schema_version") != "1.4.0" or assessment.get("profile_id") != "release-operations"
+                or assessment.get("column_id") != "normal" or assessment.get("status") != "PASS"
+                or assessment.get("task_id") != budget.task_id
+                or assessment.get("assessment_digest") != capture["assessment_ref"]["digest"]
+                or assessment["assessment_digest"] != digest(
+                    {key: value for key, value in assessment.items() if key != "assessment_digest"},
+                    "category-completion-assessment")):
+            raise CategoryExecutionError("cold category assessment is unsupported or changed")
+        if (assessment["scenario_id"] not in policy.category_boundary_case_ids
+                or not assessment["scenario_id"].endswith("-P")):
+            raise CategoryExecutionError("category boundary scenario is not an approved PASS member")
+        view_scope = stack.enter_context(ExitStack())
+        view = view_scope.enter_context(task_application._cold_task_view(capture, policy=policy, runtime=runtime))
+        binding_size = (canonical_byte_length(capture["snapshot"]["domain"])
+                        + canonical_byte_length(policy.materialization_output) + 512)
+        with budget.reserve(context, units=8 * binding_size, byte_count=4 * binding_size,
+                            source_id="cold-task-binding-validation"):
+            snapshot = view.snapshot
+            pins = {"base_graph_digest": policy.materialization_graph_ref["graph_digest"],
+                **{key: policy.materialization_graph_ref[key] for key in (
+                    "profile_digest", "overlay_digest", "project_config_digest", "support_matrix_digest", "materialization_digest")}}
+            expected_bindings = {"profile_version": policy.profile_version, "profile_digest": policy.profile_digest,
+                "overlay_id": snapshot.graph_ref["overlay_id"], "materialization_pins": pins,
+                "runner_outputs": thaw(policy.materialization_output),
+                "artifact_contract_ids": list(sorted(policy.artifact_contract_ids)),
+                "authority_refs": list(policy.authority_refs),
+                "category_boundary_case_ids": list(policy.category_boundary_case_ids)}
+            for key, expected in expected_bindings.items():
+                if not _recovery_equal(assessment[key], expected, context, budget):
+                    raise CategoryExecutionError("cold assessment installed binding changed: " + key)
+            if (type(assessment["task_revision"]) is not int
+                    or assessment["task_revision"] + 1 != snapshot.task_revision
+                    or type(assessment["invalidation_epoch"]) is not int
+                    or assessment["invalidation_epoch"] != snapshot.invalidation_epoch
+                    or snapshot.lifecycle != "completed" or snapshot.open_findings
+                    or snapshot.unresolved_action_claims or snapshot.resource_leases
+                    or snapshot.authorities):
+                raise CategoryExecutionError("cold assessment task/profile/materialization binding changed")
+            baselines = {item["kind"]: item["digest"] for item in snapshot.baseline_refs}
+            if baselines != dict(action_baselines) or action_target["task_id"] != snapshot.identity["task_id"]:
+                raise CategoryExecutionError("cold task and action baseline or target differ")
+            last_event = capture["events"][-1]["event"]
+            if (last_event["event_type"] != "task.category_assessed"
+                    or set(last_event["payload"]) != {"evidence_ref"}
+                    or not _recovery_equal(last_event["payload"]["evidence_ref"], capture["assessment_ref"], context, budget)):
+                raise CategoryExecutionError("cold assessment is not the final committed domain event")
+            previous = snapshot.to_body()
+            previous.update(task_revision=snapshot.task_revision - 1, last_event_seq=snapshot.last_event_seq - 1,
+                            lifecycle="completing", authorities=list(policy.authority_refs),
+                            evidence=[item for item in previous["evidence"]
+                                if item["source_ref"] != assessment_ref])
+            previous_digest = semantic_digest_charged(previous, context,
+                contract_type=SNAPSHOT_PROJECTION.contract_type, projection_id=SNAPSHOT_PROJECTION.projection_id,
+                schema_id=SNAPSHOT_PROJECTION.schema_id, operation_path=context.child_path(()))
+            if previous_digest != assessment["snapshot_digest"]:
+                raise CategoryExecutionError("cold assessment prior task snapshot differs")
+            invalidation_epoch = snapshot.invalidation_epoch
+            _recovery_adopt(baselines, context, budget, record_fields={}, source_id="cold-task-baselines")
+            stack.callback(budget.release_projection, baselines)
+            del previous, previous_digest, snapshot, pins, expected_bindings, expected
+        runner_size = canonical_byte_length(view.runner_state)
+        with budget.reserve(context, units=8 * runner_size, byte_count=4 * runner_size,
+                            source_id="cold-runner-validation"):
+            runner = RunnerSnapshot(view.runner_state)
+            outputs, reviews = runner.node_outputs, runner.review_history
+            if (set(outputs) != set(policy.required_node_ids) or runner.failure_routes
+                    or any(finding["status"] != "closed" for finding in runner.findings.values())):
+                raise CategoryExecutionError("cold runner closure is incomplete")
+            runner_projection = _recovery_adopt((outputs, reviews), context, budget,
+                record_fields={}, source_id="cold-runner-result")
+            stack.callback(budget.release_projection, runner_projection)
+            runner = None
+        del view
+        view_scope.close()
+
+        def records(kind: str) -> list[tuple[str, Mapping[str, object]]]:
+            result = []
+            for ref, record in documents.items():
+                if record.get("record_kind") == kind:
+                    unsigned = {key: value for key, value in record.items() if key != "record_digest"}
+                    if record.get("record_digest") != digest(unsigned, kind, internal=True):
+                        continue
+                    # These controls have semantic relationships, not explicit
+                    # raw anchors. Only complete candidates enter the role index;
+                    # an invalid opaque copy cannot displace a genuine source.
+                    if record["schema_version"] != "1.0.0":
+                        continue
+                    if kind == "category-target-contract-v1":
+                        if (record["profile_id"] != policy.profile_id
+                                or type(record["expected_state"]) is not dict
+                                or type(record["rollback_state"]) is not dict):
+                            continue
+                        try:
+                            _text(record["resource_id"], "cold resource ID")
+                        except CategoryExecutionError:
+                            continue
+                    elif kind == "category-artifact-record-v1":
+                        try:
+                            if (record["status"] != "accepted-for-category"
+                                    or not _actor(record["author_id"]) or not _actor(record["reviewer_id"])
+                                    or record["author_id"] == record["reviewer_id"]):
+                                continue
+                        except ValueError:
+                            continue
+                    elif kind == "category-column-evidence-v1":
+                        if (record["record_digest"] != assessment["column_evidence_digest"]
+                                or any(record[key] != assessment[key] or type(record[key]) is not type(assessment[key])
+                                    for key in ("task_id", "task_revision", "snapshot_digest", "invalidation_epoch", "profile_id", "column_id"))
+                                or record["evidence_kind"] != policy.transition_rules["normal"]["evidence_kind"]
+                                or record["outcome"] != policy.transition_rules["normal"]["required_outcome"]):
+                            continue
+                    result.append((ref, record))
+            return result
+
+        targets = records("category-target-contract-v1")
+        if len(targets) != 1:
+            raise CategoryExecutionError("cold target contract is absent or ambiguous")
+        target_ref, target = targets[0]
+        if (set(target) != {"schema_version", "record_kind", "task_id", "profile_id", "target_id",
+                           "resource_id", "expected_state", "rollback_state", "record_digest"}
+                or target["schema_version"] != "1.0.0" or target["task_id"] != budget.task_id
+                or target["profile_id"] != policy.profile_id or target["target_id"] != action_target["target_id"]
+                or type(target["expected_state"]) is not dict or type(target["rollback_state"]) is not dict
+                or not _text(target["resource_id"], "cold resource ID")):
+            raise CategoryExecutionError("cold target contract binding changed")
+        selector = {"schema_version": "1.0.0", "request_id": assessment["request_id"],
+            "task_id": budget.task_id, "column_id": "normal", "scenario_id": assessment["scenario_id"],
+            "target_id": target["target_id"]}
+        if digest(_category_selector(selector), "category-assessment-selector", internal=True) != assessment["request_digest"]:
+            raise CategoryExecutionError("cold assessment selector digest changed")
+        categories = records("category-artifact-record-v1")
+        join_fields = ("task_id", "artifact_id", "contract_id", "body_digest", "author_id", "reviewer_id")
+        output_refs = {ref for output in outputs.values() for ref in output["evidence_refs"]}
+        full = {}
+        for ref, record in documents.items():
+            if (set(record) == RECORD_FIELDS and (ref in output_refs
+                    or any(all(record[key] == category.get(key) for key in join_fields) for _, category in categories)
+                    or any(record["body_digest"] == review["body_digest"]
+                        and record["reviewer_id"] == review["reviewer_id"] for review in reviews))):
+                try:
+                    verified = _validate_cold_artifact_record(record_ref=ref, documents=documents, objects=objects,
+                        task_id=budget.task_id, owner_id=runtime.owner_id, baselines=baselines, target=action_target,
+                        contracts=contracts, schemas=schemas, context=context)
+                except CategoryExecutionError:
+                    # Explicit runner raw anchors are strict. Other candidates
+                    # qualify only through a valid complete acceptance chain.
+                    # ContractError is a separate type and always propagates.
+                    budget._require_active()
+                    if ref in output_refs:
+                        raise
+                    continue
+                stack.callback(budget.release_projection, verified)
+                full[ref] = verified
+        category_fields = {"schema_version", "record_kind", "task_id", "artifact_id", "contract_id",
+                           "body_digest", "author_id", "reviewer_id", "status", "record_digest"}
+        qualified_categories = []
+        for ref, record in categories:
+            matches = sum(all(record[key] == accepted[key] for key in join_fields)
+                          for accepted in full.values())
+            if (set(record) != category_fields or record["schema_version"] != "1.0.0"
+                    or record["status"] != "accepted-for-category"
+                    or not _actor(record["author_id"]) or not _actor(record["reviewer_id"])
+                    or record["author_id"] == record["reviewer_id"]
+                    or matches > 1):
+                raise CategoryExecutionError("cold category record has no unique accepted body source")
+            if matches == 1:
+                qualified_categories.append((ref, record))
+        if sorted(record["contract_id"] for _ref, record in qualified_categories) != sorted(policy.artifact_contract_ids):
+            if sorted(record["contract_id"] for _ref, record in categories) == sorted(policy.artifact_contract_ids):
+                raise CategoryExecutionError("cold category record has no unique accepted body source")
+            raise CategoryExecutionError("cold category artifact contract closure differs")
+        categories = qualified_categories
+        def body_source(body_digest: str, author: str | None=None, reviewer: str | None=None) -> Mapping[str, object]:
+            matches = [record for record in full.values() if record["body_digest"] == body_digest
+                and (author is None or record["author_id"] == author)
+                and (reviewer is None or record["reviewer_id"] == reviewer)]
+            if len(matches) != 1:
+                raise CategoryExecutionError("cold runner body is absent or ambiguous")
+            return matches[0]
+        for output in outputs.values():
+            accepted = body_source(output["body_digest"], output["author_id"], output["reviewer_id"])
+            if (output["trust"] != "independently_reviewed" or output["verdict"] != "PASS"
+                    or output["author_id"] == output["reviewer_id"]
+                    or accepted["record_ref"] not in output["evidence_refs"]):
+                raise CategoryExecutionError("cold runner output has no explicit accepted raw source")
+        attempts = {}
+        for review in reviews:
+            key = (review["node_id"], review["run_id"])
+            output = outputs.get(review["node_id"])
+            if (output is None or output["run_id"] != review["run_id"]
+                    or review["attempt"] <= attempts.get(key, 0)):
+                raise CategoryExecutionError("cold review lineage or attempt order changed")
+            body_source(review["body_digest"], output["author_id"], review["reviewer_id"])
+            attempts[key] = review["attempt"]
+        passes = [index for index, review in enumerate(reviews) if review["verdict"] == "PASS"]
+        if not passes:
+            raise CategoryExecutionError("cold final independent review is absent")
+        final_index = passes[-1]
+        final = reviews[final_index]
+        prior = next((review for review in reversed(reviews[:final_index])
+                      if review["body_digest"] != final["body_digest"]), None)
+        output = outputs[final["node_id"]]
+        if (prior is None or any(prior[key] != final[key] for key in ("node_id", "run_id"))
+                or any(output[key] != final[key] for key in ("node_id", "run_id", "attempt", "body_digest", "reviewer_id"))
+                or final["findings"] or final["finding_ids"]):
+            raise CategoryExecutionError("cold final review has no distinct prior body in its run")
+        review_value = {"author_id": output["author_id"], "reviewer_id": final["reviewer_id"],
+            "trust": "independently-reviewed", "verdict": "PASS", "body_digest": final["body_digest"],
+            "previous_body_digest": prior["body_digest"]}
+        if digest(review_value, "category-independent-review", internal=True) != assessment["review_digest"]:
+            raise CategoryExecutionError("cold independent review digest changed")
+        evidence_rows = [(ref, record) for ref, record in records("category-column-evidence-v1")
+                         if record.get("column_id") == "normal"]
+        if len(evidence_rows) != 1:
+            raise CategoryExecutionError("cold normal evidence is absent or ambiguous")
+        evidence_ref, evidence = evidence_rows[0]
+        rule = policy.transition_rules["normal"]
+        if (set(evidence) != CategoryFactsAuthority._EVIDENCE_FIELDS
+                or any(evidence[key] != assessment[key] or type(evidence[key]) is not type(assessment[key])
+                       for key in ("task_id", "task_revision", "snapshot_digest", "invalidation_epoch", "profile_id", "column_id"))
+                or evidence["schema_version"] != "1.0.0" or evidence["evidence_kind"] != rule["evidence_kind"]
+                or evidence["outcome"] != rule["required_outcome"]
+                or evidence["facts"] != {"runner-output-digest": digest(outputs, "category-runner-outputs", internal=True)}
+                or evidence["record_digest"] != assessment["column_evidence_digest"]):
+            raise CategoryExecutionError("cold normal evidence differs from complete runner facts")
+        initial = {"schema_version": "1.0.0", "task_id": budget.task_id, "profile_id": policy.profile_id,
+            "column_id": "normal", "lifecycle": rule["from_state"], "revision": 0,
+            "snapshot_digest": assessment["snapshot_digest"], "invalidation_epoch": invalidation_epoch,
+            "last_event_digest": None}
+        logical_kind = policy.rollback_contract["eligible_action_kinds"][0]
+        rollback = {"schema_version": "1.0.0", "task_id": budget.task_id, "profile_id": policy.profile_id,
+            "logical_action_kind": logical_kind,
+            "action_protocol_kind": policy.rollback_protocol_mappings[logical_kind]["action_protocol_kind"],
+            "authority_requirement": policy.rollback_contract["authority_requirement"],
+            "compensation_graph_ref": policy.rollback_contract["compensation_graph_ref"],
+            "status": "NOT_REQUESTED", "route": "none", "observation_digest": assessment["target_observation_digest"]}
+        if (assessment["state_digest"] != digest(initial, "category-execution-state")
+                or assessment["rollback_assessment_digest"] != digest(rollback, "category-rollback-assessment")):
+            raise CategoryExecutionError("cold category reducer or rollback history changed")
+        return _recovery_freeze({"assessment": assessment, "target": target,
+            "assessment_ref": assessment_ref, "target_ref": target_ref, "evidence_ref": evidence_ref,
+            "artifacts": [thaw(full[ref]) for ref in sorted(full)],
+            "category_refs": sorted(ref for ref, _record in categories)},
+            context, budget, source_id="cold-category-result")
 
 
 def _exact_mapping(

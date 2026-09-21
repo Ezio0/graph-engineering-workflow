@@ -54,7 +54,7 @@
   "protected_resources": [
     {
       "path": "application/graph_engineering/application/profile_execution.py",
-      "raw_sha256": "7db57559ffc98906e2dc1d01fc31a7f46986ec61d80f99368da92c22eef12cf9"
+      "raw_sha256": "dbdc3576814816c25839c0c3261e0aad9a4706a4851c943daae9e618a83db37e"
     },
     {
       "path": "application/graph_engineering/application/scenario_truth.py",
@@ -62,11 +62,11 @@
     },
     {
       "path": "core/graph_engineering/__init__.py",
-      "raw_sha256": "4eadd5c8d284476ff5c843525376400d773fb56697b38ba9233cf9836fcd5147"
+      "raw_sha256": "013f5019abe5eb638eae78c7d24b4acd51567af8b59d91a86a6fe4fa6f1fe282"
     },
     {
       "path": "core/graph_engineering/core/profile_execution.py",
-      "raw_sha256": "99c79e9a3822aa40c0f75d5a30fdfa37551d1bb3782928d836573c0727975e99"
+      "raw_sha256": "07d6fd953dc970a1229106789913859ec4ad38e913ec439bf73c1bb013ec2e45"
     },
     {
       "path": "core/graph_engineering/core/profiles.py",
@@ -81,6 +81,6 @@
       "raw_sha256": "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:224bc3b8d76f6fbdcb423690dbca3b4021ebab9611c40401dbe03a371d4a09be",
-  "bootstrap_digest": "sha256-jcs-v1:81dcdefb1fc200fd874d47f28fc4e1fbb81d7d6432e9f10e2239111cfed8f0e2"
+  "protected_closure_digest": "sha256-jcs-v1:1b27de24b0eead3506efcfe95e2942a83e5295fcd42a007471c9ce9169912114",
+  "bootstrap_digest": "sha256-jcs-v1:7e513f42373c534317ef5163402574b8a2917e7df070f0ac3750907728caa5a8"
 }

@@ -7,6 +7,7 @@ import copy
 import os
 import threading
 from collections.abc import Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Callable
 
@@ -548,7 +549,7 @@ class TaskApplication:
         }
         return "application-command-sha256:" + hashlib.sha256(canonical_bytes(request)).hexdigest()
 
-    def _restore(self, value: object) -> TaskView:
+    def _task_wrapper(self, value: object) -> tuple:
         if not isinstance(value, Mapping) or set(value) != self._WRAPPER_FIELDS:
             raise ApplicationError("repository task snapshot wrapper is not exact")
         task_id = self._identity(value.get("task_id"), "task ID")
@@ -573,10 +574,9 @@ class TaskApplication:
         domain = value.get("domain")
         if not isinstance(domain, Mapping):
             raise ApplicationError("domain snapshot is not an object")
-        raw_graph_ref = domain.get("graph_ref")
-        materialization_record = self._materialization_for_graph_ref(
-            task_id, raw_graph_ref,
-        )
+        return task_id, revision, runner, domain
+
+    def _view_with_materialization(self, task_id, revision, runner, domain, materialization_record):
         snapshot = TaskSnapshot.from_dict(
             domain,
             schema_registry=self._schemas,
@@ -586,6 +586,85 @@ class TaskApplication:
         if snapshot.identity.get("task_id") != task_id:
             raise ApplicationError("repository and domain task identities differ")
         return TaskView(task_id, revision, snapshot, runner)
+
+    def _restore(self, value: object) -> TaskView:
+        task_id, revision, runner, domain = self._task_wrapper(value)
+        materialization_record = self._materialization_for_graph_ref(
+            task_id, domain.get("graph_ref"),
+        )
+        return self._view_with_materialization(task_id, revision, runner, domain, materialization_record)
+
+    @contextmanager
+    def _cold_task_view(self, capture, *, policy, runtime):
+        """Validate the owned capture without resolving or issuing authority."""
+        from graph_engineering.core.contracts.canonical import canonical_byte_length
+        from graph_engineering.core.profile_execution import CategoryExecutionPolicy
+        from dataclasses import fields
+        from graph_engineering.core.graph.state import NodeRun, ArtifactRef, EvidenceRef
+        from graph_engineering.storage.repository import (
+            _RecoveryReadBudget, _recovery_adopt, _recovery_clear_exception_frames,
+        )
+
+        budget = getattr(self._context, "_recovery_read_budget", None)
+        if (type(budget) is not _RecoveryReadBudget
+                or type(policy) is not CategoryExecutionPolicy or type(runtime) is not RuntimeContext
+                or any(getattr(port, "_recovery_read_budget", None) is not budget
+                       for port in (self, self._repository, self._materialization_objects))
+                or budget.command_scope is not self._repository.command_scope):
+            raise ApplicationError("cold task view has no exact installed participants")
+        budget._require_active()
+        owned = budget._projections.get(id(capture))
+        if (owned is None or owned[0] is not capture or capture.get("phase") != "sources"
+                or capture["task"]["task_id"] != budget.task_id):
+            raise ApplicationError("cold task view requires its owned source capture")
+        record = policy.materialization_record
+        size = (canonical_byte_length(capture["snapshot"]) + canonical_byte_length(capture["events"])
+                + canonical_byte_length(record.graph_ref_body) + canonical_byte_length(record.output_body) + 512)
+        view = None
+        try:
+            with budget.reserve(self._context, units=8 * size, byte_count=4 * size,
+                                source_id="cold-task-view") as frame:
+                record.require_issued()
+                matches = [body for ref, body in capture["objects"] if ref == record.object_digest]
+                if len(matches) != 1 or matches[0] != record.to_bytes():
+                    raise ApplicationError("cold task materialization is absent, ambiguous or changed")
+                value = thaw(capture["snapshot"])
+                task_id, revision, runner, domain = self._task_wrapper(value)
+                view = self._view_with_materialization(task_id, revision, runner, domain, record)
+                self._runtime_matches(view.snapshot, runtime)
+                if (runner["runtime_lineage_id"] != runtime.runtime_lineage_id
+                        or runner["graph_digest"] != record.graph_ref_body["graph_digest"]):
+                    raise ApplicationError("cold runner lineage or materialization differs")
+                self._repository_sequence(view, tuple(thaw(item["event"]) for item in capture["events"]))
+                replayed = None
+                ordinal = 0
+                for row in capture["events"]:
+                    raw = row["event"]
+                    if raw["event_type"] in self._ACTION_EVENT_TYPES:
+                        continue
+                    ordinal += 1
+                    replayed = apply_events(replayed, (DomainEvent(ordinal, ordinal - 1,
+                        raw["event_type"], thaw(raw["payload"])),), schema_registry=self._schemas,
+                        context=self._context, materialization_record=record)
+                if replayed is None or replayed.snapshot_digest != view.snapshot.snapshot_digest:
+                    raise ApplicationError("cold domain replay differs from the captured snapshot")
+                # Retire replay intermediates before the view escapes. The parsed
+                # view itself remains covered until its exact graph is adopted.
+                matches = value = runner = domain = replayed = raw = None
+                frame.shrink(units=2 * size, byte_count=size)
+                _recovery_adopt(view, self._context, budget,
+                    record_fields={kind: tuple(field.name for field in fields(kind))
+                        for kind in (TaskView, TaskSnapshot, NodeRun, ArtifactRef, EvidenceRef)},
+                    source_id="cold-task-view-result")
+            yield view
+        except BaseException as error:
+            _recovery_clear_exception_frames(error)
+            raise
+        finally:
+            if view is not None and id(view) in budget._projections:
+                budget.release_projection(view)
+            self = capture = policy = runtime = record = view = budget = None
+            matches = value = runner = domain = replayed = raw = None
 
     @staticmethod
     def _runner_state(snapshot: TaskSnapshot, runtime: RuntimeContext) -> dict[str, object]:

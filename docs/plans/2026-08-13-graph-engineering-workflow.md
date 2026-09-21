@@ -1,5 +1,132 @@
 # Graph Engineering Workflow — Implementation Plan
 
+## 2026-09-20 RS-C installation-control read plan — proposed R0
+
+Human update (2026-09-20): the owner replied “确认” to the final one-file
+request, approving GEW-REMAINING54-P3-COLD-INSTALLATION-CONTROL-V1. The
+append-only p3_restart_cold_installation_control_amendment records this exact
+extension. Current boundaries are185 product /195 effective /41 selected
+targets. The reviewed proposal below is historical; its implementation scope
+and all exclusions remain unchanged. Prior RS-C R2 approval stays valid.
+
+This preparation does not modify `storage/graph_engineering/storage/migration.py`
+or enlarge the approved allowlist. Preserve RS-C R2 approval and its completed
+prerequisite evidence. Request only the new file boundary described in Spec and
+Impact under `GEW-REMAINING54-P3-COLD-INSTALLATION-CONTROL-V1`.
+
+1. Independently review the concrete control-read amendment and persist the
+   authority boundary with the existing append-only P3 containers. Stop at the
+   Human decision; prerequisite PASS is not file-write authority.
+2. After approval, append the exact Human amendment, add only migration.py to
+   the active product/effective allowlist and Manifest, and extend the authority
+   identity-chain test without rewriting any historical approval.
+3. Capture focused RED evidence for active-manifest and locator-registry
+   preallocation bounds, nested admission and overlapping closure accounting.
+   Implement the private descriptor reader and exact cold owner propagation,
+   keeping currentness and non-cold public behavior intact.
+4. Refresh only affected installed pins, run the focused serial native cases
+   with fresh attestation, and obtain independent implementation review.
+5. Resume the already approved C-L/C-E path: common-owner cache adoption,
+   streaming installed currentness, physical closure, opaque historical handle
+   and fresh-process apply-B/compensated-A recovery. The control-read repair
+   alone does not complete cold recovery or authorize Candidate or commit.
+
+## 2026-09-20 RS-C bounded source implementation plan — R2
+
+Human update (2026-09-20): the owner's response “继续” to the final R2
+API request authorizes GEW-REMAINING54-P3-COLD-SOURCE-READ-API-V1, recorded
+in p3_restart_cold_source_read_api_amendment. The not-yet-authorized wording
+in the reviewed proposal below is historical and is superseded only for this
+exact API, consumers, resource hardening, tests and independent review.
+The184/194 boundaries and all irreversible exclusions remain unchanged.
+
+Dependency: accepted RS-AP R1 and approved P3-RS-A RS-4/RS-5. This refines the
+existing plan, retains the184-target boundary and does not consume commit
+authority. Sole writer is /root; independent reviewers are read-only.
+
+- [ ] C-D (S): review Spec/Impact/Test Plan RS-C against actual source contracts,
+  resolve routine design findings and persist the unchanged independent verdict
+  and real reducer. An authority escalation stops implementation while the
+  final concrete request is prepared.
+- [ ] C-H (XS, after C-D): obtain the single concrete Human decision for
+  RS-C-0's bounded task/source query. No allowlist growth, schema or write
+  authority is requested; preserve the prior action-only amendment unchanged.
+- [ ] C-B (S, after C-H): RED locator/gated/reuse resource failures; implement
+  the bounded repository query, captured-journal authority validation and existing
+  security SQL bounds, with failing hooks proving legacy reads are unreachable.
+  Implement one private owner across nested/outer captures and distinct installed
+  contexts; transfer result/handle reservations before releasing scratch.
+- [ ] C-P (S, after C-B): RED installed artifact closure and semantic/raw body
+  linkage; protect existing read-only contract resources through the approved
+  provenance cascade and verify current factory closure.
+- [ ] C-S (M, after C-P): RED six-part normal source cases; implement complete
+  source reconstruction and coherent-record substitution negatives. Supply
+  real committed synthetic bodies using existing durable APIs.
+- [ ] C-L (S, after C-S): RED locator/marker admission and lifecycle cases;
+  implement exact root lookup, fresh epoch and read-only handle currentness.
+- [ ] C-E (M, after C-L): independent producer/consumer exec proof for apply-B
+  and completed partial compensation-A, then mandatory rejection/race matrix,
+  affected compatibility and installed-wheel checks, independent implementation
+  review and actual reducer. No cold completion claim before this step.
+- [ ] C-STOP (XS, after C-E): hand off bounded restart evidence at244/122/30.
+
+S/M estimates denote roughly1–2hours/half a day of engineering scope; actual
+execution durations are recorded per bounded batch rather than promised.
+RS-C Test Plan owns selectors and failfast600second caps. Existing unchanged
+evidence may be carried only with its exact input dependency and explicit scope.
+Missing authoritative source cannot be repaired by a successful test label.
+A failed review changes only in-envelope inputs; real scope/architecture change
+uses the existing gate. No cumulative/performance/coverage or external action.
+
+
+## 2026-09-20 RS-AP authorized read implementation plan — R1
+
+Source: Spec RS-AP, Impact RS-AP, existing approved RS-3 and Human
+`p3_restart_action_provenance_amendment`. One additional existing storage
+path is authorized; all other selected paths already belong to the prior183.
+The task uses three reversible phases: reviewed contract, stored read facts,
+then coordinator completion joins and validation. Each exit requires the
+mechanically checkable acceptance below; no new Human gate within this scope.
+
+- [x] AP-H (XS, owner /root): preserve the prior54-file accepted bundle/reducer;
+  record exact Human approval,184 targets and the active Manifest.
+- [x] AP-D (S, depends AP-H): finish Spec/Impact/Plan/Test Plan supplements;
+  independent review and actual reducer must permit implementation.
+- [x] AP-S (M, depends AP-D): RED provenance tests, then one doctor snapshot
+  query and immutable validated data; prove actual outcome/index/reference
+  fields, bounded reads, no writes, duplicate/tamper/drift rejection.
+  Implement the CAS reader only in repository.py: actual descriptor-size and
+  identity preflight, incremental byte ceiling plus one sentinel, aggregate
+  retained-byte limit, preserved path/owner/mode/digest checks. Prove oversized
+  actual files reject even with falsely small metadata, growth cannot escape
+  the ceiling, and exact limits succeed. No unbounded CAS helper is reachable.
+- [x] AP-A (M, depends AP-S): RED normal/compensated joins, then private current
+  coordinator validator; prove original claim, separate restore journal,
+  receipt/CAS references, immutable output and no mutation authority.
+- [ ] AP-V (S, depends AP-A): refresh actual affected pins, exact authority
+  membership and bounded adjacent tests; independent review and actual reducer.
+  Preserve failed runs and actual timings; hand off full RS-3 action facts,
+  leaving RS-4/RS-5 assessment/health/exec recovery work explicitly outstanding.
+
+Sizes use the existing XS/S/M convention (roughly30min/1–2h/half-day, estimates
+rather than promises); actual native durations go in append-only evidence.
+All authoring is /root; independent reviewers are read-only distinct actors.
+No parallel writer. Local existing SQLite/CAS/simulator fixtures and installed
+WorkContext provide all dependencies; no external dependency or deployment.
+
+Implementation risks are bounded by AP-S first: prove coherent snapshot and
+read-only behavior before consumer code, freeze duplicate/shared-reference
+cases before joining compensation, and calculate pins from final source bytes.
+Use Test Plan RS-AP, serial fresh native fixtures, failfast and600second caps.
+A failed selector stops its batch; diagnose and retry only affected inputs.
+No staging/commit/rollout, full-suite claim, performance or coverage issuance.
+
+References: [Spec](../specs/graph-engineering-workflow.md),
+[Impact](../impact/graph-engineering-workflow.md),
+[Test Plan](../test-plans/graph-engineering-workflow.md),
+[PRD](../prd/graph-engineering-workflow.md),
+[Positioning](../positioning/graph-engineering-workflow.md).
+
 ## 2026-09-19 RS-BS authorized prerequisite plan — R0
 
 This supplement supersedes only the historical design-only authority statement

@@ -108,6 +108,7 @@ class _RetainedNamespace:
         self._closed = False
         self._active: set[int] = set()
         self.path = path
+        self._path_text = str(path)
         try:
             self._descriptor = _retained_directory(path)
         except OSError as error:
@@ -165,6 +166,66 @@ class _RetainedNamespace:
     def create(self, task_id: str, target_id: str, *, members: Mapping[str, int]) -> "_RetainedRootLease":
         return self._open(task_id, target_id, members, create=True)
 
+    def _open_cold_marker(self, task_id, target_id, context, budget):
+        """Acquire the exact root gate and admit only its fixed identity marker."""
+        from graph_engineering.storage.repository import (
+            _RecoveryReadBudget, _recovery_adopt, _recovery_clear_exception_frames,
+            _recovery_equal,
+        )
+
+        lease = descriptor = parsed = value = None
+        try:
+            if (type(context) is not WorkContext or type(budget) is not _RecoveryReadBudget
+                    or budget.task_id != task_id or self not in budget._ports
+                    or not any(context is item for item in budget.contexts)):
+                raise ReleaseSimulatorError("cold marker owner is missing or foreign")
+            budget._require_active()
+            # Root path/key, descriptor identities and fixed gate control stay
+            # owned with the lease. Both IDs are capped by the existing key contract.
+            amount = 16 * (len(self._path_text) + 1024)
+            with budget.reserve(context, units=amount, byte_count=amount,
+                                source_id="cold-root-control") as lifetime:
+                self._require_current()
+                key = self._key(task_id, target_id)
+                descriptor = os.open(key, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC,
+                                     dir_fd=self._descriptor)
+                lease = _RetainedRootLease(self, key, descriptor,
+                    {_RetainedRootLease.BINDING_NAME: 0o400}, create=False)
+                descriptor = None
+                self._active.add(id(lease))
+                lease._marker_only = True
+                lease._cold_owner, lease._cold_context = budget, context
+                lease._cold_marker = lease._cold_read(lease.BINDING_NAME)
+                size = len(lease._cold_marker[0])
+                with budget.reserve(context, units=12 * size, byte_count=8 * size,
+                                    source_id="cold-marker-validation"):
+                    parsed = ReleaseRecoveryBinding.from_bytes(lease._cold_marker[0], context=context)
+                    value = parsed.projection
+                    if (canonical_bytes(value) != lease._cold_marker[0]
+                            or value["task_id"] != task_id or value["target_id"] != target_id
+                            or not _recovery_equal(value["namespace_identity"], self.identity, context, budget)
+                            or not _recovery_equal(value["root_identity"], lease.identity, context, budget)):
+                        raise ReleaseSimulatorError("cold marker binding differs from the exact root")
+                    _recovery_adopt(parsed, context, budget,
+                        record_fields={ReleaseRecoveryBinding: ("projection",)}, source_id="cold-marker-binding")
+                    budget.move_projection(parsed, lease)
+                    lease._cold_binding = parsed
+                    lease._nonce = value["root_nonce"]
+                    parsed = value = None
+                lease._require_location()
+                lifetime.transfer(lease)
+                return lease
+        except BaseException as error:
+            _recovery_clear_exception_frames(error)
+            if lease is not None:
+                lease.close()
+            raise
+        finally:
+            try:
+                if descriptor is not None: os.close(descriptor)
+            finally:
+                lease = parsed = value = self = budget = context = None
+
     def open_readonly(self, binding: ReleaseRecoveryBinding, *, members: Mapping[str, int], context: WorkContext) -> "_RetainedRootLease":
         if type(binding) is not ReleaseRecoveryBinding or type(context) is not WorkContext:
             raise ReleaseSimulatorError("retained read requires exact binding data and work context")
@@ -184,12 +245,18 @@ class _RetainedNamespace:
             lease._destroy_owned_root(binding, context)
 
     def open_readonly_handle(self, binding: ReleaseRecoveryBinding, *,
-                             members: Mapping[str, int], context: WorkContext) -> "_RetainedReadOnlyHandle":
+                             members: Mapping[str, int], context: WorkContext,
+                             currentness_check: Callable[[], None] = lambda: None,
+                             entry_check: Callable[[], None] = lambda: None) -> "_RetainedReadOnlyHandle":
         """Storage queries only; admission does not establish recovery evidence."""
 
+        if not callable(currentness_check) or not callable(entry_check):
+            raise ReleaseSimulatorError("retained query checks are invalid")
+        entry_check()
         lease = self.open_readonly(binding, members=members, context=context)
         try:
-            return _RetainedReadOnlyHandle._issue(lease, binding, context)
+            return _RetainedReadOnlyHandle._issue(lease, binding, context,
+                currentness_check, entry_check)
         except BaseException:
             lease.close()
             raise
@@ -221,19 +288,21 @@ class _RetainedReadOnlyHandle:
     """
 
     __slots__ = ("_closed",)
-    _ISSUED: dict[int, tuple[object, object, object, object, int, int]] = {}
+    _ISSUED: dict[int, tuple[object, object, object, object, object, object, int, int]] = {}
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         raise TypeError("retained read-only handles require namespace admission")
 
     @classmethod
     def _issue(cls, lease: "_RetainedRootLease", binding: ReleaseRecoveryBinding,
-               context: WorkContext) -> "_RetainedReadOnlyHandle":
+               context: WorkContext, currentness_check: Callable[[], None],
+               entry_check: Callable[[], None]) -> "_RetainedReadOnlyHandle":
         if type(lease) is not _RetainedRootLease or not lease._readonly or not lease._sealed:
             raise ReleaseSimulatorError("read-only handle requires a new admitted reader lease")
         result = object.__new__(cls)
         result._closed = False
-        cls._ISSUED[id(result)] = (result, lease, binding, context, os.getpid(), threading.get_ident())
+        cls._ISSUED[id(result)] = (result, lease, binding, context,
+            currentness_check, entry_check, os.getpid(), threading.get_ident())
         return result
 
     def _record(self) -> tuple:
@@ -243,8 +312,12 @@ class _RetainedReadOnlyHandle:
         return row
 
     def query(self) -> Mapping[str, bytes]:
-        _handle, lease, binding, context, _pid, _thread = self._record()
+        _handle, lease, binding, context, currentness_check, entry_check, _pid, _thread = self._record()
+        # A caller holding repository locks has not entered this query. Keep its
+        # owner lease intact so it can unwind those locks before closing.
+        entry_check()
         try:
+            currentness_check()
             names = tuple(sorted(lease._validate_members()))
             def signatures() -> dict[str, tuple[int, ...]]:
                 result = {}
@@ -264,6 +337,7 @@ class _RetainedReadOnlyHandle:
             for name in names:
                 if lease.read(name, max_bytes=bound) != bodies[name]:
                     raise ReleaseSimulatorError("retained query member content changed")
+            currentness_check()
             lease._validate_binding(binding, context)
             if tuple(sorted(lease._validate_members())) != names or signatures() != initial_signatures:
                 raise ReleaseSimulatorError("retained query member identity or set changed")
@@ -276,6 +350,7 @@ class _RetainedReadOnlyHandle:
         if getattr(self, "_closed", False):
             return
         row = self._record()
+        row[5]()
         try:
             row[1].close()
         finally:
@@ -321,6 +396,8 @@ class _RetainedRootLease:
         self._namespace, self._key, self._descriptor = namespace, key, descriptor
         self._pid, self._thread = os.getpid(), threading.get_ident()
         self._closed, self._sealed, self._readonly = False, False, not create
+        self._marker_only = False
+        self._cold_owner = self._cold_context = self._cold_marker = self._cold_binding = None
         self._members = MappingProxyType(members)
         self.path = namespace.path / key
         self.identity = _retained_identity(os.fstat(descriptor))
@@ -426,6 +503,8 @@ class _RetainedRootLease:
         self._sealed = True
 
     def read(self, name: str, *, max_bytes: int) -> bytes:
+        if self._marker_only or self._cold_owner is not None:
+            raise ReleaseSimulatorError("cold readers require their bounded private read path")
         self._validate_members()
         if type(max_bytes) is not int or max_bytes < 1:
             raise ReleaseSimulatorError("retained read bound is invalid")
@@ -451,6 +530,155 @@ class _RetainedRootLease:
             return body
         finally:
             os.close(descriptor)
+
+    @staticmethod
+    def _cold_signature(metadata):
+        return (metadata.st_dev, metadata.st_ino, metadata.st_mode, metadata.st_uid,
+                metadata.st_nlink, metadata.st_size, metadata.st_mtime_ns, metadata.st_ctime_ns)
+
+    def _require_cold_owner(self):
+        from graph_engineering.storage.repository import _RecoveryReadBudget
+
+        self._require_owner()
+        budget = self._cold_owner
+        if (type(budget) is not _RecoveryReadBudget or self._namespace not in budget._ports
+                or not any(self._cold_context is context for context in budget.contexts)):
+            raise ReleaseSimulatorError("cold root owner is missing or foreign")
+        budget._require_active()
+        if not self._readonly:
+            raise ReleaseSimulatorError("cold root is not read-only")
+        return budget, self._cold_context
+
+    def _cold_read(self, name):
+        from graph_engineering.storage.repository import _recovery_clear_exception_frames
+
+        descriptor = body = result = None
+        try:
+            budget, context = self._require_cold_owner()
+            if self._marker_only and name != self.BINDING_NAME:
+                raise ReleaseSimulatorError("cold root member set is not admitted")
+            with budget.reserve(context, units=96, byte_count=0, source_id="cold-member-control"):
+                self._require_location()
+                before = self._member_metadata(name)
+                signature = self._cold_signature(before)
+                descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,
+                                     dir_fd=self._descriptor)
+                if self._cold_signature(os.fstat(descriptor)) != signature:
+                    raise ReleaseSimulatorError("cold member changed before read")
+                size = before.st_size
+                context.check_limit("raw_document_bytes", size, source_id="cold-release-member")
+                with budget.reserve(context, units=size + 16, byte_count=size + 1,
+                                    source_id="cold-release-member") as retained:
+                    body = os.read(descriptor, size)
+                    if len(body) != size:
+                        raise ReleaseSimulatorError("cold member short read")
+                    if os.read(descriptor, 1):
+                        raise ReleaseSimulatorError("cold member grew during read")
+                    if (self._cold_signature(os.fstat(descriptor)) != signature
+                            or self._cold_signature(self._member_metadata(name)) != signature):
+                        raise ReleaseSimulatorError("cold member changed during read")
+                    context.emit("digest.input_byte", size, source_id="cold-release-member", operation_path=())
+                    self._require_location()
+                    closing, descriptor = descriptor, None
+                    os.close(closing)
+                    result = (body, signature)
+                    retained.transfer(result)
+                    return result
+        except BaseException as error:
+            _recovery_clear_exception_frames(error)
+            raise
+        finally:
+            try:
+                if descriptor is not None: os.close(descriptor)
+            finally:
+                body = result = self = name = None
+
+    def _admit_cold_members(self, members):
+        from graph_engineering.storage.repository import _recovery_clear_exception_frames
+
+        checked = marker = None
+        try:
+            budget, context = self._require_cold_owner()
+            if not self._marker_only or self._cold_binding is None or type(members) is not dict:
+                raise ReleaseSimulatorError("cold member admission is unavailable")
+            context.check_limit("array_items", len(members), source_id="cold-member-count")
+            if any(type(name) is not str for name in members):
+                raise ReleaseSimulatorError("cold member names are invalid")
+            amount = 64 + 16 * len(members) + 8 * sum(len(name) for name in members)
+            with budget.reserve(context, units=amount, byte_count=amount,
+                                source_id="cold-member-allowlist") as retained:
+                checked = self.check_members(members)
+                self._members = MappingProxyType(checked)
+                self._validate_cold_members()
+                marker = self._cold_read(self.BINDING_NAME)
+                if marker != self._cold_marker:
+                    raise ReleaseSimulatorError("cold marker changed during member admission")
+                self._marker_only, self._sealed = False, True
+                retained.transfer(self)
+        except BaseException as error:
+            _recovery_clear_exception_frames(error)
+            self.close()
+            raise
+        finally:
+            if marker is not None: budget.release_projection(marker)
+            checked = marker = members = self = None
+
+    def _validate_cold_members(self):
+        budget, context = self._require_cold_owner()
+        # The fixed allowlist bounds entries before collection. Native name
+        # scratch is reserved before scandir obtains the first DirEntry.
+        amount = 64 + 16 * len(self._members) + 8 * (os.fpathconf(self._descriptor, "PC_NAME_MAX") + 1)
+        with budget.reserve(context, units=amount, byte_count=amount, source_id="cold-member-enumeration"):
+            before = self._cold_signature(os.fstat(self._descriptor))
+            if before != self._cold_signature(os.stat(self._key,
+                    dir_fd=self._namespace._descriptor, follow_symlinks=False)):
+                raise ReleaseSimulatorError("cold root topology changed before enumeration")
+            found = self._validate_members()
+            if (before != self._cold_signature(os.fstat(self._descriptor))
+                    or before != self._cold_signature(os.stat(self._key,
+                        dir_fd=self._namespace._descriptor, follow_symlinks=False))):
+                raise ReleaseSimulatorError("cold root topology changed during enumeration")
+            # Returned keys alias the admitted allowlist, not freshly allocated
+            # DirEntry names whose scratch ends with this enumeration.
+            return tuple(name for name in self._members if name in found)
+
+    def _capture_cold_members(self):
+        from graph_engineering.storage.repository import _recovery_clear_exception_frames
+
+        result: dict[str, object] | None = None
+        row = names = None
+        try:
+            budget, context = self._require_cold_owner()
+            if self._marker_only or not self._sealed:
+                raise ReleaseSimulatorError("cold root members have not been admitted")
+            with budget.reserve(context, units=32 + 4 * len(self._members), byte_count=0,
+                                source_id="cold-member-capture") as retained:
+                topology = self._cold_signature(os.fstat(self._descriptor))
+                names = self._validate_cold_members()
+                result = {}
+                for name in names:
+                    row = self._cold_read(name)
+                    result[name] = row
+                    budget.move_projection(row, result)
+                    row = None
+                if self.BINDING_NAME not in result or result[self.BINDING_NAME] != self._cold_marker:
+                    raise ReleaseSimulatorError("cold marker changed")
+                after = self._validate_cold_members()
+                if (topology != self._cold_signature(os.fstat(self._descriptor))
+                        or set(after) != set(names) or any(
+                        self._cold_signature(self._member_metadata(name)) != result[name][1] for name in names)):
+                    raise ReleaseSimulatorError("cold root changed during capture")
+                retained.transfer(result)
+                return result
+        except BaseException as error:
+            _recovery_clear_exception_frames(error)
+            if result is not None and id(result) in budget._projections:
+                budget.release_projection(result)
+            if row is not None and id(row) in budget._projections:
+                budget.release_projection(row)
+            raise
+        finally:
+            result = row = names = self = None
 
     def _validate_binding(self, expected: ReleaseRecoveryBinding, context: WorkContext) -> None:
         body = self.read(self.BINDING_NAME, max_bytes=context.profile.limits["raw_document_bytes"])
@@ -479,8 +707,18 @@ class _RetainedRootLease:
                 self._GATES.pop(self._gate_key)
                 fcntl.flock(self._descriptor, fcntl.LOCK_UN)
         finally:
-            os.close(self._descriptor)
-            self._namespace._active.discard(id(self))
+            try:
+                os.close(self._descriptor)
+            finally:
+                self._namespace._active.discard(id(self))
+                budget, marker = self._cold_owner, self._cold_marker
+                self._cold_binding = self._cold_marker = self._cold_context = self._cold_owner = None
+                if budget is not None:
+                    self._members = MappingProxyType({})
+                    self._nonce = self.path = self.identity = self._key = self._namespace = None
+                    if marker is not None: budget.release_projection(marker)
+                    marker = None
+                    if id(self) in budget._projections: budget.release_projection(self)
 
     def _destroy_owned_root(self, binding: ReleaseRecoveryBinding, context: WorkContext) -> None:
         """Owner-plane cleanup after admission; never borrow a live writer lease."""

@@ -1,5 +1,173 @@
 # Graph Engineering Workflow — Impact Analysis
 
+## 2026-09-20 RS-C installation-control read impact — proposed R0
+
+Human update (2026-09-20): the owner replied “确认” to the final one-file
+request, approving GEW-REMAINING54-P3-COLD-INSTALLATION-CONTROL-V1. The
+append-only p3_restart_cold_installation_control_amendment records this exact
+extension. Current boundaries are185 product /195 effective /41 selected
+targets. The reviewed proposal below is historical; its implementation scope
+and all exclusions remain unchanged. Prior RS-C R2 approval stays valid.
+
+The required new write target is exactly
+`storage/graph_engineering/storage/migration.py`. It is outside the currently
+approved184 product targets and remains unmodified pending Human decision
+`GEW-REMAINING54-P3-COLD-INSTALLATION-CONTROL-V1`. Approval would add only
+this file: product184 ->185, effective194 ->195 and current Manifest40 ->41.
+The proposed change is limited to the two private installation-control reads
+specified in Spec RS-C's installation-control amendment and their helper.
+
+Read-only inspection independently confirmed that `_current_manifest` and
+`_load_locators` materialize whole files before bounds on every cold currentness
+path, including nested connection admission. Skipping those checks, a separate
+unbounded context, or checking file size before an unchanged later `read_text`
+would leave the required composite cold bound unproved. Existing installation
+and repository authority semantics must remain intact.
+
+This source is already packaged and source-attested. After approval, update
+the active Manifest and exact authority test before implementation, retaining
+the historical184/183/181/179/174 identity chain and equal-cardinality
+substitution rejection. Refresh only affected current source/protected-resource,
+action/security and bootstrap/pyproject pins through the existing RS cascade.
+Package membership, historical bootstraps and read-only dependency bytes remain
+unchanged without exception. Pin refreshes are limited to current, explicitly
+authorized consumer files whose actual input projection changes.
+
+Focused verification uses existing release integration/unit and Remaining54
+authority test files. Main risks are an omitted nested read, an inherited or
+foreign lexical owner, growth after stat, premature reservation release and a
+weakened manifest/locator/root check. The supplemental Test Plan names each.
+No new file, dependency, public API, DB schema, GraphRef, data access, production
+action or commit authority is requested. Plan244/oracle122/missing30 and all
+performance, cumulative, coverage and WP-10 boundaries remain unchanged.
+
+## 2026-09-20 RS-C source and locator impact — R2
+
+Human update (2026-09-20): the owner's response “继续” to the final R2
+API request authorizes GEW-REMAINING54-P3-COLD-SOURCE-READ-API-V1, recorded
+in p3_restart_cold_source_read_api_amendment. The not-yet-authorized wording
+in the reviewed proposal below is historical and is superseded only for this
+exact API, consumers, resource hardening, tests and independent review.
+The184/194 boundaries and all irreversible exclusions remain unchanged.
+
+Spec RS-C refines approved RS-4/RS-5. Primary implementation stays in the
+already allowed profile_execution.py, release_operations.py and local release
+adapter. Tests use existing release unit/integration files and category/runtime
+support. The complete ArtifactRecord and LogicalBodyManifest modules/configs
+are read-only dependencies. R2 proposes one bounded read API on the existing
+TaskRepository plus consumers in existing tasks.py and profile_execution.py;
+this additional API requires Human approval before implementation. No new
+schema, event, dependency or file is proposed. The product allowlist stays184.
+
+R0 finding GEW-REMAINING54-RS-C-SOURCE-BOUNDS-R0-001 requires bounds before
+any task/event/reference/CAS materialization, including the locator. The
+proposed exact API and two closed phases are in Spec RS-C-0. Implementation
+targets are storage/graph_engineering/storage/repository.py,
+application/graph_engineering/application/tasks.py and
+application/graph_engineering/application/profile_execution.py, with the already
+planned release factory/adapter changes. objects.py, connection.py, leases.py
+and storage/actions.py remain read-only. Tests belong to the existing
+tests/integration/test_wp08_release_operations.py and
+tests/unit/test_wp08_release_operations.py plus existing category/runtime support.
+No storage SQL or unchecked connection access moves into application code.
+
+The existing181/183/184 amendments remain intact; RS-AP approved action
+provenance only. Do not infer authorization for this second query from its
+file already being listed. Until explicit approval and independently reviewed
+design, implementation remains blocked; completing this reviewable proposal is allowed.
+
+Cold source validation requires these existing installation inputs to be
+explicitly protected rather than accepted as caller documents:
+`config/contracts/artifact-contracts-v1.json`,
+`config/contracts/artifact-schema-registry-v1.json`, and the four existing
+`config/contracts/schemas/{artifact-contract-registry,artifact-lifecycle-event,
+artifact-record,logical-body-manifest}-1.0.0.json` files. Resource profile,
+cost schedule and schema profile use current installed authority. Actual reused
+artifact validator/manifest source modules must also be in the closed source
+and wheel projection. Their bytes stay unchanged.
+
+Use only existing authorized loader/source/bootstrap/pyproject/support paths
+from the RS provenance cascade below. The release schema vector stays18;
+artifact schemas belong to an exact separate existing-contract source closure.
+No generic unbounded schema discovery or fallback to checkout paths is allowed.
+Re-sign only affected current bootstrap consumers, never historical versions,
+plan/oracle values or workload data. If an exact required write target falls
+outside184, stop before writing it and identify that path.
+
+Main risks are semantic/raw digest confusion, category labels mistaken for
+artifact proof, incomplete independent review linkage, locator reads mistaken
+for authority, and marker admission accidentally allowing ordinary member
+access. RS-C tests isolate each. A full ArtifactValidator authoring reevaluation
+requires independent input/requirement resolvers not supplied by this recovery;
+no self-derived validation context may stand in for them. Recovery validates
+the existing committed acceptance/body/review contract stated in Spec RS-C.
+
+
+R2 repairs the composite-read design findings without adding a second data
+contract: application/actions.py consumes already captured RS-AP journals;
+storage/security.py bounds its existing installed-runtime/task-state reads;
+application/security.py and release_operations.py preserve complete current
+authority checks. Existing repository.py owns the private reservation ledger,
+and profile_execution.py/release_operations.py own its cold lifetime. All are
+inside184. No change to storage/actions.py, objects.py, connection.py, leases.py
+or core WorkContext APIs is proposed. Public action/security signatures stay
+compatible; only the named task/source query is a new storage read contract.
+
+The private ledger shares remaining allowance across exact installed contexts,
+retains both nested/outer captures until comparison and charges the handle
+projection until close. It must not become an input authority, global mutable
+budget or reason to raise configured limits. Existing source/bootstrap/action/
+security pins for actually changed readers and consumers must be refreshed
+through the established cascade below. Read-only references retain their bytes.
+The prior RS-AP review remains evidence for its narrower accepted artifact,
+not proof that this stronger composite cold bound already works.
+
+## 2026-09-20 RS-AP authorized storage read impact — R1
+
+Human `p3_restart_action_provenance_amendment` approves exactly one additional
+existing source: `storage/graph_engineering/storage/repository.py`, raising
+the product allowlist183 ->184. This supersedes only the historical storage
+repository read-only exclusion below; journal/lease/connection source files
+remain read-only. The existing Spec RS-AP defines the new query and consumer.
+
+The repository owns one parameterized read snapshot and persistent index,
+claim outcome, event/transaction and receipt-reference facts. The application
+owns current authority and normal/compensated completion joins. No SQL moves
+to application, no connection role is weakened, and no schema/event/GraphRef/
+dependency is added. Existing read/write APIs keep their behavior. Extracting
+the existing event-chain validator into a pure internal helper is allowed to
+reuse the same checks for a captured snapshot; normal replay must retain them.
+
+Risks: mixed snapshots, duplicate digest aliases, unchecked outcome/index
+columns, invalid transaction references, rejecting valid shared receipt CAS,
+mistaking historical original deployment state for current rollback, read-side
+clock writes and unbounded collection materialization. Spec RS-AP and Test Plan
+RS-AP bind explicit failures and no-write/concurrency/resource checks.
+
+R1 resolves design finding GEW-REMAINING54-RS-AP-CAS-BOUND-R0-001:
+the existing CAS verifier reads to EOF before checking size, so the new reader
+must not call it. A private bounded reader in `repository.py` validates actual
+descriptor size/identity before allocation, limits incremental reads despite
+growth and aggregate retained receipt bytes, and preserves no-follow, owner,
+mode, path binding and digest checks. Oversized metadata, falsely small
+metadata, growth, aggregate overflow and exact-limit acceptance require tests
+with byte-count assertions and zero writes/resource leaks. `objects.py` and
+`connection.py` stay unchanged; this refinement adds no target or permission.
+
+Update the existing authority security test to subtract precisely this approved
+path before validating the unchanged historical183/181/179/174 identity chain.
+Preserve the historical exact174 digest and equal-cardinality substitution
+attack. Update the active Manifest before editing code. Existing four
+p3-foundation-r2 containers retain append-only design/implementation records.
+
+The storage file is already in source/package membership; do not add another
+file or change membership. Refresh protected-resource/bootstrap/pyproject pins
+only for actual changed projections (including application actions if changed).
+Prior source bytes and reviews remain historical; new bundles bind this
+amendment. Existing production data, workload/oracle settings and plan244/
+oracle122/missing30 remain unchanged. No additional commit or external action
+is authorized. Full cold recovery still requires later RS-4/RS-5 completion.
+
 ## 2026-09-19 RS-BS prerequisite impact — R0
 
 Authority and design: ADR-0009 RS-BS, Spec RS-BS-1/2, Human

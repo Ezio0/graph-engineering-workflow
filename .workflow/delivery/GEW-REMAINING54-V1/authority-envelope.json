@@ -194,7 +194,9 @@
     "config/contracts/schemas/release-recovery-binding-1.0.0.json",
     "config/contracts/schemas/release-recovery-binding-input-1.0.0.json",
     "application/graph_engineering/application/security.py",
-    "storage/graph_engineering/storage/security.py"
+    "storage/graph_engineering/storage/security.py",
+    "storage/graph_engineering/storage/repository.py",
+    "storage/graph_engineering/storage/migration.py"
   ],
   "allowed_change_kinds": [
     "architecture-detail",

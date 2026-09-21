@@ -877,6 +877,89 @@ def shared_production_category_runtime(
         raise
 
 
+def _committed_cold_artifacts(factory, *, task_id, owner_id, baseline, target,
+                              category_records, outputs, reviews):
+    """Produce real synthetic body/acceptance sources, not specialist execution."""
+    from graph_engineering.core.artifacts import ArtifactValidator, LogicalBodyManifest
+    from graph_engineering.core.artifacts.records import ARTIFACT_RECORD_SCHEMA
+    from graph_engineering.core.contracts.canonical import canonical_bytes
+    from graph_engineering.core.contracts.digest import semantic_digest
+    from tests.support.wp04a_artifacts import golden_semantics, manifest_document
+
+    contracts, schemas, context = factory._cold_artifact_authority()
+    goldens = golden_semantics()
+    types = {contracts.resolve(kind).contract_id: kind for kind in goldens}
+    bodies = {}
+    accepted = []
+
+    def create(category, *, prior=False):
+        kind = types[category["contract_id"]]
+        contract = contracts.resolve(kind)
+        artifact_id = category["artifact_id"] + (":prior" if prior else "")
+        semantics = dict(goldens[kind])
+        if prior:
+            first = next(iter(semantics))
+            semantics[first] += " Prior synthetic revision."
+        physical, manifest_value = manifest_document(artifact_id, semantics)
+        manifest = LogicalBodyManifest.from_dict(manifest_value, physical,
+            schema_registry=schemas, context=context)
+        body_digest = manifest.semantic_body_digest(artifact_id, semantics, context)
+        input_id, requirement = "input:cold-fixture", "requirement:cold-fixture"
+        known_input = {"ref_kind": "artifact", "digest": digest("cold-fixture-input"),
+                       "task_id": task_id, "baseline_digest": baseline}
+        record = {
+            "schema_version": "1.0.0", "artifact_id": artifact_id, "artifact_type": kind,
+            "contract_id": contract.contract_id, "contract_digest": contract.contract_digest,
+            "task_id": task_id, "revision": 1,
+            "author_id": category["author_id"], "reviewer_id": category["reviewer_id"],
+            "target_refs": [dict(target)], "input_refs": [{"ref_id": input_id, **known_input}],
+            "baseline_digests": {"intent": baseline},
+            "requirement_traces": [
+                {"trace_type": "decision", "source_id": artifact_id, "target_id": target["target_id"]},
+                {"trace_type": "dependency", "source_id": input_id, "target_id": artifact_id},
+                {"trace_type": "requirement", "source_id": requirement, "target_id": artifact_id}],
+            "logical_body_ref": {"manifest_id": manifest.manifest_id, "artifact_id": artifact_id,
+                "entry_digest": manifest.entry_digest(artifact_id),
+                "extracted_body_digest": manifest.extracted_digest(artifact_id)},
+            "body_digest": body_digest, "semantic_fields": semantics, "status": contract.exit_status,
+            "findings": [],
+            "validation_records": [{"validator_id": name, "body_digest": body_digest, "result": "PASS"}
+                                   for name in contract.validator_ids],
+            "review_records": [{"reviewer_id": category["reviewer_id"], "body_digest": body_digest,
+                "trust": "independently-reviewed", "verdict": "PASS"}],
+            "approval_records": ([{"owner_id": owner_id, "body_digest": body_digest, "decision": "approved"}]
+                                 if contract.approval_policy == "human" else []),
+            "created_at": "2026-09-20T00:00:00Z", "supersedes": None,
+        }
+        record["artifact_digest"] = semantic_digest(record, contract_type="urn:gew:contract:artifact-record",
+            projection_id="urn:gew:digest-projection:identity:1.0.0", schema_id=ARTIFACT_RECORD_SCHEMA)
+        # Producer-only validation against independently supplied fixture inputs.
+        ArtifactValidator.load(record, context=context, contract_registry=contracts,
+            schema_registry=schemas, expected_task_id=task_id, expected_baselines={"intent": baseline},
+            known_inputs={input_id: known_input}, known_targets={target["target_id"]: {
+                "digest": target["target_digest"], "task_id": task_id}},
+            known_requirements=(requirement,), manifest=manifest)
+        for body in (physical, canonical_bytes(manifest_value), canonical_bytes(record)):
+            bodies["sha256:" + hashlib.sha256(body).hexdigest()] = body
+        return record, "sha256:" + hashlib.sha256(canonical_bytes(record)).hexdigest()
+
+    for category in category_records:
+        record, raw_ref = create(category)
+        category["body_digest"] = record["body_digest"]
+        category["record_digest"] = internal_digest(
+            {key: value for key, value in category.items() if key != "record_digest"},
+            "category-artifact-record-v1")
+        accepted.append((category, record, raw_ref))
+    for (node_id, output), (category, record, raw_ref) in zip(outputs.items(), accepted, strict=False):
+        output.update(body_digest=record["body_digest"], author_id=record["author_id"],
+                      reviewer_id=record["reviewer_id"], evidence_refs=[raw_ref])
+        for review in reviews:
+            if review["node_id"] == node_id:
+                selected = create(category, prior=True)[0] if review["attempt"] == 1 else record
+                review.update(body_digest=selected["body_digest"], reviewer_id=selected["reviewer_id"])
+    return bodies
+
+
 def production_category_runtime(
     profile_id: str,
     column: str,
@@ -887,6 +970,9 @@ def production_category_runtime(
     task_id: str | None = None,
     shared_runtime: SharedProductionCategoryRuntime | None = None,
     existing_created_task: bool = False,
+    cold_release_factory: object | None = None,
+    intent_baseline: str | None = None,
+    committed_rollback_action_id: str | None = None,
 ):  # type: ignore[no-untyped-def]
     """Build the exact production TaskApplication/TaskRepository authority chain."""
 
@@ -985,7 +1071,7 @@ def production_category_runtime(
                 "owner_decision_ref": f"decision:{profile_id}:approved",
                 "baseline_refs": ({
                     "kind": "intent", "version": 1,
-                    "digest": digest(f"intent:{profile_id}"),
+                    "digest": intent_baseline or digest(f"intent:{profile_id}"),
                     "approved_by": runtime.owner_id,
                     "approved_at": "2026-08-24T00:00:00Z",
                 },),
@@ -1086,6 +1172,13 @@ def production_category_runtime(
             })
             artifact_records.append(artifact_record)
             records.append(artifact_record)
+        cold_bodies = {}
+        if cold_release_factory is not None:
+            cold_bodies = _committed_cold_artifacts(cold_release_factory,
+                task_id=task_id, owner_id=runtime.owner_id,
+                baseline=intent_baseline or digest(f"intent:{profile_id}"),
+                target={"target_id": target.target_id, "target_digest": target.target_digest, "task_id": task_id},
+                category_records=artifact_records, outputs=outputs, reviews=reviews)
         current_review = reviews[-1]
         previous_review = reviews[-2]
         common_source = {
@@ -1126,6 +1219,9 @@ def production_category_runtime(
             "target_record": target_record,
             "review_author_id": outputs[str(current_review["node_id"])]["author_id"],
         }
+        if committed_rollback_action_id is not None:
+            durable_sources["rollback_facts"] = {"action-id": committed_rollback_action_id,
+                "action-status": "reconciled", "claim-status": "reconciled_effect_verified"}
         real_e2e_record = None
         if real_e2e_authority is not None:
             from graph_engineering.application.profile_real_e2e import (
@@ -1155,6 +1251,9 @@ def production_category_runtime(
             )
             records.append(evidence)
         object_digests: list[str] = []
+        for raw_ref, body in cold_bodies.items():
+            objects.put_verified(body, raw_ref)
+            object_digests.append(raw_ref)
         for record in records:
             body = canonical_bytes(record)
             object_digest = objects.digest(body)
@@ -1221,6 +1320,39 @@ def production_category_runtime(
     except BaseException:
         stack.close()
         raise
+
+
+class RetainedCategoryTarget:
+    """Synthetic category observer over the actual retained release target."""
+
+    is_test_double = True
+    is_read_only_observer = True
+    execution_kind = "deterministic-disposable-local"
+
+    def __init__(self, session):
+        self.session = session
+        self.target_id, self.target_digest = session.target.target_id, session.target.target_digest
+        self.resource_id = session.target.resource_id
+        self.expected_state = session._root.state()
+        self.rollback_state = dict(self.expected_state)
+        self.query_count = 0
+
+    def observe(self):
+        from graph_engineering.core.contracts.canonical import canonical_bytes
+        root = self.session._root
+        state = root.state()
+        metadata = os.stat(root._root_path / root.names["state"], follow_symlinks=False)
+        self.query_count += 1
+        return {"schema_version": "1.0.0", "execution_kind": self.execution_kind,
+            "target_id": self.target_id, "resource_id": self.resource_id, "fresh": True,
+            "observation_revision": self.query_count, "file_identity": [metadata.st_dev, metadata.st_ino],
+            "state": state, "state_bytes_sha256": hashlib.sha256(canonical_bytes(state)).hexdigest()}
+
+    def apply_rollback(self):
+        raise AssertionError("normal cold producer must not invoke its unused rollback-column fixture")
+
+    def close(self):
+        pass
 
 
 class DisposableLocalTarget:

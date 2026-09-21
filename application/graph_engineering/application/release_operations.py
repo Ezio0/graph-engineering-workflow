@@ -14,12 +14,13 @@ import threading
 import tomllib
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from weakref import WeakSet
+from weakref import WeakKeyDictionary, WeakSet
 
 from graph_engineering.adapters.local_release_simulator import (
     LocalReleaseSimulatorSession,
     _LocalReleaseSimulatorFactory,
     _RetainedNamespace,
+    _RetainedReadOnlyHandle,
     _retained_members,
 )
 from graph_engineering.core.contracts.digest import SEMANTIC_DIGEST, semantic_digest
@@ -35,6 +36,11 @@ from graph_engineering.core.release_operations import (
 
 
 _INSTALLED_RELEASE_FACTORIES: WeakSet[object] = WeakSet()
+_COLD_ARTIFACT_INPUTS: WeakKeyDictionary[object, dict[str, bytes]] = WeakKeyDictionary()
+_COLD_ARTIFACT_AUTHORITIES: WeakKeyDictionary[object, tuple] = WeakKeyDictionary()
+_COLD_INSTALLATION_PLANS: WeakKeyDictionary[object, object] = WeakKeyDictionary()
+_COLD_CURRENTNESS_INPUTS: WeakKeyDictionary[object, tuple] = WeakKeyDictionary()
+_COLD_CATEGORY_DOCUMENTS: WeakKeyDictionary[object, object] = WeakKeyDictionary()
 
 _RETAINED_NAMESPACES: dict[int, tuple[object, object, object, object, object, object, int, int]] = {}
 
@@ -103,6 +109,809 @@ def _issue_retained_namespace(runtime: object, coordinator: object, path: object
     except BaseException:
         native.close()
         raise
+
+
+_COLD_ASSESSMENT_HANDLES: dict[int, tuple] = {}
+
+
+class _ReadOnlyReleaseAssessment:
+    """An exact runtime-local reader; historical data cannot issue live evidence."""
+
+    __slots__ = ()
+
+    def __new__(cls, *args, **kwargs):
+        raise TypeError("cold assessment handles are factory-issued")
+
+    def _record(self):
+        row = _COLD_ASSESSMENT_HANDLES.get(id(self))
+        if (row is None or row[0] is not self
+                or row[-2:] != (os.getpid(), threading.get_ident())):
+            raise ReleaseOperationsError("cold assessment handle is missing, closed or foreign")
+        return row
+
+    def query(self) -> Mapping[str, object]:
+        return self._record()[1].query()
+
+    def close(self) -> None:
+        row = self._record()
+        try:
+            row[1].close()
+        finally:
+            _COLD_ASSESSMENT_HANDLES.pop(id(self), None)
+
+    def __copy__(self):
+        raise TypeError("cold assessment handles cannot be copied")
+
+    def __deepcopy__(self, memo):
+        raise TypeError("cold assessment handles cannot be copied")
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("cold assessment handles cannot be serialized")
+
+
+def _cold_read_equal(left, right, context, budget, depth=0):
+    """Compare the closed JSON/raw-byte capture without serializing raw bodies."""
+    context.check_limit("parse_depth", depth, source_id="cold-closure-comparison")
+    with budget.reserve(context, units=4, byte_count=0, source_id="cold-closure-comparison"):
+        if isinstance(left, Mapping) and isinstance(right, Mapping):
+            return len(left) == len(right) and all(
+                key in right and _cold_read_equal(value, right[key], context, budget, depth + 1)
+                for key, value in left.items())
+        if type(left) in (list, tuple) and type(right) in (list, tuple):
+            return len(left) == len(right) and all(
+                _cold_read_equal(a, b, context, budget, depth + 1) for a, b in zip(left, right))
+        if type(left) is bytes and type(right) is bytes:
+            context.emit("digest.input_byte", len(left) + len(right),
+                         source_id="cold-closure-comparison", operation_path=())
+        return type(left) is type(right) and type(left) in (str, bytes, int, bool, type(None)) and left == right
+
+
+class _ColdReleaseReadScope:
+    """Private complete read lifetime, including configuration and both closures."""
+
+    def __init__(self, app, runtime, policy, factory, objects, coordinator, namespace, task_id):
+        from graph_engineering.storage.repository import _RecoveryReadBudget
+
+        self.app, self.runtime, self.policy, self.factory = app, runtime, policy, factory
+        self.objects, self.coordinator, self.namespace, self.task_id = objects, coordinator, namespace, task_id
+        self.repository = app._repository
+        self.command_scope = self.repository.command_scope
+        self.native = namespace._record()[4]
+        self.context = _COLD_ARTIFACT_AUTHORITIES[factory][2]
+        self.budget = _RecoveryReadBudget((self.context, app._context, coordinator._policy._context,
+            coordinator._journal._context, coordinator._issuer._context),
+            task_id=task_id, command_scope=self.command_scope)
+        self.ports = (app, self.repository, objects, coordinator, coordinator._journal,
+            coordinator._issuer, coordinator._issuer._repository, factory, self.native)
+        self.configuration = self.history = self.lease = self.names = self.epoch = None
+        self.revision, self.closed, self.handle_id = 0, False, None
+        self.identities = None
+
+    def _configuration(self, records):
+        from dataclasses import fields
+        from graph_engineering.adapters.action_adapters import ActionAdapterFactory
+        from graph_engineering.application.actions import ActionCoordinator
+        from graph_engineering.application.runtime import RuntimeSession, RuntimeSessionProof
+        from graph_engineering.application.security import SecurityContextIssuer
+        from graph_engineering.application.tasks import TaskApplication
+        from graph_engineering.application.tasks import RuntimeContext
+        from graph_engineering.core.action_adapters import (
+            ActionAdapterRegistry, ActionAdapterRegistryEntry, ConcreteActionPolicy,
+        )
+        from graph_engineering.core.actions import ActionPolicy, ActionAdapterInstallationAttestation
+        from graph_engineering.core.migration import RepositoryCommandContext
+        from graph_engineering.core.profile_execution import CategoryExecutionPolicy
+        from graph_engineering.core.profiles import MaterializationRecord, _MaterializationRecordIssuer
+        from graph_engineering.core.runtime import RuntimeIdentity, OwnerIdentity, RuntimeLineage, CapabilitySet
+        from graph_engineering.core.security.attestation import SecurityRuntimeManifest
+        from graph_engineering.storage.actions import ActionJournalRepository
+        from graph_engineering.storage.connection import BoundDirectory, ConnectionFactory, FilesystemCapability
+        from graph_engineering.storage.leases import ResourceLeaseRepository
+        from graph_engineering.storage.locks import LockedFileRegistry
+        from graph_engineering.storage.migration import (
+            InstallationCommandScope, InstallationMigrationRepository, MigrationStoragePolicy,
+        )
+        from graph_engineering.storage.objects import ObjectRepository
+        from graph_engineering.storage.policy import RepositoryPolicy
+        from graph_engineering.storage.repository import TaskRepository
+        from graph_engineering.storage.security import SecurityStateRepository
+
+        if self.identities is None:
+            raise ReleaseOperationsError("cold configuration identity snapshot is absent")
+
+        # The factory reserves the fixed table/tuple/path-cache headers before
+        # entering here. Variable payloads are admitted by the same identity DFS
+        # as all installation roots, so shared schemas and contexts count once.
+        for kind in (RuntimeSessionProof, RuntimeContext, ActionPolicy, ActionAdapterInstallationAttestation,
+                     ActionAdapterRegistry, ActionAdapterRegistryEntry, ConcreteActionPolicy,
+                     RepositoryCommandContext, CategoryExecutionPolicy, MaterializationRecord,
+                     RuntimeIdentity, OwnerIdentity, RuntimeLineage, CapabilitySet,
+                     SecurityRuntimeManifest, MigrationStoragePolicy, RepositoryPolicy, FilesystemCapability):
+            records[kind] = tuple(field.name for field in fields(kind))
+        records[_MaterializationRecordIssuer] = ("_MaterializationRecordIssuer__issued",)
+        records[ActionAdapterFactory] = ("_policy", "_registry", "_configuration_digests", "_installation_attestation")
+        records[BoundDirectory] = ("_identity", "_parent", "_name", "_path")
+        records[pathlib.PosixPath] = ("_raw_paths",)
+        # These exact ports are retained only as identity anchors. Their read
+        # configuration is enumerated below and in the identity snapshot; no
+        # executable callback or unrelated mutable runtime state is traversed.
+        for kind in (TaskApplication, TaskRepository, ObjectRepository, ActionCoordinator,
+                     ActionJournalRepository, SecurityContextIssuer, SecurityStateRepository,
+                     ResourceLeaseRepository, LockedFileRegistry, InstallationCommandScope,
+                     InstallationMigrationRepository, ConnectionFactory, RuntimeSession,
+                     RetainedReleaseNamespace, _RetainedNamespace):
+            records[kind] = ()
+        action, issuer, scope = self.coordinator, self.coordinator._issuer, self.command_scope
+        runtime_session = self.namespace._record()[1]
+        ports = (self.repository, self.objects, action._journal, action._leases, issuer._repository, action._locks)
+        connections = tuple(port._factory for port in ports)
+        paths = (scope._root, scope._manager._control, self.native.path,
+                 self.objects._objects, self.objects._staging,
+                 action._locks._root, action._locks._lock_root, action._locks._resource_root,
+                 *(connection._root for connection in connections),
+                 *(connection._database for connection in connections))
+        path_caches = tuple(tuple(getattr(path, field, None) for field in (
+            "_raw_paths", "_drv", "_root", "_tail_cached", "_str", "_str_normcase_cached",
+            "_parts_normcase_cached")) for path in paths)
+        return (self.task_id, self.policy, self.runtime, self.app._schemas, self.app._context,
+                action._policy, action._journal._schemas, action._journal._context,
+                issuer._schemas, issuer._context, issuer._runtime,
+                action._concrete_action_policy, action._concrete_action_registry, action._action_adapter_factory,
+                scope._context, scope._manager._policy, self.namespace.repository_scope_digest,
+                self.namespace._record()[5], self.native.identity, self.native._path_text, paths, path_caches,
+                runtime_session._proof, runtime_session._identity, runtime_session._owner,
+                runtime_session._lineage, runtime_session._capabilities,
+                tuple((connection._policy, connection._capability, connection._repository_id,
+                       connection._directory_identities) for connection in connections),
+                self.objects._policy, action._locks._policy,
+                self.objects._objects_directory, action._locks._lock_directory,
+                action._locks._resource_directory, self.identities)
+
+    def _participant_identities(self):
+        from graph_engineering import _SourceInstallationReadPlan, _WheelInstallationReadPlan
+
+        action, scope = self.coordinator, self.command_scope
+        namespace = self.namespace._record()
+        session, adapter = namespace[1], action._action_adapter_factory
+        connections = tuple(port._factory for port in (
+            self.repository, self.objects, action._journal, action._leases,
+            action._issuer._repository, action._locks))
+        directories = (self.objects._objects_directory, action._locks._lock_directory,
+                       action._locks._resource_directory)
+        plan = _COLD_INSTALLATION_PLANS.get(self.factory)
+        currentness = _COLD_CURRENTNESS_INPUTS.get(self.factory)
+        # Inspect replaceable containers before expanding them into a fixed
+        # table. In particular, a changed tuple must not allocate its contents
+        # under the fixed control allowance merely to reject them afterward.
+        if (type(currentness) is not tuple or len(currentness) != 2
+                or type(plan) not in (_SourceInstallationReadPlan, _WheelInstallationReadPlan)):
+            raise ReleaseOperationsError("cold read participants or installed configuration changed")
+        roots = (
+            self.policy, self.runtime, self.task_id, self.repository._objects,
+            self.app._repository, self.app._materialization_objects, self.app._schemas, self.app._context,
+            action._repository, action._objects, action._policy, action._journal, action._journal._schemas,
+            action._journal._context, action._issuer, action._issuer._repository, action._issuer._schemas,
+            action._issuer._context, action._issuer._runtime, action._leases, action._locks,
+            action._concrete_action_policy, action._concrete_action_registry, action._action_adapter_factory,
+            self.repository.command_scope, scope._context, scope._manager,
+            scope._manager._policy, scope._root, scope._manager._control,
+            self.factory._bootstrap, self.factory._schemas, self.factory._registry,
+            _COLD_ARTIFACT_AUTHORITIES.get(self.factory), plan, currentness, *currentness,
+            _COLD_ARTIFACT_INPUTS.get(self.factory), _COLD_CATEGORY_DOCUMENTS.get(self.factory),
+            namespace, namespace[4], namespace[5], self.namespace.repository_scope_digest,
+            self.native.identity, self.native.path, self.native._path_text,
+            session, session._proof, session._identity, session._owner, session._lineage, session._capabilities,
+            self.objects._policy, self.objects._objects, self.objects._staging,
+            action._locks._policy, action._locks._root, action._locks._lock_root, action._locks._resource_root,
+            *(getattr(adapter, name, None) for name in (
+                "_policy", "_registry", "_configuration_digests", "_installation_attestation")),
+            *(value for connection in connections for value in (
+                connection, connection._policy, connection._capability, connection._repository_id,
+                connection._directory_identities, connection._root, connection._database)),
+            *(value for directory in directories for value in (
+                directory, directory._identity, directory._parent, directory._name, directory._path)),
+            *(value for context in self.budget.contexts for value in (context.profile, context.schedule)),
+            *(getattr(plan, name) for name in (
+                ("_source_path", "_control_path", "source_identity", "control_identity", "files", "key", "attestation")
+                if type(plan) is _SourceInstallationReadPlan else
+                ("_root_path", "archive", "root_identity", "module_origin", "names", "discovery", "members"))),
+        )
+        # Compare root identities before traversing any replaceable mapping.
+        # For a retained reader, reject an expanded map by length before any
+        # member snapshot can be allocated. Values below are immutable leaves.
+        if self.identities is not None and (len(roots) != len(self.identities[0]) or any(
+                value is not expected for value, expected in zip(roots, self.identities[0]))):
+            raise ReleaseOperationsError("cold read participants or installed configuration changed")
+        maps = (self.factory._schemas, currentness[0], _COLD_ARTIFACT_INPUTS[self.factory],
+                namespace[5], self.native.identity,
+                *(connection._directory_identities for connection in connections))
+        if self.identities is None:
+            pairs = sum(len(mapping) for mapping in maps)
+            # Snapshot references alias installed data and will join the same
+            # configuration adoption. Charge their headers and slots during
+            # construction, without copying payloads or allocating ID integers.
+            with self.budget.reserve(self.context, units=32 + len(roots) + 8 * len(maps) + 4 * pairs,
+                                     byte_count=0,
+                                     source_id="cold-configuration-identities") as retained:
+                self.identities = (roots, tuple((mapping, tuple(mapping.items())) for mapping in maps))
+                retained.transfer(self.identities)
+        else:
+            for mapping, (identity, members) in zip(maps, self.identities[1]):
+                if mapping is not identity or len(mapping) != len(members) or any(
+                        key is not old_key or value is not old_value
+                        for (key, value), (old_key, old_value) in zip(mapping.items(), members)):
+                    raise ReleaseOperationsError("cold read participants or installed configuration changed")
+
+    def _current(self):
+        self.budget._require_active()
+        if self.closed:
+            raise ReleaseOperationsError("cold read participants or installed configuration changed")
+        self._participant_identities()
+        self.runtime.require_issued()
+        if (self.namespace.require_current(self.coordinator) is not self.native
+                or self.coordinator._retained_scope(require_idle=True) is not self.command_scope):
+            raise ReleaseOperationsError("cold read repository or retained namespace changed")
+        session = self.namespace._record()[1]
+        if (self.runtime.owner_id, self.runtime.runtime_kind, self.runtime.runtime_lineage_id) != (
+                session.proof.owner_id, session.capabilities.runtime_kind, session.proof.lineage_id):
+            raise ReleaseOperationsError("cold read runtime and namespace owner differ")
+
+    def _require_category_current(self):
+        from graph_engineering.core.contracts.canonical import canonical_byte_length
+
+        installed = _COLD_CATEGORY_DOCUMENTS[self.factory]
+        if (installed.get("policy_digest") != self.policy.policy_digest
+                or len(installed) != len(self.policy._policy_body) + 1
+                or any(key not in installed or not _cold_read_equal(value, installed[key], self.context, self.budget)
+                       for key, value in self.policy._policy_body.items())):
+            raise ReleaseOperationsError("cold category installation policy changed")
+        # These immutable documents are already adopted. Validate one digest at
+        # a time with shallow projections, without thaw/freeze copies of the
+        # entire installed category and support matrices.
+        for document, field, expected, name in (
+                (self.policy._policy_body, None, self.policy.policy_digest, "category-execution-policy"),
+                (self.policy._profile_document, "digest", self.policy.profile_digest, "profile-definition"),
+                (self.policy._support_matrix_document, "digest", self.policy.support_matrix_digest, "support-matrix-definition")):
+            size = canonical_byte_length(document) + 512
+            with self.budget.reserve(self.context, units=4 * size, byte_count=4 * size,
+                                     source_id="cold-category-currentness"):
+                if field is not None and document.get(field) != expected:
+                    raise ReleaseOperationsError("cold category document digest pin changed")
+                value = {key: item for key, item in document.items() if key != field}
+                actual = semantic_digest(value, contract_type="urn:gew:contract:" + name,
+                    projection_id="urn:gew:digest-projection:" + name + ":1.0.0",
+                    schema_id="urn:gew:schema:" + name + "-input:1.0.0")
+                self.context.emit("digest.input_byte", size, source_id="cold-category-currentness", operation_path=())
+                if actual != expected:
+                    raise ReleaseOperationsError("cold category document self digest changed")
+                value = None
+        size = canonical_byte_length(self.policy.materialization_graph_ref) + canonical_byte_length(
+            self.policy.materialization_output) + 512
+        with self.budget.reserve(self.context, units=8 * size, byte_count=4 * size,
+                                 source_id="cold-materialization-currentness"):
+            self.policy.materialization_record.require_issued()
+
+    def _select_locator(self, capture):
+        from graph_engineering.storage.repository import _recovery_json
+
+        with _recovery_json(capture["assessment_body"], self.context, self.budget,
+                            source_id="cold-assessment-selector") as value:
+            projection = value.get("release_operations_projection")
+            target = projection.get("current_target") if type(projection) is dict else None
+            if (value.get("schema_version") != "1.4.0" or value.get("profile_id") != "release-operations"
+                    or value.get("column_id") != "normal" or value.get("status") != "PASS"
+                    or value.get("task_id") != self.task_id or type(target) is not dict
+                    or type(target.get("target_id")) is not str or not target["target_id"]
+                    or value.get("assessment_digest") != capture["assessment_ref"]["digest"]):
+                raise ReleaseOperationsError("cold assessment selector is unsupported or malformed")
+            # Return an alias into the already owned raw locator only after
+            # separately retaining its parsed string.
+            from graph_engineering.storage.repository import _recovery_adopt
+            return _recovery_adopt(target["target_id"], self.context, self.budget,
+                                   record_fields={}, source_id="cold-target-selector")
+
+    def start(self) -> None:
+        from types import MappingProxyType
+        from graph_engineering.core.contracts.canonical import canonical_byte_length
+        from graph_engineering.storage.repository import _recovery_clear_exception_frames
+        import secrets
+
+        locator = target_id = None
+        try:
+            with self.budget.bind(ports=self.ports):
+                # Fixed control/path transient allowance is retained for the
+                # handle lifetime; every variable input is separately admitted.
+                with self.budget.reserve(self.context, units=8192, byte_count=8192,
+                                         source_id="cold-operation-control") as control:
+                    self._participant_identities()
+                    # Adoption includes this same snapshot's actual references,
+                    # preserving their lifetime and charging every aliased graph.
+                    # It cannot establish a new baseline after a replacement.
+                    self.configuration = self.factory._adopt_cold_configuration(self.budget, _operation=self)
+                    self.budget.release_projection(self.identities)
+                    self.epoch = secrets.token_hex(16)
+                    control.transfer(self)
+                self._current()
+                self.factory.require_installed_authority()
+                self._require_category_current()
+                locator = self.repository.read_category_recovery_sources(self.task_id, phase="locator")
+                target_id = self._select_locator(locator)
+                self.coordinator._require_retained_idle()
+                self.lease = self.native._open_cold_marker(self.task_id, target_id, self.context, self.budget)
+                binding = self.lease._cold_binding.projection
+                size = canonical_byte_length(self.factory._registry.fixture(binding["fixture_id"]))
+                with self.budget.reserve(self.context, units=8 * size, byte_count=4 * size,
+                                         source_id="cold-installed-member-selection") as members:
+                    names = _retained_members(self.factory._registry.fixture(binding["fixture_id"]))
+                    self.lease._admit_cold_members({name: 0o600 for role, name in names.items() if role != "identity"})
+                    self.names = MappingProxyType(names)
+                    members.transfer(self)
+                self._refresh(locator=locator)
+                self.budget.release_projection(target_id); target_id = None
+                self.budget.release_projection(locator); locator = None
+        except BaseException as error:
+            _recovery_clear_exception_frames(error)
+            self.close()
+            raise
+        finally:
+            locator = target_id = binding = names = self = None
+
+    def _capture(self):
+        from types import MappingProxyType
+        from graph_engineering.application.profile_execution import _validate_cold_category_sources
+        from graph_engineering.storage.repository import _recovery_json, _recovery_clear_exception_frames
+
+        parts: dict[str, object] | None = None
+        result = security = None
+        try:
+            with self.budget.reserve(self.context, units=64, byte_count=0,
+                                     source_id="cold-capture-control") as frame:
+                parts = {}
+                frame.transfer(parts)
+                self._current()
+                parts["capture"] = self.repository.read_category_recovery_sources(self.task_id, phase="sources")
+                with _recovery_json(parts["capture"]["assessment_body"], self.context, self.budget,
+                                    source_id="cold-action-selector") as assessment:
+                    from graph_engineering.storage.repository import _recovery_adopt
+                    action_id = assessment["release_operations_projection"]["deployment_observation"]["action_id"]
+                    action_id = _recovery_adopt(action_id, self.context, self.budget,
+                        record_fields={}, source_id="cold-action-id")
+                assessment = None
+                try:
+                    parts["action"] = self.coordinator._read_completed_action_provenance_bounded(self.task_id, action_id)
+                finally:
+                    self.budget.release_projection(action_id)
+                    action_id = None
+                security = self.coordinator._issuer.read_task_state(self.task_id)
+                parts["security"] = (security.state, security.state_digest, security.runtime_manifest_digest)
+                self.budget.move_projection(security, parts["security"]); security = None
+                if any(authority["security_state_digest"] != parts["security"][1]
+                       or authority["runtime_manifest_digest"] != parts["security"][2]
+                       for authority in parts["action"]["authorities"]):
+                    raise ReleaseOperationsError("cold action authority and current security capture differ")
+                parts["physical"] = self.lease._capture_cold_members()
+                self.factory.require_installed_authority()
+                self._require_category_current()
+                binding = self.lease._cold_binding
+                owner = parts["security"][0]["binding"]
+                self._validate_binding(owner)
+                contracts, schemas, context = _COLD_ARTIFACT_AUTHORITIES[self.factory]
+                parts["sources"] = _validate_cold_category_sources(
+                    capture=parts["capture"], task_application=self.app, runtime=self.runtime,
+                    policy=self.policy, contracts=contracts, schemas=schemas, context=context,
+                    action_target={"task_id":self.task_id, "target_id":binding.projection["target_id"],
+                        "target_digest":binding.target_digest()},
+                    action_baselines=owner["baselines"])
+                self._validate_release(parts)
+                self._current()
+                for value in parts.values():
+                    self.budget.move_projection(value, parts)
+                result = MappingProxyType(parts)
+                self.budget.move_projection(parts, result)
+                return result
+        except BaseException as error:
+            if parts is not None:
+                while parts:
+                    _key, value = parts.popitem()
+                    if id(value) in self.budget._projections:
+                        self.budget.release_projection(value)
+                    value = None
+                if id(parts) in self.budget._projections:
+                    self.budget.release_projection(parts)
+            _recovery_clear_exception_frames(error)
+            raise
+        finally:
+            self = parts = result = security = assessment = action_id = binding = owner = None
+            contracts = schemas = context = value = None
+
+    def _validate_binding(self, owner):
+        value = self.lease._cold_binding.projection
+        if (value["task_id"] != self.task_id
+                or value["repository_scope_digest"] != self.namespace.repository_scope_digest
+                or any(self.factory._bootstrap.get(key) != expected
+                       for key, expected in value["installation_pins"].items())
+                or (owner["task_id"], owner["owner_id"], owner["runtime_kind"], owner["runtime_lineage_id"]) != (
+                    self.task_id, self.runtime.owner_id, self.runtime.runtime_kind, self.runtime.runtime_lineage_id)):
+            raise ReleaseOperationsError("cold root installation or current owner binding changed")
+        matches = [target for target in owner["targets"] if target["target_id"] == value["target_id"]]
+        if len(matches) != 1 or matches[0]["target_digest"] != self.lease._cold_binding.target_digest():
+            raise ReleaseOperationsError("cold root current security target changed")
+
+    def _validate_release(self, parts):
+        from graph_engineering.core.contracts.canonical import canonical_byte_length
+        from graph_engineering.storage.repository import _recovery_clear_exception_frames
+
+        try:
+            size = (len(parts["capture"]["assessment_body"])
+                    + sum(len(raw[0]) for raw in parts["physical"].values())
+                    + canonical_byte_length(self.factory._registry.fixture_registry))
+            action_size = canonical_byte_length(parts["action"])
+            with self.budget.reserve(self.context, units=8 * size + 2 * action_size,
+                                     byte_count=4 * size + 2 * action_size,
+                                     source_id="cold-release-validation"):
+                _validate_cold_release_projection(self, parts)
+        except BaseException as error:
+            _recovery_clear_exception_frames(error)
+            raise
+        finally:
+            self = parts = None
+
+    def _refresh(self, *, locator=None):
+        from types import MappingProxyType
+        from graph_engineering.storage.repository import (
+            _recovery_adopt, _recovery_clear_exception_frames, _recovery_record_digest,
+        )
+
+        def action_identity(action: Mapping[str, object]) -> tuple[object, ...]:
+            # source_digest binds every durable action field. Authority rows
+            # are already joined to that journal and these current issuers.
+            return (action["task_id"], action["action_id"], action["completion"],
+                action["provenance"]["source_digest"], tuple(
+                    (authority["action_id"], authority["security_state_digest"], authority["runtime_manifest_digest"])
+                    for authority in action["authorities"]))
+
+        captures: list[object] | None = None
+        history = source = None
+        try:
+            with self.budget.reserve(self.context, units=96, byte_count=0,
+                                     source_id="cold-complete-captures"):
+                captures = []
+                try:
+                    captures.append(self._capture())
+                    if locator is not None and any(not _cold_read_equal(
+                            locator[key], captures[0]["capture"][key], self.context, self.budget)
+                            for key in ("task", "assessment_ref", "assessment_body")):
+                        raise ReleaseOperationsError("cold locator changed after root admission")
+                    captures.append(self._capture())
+                    if not _cold_read_equal(captures[0], captures[1], self.context, self.budget):
+                        raise ReleaseOperationsError("cold complete source or physical closure changed")
+                    source = captures[1]
+                    references_digest = _recovery_record_digest(
+                        {"contract": "cold-category-references-v1", "value": source["capture"]["references"]},
+                        self.context, self.budget, source_id="cold-reference-identity")
+                    security_identity = source["security"][1:]
+                    if self.history is None:
+                        # A separate admission covers only what this reader
+                        # retains after both complete captures are discarded.
+                        history = MappingProxyType({
+                            "assessment_bytes": source["capture"]["assessment_body"],
+                            "assessment": source["sources"]["assessment"],
+                            "source_projection": source["sources"],
+                            "task": source["capture"]["task"],
+                            "references_digest": references_digest,
+                            "security_identity": security_identity,
+                            "action_identity": action_identity(source["action"]),
+                        })
+                        self.history = _recovery_adopt(history, self.context, self.budget,
+                            record_fields={}, source_id="cold-assessment-history")
+                    elif any(not _cold_read_equal(left, right, self.context, self.budget) for left, right in (
+                            (self.history["assessment_bytes"], source["capture"]["assessment_body"]),
+                            (self.history["task"], source["capture"]["task"]),
+                            (self.history["references_digest"], references_digest),
+                            (self.history["source_projection"], source["sources"]),
+                            (self.history["security_identity"], security_identity),
+                            (self.history["action_identity"], action_identity(source["action"])) )):
+                        raise ReleaseOperationsError("cold assessment sources changed since issuance")
+                    self.revision += 1
+                finally:
+                    source = history = None
+                    while captures:
+                        self.budget.release_projection(captures.pop())
+        except BaseException as error:
+            _recovery_clear_exception_frames(error)
+            raise
+        finally:
+            self = captures = history = source = locator = references_digest = security_identity = None
+
+    def query(self) -> Mapping[str, object]:
+        from types import MappingProxyType
+        from graph_engineering.storage.repository import _recovery_clear_exception_frames
+
+        try:
+            if self.closed:
+                raise ReleaseOperationsError("cold assessment handle is closed")
+            with self.budget.bind(ports=self.ports):
+                self._refresh()
+                return MappingProxyType({"assessment_bytes": self.history["assessment_bytes"],
+                    "assessment": self.history["assessment"], "source_projection": self.history["source_projection"],
+                    "observation_epoch": self.epoch, "observation_revision": self.revision})
+        except BaseException as error:
+            self.close()
+            _recovery_clear_exception_frames(error)
+            raise
+        finally:
+            self = None
+
+    def close(self) -> None:
+        if self.closed:
+            return
+        self.budget._require_owner()
+        if self.budget._active:
+            raise ReleaseOperationsError("cold read cannot close while an operation is active")
+        try:
+            if self.lease is not None:
+                self.lease.close()
+        finally:
+            self.closed = True
+            self.lease = self.history = self.configuration = self.names = self.identities = self.epoch = None
+            self.ports = ()
+            self.app = self.runtime = self.policy = self.factory = self.objects = self.coordinator = None
+            self.namespace = self.repository = self.command_scope = self.native = self.context = self.task_id = None
+            if self.handle_id is not None:
+                _COLD_ASSESSMENT_HANDLES.pop(self.handle_id, None)
+            self.budget.close()
+
+
+def restore_current_release_assessment(*, task_application: object, runtime: object, policy: object, release_factory: ReleaseOperationsRegistryFactory,
+                                      object_repository: object, action_coordinator: object, retained_namespace: RetainedReleaseNamespace, task_id: str) -> _ReadOnlyReleaseAssessment:
+    """Restore current historical data with no live evidence or mutation authority."""
+    from graph_engineering.application.actions import ActionCoordinator
+    from graph_engineering.application.tasks import TaskApplication, RuntimeContext
+    from graph_engineering.core.profile_execution import CategoryExecutionPolicy
+    from graph_engineering.storage.objects import ObjectRepository
+    from graph_engineering.storage.repository import TaskRepository, _recovery_clear_exception_frames
+
+    scope = handle = None
+    try:
+        if (type(task_application) is not TaskApplication or type(runtime) is not RuntimeContext
+                or type(policy) is not CategoryExecutionPolicy or type(release_factory) is not ReleaseOperationsRegistryFactory
+                or release_factory not in _INSTALLED_RELEASE_FACTORIES
+                or release_factory not in _COLD_ARTIFACT_AUTHORITIES
+                or type(object_repository) is not ObjectRepository or type(action_coordinator) is not ActionCoordinator
+                or type(retained_namespace) is not RetainedReleaseNamespace or type(task_id) is not str or not task_id
+                or type(task_application._repository) is not TaskRepository
+                or task_application._repository is not action_coordinator._repository
+                or task_application._materialization_objects is not object_repository
+                or action_coordinator._objects is not object_repository
+                or task_application._repository._objects is not object_repository):
+            raise ReleaseOperationsError("cold assessment requires exact current installed participants")
+        scope = _ColdReleaseReadScope(task_application, runtime, policy, release_factory,
+            object_repository, action_coordinator, retained_namespace, task_id)
+        scope.start()
+        handle = object.__new__(_ReadOnlyReleaseAssessment)
+        scope.handle_id = id(handle)
+        _COLD_ASSESSMENT_HANDLES[id(handle)] = (handle, scope, os.getpid(), threading.get_ident())
+        return handle
+    except BaseException as error:
+        if scope is not None:
+            scope.close()
+        _recovery_clear_exception_frames(error)
+        raise
+    finally:
+        task_application = runtime = policy = release_factory = object_repository = None
+        action_coordinator = retained_namespace = scope = handle = None
+        task_id: str | None = None
+
+
+def _validate_cold_release_projection(scope, parts):
+    """Pure joins of owned physical, category, action and current security facts."""
+    from graph_engineering.core.contracts.strict_json import parse_json
+    from graph_engineering.core.release_operations import evaluate_health
+
+    factory, registry = scope.factory, scope.factory._registry
+    context, budget = scope.context, scope.budget
+    same = lambda a, b: _cold_read_equal(a, b, context, budget)
+    assessment = thaw(parts["sources"]["assessment"])
+    projection = assessment["release_operations_projection"]
+    if type(projection) is not dict or set(projection) != set(_PROJECTION_FIELDS):
+        raise ReleaseOperationsError("cold release projection is not exact")
+    factory._validate_document("urn:gew:schema:release-operations-observation:1.0.0", projection)
+    if projection["observation_digest"] != _semantic(
+            {key: value for key, value in projection.items() if key != "observation_digest"},
+            "release-operations-observation"):
+        raise ReleaseOperationsError("cold release projection digest changed")
+    factory._require_nested_projection(projection)
+    binding = scope.lease._cold_binding.projection
+    fixture = registry.fixture(binding["fixture_id"])
+    if any(not same(projection[field], assessment[field]) for field in (
+            "task_id", "task_revision", "snapshot_digest", "invalidation_epoch", "profile_id",
+            "profile_version", "column_id", "scenario_id")):
+        raise ReleaseOperationsError("cold release and assessment identities differ")
+    if (not same(projection["graph_ref_pins"], assessment["materialization_pins"])
+            or not same(projection["installation_pins"], binding["installation_pins"])
+            or projection["evidence_kind"] != registry.policy["artifact_policy"]["allowed_evidence_kind"]):
+        raise ReleaseOperationsError("cold release graph or installation binding changed")
+
+    physical = parts["physical"]
+    names = scope.names
+    def body(role: str) -> bytes:
+        if names[role] not in physical:
+            raise ReleaseOperationsError("cold release required physical member is absent")
+        return physical[names[role]][0]
+    def document(role: str) -> object:
+        return parse_json(body(role), context=context, source_id="cold-physical-" + role)
+    def manifest(value: Mapping[str, object], raw: bytes) -> ReleaseArtifactManifest:
+        parsed = ReleaseArtifactManifest.from_dict(value)
+        vector = registry.fixture_artifact(binding["fixture_id"], parsed.artifact_id)
+        record_digest = _semantic({"schema_version":"1.0.0", "fixture_id":binding["fixture_id"],
+            "artifact":dict(vector)}, "release-fixture-artifact-record")
+        source_digest = _semantic({"schema_version":"1.0.0", "fixture_id":binding["fixture_id"],
+            "fixture_registry_id":factory._bootstrap["fixture_registry_id"],
+            "fixture_registry_digest":factory._bootstrap["fixture_registry_digest"]}, "release-fixture-source-manifest")
+        build_digest = _semantic({"schema_version":"1.0.0",
+            "attestation_kind":"installed-deterministic-release-fixture",
+            "fixture_registry_digest":factory._bootstrap["fixture_registry_digest"],
+            "artifact_record_digest":record_digest, "source_manifest_digest":source_digest,
+            "protected_closure_digest":factory._bootstrap["protected_closure_digest"]}, "release-fixture-build-attestation")
+        if (type(raw) is not bytes or len(raw) != parsed.size or _raw(raw) != parsed.raw_sha256
+                or base64.b64encode(raw).decode("ascii") != vector["artifact_base64"]
+                or parsed.artifact_version != vector["artifact_version"]
+                or parsed.artifact_path != "artifacts/" + parsed.artifact_id + ".bin"
+                or parsed.distribution_name != vector["distribution_name"]
+                or parsed.distribution_version != vector["distribution_version"]
+                or parsed.record_digest != record_digest or parsed.source_manifest_digest != source_digest
+                or parsed.build_attestation_digest != build_digest
+                or parsed.protected_closure_digest != factory._bootstrap["protected_closure_digest"]):
+            raise ReleaseOperationsError("cold release artifact bytes or installed provenance changed")
+        return parsed
+
+    state = document("state")
+    active = manifest(document("active"), body("active_artifact"))
+    state_fields = ("schema_version", "generation", "active_artifact_digest", "staged_artifact_digest")
+    if (type(state) is not dict or tuple(state) != state_fields or state["schema_version"] != "1.0.0"
+            or type(state["generation"]) is not int or state["generation"] < 0
+            or state["generation"] > registry.policy["deployment_policy"]["generation_limit"]
+            or state["active_artifact_digest"] != active.manifest_digest):
+        raise ReleaseOperationsError("cold release state pointer or generation changed")
+    staged = names["stage"] in physical
+    if staged != (names["stage_artifact"] in physical):
+        raise ReleaseOperationsError("cold release staged manifest and bytes differ")
+    if staged:
+        stage = manifest(document("stage"), body("stage_artifact"))
+        if state["staged_artifact_digest"] != stage.manifest_digest:
+            raise ReleaseOperationsError("cold release staged pointer changed")
+    elif state["staged_artifact_digest"] is not None:
+        raise ReleaseOperationsError("cold release staged pointer is dangling")
+    current_state = {key: state[key] for key in state_fields[1:]}
+    current_target = projection["current_target"]
+    target_contract = parts["sources"]["target"]
+    if (set(current_target) != {"target_id", "target_digest", "resource_id", "fresh", "observation_revision", "state"}
+            or any(current_target[key] != binding[key] for key in ("target_id", "resource_id"))
+            or current_target["target_digest"] != scope.lease._cold_binding.target_digest()
+            or current_target["fresh"] is not True or type(current_target["observation_revision"]) is not int
+            or current_target["observation_revision"] < 1 or not same(current_target["state"], current_state)
+            or target_contract["target_id"] != binding["target_id"] or target_contract["resource_id"] != binding["resource_id"]
+            or not same(target_contract["expected_state"], state)):
+        raise ReleaseOperationsError("cold release current physical target differs from committed contract")
+
+    action = parts["action"]
+    provenance = action["provenance"]
+    journals = {journal["action_id"]: journal for journal in provenance["journals"]}
+    deployment, rollback = projection["deployment_observation"], projection["rollback_observation"]
+    original = journals[deployment["action_id"]]
+    prepared = original["prepared"]
+    recovery = provenance["recovery"]
+    partial = recovery is not None
+    if (action["action_id"] != deployment["action_id"] or projection["claim_id"] != provenance["claim"]["claim_id"]
+            or projection["receipt_digest"] != deployment["receipt_digest"]
+            or prepared["action_kind"] != "deploy"
+            or prepared["payload"]["operation_id"] != registry.operation_roles["apply"]
+            or not same(prepared["payload"]["artifact_manifest"], projection["artifact_manifest"])):
+        raise ReleaseOperationsError("cold release original deployment action changed")
+    candidate = manifest(projection["artifact_manifest"],
+        base64.b64decode(prepared["payload"]["artifact_bytes_base64"], validate=True))
+    baseline_vector = registry.fixture_artifact(binding["fixture_id"], fixture["expected_rollback_artifact_id"])
+    baseline_digest = prepared["precondition"]["active_artifact_digest"]
+    baseline_bytes = base64.b64decode(baseline_vector["artifact_base64"], validate=True)
+    baseline_record = _semantic({"schema_version":"1.0.0", "fixture_id":binding["fixture_id"],
+        "artifact":dict(baseline_vector)}, "release-fixture-artifact-record")
+    baseline_source = _semantic({"schema_version":"1.0.0", "fixture_id":binding["fixture_id"],
+        "fixture_registry_id":factory._bootstrap["fixture_registry_id"],
+        "fixture_registry_digest":factory._bootstrap["fixture_registry_digest"]}, "release-fixture-source-manifest")
+    expected_baseline = {"schema_version":"1.0.0", "artifact_id":baseline_vector["artifact_id"],
+        "artifact_version":baseline_vector["artifact_version"],
+        "artifact_path":"artifacts/" + baseline_vector["artifact_id"] + ".bin",
+        "raw_sha256":_raw(baseline_bytes), "size":len(baseline_bytes),
+        "distribution_name":baseline_vector["distribution_name"], "distribution_version":baseline_vector["distribution_version"],
+        "record_digest":baseline_record, "source_manifest_digest":baseline_source,
+        "build_attestation_digest":_semantic({"schema_version":"1.0.0",
+            "attestation_kind":"installed-deterministic-release-fixture",
+            "fixture_registry_digest":factory._bootstrap["fixture_registry_digest"],
+            "artifact_record_digest":baseline_record, "source_manifest_digest":baseline_source,
+            "protected_closure_digest":factory._bootstrap["protected_closure_digest"]}, "release-fixture-build-attestation"),
+        "protected_closure_digest":factory._bootstrap["protected_closure_digest"]}
+    expected_baseline["provenance_digest"] = _semantic(expected_baseline, "release-artifact-provenance")
+    if baseline_digest != _semantic(expected_baseline, "release-artifact-manifest"):
+        raise ReleaseOperationsError("cold release original baseline is not the installed artifact")
+    before = {"generation":0, "active_artifact_digest":baseline_digest, "staged_artifact_digest":None}
+    staged_state = {**before, "staged_artifact_digest":candidate.manifest_digest}
+    applied = {"generation":1, "active_artifact_digest":candidate.manifest_digest,
+               "staged_artifact_digest":candidate.manifest_digest}
+    if (candidate.artifact_id == baseline_vector["artifact_id"] or not same(prepared["precondition"], before)
+            or not same(prepared["expected_postcondition"], applied)):
+        raise ReleaseOperationsError("cold release baseline or apply postcondition changed")
+    if partial:
+        if rollback is None or rollback["action_id"] != recovery["compensation_action_id"]:
+            raise ReleaseOperationsError("cold release compensation observation is absent or foreign")
+        restore = journals[rollback["action_id"]]
+        restored = restore["prepared"]
+        payload = restored["payload"]
+        baseline = manifest(payload["artifact_manifest"], base64.b64decode(payload["artifact_bytes_base64"], validate=True))
+        if (baseline.artifact_id != baseline_vector["artifact_id"] or baseline.manifest_digest != baseline_digest
+                or restored["action_kind"] != "rollback" or payload["operation_id"] != registry.operation_roles["restore"]
+                or payload["original_claim_id"] != deployment["claim_id"]
+                or payload["original_receipt_digest"] != deployment["receipt_digest"]
+                or not same(restored["precondition"], staged_state) or not same(restored["expected_postcondition"], before)
+                or action["completion"] != "compensation_reconciled" or not same(current_state, before)
+                or projection["owner_route"] != registry.policy["rollback_policy"]["owner_route"]):
+            raise ReleaseOperationsError("cold release partial compensation chain changed")
+    elif (rollback is not None or action["completion"] != "reconciled_effect_verified"
+          or not same(current_state, applied) or projection["owner_route"] != "reconciled-effect-verified"):
+        raise ReleaseOperationsError("cold release normal completed action changed")
+    scenarios = [row for row in registry.policy["scenarios"]
+        if projection["scenario_id"] == "GEW-PSC-RELEASE-OPERATIONS-" + row["scenario_id"].upper() + "-P"]
+    if (len(scenarios) != 1 or (scenarios[0]["scenario_id"] == "partial-deploy") is not partial
+            or projection["outcome"] != scenarios[0]["success_outcome"]):
+        raise ReleaseOperationsError("cold release scenario outcome changed")
+
+    def state_digest(value: Mapping[str, object], name: str="release-local-target-state") -> str:
+        return _semantic({"schema_version":"1.0.0", **dict(value)}, name)
+    def phase(role: str, value: Mapping[str, object]) -> dict[str, object]:
+        return {"phase_id":registry.phase_roles[role], "generation":value["generation"],
+                "state_digest":state_digest(value, "local-release-simulator-result")}
+    base_phases = [phase("baseline", before), phase("staged", staged_state)]
+    for observation, journal, prior, after, route, expected_phases in (
+            (deployment, original, before, staged_state if partial else applied,
+             "manual-reconciliation" if partial else "reconciled-effect-verified",
+             base_phases if partial else [*base_phases, phase("active", applied)]),
+            *(([(rollback, restore, staged_state, before, "compensation-reconciled",
+                  [*base_phases, phase("restored", before)])]) if partial else [])):
+        payload = journal["prepared"]["payload"]
+        if (observation["claim_id"] != provenance["claim"]["claim_id"]
+                or observation["prepared_action_digest"] != journal["prepared_digest"]
+                or observation["authority_digest"] != journal["authority_digest"]
+                or observation["receipt_digest"] != journal["receipt"]["receipt_digest"]
+                or observation["expected_generation"] != payload["expected_generation"]
+                or type(observation["expected_generation"]) is not int
+                or observation["current_generation"] != after["generation"]
+                or type(observation["current_generation"]) is not int
+                or observation["artifact_manifest_digest"] != payload["artifact_manifest"]["manifest_digest"]
+                or observation["before_target_digest"] != state_digest(prior)
+                or observation["after_target_digest"] != state_digest(after)
+                or observation["reconciliation_state"] != route
+                or journal["prepared"]["target_id"] != binding["target_id"]
+                or journal["prepared"]["target_digest"] != scope.lease._cold_binding.target_digest()
+                or tuple(journal["prepared"]["resources"]) != tuple(sorted(("task:" + scope.task_id, binding["resource_id"])))
+                or not same(observation["phase_transitions"], expected_phases)):
+            raise ReleaseOperationsError("cold release deployment phase or durable action binding changed")
+        if partial:
+            if observation["fault_point"] not in (registry.fault_roles["after_stage_durable"], registry.fault_roles["before_active_switch"]):
+                raise ReleaseOperationsError("cold release partial fault history changed")
+        elif observation["fault_point"] is not None:
+            raise ReleaseOperationsError("cold release normal fault history changed")
+    terminal = rollback if partial else deployment
+    roles = registry.predicate_roles
+    values = {roles["artifact_current"]:state["active_artifact_digest"] == terminal["artifact_manifest_digest"],
+              roles["generation_current"]:state["generation"] == terminal["current_generation"]}
+    values[roles["service_ready"]] = all(values.values())
+    results, outcome = evaluate_health(registry, values)
+    health = {"schema_version":"1.0.0", "task_id":scope.task_id, "target_id":binding["target_id"],
+        "generation":state["generation"], "policy_digest":registry.policy["registry_digest"],
+        "active_artifact_digest":state["active_artifact_digest"], "state_raw_sha256":_raw(body("state")),
+        "predicate_results":list(results), "outcome":outcome}
+    health["observation_digest"] = _semantic(health, "release-health-observation")
+    if not same(health, projection["health_observation"]) or outcome != registry.health_outcomes["healthy"]:
+        raise ReleaseOperationsError("cold release physical health changed")
 
 
 def _strict_json(body: bytes, label: str) -> dict[str, object]:
@@ -464,6 +1273,10 @@ class ReleaseOperationsRegistryFactory:
             **{f"protected:{key}": value for key, value in protected.items()},
         }
         expected = {key: _raw(value) for key, value in initial.items()}
+        # Installed factories reread current resources; only validation-only
+        # document factories need to retain their original raw input bodies.
+        if current_resource_reader is not None:
+            initial = None
 
         def current() -> None:
             if current_resource_reader is None:
@@ -476,7 +1289,7 @@ class ReleaseOperationsRegistryFactory:
             ):
                 raise ReleaseOperationsError("release installation currentness changed")
 
-        return cls(
+        factory = cls(
             ReleaseOperationsRegistry.from_dicts(policy, fixture),
             bootstrap,
             schema_documents={
@@ -485,6 +1298,8 @@ class ReleaseOperationsRegistryFactory:
             },
             currentness_check=current,
         )
+        _COLD_CURRENTNESS_INPUTS[factory] = (expected,)
+        return factory
 
     @classmethod
     def from_installation(cls) -> "ReleaseOperationsRegistryFactory":
@@ -493,6 +1308,7 @@ class ReleaseOperationsRegistryFactory:
         from graph_engineering import (
             DistributionIdentityError,
             _release_operations_installation_resources,
+            _release_operations_read_plan,
         )
 
         try:
@@ -600,10 +1416,176 @@ class ReleaseOperationsRegistryFactory:
             current_resource_reader=read_current,
         )
         _INSTALLED_RELEASE_FACTORIES.add(factory)
+        cold_names = (
+            "artifact-contracts-v1.json", "artifact-schema-registry-v1.json",
+            "cost-schedule-v1.json", "resource-profile-v1.json", "schema-profile-v1.json",
+            "schemas/artifact-contract-registry-1.0.0.json", "schemas/artifact-lifecycle-event-1.0.0.json",
+            "schemas/artifact-record-1.0.0.json", "schemas/logical-body-manifest-1.0.0.json",
+        )
+        _COLD_ARTIFACT_INPUTS[factory] = {
+            "config/contracts/" + name: protected["config/contracts/" + name] for name in cold_names
+        }
+        from graph_engineering import _category_policy_installation_resources
+        from graph_engineering.core.profile_execution import _policy_document_from_installation_resources
+
+        category_resources = _category_policy_installation_resources()
+        if category_resources[0] != provenance_bytes:
+            raise ReleaseOperationsError("cold category and release installation inputs differ")
+        _COLD_CATEGORY_DOCUMENTS[factory] = freeze(
+            _policy_document_from_installation_resources(category_resources))
+        # All parsing and schema construction precedes entry into a cold read.
+        # The operation adopts these exact caches before any source lookup.
+        factory._cold_artifact_authority()
+        _COLD_INSTALLATION_PLANS[factory] = _release_operations_read_plan(
+            resources, category_resources=category_resources)
+        if _COLD_INSTALLATION_PLANS[factory] is None:
+            from graph_engineering import _release_operations_wheel_read_plan
+            from graph_engineering.storage.repository import _RecoveryReadBudget
+
+            context = factory._cold_artifact_authority()[2]
+            owner = _RecoveryReadBudget((context,))
+            try:
+                _COLD_INSTALLATION_PLANS[factory] = _release_operations_wheel_read_plan(
+                    resources, context, owner, category_resources=category_resources)
+            finally:
+                owner.close()
+        _COLD_CURRENTNESS_INPUTS[factory] = (*_COLD_CURRENTNESS_INPUTS[factory], protected_paths)
         return factory
 
+    def _cold_artifact_authority(self) -> tuple:
+        """Resolve cold validation authority only from the installed closure."""
+        from contextlib import ExitStack
+
+        from graph_engineering.core.artifacts.contracts import ArtifactContractRegistry
+        from graph_engineering.core.contracts.registry import ClosedSchemaRegistry
+        from graph_engineering.core.contracts.resources import CostSchedule, ResourceProfile, WorkContext
+        from graph_engineering.core.contracts.schema import SchemaProfilePolicy
+        from graph_engineering.core.contracts.strict_json import parse_json
+        from graph_engineering.storage.repository import _recovery_scope
+
+        self.require_installed_authority()
+        if self not in _COLD_ARTIFACT_INPUTS:
+            raise ReleaseOperationsError("cold artifact installed authority is absent")
+        cached = _COLD_ARTIFACT_AUTHORITIES.get(self)
+        if cached is not None:
+            return cached
+        resources = _COLD_ARTIFACT_INPUTS[self]
+        prefix = "config/contracts/"
+        try:
+            profile = ResourceProfile.from_dict(_strict_json(
+                resources[prefix + "resource-profile-v1.json"], "installed resource profile",
+            ))
+            schedule = CostSchedule.from_dict(_strict_json(
+                resources[prefix + "cost-schedule-v1.json"], "installed cost schedule",
+            ))
+            context = WorkContext(profile, schedule)
+            with _recovery_scope(context) as budget, ExitStack() as stack:
+                def document(name: str) -> dict:
+                    body = resources[prefix + name]
+                    stack.enter_context(budget.reserve(
+                        context, units=6 * len(body), byte_count=4 * len(body),
+                        source_id="cold-artifact-authority:" + name,
+                    ))
+                    return parse_json(body, context=context, source_id=prefix + name)
+
+                policy = SchemaProfilePolicy.from_dict(document("schema-profile-v1.json"))
+                manifest = document("artifact-schema-registry-v1.json")
+                contracts_document = document("artifact-contracts-v1.json")
+                names = ("artifact-contract-registry", "artifact-lifecycle-event",
+                         "artifact-record", "logical-body-manifest")
+                bodies = {
+                    "urn:gew:schema:" + name + ":1.0.0":
+                    resources[prefix + "schemas/" + name + "-1.0.0.json"]
+                    for name in names
+                }
+                size = sum(len(body) for body in bodies.values())
+                stack.enter_context(budget.reserve(
+                    context, units=12 * size, byte_count=4 * size,
+                    source_id="cold-artifact-schema-construction",
+                ))
+                schemas = ClosedSchemaRegistry.build(manifest, bodies, profile, policy, context)
+                contracts = ArtifactContractRegistry.from_dict(
+                    contracts_document, schema_registry=schemas, context=context,
+                    expected_registry_id=contracts_document["registry_id"],
+                    expected_registry_digest=contracts_document["registry_digest"],
+                )
+        except (KeyError, TypeError, ValueError) as error:
+            raise ReleaseOperationsError("cold artifact installation is invalid") from error
+        result = (contracts, schemas, context)
+        _COLD_ARTIFACT_AUTHORITIES[self] = result
+        return result
+
+    def _adopt_cold_configuration(self, budget, *, _operation=None):
+        """Admit every retained installation cache into the active read owner."""
+        from graph_engineering import _SourceInstallationReadPlan, _WheelInstallationReadPlan
+        from graph_engineering.core.artifacts.contracts import ArtifactContract, ArtifactContractRegistry
+        from graph_engineering.core.contracts.registry import ClosedSchemaRegistry, SchemaResource
+        from graph_engineering.core.contracts.resources import CostSchedule, ResourceProfile, WorkContext
+        from graph_engineering.storage.repository import (
+            _RecoveryReadBudget, _recovery_adopt, _recovery_clear_exception_frames,
+        )
+
+        authority = plan = context = records = roots = None
+        try:
+            if (type(self) is not ReleaseOperationsRegistryFactory or self not in _INSTALLED_RELEASE_FACTORIES
+                    or type(budget) is not _RecoveryReadBudget or self not in budget._ports):
+                raise ReleaseOperationsError("cold configuration owner or factory is foreign")
+            budget._require_active()
+            authority = _COLD_ARTIFACT_AUTHORITIES.get(self)
+            plan = _COLD_INSTALLATION_PLANS.get(self)
+            if (authority is None or plan is None
+                    or not any(authority[2] is context for context in budget.contexts)):
+                raise ReleaseOperationsError("cold configuration context or plan is absent")
+            context = authority[2]
+            # Exact fixed scratch: types8 + map19 + dynamic field tuples47 +
+            # fixed field tuples11 + roots8 + iteration setup7. Field names
+            # alias installed code declarations; no payload text is copied.
+            wheel_plan = type(plan) is _WheelInstallationReadPlan
+            with budget.reserve(context, units=101 + (10 if wheel_plan else 0)
+                                + (2048 if _operation is not None else 0), byte_count=0,
+                                source_id="cold-configuration-table"):
+                try:
+                    records = {kind: tuple(kind.__dataclass_fields__) for kind in (
+                        ArtifactContract, ArtifactContractRegistry, ClosedSchemaRegistry,
+                        SchemaResource, CostSchedule, ResourceProfile, ReleaseOperationsRegistry,
+                    )}
+                    records[WorkContext] = ("profile", "schedule")
+                    records[_SourceInstallationReadPlan] = (
+                        "_source_path", "_control_path", "source_identity", "control_identity",
+                        "files", "key", "attestation",
+                    )
+                    if wheel_plan:
+                        records[_WheelInstallationReadPlan] = (
+                            "_root_path", "archive", "root_identity", "module_origin", "names", "discovery", "members",
+                        )
+                    roots = (self._bootstrap, self._schemas, self._registry,
+                             _COLD_CURRENTNESS_INPUTS[self], _COLD_ARTIFACT_INPUTS[self],
+                             authority, plan, _COLD_CATEGORY_DOCUMENTS[self])
+                    if _operation is not None:
+                        if type(_operation) is not _ColdReleaseReadScope or _operation.factory is not self:
+                            raise ReleaseOperationsError("cold operation configuration is foreign")
+                        roots = (*roots, _operation._configuration(records))
+                    return _recovery_adopt(roots, context, budget, record_fields=records,
+                                           source_id="cold-installed-configuration")
+                except BaseException as error:
+                    _recovery_clear_exception_frames(error)
+                    raise
+                finally:
+                    roots = records = authority = plan = self = None
+        except BaseException as error:
+            _recovery_clear_exception_frames(error)
+            raise
+        finally:
+            self = authority = plan = context = records = roots = budget = _operation = None
+
     def registry(self) -> ReleaseOperationsRegistry:
-        self._currentness_check()
+        from graph_engineering.storage.repository import _RECOVERY_INSTALLATION_CONTEXT
+
+        if (self in _INSTALLED_RELEASE_FACTORIES or getattr(self, "_recovery_read_budget", None) is not None
+                or _RECOVERY_INSTALLATION_CONTEXT.get() is not None):
+            self.require_installed_authority()
+        else:
+            self._currentness_check()
         return self._registry
 
     def require_installed_authority(self) -> None:
@@ -614,7 +1596,30 @@ class ReleaseOperationsRegistryFactory:
             or self not in _INSTALLED_RELEASE_FACTORIES
         ):
             raise ReleaseOperationsError("release installed authority is absent")
-        self._currentness_check()
+        from graph_engineering.storage.repository import _RECOVERY_INSTALLATION_CONTEXT
+
+        budget = getattr(self, "_recovery_read_budget", None)
+        authority = _COLD_ARTIFACT_AUTHORITIES.get(self)
+        inherited = None if authority is None else getattr(authority[2], "_recovery_read_budget", None)
+        if budget is None and (_RECOVERY_INSTALLATION_CONTEXT.get() is not None or inherited is not None):
+            raise ReleaseOperationsError("cold release installation factory is not bound")
+        if budget is None:
+            self._currentness_check()
+        else:
+            from graph_engineering import DistributionIdentityError
+            from graph_engineering.storage.repository import _RecoveryReadBudget
+
+            if type(budget) is not _RecoveryReadBudget or self not in budget._ports:
+                raise ReleaseOperationsError("cold release installation owner is foreign")
+            budget._require_active()
+            plan = _COLD_INSTALLATION_PLANS.get(self)
+            if (plan is None or authority is None
+                    or not any(authority[2] is context for context in budget.contexts)):
+                raise ReleaseOperationsError("cold release installation read plan is unavailable")
+            try:
+                plan.require_current(authority[2], budget)
+            except (DistributionIdentityError, OSError) as error:
+                raise ReleaseOperationsError("release installation currentness changed") from error
 
     def issue_artifact_manifest(
         self,
@@ -771,6 +1776,72 @@ class ReleaseOperationsRegistryFactory:
         self._issued_sessions[id(session)] = session
         self._session_coordinators[id(session)] = action_coordinator
         return session
+
+    def _open_retained_storage_query(
+        self, *, action_coordinator: object,
+        retained_namespace: RetainedReleaseNamespace,
+        binding: ReleaseRecoveryBinding,
+    ) -> _RetainedReadOnlyHandle:
+        """Open raw storage queries under current runtime read authority.
+
+        This internal prerequisite does not resolve an assessment or validate
+        its action history. It cannot issue recovery evidence or a mutation
+        capability, including for an uncommitted retained root.
+        """
+        from graph_engineering.application.actions import ActionCoordinator
+
+        self.require_installed_authority()
+        if (
+            type(action_coordinator) is not ActionCoordinator
+            or type(retained_namespace) is not RetainedReleaseNamespace
+            or type(binding) is not ReleaseRecoveryBinding
+        ):
+            raise ReleaseOperationsError("retained query authority is missing or foreign")
+        native = retained_namespace.require_current(action_coordinator)
+        action_coordinator._retained_scope(require_idle=True)
+        value = binding.to_dict()
+        if (
+            value["repository_scope_digest"] != retained_namespace.repository_scope_digest
+            or value["installation_pins"] != {k: self._bootstrap[k] for k in value["installation_pins"]}
+        ):
+            raise ReleaseOperationsError("retained query binding is foreign or stale")
+        names = _retained_members(self._registry.fixture(value["fixture_id"]))
+        security_snapshot = None
+
+        def current() -> None:
+            nonlocal security_snapshot
+            self.require_installed_authority()
+            retained_namespace.require_current(action_coordinator)
+            action_coordinator._retained_scope(require_idle=True)
+            # The handle already owns the root gate. This public read manages
+            # and releases its own repository locks; no outer token is held.
+            security = action_coordinator._issuer.read_task_state(value["task_id"])
+            owner = security.state["binding"]
+            runtime = retained_namespace._record()[1]
+            if (owner["task_id"], owner["owner_id"], owner["runtime_kind"], owner["runtime_lineage_id"]) != (
+                value["task_id"], runtime.proof.owner_id, runtime.capabilities.runtime_kind, runtime.proof.lineage_id
+            ):
+                raise ReleaseOperationsError("retained query runtime does not own the task")
+            targets = [target for target in owner["targets"] if target["target_id"] == value["target_id"]]
+            if len(targets) != 1 or targets[0]["target_digest"] != binding.target_digest():
+                raise ReleaseOperationsError("retained query target binding changed")
+            if security_snapshot is not None and security != security_snapshot:
+                raise ReleaseOperationsError("retained query security state changed")
+            self.require_installed_authority()
+            retained_namespace.require_current(action_coordinator)
+            action_coordinator._require_retained_idle()
+            security_snapshot = security
+
+        handle = native.open_readonly_handle(binding,
+            members={name: 0o600 for role, name in names.items() if role != "identity"},
+            context=action_coordinator._policy._context, currentness_check=current,
+            entry_check=action_coordinator._require_retained_idle)
+        try:
+            handle.query()
+            return handle
+        except BaseException:
+            handle.close()
+            raise
 
     def destroy_retained_simulator(
         self, *, action_coordinator: object,

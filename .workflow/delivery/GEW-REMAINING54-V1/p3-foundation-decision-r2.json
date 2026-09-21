@@ -1,4 +1,399 @@
 {
+  "p3_restart_action_provenance_design_revisions": [
+    {
+      "record_id": "p3-restart-action-provenance-design-2026-09-20-r0",
+      "artifact_digest": "e3d43aab155ae0fa8d905e1d0431543f01e9b39ad72379b4e4fbadd46c034659",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "REVISE",
+        "code": "OK_REVISE",
+        "message": "apply routine findings and request a new independent review",
+        "next_node": "test-plan",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "test-plan",
+        "input_verdict": "REVISE",
+        "input_digests": {
+          "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+          "state": "sha256:b4bc66c5d7f74581b819b2315011b31f99b8dfd18f967a7231f9572efd289e3c",
+          "verdict": "sha256:731db6e23dfe1e70269cdc209b6711977f1f69680389d1e01689f3610bd28e20"
+        }
+      },
+      "cli_exit_code": 1,
+      "execution_kind": "Actual frozen validator CLI;55 input hashes and graph/Policy verified, independent verdict unchanged.",
+      "next_action": "Apply only the independent bounded-CAS-read clarification/testability finding in the four authorized RS-AP design supplements. Preserve R0; re-review R1 before implementation."
+    },
+    {
+      "record_id": "p3-restart-action-provenance-design-2026-09-20-r1",
+      "artifact_digest": "9af344940c148fb1185097718e4c3a81af42e0a6bf83efd0edb430d61870513b",
+      "decision": {
+        "decision": "INVALID",
+        "code": "E_FINDINGS",
+        "message": "PASS cannot contain unresolved findings"
+      },
+      "verification": {
+        "source_files_verified": 55,
+        "cli_exit_code": 2,
+        "input_digests": {
+          "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+          "state": "sha256:a375150209c759e89e68d0c2f903d64ecc688c28f24c48bf4437bad665565628",
+          "verdict": "sha256:973615080f8a5c0d348258be7f6110cf0179e96775e0ea529ce484c3b390dcd0"
+        }
+      },
+      "next_action": "Implement AP-S/AP-A using TDD within the184-target Human authority. R0 finding remains preserved; R1 resolution and actual reducer permit implementation. No irreversible authority."
+    },
+    {
+      "record_id": "p3-restart-action-provenance-design-2026-09-20-r1-protocol-correction",
+      "artifact_digest": "9af344940c148fb1185097718e4c3a81af42e0a6bf83efd0edb430d61870513b",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "implementation",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "test-plan",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+          "state": "sha256:d20c04a1ffaa78e51f83f2c825853758c30b1a53ecf289a05d8accec0b95d3f6",
+          "verdict": "sha256:973615080f8a5c0d348258be7f6110cf0179e96775e0ea529ce484c3b390dcd0"
+        }
+      },
+      "verification": {
+        "source_files_verified": 55,
+        "cli_exit_code": 0,
+        "input_digests": {
+          "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+          "state": "sha256:d20c04a1ffaa78e51f83f2c825853758c30b1a53ecf289a05d8accec0b95d3f6",
+          "verdict": "sha256:973615080f8a5c0d348258be7f6110cf0179e96775e0ea529ce484c3b390dcd0"
+        }
+      },
+      "protocol_correction": "The preserved index1 INVALID result came from stale author state.open_finding_ids, not the independent resolved finding. Its next_action statement is superseded. This appended state follows the exact independent resolution; original verdict and all source bytes are unchanged. No product implementation occurred before this actual ADVANCE.",
+      "next_action": "Proceed with AP-S/AP-A TDD within the existing184-target authority; no commit or external action."
+    }
+  ],
+  "p3_restart_action_authority_readonly_revisions": [
+    {
+      "record_id": "p3-restart-action-authority-readonly-2026-09-20-r0",
+      "artifact_digest": "86b82d37922e2922ffe87e03347add7548d56dcbb7b4bddab14564157c224d91",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:ecd6badad9d75d8a132874d3c9173a89a308808ccb1f14c22b4183437feaf0c9",
+          "state": "sha256:0212e6ee2a67270b564d82962e297cdaf71b30ff52c0da61f4b772692c3cccd5",
+          "verdict": "sha256:88c9f5edc4900da3b2ae67ae5f4b53c8a35d49507774ab2576b97d46bd09843f"
+        }
+      },
+      "cli_exit_code": 0,
+      "execution_kind": "Actual frozen validate_artifact_bundle.py CLI with exact persisted source/state and independent unchanged verdict.54 raw files plus graph/Policy verified; canonical input digests recomputed.",
+      "verification": {
+        "unique_native_tests": 33,
+        "skips": 0,
+        "parent_elapsed_seconds": 72.361371917,
+        "current_workflow_check_passed": true,
+        "declared_tier": "T2",
+        "manifest_exact_delta_paths": 17,
+        "pin_recompute_changed_paths": [],
+        "diff_check_exit_code": 0,
+        "prior_history_preserved": true
+      },
+      "handoff": {
+        "status": "bounded-action-authorization-read-prerequisite-reviewed; full provenance reader awaits exact target authority",
+        "next_node": "verification",
+        "open_finding_ids": [],
+        "commit_sha": "5a8240414fdd118e70187827bc8c25aa4c33f1e9",
+        "index_empty": true,
+        "additional_commit_authorized": false,
+        "complete_rs3": false,
+        "cold_recovery_complete": false,
+        "plan_bindings": 244,
+        "oracle_bindings": 122,
+        "missing_bindings": 30,
+        "required_human_decision": {
+          "proposal_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json#p3_restart_action_provenance_read_api_requests",
+          "decision": "Approve only one added source path storage/graph_engineering/storage/repository.py (product targets183->184), the bounded read-only provenance API design/review and subsequent implementation/testing within the preserved limits.",
+          "reason": "Existing public reads omit persisted claim outcome and relevant journal/reference fields; Spec RS-3 requires fresh exact completion joins. Impact explicitly reserves new storage APIs and storage source modifications for a concrete authority decision.",
+          "not_implemented": true
+        },
+        "preserved_boundaries": [
+          "no additional commit",
+          "no push/merge/deploy/release",
+          "no network/external communication",
+          "no monitoring/cumulative/performance",
+          "no coverage issuance/WP10"
+        ]
+      }
+    }
+  ],
+  "p3_restart_action_provenance_read_api_requests": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-restart-action-provenance-read-api-request-2026-09-20-r0",
+      "status": "proposed-awaiting-human-authority; no storage implementation or allowlist change",
+      "predecessor_record_id": "p3-restart-action-authority-readonly-2026-09-20-r0",
+      "problem": "The current authorization-input reader cannot establish the full Spec RS-3 durable completion proof using only the existing public read APIs. Required persisted row/reference facts are not returned; computing replacement values in application code would not verify the persisted facts.",
+      "read_only_evidence": [
+        {
+          "path": "storage/graph_engineering/storage/leases.py",
+          "symbol": "ResourceLeaseRepository.load_claim",
+          "finding": "Returns claim identity, state, revision, resources and fences; omits persisted claims.outcome_digest."
+        },
+        {
+          "path": "storage/graph_engineering/storage/repository.py",
+          "symbol": "TaskRepository._apply_claim_reconciliation",
+          "finding": "The completion write stores semantic_record_digest({contract:claim-outcome-v1,state:outcome,value:outcome_record}) in claims.outcome_digest (lines1670–1677). Full read verification must compare this persisted value with the recorded reconciliation, not assume it."
+        },
+        {
+          "path": "storage/graph_engineering/storage/actions.py",
+          "symbol": "ActionJournalRepository._load / find_prepared",
+          "finding": "Typed journal load validates JSON bodies but does not expose authority_digest/prepared_digest index columns or enumerate duplicate digest matches."
+        },
+        {
+          "path": "storage/graph_engineering/storage/repository.py",
+          "symbol": "TaskRepository.referenced_objects / project_action_state",
+          "finding": "Existing reads return verified object bytes or selected action fields, without the complete committed reference/transaction/index facts needed for the final completion join."
+        }
+      ],
+      "proposed_added_targets": [
+        "storage/graph_engineering/storage/repository.py"
+      ],
+      "proposed_product_target_count": {
+        "before": 183,
+        "after": 184
+      },
+      "proposed_scope": [
+        "First revise the existing Spec/Impact/Plan/Test Plan with this bounded read contract and obtain independent design review under the existing workflow.",
+        "Add one TaskRepository read-only action provenance API, tentatively read_action_provenance(task_id, action_id), that returns existing persisted task/head, journal/index, claim/outcome/resource/fence, event/recovery and referenced-receipt facts needed by RS-3. Validate canonical/digest formats, uniqueness and repository identity using existing storage facilities.",
+        "Expose immutable data through the repository layer using query-only doctor reads and existing root-before-repository lock order; do not add SQL to the application layer or reconstruct omitted persisted values as if read.",
+        "Use the new provenance input in the existing application actions/release recovery code to finish ordinary and compensated completion validation, before any read-only recovery evidence is issued.",
+        "Add RED tests in existing authorized WP08 files for tampered claim outcome digest, journal digest index/duplicate joins, committed receipt references, unsupported/unresolved or incomplete compensation, currentness drift and zero writes. Refresh only affected approved pins, run bounded serial native checks and independent review."
+      ],
+      "unchanged_boundaries": [
+        "Existing task and approved Positioning/PRD/Intent; no new product feature or data source.",
+        "No table, column, migration, event kind, GraphRef, dependency or external service.",
+        "Only this one additional existing source path; all docs/application/tests/config changes stay within the already authorized targets.",
+        "No write-capable API, authorization renewal, outcome/gate resurrection, actual deployment/release, network, monitoring, coverage issuance, cumulative/performance work, WP10 or new commit.",
+        "Existing native600second/serial/failfast and canonical Policy300second limits remain unchanged.",
+        "Historical records and plan244/oracle122/missing30 remain unchanged."
+      ],
+      "authority_required_because": {
+        "exact_target_boundary": "This storage repository path is currently a read-only reference and is absent from the approved183 target list.",
+        "project_impact": "docs/impact/graph-engineering-workflow.md: A pin cycle, new storage API/schema, new file or unverifiable source requires a concrete authority decision, not a fallback. Storage journal/lease/repository files are read-only references, not proposed write targets.",
+        "skill_rule": {
+          "path": "/Users/ezio/.codex/skills/project-governance/SKILL.md",
+          "quote": "Implement only the declared Task ID and Target Files."
+        }
+      }
+    },
+    {
+      "record_id": "p3-restart-action-provenance-read-api-request-2026-09-20-r1",
+      "supersedes": "p3-restart-action-provenance-read-api-request-2026-09-20-r0",
+      "status": "proposed-awaiting-human-authority",
+      "correction": {
+        "field": "read_only_evidence[1].symbol",
+        "value": "TaskRepository._reconcile_claim",
+        "reason": "Verified exact method name at storage repository line1639; the previously recorded lines1670–1677 and persisted-digest finding are unchanged."
+      },
+      "scope_and_requested_authority": "Exactly the R0 proposal remains pending: add only storage/graph_engineering/storage/repository.py to183 targets (184), independently review the bounded read contract before implementation, preserve all R0 exclusions."
+    }
+  ],
+  "p3_restart_action_authority_readonly_entries": [
+    {
+      "record_id": "p3-restart-action-authority-readonly-2026-09-20-r0",
+      "task_id": "GEW-REMAINING54-V1",
+      "entry_commit": "5a8240414fdd118e70187827bc8c25aa4c33f1e9",
+      "human_instruction": "继续",
+      "authority_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json#p3_restart_readonly_handle_commit_authorizations[0]",
+      "accepted_predecessor": {
+        "record_id": "p3-restart-runtime-readonly-2026-09-20-r1",
+        "artifact_digest": "f16423cbdef84a9c0c4cc5a4b50e3677177bd708284433c6ba94ea10d1181ca4",
+        "source_files_rehashed": 54,
+        "actual_reducer_replay": "ADVANCE/OK_ADVANCE; exact persisted input digests and complete decision matched before changes"
+      },
+      "scope": "One RS-3 prerequisite: immutable data-only current prepared/authority projection for a durable terminal action. Validate installed policy, current task owner/lineage/target/baseline, exact prepared/authority identities and digest index, current revocation membership, and repeat-read consistency. This is not a validated action/claim/receipt bundle or recovery authority.",
+      "changes": [
+        "Add the private coordinator reader using existing doctor journal and read-only security APIs, without issuance, execution expiry renewal or writes.",
+        "Add focused integration cases for fresh coordinator/deep immutability/expired historical authorization/zero writes, rejected substitutions and final-read drift.",
+        "Refresh only actual affected protected pins; native bounded verification, independent artifact review and actual reducer."
+      ],
+      "primary_paths": [
+        "application/graph_engineering/application/actions.py",
+        "tests/integration/test_wp08_release_operations.py"
+      ],
+      "verification": "TDD RED first. Serial native Python3.12, fresh private source-checkout attestation, explicit -X plus matching locator, failfast, real parent monotonic_ns and600second native cap. No full-suite or cold-process claim.",
+      "boundaries": {
+        "product_targets": 183,
+        "plan": 244,
+        "oracle": 122,
+        "missing": 30,
+        "additional_commit_authorized": false,
+        "complete_rs3": false,
+        "cold_recovery_complete": false
+      },
+      "remaining": "Full action/claim/receipt/compensation proof and source/current assessment/health joins remain required before recovery evidence issuance."
+    }
+  ],
+  "p3_restart_runtime_readonly_revisions": [
+    {
+      "record_id": "p3-restart-runtime-readonly-2026-09-20-r0",
+      "artifact_digest": "b34caba22286497817dfef858eeeece5b50e94d8c4f2d3605c52e8208972bd7d",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:ecd6badad9d75d8a132874d3c9173a89a308808ccb1f14c22b4183437feaf0c9",
+          "state": "sha256:ed21811ae96f14c87e38e3d4ef14aee6aeb520027673975d5ee8ab826c4212a5",
+          "verdict": "sha256:88c9f5edc4900da3b2ae67ae5f4b53c8a35d49507774ab2576b97d46bd09843f"
+        }
+      },
+      "cli_exit_code": 0,
+      "execution_kind": "Actual frozen validator CLI; all54 source files and current graph/Policy bytes rehashed, actual independent verdict unchanged, input digests recomputed.",
+      "follow_up": "Refresh the existing Manifest from the prior committed15-file checkpoint to this continuation's exact16-file delta. Both newly declared product paths already belong to the approved183 targets. Preserve this R0 and independently review the changed Manifest binding as R1; no product or test bytes change.",
+      "handoff": {
+        "commit_sha": "5a8240414fdd118e70187827bc8c25aa4c33f1e9",
+        "verified_unique_tests": 28,
+        "index_empty": true,
+        "additional_commit_authorized": false,
+        "full_rs2_complete": false,
+        "cold_recovery_complete": false,
+        "plan_bindings": 244,
+        "oracle_bindings": 122,
+        "missing_bindings": 30
+      }
+    },
+    {
+      "record_id": "p3-restart-runtime-readonly-2026-09-20-r1",
+      "artifact_digest": "f16423cbdef84a9c0c4cc5a4b50e3677177bd708284433c6ba94ea10d1181ca4",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:ecd6badad9d75d8a132874d3c9173a89a308808ccb1f14c22b4183437feaf0c9",
+          "state": "sha256:42bbe854e1954dc6d33cd4899422350ab0b221bd4ffbd4cf3fcb79c65e1253c3",
+          "verdict": "sha256:88c9f5edc4900da3b2ae67ae5f4b53c8a35d49507774ab2576b97d46bd09843f"
+        }
+      },
+      "cli_exit_code": 0,
+      "execution_kind": "Actual frozen validate_artifact_bundle.py CLI using the exact persisted R1 state and independent unchanged verdict. All54 current raw file hashes and graph/Policy bytes checked; input digests independently recomputed.",
+      "verification": {
+        "unique_native_tests": 28,
+        "skips": 0,
+        "parent_elapsed_seconds": 35.095316459,
+        "manifest_only_revision_reuses_unchanged_product_test_inputs": true,
+        "current_workflow_check_passed": true,
+        "declared_tier": "T2",
+        "manifest_exact_delta_paths": 16,
+        "pin_recompute_changed_paths": [],
+        "diff_check_exit_code": 0,
+        "prior_history_preserved": true
+      },
+      "handoff": {
+        "status": "bounded-runtime-readonly-query-prerequisite-reviewed",
+        "next_node": "verification",
+        "open_finding_ids": [],
+        "commit_sha": "5a8240414fdd118e70187827bc8c25aa4c33f1e9",
+        "commit_receipt_verified": true,
+        "continuation_staged": false,
+        "additional_commit_authorized": false,
+        "rs2_complete": false,
+        "cold_recovery_complete": false,
+        "plan_bindings": 244,
+        "oracle_bindings": 122,
+        "missing_bindings": 30,
+        "remaining": "Complete the assessment/action/claim/receipt/compensation and health/source currentness joins, then independent fresh-exec cold proof under the existing approved RS-2–RS-5 plan. This internal storage query alone issues no recovery authority.",
+        "prohibited": [
+          "automatic second commit",
+          "push",
+          "merge",
+          "deployment",
+          "release",
+          "network",
+          "external communication",
+          "monitoring",
+          "cumulative/performance workload",
+          "coverage issuance",
+          "WP10"
+        ]
+      }
+    }
+  ],
+  "p3_restart_runtime_readonly_entries": [
+    {
+      "record_id": "p3-restart-runtime-readonly-2026-09-20-r0",
+      "task_id": "GEW-REMAINING54-V1",
+      "entry_commit": "5a8240414fdd118e70187827bc8c25aa4c33f1e9",
+      "authority_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json#p3_restart_readonly_handle_commit_authorizations[0]",
+      "receipt": {
+        "schema_version": "1.0",
+        "candidate_id": "59ce36ad287b2d34b62a99396ca9e08b35b0a01bddf87773897b2450452df653",
+        "review_id": "fe8daf3137e9c78b5f7e7d69f0dd5a3cf6926f7628e2536ffa9398419513eda3",
+        "commit_sha": "5a8240414fdd118e70187827bc8c25aa4c33f1e9",
+        "tree_oid": "a9382421bcbd3a96338d2ec8ce35d785dc69db06",
+        "parent": "1f6dfee57523d5e09947f77d8149cbe7fb508ccf",
+        "policy_version": "4.0.0",
+        "manifest_sha256": "15d47357cf77c07e16c4d1771010344c06ce0c123d203adef571829967d7ecd9",
+        "committer_role": "authorized-committer",
+        "committer_id": "/root",
+        "verified": true
+      },
+      "scope": "One bounded RS-2 application admission prerequisite: internal installed-factory/runtime-bound retained storage query, with fresh read-only task-security checks under the existing root lease. No completed-assessment recovery or RS-3 action authority.",
+      "changes": [
+        "Add internal per-query currentness and lock-entry/close checks to the retained storage handle; foreign or invalid lock entry preserves the owner's lease, owned currentness failures revoke and release after per-call repository readers close.",
+        "Add a private installed-factory retained storage-query opener anchored to runtime namespace, current installation pins, repository scope and durable task target. Acquire the root before sequential read-only security reads; publish no evidence or mutation capability.",
+        "Add three focused integration methods for fresh factory/read-only/no-write behavior, lock entry/lifetime rejection, and runtime/security/final-callback drift; refresh only mechanical affected pins, run bounded affected tests, then independent artifact review."
+      ],
+      "primary_paths": [
+        "adapters/graph_engineering/adapters/local_release_simulator.py",
+        "application/graph_engineering/application/release_operations.py",
+        "tests/integration/test_wp08_release_operations.py"
+      ],
+      "verification": "RED first; native Python3.12 with fresh private source checkout attestation, explicit -X plus matching environment locator, serial failfast fixtures, real parent monotonic_ns and600second cap. No full-suite claim.",
+      "boundaries": {
+        "product_targets": 183,
+        "plan": 244,
+        "oracle": 122,
+        "missing": 30,
+        "full_rs2_complete": false,
+        "full_cold_recovery_complete": false,
+        "additional_commit_authorized": false
+      }
+    }
+  ],
   "p3_restart_readonly_handle_commit_authorizations": [
     {
       "schema_version": "1.0",
@@ -770,6 +1165,1080 @@
         "monitoring": false,
         "next_action": "Continue a separately bounded step within the same valid authorization: remaining typed retained read-only opening/lifecycle and RS-3 durable provenance prerequisites, followed by RS-4 actual source joins and RS-5 fresh-exec proof. Original-session cleanup does not authorize raw directory recovery, evidence issuance, automatic orphan repair or irreversible actions."
       }
+    }
+  ],
+  "p3_restart_action_provenance_readonly_revisions": [
+    {
+      "record_id": "p3-restart-action-provenance-readonly-2026-09-20-r0",
+      "artifact_digest": "9d86ef6e03bc0613aa9ec326924759e8e0720eb59365ae6ed2aa14049a3046d6",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "REVISE",
+        "code": "OK_REVISE",
+        "message": "apply routine findings and request a new independent review",
+        "next_node": "implementation",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "REVISE",
+        "input_digests": {
+          "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+          "state": "sha256:16abe3d385ab2786eb41565922009a5fa6b6a5d6b66a81b17bf35ccddc26cff6",
+          "verdict": "sha256:477b77916813f18deb5d89efe9ed862a40d13864a867e8ac59532677c2422c38"
+        }
+      },
+      "verification": {
+        "source_files_verified": 55,
+        "cli_exit_code": 1,
+        "input_digests": {
+          "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+          "state": "sha256:16abe3d385ab2786eb41565922009a5fa6b6a5d6b66a81b17bf35ccddc26cff6",
+          "verdict": "sha256:477b77916813f18deb5d89efe9ed862a40d13864a867e8ac59532677c2422c38"
+        }
+      },
+      "next_action": "Preserve R0 evidence and independent finding. TDD-repair only CAS peak retention within authorized repository.py and the existing WP08 integration test, then focused verification and independent R1 review; no authority expansion or commit."
+    },
+    {
+      "record_id": "p3-restart-action-provenance-readonly-2026-09-20-r1",
+      "artifact_digest": "feaee5ba2bcb616b1cb0a862b0b78832f190f882044008b8bf672efcd1b1fdcf",
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+          "state": "sha256:fb65c0f3d7b1469c099e097673429105ad6e907e7204014efeced28309c8195e",
+          "verdict": "sha256:bc664658047ed1acbf88d27b59f8d9ad86924cf99e0393bc9ba9f46dd3126ba8"
+        }
+      },
+      "verification": {
+        "source_files_verified": 55,
+        "cli_exit_code": 0,
+        "input_digests": {
+          "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+          "state": "sha256:fb65c0f3d7b1469c099e097673429105ad6e907e7204014efeced28309c8195e",
+          "verdict": "sha256:bc664658047ed1acbf88d27b59f8d9ad86924cf99e0393bc9ba9f46dd3126ba8"
+        }
+      },
+      "completion": "AP-H/AP-D/AP-S/AP-A/AP-V accepted for this bounded RS-AP slice. This independent PASS and actual reducer close the frozen Plan's pending review item without rewriting its reviewed input bytes. Both historical REVISE decisions, protocol INVALID result, native failures and repairs remain preserved.",
+      "accepted_behavior": "Bounded immutable durable facts and current-authority normal/compensated completion joins; no read-side mutation, clock renewal, outcome issuance or execution gate.",
+      "remaining_scope": "Full RS-4 assessment/health/source rehydration and RS-5 end-to-end fresh-process recovery remain outstanding. Existing root-only exec tests do not establish full cold recovery.",
+      "authority_boundary": "184 product/194 effective targets;25 current Manifest paths;no additional commit,push,merge,deploy,release,network or external communication.HEAD5a8240414fdd118e70187827bc8c25aa4c33f1e9 and empty index retained."
+    }
+  ],
+  "p3_restart_cold_source_design_revisions": [
+    {
+      "record_id": "p3-restart-cold-source-design-2026-09-20-r0",
+      "artifact_digest": "4d2713d697cd2db7fc65a1a6717ffb4e025d7661d8f30388ea750909e27d46f8",
+      "reduction": {
+        "cli_exit_code": 1,
+        "decision": {
+          "schema_version": "1.0",
+          "task_id": "GEW-REMAINING54-V1",
+          "artifact": "test_plan",
+          "decision": "REVISE",
+          "code": "OK_REVISE",
+          "message": "apply routine findings and request a new independent review",
+          "next_node": "test-plan",
+          "revision": 1,
+          "human_required": false,
+          "current_node": "test-plan",
+          "input_verdict": "REVISE",
+          "input_digests": {
+            "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+            "state": "sha256:e2f045cae5a8f68ce73f829d6c55e00e9e61a7277b0bc72ea9c83fa94c4f4b94",
+            "verdict": "sha256:a98bcacb8e0cc013cf656de42b8f35815efc48d6190e44a7608262d7cd6dbe4f"
+          }
+        },
+        "stderr": "",
+        "source_files_verified": 57,
+        "input_digests": {
+          "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+          "state": "sha256:e2f045cae5a8f68ce73f829d6c55e00e9e61a7277b0bc72ea9c83fa94c4f4b94",
+          "verdict": "sha256:a98bcacb8e0cc013cf656de42b8f35815efc48d6190e44a7608262d7cd6dbe4f"
+        }
+      },
+      "next_action": "Clarify the complete bounded locator/task/source read route and its exact authority boundary before implementation. Preserve the independent blocking finding; no product/test/source changes have begun.",
+      "pending_finding_ids": [
+        "GEW-REMAINING54-RS-C-SOURCE-BOUNDS-R0-001"
+      ]
+    },
+    {
+      "record_id": "p3-restart-cold-source-design-2026-09-20-r1",
+      "artifact_digest": "ac2e6275fb384831dba280d97372630a64c2c989068a32888db6cebc9f83a995",
+      "reduction": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ESCALATE",
+        "code": "E_SCOPE",
+        "message": "human decision required for change kinds: authority-expansion",
+        "next_node": "test-plan",
+        "revision": 1,
+        "human_required": true,
+        "current_node": "test-plan",
+        "input_verdict": "ESCALATE",
+        "input_digests": {
+          "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+          "state": "sha256:0322ae286758359432c6a7994934e988e7aa56a5cb41e986fcf48da0fb4927b1",
+          "verdict": "sha256:77db54165cfd08aed50eca6443743caadfaeea47b896a692086c28b8b1c83abb"
+        }
+      },
+      "next_action": "No implementation. Finish the authorized concrete design preparation for action/security pre-materialization bounds and outer retention, then obtain the precise new task/source API Human decision; existing action approval stays unchanged.",
+      "pending_finding_ids": [
+        "GEW-REMAINING54-RS-C-ACTION-SECURITY-BOUNDS-R1-001",
+        "GEW-REMAINING54-RS-C-OUTER-RETENTION-R1-001",
+        "GEW-REMAINING54-RS-C-READ-API-AUTHORITY-R1-001"
+      ]
+    },
+    {
+      "record_id": "p3-restart-cold-source-design-2026-09-20-r2",
+      "artifact_digest": "3249ab5a400f2277e17137db0b19f82f42ce998f5bec6500282b966c25971e1b",
+      "reduction": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ESCALATE",
+        "code": "E_SCOPE",
+        "message": "human decision required for change kinds: authority-expansion",
+        "next_node": "test-plan",
+        "revision": 2,
+        "human_required": true,
+        "current_node": "test-plan",
+        "input_verdict": "ESCALATE",
+        "input_digests": {
+          "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+          "state": "sha256:3840102a016b5b3e56b8793c0d7e108756a89b95c934fcc1254a3b78cc07783c",
+          "verdict": "sha256:4d1c987611c4e96034fb737597428b1268c410294db57540212c228931e42b20"
+        }
+      },
+      "next_action": "Wait for the precise Human decision on final R2 task/source read API proposal. Independent review resolved all three technical design findings; no RS-C code or product tests may start before new authority is recorded and the current transition is revalidated.",
+      "pending_finding_ids": [
+        "GEW-REMAINING54-RS-C-READ-API-AUTHORITY-R1-001"
+      ]
+    },
+    {
+      "record_id": "p3-restart-cold-source-design-2026-09-20-r3",
+      "artifact_digest": "c338fba73745b2668839094cbb5b803e76025b2d8d87c19d06187fc472d635f8",
+      "reduction": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "implementation",
+        "revision": 3,
+        "human_required": false,
+        "current_node": "test-plan",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:169ebbe001e271e57434f559ec7f622536af3b95b09bacbb29b6dadb7111336d",
+          "state": "sha256:f7a1545fc929e99eb098b9b111e5445cbcb467dabe6117774c6ac332828acb9e",
+          "verdict": "sha256:ec8107ed360ff42701bfed12e194bfbcebbcb72e2d2f8f6492dee42960eb3fb3"
+        }
+      },
+      "next_action": "Implement approved RS-C / RS-4–RS-5 with RED-first bounded serial tests, exact source/pin maintenance and independent implementation review; preserve all exclusions.",
+      "pending_finding_ids": []
+    }
+  ],
+  "p3_restart_cold_source_read_api_requests": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-restart-cold-source-read-api-request-2026-09-20-r0",
+      "decision_id": "GEW-REMAINING54-P3-COLD-SOURCE-READ-API-V1",
+      "status": "proposed-awaiting-human-authority",
+      "design_record_id": "p3-restart-cold-source-design-2026-09-20-r2",
+      "design_artifact_digest": "3249ab5a400f2277e17137db0b19f82f42ce998f5bec6500282b966c25971e1b",
+      "design_documents": [
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md"
+      ],
+      "problem": "The cold assessment locator and source recovery traverse unbounded TaskRepository load/replay/reference and legacy CAS reads before resource checks. Accepted read_action_provenance bounds only the action-specific capture and receipt bodies. R1 also identified unbounded downstream journal/security fields and unaccounted simultaneous closures; R2 specifies existing-reader hardening and one shared in-memory reservation lifetime.",
+      "proposed_api": "TaskRepository.read_category_recovery_sources(task_id, *, phase)",
+      "phases": [
+        "locator",
+        "sources"
+      ],
+      "approved_predecessor": {
+        "record_id": "p3-restart-action-provenance-readonly-2026-09-20-r1",
+        "artifact_digest": "feaee5ba2bcb616b1cb0a862b0b78832f190f882044008b8bf672efcd1b1fdcf",
+        "decision": {
+          "schema_version": "1.0",
+          "task_id": "GEW-REMAINING54-V1",
+          "artifact": "implementation",
+          "decision": "ADVANCE",
+          "code": "OK_ADVANCE",
+          "message": "artifact passed independent review",
+          "next_node": "verification",
+          "revision": 1,
+          "human_required": false,
+          "current_node": "implementation",
+          "input_verdict": "PASS",
+          "input_digests": {
+            "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+            "state": "sha256:fb65c0f3d7b1469c099e097673429105ad6e907e7204014efeced28309c8195e",
+            "verdict": "sha256:bc664658047ed1acbf88d27b59f8d9ad86924cf99e0393bc9ba9f46dd3126ba8"
+          }
+        }
+      },
+      "target_boundary": {
+        "existing_product_targets": 184,
+        "existing_effective_targets": 194,
+        "additions": [],
+        "new_files": []
+      },
+      "requested_scope": {
+        "storage": "Bounded doctor-only immutable capture of the selected task wrapper/head/events/transactions/scope/reference metadata and same-task committed CAS bodies, under exact existing runtime/repository/object/lock/WorkContext identity.",
+        "consumers": [
+          "application/graph_engineering/application/tasks.py",
+          "application/graph_engineering/application/profile_execution.py"
+        ],
+        "continuation": "Complete the reviewed RS-C locator/source reconstruction and RS-4/RS-5 normal-column read-only recovery with the existing retained-root and RS-AP action authority joins.",
+        "verification": "Focused RED-first serial tests using fresh private source attestation and independent design/implementation review;600second command cap and unchanged canonical Policy300second evidence cap.",
+        "pins": "Only affected existing authorized installation/source/bootstrap/pyproject/support projections; read-only ArtifactRecord and LogicalBodyManifest dependencies stay byte-identical.",
+        "existing_reader_hardening": [
+          "application/graph_engineering/application/actions.py",
+          "application/graph_engineering/application/security.py",
+          "application/graph_engineering/application/release_operations.py",
+          "storage/graph_engineering/storage/security.py"
+        ],
+        "resource_ownership": "One private no-I/O ledger in existing repository.py, bound lexically to fixed cold ports/contexts; minimum installed remaining temporary/result allowances, pre-allocation admission and transfers spanning nested reads, both closures, publication/reuse/close. Public action/security signatures and WorkContext APIs remain unchanged."
+      },
+      "preserved_boundaries": [
+        "Prior accepted artifacts and consumed Git commit approvals remain historical.",
+        "No target growth, new source file, DB schema, event, GraphRef, dependency, daemon or network.",
+        "No durable recovery writes, action replay, new action outcome or accepted coverage issuance.",
+        "Plan244/oracle122/missing30; no mandatory/scenario coverage, cumulative/performance workload, monitoring or WP10.",
+        "No stage/commit/push/merge/deploy/release/external communication."
+      ],
+      "authority_rule": {
+        "project_path": "docs/impact/graph-engineering-workflow.md",
+        "quote": "A pin cycle, new storage API/schema, new file or unverifiable source requires a concrete authority decision, not a fallback.",
+        "prior_approval_ref": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json#p3_restart_action_provenance_amendment",
+        "prior_scope": "bounded read-only action-provenance API contract",
+        "project_line": 182
+      },
+      "preparation": {
+        "product_tests_run": 0,
+        "product_code_test_config_bytes_unchanged": true,
+        "prior_members_preserved": 150,
+        "source_files_verified": 57,
+        "read_only_reference_files_verified": 20,
+        "workflow_structure_check_passed": true,
+        "git_diff_check_passed": true,
+        "manifest_exact_25_dirty_targets": true
+      },
+      "independent_review": {
+        "actor_id": "/root/rs_c_design_reviewer",
+        "record_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json#p3_restart_cold_source_design_revisions[2]",
+        "verdict": "ESCALATE",
+        "resolved_design_findings": [
+          "GEW-REMAINING54-RS-C-SOURCE-BOUNDS-R0-001",
+          "GEW-REMAINING54-RS-C-ACTION-SECURITY-BOUNDS-R1-001",
+          "GEW-REMAINING54-RS-C-OUTER-RETENTION-R1-001"
+        ],
+        "open_findings": [
+          "GEW-REMAINING54-RS-C-READ-API-AUTHORITY-R1-001"
+        ]
+      },
+      "actual_reduction": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ESCALATE",
+        "code": "E_SCOPE",
+        "message": "human decision required for change kinds: authority-expansion",
+        "next_node": "test-plan",
+        "revision": 2,
+        "human_required": true,
+        "current_node": "test-plan",
+        "input_verdict": "ESCALATE",
+        "input_digests": {
+          "envelope": "sha256:9bacdf9cbbe3dba914df129decaf5fbb426e0211c9a7aec1d70e7faf52be9e0d",
+          "state": "sha256:3840102a016b5b3e56b8793c0d7e108756a89b95c934fcc1254a3b78cc07783c",
+          "verdict": "sha256:4d1c987611c4e96034fb737597428b1268c410294db57540212c228931e42b20"
+        }
+      }
+    }
+  ],
+  "p3_restart_cold_installation_control_design_revisions": [
+    {
+      "cli_exit_code": 1,
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ESCALATE",
+        "code": "E_SCOPE",
+        "message": "human decision required for change kinds: authority-expansion, target-boundary",
+        "next_node": "test-plan",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "test-plan",
+        "input_verdict": "ESCALATE",
+        "input_digests": {
+          "envelope": "sha256:169ebbe001e271e57434f559ec7f622536af3b95b09bacbb29b6dadb7111336d",
+          "state": "sha256:540ca4e7726fd7c9c5fcde368566f5beee47d61dafcbc7b218b56f1c2b4adc77",
+          "verdict": "sha256:cfaf3c93d221fedd88b2eb5e3eb02c3d5d2f57fc0e6202b0aea89cfa602d961f"
+        }
+      },
+      "stdout": "{\n  \"schema_version\": \"1.0\",\n  \"task_id\": \"GEW-REMAINING54-V1\",\n  \"artifact\": \"test_plan\",\n  \"decision\": \"ESCALATE\",\n  \"code\": \"E_SCOPE\",\n  \"message\": \"human decision required for change kinds: authority-expansion, target-boundary\",\n  \"next_node\": \"test-plan\",\n  \"revision\": 0,\n  \"human_required\": true,\n  \"current_node\": \"test-plan\",\n  \"input_verdict\": \"ESCALATE\",\n  \"input_digests\": {\n    \"envelope\": \"sha256:169ebbe001e271e57434f559ec7f622536af3b95b09bacbb29b6dadb7111336d\",\n    \"state\": \"sha256:540ca4e7726fd7c9c5fcde368566f5beee47d61dafcbc7b218b56f1c2b4adc77\",\n    \"verdict\": \"sha256:cfaf3c93d221fedd88b2eb5e3eb02c3d5d2f57fc0e6202b0aea89cfa602d961f\"\n  }\n}\n",
+      "stderr": ""
+    },
+    {
+      "cli_exit_code": 1,
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ESCALATE",
+        "code": "E_SCOPE",
+        "message": "human decision required for change kinds: authority-expansion, target-boundary",
+        "next_node": "test-plan",
+        "revision": 1,
+        "human_required": true,
+        "current_node": "test-plan",
+        "input_verdict": "ESCALATE",
+        "input_digests": {
+          "envelope": "sha256:169ebbe001e271e57434f559ec7f622536af3b95b09bacbb29b6dadb7111336d",
+          "state": "sha256:681367fe529fde4ee4154fc62cdc2237a350cdcfe1d3fc7bce90dc82db8b3d30",
+          "verdict": "sha256:1d590a27e4e2de2d75b0a4d27224eac5e210a41818c765ba6c15ee3f39b97ce8"
+        }
+      },
+      "stdout": "{\n  \"schema_version\": \"1.0\",\n  \"task_id\": \"GEW-REMAINING54-V1\",\n  \"artifact\": \"test_plan\",\n  \"decision\": \"ESCALATE\",\n  \"code\": \"E_SCOPE\",\n  \"message\": \"human decision required for change kinds: authority-expansion, target-boundary\",\n  \"next_node\": \"test-plan\",\n  \"revision\": 1,\n  \"human_required\": true,\n  \"current_node\": \"test-plan\",\n  \"input_verdict\": \"ESCALATE\",\n  \"input_digests\": {\n    \"envelope\": \"sha256:169ebbe001e271e57434f559ec7f622536af3b95b09bacbb29b6dadb7111336d\",\n    \"state\": \"sha256:681367fe529fde4ee4154fc62cdc2237a350cdcfe1d3fc7bce90dc82db8b3d30\",\n    \"verdict\": \"sha256:1d590a27e4e2de2d75b0a4d27224eac5e210a41818c765ba6c15ee3f39b97ce8\"\n  }\n}\n",
+      "stderr": ""
+    },
+    {
+      "decision": "INVALID",
+      "code": "E_FINDINGS",
+      "message": "PASS cannot contain unresolved findings"
+    }
+  ],
+  "p3_restart_cold_installation_control_authority_requests": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-restart-cold-installation-control-human-request-2026-09-20-r1",
+      "decision_id": "GEW-REMAINING54-P3-COLD-INSTALLATION-CONTROL-V1",
+      "status": "pending-human",
+      "proposal_source_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json#p3_restart_cold_installation_control_design_revisions[1]",
+      "artifact_digest": "9cfae92b397b756342e30b06e03c8fe74d680584616f7d453ced3ec26b063212",
+      "independent_reviewer_id": "/root/rs_c_b_resource_reviewer",
+      "actual_reducer_decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ESCALATE",
+        "code": "E_SCOPE",
+        "message": "human decision required for change kinds: authority-expansion, target-boundary",
+        "next_node": "test-plan",
+        "revision": 1,
+        "human_required": true,
+        "current_node": "test-plan",
+        "input_verdict": "ESCALATE",
+        "input_digests": {
+          "envelope": "sha256:169ebbe001e271e57434f559ec7f622536af3b95b09bacbb29b6dadb7111336d",
+          "state": "sha256:681367fe529fde4ee4154fc62cdc2237a350cdcfe1d3fc7bce90dc82db8b3d30",
+          "verdict": "sha256:1d590a27e4e2de2d75b0a4d27224eac5e210a41818c765ba6c15ee3f39b97ce8"
+        }
+      },
+      "requested_amendment": {
+        "decision_id": "GEW-REMAINING54-P3-COLD-INSTALLATION-CONTROL-V1",
+        "status": "pending-human",
+        "added_target": "storage/graph_engineering/storage/migration.py",
+        "product_target_count_before": 184,
+        "product_target_count_after": 185,
+        "effective_target_count_before": 194,
+        "effective_target_count_after": 195,
+        "manifest_target_count_before": 40,
+        "manifest_target_count_after": 41,
+        "private_paths": [
+          "InstallationCommandScope.require_current/_connection_opened -> _require_command_scope -> _current_manifest",
+          "_require_command_scope -> _resolve_locator -> _load_locators"
+        ],
+        "allowed_scope": "Only bounded active-manifest and locator-registry reads plus a private descriptor helper in the new file; exact existing cold-owner propagation, affected existing provenance pins, focused tests and independent review remain in already allowed targets.",
+        "requested_actions": [
+          "documentation",
+          "implementation",
+          "verification",
+          "independent-review"
+        ],
+        "unchanged_boundaries": [
+          "no new public API/schema/event/GraphRef/dependency/file",
+          "no installation, upgrade, migration, activation or locator-registration writes",
+          "no durable recovery writes or action replay",
+          "no commit/push/merge/deployment/release/network/external-message",
+          "no performance/cumulative/coverage/monitoring/WP10"
+        ]
+      },
+      "request_text": "请批准将 storage/graph_engineering/storage/migration.py 加入本次修改范围，仅为冷恢复补齐安装控制清单和仓库定位表的有界只读校验，并继续相关实现、测试和独立审查。",
+      "current_authority": "The prior RS-C R2 read API approval remains valid. Actual product/effective/selected boundaries are184/194/40 until this separate one-file decision. No authority record or allowlist expansion has been applied.",
+      "required_boundary_source": "docs/impact/graph-engineering-workflow.md RS-C: If an exact required write target falls outside184, stop before writing it and identify that path."
+    }
+  ],
+  "p3_restart_cold_installation_control_reducer_repairs": [
+    {
+      "repair_id": "p3-restart-cold-installation-control-reducer-input-repair-2026-09-20-r2-a1",
+      "source_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json#p3_restart_cold_installation_control_design_revisions[2]",
+      "state_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json#p3_restart_cold_installation_control_reducer_repairs[0]",
+      "verdict_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json#p3_restart_cold_installation_control_design_revisions[2]",
+      "cli_exit_code": 0,
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "implementation",
+        "revision": 2,
+        "human_required": false,
+        "current_node": "test-plan",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:0e075331e307be8b0acc995e95c7dc7e21ca66107abfd3fa7f496012c3fdb570",
+          "state": "sha256:b511c1028fdbfc2e0339bb94cb58afd8e9c9636b6732033bf8ab69cf9a7eafbe",
+          "verdict": "sha256:03717eec5e2570303dc4743b10db4fc9353a74c5e6ae1b8253478ac1eb3ede72"
+        }
+      }
+    }
+  ],
+  "p3_restart_cold_currentness_review_attempts": [
+    {
+      "record_id": "p3-restart-cold-installed-currentness-detail-2026-09-20-r0",
+      "attempt": 0,
+      "artifact_revision": 0,
+      "cli_exit_code": 2,
+      "decision": {
+        "decision": "INVALID",
+        "code": "E_INPUT",
+        "message": "finding[0] has unknown severity"
+      },
+      "stdout": "{\n  \"decision\": \"INVALID\",\n  \"code\": \"E_INPUT\",\n  \"message\": \"finding[0] has unknown severity\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "record_id": "p3-restart-cold-installed-currentness-detail-2026-09-20-r0",
+      "attempt": 1,
+      "artifact_revision": 0,
+      "cli_exit_code": 0,
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "test_plan",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "implementation",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "test-plan",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:0e075331e307be8b0acc995e95c7dc7e21ca66107abfd3fa7f496012c3fdb570",
+          "state": "sha256:579e57fefe229cccb446682d443a47d7622deb725eb62352e700e45412b5d715",
+          "verdict": "sha256:8b58a7c29d603913378b089033c6f2b62206a31dd94d9daf6c0dce9dbc7861cf"
+        }
+      },
+      "stdout": "{\n  \"schema_version\": \"1.0\",\n  \"task_id\": \"GEW-REMAINING54-V1\",\n  \"artifact\": \"test_plan\",\n  \"decision\": \"ADVANCE\",\n  \"code\": \"OK_ADVANCE\",\n  \"message\": \"artifact passed independent review\",\n  \"next_node\": \"implementation\",\n  \"revision\": 0,\n  \"human_required\": false,\n  \"current_node\": \"test-plan\",\n  \"input_verdict\": \"PASS\",\n  \"input_digests\": {\n    \"envelope\": \"sha256:0e075331e307be8b0acc995e95c7dc7e21ca66107abfd3fa7f496012c3fdb570\",\n    \"state\": \"sha256:579e57fefe229cccb446682d443a47d7622deb725eb62352e700e45412b5d715\",\n    \"verdict\": \"sha256:8b58a7c29d603913378b089033c6f2b62206a31dd94d9daf6c0dce9dbc7861cf\"\n  }\n}\n",
+      "stderr": ""
+    }
+  ],
+  "p3_restart_cold_source_implementation_revisions": [
+    {
+      "record_id": "p3-restart-cold-source-implementation-2026-09-21-r0",
+      "artifact_digest": "sha256:6bb6505608efed38e2cd90616ddebc6fec9d0e309aca8bafd82a1a7403da2bf7",
+      "cli_exit_code": 0,
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 0,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:0e075331e307be8b0acc995e95c7dc7e21ca66107abfd3fa7f496012c3fdb570",
+          "state": "sha256:7b32545972720e1a6e4701c6d4db04cdd03634a081a8f40f1df3b22d17ec77ed",
+          "verdict": "sha256:3d292b766171e8d26cd558f39a357ffc1122ae0f38150889728605ea28bf61da"
+        }
+      },
+      "stderr": "",
+      "completion": "Implementation independently accepted. All55 RS historical finding IDs now have explicit resolved decisions; no new blocking finding. Actual reducer result is authoritative.",
+      "verification": {
+        "source_files": 38,
+        "readonly_dependencies": 43,
+        "immutable_member_refs": 90,
+        "native_unique_methods": 122,
+        "artifact_digest": "sha256:6bb6505608efed38e2cd90616ddebc6fec9d0e309aca8bafd82a1a7403da2bf7",
+        "bindings": "matched",
+        "index_empty": true
+      },
+      "authority_boundary": "Proceed only to authorized verification; no Candidate, staging or irreversible authority."
+    },
+    {
+      "cli_exit_code": 0,
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "implementation",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "verification",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "implementation",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:105758c818b8a3a1b68eca77c7b451cb796b117e6fe0ef99a0b1aef3a9caedb7",
+          "state": "sha256:1e55890f28a9d69159e20c4e898099a249a6e53a882b5aef5cafef239177c1d0",
+          "verdict": "sha256:b6c56b015086b9ccc9f92d2eaaa9b151e2b51642540e0f9c4cc8ac68efd2b429"
+        }
+      },
+      "stderr": ""
+    }
+  ],
+  "p3_restart_cold_source_verification_revisions": [
+    {
+      "record_id": "p3-restart-cold-source-verification-2026-09-21-r0",
+      "artifact_digest": "sha256:296ac04f32f3081fe58c5e17c24fb31c9e1e39e4e681937118440b6fded7dd34",
+      "cli_exit_code": 1,
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "verification",
+        "decision": "ESCALATE",
+        "code": "E_AUTHORITY",
+        "message": "next node requires separate authority: candidate",
+        "next_node": "candidate",
+        "revision": 0,
+        "human_required": true,
+        "current_node": "verification",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:0e075331e307be8b0acc995e95c7dc7e21ca66107abfd3fa7f496012c3fdb570",
+          "state": "sha256:cfaf776929fda5a412d61b9c37fe54d9cfc1ad6881a88a87a9c2968a6230199c",
+          "verdict": "sha256:fd2c2bbb753fb2feb4cf79d0c919cedb7a7daad3413dfa9e3195811d1dec13c3"
+        }
+      },
+      "stderr": "",
+      "quality_review": "Independent verification PASS,122 unique native methods/13batches and affected42 static accepted within approved normal-only scope. This is not canonical Candidate evidence.",
+      "authority_boundary": "Honor actual reducer E_AUTHORITY; do not stage, create Candidate, commit or perform external/irreversible actions without the separately missing authority."
+    },
+    {
+      "cli_exit_code": 0,
+      "decision": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "artifact": "verification",
+        "decision": "ADVANCE",
+        "code": "OK_ADVANCE",
+        "message": "artifact passed independent review",
+        "next_node": "candidate",
+        "revision": 1,
+        "human_required": false,
+        "current_node": "verification",
+        "input_verdict": "PASS",
+        "input_digests": {
+          "envelope": "sha256:105758c818b8a3a1b68eca77c7b451cb796b117e6fe0ef99a0b1aef3a9caedb7",
+          "state": "sha256:c91e7fcdf4f00bf7d7aea2a0162f85b75a3b11d87abe59e04b60f4741467aa27",
+          "verdict": "sha256:cfa4353dc8266833156fbbbc4f6dd0d986e374be72e52c2aaa59fb00343192b1"
+        }
+      },
+      "stderr": ""
+    }
+  ],
+  "p3_restart_cold_source_candidate_authority_requests": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-restart-cold-source-candidate-authority-request-2026-09-21-r0",
+      "status": "awaiting-human-decision",
+      "authority_effect": "none",
+      "current_review_results": {
+        "implementation": "PASS; actual ADVANCE to verification",
+        "verification": "PASS; actual ESCALATE/E_AUTHORITY at candidate successor"
+      },
+      "current_decision_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json#p3_restart_cold_source_verification_revisions[0]",
+      "requested": {
+        "scope": "Authorize only staging the42 currently selected Manifest paths and bounded canonical verification/Candidate preparation/independent review; commit remains a separate later authority.",
+        "target_ref": ".workflow/manifest.json#target_files",
+        "proposed_commit_message": "feat: restore retained release assessments from bounded durable sources",
+        "canonical_timeout_seconds": 300,
+        "native_to_canonical_batching": "Split the423.910s Matrix batch into its3 individual methods; retain all other currently passing <=300s bounded groups. Use only approved targeted native selectors, no cumulative/performance/coverage workload. Generate canonical evidence only after staging authority and exact index/worktree agreement.",
+        "required_actions": [
+          "stage",
+          "verification",
+          "candidate",
+          "independent-review",
+          "review"
+        ],
+        "not_authorized": [
+          "commit",
+          "push",
+          "merge",
+          "deploy",
+          "release",
+          "network",
+          "external-communication"
+        ],
+        "reason": "Effective envelope lacks candidate and human amendment explicitly excludes staging; historical commit approvals are consumed."
+      },
+      "exact_selected_targets": [
+        ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+        ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+        ".workflow/manifest.json",
+        "adapters/graph_engineering/adapters/local_release_simulator.py",
+        "application/graph_engineering/application/actions.py",
+        "application/graph_engineering/application/profile_execution.py",
+        "application/graph_engineering/application/release_operations.py",
+        "application/graph_engineering/application/security.py",
+        "application/graph_engineering/application/tasks.py",
+        "config/actions/action-policy-local-actions-v1.json",
+        "config/actions/action-policy-v1.json",
+        "config/actions/concrete-action-policy-v1.json",
+        "config/contracts/action-adapter-registry-v1.json",
+        "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+        "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+        "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+        "config/release-operations/release-operations-installation-bootstrap-v1.json",
+        "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+        "config/security/security-runtime-local-actions-v1.json",
+        "config/security/security-runtime-v1.json",
+        "config/verification/wp-00-targets.json",
+        "core/graph_engineering/__init__.py",
+        "core/graph_engineering/core/profile_execution.py",
+        "docs/impact/graph-engineering-workflow.md",
+        "docs/plans/2026-08-13-graph-engineering-workflow.md",
+        "docs/specs/graph-engineering-workflow.md",
+        "docs/test-plans/graph-engineering-workflow.md",
+        "pyproject.toml",
+        "storage/graph_engineering/storage/migration.py",
+        "storage/graph_engineering/storage/repository.py",
+        "storage/graph_engineering/storage/security.py",
+        "tests/integration/test_wp08_release_operations.py",
+        "tests/security/test_wp08_remaining54_authority.py",
+        "tests/support/runtime_distribution.py",
+        "tests/support/runtime_resources.py",
+        "tests/support/source_checkout_attestation.py",
+        "tests/support/wp08_category_execution.py",
+        "tests/unit/test_wp08_release_operations.py"
+      ],
+      "source_amendment_boundary": {
+        "path": ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+        "member": "p3_restart_cold_source_read_api_amendment",
+        "quote": "No stage/commit/push/merge/deploy/release/external communication."
+      },
+      "request_text": "是否授权按本次42文件清单暂存，并生成、执行规范验证和独立审查候选提交？本请求不包含commit/push/merge/deploy/release/network/外部通信。"
+    }
+  ],
+  "p3_restart_cold_source_checkpoints": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-restart-cold-source-checkpoint-2026-09-21-r0",
+      "scope": "Approved normal-only RS-C/RS-4/RS-5 slice; does not close unrelated earlier Candidate/coverage scope.",
+      "current_node": "verification",
+      "pending_successor": "candidate",
+      "quality_reviews": {
+        "implementation": "PASS",
+        "verification": "PASS"
+      },
+      "completed_transitions": [
+        {
+          "node": "implementation",
+          "next_node": "verification",
+          "decision": "ADVANCE"
+        }
+      ],
+      "blocked_transition": {
+        "node": "verification",
+        "next_node": "candidate",
+        "decision": "ESCALATE",
+        "code": "E_AUTHORITY"
+      },
+      "bindings": [
+        {
+          "node": "p3_restart_cold_source_implementation_revisions",
+          "revision": 0,
+          "members": {
+            "source-manifest": {
+              "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+              "member": "p3_restart_cold_source_implementation_revisions[0]",
+              "canonical_sha256": "sha256:6bb6505608efed38e2cd90616ddebc6fec9d0e309aca8bafd82a1a7403da2bf7"
+            },
+            "state": {
+              "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+              "member": "p3_restart_cold_source_implementation_revisions[0]",
+              "canonical_sha256": "sha256:7b32545972720e1a6e4701c6d4db04cdd03634a081a8f40f1df3b22d17ec77ed"
+            },
+            "review-verdict": {
+              "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+              "member": "p3_restart_cold_source_implementation_revisions[0]",
+              "canonical_sha256": "sha256:3d292b766171e8d26cd558f39a357ffc1122ae0f38150889728605ea28bf61da"
+            },
+            "decision": {
+              "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+              "member": "p3_restart_cold_source_implementation_revisions[0]",
+              "canonical_sha256": "sha256:ff41afeef5ed8ecb75f59c951ca9f3b355c402610732e390b71c41c08b140c54"
+            }
+          }
+        },
+        {
+          "node": "p3_restart_cold_source_verification_revisions",
+          "revision": 0,
+          "members": {
+            "source-manifest": {
+              "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+              "member": "p3_restart_cold_source_verification_revisions[0]",
+              "canonical_sha256": "sha256:296ac04f32f3081fe58c5e17c24fb31c9e1e39e4e681937118440b6fded7dd34"
+            },
+            "state": {
+              "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+              "member": "p3_restart_cold_source_verification_revisions[0]",
+              "canonical_sha256": "sha256:cfaf776929fda5a412d61b9c37fe54d9cfc1ad6881a88a87a9c2968a6230199c"
+            },
+            "review-verdict": {
+              "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+              "member": "p3_restart_cold_source_verification_revisions[0]",
+              "canonical_sha256": "sha256:fd2c2bbb753fb2feb4cf79d0c919cedb7a7daad3413dfa9e3195811d1dec13c3"
+            },
+            "decision": {
+              "path": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+              "member": "p3_restart_cold_source_verification_revisions[0]",
+              "canonical_sha256": "sha256:01b0ac04b7ff5162e889014efdd1af89119d1c32b3a541930fc8dcf5ac3548ee"
+            }
+          }
+        }
+      ],
+      "replay": {
+        "node_replays": [
+          {
+            "key": "p3_restart_cold_source_implementation_revisions",
+            "decision": "ADVANCE",
+            "code": "OK_ADVANCE",
+            "cli_exit_code": 0,
+            "matched": true,
+            "artifact_digest": "sha256:6bb6505608efed38e2cd90616ddebc6fec9d0e309aca8bafd82a1a7403da2bf7",
+            "source_files_matched": 38
+          },
+          {
+            "key": "p3_restart_cold_source_verification_revisions",
+            "decision": "ESCALATE",
+            "code": "E_AUTHORITY",
+            "cli_exit_code": 1,
+            "matched": true,
+            "artifact_digest": "sha256:296ac04f32f3081fe58c5e17c24fb31c9e1e39e4e681937118440b6fded7dd34",
+            "source_files_matched": 38
+          }
+        ],
+        "head_unchanged": true,
+        "index_empty": true,
+        "diff_check_pass": true
+      },
+      "pending_rs_finding_ids": [],
+      "next_action": "Await only the exact staging/Candidate/verification/review authority request. Do not repeat accepted implementation or request the same prior API/control authority.",
+      "authority_request_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json#p3_restart_cold_source_candidate_authority_requests[0]",
+      "authority_boundary": "No Candidate/staging/commit/push/merge/deploy/release/network/external action performed. Existing HEAD and empty index preserved.",
+      "record_placement": "Append-only checkpoint in existing authorized decision container; no new target path or mutable whole-file self-reference."
+    }
+  ],
+  "p3_restart_cold_source_candidate_authorizations": [
+    {
+      "schema_version": "1.0",
+      "task_id": "GEW-REMAINING54-V1",
+      "record_id": "p3-restart-cold-source-candidate-human-2026-09-21-r0",
+      "user_message": "授权",
+      "decision": "approved",
+      "approval_context": "Direct response to exact42-path staging, canonical verification, Candidate generation and independent review request. No commit requested or authorized in that request.",
+      "request_ref": ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json#p3_restart_cold_source_candidate_authority_requests[0]",
+      "authorized_actions": [
+        "stage",
+        "verification",
+        "candidate",
+        "independent-review",
+        "review"
+      ],
+      "preserved_exclusions": [
+        "commit",
+        "push",
+        "merge",
+        "deploy",
+        "release",
+        "network",
+        "external-communication",
+        "cumulative/performance/coverage workload"
+      ],
+      "effective_envelope": {
+        "schema_version": "1.0",
+        "task_id": "GEW-REMAINING54-V1",
+        "goal": "Implement the Human-approved bounded RS-C R2 task/source read API and fixed consumers, existing action/security read hardening and shared reservation lifetime, then complete normal-only RS-4/RS-5 under P3-RS-A; no coverage or irreversible action. Include the explicitly confirmed private installation-control read extension in migration.py.",
+        "non_goals": [
+          "Change the approved Positioning or PRD Intent Baseline.",
+          "Use or modify a user project or the read-only reference repository.",
+          "Use a real staging or production environment, network access, remote health checks, credentials, or external services.",
+          "Enable or implement WP-10 installation, upgrade, deployment, publication, or release scope.",
+          "Add a database schema, repository event kind, GraphRef field or API, dependency, daemon, or remote state service.",
+          "Treat local production-like or release-simulator evidence as real production, deployment, or release evidence.",
+          "Commit, push, merge, deploy, release, publish, or communicate externally.",
+          "mandatory/scenario coverage issuance",
+          "cumulative/performance workload execution",
+          "monitoring"
+        ],
+        "allowed_targets": [
+          ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/docs-source-manifest-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/docs-state-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/docs-review-verdict-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/docs-decision-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p1-source-manifest-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p1-state-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p1-review-verdict-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p1-decision-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-source-manifest-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-state-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-review-verdict-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-foundation-decision-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-source-manifest-r2.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-state-r2.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-review-verdict-r2.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p2-scenarios-decision-r2.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-source-manifest-r2.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-state-r2.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-review-verdict-r2.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p3-foundation-decision-r2.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-source-manifest-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-state-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-review-verdict-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/p3-mandatory-decision-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/candidate-source-manifest-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/candidate-state-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/candidate-review-verdict-r1.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/candidate-decision-r1.json",
+          "docs/adr/0007-offline-performance-benchmark-authority.md",
+          "docs/adr/0008-local-profile-scenario-truth-authority.md",
+          "docs/adr/0009-offline-release-operations-simulator-authority.md",
+          "docs/specs/graph-engineering-workflow.md",
+          "docs/impact/graph-engineering-workflow.md",
+          "docs/plans/2026-08-13-graph-engineering-workflow.md",
+          "docs/test-plans/graph-engineering-workflow.md",
+          "pyproject.toml",
+          "core/graph_engineering/__init__.py",
+          "core/graph_engineering/core/__init__.py",
+          "core/graph_engineering/core/contracts/resources.py",
+          "core/graph_engineering/core/performance_benchmark.py",
+          "core/graph_engineering/core/profile_coverage.py",
+          "core/graph_engineering/core/profile_execution.py",
+          "core/graph_engineering/core/source_checkout.py",
+          "core/graph_engineering/core/profiles.py",
+          "core/graph_engineering/core/scenario_truth.py",
+          "core/graph_engineering/core/release_operations.py",
+          "application/graph_engineering/application/__init__.py",
+          "application/graph_engineering/application/actions.py",
+          "application/graph_engineering/application/dependency_security.py",
+          "application/graph_engineering/application/performance_benchmark.py",
+          "application/graph_engineering/application/profile_execution.py",
+          "application/graph_engineering/application/profile_coverage.py",
+          "application/graph_engineering/application/profile_coverage_oracle.py",
+          "application/graph_engineering/application/profile_real_e2e.py",
+          "application/graph_engineering/application/profile_real_e2e_verifier.py",
+          "application/graph_engineering/application/runner.py",
+          "application/graph_engineering/application/runtime.py",
+          "application/graph_engineering/application/tasks.py",
+          "application/graph_engineering/application/scenario_truth.py",
+          "application/graph_engineering/application/release_operations.py",
+          "adapters/graph_engineering/adapters/__init__.py",
+          "adapters/graph_engineering/adapters/action_adapters.py",
+          "adapters/graph_engineering/adapters/local_release_simulator.py",
+          "config/actions/action-policy-local-actions-v1.json",
+          "config/actions/action-policy-v1.json",
+          "config/actions/concrete-action-policy-v1.json",
+          "config/actions/connector-registry-v1.json",
+          "config/contracts/action-adapter-registry-v1.json",
+          "config/contracts/action-adapter-schema-registry-v1.json",
+          "config/contracts/profile-schema-registry-v1.json",
+          "config/contracts/schemas/scenario-truth-policy-registry-1.0.0.json",
+          "config/contracts/schemas/scenario-truth-policy-registry-input-1.0.0.json",
+          "config/contracts/schemas/scenario-truth-fixture-registry-1.0.0.json",
+          "config/contracts/schemas/scenario-truth-fixture-registry-input-1.0.0.json",
+          "config/contracts/schemas/scenario-truth-observation-1.0.0.json",
+          "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
+          "config/contracts/schemas/scenario-truth-installation-bootstrap-1.0.0.json",
+          "config/contracts/schemas/scenario-truth-installation-bootstrap-input-1.0.0.json",
+          "config/contracts/schemas/category-completion-assessment-1.3.0.json",
+          "config/contracts/schemas/category-completion-assessment-input-1.3.0.json",
+          "config/contracts/schemas/release-operations-policy-registry-1.0.0.json",
+          "config/contracts/schemas/release-operations-policy-registry-input-1.0.0.json",
+          "config/contracts/schemas/release-simulator-fixture-registry-1.0.0.json",
+          "config/contracts/schemas/release-simulator-fixture-registry-input-1.0.0.json",
+          "config/contracts/schemas/release-artifact-manifest-1.0.0.json",
+          "config/contracts/schemas/release-artifact-manifest-input-1.0.0.json",
+          "config/contracts/schemas/release-health-observation-1.0.0.json",
+          "config/contracts/schemas/release-health-observation-input-1.0.0.json",
+          "config/contracts/schemas/release-deployment-observation-1.0.0.json",
+          "config/contracts/schemas/release-deployment-observation-input-1.0.0.json",
+          "config/contracts/schemas/release-operations-observation-1.0.0.json",
+          "config/contracts/schemas/release-operations-observation-input-1.0.0.json",
+          "config/contracts/schemas/release-operations-installation-bootstrap-1.0.0.json",
+          "config/contracts/schemas/release-operations-installation-bootstrap-input-1.0.0.json",
+          "config/contracts/schemas/category-completion-assessment-1.4.0.json",
+          "config/contracts/schemas/category-completion-assessment-input-1.4.0.json",
+          "config/contracts/schemas/profile-coverage-oracle-input-1.1.0.json",
+          "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+          "config/performance/performance-benchmark-registry-v1.json",
+          "config/performance/performance-benchmark-installation-bootstrap-v1.json",
+          "config/profiles/profile-coverage-execution-plan-v1.json",
+          "config/profiles/profile-real-e2e-binding-registry-v1.json",
+          "config/profiles/scenario-truth-policy-registry-v1.json",
+          "config/profiles/scenario-truth-fixture-registry-v1.json",
+          "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+          "config/release-coverage/oracle-manifest-v1.json",
+          "config/release-operations/release-operations-policy-registry-v1.json",
+          "config/release-operations/release-simulator-fixture-registry-v1.json",
+          "config/release-operations/release-operations-installation-bootstrap-v1.json",
+          "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+          "config/security/security-runtime-local-actions-v1.json",
+          "config/security/security-runtime-v1.json",
+          "config/test-oracles/profile-performance-noise-outlier-v1.json",
+          "config/test-oracles/profile-performance-correctness-regression-v1.json",
+          "config/test-oracles/profile-new-feature-multi-target-v1.json",
+          "config/test-oracles/profile-hotfix-emergency-baseline-v1.json",
+          "config/test-oracles/profile-hotfix-production-like-gate-v1.json",
+          "config/test-oracles/profile-refactor-debt-behavior-characterization-v1.json",
+          "config/test-oracles/profile-refactor-debt-architecture-invariant-v1.json",
+          "config/test-oracles/profile-refactor-debt-nonfunctional-target-v1.json",
+          "config/test-oracles/profile-incident-response-detection-v1.json",
+          "config/test-oracles/profile-incident-response-containment-v1.json",
+          "config/test-oracles/profile-incident-response-scenario-recovery-v1.json",
+          "config/test-oracles/profile-incident-response-unknown-effects-v1.json",
+          "config/test-oracles/profile-release-operations-artifacts-v1.json",
+          "config/test-oracles/profile-release-operations-authority-v1.json",
+          "config/test-oracles/profile-release-operations-boundary-v1.json",
+          "config/test-oracles/profile-release-operations-drift-v1.json",
+          "config/test-oracles/profile-release-operations-invalidation-v1.json",
+          "config/test-oracles/profile-release-operations-normal-v1.json",
+          "config/test-oracles/profile-release-operations-real-e2e-v1.json",
+          "config/test-oracles/profile-release-operations-recovery-v1.json",
+          "config/test-oracles/profile-release-operations-review-v1.json",
+          "config/test-oracles/profile-release-operations-revise-v1.json",
+          "config/test-oracles/profile-release-operations-rollback-v1.json",
+          "config/test-oracles/profile-release-operations-target-v1.json",
+          "config/test-oracles/profile-release-operations-artifact-provenance-v1.json",
+          "config/test-oracles/profile-release-operations-health-gate-v1.json",
+          "config/test-oracles/profile-release-operations-partial-deploy-v1.json",
+          "config/verification/wp-00-targets.json",
+          "scripts/check_architecture.py",
+          "tests/fixtures/wp08-release-operations-real-e2e-v1.json",
+          "tests/support/runtime_distribution.py",
+          "tests/support/runtime_resources.py",
+          "tests/support/source_checkout_attestation.py",
+          "tests/support/wp05_actions.py",
+          "tests/support/wp08_category_execution.py",
+          "tests/support/wp08_performance_benchmark.py",
+          "tests/support/wp08_release_coverage.py",
+          "tests/support/wp08_scenario_truth.py",
+          "tests/support/wp08_release_operations.py",
+          "tests/unit/test_wp00_packaging.py",
+          "tests/unit/test_wp08_profile_contracts.py",
+          "tests/unit/test_wp08_profile_expansion.py",
+          "tests/unit/test_wp08_scenario_truth.py",
+          "tests/unit/test_wp08_release_operations.py",
+          "tests/contract/test_wp08_remaining54_contracts.py",
+          "tests/integration/test_wp08_category_execution.py",
+          "tests/integration/test_wp08_release_coverage.py",
+          "tests/integration/test_wp08_scenario_truth.py",
+          "tests/integration/test_wp08_release_operations.py",
+          "tests/security/test_wp07a_action_contract_security.py",
+          "tests/contract/test_wp07a_action_contracts.py",
+          "tests/security/test_wp08_remaining54_authority.py",
+          "tests/e2e/test_wp00_installed_wheel.py",
+          "config/contracts/schemas/release-recovery-binding-1.0.0.json",
+          "config/contracts/schemas/release-recovery-binding-input-1.0.0.json",
+          "application/graph_engineering/application/security.py",
+          "storage/graph_engineering/storage/security.py",
+          ".workflow/manifest.json",
+          "config/workflow-policy.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-precommit-evidence-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-candidate-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-review-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-restart-receipt-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-readonly-handle-precommit-evidence-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-readonly-handle-candidate-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-readonly-handle-review-r0.json",
+          ".workflow/delivery/GEW-REMAINING54-V1/detached/p3-readonly-handle-receipt-r0.json",
+          "storage/graph_engineering/storage/repository.py",
+          "storage/graph_engineering/storage/migration.py"
+        ],
+        "allowed_change_kinds": [
+          "architecture-detail",
+          "clarification",
+          "consistency",
+          "traceability",
+          "testability",
+          "implementation",
+          "configuration",
+          "test",
+          "verification-evidence"
+        ],
+        "human_required_change_kinds": [
+          "goal",
+          "non-goal",
+          "target-boundary",
+          "intent-baseline",
+          "authority-expansion",
+          "material-architecture-choice",
+          "dependency",
+          "data-access",
+          "security-posture",
+          "irreversible-action"
+        ],
+        "authorized_actions": [
+          "documentation",
+          "implementation",
+          "verification",
+          "independent-review",
+          "review",
+          "stage",
+          "candidate"
+        ]
+      },
+      "boundary": "185 product/195 effective allowed targets unchanged. Candidate selection may exclude unchanged paths within original42, with unchanged bytes retained as reviewed dependencies. No expansion."
     }
   ]
 }

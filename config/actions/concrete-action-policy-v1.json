@@ -3,7 +3,7 @@
   "policy_id": "concrete-action-policy-default",
   "protocol_version": "1.0.0",
   "registry_id": "action-adapter-registry-default",
-  "registry_digest": "sha256-jcs-v1:94130d2ed18260b680ce9a586657f51c926cd0256ad8127b93254a6e307ed661",
+  "registry_digest": "sha256-jcs-v1:74a2631fb27db21102a04ab27eb5d6de6efc73d3f6498660bb257a5aa13096e5",
   "real_local_actions_enabled": true,
   "allowed_adapter_ids": [
     "connector-unavailable-v1",
@@ -44,5 +44,5 @@
   ],
   "secret_handling": "ephemeral-minimal",
   "launcher_mode": "structured-argv-shell-false",
-  "policy_digest": "sha256-jcs-v1:db8e4fc0ad4ffe630fab3016026f633ca314393e6fcd92b52bb0a5caf161f484"
+  "policy_digest": "sha256-jcs-v1:74374f0f7a832f6a30ac47c63f0703ba97a5f59f46ebd507311d881eae1602a2"
 }

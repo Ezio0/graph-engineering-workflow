@@ -26,11 +26,11 @@
   ],
   "concrete_action_authority": {
     "policy_id": "concrete-action-policy-default",
-    "policy_digest": "sha256-jcs-v1:db8e4fc0ad4ffe630fab3016026f633ca314393e6fcd92b52bb0a5caf161f484",
+    "policy_digest": "sha256-jcs-v1:74374f0f7a832f6a30ac47c63f0703ba97a5f59f46ebd507311d881eae1602a2",
     "registry_id": "action-adapter-registry-default",
-    "registry_digest": "sha256-jcs-v1:94130d2ed18260b680ce9a586657f51c926cd0256ad8127b93254a6e307ed661",
+    "registry_digest": "sha256-jcs-v1:74a2631fb27db21102a04ab27eb5d6de6efc73d3f6498660bb257a5aa13096e5",
     "schema_registry_id": "urn:gew:schema-registry:action-adapters:1.0.0",
     "schema_registry_digest": "sha256-jcs-v1:26da6daa65594e6b85635f63df033db3e4b1a0a36f1eb7b4bec36403ba294d9a"
   },
-  "policy_digest": "sha256-jcs-v1:cbffa10d409441ffbd121c8fde2eaafc3fee333eeae53a4b1b6def7ab50cf487"
+  "policy_digest": "sha256-jcs-v1:fbc54e5d0dc2b4927d818e388ac06f2c51edacca68adf9a0b6343a8cdc0212a8"
 }

@@ -71,6 +71,152 @@ def _resign_runtime(document: dict[str, object]) -> None:
 
 
 class ScenarioTruthSecurityTests(unittest.TestCase):
+    def test_cold_factory_does_not_retain_protected_implementation_bytes(self):
+        import types
+        from graph_engineering.application import release_operations as module
+        factory = module.ReleaseOperationsRegistryFactory.from_installation()
+        factory._cold_artifact_authority()
+        inputs = module._COLD_ARTIFACT_INPUTS[factory]
+        expected = {"config/contracts/" + name for name in (
+            "artifact-contracts-v1.json", "artifact-schema-registry-v1.json",
+            "cost-schedule-v1.json", "resource-profile-v1.json", "schema-profile-v1.json",
+            "schemas/artifact-contract-registry-1.0.0.json", "schemas/artifact-lifecycle-event-1.0.0.json",
+            "schemas/artifact-record-1.0.0.json", "schemas/logical-body-manifest-1.0.0.json")}
+        self.assertEqual(set(inputs), expected)
+        seen, retained = set(), []
+        def visit(value):
+            if id(value) in seen: return
+            seen.add(id(value))
+            if type(value) is bytes: retained.append(value)
+            elif type(value) is dict:
+                for item in value.values(): visit(item)
+            elif type(value) in (tuple, list):
+                for item in value: visit(item)
+            elif type(value) is types.FunctionType and value.__closure__:
+                for cell in value.__closure__: visit(cell.cell_contents)
+        visit(factory._currentness_check)
+        self.assertFalse(retained, "installed currentness retained the original raw source closure")
+
+    def test_cold_source_attestation_supports_both_readers_with_a_closed_bound(self):
+        import graph_engineering
+        import sys
+        from tests.support.source_checkout_attestation import ATTESTATION_FILENAME, CONTROL_OPTION, SOURCE_FILES
+
+        self.assertEqual(tuple(graph_engineering._SOURCE_FILES), tuple(SOURCE_FILES))
+        body = (pathlib.Path(sys._xoptions[CONTROL_OPTION]) / ATTESTATION_FILENAME).read_bytes()
+        ceiling = graph_engineering._source_attestation_transport_limit()
+        self.assertGreater(len(body), 65536)
+        self.assertLessEqual(len(body), ceiling)
+        graph_engineering._validate_source_checkout_attestation(ROOT)
+        identity = graph_engineering._migration_rehearsal_installation_identity((ROOT / "pyproject.toml").read_bytes())
+        self.assertEqual(identity["installation_mode"], "source-attested")
+        self.assertEqual(identity["source_attestation_digest"], hashlib.sha256(body).hexdigest())
+        with tempfile.TemporaryDirectory(prefix="gew-cold-transport-bound-") as temporary:
+            path = pathlib.Path(temporary) / "attestation"
+            path.write_bytes(b"x" * ceiling)
+            path.chmod(0o600)
+            self.assertEqual(len(graph_engineering._read_owner_only_file(path, maximum=ceiling)), ceiling)
+            with path.open("ab") as stream:
+                stream.write(b"x")
+            with self.assertRaises(graph_engineering.DistributionIdentityError):
+                graph_engineering._read_owner_only_file(path, maximum=ceiling)
+
+    def test_cold_artifact_wheel_closure_and_record_tampering(self):
+        import base64
+        import csv
+        import io
+        import subprocess
+        import sys
+        import tomllib
+        import zipfile
+
+        pin = tomllib.loads((ROOT / "pyproject.toml").read_text())["tool"]["gew"]["profile"]["release-operations"]
+        with tempfile.TemporaryDirectory(prefix="gew-cold-contract-wheel-") as temporary:
+            root = pathlib.Path(temporary)
+            built = subprocess.run([sys.executable, str(ROOT / "scripts/build_wheel.py"), str(root)],
+                cwd=ROOT, text=True, capture_output=True, timeout=120)
+            self.assertEqual(built.returncode, 0, built.stdout + built.stderr)
+            wheel, = root.glob("*.whl")
+            with zipfile.ZipFile(wheel) as archive:
+                bodies = {name: archive.read(name) for name in archive.namelist()}
+            record_name, = [name for name in bodies if name.endswith(".dist-info/RECORD")]
+            record = {row[0]: row[1:] for row in csv.reader(io.StringIO(bodies[record_name].decode()))}
+            for source, resource in zip(pin["protected-sources"], pin["protected-resources"], strict=True):
+                body = (ROOT / source).read_bytes()
+                self.assertEqual(bodies[resource], body)
+                expected = "sha256=" + base64.urlsafe_b64encode(hashlib.sha256(body).digest()).decode().rstrip("=")
+                self.assertEqual(record[resource], [expected, str(len(body))])
+            code = (
+                "import sys; sys.path.insert(0,sys.argv[1]); "
+                "from graph_engineering.application.release_operations import ReleaseOperationsRegistryFactory as F; "
+                "f=F.from_installation(); c,s,w=f._cold_artifact_authority(); "
+                "assert len(s._resources)==4; assert c.resolve('implementation').artifact_type=='implementation'; "
+                "assert f._cold_artifact_authority()[2] is w; print('closed-installed-artifacts')"
+            )
+            def probe(path):
+                return subprocess.run([sys.executable, "-I", "-B", "-c", code, str(path)],
+                    cwd=root, text=True, capture_output=True, timeout=60)
+            valid = probe(wheel)
+            self.assertEqual(valid.returncode, 0, valid.stderr)
+            self.assertEqual(valid.stdout.strip(), "closed-installed-artifacts")
+            targets = [resource for resource in pin["protected-resources"]
+                       if "/artifacts/" in resource or "/artifact-" in resource
+                       or resource.endswith("/logical-body-manifest-1.0.0.json")]
+            self.assertEqual(len(targets), 10)
+            for index, resource in enumerate(targets):
+                with self.subTest(resource=resource):
+                    corrupted = root / ("changed-" + str(index) + ".whl")
+                    with zipfile.ZipFile(corrupted, "w") as archive:
+                        for name, body in bodies.items():
+                            archive.writestr(name, body + b" " if name == resource else body)
+                    rejected = probe(corrupted)
+                    self.assertNotEqual(rejected.returncode, 0)
+                    self.assertNotIn("closed-installed-artifacts", rejected.stdout)
+                    self.assertIn("DistributionIdentityError", rejected.stderr)
+
+    def test_cold_artifact_contracts_require_current_installed_sources(self):
+        import graph_engineering
+        from graph_engineering.application.release_operations import ReleaseOperationsRegistryFactory
+        from graph_engineering.core.release_operations import ReleaseOperationsError
+
+        factory = ReleaseOperationsRegistryFactory.from_installation()
+        contracts, schemas, context = factory._cold_artifact_authority()
+        self.assertEqual(contracts.resolve("implementation").artifact_type, "implementation")
+        self.assertEqual(len(schemas._resources), 4)
+        self.assertIs(factory._cold_artifact_authority()[2], context)
+        resources = graph_engineering._release_operations_installation_resources()
+        paths = [row["path"] for row in factory._bootstrap["protected_resources"]]
+        inputs = ["config/contracts/artifact-contracts-v1.json",
+            "config/contracts/artifact-schema-registry-v1.json",
+            "config/contracts/resource-profile-v1.json", "config/contracts/cost-schedule-v1.json",
+            "config/contracts/schema-profile-v1.json",
+            *["config/contracts/schemas/" + name + "-1.0.0.json" for name in
+                ("artifact-contract-registry", "artifact-lifecycle-event", "artifact-record", "logical-body-manifest")],
+            *["core/graph_engineering/core/artifacts/" + name + ".py" for name in
+                ("__init__", "contracts", "manifest", "records")]]
+        for path in inputs:
+            with self.subTest(path=path):
+                changed = list(resources)
+                changed[23 + paths.index(path)] += b" "
+                with mock.patch.object(graph_engineering, "_release_operations_installation_resources",
+                        return_value=resources) as loader:
+                    current = ReleaseOperationsRegistryFactory.from_installation()
+                    current._cold_artifact_authority()
+                    loader.return_value = tuple(changed)
+                    with self.assertRaises(ReleaseOperationsError):
+                        current._cold_artifact_authority()
+        validation_only = ReleaseOperationsRegistryFactory.from_documents(
+            policy_bytes=resources[1], fixture_bytes=resources[2], bootstrap_bytes=resources[3],
+            profile_schema_registry_bytes=resources[4], package_provenance_bytes=resources[0],
+            schema_bodies={json.loads(body)["$id"]: body for body in resources[5:23]},
+            protected_resources=dict(zip(paths, resources[23:], strict=True)),
+        )
+        with self.assertRaises(ReleaseOperationsError):
+            validation_only._cold_artifact_authority()
+        import copy
+        with self.assertRaises(ReleaseOperationsError):
+            copy.copy(factory)._cold_artifact_authority()
+
     def test_f1_dependency_requests_keep_the_frozen_mandatory_selectors(self) -> None:
         from tests.support import wp08_release_coverage as coverage_fixture
 
@@ -288,11 +434,29 @@ class ScenarioTruthSecurityTests(unittest.TestCase):
             ".workflow/delivery/GEW-REMAINING54-V1/authority-envelope.json"
         )
         targets = envelope["allowed_targets"]
-        self.assertEqual(len(targets), 183)  # type: ignore[arg-type]
-        self.assertEqual(len(set(targets)), 183)  # type: ignore[arg-type]
+        self.assertEqual(len(targets), 185)  # type: ignore[arg-type]
+        self.assertEqual(len(set(targets)), 185)  # type: ignore[arg-type]
         record = _document(
             ".workflow/delivery/GEW-REMAINING54-V1/human-decision-p1-p2-p3-r0.json"
         )
+        control = record["p3_restart_cold_installation_control_amendment"]
+        control_targets = {"storage/graph_engineering/storage/migration.py"}
+        self.assertEqual(set(control["approved_target_boundary_additions"]), control_targets)
+        self.assertEqual(control["user_message"], "确认")
+        self.assertEqual(control["previous_allowed_target_count"], 184)
+        self.assertEqual(control["current_allowed_target_count"], 185)
+        self.assertEqual(len(control["previous_allowed_targets"]), 184)
+        self.assertLessEqual(control_targets, set(targets))
+        targets = set(targets) - control_targets
+        provenance = record["p3_restart_action_provenance_amendment"]
+        provenance_targets = {"storage/graph_engineering/storage/repository.py"}
+        self.assertEqual(set(provenance["approved_target_boundary_additions"]), provenance_targets)
+        self.assertEqual(provenance["user_message"], "批准")
+        self.assertEqual(provenance["previous_allowed_target_count"], 183)
+        self.assertEqual(provenance["current_allowed_target_count"], 184)
+        self.assertEqual(len(provenance["previous_allowed_targets"]), 183)
+        self.assertLessEqual(provenance_targets, set(targets))
+        targets = set(targets) - provenance_targets
         bridge = record["p3_restart_bridge_security_amendment"]
         bridge_targets = {
             "application/graph_engineering/application/security.py",
@@ -342,6 +506,8 @@ class ScenarioTruthSecurityTests(unittest.TestCase):
             "dad52f1888bf262ce9ddd4b6528a2ca634e2ff0a06a8cd51c2a1ddffe870a7e9",
             "historical exact174 target identities changed",
         )
+        self.assertEqual(set(control["previous_allowed_targets"]), set(envelope["allowed_targets"]) - control_targets)
+        self.assertEqual(set(provenance["previous_allowed_targets"]), set(envelope["allowed_targets"]) - control_targets - provenance_targets)
         repair = record["memory_repair_amendment"]
         repair_targets = {
             "core/graph_engineering/core/contracts/resources.py",
@@ -399,8 +565,8 @@ class ScenarioTruthSecurityTests(unittest.TestCase):
                 targets = document["allowed_targets"]
                 index = targets.index("docs/adr/0009-offline-release-operations-simulator-authority.md")
                 targets[index] = "docs/adr/unauthorized-equal-cardinality-substitution.md"
-                self.assertEqual(len(targets), 183)
-                self.assertEqual(len(set(targets)), 183)
+                self.assertEqual(len(targets), 185)
+                self.assertEqual(len(set(targets)), 185)
             return document
 
         with mock.patch(__name__ + "._document", side_effect=substituted_document):

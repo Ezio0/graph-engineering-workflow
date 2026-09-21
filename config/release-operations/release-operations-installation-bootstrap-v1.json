@@ -85,22 +85,22 @@
     }
   ],
   "action_authority_pins": {
-    "adapter_registry_digest": "sha256-jcs-v1:94130d2ed18260b680ce9a586657f51c926cd0256ad8127b93254a6e307ed661",
-    "adapter_registry_raw_sha256": "9e5d7f4519d911e5474c2666625e06264a6a9ef67ce7fd84cf86396909ffcfcf",
-    "concrete_policy_digest": "sha256-jcs-v1:db8e4fc0ad4ffe630fab3016026f633ca314393e6fcd92b52bb0a5caf161f484",
-    "concrete_policy_raw_sha256": "7aeda8de636223474c7371bdd2a30383818f7e2d9c2c0415b6cf0b7b80d971c4",
-    "default_action_policy_digest": "sha256-jcs-v1:c1004c677caa8219dbdd9daef89fe34f0d16b69300838d5306120f45fdfc74b8",
-    "default_action_policy_raw_sha256": "3ed7e707994c52dbbbfdbf8472e8a179c46527dd0e2a924fdf75ae178d4e1f2d",
-    "local_action_policy_digest": "sha256-jcs-v1:cbffa10d409441ffbd121c8fde2eaafc3fee333eeae53a4b1b6def7ab50cf487",
-    "local_action_policy_raw_sha256": "68788c591661c4d94297e01e6a8b0e3a7e5594fc9973256ad499fc26b5a10240",
-    "default_runtime_digest": "sha256-jcs-v1:138810378559206b65bb84692a79484434167ac4e5a56a374c4148591f28e267",
-    "default_runtime_raw_sha256": "8d35a8bf4e0fd61d0f3eac8607e98a4b6923618a5fdb5efb612e4e060b78208e",
-    "local_runtime_digest": "sha256-jcs-v1:2335f57ed7c57ffef797c6ef860824565340369b2772c42c71a571c2d956f9f4",
-    "local_runtime_raw_sha256": "3d271fba9bf70be35da13f48b18be8faf3a4696698e88751caf5e0dc681547f1"
+    "adapter_registry_digest": "sha256-jcs-v1:74a2631fb27db21102a04ab27eb5d6de6efc73d3f6498660bb257a5aa13096e5",
+    "adapter_registry_raw_sha256": "6edcc4928fe454d8bd22767ce43f052c339b0e296ac2386b3e5b7b607b8631cb",
+    "concrete_policy_digest": "sha256-jcs-v1:74374f0f7a832f6a30ac47c63f0703ba97a5f59f46ebd507311d881eae1602a2",
+    "concrete_policy_raw_sha256": "dc52f124f199c8d366a959c37be067299c6ec64894e6e3b1f83f7ce3b06bbb40",
+    "default_action_policy_digest": "sha256-jcs-v1:9cb3b0e31c8eab193a26e38632909a7c5f4f5e883403151bfd10a9066ee8ce26",
+    "default_action_policy_raw_sha256": "732a04401b31b3c946126ed0b92cd881e3cd64905dfbab297106b300439ef489",
+    "local_action_policy_digest": "sha256-jcs-v1:fbc54e5d0dc2b4927d818e388ac06f2c51edacca68adf9a0b6343a8cdc0212a8",
+    "local_action_policy_raw_sha256": "45b9125edf23db1370c41d4236b6f9235977068c03ca40be5bd4e88781ca8e48",
+    "default_runtime_digest": "sha256-jcs-v1:60ec8d6f924d821e47d5554c1cb01b2a26fe412d298f80b0ae56b87a53e04c90",
+    "default_runtime_raw_sha256": "1ee3c20f2e94ba665a082524d0b2dd45e6cc5c0cffabfa52e964c864b1df4c9e",
+    "local_runtime_digest": "sha256-jcs-v1:28437ee8e9281422f0406d45707ebb3458e087cd0ab4d2cdea33aca99d92dd42",
+    "local_runtime_raw_sha256": "5eea85f72d13920d6c1ba5931921caec60de999d87ac24008050eae68a7519b1"
   },
   "source_authority_pins": {
     "policy_id": "source-checkout-attestation-v1",
-    "source_file_count": 311,
+    "source_file_count": 327,
     "source_issuer_raw_sha256": "d03644ab0db302f260981fb9e38c985c9d6ec2c1bc528d9dfd20b1379c81ba1d"
   },
   "package_authority_pins": {
@@ -115,51 +115,111 @@
     },
     {
       "path": "adapters/graph_engineering/adapters/local_release_simulator.py",
-      "raw_sha256": "0b50058b74eaaf3e71f9f14fb4228ec064a6c1e81e4d7f6ade4840d9f4e870b0"
+      "raw_sha256": "975487017583a3e434beab0d26cb3d18954203d71e033f4452870c747133b419"
     },
     {
       "path": "application/graph_engineering/application/actions.py",
-      "raw_sha256": "b91faa4e432ed5592c95705ef60f0b993154c9e4e1b716bdce6e93bb613c2909"
+      "raw_sha256": "0fe6fd6e5e13535cefdec1548c0710e83fea9992ef44e51622a238dc739c2988"
     },
     {
       "path": "application/graph_engineering/application/profile_execution.py",
-      "raw_sha256": "7db57559ffc98906e2dc1d01fc31a7f46986ec61d80f99368da92c22eef12cf9"
+      "raw_sha256": "dbdc3576814816c25839c0c3261e0aad9a4706a4851c943daae9e618a83db37e"
     },
     {
       "path": "application/graph_engineering/application/release_operations.py",
-      "raw_sha256": "0185fc9df4c1103964c6b7ad2c7d47b21e53bdae3668cf8c8d9b63e334cd28f6"
+      "raw_sha256": "7f186bc610c80101f15d881b423c13eb06679d2747a372e7dd34e3cdce7678d2"
+    },
+    {
+      "path": "application/graph_engineering/application/security.py",
+      "raw_sha256": "2320fe5213fec846a51f948ec0d0d7d53110c33f0fd53c95f941c8169d28fe5d"
+    },
+    {
+      "path": "application/graph_engineering/application/tasks.py",
+      "raw_sha256": "cd6e60e6059feadc3e029827557f176c670d253c23a19fb6afa90c53be93306f"
     },
     {
       "path": "config/actions/action-policy-local-actions-v1.json",
-      "raw_sha256": "68788c591661c4d94297e01e6a8b0e3a7e5594fc9973256ad499fc26b5a10240"
+      "raw_sha256": "45b9125edf23db1370c41d4236b6f9235977068c03ca40be5bd4e88781ca8e48"
     },
     {
       "path": "config/actions/action-policy-v1.json",
-      "raw_sha256": "3ed7e707994c52dbbbfdbf8472e8a179c46527dd0e2a924fdf75ae178d4e1f2d"
+      "raw_sha256": "732a04401b31b3c946126ed0b92cd881e3cd64905dfbab297106b300439ef489"
     },
     {
       "path": "config/actions/concrete-action-policy-v1.json",
-      "raw_sha256": "7aeda8de636223474c7371bdd2a30383818f7e2d9c2c0415b6cf0b7b80d971c4"
+      "raw_sha256": "dc52f124f199c8d366a959c37be067299c6ec64894e6e3b1f83f7ce3b06bbb40"
     },
     {
       "path": "config/contracts/action-adapter-registry-v1.json",
-      "raw_sha256": "9e5d7f4519d911e5474c2666625e06264a6a9ef67ce7fd84cf86396909ffcfcf"
+      "raw_sha256": "6edcc4928fe454d8bd22767ce43f052c339b0e296ac2386b3e5b7b607b8631cb"
+    },
+    {
+      "path": "config/contracts/artifact-contracts-v1.json",
+      "raw_sha256": "0cc60a7992c37a687031c8735e937d732032fee4d39720ffcb7bff44e1bb5cb1"
+    },
+    {
+      "path": "config/contracts/artifact-schema-registry-v1.json",
+      "raw_sha256": "7998656a766f6dab9f7ee0ee495ab03087c1518940375d0a98efb43d6ab955a3"
+    },
+    {
+      "path": "config/contracts/cost-schedule-v1.json",
+      "raw_sha256": "f6ac2b7d9281358a112aee5ca902d41005c741c291f67176a6a29cefdb06e29f"
+    },
+    {
+      "path": "config/contracts/resource-profile-v1.json",
+      "raw_sha256": "8976f8fa464f06228a488e63346db8f266585b66407cedbaaffe203b43446812"
+    },
+    {
+      "path": "config/contracts/schema-profile-v1.json",
+      "raw_sha256": "9972a12f35471f542f8a9f8d990e18334a4beadc7cfb97a0388454447fb5eb63"
+    },
+    {
+      "path": "config/contracts/schemas/artifact-contract-registry-1.0.0.json",
+      "raw_sha256": "e4d95a33078bc80536035de26c2adaada147d6faffa88f4d0112ba7a147829ee"
+    },
+    {
+      "path": "config/contracts/schemas/artifact-lifecycle-event-1.0.0.json",
+      "raw_sha256": "a8b74a98d739554e3998387e0d820648d80fe03db36b80e7bf45cde1bac0c314"
+    },
+    {
+      "path": "config/contracts/schemas/artifact-record-1.0.0.json",
+      "raw_sha256": "c0cdd63cc69d71d43bd45e4deb9dc3e5e26812755d0b0572007d534e6939b28b"
+    },
+    {
+      "path": "config/contracts/schemas/logical-body-manifest-1.0.0.json",
+      "raw_sha256": "b5adb3a8f2682a694cd7767adc7c5739de1e75e177efed32bc1576340ac0f1c7"
     },
     {
       "path": "config/security/security-runtime-local-actions-v1.json",
-      "raw_sha256": "3d271fba9bf70be35da13f48b18be8faf3a4696698e88751caf5e0dc681547f1"
+      "raw_sha256": "5eea85f72d13920d6c1ba5931921caec60de999d87ac24008050eae68a7519b1"
     },
     {
       "path": "config/security/security-runtime-v1.json",
-      "raw_sha256": "8d35a8bf4e0fd61d0f3eac8607e98a4b6923618a5fdb5efb612e4e060b78208e"
+      "raw_sha256": "1ee3c20f2e94ba665a082524d0b2dd45e6cc5c0cffabfa52e964c864b1df4c9e"
     },
     {
       "path": "core/graph_engineering/__init__.py",
-      "raw_sha256": "4eadd5c8d284476ff5c843525376400d773fb56697b38ba9233cf9836fcd5147"
+      "raw_sha256": "013f5019abe5eb638eae78c7d24b4acd51567af8b59d91a86a6fe4fa6f1fe282"
+    },
+    {
+      "path": "core/graph_engineering/core/artifacts/__init__.py",
+      "raw_sha256": "ef7c353469546c6f97763ccd299d0760695a4ac502f83beea69c407b5c06e891"
+    },
+    {
+      "path": "core/graph_engineering/core/artifacts/contracts.py",
+      "raw_sha256": "8db42bb8e50df029d01489693b09682642d46cf405baf702ddb521ca4632bcce"
+    },
+    {
+      "path": "core/graph_engineering/core/artifacts/manifest.py",
+      "raw_sha256": "6464fe0a8300eda2e2f87e13a930b39563b30528167623c9e1a433ac610f1444"
+    },
+    {
+      "path": "core/graph_engineering/core/artifacts/records.py",
+      "raw_sha256": "41024348bf7d75377ade7572f5ecac655daa3122152aa5009ffa19c0163c481b"
     },
     {
       "path": "core/graph_engineering/core/profile_execution.py",
-      "raw_sha256": "99c79e9a3822aa40c0f75d5a30fdfa37551d1bb3782928d836573c0727975e99"
+      "raw_sha256": "07d6fd953dc970a1229106789913859ec4ad38e913ec439bf73c1bb013ec2e45"
     },
     {
       "path": "core/graph_engineering/core/profiles.py",
@@ -176,8 +236,16 @@
     {
       "path": "scripts/build_backend.py",
       "raw_sha256": "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b"
+    },
+    {
+      "path": "storage/graph_engineering/storage/repository.py",
+      "raw_sha256": "07ef630871c38aaccdc6ca6cd4c73f99c8f5fd70d7546715398169aa46a62ebf"
+    },
+    {
+      "path": "storage/graph_engineering/storage/security.py",
+      "raw_sha256": "7f1aba74e0ddc66d68b015425eba6919585066327a6ea64983739015dda2be2e"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:167a4f8d58858cba190edfdea8b575f7de7d1afc6cfd1f01da7fe9a88b8c2077",
-  "bootstrap_digest": "sha256-jcs-v1:fd1e988453304385493511d1a8cada3c0d5af82dbcf31d4c1a522cd139e45b48"
+  "protected_closure_digest": "sha256-jcs-v1:5505b9938d5a0324eea37b6a2957d0880df3aa30db54976ae9cbe9ba3201a016",
+  "bootstrap_digest": "sha256-jcs-v1:835ef30c39602a6f276dfe250be0b619a115d774e635e9885b6c020daecf72af"
 }

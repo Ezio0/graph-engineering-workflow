@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime
 import hmac
 import threading
+from collections.abc import Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Callable, Protocol
@@ -17,8 +18,8 @@ from graph_engineering.core.actions import (
     ExecuteGateDecisionTable,
     PreparedAction,
 )
-from graph_engineering.core.security._common import parse_timestamp
-from graph_engineering.core.contracts.immutable import thaw
+from graph_engineering.core.security._common import parse_timestamp, require_id
+from graph_engineering.core.contracts.immutable import FrozenMap, freeze, thaw
 from graph_engineering.core.security.disclosure import DataDisclosurePlan
 from graph_engineering.application.security import SecurityContextIssuer
 from graph_engineering.application.tasks import action_task_snapshot
@@ -371,6 +372,451 @@ class ActionCoordinator:
         if (claim.get("state") == "unresolved") is not unresolved:
             raise ValueError("action outcome claim no longer matches durable state")
         return outcome
+
+    def _read_action_authority(self, *, task_id: str, action_id: str) -> FrozenMap:
+        """Read terminal prepared/authority facts, without issuing a capability.
+
+        This is only the authorization input to a future recovery resolver.
+        It does not prove claim, receipt, compensation or assessment completion.
+        The resolver must separately own current runtime/root read authority.
+        Historical execution expiry is not a reason to renew or execute here.
+        """
+        require_id(task_id, "read-only action task ID")
+        require_id(action_id, "read-only action ID")
+        self._retained_scope(require_idle=True)
+
+        def read() -> FrozenMap:
+            self._retained_scope(require_idle=True)
+            record = self._journal.load(action_id)
+            if (
+                record.action_id != action_id or record.task_id != task_id
+                or record.state not in {"reconciled", "compensated"}
+                or record.authority is None
+            ):
+                raise ValueError("read-only action is not a terminal authorized record")
+            prepared_document = thaw(freeze(self._journal.prepared_document(record.prepared)))
+            authority_document = self._journal.authority_document(record.authority)
+            prepared = self._policy.load_prepared(prepared_document)
+            authority = self._policy.load_authority(authority_document)
+            if (
+                prepared.action_id != action_id or prepared.task_id != task_id
+                or authority.task_id != task_id or authority.status != "active"
+                or prepared.action_kind not in self._policy.separately_authorized_action_kinds
+                or authority.prepared_action_digest != prepared.prepared_action_digest
+                or authority.authorized_action_kind != prepared.action_kind
+                or authority.authorized_resources != prepared.resources
+                or authority.baseline_digest != prepared.baseline_digest
+                or authority.snapshot_digest != prepared.snapshot_digest
+                or self._journal.find_prepared(prepared.prepared_action_digest) != record
+            ):
+                raise ValueError("read-only authority does not bind the exact prepared action")
+
+            security = self._issuer.read_task_state(task_id)
+            self._issuer.runtime.require_policy("action", self._policy.policy_id, self._policy.policy_digest)
+            if self._policy._runtime_issuer is not self._issuer.runtime._issuer:
+                raise ValueError("read-only action policy has a foreign security issuer")
+            if self._policy.real_external_actions_enabled:
+                self._action_adapter_factory.require_binding(
+                    self._concrete_action_policy, self._concrete_action_registry, self._policy)
+            owner = security.state["binding"]
+            targets = [target for target in owner["targets"] if target["target_id"] == prepared.target_id]
+            if (
+                owner["task_id"] != task_id
+                or authority.owner_id != owner["owner_id"]
+                or authority.runtime_kind != owner["runtime_kind"]
+                or authority.runtime_lineage_id != owner["runtime_lineage_id"]
+                or prepared.baseline_digest != owner["baselines"].get("intent")
+                or authority.authority_digest not in security.state["authority_digests"]
+                or len(targets) != 1 or targets[0]["target_digest"] != prepared.target_digest
+            ):
+                raise ValueError("read-only action authority is revoked or foreign to the current task")
+            self._retained_scope(require_idle=True)
+            result = freeze({
+                "task_id": task_id, "action_id": action_id,
+                "journal_state": record.state, "journal_revision": record.revision,
+                "prepared": prepared_document, "authority": authority_document,
+                "security_state_digest": security.state_digest,
+                "runtime_manifest_digest": security.runtime_manifest_digest,
+            })
+            assert type(result) is FrozenMap
+            return result
+
+        first, current = read(), read()
+        if first != current:
+            raise ValueError("read-only action authority changed during query")
+        return current
+
+
+    def _read_completed_action_provenance(self, *, task_id: str, action_id: str) -> FrozenMap:
+        """Read completion facts under current authority, without issuing a gate."""
+        require_id(task_id, "read-only action task ID")
+        require_id(action_id, "read-only action ID")
+        self._retained_scope(require_idle=True)
+        if any(getattr(port, "_recovery_read_budget", None) is not None for port in
+                (self, self._repository, self._objects, self._journal, self._issuer, self._issuer._repository,
+                 self._policy._context, self._journal._context, self._issuer._context)):
+            return self._read_completed_action_provenance_bounded(task_id, action_id)
+
+        def read() -> FrozenMap:
+            provenance = self._repository.read_action_provenance(task_id, action_id)
+            authorities = []
+            for journal in provenance["journals"]:
+                authority = self._read_action_authority(task_id=task_id, action_id=journal["action_id"])
+                if (authority["journal_state"] != journal["state"]
+                        or authority["journal_revision"] != journal["revision"]
+                        or authority["prepared"] != journal["prepared"]
+                        or authority["authority"] != journal["authority"]
+                        or authority["prepared"]["prepared_action_digest"] != journal["prepared_digest"]
+                        or authority["authority"]["authority_digest"] != journal["authority_digest"]):
+                    raise ValueError("completed action authority differs from captured provenance")
+                authorities.append(authority)
+            completion = self._validate_completed_action_provenance(provenance, action_id)
+            self._retained_scope(require_idle=True)
+            return freeze({"task_id": task_id, "action_id": action_id, "completion": completion,
+                           "provenance": provenance, "authorities": authorities})
+
+        first, current = read(), read()
+        if first != current:
+            raise ValueError("completed action provenance changed during query")
+        return current
+
+    def _read_captured_action_authority(self, task_id, journal, budget):
+        """Validate internally captured journals without a second legacy query."""
+        from contextlib import ExitStack
+        from graph_engineering.core.contracts.canonical import canonical_byte_length
+        from graph_engineering.storage.repository import _recovery_freeze
+
+        context = self._policy._context
+        size = canonical_byte_length(journal)
+        with ExitStack() as stack:
+            stack.enter_context(budget.reserve(context, units=12 * size, byte_count=4 * size,
+                source_id="captured-action-authority"))
+            value = thaw(journal)
+            if (value["task_id"] != task_id or value["state"] not in {"reconciled", "compensated"}
+                    or type(value["authority"]) is not dict):
+                raise ValueError("read-only action is not a terminal authorized record")
+            prepared = self._policy.load_prepared(value["prepared"])
+            authority = self._policy.load_authority(value["authority"])
+            if (prepared.action_id != value["action_id"] or prepared.task_id != task_id
+                    or authority.task_id != task_id or authority.status != "active"
+                    or prepared.action_kind not in self._policy.separately_authorized_action_kinds
+                    or authority.prepared_action_digest != prepared.prepared_action_digest
+                    or authority.authorized_action_kind != prepared.action_kind
+                    or authority.authorized_resources != prepared.resources
+                    or authority.baseline_digest != prepared.baseline_digest
+                    or authority.snapshot_digest != prepared.snapshot_digest
+                    or value["prepared_digest"] != prepared.prepared_action_digest
+                    or value["authority_digest"] != authority.authority_digest):
+                raise ValueError("read-only authority does not bind the exact prepared action")
+            security = self._issuer.read_task_state(task_id)
+            stack.callback(budget.release_projection, security)
+            self._issuer.runtime.require_policy("action", self._policy.policy_id, self._policy.policy_digest)
+            if self._policy._runtime_issuer is not self._issuer.runtime._issuer:
+                raise ValueError("read-only action policy has a foreign security issuer")
+            if self._policy.real_external_actions_enabled:
+                self._action_adapter_factory.require_binding(
+                    self._concrete_action_policy, self._concrete_action_registry, self._policy)
+            owner = security.state["binding"]
+            targets = [target for target in owner["targets"] if target["target_id"] == prepared.target_id]
+            if (owner["task_id"] != task_id or authority.owner_id != owner["owner_id"]
+                    or authority.runtime_kind != owner["runtime_kind"]
+                    or authority.runtime_lineage_id != owner["runtime_lineage_id"]
+                    or prepared.baseline_digest != owner["baselines"].get("intent")
+                    or authority.authority_digest not in security.state["authority_digests"]
+                    or len(targets) != 1 or targets[0]["target_digest"] != prepared.target_digest):
+                raise ValueError("read-only action authority is revoked or foreign to the current task")
+            return _recovery_freeze({"task_id": task_id, "action_id": prepared.action_id,
+                "journal_state": value["state"], "journal_revision": value["revision"],
+                "prepared": value["prepared"], "authority": value["authority"],
+                "security_state_digest": security.state_digest,
+                "runtime_manifest_digest": security.runtime_manifest_digest},
+                context, budget, source_id="captured-action-authority")
+
+    def _read_completed_action_provenance_bounded(self, task_id, action_id):
+        from contextlib import ExitStack
+        from graph_engineering.core.contracts.canonical import canonical_byte_length
+        from graph_engineering.storage.repository import _RecoveryReadBudget, _recovery_freeze, _recovery_equal
+
+        context = self._policy._context
+        budget = getattr(context, "_recovery_read_budget", None)
+        if (type(budget) is not _RecoveryReadBudget or budget.task_id != task_id
+                or budget.command_scope is not self._repository.command_scope
+                or any(getattr(port, "_recovery_read_budget", None) is not budget
+                       for port in (self, self._repository, self._objects, self._journal,
+                                    self._issuer, self._issuer._repository, self._policy._context,
+                                    self._journal._context, self._issuer._context))):
+            raise ValueError("completed action has no exact recovery owner")
+        budget._require_active()
+
+        def read() -> FrozenMap:
+            self._retained_scope(require_idle=True)
+            with ExitStack() as stack:
+                provenance = self._repository.read_action_provenance(task_id, action_id)
+                stack.callback(budget.release_projection, provenance)
+                authorities = []
+                for journal in provenance["journals"]:
+                    authority = self._read_captured_action_authority(task_id, journal, budget)
+                    stack.callback(budget.release_projection, authority)
+                    authorities.append(authority)
+                size = canonical_byte_length(provenance)
+                # The bounded validator walks the immutable capture directly.
+                # Its index/selector slots and one narrow digest buffer stay
+                # below this whole-document bound; no mutable full copy exists.
+                with budget.reserve(context, units=4 * size, byte_count=2 * size,
+                        source_id="completed-action-validation"):
+                    completion = self._validate_completed_action_provenance(
+                        provenance, action_id, _budget=budget, _context=context)
+                self._retained_scope(require_idle=True)
+                return _recovery_freeze({"task_id": task_id, "action_id": action_id,
+                    "completion": completion, "provenance": provenance, "authorities": authorities},
+                    context, budget, source_id="completed-action-result")
+
+        first, current = read(), None
+        try:
+            current = read()
+            if not _recovery_equal(first, current, context, budget):
+                raise ValueError("completed action provenance changed during query")
+            return current
+        except BaseException:
+            if current is not None:
+                budget.release_projection(current)
+            raise
+        finally:
+            budget.release_projection(first)
+
+    @staticmethod
+    def _validate_completed_action_provenance(provenance: FrozenMap, action_id: str,
+                                             *, _budget=None, _context=None) -> str:
+        """Join persisted facts; every successful branch has an exact history."""
+        from graph_engineering.storage.codec import require_jcs_digest
+
+        value = thaw(provenance) if _budget is None else provenance
+        task_id = value["task"]["task_id"]
+        journals = {journal["action_id"]: journal for journal in value["journals"]}
+        original = journals[action_id]
+        prepared, authority = original["prepared"], original["authority"]
+        claim, recovery = value["claim"], value["recovery"]
+        claim_id = "claim:" + action_id
+        events = value["events"]
+        by_transaction = {}
+        for entry in events:
+            by_transaction.setdefault(entry["transaction_id"], []).append(entry)
+        target_resources = [resource for resource in prepared["resources"] if resource != "task:" + task_id]
+        if (len(target_resources) != 1 or claim["claim_id"] != claim_id or claim["revision"] != 2
+                or claim["resources"] != prepared["resources"]
+                or set(claim["fencing_tokens"]) != set(prepared["resources"])
+                or "task:" + task_id not in prepared["resources"]):
+            raise ValueError("completed action original claim resources differ")
+        target_resource = target_resources[0]
+        used = set()
+
+        def same(left: object, right: object) -> bool:
+            # JSON booleans and numbers are distinct even though True == 1 in Python.
+            if _budget is not None:
+                from graph_engineering.storage.repository import _recovery_equal
+                return _recovery_equal(left, right, _context, _budget)
+            return canonical_json(left) == canonical_json(right)
+
+        def one(kind: str, identifiers: Mapping[str, object], *, required: bool=True) -> Mapping[str, object] | None:
+            matches = [entry for entry in events if entry["event"]["event_type"] == kind
+                       and any(entry["event"]["payload"].get(key) == item for key, item in identifiers.items())]
+            if not matches and not required:
+                return None
+            if len(matches) != 1:
+                raise ValueError("completed action event is missing or ambiguous")
+            entry = matches[0]
+            if len(by_transaction[entry["transaction_id"]]) != 1:
+                raise ValueError("completed action transaction is not a single event")
+            used.add(entry["event"]["event_digest"])
+            return entry
+
+        def event_matches(entry: Mapping[str, object], payload: Mapping[str, object], baseline: str, actor: Mapping[str, object]) -> None:
+            event = entry["event"]
+            if (not same(event["payload"], payload) or not same(event["baseline_digests"], [baseline])
+                    or not same(event["actor"], actor)):
+                raise ValueError("completed action event payload or authority binding differs")
+
+        started = one("action.execution_started", {"action_id": action_id})
+        start_payload = {
+            "action_id": action_id, "authority_digest": authority["authority_digest"],
+            "prepared_action_digest": prepared["prepared_action_digest"],
+            "snapshot_digest": prepared["snapshot_digest"], "lease_id": claim["lease_id"],
+            "fencing_tokens": claim["fencing_tokens"],
+            "disclosure_plan_digest": started["event"]["payload"].get("disclosure_plan_digest"),
+        }
+        require_jcs_digest(start_payload["disclosure_plan_digest"])
+        event_matches(started, start_payload, prepared["baseline_digest"],
+                      {"kind": "runtime", "id": authority["runtime_lineage_id"]})
+        if claim["started_event_digest"] != started["event"]["event_digest"]:
+            raise ValueError("completed action claim start digest differs")
+
+        def receipt_object(receipt: Mapping[str, object], entry: Mapping[str, object]) -> None:
+            matches = [item for item in value["receipt_objects"]
+                       if item["digest"] == receipt["raw_receipt_object_digest"]]
+            refs = [item for item in value["references"]
+                    if item["digest"] == receipt["raw_receipt_object_digest"]]
+            if len(matches) != 1 or len(refs) != 1:
+                raise ValueError("completed action receipt object/reference is ambiguous")
+            reference_events = by_transaction.get(refs[0]["transaction_id"], [])
+            if (not reference_events or reference_events[0]["transaction_revision"] > entry["transaction_revision"]):
+                raise ValueError("completed action receipt reference is foreign or from the future")
+            body = matches[0]["document"]
+            required = {"schema_version", "contract", "receipt_source", "result"}
+            if (type(body) not in (dict, FrozenMap) or set(body) not in (required, required | {"effect"})
+                    or body["schema_version"] != "1.0.0" or body["contract"] != "bounded-redacted-fake-receipt-v1"
+                    or body["receipt_source"] not in {"tool-return", "post-crash-target-query"}
+                    or body["result"] not in {"succeeded", "failed", "unknown"}
+                    or body["result"] != receipt["result"]
+                    or ("effect" in body and body["effect"] not in {"applied", "none"})
+                    or receipt["raw_result_digest"] != semantic_record_digest({
+                        "contract": "bounded-redacted-fake-receipt-v1", "value": body})
+                    or ("receipt_source" in receipt and receipt["receipt_source"] != body["receipt_source"])):
+                raise ValueError("completed action bounded receipt body differs")
+
+        normal_receipt = one("action.receipt_recorded", {"action_id": action_id, "claim_id": claim_id},
+                             required=original["receipt"] is not None)
+        if original["receipt"] is None:
+            if normal_receipt is not None:
+                raise ValueError("completed action historical receipt is missing")
+        else:
+            receipt = original["receipt"]
+            expected = {
+                "task_id": task_id, "action_id": action_id, "claim_id": claim_id,
+                "started_event_digest": claim["started_event_digest"],
+                "prepared_action_digest": prepared["prepared_action_digest"],
+                "authority_digest": authority["authority_digest"], "payload_digest": prepared["payload_digest"],
+                "target_id": prepared["target_id"], "fencing_token": claim["fencing_tokens"][target_resource],
+            }
+            if not same({key: receipt.get(key) for key in expected}, expected):
+                raise ValueError("completed action historical receipt binding differs")
+            event_matches(normal_receipt, {
+                "action_id": action_id, "claim_id": claim_id, "receipt_digest": receipt["receipt_digest"],
+                "raw_receipt_object_digest": receipt["raw_receipt_object_digest"],
+            }, prepared["baseline_digest"], {"kind": "deterministic", "id": "action-receipt-recorder"})
+            if normal_receipt["event"]["sequence"] <= started["event"]["sequence"]:
+                raise ValueError("completed action receipt precedes start")
+            receipt_object(receipt, normal_receipt)
+
+        observation = original["reconciliation"]
+        if (type(observation) not in (dict, FrozenMap) or observation["target_id"] != prepared["target_id"]
+                or observation["target_digest"] != prepared["target_digest"]
+                or observation["resource_id"] != target_resource):
+            raise ValueError("completed action observation is foreign")
+        if recovery is None:
+            if (original["state"] != "reconciled" or claim["state"] != "reconciled_effect_verified"
+                    or len(journals) != 1 or normal_receipt is None
+                    or not same(observation["state"], prepared["expected_postcondition"])
+                    or set(observation) != {"target_id", "target_digest", "resource_id", "fresh",
+                                            "observation_revision", "state"}):
+                raise ValueError("completed action is not normally reconciled")
+            reconciled = one("action.reconciled_effect_verified", {"action_id": action_id, "claim_id": claim_id})
+            event_matches(reconciled, {"action_id": action_id, "claim_id": claim_id},
+                          prepared["baseline_digest"], {"kind": "deterministic", "id": "action-reconciler"})
+            if reconciled["event"]["sequence"] <= normal_receipt["event"]["sequence"]:
+                raise ValueError("completed action reconciliation precedes receipt")
+        else:
+            restore = journals[recovery["compensation_action_id"]]
+            restored, restore_authority = restore["prepared"], restore["authority"]
+            if (original["state"] != "compensated" or claim["state"] != "compensation_reconciled"
+                    or recovery["state"] != "reconciled" or recovery["revision"] != 3
+                    or recovery["protocol_version"] != "1.0.0" or restore["state"] != "reconciled"
+                    or restored["action_kind"] != "rollback" or len(journals) != 2
+                    or restored["target_id"] != prepared["target_id"]
+                    or restored["target_digest"] != prepared["target_digest"]
+                    or restored["resources"] != prepared["resources"]
+                    or not same(restored["expected_postcondition"], prepared["precondition"])
+                    or not same(observation["state"], restored["expected_postcondition"])
+                    or not same(restore["reconciliation"], observation)):
+                raise ValueError("completed compensation state or rollback postcondition differs")
+            binding = {
+                "claim_id": claim_id, "task_id": task_id, "original_action_id": action_id,
+                "original_started_event_digest": claim["started_event_digest"],
+                "compensation_action_id": restored["action_id"],
+                "compensation_authority_digest": restore_authority["authority_digest"],
+                "compensation_prepared_digest": restored["prepared_action_digest"],
+                "lease_id": claim["lease_id"], "resources": claim["resources"],
+                "fencing_tokens": claim["fencing_tokens"], "target_id": restored["target_id"],
+                "target_digest": restored["target_digest"], "baseline_digest": restored["baseline_digest"],
+                "snapshot_digest": restored["snapshot_digest"],
+            }
+            if not same({key: recovery.get(key) for key in binding}, binding):
+                raise ValueError("completed compensation attempt binding differs")
+            expected_attempt_id = ResourceLeaseRepository.compensation_attempt_id(
+                {**claim, "revision": claim["revision"] - 1},
+                compensation_action_id=restored["action_id"],
+                compensation_authority_digest=restore_authority["authority_digest"],
+                compensation_prepared_digest=restored["prepared_action_digest"])
+            if recovery["attempt_id"] != expected_attempt_id:
+                raise ValueError("completed compensation attempt identity differs")
+            require_jcs_digest(recovery["disclosure_plan_digest"])
+            identifiers = {"attempt_id": recovery["attempt_id"], "claim_id": claim_id,
+                           "compensation_action_id": restored["action_id"]}
+            restore_started = one("action.compensation_execution_started", identifiers)
+            event_matches(restore_started, {
+                **binding, "attempt_id": recovery["attempt_id"],
+                "disclosure_plan_digest": recovery["disclosure_plan_digest"],
+            }, restored["baseline_digest"], {"kind": "runtime", "id": restore_authority["runtime_lineage_id"]})
+            if recovery["start_event_digest"] != restore_started["event"]["event_digest"]:
+                raise ValueError("completed compensation start digest differs")
+            receipt = restore["receipt"]
+            if (type(receipt) not in (dict, FrozenMap) or receipt["result"] != "succeeded"
+                    or not same(receipt, recovery["receipt"]) or receipt["receipt_digest"] != recovery["receipt_digest"]
+                    or receipt["raw_receipt_object_digest"] != recovery["receipt_object_digest"]):
+                raise ValueError("completed compensation receipt index differs")
+            expected_receipt = {
+                "protocol_version": "1.0.0", "attempt_id": recovery["attempt_id"], "claim_id": claim_id,
+                "task_id": task_id, "original_action_id": action_id, "compensation_action_id": restored["action_id"],
+                "start_event_digest": recovery["start_event_digest"], "authority_digest": restore_authority["authority_digest"],
+                "prepared_action_digest": restored["prepared_action_digest"], "target_id": restored["target_id"],
+                "target_digest": restored["target_digest"], "lease_id": claim["lease_id"],
+                "resources": claim["resources"], "fencing_tokens": claim["fencing_tokens"],
+            }
+            if not same({key: receipt.get(key) for key in expected_receipt}, expected_receipt):
+                raise ValueError("completed compensation receipt identity differs")
+            receipt_event = one("action.compensation_receipt_recorded", identifiers)
+            event_matches(receipt_event, {
+                **identifiers, "start_event_digest": recovery["start_event_digest"], "task_id": task_id,
+                "receipt_digest": receipt["receipt_digest"], "raw_receipt_object_digest": receipt["raw_receipt_object_digest"],
+                "receipt_source": receipt["receipt_source"], "target_id": restored["target_id"],
+                "target_digest": restored["target_digest"], "lease_id": claim["lease_id"],
+                "resources": claim["resources"], "fencing_tokens": claim["fencing_tokens"], "result": receipt["result"],
+            }, restored["baseline_digest"], {"kind": "deterministic", "id": "compensation-receipt-recorder"})
+            if recovery["receipt_event_digest"] != receipt_event["event"]["event_digest"]:
+                raise ValueError("completed compensation receipt event differs")
+            receipt_object(receipt, receipt_event)
+            if observation.get("bound_receipt_digest") != receipt["receipt_digest"]:
+                raise ValueError("completed compensation observation is not receipt-bound")
+            reconciled = one("action.compensation_reconciled", identifiers)
+            event_matches(reconciled, {
+                **identifiers, "start_event_digest": recovery["start_event_digest"],
+                "receipt_event_digest": recovery["receipt_event_digest"], "receipt_digest": receipt["receipt_digest"],
+                "fresh_observation_digest": observation["observation_digest"],
+                "fresh_observation_revision": observation["observation_revision"],
+                "verified_outcome": "compensation_reconciled",
+            }, prepared["baseline_digest"], {"kind": "deterministic", "id": "compensation-reconciler"})
+            ordered = [started["event"]["sequence"]]
+            if normal_receipt is not None:
+                ordered.append(normal_receipt["event"]["sequence"])
+            ordered += [entry["event"]["sequence"] for entry in (restore_started, receipt_event, reconciled)]
+            if any(left >= right for left, right in zip(ordered, ordered[1:])):
+                raise ValueError("completed compensation history is out of order")
+
+        if claim["outcome_digest"] != semantic_record_digest({
+                "contract": "claim-outcome-v1", "state": claim["state"], "value": observation}):
+            raise ValueError("completed action claim outcome digest differs")
+        related_ids = {"action_id": set(journals), "original_action_id": {action_id},
+                       "compensation_action_id": set(journals), "claim_id": {claim_id}}
+        if recovery is not None:
+            related_ids["attempt_id"] = {recovery["attempt_id"]}
+        related = {entry["event"]["event_digest"] for entry in events
+                   if entry["event"]["event_type"].startswith("action.")
+                   and any(type(entry["event"]["payload"].get(key)) is str
+                           and entry["event"]["payload"].get(key) in identifiers
+                           for key, identifiers in related_ids.items())}
+        if related != used:
+            raise ValueError("completed action history has unexpected or unresolved events")
+        return claim["state"]
+
 
     def _publish_bounded_receipt_object(
         self,
