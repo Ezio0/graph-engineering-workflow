@@ -1295,3 +1295,36 @@ the approved boundary returns to design before dependent implementation.
 Plan checklist uses the project's approved scope rather than template example
 counts or staged rollout requirements. Estimated time is a sizing guide, not a
 runtime-budget change. History: 2026-09-21 — bounded mandatory24 plan added.
+### P3 scenario6 bounded implementation plan — 2026-09-22
+
+Implements [scenario6 Spec](../specs/graph-engineering-workflow.md#p3-scenario6-bounded-contract--2026-09-22)
+and [Impact](../impact/graph-engineering-workflow.md#p3-scenario6-impact--2026-09-22)
+under the approved existing PRD/Positioning and ADR0009. Coordinator owns all
+edits; independent reviewers are read-only. Task IDs below are the local work
+index. Actual durations and results are recorded in detached execution evidence.
+
+| Task | Size / estimate | Depends on | Owned scope | Exit condition |
+|---|---|---|---|---|
+| S6-01 | S / 1–2h | approved proposal | Five design documents and exact Manifest | Spec→Impact→Plan→Test Plan independently accepted and reducer advanced. |
+| S6-02 | M / half day | S6-01 | Release/category/coverage and focused fixtures/tests | Three scenario P/R runtime paths select exact scenario facts; R fails release authority, not generic facts. |
+| S6-03 | S / 1–2h | S6-02 | Private reader, cold recovery and integration tests | P fresh-process typed recovery; all six opaque lifecycle records reopen current with zero replay and closed resources. |
+| S6-04 | S / 1–2h | S6-03 | Plan, three oracles and actual package/pin inputs | Exact274/137 shape, original268/134 unchanged, all six installed requests/oracles distinct. |
+| S6-05 | S / 1–2h | S6-04 | Focused tests/static/package/protected closure | Required serial critical journeys, attacks and regression checks pass within approved command limits. |
+| S6-06 | S / 1–2h | S6-05 | Detached evidence and Candidate | Independent implementation/verification/Candidate reviews complete; stop at commit boundary. |
+
+- [ ] S6-01: freeze/replay exact input digests and independent decisions; no implementation before Test Plan advancement.
+- [ ] S6-02: RED tests for scenario dispatch/authority before implementation; GREEN actual provenance, full health and partial-compensation outcomes; canonical R remains state-preserving.
+- [ ] S6-03: exercise all six full lifecycle bindings, all three fresh-process P sources, per-scenario cold drift plus R source closure; assert action counts and terminal cleanup.
+- [ ] S6-04: verify exact case IDs, oracle selectors/request digests and package pairs; compare old268/134 raw values before any pin refresh.
+- [ ] S6-05: run [Test Plan](../test-plans/graph-engineering-workflow.md#p3-scenario6-verification--2026-09-22) critical journeys and compatibility checks serially; stop first failure.
+- [ ] S6-06: remove unchanged Manifest targets, stage exact changed set, record passing canonical commands and exact Candidate; persist actual independent review outcomes.
+
+Development risks: scenario setup can diverge from category selector (assert exact
+typed joins); pin churn can invalidate upstream tests (freeze actual input closure
+before canonical capture); long paired lifecycle tests can exceed300s (split
+independent per-role methods, not assertions or budgets). Local repository,
+simulator and installed source validation are available; no external dependency
+or staging/production rollout is involved. Retain failed attempts. An unexpected
+public-contract/target/material-architecture requirement returns to human authority.
+No known open design choice blocks these tasks. History: 2026-09-22 — six-scenario
+bounded plan, estimated task sizes, evidence-backed actual-duration reporting.

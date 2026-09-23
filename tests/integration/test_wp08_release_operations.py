@@ -620,6 +620,129 @@ class WP08ColdInstallationControlTests(unittest.TestCase):
 
 
 class WP08RetainedReleaseSessionTests(unittest.TestCase):
+    def test_scenario_artifact_provenance_uses_actual_release_authority(self):
+        self._assert_scenario_authority("artifact-provenance")
+
+    def test_scenario_health_gate_uses_actual_release_authority(self):
+        self._assert_scenario_authority("health-gate")
+
+    def test_scenario_partial_deploy_uses_actual_release_authority(self):
+        self._assert_scenario_authority("partial-deploy")
+
+    def test_scenario_evidence_rejects_resigned_issued_projection(self):
+        from graph_engineering.core.contracts.immutable import freeze
+
+        for scenario in ("artifact-provenance", "health-gate", "partial-deploy"):
+            with self.subTest(scenario=scenario), self._same_task_assessment(
+                    cold=True, column="boundary", scenario=scenario,
+                    partial=scenario == "partial-deploy") as values:
+                _api, action, session, app, probe, target, candidate, evidence, _ = values
+                original = evidence.projection
+                rows = self._repository_rows(action)
+                state = session._root.state()
+                mutations = session._root.mutation_count
+                for attack in ("outcome", "claim_id", "scenario_id", "owner_route",
+                        "provenance", "health-subset", "health-generation"):
+                    with self.subTest(attack=attack):
+                        body = evidence.to_dict()
+                        if attack == "provenance":
+                            manifest = body["artifact_manifest"]
+                            manifest["source_manifest_digest"] = "sha256-jcs-v1:" + "0" * 64
+                            manifest.pop("manifest_digest")
+                            manifest.pop("provenance_digest")
+                            manifest["provenance_digest"] = _semantic(manifest, "release-artifact-provenance")
+                            manifest["manifest_digest"] = _semantic(manifest, "release-artifact-manifest")
+                            body["artifact_manifest_digest"] = manifest["manifest_digest"]
+                        elif attack.startswith("health-"):
+                            health = body["health_observation"]
+                            if attack == "health-subset":
+                                self.assertGreater(len(health["predicate_results"]), 1)
+                                health["predicate_results"] = health["predicate_results"][:1]
+                            else:
+                                health["generation"] += 1
+                            health.pop("observation_digest")
+                            health["observation_digest"] = _semantic(health, "release-health-observation")
+                            body["health_observation_digest"] = health["observation_digest"]
+                        else:
+                            body[attack] = "claim:forged" if attack == "claim_id" else "fabricated-success"
+                        body.pop("observation_digest")
+                        evidence._factory._require_nested_projection(body)
+                        body["observation_digest"] = _semantic(body, "release-operations-observation")
+                        evidence._factory._validate_document(
+                            "urn:gew:schema:release-operations-observation:1.0.0", body)
+                        object.__setattr__(evidence, "projection", freeze(body))
+                        try:
+                            with self.assertRaisesRegex(ReleaseOperationsError, "differs from issued projection"):
+                                evidence._factory.require_current(evidence)
+                            with self.assertRaisesRegex(ValueError, "release operations evidence is absent, stale, or foreign"):
+                                app.assess_and_commit(candidate, observer=target, release_operations_evidence=evidence)
+                        finally:
+                            object.__setattr__(evidence, "projection", original)
+                        self.assertEqual(self._repository_rows(action), rows)
+                        self.assertEqual(session._root.state(), state)
+                        self.assertEqual(session._root.mutation_count, mutations)
+                self.assertIs(evidence._factory.require_current(evidence), evidence)
+
+    def test_partial_scenario_cold_restore_rejects_corrupt_restore_receipt(self):
+        from graph_engineering.application.release_operations import restore_current_release_assessment
+        from graph_engineering.storage.codec import canonical_json, parse_canonical_json
+        from graph_engineering.storage.errors import RepositoryIntegrityError
+
+        with self._same_task_assessment(cold=True, column="boundary", scenario="partial-deploy", partial=True) as values:
+            _api, action, session, app, probe, target, candidate, evidence, _ = values
+            app.assess_and_commit(candidate, observer=target, release_operations_evidence=evidence)
+            restore_id = evidence.to_dict()["rollback_observation"]["action_id"]
+            session.close()
+            with action.repository._factory.open("application") as connection, connection.transaction():
+                body = parse_canonical_json(connection.execute(
+                    "SELECT receipt_json FROM action_journal WHERE action_id=?", (restore_id,)).fetchone()[0])
+                body["claim_id"] = "claim:foreign"
+                connection.execute("UPDATE action_journal SET receipt_json=? WHERE action_id=?",
+                    (canonical_json(body), restore_id))
+            before = self._repository_rows(action)
+            physical = {p.name: p.read_bytes() for p in session._root._root_path.iterdir()}
+            with self.assertRaises(RepositoryIntegrityError) as rejected:
+                handle = restore_current_release_assessment(task_application=app._task_application,
+                    runtime=app._runtime, policy=app._policy, release_factory=action.release_factory,
+                    object_repository=action.objects, action_coordinator=action.raw_coordinator,
+                    retained_namespace=action.retained_namespace, task_id=probe.task_id)
+                try:
+                    handle.query()
+                finally:
+                    handle.close()
+            self._assert_cold_semantic_rejection(rejected.exception, "receipt")
+            self.assertEqual(self._repository_rows(action), before)
+            self.assertEqual({p.name: p.read_bytes() for p in session._root._root_path.iterdir()}, physical)
+            self.assertEqual(action.retained_namespace._record()[4].active_leases, 0)
+
+    def _assert_scenario_authority(self, scenario):
+        import copy
+
+        with self._same_task_assessment(cold=True, column="boundary", scenario=scenario,
+                partial=scenario == "partial-deploy") as values:
+            _api, action, session, app, probe, target, candidate, evidence, _ = values
+            expected_case = "GEW-PSC-RELEASE-OPERATIONS-" + scenario.upper() + "-P"
+            self.assertEqual(candidate["scenario_id"], expected_case)
+            before = self._repository_rows(action)
+            target_before = session._root.state()
+            mutations = session._root.mutation_count
+            for supplied in (None, evidence.to_dict(), copy.copy(evidence)):
+                with self.subTest(supplied=type(supplied).__name__), self.assertRaisesRegex(
+                        ValueError, "release operations evidence is absent, stale, or foreign"):
+                    app.assess_and_commit(candidate, observer=target, release_operations_evidence=supplied)
+                self.assertEqual(self._repository_rows(action), before)
+                self.assertEqual(session._root.state(), target_before)
+                self.assertEqual(session._root.mutation_count, mutations)
+            result = app.assess_and_commit(candidate, observer=target, release_operations_evidence=evidence)
+            self.assertEqual(result.assessment.schema_version, "1.4.0")
+            self.assertEqual(result.assessment.scenario_id, expected_case)
+            projection = result.assessment.to_dict()["release_operations_projection"]
+            self.assertEqual(projection["outcome"], {"artifact-provenance": "artifact-provenance-verified",
+                "health-gate": "local-health-verified", "partial-deploy": "partial-deploy-restored"}[scenario])
+            self.assertEqual(target_before["generation"], 0 if scenario == "partial-deploy" else 1)
+            self.assertEqual(session._root.mutation_count, mutations)
+            self.assertIsNotNone(app.current_assessment(probe.task_id, expected_profile_id="release-operations"))
+
 
 
     def test_cold_entry_locator_gap_and_ineligible_roots(self):
@@ -4776,7 +4899,7 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
                 self.assertEqual(namespace._record()[4].active_leases, 0)
 
     @contextmanager
-    def _same_task_assessment(self, *, cold=False, partial=False, column="normal", accepted=True, task_id="task-wp05"):
+    def _same_task_assessment(self, *, cold=False, partial=False, column="normal", accepted=True, task_id="task-wp05", scenario=None):
         """RS-2 live lease proof, not RS-4 artifact/target provenance proof.
 
         The legacy category observer and synthetic runner/artifact records stay
@@ -4808,6 +4931,12 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
             deployment = rollback_observation = None
             real_authority = None
             scenario_id = None
+            if scenario is not None:
+                rows = [row for row in factory._registry.policy["scenarios"] if row["scenario_id"] == scenario]
+                self.assertEqual(len(rows), 1)
+                self.assertEqual(column, "boundary")
+                self.assertEqual(partial, scenario == "partial-deploy")
+                scenario_id = "GEW-PSC-RELEASE-OPERATIONS-" + scenario.upper() + "-P"
             if partial:
                 self.assertTrue(cold)
                 from graph_engineering.core.actions import PreparedAction
@@ -4943,7 +5072,8 @@ class WP08RetainedReleaseSessionTests(unittest.TestCase):
                 rollback_observation=rollback_observation, session=session,
                 owner_route="release-operations-owner" if partial else "reconciled-effect-verified",
                 column_id=column, scenario_id=str(current["scenario_id"]),
-                outcome="partial-deploy-restored" if partial else "artifact-provenance-verified")
+                outcome=(rows[0]["success_outcome"] if scenario is not None
+                    else "partial-deploy-restored" if partial else "artifact-provenance-verified"))
             if column == "rollback":
                 facts = rollback._adopt_completed_release(factory, evidence)
                 record = probe.resolve_category_evidence(probe.task_id, "rollback")
@@ -5496,7 +5626,7 @@ def produce():
             yield str(path)
     with mock.patch.object(tempfile, "TemporaryDirectory", directories):
         with case._same_task_assessment(cold=True, partial=request["partial"],
-                column=request.get("column", "normal")) as values:
+                column=request.get("column", "normal"), scenario=request.get("scenario")) as values:
             _api, fixture, session, app, probe, target, candidate, evidence, _ = values
             receipt = (None if request.get("crash_cut") == "before-reference" else
                 app.assess_and_commit(candidate, observer=target, release_operations_evidence=evidence))
@@ -5629,6 +5759,8 @@ def consume():
                     first, second = handle.query(), handle.query()
                     assert first["assessment_bytes"].hex() == second["assessment_bytes"].hex() == source["assessment"]
                     assert first["assessment"]["column_id"] == request.get("column", "normal")
+                    if request.get("scenario"):
+                        assert first["assessment"]["scenario_id"] == "GEW-PSC-RELEASE-OPERATIONS-" + request["scenario"].upper() + "-P"
                     state_key = "rollback_state" if request.get("column") == "rollback" else "expected_state"
                     assert dict(first["source_projection"]["target"][state_key]) == source["expected"]
                     assert first["observation_epoch"] == second["observation_epoch"]
@@ -5652,7 +5784,7 @@ def consume():
 print(json.dumps(produce() if request["mode"] == "produce" else consume()), flush=True)
 '''
 
-    def _child(self, directory, *, mode, partial, producer=None, crash_cut=None, column="normal"):
+    def _child(self, directory, *, mode, partial, producer=None, crash_cut=None, column="normal", scenario=None):
         import json
         import subprocess
         import sys
@@ -5661,7 +5793,7 @@ print(json.dumps(produce() if request["mode"] == "produce" else consume()), flus
         with tempfile.TemporaryDirectory(prefix="gew-cold-exec-control-") as control:
             completed = subprocess.run([sys.executable, "-B", "-c", self.CHILD, str(ROOT), control],
                 input=json.dumps({"directory": str(directory), "mode": mode,
-                    "partial": partial, "producer": producer, "crash_cut": crash_cut, "column": column}),
+                    "partial": partial, "producer": producer, "crash_cut": crash_cut, "column": column, "scenario": scenario}),
                 text=True, capture_output=True, timeout=120, check=False)
         self.assertEqual(completed.returncode, 0, completed.stderr)
         return json.loads(completed.stdout)
@@ -5694,6 +5826,32 @@ print(json.dumps(produce() if request["mode"] == "produce" else consume()), flus
 
     def test_fresh_process_mandatory_real_e2e(self):
         self._assert_fresh_mandatory_columns(("real-e2e",))
+
+    def test_fresh_process_scenario_artifact_provenance(self):
+        self._assert_fresh_scenario("artifact-provenance")
+
+    def test_fresh_process_scenario_health_gate(self):
+        self._assert_fresh_scenario("health-gate")
+
+    def test_fresh_process_scenario_partial_deploy(self):
+        self._assert_fresh_scenario("partial-deploy")
+
+    def _assert_fresh_scenario(self, scenario):
+        import os
+        import tempfile
+
+        partial = scenario == "partial-deploy"
+        with tempfile.TemporaryDirectory(prefix="gew-cold-scenario-") as directory:
+            path = pathlib.Path(directory).resolve()
+            producer = self._child(path, mode="produce", partial=partial, column="boundary", scenario=scenario)
+            consumer = self._child(path, mode="consume", partial=partial, column="boundary", scenario=scenario, producer=producer)
+            self.assertNotEqual(producer["pid"], consumer["pid"])
+            self.assertNotEqual(consumer["pid"], os.getpid())
+            self.assertEqual(consumer["generation"], 0 if partial else 1)
+            self.assertGreater(consumer["queries"], 0)
+            self.assertGreater(consumer["revision"], 1)
+            self.assertLessEqual(consumer["peak_units"], 1048576)
+            self.assertLessEqual(consumer["peak_bytes"], 1048576)
 
     def _assert_fresh_mandatory_columns(self, columns, *, partial=False):
         import os
@@ -6073,6 +6231,14 @@ class WP08ReleaseOperationsIntegrationTests(unittest.TestCase):
                 self.assertEqual(health.to_dict()["outcome"], "healthy")
 
     def test_partial_unknown_uses_same_claim_compensation_and_restores_exact_a(self) -> None:
+        self._partial_scenario_case()
+
+    def test_partial_scenario_rejects_apply_replay_and_invalid_restore(self):
+        for attack in ("replay", "claim", "generation", "authority", "partial-restore"):
+            with self.subTest(attack=attack):
+                self._partial_scenario_case(attack)
+
+    def _partial_scenario_case(self, attack=None):
         with action_stack() as fixture:
             release_factory = ReleaseOperationsRegistryFactory.from_installation()
             baseline = release_factory.issue_artifact_manifest(
@@ -6127,6 +6293,17 @@ class WP08ReleaseOperationsIntegrationTests(unittest.TestCase):
                 self.assertEqual((unknown.state, unknown.route), (
                     "unknown", "manual-reconciliation",
                 ))
+                if attack == "replay":
+                    before = session.tree_digest()
+                    with self.assertRaises(ValueError):
+                        fixture.coordinator.execute(original.action_id, owner_id="owner-wp05",
+                            runtime_kind="codex", runtime_lineage_id="lineage-wp05",
+                            lease=fixture.action_lease, target=session.target, observer=session.observer,
+                            disclosure_plan=release_disclosure_plan(fixture, original))
+                    self.assertEqual(session.tree_digest(), before)
+                    self.assertEqual(session.target.apply_count, 0)
+                    self.assertEqual(fixture.journal.load(original.action_id).state, "unknown")
+                    return
                 partial = session.observer.observe()["state"]
                 self.assertEqual(partial, {
                     "generation": 0,
@@ -6182,10 +6359,64 @@ class WP08ReleaseOperationsIntegrationTests(unittest.TestCase):
                     original_claim_id=unknown.claim_id,
                     original_receipt_digest=str(unknown.receipt_digest),
                 )
+                if attack in {"claim", "generation"}:
+                    from graph_engineering.core.actions import PreparedAction
+                    if attack == "claim":
+                        compensation_document["payload"]["original_claim_id"] = "claim:foreign"
+                    else:
+                        compensation_document["payload"]["expected_generation"] += 1
+                    compensation_document["payload_digest"] = PreparedAction.payload_digest_for(
+                        compensation_document["payload"], fixture.context)
+                    compensation_document["prepared_action_digest"] = PreparedAction.digest_document(
+                        compensation_document, fixture.context)
                 compensation = fixture.coordinator.prepare(compensation_document)
+                if attack == "authority":
+                    before = session.tree_digest()
+                    with self.assertRaises(ValueError):
+                        fixture.coordinator.compensate_unknown(original.action_id,
+                            compensation_action_id=compensation.action_id, recovery_lease=fixture.action_lease,
+                            owner_id="owner-wp05", runtime_kind="codex", runtime_lineage_id="lineage-wp05",
+                            target=session.target, observer=session.observer,
+                            disclosure_plan=release_disclosure_plan(fixture, compensation))
+                    self.assertEqual(session.tree_digest(), before)
+                    self.assertEqual(session.target.apply_count, 0)
+                    return
                 fixture.coordinator.authorize(authority_document(
                     compensation, context=fixture.context,
                 ))
+                if attack is not None:
+                    before = session.tree_digest()
+                    original_unlink = type(session._root)._durable_unlink
+                    removed = []
+                    def fail_after_first_unlink(root, name):
+                        if removed:
+                            raise TimeoutError("restore interrupted after first durable removal")
+                        original_unlink(root, name)
+                        removed.append(name)
+                    with ExitStack() as fault:
+                        if attack == "partial-restore":
+                            fault.enter_context(mock.patch.object(type(session._root), "_durable_unlink", new=fail_after_first_unlink))
+                            failed = fixture.coordinator.compensate_unknown(original.action_id,
+                                compensation_action_id=compensation.action_id, recovery_lease=fixture.action_lease,
+                                owner_id="owner-wp05", runtime_kind="codex", runtime_lineage_id="lineage-wp05",
+                                target=session.target, observer=session.observer,
+                                disclosure_plan=release_disclosure_plan(fixture, compensation))
+                            self.assertEqual((failed.state, failed.route), ("unknown", "manual-reconciliation"))
+                            self.assertTrue(removed)
+                            self.assertFalse((session._root._root_path / removed[0]).exists())
+                            self.assertTrue((session._root._root_path / session._root.names["stage_artifact"]).exists())
+                        else:
+                            with self.assertRaises(ValueError):
+                                fixture.coordinator.compensate_unknown(original.action_id,
+                                    compensation_action_id=compensation.action_id, recovery_lease=fixture.action_lease,
+                                    owner_id="owner-wp05", runtime_kind="codex", runtime_lineage_id="lineage-wp05",
+                                    target=session.target, observer=session.observer,
+                                    disclosure_plan=release_disclosure_plan(fixture, compensation))
+                            self.assertEqual(session.tree_digest(), before)
+                    self.assertEqual(session.target.apply_count, 0)
+                    self.assertNotEqual(fixture.journal.load(original.action_id).state, "compensated")
+                    self.assertTrue(fixture.leases.unresolved_claims())
+                    return
                 restored = fixture.coordinator.compensate_unknown(
                     original.action_id,
                     compensation_action_id=compensation.action_id,

@@ -3454,3 +3454,90 @@ fixture is never described as a wheel archive. Update only affected authorized
 pins, using existing package/attestation machinery. Keep historical schema bytes,
 Support Matrix and performance thresholds exact. No cumulative/performance run,
 network, real environment operation, commit or external action is implied.
+### P3 scenario6 bounded contract — 2026-09-22
+
+This amendment implements the existing PRD release-operations intent under
+`GEW-REMAINING54-P3-SCENARIO6-BOUNDED-V1`, following committed mandatory24
+Candidate `a129e2328cad16721ea1548a2dc1ed6fb49fdb12f13f523b94b01fef881a2cb8`.
+It supersedes only that batch's six-scenario exclusion. Existing architecture,
+public interfaces, schema1.0–1.4, budgets and authority boundaries remain binding.
+
+#### Scope and architecture
+
+Add exactly `artifact-provenance`, `health-gate`, `partial-deploy` × P/R,
+using the installed `GEW-PSC-RELEASE-OPERATIONS-<SCENARIO>-<ROLE>` identities.
+All are `scenario` selectors on category column `boundary`, with their own task,
+private root, branch/ref, candidate request, oracle and action authority.
+The existing positive boundary-case ID is selected for the authoritative task;
+R identifies a rejected request for that same scenario, not a successful R assessment.
+
+```text
+installed fixture + scoped ActionCoordinator -> apply/query/[restore]
+ -> release factory: artifact + deployment + full local health joins
+ -> opaque release evidence -> category assessment1.4 -> coverage execution
+ -> quiesce -> fresh bounded read ports -> currentness + coverage gate
+```
+
+Production core retains platform-neutral semantics; actual mutations occur only
+through the existing local simulator adapter. Existing source/package attestation
+and installation pins remain independent from simulator fixture provenance.
+Configured counts become 274 bindings/137 oracles/0 missing selectors. This is
+not a dynamically accepted cumulative274 gate; that workload remains excluded.
+
+#### Scenario semantics and rejection
+
+| Scenario | P proof | R authority boundary and additional negative matrix |
+|---|---|---|
+| artifact-provenance | Actual A→B apply and query, installation-pinned B bytes and complete manifest/provenance; outcome `artifact-provenance-verified` | Caller digest/PASS cannot replace opaque issuer evidence; altered bytes, coherent forged provenance, stale/foreign/cloned evidence fail closed. |
+| health-gate | Actual active B, fresh generation/artifact binding and every installed local predicate; outcome `local-health-verified` | Caller PASS without issuer evidence rejects; stale health, missing predicates, staged B presented as active and fabricated success reject. |
+| partial-deploy | Durable staged B/active A is first rejected as release success; query/reconcile original claim+receipt, separately authorized restore A, fresh complete health; outcome `partial-deploy-restored` | Caller completion without recovery evidence rejects; apply replay, wrong original claim/generation, missing restore authority, incomplete restore and fabricated success reject. |
+
+Canonical R requests exercise the real category completion gate with no valid
+opaque release evidence. The exact expected failure is the release-evidence
+authority rejection, not an unrelated missing record or wrong category fact.
+Each scenario's installed R oracle binds the exact request and error. Additional
+fault tests independently exercise the scenario-specific rejection matrix; a
+caller exception string, boolean or configuration count never substitutes for
+those actual failing operations. P persists a typed assessment1.4; R persists
+no assessment and retains the opaque authority-issued rejection execution record.
+
+The partial P outcome means successful compensation, not successful deployment.
+Do not call partial R globally mutation-zero: preparation may have staged B and
+restored A. Measure original apply/restore deltas and residual states explicitly;
+the rejected completion and every subsequent read/reopen add zero mutations.
+Unknown effects route to the existing owner path; no automatic apply replay.
+
+#### Cold recovery and lifecycle
+
+Generalize the existing private release coverage reader from mandatory selectors
+to these exact installed scenario selectors only. Check scenario ID, boundary
+case, column, task, original execution identity and plan/oracle bindings before
+sealing. Cold P reconstructs the complete unique referenced assessment, category
+boundary evidence, action/security/journal/receipt closure, installed artifact
+bytes and final health. Partial P also joins original partial and restore actions.
+Cold R preserves the exact rejected request/record and absence of assessment,
+with the existing full bounded source/action/security/physical capture; it never
+re-executes a command to rediscover failure. A serialized record cannot mint
+an execution authority. Fresh-process tests reconstruct typed read authority
+from durable P sources; R coverage lifetime remains opaque process-local while
+its underlying source ports are completely closed and freshly opened.
+
+Retain shared pre-allocation resource ownership, exact limits, no-follow file
+identity, two-capture consistency, and original sealed history. Wrong task/root,
+scenario, installation, generation, CAS/SQL source, cloned handle or same-byte
+inode replacement rejects with no additional durable or target mutation.
+No new database/event/GraphRef/public port contracts are introduced.
+
+#### Verification and stop conditions
+
+All six actual bindings must pass issue/use/precommit/gate plus quiescent reopen
+and terminal lifecycle tests, with native leases/FDs back to baseline. Exercise
+all three P scenarios in a fresh interpreter with apply/restore replay forbidden.
+Use real local repositories and simulator operations; fault injection is confined
+to tests. Command limits remain native≤600s and canonical≤300s, strictly serial
+and fail-fast. Preserve existing268 bindings/134 oracle semantics and protected
+bytes; change source/package pins only for actual changed inputs. External,
+cumulative/performance, monitoring and WP-10 work remain excluded. No open
+material architecture choice is introduced; any discovered need for one stops
+before implementation of that change. Independent artifact and Candidate
+reviews remain required; commit requires separate human authorization.

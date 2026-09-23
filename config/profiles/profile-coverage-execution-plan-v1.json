@@ -4555,6 +4555,108 @@
       "selector_kind": "scenario",
       "task_id": "task:wp08-coverage:gew-psc-refactor-debt-nonfunctional-target-r",
       "test_id": "GEW-PSC-REFACTOR-DEBT-NONFUNCTIONAL-TARGET-R"
+    },
+    {
+      "oracle_id": "ORA-PROFILE-RELEASE-OPERATIONS",
+      "profile_id": "release-operations",
+      "selector_kind": "scenario",
+      "column_id": "boundary",
+      "scenario_id": "artifact-provenance",
+      "category_boundary_case_id": "GEW-PSC-RELEASE-OPERATIONS-ARTIFACT-PROVENANCE-P",
+      "overlay_id": "full-planned",
+      "oracle_digest": "sha256-jcs-v1:3b663ad04c41ab2db2982cd58ead4b8c38bdb91819be9a662336dc9875613bda",
+      "test_id": "GEW-PSC-RELEASE-OPERATIONS-ARTIFACT-PROVENANCE-P",
+      "disposition": "P",
+      "execution_kind": "contract-test",
+      "expected_result": "COMPLETED",
+      "task_id": "task:wp08-coverage:gew-psc-release-operations-artifact-provenance-p",
+      "selector_digest": "sha256-jcs-v1:a3cf289f95c23f71587ca32570415191134dcf5c2da56238822a467e64d31ea6",
+      "request_digest": null
+    },
+    {
+      "oracle_id": "ORA-PROFILE-RELEASE-OPERATIONS",
+      "profile_id": "release-operations",
+      "selector_kind": "scenario",
+      "column_id": "boundary",
+      "scenario_id": "artifact-provenance",
+      "category_boundary_case_id": "GEW-PSC-RELEASE-OPERATIONS-ARTIFACT-PROVENANCE-P",
+      "overlay_id": "full-planned",
+      "oracle_digest": "sha256-jcs-v1:3b663ad04c41ab2db2982cd58ead4b8c38bdb91819be9a662336dc9875613bda",
+      "test_id": "GEW-PSC-RELEASE-OPERATIONS-ARTIFACT-PROVENANCE-R",
+      "disposition": "R",
+      "execution_kind": "contract-test",
+      "expected_result": "EXPECTED_REJECTION",
+      "task_id": "task:wp08-coverage:gew-psc-release-operations-artifact-provenance-r",
+      "selector_digest": "sha256-jcs-v1:f8d6c593a033a15323fb53856bd8b211436fe7fa4617a4d20daadb59290bdf4f",
+      "request_digest": "sha256-jcs-v1:fcaaaeb4516fdef210768681e02bb5a5dc4cf1a6aaf878d67d630bdf8260e521"
+    },
+    {
+      "oracle_id": "ORA-PROFILE-RELEASE-OPERATIONS",
+      "profile_id": "release-operations",
+      "selector_kind": "scenario",
+      "column_id": "boundary",
+      "scenario_id": "health-gate",
+      "category_boundary_case_id": "GEW-PSC-RELEASE-OPERATIONS-HEALTH-GATE-P",
+      "overlay_id": "full-planned",
+      "oracle_digest": "sha256-jcs-v1:757ad0b430235a440946f8ff4a9640925e5bb124394d2072966382b9c3f6ef5a",
+      "test_id": "GEW-PSC-RELEASE-OPERATIONS-HEALTH-GATE-P",
+      "disposition": "P",
+      "execution_kind": "contract-test",
+      "expected_result": "COMPLETED",
+      "task_id": "task:wp08-coverage:gew-psc-release-operations-health-gate-p",
+      "selector_digest": "sha256-jcs-v1:a83bded169beb2908726526e0e3c94b6e8c39a7e32c8e4ed2d944c44f31f09cf",
+      "request_digest": null
+    },
+    {
+      "oracle_id": "ORA-PROFILE-RELEASE-OPERATIONS",
+      "profile_id": "release-operations",
+      "selector_kind": "scenario",
+      "column_id": "boundary",
+      "scenario_id": "health-gate",
+      "category_boundary_case_id": "GEW-PSC-RELEASE-OPERATIONS-HEALTH-GATE-P",
+      "overlay_id": "full-planned",
+      "oracle_digest": "sha256-jcs-v1:757ad0b430235a440946f8ff4a9640925e5bb124394d2072966382b9c3f6ef5a",
+      "test_id": "GEW-PSC-RELEASE-OPERATIONS-HEALTH-GATE-R",
+      "disposition": "R",
+      "execution_kind": "contract-test",
+      "expected_result": "EXPECTED_REJECTION",
+      "task_id": "task:wp08-coverage:gew-psc-release-operations-health-gate-r",
+      "selector_digest": "sha256-jcs-v1:72f34be88695124e5f2a98ac11b675c7d5185d302e63e544869b0543223b44b0",
+      "request_digest": "sha256-jcs-v1:9382a6b4bb556e5e4f70894c84b81511bdad59f46c3f2e2103c7e78810aff76c"
+    },
+    {
+      "oracle_id": "ORA-PROFILE-RELEASE-OPERATIONS",
+      "profile_id": "release-operations",
+      "selector_kind": "scenario",
+      "column_id": "boundary",
+      "scenario_id": "partial-deploy",
+      "category_boundary_case_id": "GEW-PSC-RELEASE-OPERATIONS-PARTIAL-DEPLOY-P",
+      "overlay_id": "full-planned",
+      "oracle_digest": "sha256-jcs-v1:a9aaebade4274ee0d1aec1bee70a0f15eda46b4424cacd2314721c9d2a5eba92",
+      "test_id": "GEW-PSC-RELEASE-OPERATIONS-PARTIAL-DEPLOY-P",
+      "disposition": "P",
+      "execution_kind": "contract-test",
+      "expected_result": "COMPLETED",
+      "task_id": "task:wp08-coverage:gew-psc-release-operations-partial-deploy-p",
+      "selector_digest": "sha256-jcs-v1:3af8f064c633b53bf3edeb0a8f729b877d9c15b7726f8e370af9a21695569a07",
+      "request_digest": null
+    },
+    {
+      "oracle_id": "ORA-PROFILE-RELEASE-OPERATIONS",
+      "profile_id": "release-operations",
+      "selector_kind": "scenario",
+      "column_id": "boundary",
+      "scenario_id": "partial-deploy",
+      "category_boundary_case_id": "GEW-PSC-RELEASE-OPERATIONS-PARTIAL-DEPLOY-P",
+      "overlay_id": "full-planned",
+      "oracle_digest": "sha256-jcs-v1:a9aaebade4274ee0d1aec1bee70a0f15eda46b4424cacd2314721c9d2a5eba92",
+      "test_id": "GEW-PSC-RELEASE-OPERATIONS-PARTIAL-DEPLOY-R",
+      "disposition": "R",
+      "execution_kind": "contract-test",
+      "expected_result": "EXPECTED_REJECTION",
+      "task_id": "task:wp08-coverage:gew-psc-release-operations-partial-deploy-r",
+      "selector_digest": "sha256-jcs-v1:87ee1805ea4312cb476eaa816a584c592dce195baa267884ee0b516816bc76bd",
+      "request_digest": "sha256-jcs-v1:64d38429d935d71645738e9e626eac89dff0bf368036be00adac5b5680c31788"
     }
   ],
   "oracle_bindings": [
@@ -6701,9 +6803,57 @@
         "P": "task:wp08-coverage:gew-pro-release-operations-target-p",
         "R": "task:wp08-coverage:gew-pro-release-operations-target-r"
       }
+    },
+    {
+      "oracle_id": "ORA-PROFILE-RELEASE-OPERATIONS",
+      "profile_id": "release-operations",
+      "selector_kind": "scenario",
+      "column_id": "boundary",
+      "scenario_id": "artifact-provenance",
+      "category_boundary_case_id": "GEW-PSC-RELEASE-OPERATIONS-ARTIFACT-PROVENANCE-P",
+      "overlay_id": "full-planned",
+      "oracle_digest": "sha256-jcs-v1:3b663ad04c41ab2db2982cd58ead4b8c38bdb91819be9a662336dc9875613bda",
+      "task_ids": {
+        "P": "task:wp08-coverage:gew-psc-release-operations-artifact-provenance-p",
+        "R": "task:wp08-coverage:gew-psc-release-operations-artifact-provenance-r"
+      },
+      "oracle_member": "config/test-oracles/profile-release-operations-artifact-provenance-v1.json",
+      "oracle_raw_sha256": "50ee1973d62962ebfff3a06da8a6fe8d19f136253928d07ae984595a8301ffc6"
+    },
+    {
+      "oracle_id": "ORA-PROFILE-RELEASE-OPERATIONS",
+      "profile_id": "release-operations",
+      "selector_kind": "scenario",
+      "column_id": "boundary",
+      "scenario_id": "health-gate",
+      "category_boundary_case_id": "GEW-PSC-RELEASE-OPERATIONS-HEALTH-GATE-P",
+      "overlay_id": "full-planned",
+      "oracle_digest": "sha256-jcs-v1:757ad0b430235a440946f8ff4a9640925e5bb124394d2072966382b9c3f6ef5a",
+      "task_ids": {
+        "P": "task:wp08-coverage:gew-psc-release-operations-health-gate-p",
+        "R": "task:wp08-coverage:gew-psc-release-operations-health-gate-r"
+      },
+      "oracle_member": "config/test-oracles/profile-release-operations-health-gate-v1.json",
+      "oracle_raw_sha256": "ee08da369e8ebb68b5097a26c0637731b069b132f618b0bbc84e2ba3c799e7ea"
+    },
+    {
+      "oracle_id": "ORA-PROFILE-RELEASE-OPERATIONS",
+      "profile_id": "release-operations",
+      "selector_kind": "scenario",
+      "column_id": "boundary",
+      "scenario_id": "partial-deploy",
+      "category_boundary_case_id": "GEW-PSC-RELEASE-OPERATIONS-PARTIAL-DEPLOY-P",
+      "overlay_id": "full-planned",
+      "oracle_digest": "sha256-jcs-v1:a9aaebade4274ee0d1aec1bee70a0f15eda46b4424cacd2314721c9d2a5eba92",
+      "task_ids": {
+        "P": "task:wp08-coverage:gew-psc-release-operations-partial-deploy-p",
+        "R": "task:wp08-coverage:gew-psc-release-operations-partial-deploy-r"
+      },
+      "oracle_member": "config/test-oracles/profile-release-operations-partial-deploy-v1.json",
+      "oracle_raw_sha256": "e9e8da68d2a7110fa0ec96fb8e01a0efbba16b3387ee06ea23b9e6faa97e9aa3"
     }
   ],
-  "plan_digest": "sha256-jcs-v1:e830ebe072da1449880464e706023ee77295a985a987f01c93da7f0822aac34c",
+  "plan_digest": "sha256-jcs-v1:0e717c5ffaba4f6f936294663957f04aea3c2017e01ef7dabf1358eaa116a3da",
   "plan_id": "urn:gew:profile-coverage-execution-plan:wp08-s4-v1",
   "runtime_binding": {
     "runtime_digest": "sha256-jcs-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",

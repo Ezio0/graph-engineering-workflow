@@ -476,3 +476,20 @@ The Git real-E2E authority remains exclusive to its existing profiles.
 Artifact provenance distinguishes installed fixture bytes from distribution and
 package-resource provenance. Cold historical handles carry no mutation or live
 evidence authority. Configuration 268/134 is not a dynamic acceptance claim.
+### Scenario6 bounded clarification — 2026-09-22
+
+The approved scenario6 amendment completes the three already-installed scenario
+identities through the existing simulator, opaque release evidence and
+assessment1.4. Artifact provenance refers to installed fixture bytes; package
+and wheel closure stays separate. Health success requires active B and all
+installed predicates. Partial-deploy P denotes query/reconciliation and an
+independently authorized restore to A followed by fresh health, never deployment
+success. Its rejection/read paths add zero mutations; prior partial/restore
+mutations remain visible rather than being labelled zero.
+
+No new public API or durable schema is selected. The private coverage reader may
+admit the exact three scenario selectors after binding their installed IDs and
+typed source closure. P recovery reconstructs assessment1.4 in a fresh process;
+R retains its opaque issued rejection record while reopening every source port.
+Configured274/137 is not cumulative acceptance. Existing local-only authority,
+resource limits, source currentness and separate irreversible gates are unchanged.

@@ -2368,3 +2368,52 @@ these CUJs. Performance workloads and thresholds, accessibility, real production
 release and cumulative acceptance are excluded by authority. No unresolved test
 decision remains; newly discovered contract ambiguity returns to the design
 review node, while routine test corrections remain in this bounded graph.
+### P3 scenario6 verification — 2026-09-22
+
+Scope is the approved [scenario6 Plan](../plans/2026-08-13-graph-engineering-workflow.md#p3-scenario6-bounded-implementation-plan--2026-09-22)
+and [Spec](../specs/graph-engineering-workflow.md#p3-scenario6-bounded-contract--2026-09-22),
+following existing PRD/Positioning and ADR0009. Every critical journey below is
+required; no arbitrary line-coverage or test-count target replaces it. Existing
+unittest tooling, real local SQLite/CAS and the actual simulator are used.
+Only fault boundaries are patched; issuer/PASS/source authority is never mocked.
+
+| CUJ / tasks | Positive evidence | Negative evidence |
+|---|---|---|
+| S6-PROV / S6-02 | Actual applied B equals installed manifest/provenance and raw fixture bytes | Caller PASS/digest, coherent fake provenance, stale/foreign/cloned evidence or byte substitution rejected. |
+| S6-HEALTH / S6-02 | Active B, exact generation/artifact, complete fresh local predicate vector | Stale observation, missing predicate, staged-as-active, forged success rejected. |
+| S6-PARTIAL / S6-02 | Partial state first fails success; original claim/receipt query+reconcile; separately authorized restore A then fresh health | Replay, wrong claim/generation, missing restore authority, partial restore, fabricated success rejected with truthful residual state. |
+| S6-LIFE / S6-03 | All six records issue→oracle→coverage→quiesce→fresh source reopen→gate→terminal | Stale/root/task/scenario/clone substitution and post-terminal reopen rejected; all phases add zero action replay. |
+| S6-COLD / S6-03 | All three P assessments restore in a fresh interpreter with actual typed sources | Per-scenario source/currentness drift and partial restore-source corruption reject; no SQL/CAS/target changes on read. |
+| S6-CONFIG / S6-04 | Six unique selectors/requests and three oracles; configured274/137/0 missing | Old268/134 immutable semantic comparison, no aliases/duplicates or caller-supplied success substitution. |
+| S6-COMPAT / S6-05 | Affected mandatory normal/boundary/recovery/rollback/real-e2e, installed-wheel/package/static gates | Protected schema1.0–1.4/dependency1.1/SupportMatrix/helper/threshold bytes unchanged. |
+
+Canonical scenario R tests must reject at the release-evidence authority boundary,
+preserve the candidate and all durable/target state, and report the exact installed
+oracle error. R has no accepted assessment. The scenario-specific attack tests
+are additional actual operations, not inferred from that single canonical rejection.
+For partial paths snapshot mutation counters before rejection/read, separately
+report bounded setup apply/restore and final active/staged/generation state.
+
+Unit/contract tests cover exact config/model contracts; integration tests exercise
+the full action/evidence/assessment/coverage joins. Local E2E is the actual private
+simulator lifecycle plus three fresh-interpreter recovery checks, not external
+deployment. Synthetic fixture bytes contain no PII. Each binding has a fresh
+private root/task/branch/ref; close producer and consumer source ports, native
+leases and descriptors, and assert baseline return on success and injected failure.
+
+Run RED before product implementation, then GREEN focused methods. All execution
+is strictly serial and stops on first failure. Native command timeout≤600s;
+canonical command≤300s (use a smaller wrapper deadline), zero skipped or expected
+failure tests. Split long batches at whole independent methods/roles; do not raise
+limits, skip checks, reuse stale evidence, or substitute a static count for a gate.
+Once the selected tree is staged, any source/pin change invalidates its canonical
+evidence. Canonical records bind exact command digest, Policy, Manifest and tree.
+
+Network, real staging/production, credentials, monitoring, performance workloads,
+cumulative274 execution and WP10 are out of scope. Resource limits/currentness,
+security substitution, cleanup, compatibility and restart are in scope; UI/accessibility
+and external deployment are not applicable. There is no unresolved testability
+choice; a failure or inadequate evidence is resolved before independent review.
+Review the exact implementation, then verification and Candidate; no commit in
+this execution authority. Record actual method outcomes/durations in detached
+evidence rather than pre-marking the Plan checkboxes as passed.

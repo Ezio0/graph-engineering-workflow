@@ -17,12 +17,139 @@ from tests.unit import test_wp08_profile_contracts as slice1
 class WP08ReleaseCoverageTests(unittest.TestCase):
     maxDiff = None
 
-    def test_release_mandatory_plan_is_exact_24_without_scenarios(self):
+    def test_release_scenario_plan_has_exact_six_distinct_bindings(self):
         api4 = fixture.load_slice4_api()
         _api, _coverage, matrix, _profile, _overlay = self._profile_contracts("release-operations")
         plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
-        self.assertEqual(len(plan.bindings), 268)
-        rows = [v for v in plan.bindings.values() if v["profile_id"] == "release-operations"]
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (274, 137))
+        rows = [v for v in plan.bindings.values() if v["profile_id"] == "release-operations"
+            and v["selector_kind"] == "scenario"]
+        scenarios = ("artifact-provenance", "health-gate", "partial-deploy")
+        self.assertEqual({(v["scenario_id"], v["disposition"]) for v in rows},
+            {(s, role) for s in scenarios for role in ("P", "R")})
+        self.assertEqual(len(rows), 6)
+        self.assertEqual(len({v["task_id"] for v in rows}), 6)
+        self.assertEqual(len({v["selector_digest"] for v in rows}), 6)
+        self.assertEqual(len({v["oracle_digest"] for v in rows}), 3)
+        self.assertTrue(all(v["column_id"] == "boundary" for v in rows))
+
+    def _assert_release_scenario_binding(self, scenario, disposition):
+        api4 = fixture.load_slice4_api()
+        api, coverage, matrix, profile, overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        for quiescent in (False, True):
+            with self.subTest(quiescent=quiescent):
+                result = fixture.run_serial_scenario_binding(api4=api4, plan=plan,
+                    scenario_id=scenario, disposition=disposition, quiescent=quiescent)
+                try:
+                    observation = result.observe_current()
+                    self.assertEqual(result.execution.result, "COMPLETED" if disposition == "P" else "EXPECTED_REJECTION")
+                    self.assertEqual(result.execution.selector_kind, "scenario")
+                    self.assertEqual(result.execution.scenario_id, scenario)
+                    self.assertEqual(result.execution.task_id, fixture.coverage_task_id(result.test_id))
+                    if disposition == "R":
+                        self.assertEqual(result.state_before, result.state_after)
+                        self.assertEqual(plan.oracle_for(result.test_id)["reject_error_message"],
+                            "release operations evidence is absent, stale, or foreign")
+                    factory = api.CoverageRecordFactory(execution_authority=result.authority, coverage_policy=coverage)
+                    record = factory.issue_execution(observation, matrix=matrix, profile=profile, overlay=overlay)
+                    if not quiescent:
+                        factory.require_issued(record, matrix=matrix)
+                    if quiescent:
+                        self.assertEqual(result.binding_lifecycle.state, "QUIESCED")
+                        self.assertEqual(result.release_operations_reader.active_readers(), 0)
+                        self.assertTrue(result.release_operations_reader.session_closed())
+                    with self.assertRaisesRegex(ValueError, "combined coverage gate was not consumed"):
+                        factory.finalize_after_gate(object())
+                    if quiescent:
+                        decision = ReleaseCoverageGate.evaluate(
+                            matrix, coverage_records=(record,), coverage_factory=factory,
+                        )
+                        self.assertFalse(decision.passed)
+                        self.assertEqual(len(decision.missing_test_ids), 273)
+                        self.assertEqual(decision.invalid_test_ids, ())
+                        self.assertEqual(decision.stale_test_ids, ())
+                        with self.assertRaisesRegex(ValueError, "combined coverage gate was not consumed"):
+                            factory.finalize_after_gate(decision)
+                    fixture.abort_uncommitted_coverage_factory(factory)
+                    with self.assertRaises(ValueError):
+                        result.observe_current()
+                    if quiescent:
+                        self.assertEqual(result.binding_lifecycle.state, "PERMANENTLY_CLOSED")
+                        self.assertEqual(result.release_operations_reader.active_readers(), 0)
+                finally:
+                    result.close()
+
+    def test_release_scenario_artifact_provenance_p(self):
+        self._assert_release_scenario_binding("artifact-provenance", "P")
+
+    def test_release_scenario_artifact_provenance_r(self):
+        self._assert_release_scenario_binding("artifact-provenance", "R")
+
+    def test_release_scenario_health_gate_p(self):
+        self._assert_release_scenario_binding("health-gate", "P")
+
+    def test_release_scenario_health_gate_r(self):
+        self._assert_release_scenario_binding("health-gate", "R")
+
+    def test_release_scenario_partial_deploy_p(self):
+        self._assert_release_scenario_binding("partial-deploy", "P")
+
+    def test_release_scenario_partial_deploy_r(self):
+        self._assert_release_scenario_binding("partial-deploy", "R")
+
+    def test_release_scenario_artifact_provenance_rejects_cold_replacement(self):
+        self._assert_scenario_cold_replacement("artifact-provenance")
+
+    def test_release_scenario_health_gate_rejects_cold_replacement(self):
+        self._assert_scenario_cold_replacement("health-gate")
+
+    def test_release_scenario_partial_deploy_rejects_cold_replacement(self):
+        self._assert_scenario_cold_replacement("partial-deploy")
+
+    def _assert_scenario_cold_replacement(self, scenario):
+        from graph_engineering.core.profile_coverage import BindingLifecycleError
+        from tests.support.wp08_scenario_truth import PrivateBindingReopenPort
+
+        api4 = fixture.load_slice4_api()
+        _api, _coverage, matrix, _profile, _overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        for disposition in ("P", "R"):
+            with self.subTest(disposition=disposition):
+                result = fixture.run_serial_scenario_binding(api4=api4, plan=plan,
+                    scenario_id=scenario, disposition=disposition, quiescent=True)
+                try:
+                    reader = result.release_operations_reader
+                    session = reader._context()["session"]
+                    path = session._root._root_path / session._root.names["state"]
+                    before = {p.name: p.read_bytes() for p in path.parent.iterdir()}
+                    mutations = session._root.mutation_count
+                    temporary = path.with_suffix(".replacement")
+                    temporary.write_bytes(path.read_bytes())
+                    temporary.chmod(0o600)
+                    temporary.replace(path)
+                    with self.assertRaises(BindingLifecycleError) as rejected:
+                        result.observe_current()
+                    cause = rejected.exception
+                    while cause is not None:
+                        self.assertNotIsInstance(cause, AssertionError)
+                        self.assertNotIn(getattr(getattr(cause, "detail", None), "code", None), ("E_LIMIT", "E_BUDGET"))
+                        cause = cause.__cause__ or cause.__context__
+                    self.assertEqual({p.name: p.read_bytes() for p in path.parent.iterdir()}, before)
+                    self.assertEqual(session._root.mutation_count, mutations)
+                    self.assertEqual(reader.active_readers(), 0)
+                    self.assertEqual(PrivateBindingReopenPort.active_handle_count(), 0)
+                    self.assertEqual(PrivateBindingReopenPort.active_reopened_binding_count(), 0)
+                finally:
+                    result.close()
+
+    def test_release_mandatory_plan_retains_exact_24_bindings(self):
+        api4 = fixture.load_slice4_api()
+        _api, _coverage, matrix, _profile, _overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        self.assertEqual(len(plan.bindings), 274)
+        rows = [v for v in plan.bindings.values() if v["profile_id"] == "release-operations"
+            and v["selector_kind"] == "mandatory"]
         self.assertEqual(len(rows), 24)
         self.assertEqual({(v["column_id"], v["disposition"]) for v in rows},
             {(c, d) for c in fixture.approved_mandatory_columns() for d in ("P", "R")})
@@ -759,8 +886,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 268)
-                self.assertEqual(len(plan.oracle_bindings), 134)
+                self.assertEqual(len(plan.bindings), 274)
+                self.assertEqual(len(plan.oracle_bindings), 137)
                 self.assertIn(
                     "dependency-graph-scenarios-r1",
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -776,8 +903,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 268)
-                self.assertEqual(len(plan.oracle_bindings), 134)
+                self.assertEqual(len(plan.bindings), 274)
+                self.assertEqual(len(plan.oracle_bindings), 137)
                 self.assertIn(
                     fixture.MIGRATION_SCENARIOS_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -799,8 +926,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 268)
-                self.assertEqual(len(plan.oracle_bindings), 134)
+                self.assertEqual(len(plan.bindings), 274)
+                self.assertEqual(len(plan.oracle_bindings), 137)
                 self.assertIn(
                     fixture.VULNERABLE_GRAPH_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -820,8 +947,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 268)
-                self.assertEqual(len(plan.oracle_bindings), 134)
+                self.assertEqual(len(plan.bindings), 274)
+                self.assertEqual(len(plan.oracle_bindings), 137)
                 self.assertIn(
                     fixture.STABLE_BASELINE_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,
@@ -885,7 +1012,7 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     plan.binding(test_id)["task_id"]
                     for test_id in sorted(plan.bindings)
                 )
-                self.assertEqual(len(task_ids), 268)
+                self.assertEqual(len(task_ids), 274)
                 self.assertEqual(len(task_ids), len(set(task_ids)))
                 for test_id, task_id in zip(
                     sorted(plan.bindings), task_ids, strict=True,
@@ -3122,8 +3249,8 @@ class WP08ReleaseCoverageTests(unittest.TestCase):
                     ),
                     (),
                 )
-                self.assertEqual(len(plan.bindings), 268)
-                self.assertEqual(len(plan.oracle_bindings), 134)
+                self.assertEqual(len(plan.bindings), 274)
+                self.assertEqual(len(plan.oracle_bindings), 137)
                 self.assertIn(
                     fixture.VULNERABLE_GRAPH_R1_SELECTOR,
                     fixture.VERIFIED_RUNNER_SELECTORS,

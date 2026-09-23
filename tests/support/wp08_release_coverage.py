@@ -2515,20 +2515,24 @@ def _serial_state_signature(
 
 
 def _run_serial_release_binding(*, api4: Slice4API, plan: object, column: str,
-    disposition: str, quiescent: bool) -> SerialCoverageExecution:
+    disposition: str, quiescent: bool, scenario: str | None = None) -> SerialCoverageExecution:
     from tests.support.wp08_release_operations import release_mandatory_runtime, PrivateReleaseCoverageRoot
     from tests.integration.test_wp08_release_operations import WP08RetainedReleaseSessionTests
 
-    test_id = profile_mandatory_test_id("release-operations", column, disposition)
+    test_id = (profile_mandatory_test_id("release-operations", column, disposition) if scenario is None
+        else "GEW-PSC-RELEASE-OPERATIONS-" + scenario.upper() + "-" + disposition)
     task_id = str(plan.binding(test_id)["task_id"])
     private_root = PrivateReleaseCoverageRoot() if quiescent else None
-    context = private_root or release_mandatory_runtime(column=column, task_id=task_id, accepted=disposition == "P")
+    context = private_root or release_mandatory_runtime(column=column, task_id=task_id,
+        accepted=disposition == "P", scenario=scenario)
     try:
-        values = (private_root.produce(column=column, task_id=task_id, accepted=disposition == "P")
+        values = (private_root.produce(column=column, task_id=task_id, accepted=disposition == "P", scenario=scenario)
             if private_root is not None else context.__enter__())
         _api, action, session, application, probe, target, candidate, evidence, _outcome = values
         candidate["request_id"] = "wp08-s4:release-operations:" + column + ":" + disposition.lower()
-        if disposition == "R" and column != "real-e2e":
+        if scenario is not None:
+            candidate["request_id"] = "wp08-s4:release-operations:" + scenario + ":" + disposition.lower()
+        if disposition == "R" and column != "real-e2e" and scenario is None:
             # Inject one coherently re-signed wrong fact. Preserve the real
             # reference transaction so this negative has no unrelated dangling
             # transaction introduced by the general tamper helper.
@@ -2881,6 +2885,10 @@ def run_serial_scenario_binding(
     quiescent: bool = False,
 ) -> SerialCoverageExecution:
     """Execute one exact installed scenario binding in isolation."""
+
+    if scenario_id in ("artifact-provenance", "health-gate", "partial-deploy"):
+        return _run_serial_release_binding(api4=api4, plan=plan, column="boundary",
+            disposition=disposition, quiescent=quiescent, scenario=scenario_id)
 
     scenarios = {
         SCAFFOLD_SCENARIO_ID: (

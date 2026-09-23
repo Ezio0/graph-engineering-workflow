@@ -276,13 +276,13 @@ def release_disclosure_plan(
     )
 
 
-def release_mandatory_runtime(*, column: str, task_id: str, accepted: bool):
+def release_mandatory_runtime(*, column: str, task_id: str, accepted: bool, scenario: str | None = None):
     """Own one distinct task and retained local release action stack."""
     from tests.integration.test_wp08_release_operations import WP08RetainedReleaseSessionTests
 
     return WP08RetainedReleaseSessionTests()._same_task_assessment(
-        cold=True, partial=column in {"recovery", "rollback"}, column=column,
-        accepted=accepted, task_id=task_id,
+        cold=True, partial=column in {"recovery", "rollback"} or scenario == "partial-deploy", column=column,
+        accepted=accepted, task_id=task_id, scenario=scenario,
     )
 
 

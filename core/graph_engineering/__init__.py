@@ -341,12 +341,15 @@ _SOURCE_FILES = (
     "config/test-oracles/profile-refactor-debt-revise-v1.json",
     "config/test-oracles/profile-refactor-debt-rollback-v1.json",
     "config/test-oracles/profile-refactor-debt-target-v1.json",
+    "config/test-oracles/profile-release-operations-artifact-provenance-v1.json",
     "config/test-oracles/profile-release-operations-artifacts-v1.json",
     "config/test-oracles/profile-release-operations-authority-v1.json",
     "config/test-oracles/profile-release-operations-boundary-v1.json",
     "config/test-oracles/profile-release-operations-drift-v1.json",
+    "config/test-oracles/profile-release-operations-health-gate-v1.json",
     "config/test-oracles/profile-release-operations-invalidation-v1.json",
     "config/test-oracles/profile-release-operations-normal-v1.json",
+    "config/test-oracles/profile-release-operations-partial-deploy-v1.json",
     "config/test-oracles/profile-release-operations-real-e2e-v1.json",
     "config/test-oracles/profile-release-operations-recovery-v1.json",
     "config/test-oracles/profile-release-operations-review-v1.json",
@@ -374,6 +377,7 @@ _SOURCE_FILES = (
     "storage/graph_engineering/storage/migration.py",
     "storage/graph_engineering/storage/repository.py",
     "storage/graph_engineering/storage/security.py",
+
 )
 
 

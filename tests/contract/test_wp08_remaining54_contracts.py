@@ -184,8 +184,8 @@ class Remaining54P1ContractsTest(unittest.TestCase):
             matrix=matrix,
         )
 
-        self.assertEqual(len(plan.bindings), 268)
-        self.assertEqual(len(plan.oracle_bindings), 134)
+        self.assertEqual(len(plan.bindings), 274)
+        self.assertEqual(len(plan.oracle_bindings), 137)
         self.assertEqual(
             tuple(
                 test_id
@@ -227,8 +227,8 @@ class Remaining54P1ContractsTest(unittest.TestCase):
         self.assertEqual(
             receipt["selector"], fixture.PERFORMANCE_REMAINING_R1_SELECTOR,
         )
-        self.assertEqual(receipt["plan_bindings"], 268)
-        self.assertEqual(receipt["oracle_bindings"], 134)
+        self.assertEqual(receipt["plan_bindings"], 274)
+        self.assertEqual(receipt["oracle_bindings"], 137)
         self.assertEqual(receipt["restart"], "current-launcher-zero")
         self.assertEqual(
             tuple(sorted(receipt["scenario_attacks"])),
@@ -335,7 +335,7 @@ class Remaining54P2bContractsTest(unittest.TestCase):
         from tests.integration.test_wp08_scenario_truth import ScenarioTruthIntegrationTests
         plan = fixture.load_slice4_api().ProfileCoverageExecutionPlan.from_installation(
             matrix=ScenarioTruthIntegrationTests.matrix())
-        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (268, 134))
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (274, 137))
         manifest = tomllib.loads((ROOT / "pyproject.toml").read_text())
         table = manifest["tool"]["gew"]["profile"]["coverage-execution-plan"]
         for scenario in fixture.HOTFIX_GUARDED_SCENARIO_IDS:
@@ -370,7 +370,7 @@ class Remaining54P2cContractsTest(unittest.TestCase):
         plan = fixture.load_slice4_api().ProfileCoverageExecutionPlan.from_installation(
             matrix=ScenarioTruthIntegrationTests.matrix(),
         )
-        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (268, 134))
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (274, 137))
         manifest = tomllib.loads((ROOT / "pyproject.toml").read_text())
         vectors = manifest["tool"]["gew"]["profile"]["coverage-execution-plan"]["oracle-vectors"]
         for scenario in self.scenarios:
@@ -442,7 +442,7 @@ class Remaining54P2dContractsTest(unittest.TestCase):
         plan = fixture.load_slice4_api().ProfileCoverageExecutionPlan.from_installation(
             matrix=ScenarioTruthIntegrationTests.matrix(),
         )
-        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (268, 134))
+        self.assertEqual((len(plan.bindings), len(plan.oracle_bindings)), (274, 137))
         manifest = tomllib.loads((ROOT / "pyproject.toml").read_text())
         vectors = manifest["tool"]["gew"]["profile"]["coverage-execution-plan"][
             "oracle-vectors"
@@ -686,11 +686,14 @@ class Remaining54P3FoundationContractsTest(unittest.TestCase):
         plan = json.loads((
             ROOT / "config/profiles/profile-coverage-execution-plan-v1.json"
         ).read_text())
-        self.assertEqual((len(plan["bindings"]), len(plan["oracle_bindings"])), (268, 134))
+        self.assertEqual((len(plan["bindings"]), len(plan["oracle_bindings"])), (274, 137))
         release_bindings = [row for row in plan["bindings"] if row["profile_id"] == "release-operations"]
-        self.assertEqual(len(release_bindings), 24)
-        self.assertTrue(all(row["selector_kind"] == "mandatory" and row["scenario_id"] is None
-            for row in release_bindings))
+        self.assertEqual(len(release_bindings), 30)
+        self.assertEqual(sum(row["selector_kind"] == "mandatory" and row["scenario_id"] is None
+            for row in release_bindings), 24)
+        self.assertEqual({(row["scenario_id"], row["disposition"]) for row in release_bindings
+            if row["selector_kind"] == "scenario"}, {(scenario, role)
+                for scenario in ("artifact-provenance", "health-gate", "partial-deploy") for role in ("P", "R")})
         self.assertEqual(policy["deployment_policy"]["operation_roles"], {
             "apply": "local-release-simulator.apply",
             "query": "local-release-simulator.query",

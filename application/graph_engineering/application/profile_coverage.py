@@ -72,6 +72,21 @@ def _frozen_mapping(value: object, label: str) -> FrozenMap:
 _RELEASE_READ_BINDINGS: dict[int, tuple[object, dict[str, object], int, int]] = {}
 
 
+def _release_selector_current(binding: Mapping[str, object], factory: object) -> bool:
+    from graph_engineering.application.release_operations import ReleaseOperationsRegistryFactory
+
+    if type(factory) is not ReleaseOperationsRegistryFactory or binding.get("profile_id") != "release-operations":
+        return False
+    if binding.get("selector_kind") == "mandatory":
+        return binding.get("scenario_id") is None and binding.get("category_boundary_case_id") is None
+    if binding.get("selector_kind") != "scenario" or binding.get("column_id") != "boundary":
+        return False
+    scenarios = {row["scenario_id"] for row in factory._registry.policy["scenarios"]}
+    scenario = binding.get("scenario_id")
+    return (type(scenario) is str and scenario in scenarios
+        and binding.get("category_boundary_case_id") == "GEW-PSC-RELEASE-OPERATIONS-" + scenario.upper() + "-P")
+
+
 class _ReleaseCoverageReadBinding:
     """Process-local validation of an existing record, never execution authority."""
 
@@ -91,7 +106,7 @@ class _ReleaseCoverageReadBinding:
         factory = authority._category._oracle._release_operations_factory
         if (type(factory) is not ReleaseOperationsRegistryFactory
                 or type(namespace) is not RetainedReleaseNamespace
-                or record.profile_id != "release-operations" or record.selector_kind != "mandatory"):
+                or not _release_selector_current(authority._plan.binding(record.test_id), factory)):
             raise ProfileCoverageError("release reader selector or factory is foreign")
         sessions = [session for session in factory._issued_sessions.values()
             if session.recovery_binding is not None
@@ -113,7 +128,9 @@ class _ReleaseCoverageReadBinding:
         else:
             evidence = [item for item in factory._issued.values()
                 if item.projection["task_id"] == record.task_id
-                and item.projection["column_id"] == record.column_id]
+                and item.projection["column_id"] == record.column_id
+                and (record.selector_kind != "scenario" or item.projection["scenario_id"]
+                    == authority._plan.binding(record.test_id)["category_boundary_case_id"])]
             if len(evidence) != 1:
                 raise ProfileCoverageError("release reader evidence is not unique")
             factory.require_current(evidence[0])
@@ -1303,7 +1320,7 @@ class ProfileCoverageAuthority:
             if (
                 assessment.schema_version != "1.4.0"
                 or assessment.profile_id != "release-operations"
-                or binding["selector_kind"] != "mandatory"
+                or not _release_selector_current(binding, self._category._oracle._release_operations_factory)
                 or not isinstance(release_projection, FrozenMap)
                 or any(getattr(assessment, field) is not None for field in (
                     "performance_evidence_projection", "migration_rehearsal_projection",

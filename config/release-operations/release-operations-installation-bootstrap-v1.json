@@ -100,7 +100,7 @@
   },
   "source_authority_pins": {
     "policy_id": "source-checkout-attestation-v1",
-    "source_file_count": 339,
+    "source_file_count": 342,
     "source_issuer_raw_sha256": "d03644ab0db302f260981fb9e38c985c9d6ec2c1bc528d9dfd20b1379c81ba1d"
   },
   "package_authority_pins": {
@@ -127,7 +127,7 @@
     },
     {
       "path": "application/graph_engineering/application/release_operations.py",
-      "raw_sha256": "635198db29ad67738d2cdcc1a9ef5ffa5a448ee0f3b5178bc297baa20796017b"
+      "raw_sha256": "07ead6702b0fbe366e4dbcaa6ffb32780eb096d7210c6b3e36b55b495c8b4a26"
     },
     {
       "path": "application/graph_engineering/application/security.py",
@@ -199,7 +199,7 @@
     },
     {
       "path": "core/graph_engineering/__init__.py",
-      "raw_sha256": "957084e513d329c83f39070e1017c281d4c5ab1d17411c2d01f82e93c755efb8"
+      "raw_sha256": "ae3709588dda2294fac1b3b466379144d268ef1f3f310a21ebf9020a0bbc0065"
     },
     {
       "path": "core/graph_engineering/core/artifacts/__init__.py",
@@ -246,6 +246,6 @@
       "raw_sha256": "7f1aba74e0ddc66d68b015425eba6919585066327a6ea64983739015dda2be2e"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:c8a0d769b1dcb0c5f13feec9542345bbeb84839f488782878780226c16d5f39d",
-  "bootstrap_digest": "sha256-jcs-v1:cd9bb190580553352444d9b0db21692b67b1e65fe96aeb9b78a242e77a34a1f2"
+  "protected_closure_digest": "sha256-jcs-v1:b0fba74fc24e08b9b5bda28b8c1ac0e382f05ed11bfc5e8d5be274530a924446",
+  "bootstrap_digest": "sha256-jcs-v1:1f59bc439d0ceffa98970f1c926d3e2fb892bb11bd038fef3a13e079dde87e56"
 }

@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "oracle_id": "ORA-PROFILE-RELEASE-OPERATIONS",
+  "oracle_kind": "independent-frozen-vector",
+  "profile_id": "release-operations",
+  "selector_kind": "scenario",
+  "column_id": "boundary",
+  "scenario_id": "artifact-provenance",
+  "category_boundary_case_id": "GEW-PSC-RELEASE-OPERATIONS-ARTIFACT-PROVENANCE-P",
+  "overlay_id": "full-planned",
+  "evidence_kind": "scenario-membership",
+  "required_outcome": "scenario-accepted",
+  "required_fact_ids": [
+    "scenario-id"
+  ],
+  "pass_result": "COMPLETED",
+  "reject_result": "EXPECTED_REJECTION",
+  "reject_error_type": "CategoryExecutionError",
+  "reject_error_message": "release operations evidence is absent, stale, or foreign",
+  "reject_state_relation": "exact-equality",
+  "reject_input_relation": "exact-equality",
+  "isolated_runner_raw_sha256": "0f52a04ea53f099c10980d6ef1aa613fcdc8bf9e4022b5ba6079011c7f570d01",
+  "task_ids": {
+    "P": "task:wp08-coverage:gew-psc-release-operations-artifact-provenance-p",
+    "R": "task:wp08-coverage:gew-psc-release-operations-artifact-provenance-r"
+  },
+  "oracle_digest": "sha256-jcs-v1:3b663ad04c41ab2db2982cd58ead4b8c38bdb91819be9a662336dc9875613bda"
+}

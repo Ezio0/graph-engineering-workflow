@@ -1664,6 +1664,7 @@ class ReleaseOperationsRegistryFactory:
         }
         self._currentness_check = currentness_check
         self._issued: dict[int, ReleaseOperationsEvidence] = {}
+        self._issued_evidence_digests: dict[int, str] = {}
         self._issued_manifests: dict[int, ReleaseArtifactManifest] = {}
         self._issued_artifact_bytes: dict[int, bytes] = {}
         self._issued_sessions: dict[int, LocalReleaseSimulatorSession] = {}
@@ -2852,6 +2853,7 @@ class ReleaseOperationsRegistryFactory:
         object.__setattr__(evidence, "projection", freeze(body))
         object.__setattr__(evidence, "_factory", self)
         self._issued[id(evidence)] = evidence
+        self._issued_evidence_digests[id(evidence)] = body["observation_digest"]
         self._evidence_bindings[id(evidence)] = binding
         return evidence
 
@@ -2941,6 +2943,8 @@ class ReleaseOperationsRegistryFactory:
             "urn:gew:schema:release-operations-observation:1.0.0", projection,
         )
         expected = projection.pop("observation_digest")
+        if expected != self._issued_evidence_digests.get(id(evidence)):
+            raise ReleaseOperationsError("release evidence differs from issued projection")
         self._require_nested_projection(projection)
         if not hmac.compare_digest(
             str(expected), _semantic(projection, "release-operations-observation")

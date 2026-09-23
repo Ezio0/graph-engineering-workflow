@@ -1404,3 +1404,33 @@ affected existing regressions. No cumulative/performance workload is executed.
 Retain failed attempts and all prior records. A failed sub-batch publishes no
 accepted partial result; repair stays within the reviewed contract or returns
 to the relevant design node. Commit remains a separate human decision.
+### P3 scenario6 impact — 2026-09-22
+
+The approved bounded amendment adds three scenario P/R pairs and three oracle
+members to the committed268/134 baseline. The initial exact34 targets are frozen
+in Manifest and are a subset of the existing195 allowlist; unused targets are
+removed before Candidate. Review/evidence records remain detached and immutable.
+
+Affected consumers are release observation/currentness, category boundary
+assessment, coverage reader/runner, execution-plan selectors, source attestation,
+bootstrap/package closure and focused tests. There is no data migration, event,
+GraphRef, public API, dependency, real environment or network change. Existing
+268 binding values and134 oracle meanings must remain exact. New selectors and
+oracles require package/resource closure updates; other pins change only when
+their input projection changes. Preserve SupportMatrix, schema1.0–1.4, historical
+dependency1.1, build/evidence helpers, performance thresholds and read budgets.
+
+Main risks: selecting a generic boundary proof instead of the scenario; accepting
+caller PASS as release evidence; mislabelling compensation as deployment success;
+losing original claim/receipt joins after restart; leaking source-port resources;
+or changing unrelated old counts/semantics. Mitigation is exact scenario/request
+binding, opaque issuer validation, explicit action/residual-state assertions,
+fresh-process typed recovery, currentness attack tests and package/protected-byte
+comparisons to commit0713fc9. Rejected completion/read/reopen must cause zero new
+mutation even when the scenario setup already performed bounded actions.
+
+Recovery from a failed development check keeps its evidence and stops subsequent
+verification; fix within the approved targets then recapture affected evidence.
+If a staged source changes after canonical capture, restage and recapture before
+creating a new Candidate. No deployment rollback procedure applies: this batch
+does not publish or deploy. A future commit remains separately authorized.

@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "oracle_id": "ORA-PROFILE-RELEASE-OPERATIONS",
+  "oracle_kind": "independent-frozen-vector",
+  "profile_id": "release-operations",
+  "selector_kind": "scenario",
+  "column_id": "boundary",
+  "scenario_id": "health-gate",
+  "category_boundary_case_id": "GEW-PSC-RELEASE-OPERATIONS-HEALTH-GATE-P",
+  "overlay_id": "full-planned",
+  "evidence_kind": "scenario-membership",
+  "required_outcome": "scenario-accepted",
+  "required_fact_ids": [
+    "scenario-id"
+  ],
+  "pass_result": "COMPLETED",
+  "reject_result": "EXPECTED_REJECTION",
+  "reject_error_type": "CategoryExecutionError",
+  "reject_error_message": "release operations evidence is absent, stale, or foreign",
+  "reject_state_relation": "exact-equality",
+  "reject_input_relation": "exact-equality",
+  "isolated_runner_raw_sha256": "0f52a04ea53f099c10980d6ef1aa613fcdc8bf9e4022b5ba6079011c7f570d01",
+  "task_ids": {
+    "P": "task:wp08-coverage:gew-psc-release-operations-health-gate-p",
+    "R": "task:wp08-coverage:gew-psc-release-operations-health-gate-r"
+  },
+  "oracle_digest": "sha256-jcs-v1:757ad0b430235a440946f8ff4a9640925e5bb124394d2072966382b9c3f6ef5a"
+}
