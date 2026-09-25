@@ -736,5 +736,28 @@ class Remaining54P3FoundationContractsTest(unittest.TestCase):
         }, source_targets)
 
 
+class Remaining54P3CumulativeContractsTest(unittest.TestCase):
+    def test_c274_identity_and_installed_oracle_closure(self):
+        args = fixture._verified_plan(selector="p3-cumulative274-r1")
+        fixture._validate_c274_plan(args[-1], args[3])
+        plan = json.loads((ROOT / "config/profiles/profile-coverage-execution-plan-v1.json").read_text())
+        self.assertEqual(tuple(r["test_id"] for r in plan["bindings"]), fixture._c274_case_ids())
+        self.assertEqual(len(fixture._c274_oracle_identities()), 137)
+        self.assertEqual(hashlib.sha256((ROOT / "config/profiles/profile-coverage-execution-plan-v1.json").read_bytes()).hexdigest(),
+            "a9817d7d0173f28d23d8fdfe394b96b8894c5cb3922fc7fac7d62c85f34b0bf5")
+        for row in plan["oracle_bindings"]:
+            self.assertIn(tuple(row[k] for k in ("oracle_id","profile_id","selector_kind","column_id","scenario_id")), fixture._c274_oracle_identities())
+
+    def test_legacy_selectors_reject_current_plan_without_launch(self):
+        from unittest import mock
+        args = fixture._verified_plan(selector="p3-cumulative274-r1")
+        for selector in ("p2a-cumulative-r2", "p2b-cumulative-r1"):
+            with mock.patch.object(fixture, "_verified_plan", return_value=args), \
+                 mock.patch.object(fixture, "_run_performance_remaining_r1_child") as sibling, \
+                 self.assertRaisesRegex(AssertionError, "preflight"):
+                fixture._run_cumulative_child(selector)
+            sibling.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

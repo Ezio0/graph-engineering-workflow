@@ -311,6 +311,8 @@ def expected_oracle_binding_identities(
 ) -> tuple[tuple[str, str, str, str, str | None], ...]:
     """Return an independent checkpoint closure; default to current P2d."""
 
+    if selector == P3_CUMULATIVE274_R1_SELECTOR:
+        return _c274_oracle_identities()
     checkpoint = (
         _P2D_CURRENT_CHECKPOINT
         if selector is None
@@ -4310,6 +4312,7 @@ DEPENDENCY_GRAPH_SCENARIOS_R1_SELECTOR = "dependency-graph-scenarios-r1"
 PERFORMANCE_REMAINING_R1_SELECTOR = "performance-remaining-r1"
 P2A_CUMULATIVE_R2_SELECTOR = "p2a-cumulative-r2"
 P2B_CUMULATIVE_R1_SELECTOR = "p2b-cumulative-r1"
+P3_CUMULATIVE274_R1_SELECTOR = "p3-cumulative274-r1"
 VERIFIED_RUNNER_SELECTORS = (
     DEPENDENCY_GRAPH_SCENARIOS_R1_SELECTOR,
     EXISTING_FEATURE_R1_SELECTOR,
@@ -4320,6 +4323,7 @@ VERIFIED_RUNNER_SELECTORS = (
     PERFORMANCE_REMAINING_R1_SELECTOR,
     P2A_CUMULATIVE_R2_SELECTOR,
     P2B_CUMULATIVE_R1_SELECTOR,
+    P3_CUMULATIVE274_R1_SELECTOR,
     REGRESSION_BOUNDARY_R1_SELECTOR,
     REPRODUCIBLE_FAILURE_R1_SELECTOR,
     STABLE_BASELINE_R1_SELECTOR,
@@ -4383,6 +4387,8 @@ _CUMULATIVE_CHECKPOINTS = MappingProxyType({
 
 
 def _cumulative_checkpoint(selector: str) -> _CumulativeCheckpoint:
+    if type(selector) is str and selector == P3_CUMULATIVE274_R1_SELECTOR:
+        return _CumulativeCheckpoint(selector, 274, 137, 0, 274, frozenset(_c274_case_ids()))
     if type(selector) is not str or selector not in _CUMULATIVE_CHECKPOINTS:
         raise AssertionError("unknown cumulative checkpoint")
     return _CUMULATIVE_CHECKPOINTS[selector]
@@ -4448,6 +4454,162 @@ def _validate_cumulative_receipt(receipt, checkpoint):  # type: ignore[no-untype
     ):
         raise AssertionError("cumulative receipt P1 sibling changed")
     return receipt
+
+
+# Test-only frozen expectations for the reviewed installed plan. These are not
+# caller-provided data and do not depend on detached workflow records at runtime.
+_C274_PLAN_DIGEST = 'sha256-jcs-v1:0e717c5ffaba4f6f936294663957f04aea3c2017e01ef7dabf1358eaa116a3da'
+_C274_ROWS_SHA256 = 'edf932f928d792976ce14585007b9fa0ac2490204e4b3396421e8089e80b92db'
+_C274_SCENARIO_ATTACKS = tuple(sorted((
+    "raw-alias", "mandatory-id", "rejection-member", "other-scenario",
+    "other-profile", "same-id-changed-request", "oracle-coherent-substitution",
+    "selector-overlay-coherent-substitution", "typed-evidence-delete",
+    "typed-evidence-replace", "post-observation-replacement", "source-currentness",
+)))
+_C274_CORRECTNESS_ATTACKS = tuple(sorted((
+    "observed-mismatch", "expected-substitution", "ignored-iteration",
+    "duration-only", "wrong-phase", "wrong-case", "caller-correct",
+)))
+
+
+def _c274_oracle_identities():
+    return tuple(sorted((
+        *expected_oracle_binding_identities(),
+        *(("ORA-PROFILE-RELEASE-OPERATIONS", "release-operations", "mandatory", column, None)
+          for column in BUG_FIX_COLUMNS),
+        *(("ORA-PROFILE-RELEASE-OPERATIONS", "release-operations", "scenario", "boundary", scenario)
+          for scenario in ("artifact-provenance", "health-gate", "partial-deploy")),
+    )))
+
+
+def _c274_case_ids():
+    return tuple(sorted(
+        f"GEW-{'PRO' if kind == 'mandatory' else 'PSC'}-{profile.upper()}-{(column if kind == 'mandatory' else scenario).upper()}-{role}"
+        for _oracle, profile, kind, column, scenario in _c274_oracle_identities()
+        for role in ("P", "R")
+    ))
+
+
+def _validate_c274_plan(plan, matrix):
+    expected_ids = _c274_case_ids()
+    keys = tuple(sorted(tuple(row[k] for k in (
+        "oracle_id", "profile_id", "selector_kind", "column_id", "scenario_id",
+    )) for row in plan.oracle_bindings))
+    projection = {"bindings": [thaw(row) for row in plan.bindings.values()],
+                  "oracle_bindings": [thaw(row) for row in plan.oracle_bindings]}
+    digest = hashlib.sha256(json.dumps(projection, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    if (tuple(plan.bindings) != expected_ids or len(set(expected_ids)) != 274
+        or keys != _c274_oracle_identities() or len(set(keys)) != 137
+        or tuple(sorted((*matrix.profile_case_ids, *matrix.scenario_case_ids))) != expected_ids
+        or plan.plan_digest != _C274_PLAN_DIGEST or digest != _C274_ROWS_SHA256):
+        raise AssertionError("cumulative274 preflight identity or binding projection changed")
+
+
+def _c274_p1_expected():
+    return {
+        "oracle_bindings": 137, "plan_bindings": 274,
+        "restart": "current-launcher-zero",
+        "correctness_rejections": list(_C274_CORRECTNESS_ATTACKS),
+        "noise_rejection": {"kind": "integer-vector", "median": 100, "mad": 99,
+                            "left_product": 198, "right_product": 100, "outcome": "inconclusive-noise"},
+        "scenario_attacks": {s: list(_C274_SCENARIO_ATTACKS) for s in PERFORMANCE_REMAINING_SCENARIO_IDS},
+        "selector": PERFORMANCE_REMAINING_R1_SELECTOR,
+    }
+
+
+def _validate_c274_p1(receipt):
+    expected = _c274_p1_expected()
+    if type(receipt) is not dict or receipt.keys() != expected.keys() | {"retained_outliers"}:
+        raise AssertionError("cumulative274 P1 evidence fields changed")
+    if not _exact_json({k: receipt[k] for k in expected}, expected):
+        raise AssertionError("cumulative274 P1 evidence changed")
+    outliers = receipt["retained_outliers"]
+    if type(outliers) is not dict or outliers.keys() != {"noise-outlier"}:
+        raise AssertionError("cumulative274 P1 outlier scenario changed")
+    values = outliers["noise-outlier"]
+    if (type(values) is not list or len(values) != 3 or any(type(v) is not int for v in values)
+        or values[0] <= 0 or values[1] < 0 or values[2] <= values[1]):
+        raise AssertionError("cumulative274 P1 outlier evidence is invalid")
+    return receipt
+
+
+def _exact_json(actual, expected):
+    if type(actual) is not type(expected):
+        return False
+    if type(expected) is dict:
+        return actual.keys() == expected.keys() and all(_exact_json(actual[k], v) for k, v in expected.items())
+    if type(expected) is list:
+        return len(actual) == len(expected) and all(_exact_json(a, b) for a, b in zip(actual, expected, strict=True))
+    return actual == expected
+
+
+def _c274_closure(plan, *, terminal, active, reopened, maximum):
+    return {"case_ids": list(_c274_case_ids()),
+            "oracle_identities": sorted([list(k) for k in _c274_oracle_identities()], key=lambda k: json.dumps(k)),
+            "plan_digest": plan.plan_digest, "terminal_bindings": terminal,
+            "active_handles": active, "active_reopened_bindings": reopened,
+            "maximum_active_reopened_bindings": maximum}
+
+
+def _validate_c274_receipt(receipt, plan):
+    if type(receipt) is not dict or "p1_sibling" not in receipt:
+        raise AssertionError("cumulative274 receipt changed")
+    sibling = _validate_c274_p1(receipt["p1_sibling"])
+    expected = {"selector": P3_CUMULATIVE274_R1_SELECTOR, "plan_bindings": 274, "oracle_bindings": 137,
+        "dynamic": {"valid": 274, "missing": 0, "passed": True, "invalid": 0, "stale": 0, "duplicate": 0},
+        "static": {"valid": 0, "missing": 274, "passed": False, "invalid": 0, "stale": 0, "duplicate": 0},
+        "p1_sibling": sibling,
+        "closure": _c274_closure(plan, terminal=274, active=0, reopened=0, maximum=1)}
+    if plan.plan_digest != _C274_PLAN_DIGEST or not _exact_json(receipt, expected):
+        raise AssertionError("cumulative274 receipt changed")
+    return receipt
+
+
+def _close_c274_factory(factory, decision):
+    from graph_engineering.core.profiles import ProfileContractError
+    if decision is not None:
+        try:
+            return finalize_consumed_coverage_factory(factory, decision)
+        except ProfileContractError as error:
+            # This exact deterministic precondition fails before any revoke.
+            # Cleanup/revocation errors must propagate, never fall back to abort.
+            if str(error) != "combined coverage gate was not consumed":
+                raise
+    return abort_uncommitted_coverage_factory(factory)
+
+
+def _wait_for_c274_child(process, *, timeout_seconds, heartbeat_interval_seconds):
+    try:
+        return _wait_for_verified_child(process, selector=P3_CUMULATIVE274_R1_SELECTOR,
+            timeout_seconds=timeout_seconds, heartbeat_interval_seconds=heartbeat_interval_seconds,
+            reap_timeout_seconds=60)
+    except BaseException as primary:
+        try:
+            if process.poll() is None:
+                process.kill()
+            process.communicate(timeout=60)
+        except BaseException as cleanup:
+            raise BaseExceptionGroup("cumulative274 child failure and reap failure", [primary, cleanup]) from None
+        raise
+
+
+def run_p3_cumulative274_r1_verified():
+    # Entry availability is not launch authority. Unit tests mock the launch.
+    args = _verified_plan(selector=P3_CUMULATIVE274_R1_SELECTOR)
+    plan = args[-1]
+    _validate_c274_plan(plan, args[3])
+    limits = _cumulative_runner_testability()
+    receipt = _run_verified_selector_in_fresh_child(P3_CUMULATIVE274_R1_SELECTOR,
+        timeout_seconds=limits["cumulative_runtime_limit_seconds"],
+        heartbeat_interval_seconds=limits["heartbeat_interval_seconds"])
+    # Re-read parent inputs after execution; do not accept a stale parent plan.
+    fresh = _verified_plan(selector=P3_CUMULATIVE274_R1_SELECTOR)
+    _validate_c274_plan(fresh[-1], fresh[3])
+    return _validate_c274_receipt(receipt, fresh[-1])
+
+
+def _run_p3_cumulative274_r1_child():
+    return _run_cumulative_child(P3_CUMULATIVE274_R1_SELECTOR)
 
 
 def _verified_runner_contracts(
@@ -6191,12 +6353,19 @@ def _run_cumulative_child(selector: str) -> dict[str, object]:
         oracle_bindings=len(plan.oracle_bindings),
         plan_bindings=len(plan.bindings),
     )
-    _validate_cumulative_plan(plan, matrix, checkpoint)
+    full = selector == P3_CUMULATIVE274_R1_SELECTOR
+    if full:
+        _validate_c274_plan(plan, matrix)
+    else:
+        _validate_cumulative_plan(plan, matrix, checkpoint)
     progress("p1-sibling-start")
     p1_sibling = _run_performance_remaining_r1_child(
         cumulative_selector=checkpoint.selector,
     )
     progress("p1-sibling-done")
+    if full:
+        p1_sibling = json.loads(json.dumps(p1_sibling))
+        _validate_c274_p1(p1_sibling)
     results: list[SerialCoverageExecution] = []
     observations: list[object] = []
     records: tuple[object, ...] = ()
@@ -6231,8 +6400,8 @@ def _run_cumulative_child(selector: str) -> dict[str, object]:
                 )
             else:
                 raise AssertionError("cumulative selector kind changed")
+            results.append(result)
             if result.test_id != test_id:
-                result.close()
                 raise AssertionError("cumulative execution order changed")
             lifecycle = result.binding_lifecycle
             if (
@@ -6243,10 +6412,8 @@ def _run_cumulative_child(selector: str) -> dict[str, object]:
                     lifecycle.expected_purpose,
                 ) != ("QUIESCED", 0, "issue")
             ):
-                result.close()
                 raise AssertionError("cumulative binding did not quiesce at g0")
             progress("binding-executed", index=index, test_id=test_id)
-            results.append(result)
             observations.append(result.observe_current())
             if (
                 lifecycle.state,
@@ -6356,7 +6523,7 @@ def _run_cumulative_child(selector: str) -> dict[str, object]:
         )
         record_ids = tuple(record.test_id for record in records)
         if (
-            dynamic_decision.passed
+            dynamic_decision.passed is not full
             or len(record_ids) != checkpoint.plan_bindings
             or len(set(record_ids)) != checkpoint.plan_bindings
             or set(record_ids) != set(plan.bindings)
@@ -6443,25 +6610,33 @@ def _run_cumulative_child(selector: str) -> dict[str, object]:
             raise AssertionError("cumulative bindings did not become terminal")
         progress("terminal-done", results=len(results))
     finally:
+        primary = sys.exc_info()[1]
+        cleanup_errors = []
         try:
             if factory is not None and not factory_closed:
-                if dynamic_decision is None:
+                if full:
+                    _close_c274_factory(factory, dynamic_decision)
+                elif dynamic_decision is None:
                     abort_uncommitted_coverage_factory(factory)
                 else:
                     finalize_consumed_coverage_factory(factory, dynamic_decision)
+        except BaseException as error:
+            cleanup_errors.append(error)
         finally:
             progress("teardown-start", results=len(results))
-            cleanup_error = None
             for index, result in enumerate(reversed(results), start=1):
                 try:
                     result.close()
                 except BaseException as error:
-                    if cleanup_error is None:
-                        cleanup_error = error
+                    cleanup_errors.append(error)
                 progress("teardown-result", index=index, test_id=result.test_id)
             progress("teardown-done", results=len(results))
-            if cleanup_error is not None:
-                raise cleanup_error
+        if cleanup_errors:
+            if full and primary is not None:
+                raise BaseExceptionGroup("cumulative274 failed with cleanup errors", [primary, *cleanup_errors]) from None
+            if full and len(cleanup_errors) > 1:
+                raise BaseExceptionGroup("cumulative274 cleanup errors", cleanup_errors)
+            raise cleanup_errors[0]
     if (
         lifecycle_fixture.PrivateBindingReopenPort.active_handle_count()
         or lifecycle_fixture.PrivateBindingReopenPort.
@@ -6471,6 +6646,23 @@ def _run_cumulative_child(selector: str) -> dict[str, object]:
         raise AssertionError("cumulative resources did not return to baseline")
     if dynamic_decision is None or static_decision is None:
         raise AssertionError("cumulative gates were not evaluated")
+    if full:
+        receipt = {
+            "selector": selector, "plan_bindings": len(plan.bindings), "oracle_bindings": len(plan.oracle_bindings),
+            "dynamic": {"valid": len(records), "missing": len(dynamic_decision.missing_test_ids),
+                "passed": dynamic_decision.passed, "invalid": len(dynamic_decision.invalid_test_ids),
+                "stale": len(dynamic_decision.stale_test_ids), "duplicate": len(records)-len({r.test_id for r in records})},
+            "static": {"valid": 0, "missing": len(static_decision.missing_test_ids),
+                "passed": static_decision.passed, "invalid": len(static_decision.invalid_test_ids),
+                "stale": len(static_decision.stale_test_ids), "duplicate": 0},
+            "p1_sibling": p1_sibling,
+            "closure": _c274_closure(plan,
+                terminal=sum(r.binding_lifecycle.state == "PERMANENTLY_CLOSED" for r in results),
+                active=lifecycle_fixture.PrivateBindingReopenPort.active_handle_count(),
+                reopened=lifecycle_fixture.PrivateBindingReopenPort.active_reopened_binding_count(),
+                maximum=lifecycle_fixture.PrivateBindingReopenPort.maximum_active_reopened_binding_count()),
+        }
+        return _validate_c274_receipt(receipt, plan)
     new_ids = checkpoint.new_test_ids
     return {
         "dynamic": {
@@ -7133,6 +7325,7 @@ def _wait_for_verified_child(
     selector: str,
     timeout_seconds: int,
     heartbeat_interval_seconds: int,
+    reap_timeout_seconds: int | None = None,
 ) -> dict[str, object]:
     """Wait for one child while reporting bounded deterministic progress."""
 
@@ -7165,7 +7358,8 @@ def _wait_for_verified_child(
             elapsed_ns = time.monotonic_ns() - started_ns
             if elapsed_ns >= timeout_seconds * 1_000_000_000:
                 kill()
-                _final_stdout, final_stderr = communicate()
+                _final_stdout, final_stderr = (communicate() if reap_timeout_seconds is None
+                    else communicate(timeout=reap_timeout_seconds))
                 detail = (_stderr_text(final_stderr) or progress)[-16384:]
                 raise AssertionError(
                     f"verified runner child timed out ({selector}): {detail}"
@@ -7218,6 +7412,33 @@ def _p2a_cumulative_runner_testability():  # type: ignore[no-untyped-def]
     return _cumulative_runner_testability()
 
 
+@contextmanager
+def _verified_control_directory(selector):
+    """Do not delete a full-run control root while its child may still be live."""
+    if selector != P3_CUMULATIVE274_R1_SELECTOR:
+        with tempfile.TemporaryDirectory(prefix="gew-wp08-verified-runner-") as directory:
+            yield directory, {}
+        return
+    directory = tempfile.mkdtemp(prefix="gew-wp08-cumulative274-")
+    owned = {}
+    try:
+        yield directory, owned
+    finally:
+        primary = sys.exc_info()[1]
+        process = owned.get("process")
+        if process is None or process.poll() is not None:
+            try:
+                shutil.rmtree(directory)
+            except BaseException as cleanup:
+                if primary is not None:
+                    raise BaseExceptionGroup("cumulative274 failure and control-root cleanup failure", [primary, cleanup]) from None
+                raise
+        else:
+            # Preserve the root for owner reconciliation if reap itself failed.
+            print(json.dumps({"selector": selector, "cleanup": "unreaped-child-root-retained",
+                              "control_root": directory}), file=sys.stderr, flush=True)
+
+
 def _run_verified_selector_in_fresh_child(
     selector: str,
     *,
@@ -7236,7 +7457,7 @@ def _run_verified_selector_in_fresh_child(
         raise AssertionError("unknown WP08 verified runner selector")
     if metadata.version("packaging") != "26.3":
         raise AssertionError("verified runner requires canonical packaging==26.3")
-    with tempfile.TemporaryDirectory(prefix="gew-wp08-verified-runner-") as directory:
+    with _verified_control_directory(selector) as (directory, owned):
         control = pathlib.Path(directory).resolve(strict=True) / "control"
         issue_source_checkout_attestation(category.ROOT, control)
         control = control.resolve(strict=True)
@@ -7263,6 +7484,10 @@ def _run_verified_selector_in_fresh_child(
                 stderr=subprocess.PIPE,
                 text=True,
             )
+            if selector == P3_CUMULATIVE274_R1_SELECTOR:
+                owned["process"] = process
+                return _wait_for_c274_child(process, timeout_seconds=timeout_seconds,
+                    heartbeat_interval_seconds=heartbeat_interval_seconds)
             return _wait_for_verified_child(
                 process,
                 selector=selector,
@@ -7452,6 +7677,8 @@ def _verified_runner_main(arguments: list[str] | None = None) -> int:
             receipt = _run_p2a_cumulative_r2_child()
         elif selector == P2B_CUMULATIVE_R1_SELECTOR:
             receipt = _run_p2b_cumulative_r1_child()
+        elif selector == P3_CUMULATIVE274_R1_SELECTOR:
+            receipt = _run_p3_cumulative274_r1_child()
         elif selector == VULNERABLE_GRAPH_R1_SELECTOR:
             receipt = _run_vulnerable_graph_r1_child()
         else:
@@ -7480,6 +7707,8 @@ def _verified_runner_main(arguments: list[str] | None = None) -> int:
         receipt = run_p2a_cumulative_r2_verified()
     elif values == [P2B_CUMULATIVE_R1_SELECTOR]:
         receipt = run_p2b_cumulative_r1_verified()
+    elif values == [P3_CUMULATIVE274_R1_SELECTOR]:
+        receipt = run_p3_cumulative274_r1_verified()
     elif values == [VULNERABLE_GRAPH_R1_SELECTOR]:
         receipt = run_vulnerable_graph_r1_verified()
     else:

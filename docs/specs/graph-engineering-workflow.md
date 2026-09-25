@@ -3541,3 +3541,165 @@ cumulative/performance, monitoring and WP-10 work remain excluded. No open
 material architecture choice is introduced; any discovered need for one stops
 before implementation of that change. Independent artifact and Candidate
 reviews remain required; commit requires separate human authorization.
+
+### P3 cumulative274 entry design — 2026-09-23
+
+#### 1. Overview
+
+Design a new test-only `p3-cumulative274-r1` entry for the complete installed
+Profile matrix. This amendment extends the existing offline verification path;
+it does not change the approved Intent Baseline or authorize implementation or
+execution. Human approval covers these four design documents and independent
+review, recorded in `p3-c274-design-approval-r0.json` under the task's detached
+records. Base: local commit `852b0dae9b0acde1a1f856c06eb8fc69e574dafa`.
+
+#### 2. Goals
+
+Trace to [PRD](../prd/graph-engineering-workflow.md) FR-06, FR-07, FR-08,
+FR-10, FR-12 and FR-14: validate exactly 274 installed case identities and 137
+oracle identities; obtain 274 actual current execution records in one child;
+accept only an actual combined gate with zero missing, invalid, stale or duplicate
+records; close every native resource without replay. Configuration completeness,
+a helper double, and a previous bounded PASS cannot satisfy these goals.
+
+#### 3. Non-goals and authority
+
+The current design approval excludes implementation and all workload launches.
+Future entry implementation and an actual cumulative launch are separate scopes.
+Keep previous P2a/P2b checkpoints, Support Matrix, protected schema versions,
+dependencies, public interfaces and thresholds unchanged. No WP10, network,
+external target, monitoring, commit or deployment is authorized. These are phase
+boundaries under the existing PRD, not new product non-goals.
+
+#### 4. Architecture and ownership
+
+```text
+separately authorized parent -> fresh attested child -> exact installed preflight
+ -> retained P1 sibling proof -> serial 274 isolated bindings
+ -> one CoverageRecordFactory -> actual dynamic ReleaseCoverageGate
+ -> static-evidence negative control -> consumed-gate finalization -> receipt
+```
+
+Use the existing local interpreter, installation attestation, SQLite/CAS read
+ports and simulator/action adapters. The parent owns child lifetime and timeout;
+each binding owns its private task/root/target/ref and action/command resources.
+The existing deterministic factory and gate own acceptance. No durable service
+or engine contract is added. Retain the P1 sibling's actual performance evidence
+and attacks within the future cumulative launch, explicitly included in that
+launch's authority and total budget; it is not a second acceptance record set.
+
+#### 5. Identity and state model
+
+Freeze the source plan `config/profiles/profile-coverage-execution-plan-v1.json`
+at raw SHA-256 `a9817d7d0173f28d23d8fdfe394b96b8894c5cb3922fc7fac7d62c85f34b0bf5`.
+The detached `p3-c274-identity-inventory-r0.json` contains all case IDs, all oracle
+identity tuples and full binding/oracle rows; raw SHA-256 is
+`15fbf96a9d3f672b7d03435d17e7de8fd22abd287f9bd2eabc2265eaa51762a0`.
+This is a design input, not a runtime dependency on delivery records. Future
+implementation must express independent expected identities using existing
+fixture constants and installed schemas; never define expected identities as
+whatever the loaded plan supplies. Validate full binding rows and installed
+oracle bytes/digests, including P/R request, selector, category boundary, task,
+profile, column and scenario. Counts and sets both match, with no duplicates.
+Changes to the frozen input require design invalidation before launch.
+
+For each binding use existing lifecycle transitions: quiesced generation0/issue,
+1/use, 3/gate after use+precommit, then 4/no-next-purpose after gate. Every read
+phase opens fresh bounded sources and closes them before the next binding.
+The terminal state is PERMANENTLY_CLOSED. Actual consumed gate identity, not a
+non-null decision object or its `passed` flag, controls finalize versus abort.
+
+#### 6. Internal entry and receipt contract
+
+Add `run_p3_cumulative274_r1_verified() -> dict[str, object]`, child dispatch and
+CLI selector `p3-cumulative274-r1` only in the test support runner. These are
+proposed symbols, not available commands today. Preserve the existing private
+child marker and attestation checks. The parent forwards immutable registry
+limits to `_run_verified_selector_in_fresh_child` and validates a distinct full
+receipt; do not relax `_validate_cumulative_receipt` for old partial selectors.
+
+The new receipt has exactly these fields: `selector`, `plan_bindings`=274,
+`oracle_bindings`=137, `dynamic`, `static`, `p1_sibling`, `closure`.
+`dynamic` is exactly `{valid:274, missing:0, passed:true, invalid:0, stale:0,
+duplicate:0}`; `static` is exactly `{valid:0, missing:274, passed:false,
+invalid:0, stale:0, duplicate:0}`. Require exact JSON types (bool is not int),
+reject extra or missing fields. `p1_sibling` retains the existing actual P1
+receipt and its attack/restart evidence with current 274/137 bindings.
+`closure` has exactly `case_ids` (sorted 274 IDs), `oracle_identities` (the 137
+five-field tuples sorted by canonical JSON), `plan_digest` (installed plan's
+existing digest), `terminal_bindings`=274, `active_handles`=0,
+`active_reopened_bindings`=0 and `maximum_active_reopened_bindings`=1.
+Parent compares identities to its independently validated installed inputs.
+The receipt summarizes actual checks; serialized receipt data never issues an
+opaque authority or replaces the gate. No new persistent schema is introduced.
+
+#### 7. Error model
+
+Reuse test-runner AssertionError for unknown selector, preflight mismatch,
+wrong receipt, failed child and timeout, preserving the original exception as
+cause. Preserve typed underlying authority/currentness errors. Any error is a
+failed run with no success receipt, no automatic retry or resume. A subsequent
+attempt needs fresh launch authority and fresh roots; retain failed evidence.
+
+#### 8. Failure, terminal handling and recovery
+
+| Failure | Detection | Required handling |
+|---|---|---|
+| Same-count substituted plan/oracle | Exact identity, row and installed digest preflight | Reject before P1 sibling, binding allocation or action. |
+| Drift at issue/use/precommit/gate | Existing fresh bounded currentness joins | No accepted record; terminalize/close all owned objects and fail. |
+| Missing/duplicate record or failed full gate | Exact record set and actual gate | No success receipt; finalize only if that exact decision was actually consumed; otherwise existing abort capability. |
+| Partial setup or cleanup exception | Owner ledger and resource counters | Close acquired objects in reverse order, retain primary plus cleanup failure; never hide leaks behind a PASS. |
+| Timeout/cancel/child crash | Parent deadline, cancellation or nonzero exit | Stop and reap child before removing its control root; no receipt or automatic rerun. |
+
+Do not infer consumption from `dynamic_decision is not None`: existing partial
+and static gates can return failed decisions without consuming the dynamic
+factory. Test this routing against the actual factory contract. Parent cleanup
+must cover cancellation as well as timeout and nonzero exit; forced termination
+cannot claim child counters were observed closed. Preserve that distinction in
+failure evidence and retain uncertain side effects for owner reconciliation.
+
+#### 9. Runtime and resource budget
+
+Future cumulative execution is serial with one reopened binding at a time.
+Read `cumulative_runtime_limit_seconds=14400` and `heartbeat_interval_seconds=60`
+from installed scenario-truth policy; the total includes P1 sibling, all four
+currentness phases, both gates and terminal cleanup. Do not increase limits to
+mask lifecycle cost. Parent termination/reaping is failure cleanup, not extra
+successful workload time. Native bounded tests remain <=600s each; canonical
+commands <=300s, split by independent test methods. RSS/FD are diagnostics;
+deterministic owner/lease counts are required, with platform FD baseline-return
+checks where already supported. No unmeasured latency/throughput promise is made.
+
+#### 10. Security and privacy
+
+| Actor | Allowed data/action |
+|---|---|
+| Design author | Four approved documents and detached evidence only. |
+| Independent reviewer | Read artifacts, source and evidence; return verdict. |
+| Future authorized runner | Synthetic private local fixtures through existing scoped authorities. |
+| Parent/receipt reader | Validate exact current inputs and child result; cannot mint execution evidence. |
+
+No credentials or real PII enter fixtures/receipts. Preserve raw-source and
+installed-resource attestation, no-follow identity checks and original evidence
+history. Sanitized failures may include selector and test IDs, never environment
+dumps. A P compensation outcome remains recovery success, not deployment success;
+R setup may mutate private fixtures, while rejection and reread add no mutation.
+
+#### 11. Open decisions and phase exit
+
+No new engine architecture decision is proposed. Exact implementation targets
+and focused verification commands are specified in the Plan/Test Plan. A need
+for production-core changes, schema changes or broader writes is a new material
+choice before implementation. Current phase exits after independent artifact
+reviews; the unchanged graph must stop before unauthorized implementation.
+A reviewed design is not a tested implementation or cumulative PASS.
+
+#### 12. References
+
+Reuse [Positioning](../positioning/graph-engineering-workflow.md), approved
+[PRD v2](../prd/baselines/graph-engineering-workflow-v2.md), ADR0008/0009 and the
+preceding scenario6 contract. See the matching cumulative274 sections of
+[Impact](../impact/graph-engineering-workflow.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md) and
+[Test Plan](../test-plans/graph-engineering-workflow.md). Existing whole-document
+structure is retained; this amendment adds no public API or external standard.

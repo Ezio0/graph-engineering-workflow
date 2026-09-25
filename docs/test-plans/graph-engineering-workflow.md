@@ -2417,3 +2417,131 @@ choice; a failure or inadequate evidence is resolved before independent review.
 Review the exact implementation, then verification and Candidate; no commit in
 this execution authority. Record actual method outcomes/durations in detached
 evidence rather than pre-marking the Plan checkboxes as passed.
+
+### P3 cumulative274 verification design — 2026-09-23
+
+#### Scope and critical journeys
+
+Implements [readiness Plan](../plans/2026-08-13-graph-engineering-workflow.md#p3-cumulative274-readiness-plan--2026-09-23)
+and [Spec](../specs/graph-engineering-workflow.md#p3-cumulative274-entry-design--2026-09-23).
+Current approval permits design and independent review only. The tests below are
+proposed for separately approved implementation; the full run additionally needs
+launch approval. Require coverage of every applicable CUJ, not a new numerical
+line-coverage threshold. A mocked orchestration result never counts as actual
+cumulative acceptance.
+
+| CUJ | Risk and assertions | Lowest effective proof / phase |
+|---|---|---|
+| C274-J1 | All274 case IDs/full rows and137 oracle identities/digests match independent expectations; missing, duplicate and same-count substitution reject before P1 or action | Contract + unit / I1–I3. |
+| C274-J2 | Exact new parent/child selector dispatch, private child marker, current registry14400/60 limits, no accidental launch | Unit with mocked launcher / I1–I3. |
+| C274-J3 | Four currentness phases run serially with isolated identities; actual factory retains authority and rejects stale/foreign evidence without replay | Existing bounded integration plus orchestration doubles / I3; actual all274 / R2. |
+| C274-J4 | Actual combined gate is full PASS only on exact current record set; static evidence remains full missing/FAIL | Unit routing and actual incomplete-factory negative / I3; actual full positive / R2. |
+| C274-J5 | Consumed decision finalizes, incomplete/static/foreign decisions cannot authorize finalize; abort and reverse cleanup preserve failures | Unit fault matrix + actual incomplete factory / I3; consumed actual full factory / R2. |
+| C274-J6 | Timeout, cancellation, child failure, malformed receipt and cleanup failure yield no success; child is stopped/reaped before root deletion | Unit fake process/clock + bounded real trivial child / I3, no benchmark launch. |
+| C274-J7 | Exact receipt types, identities, plan digest, P1 evidence and resource closure validated; bool-as-int, extra/missing/forged fields reject | Unit + installed contracts / I3. |
+| C274-J8 | Historical partial selectors/default behavior, protected files and source/resource closure remain intact | Existing legacy unit/contract and read-only diff / I3. |
+
+#### Proposed test identities and commands
+
+Add `Cumulative274EntryTests` in `tests/unit/test_wp08_scenario_truth.py` with
+these methods (names are planned, not yet implemented):
+
+- `test_exact_preflight_rejects_before_any_work` — mutate each identity/row/digest, including matching counts and swapped P/R requests; assert P1, binding and subprocess mocks uncalled.
+- `test_selector_dispatch_and_installed_limits` — exact parent/child mapping, wrong marker/selector rejection and14400/60 forwarding; launcher mocked.
+- `test_simulated_full_gate_and_static_negative` — exercise orchestration order and record set with clearly synthetic doubles; no acceptance claim.
+- `test_terminal_routing_uses_consumed_decision` — actual decision identity semantics represented in doubles; distinguish failed consumed combined gate from unconsumed partial/static gate and foreign decision; do not access private engine state.
+- `test_partial_setup_and_cleanup_failures_remain_failures` — fail each acquisition/issue/use/precommit/gate/close stage; acquired resources closed, primary/cleanup errors retained.
+- `test_timeout_cancel_and_failed_child_are_reaped` — fake clock/process boundary checks plus a short real inert child, no fixture or performance child; check reap precedes control-root deletion.
+- `test_exact_receipt_rejects_tampering` — mutate every specified field, identity, scalar type and P1 evidence; no extra keys and no positive authority from JSON.
+
+Add `Remaining54P3CumulativeContractsTest` in
+`tests/contract/test_wp08_remaining54_contracts.py`:
+`test_c274_identity_and_installed_oracle_closure`, and
+`test_legacy_selectors_reject_current_plan_without_launch`.
+Expected identities must be independent of loaded plan rows. Check the frozen
+inventory and approved plan hash; resolve actual installed oracle bytes through
+existing validators. Do not blindly copy all loaded rows into expectations.
+
+Add `WP08ReleaseCoverageTests.test_c274_incomplete_factory_aborts_without_replay`
+in `tests/integration/test_wp08_release_coverage.py`: use one actual current
+release binding with the full installed274 plan, actual issued record/factory and
+actual failed gate. Assert273 missing, invalid/stale0, denied finalize, exact
+abort capability, permanently closed lifecycle, zero extra simulator actions and
+resource baseline return. This is incomplete-gate evidence only.
+
+Retain these existing method selectors as focused regressions:
+
+- `tests.unit.test_wp08_scenario_truth.CumulativeEntryTests.test_simulated_p2a_and_p2b_complete_serial_orchestration`
+- `tests.unit.test_wp08_scenario_truth.CumulativeEntryTests.test_receipt_tampering_and_parent_limits`
+- `tests.unit.test_wp08_scenario_truth.OracleClosureEntryTests.test_real_cumulative_entry_loads_plan_before_p1_work`
+- `tests.unit.test_wp08_scenario_truth.OracleClosureEntryTests.test_real_p1_sibling_loads_plan_before_performance_work`
+- `tests.contract.test_wp08_remaining54_contracts.Remaining54P3FoundationContractsTest.test_p3_configuration_package_and_missing_count_closures_are_current`
+- `tests.integration.test_wp08_release_coverage.WP08ReleaseCoverageTests.test_release_normal_quiescent_binding_reopens_without_live_session`
+- `tests.integration.test_wp08_release_coverage.WP08ReleaseCoverageTests.test_release_normal_rejection_quiescent_binding_reopens_without_live_session`
+
+Future command construction is exact-method based. For each selector above,
+copy the existing attested-child harness from detached
+`p3-s6-canonical-plan-r0.json` job0, replace only the selector list, expected test
+count and diagnostic label. Run argv `[.venv/bin/python, -B, -c, <harness>]`;
+use600s native limit and290s inner/300s outer canonical limit. The harness issues
+a fresh installation attestation, launches the project interpreter with
+`-X gew_installation_control_root=<private-root>`, loads the named unittest method,
+requires exactly one executed test and zero skips/expected failures/unexpected
+successes, and closes the temporary root. Never invoke unittest discovery or a
+whole performance/cumulative module. Record generated argv/harness digests in
+a new detached plan before execution; do not alter the existing harness record.
+
+After exact staging under a future Manifest, capture each canonical job via the
+frozen workflow `check_workflow.py evidence --project-root <root> --manifest
+<root>/.workflow/manifest.json --policy <root>/config/workflow-policy.json
+--command-id <unique-id> --output <new-detached-evidence> -- .venv/bin/python -B
+-c <harness>`. Read actual exit code, timeout, counts and input bindings. Run
+strictly serial and stop on first failure. Source edits invalidate affected
+checks; do not expand or repeat passing checks without a concrete reason.
+
+#### Layer budgets, mocks and synthetic data
+
+Unit/contract checks use real validators and installed documents but mock all
+cumulative child launches and expensive binding execution. Inert process tests
+use synthetic wait/exit behavior only. Bounded integration uses actual SQLite,
+CAS, scoped local simulator authorities and fresh sources with no network;
+selected one-binding methods remain native<=600s/canonical<=300s. Split methods
+if needed rather than extending limits. All fixtures are synthetic and private;
+shared roots or real user repositories are prohibited. Close each acquired owner
+in reverse order and assert no live lease/reopen handle remains.
+
+The actual R2 run has no authority/factory/gate/currentness mocks. It includes
+P1 sibling performance evidence and every binding in a fresh attested interpreter,
+14400s total with60s heartbeat. Require the exact Spec receipt only after both
+gates and successful terminal cleanup. Actual opaque R coverage stays in its
+originating child; do not synthesize a cross-process execution authority from JSON.
+
+#### Design checks, compatibility and phase exit
+
+For this documentation-only batch, run `git diff --check`, verify only the four
+authorized documents changed, independently rehash identity/impact inventories,
+check relative documentation links/anchors and symbol references, and replay
+saved reducer records against frozen inputs. No runtime tests are required for
+prose edits; no new implementation test is claimed as run.
+
+For future I3, verify all non-target tracked files unchanged from the approved
+base and compare protected schemas, plan/oracle rows, source lists, bootstrap
+pins and package resource pairs. Existing paths require no new package member.
+Run relevant existing packaging/source-closure checks if the input comparison
+shows a dependency was actually affected; otherwise retain the comparison as
+evidence instead of rerunning unrelated wheel builds. Test/evidence helpers and
+installation attestation enforcement remain unchanged.
+
+No staging/production environment or remote CI launch is part of this scope.
+Security, local recovery and compatibility are in scope; UI/accessibility,
+production performance claims and deployment are out of scope. The local
+cumulative run is acceptance verification, not evidence of real deployment.
+No public API/schema issue is open; discovery before implementation returns to
+scope review. Future workload feasibility is intentionally unresolved until an
+authorized R2 attempt; a timeout is a failed result, not a reason to relax limits.
+
+Traceability: I1/I2→J1/J2/J4/J5/J6/J7; I3→all bounded CUJs; I4→captured evidence
+and independent review; R1/R2→actual J3/J4/J5 and full receipt. References:
+[PRD](../prd/graph-engineering-workflow.md),
+[Positioning](../positioning/graph-engineering-workflow.md), the above Plan/Spec
+and [Impact](../impact/graph-engineering-workflow.md#p3-cumulative274-design-impact--2026-09-23).

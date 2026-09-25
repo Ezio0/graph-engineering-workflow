@@ -10,6 +10,7 @@ import os
 import pathlib
 import pickle
 import subprocess
+import sys
 import tempfile
 import threading
 import unittest
@@ -2164,6 +2165,20 @@ class CumulativeEntryTests(unittest.TestCase):
         with self.assertRaises(AssertionError): fixture._cumulative_checkpoint("foreign")
 
     @staticmethod
+    def p1_double():
+        attacks = sorted(["raw-alias", "mandatory-id", "rejection-member", "other-scenario",
+            "other-profile", "same-id-changed-request", "oracle-coherent-substitution",
+            "selector-overlay-coherent-substitution", "typed-evidence-delete",
+            "typed-evidence-replace", "post-observation-replacement", "source-currentness"])
+        return {"selector":"performance-remaining-r1", "plan_bindings":274,"oracle_bindings":137,
+            "restart":"current-launcher-zero", "retained_outliers":{"noise-outlier":[102,1,48]},
+            "correctness_rejections":sorted(["observed-mismatch","expected-substitution","ignored-iteration",
+                "duration-only","wrong-phase","wrong-case","caller-correct"]),
+            "noise_rejection":{"kind":"integer-vector","median":100,"mad":99,"left_product":198,
+                "right_product":100,"outcome":"inconclusive-noise"},
+            "scenario_attacks":{scenario:list(attacks) for scenario in ("correctness-regression","noise-outlier")}}
+
+    @staticmethod
     def plan_double(selector):
         from types import SimpleNamespace as NS
         from tests.support import wp08_release_coverage as fixture
@@ -2216,6 +2231,13 @@ class CumulativeEntryTests(unittest.TestCase):
         from tests.support import wp08_scenario_truth as lifecycle_fixture
         from tests.unit import test_wp08_profile_contracts as contracts
         checkpoint, plan, matrix = self.plan_double(selector)
+        full = selector == "p3-cumulative274-r1"
+        if full:
+            from graph_engineering.core.contracts.immutable import freeze
+            raw = json.loads((fixture.category.ROOT / "config/profiles/profile-coverage-execution-plan-v1.json").read_text())
+            plan = NS(bindings={r["test_id"]:freeze(r) for r in raw["bindings"]},
+                      oracle_bindings=tuple(freeze(r) for r in raw["oracle_bindings"]), plan_digest=raw["plan_digest"])
+            matrix = NS(profile_case_ids=tuple(plan.bindings), scenario_case_ids=())
         made, closed, finalized, aborted, purposes = [], [], [], [], []
         self.last_simulation = (made, closed, finalized, aborted, purposes)
 
@@ -2264,6 +2286,13 @@ class CumulativeEntryTests(unittest.TestCase):
         def execute(**kwargs):
             self.assertTrue(kwargs["quiescent"])
             if attack == "binding" and len(made) == 2: raise AssertionError("simulated binding failure")
+            if full:
+                kind = "mandatory" if "column" in kwargs else "scenario"
+                row = next(v for v in plan.bindings.values() if v["selector_kind"] == kind
+                    and v["disposition"] == kwargs["disposition"] and
+                    ((kind == "mandatory" and v["profile_id"] == kwargs["profile_id"] and v["column_id"] == kwargs["column"])
+                     or (kind == "scenario" and v["scenario_id"] == kwargs["scenario_id"])))
+                return Result(row["test_id"])
             return Result(kwargs.get("column", kwargs.get("scenario_id")))
 
         def gate(_matrix, *, coverage_records, coverage_factory):
@@ -2276,7 +2305,7 @@ class CumulativeEntryTests(unittest.TestCase):
                 missing = matrix.scenario_case_ids
                 if attack == "missing": missing = missing[:-1]
                 if attack == "wrong-missing": missing = ("wrong", *missing[1:])
-                return NS(passed=attack == "passed", missing_test_ids=missing,
+                return NS(passed=(attack != "passed" if full else attack == "passed"), missing_test_ids=missing,
                           invalid_test_ids=("bad",) if attack == "invalid" else (),
                           stale_test_ids=("old",) if attack == "stale" else ())
             return NS(passed=attack == "static-passed",
@@ -2288,6 +2317,9 @@ class CumulativeEntryTests(unittest.TestCase):
                  EvidenceObservationAuthority=lambda *a, **k: NS(observe=lambda *a, **k: object()))
         p1 = {"selector": fixture.PERFORMANCE_REMAINING_R1_SELECTOR,
               "plan_bindings": checkpoint.plan_bindings, "oracle_bindings": checkpoint.oracle_bindings}
+
+        if full:
+            p1 = self.p1_double()
 
         def load_plan(*, selector):
             self.assertEqual(selector, checkpoint.selector)
@@ -2388,6 +2420,214 @@ class CumulativeEntryTests(unittest.TestCase):
                 child.assert_called_once_with()
                 self.assertEqual(fixture._verified_runner_main([selector, "extra"]), 2)
                 self.assertEqual(fixture._verified_runner_main(["unknown"]), 2)
+
+
+class Cumulative274EntryTests(unittest.TestCase):
+    """Bounded entry tests. No cumulative or performance workload is launched."""
+
+    @staticmethod
+    def installed():
+        from tests.support import wp08_release_coverage as f
+        return f._verified_plan(selector="p3-cumulative274-r1")
+
+    def test_exact_preflight_rejects_before_any_work(self):
+        from types import SimpleNamespace as NS
+        from tests.support import wp08_release_coverage as f
+        from graph_engineering.core.contracts.immutable import thaw, freeze
+        args = self.installed()
+        plan, matrix = args[-1], args[3]
+        f._validate_c274_plan(plan, matrix)
+        for attack in ("id", "request", "oracle", "duplicate", "digest", "matrix"):
+            rows = {key: thaw(row) for key, row in plan.bindings.items()}
+            oracles = [thaw(row) for row in plan.oracle_bindings]
+            key = next(iter(rows))
+            if attack == "id": rows["foreign"] = rows.pop(key)
+            elif attack == "request": rows[key]["request_digest"] = "foreign"
+            elif attack == "oracle": oracles[0]["oracle_id"] = "foreign"
+            elif attack == "duplicate": oracles[-1] = oracles[0]
+            bad = NS(bindings={k: freeze(v) for k,v in rows.items()},
+                     oracle_bindings=tuple(freeze(v) for v in oracles),
+                     plan_digest="foreign" if attack == "digest" else plan.plan_digest)
+            bad_matrix = NS(profile_case_ids=("foreign",), scenario_case_ids=()) if attack == "matrix" else matrix
+            patched = (*args[:3], bad_matrix, *args[4:-1], bad)
+            with self.subTest(attack=attack), redirect_stderr(StringIO()), \
+                 mock.patch.object(f, "_verified_plan", return_value=patched), \
+                 mock.patch.object(f, "_run_performance_remaining_r1_child") as sibling, \
+                 mock.patch.object(f, "run_serial_profile_binding") as binding, \
+                 mock.patch.object(f.subprocess, "Popen", side_effect=AssertionError("launch forbidden")), \
+                 self.assertRaisesRegex(AssertionError, "preflight"):
+                f._run_p3_cumulative274_r1_child()
+            sibling.assert_not_called(); binding.assert_not_called()
+
+    def test_selector_dispatch_and_installed_limits(self):
+        from contextlib import redirect_stdout
+        from tests.support import wp08_release_coverage as f
+        receipt = CumulativeEntryTests().simulate("p3-cumulative274-r1")
+        with mock.patch.object(f, "_run_verified_selector_in_fresh_child", return_value=receipt) as launch:
+            self.assertEqual(f.run_p3_cumulative274_r1_verified(), receipt)
+        launch.assert_called_once_with("p3-cumulative274-r1", timeout_seconds=14400, heartbeat_interval_seconds=60)
+        with mock.patch.object(f, "run_p3_cumulative274_r1_verified", return_value=receipt) as parent, \
+             mock.patch.object(f, "_run_p3_cumulative274_r1_child", return_value=receipt) as child, \
+             redirect_stdout(StringIO()):
+            self.assertEqual(f._verified_runner_main(["p3-cumulative274-r1"]), 0)
+            parent.assert_called_once_with(); child.assert_not_called()
+            with mock.patch.dict(os.environ, {"GEW_WP08_VERIFIED_RUNNER_CHILD":"wrong"}), self.assertRaises(AssertionError):
+                f._verified_runner_main(["--verified-child", "p3-cumulative274-r1"])
+            with mock.patch.dict(os.environ, {"GEW_WP08_VERIFIED_RUNNER_CHILD":"p3-cumulative274-r1"}):
+                self.assertEqual(f._verified_runner_main(["--verified-child", "p3-cumulative274-r1"]), 0)
+            child.assert_called_once_with()
+
+    def test_simulated_full_gate_and_static_negative(self):
+        from tests.support import wp08_release_coverage as f
+        h = CumulativeEntryTests(); receipt = h.simulate("p3-cumulative274-r1")
+        f._validate_c274_receipt(receipt, self.installed()[-1])
+        made, closed, finalized, aborted, purposes = h.last_simulation
+        self.assertEqual(len(made), 274); self.assertEqual(closed, [r.test_id for r in reversed(made)])
+        self.assertFalse(aborted); self.assertEqual(len(finalized), 2)
+        self.assertEqual(len(purposes), 822)
+        self.assertIs(receipt["dynamic"]["passed"], True)
+        self.assertIs(receipt["static"]["passed"], False)
+
+    def test_terminal_routing_uses_consumed_decision(self):
+        from types import SimpleNamespace as NS
+        from graph_engineering.core.profiles import ProfileContractError
+        from tests.support import wp08_release_coverage as f
+        for consumed in (False, True):
+            exact = object(); closed = []; capability = object()
+            def finalize(decision):
+                if not consumed or decision is not exact:
+                    raise ProfileContractError("combined coverage gate was not consumed")
+                closed.append("finalize")
+            factory = NS(finalize_after_gate=finalize,
+                prepare_abort_uncommitted_candidate=lambda: capability,
+                abort_uncommitted_candidate=lambda cap: closed.append("abort") if cap is capability else self.fail())
+            f._close_c274_factory(factory, exact)
+            self.assertEqual(closed, ["finalize", "finalize"] if consumed else ["abort", "abort"])
+        factory.finalize_after_gate = mock.Mock(side_effect=ProfileContractError("revocation failure"))
+        with self.assertRaisesRegex(ProfileContractError, "revocation failure"):
+            f._close_c274_factory(factory, exact)
+
+    def test_partial_setup_and_cleanup_failures_remain_failures(self):
+        for attack in ("binding", "issue-generation", "factory", "record-generation", "identity",
+                       "duplicate", "dynamic-error", "passed", "invalid", "stale", "gate-generation",
+                       "parallel", "static-passed", "static-invalid", "finalize", "close", "fd"):
+            h = CumulativeEntryTests()
+            with self.subTest(attack=attack), self.assertRaises((AssertionError, BaseExceptionGroup)):
+                h.simulate("p3-cumulative274-r1", attack)
+            made, closed, _, _, _ = h.last_simulation
+            self.assertEqual(closed, [r.test_id for r in reversed(made)])
+
+    def test_timeout_cancel_and_failed_child_are_reaped(self):
+        from tests.support import wp08_release_coverage as f
+        for failure in (KeyboardInterrupt(), AssertionError("timeout"), AssertionError("child failed")):
+            process = mock.Mock(); process.poll.return_value = None
+            with mock.patch.object(f, "_wait_for_verified_child", side_effect=failure), self.assertRaises(type(failure)):
+                f._wait_for_c274_child(process, timeout_seconds=14400, heartbeat_interval_seconds=60)
+            process.kill.assert_called_once_with(); process.communicate.assert_called_once_with(timeout=60)
+        # Real inert child tests process ownership only; no fixture/benchmark is loaded.
+        process = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            with mock.patch.object(f, "_wait_for_verified_child", side_effect=KeyboardInterrupt()), self.assertRaises(KeyboardInterrupt):
+                f._wait_for_c274_child(process, timeout_seconds=14400, heartbeat_interval_seconds=60)
+            self.assertIsNotNone(process.poll())
+        finally:
+            if process.poll() is None: process.kill(); process.communicate(timeout=60)
+
+    def test_control_root_cleanup_preserves_errors_and_reap_order(self):
+        from tests.support import wp08_release_coverage as f
+        process = mock.Mock(); process.poll.return_value = None
+        events = []
+        def communicate(**kwargs):
+            events.append("reap"); process.poll.return_value = -9
+            return "", ""
+        process.communicate.side_effect = communicate
+        with mock.patch.object(f.tempfile, "mkdtemp", return_value="synthetic-control"), \
+             mock.patch.object(f.shutil, "rmtree", side_effect=lambda p: events.append("remove")), \
+             mock.patch.object(f, "_wait_for_verified_child", side_effect=KeyboardInterrupt()), \
+             self.assertRaises(KeyboardInterrupt):
+            with f._verified_control_directory("p3-cumulative274-r1") as (_, owned):
+                owned["process"] = process
+                f._wait_for_c274_child(process, timeout_seconds=14400, heartbeat_interval_seconds=60)
+        self.assertEqual(events, ["reap", "remove"])
+        process.poll.return_value = None
+        with mock.patch.object(f.tempfile, "mkdtemp", return_value="synthetic-control"), \
+             mock.patch.object(f.shutil, "rmtree") as remove, redirect_stderr(StringIO()):
+            with f._verified_control_directory("p3-cumulative274-r1") as (_, owned):
+                owned["process"] = process
+        remove.assert_not_called()
+        primary, cleanup = KeyboardInterrupt(), OSError("remove failed")
+        with mock.patch.object(f.tempfile, "mkdtemp", return_value="synthetic-control"), \
+             mock.patch.object(f.shutil, "rmtree", side_effect=cleanup), \
+             self.assertRaises(BaseExceptionGroup) as caught:
+            with f._verified_control_directory("p3-cumulative274-r1"):
+                raise primary
+        self.assertEqual(caught.exception.exceptions, (primary, cleanup))
+
+    def test_actual_p1_receipt_builder_preserves_outlier_evidence(self):
+        from types import SimpleNamespace as NS
+        from graph_engineering.core.performance_benchmark import StatisticsPolicy
+        from tests.support import wp08_release_coverage as f
+        args = self.installed(); plan = args[-1]
+        policy = StatisticsPolicy("synthetic", 0, 5, 1, 2, 1, 1, 1, 1, "synthetic")
+        registry = NS(benchmark_cases=(NS(statistics_policy_id="synthetic"),), statistics_policies=(policy,))
+        execution = NS(execution_digest="synthetic-execution")
+        closes = []
+        def binding(**kwargs):
+            samples = [{"duration_ns": n, "correctness_observation": {
+                "observed_correctness_digest":"synthetic", "expected_correctness_digest":"synthetic"}}
+                for n in (100,101,102,103,150)]
+            context = NS(evidence=NS(projection={"sample_sets":[{}, {"samples":samples}],
+                "statistics_observations":[{}, {"median_ns":102,"mad_ns":1}]}),
+                registry_authority=NS(registry=registry), launcher=NS(launch_count=1))
+            return NS(probe=NS(performance_context=context, restart_authorities=lambda:(None,None),
+                      repository=None, objects=None, task_id="synthetic"),
+                application=NS(restart=lambda *args:None), target=None,
+                test_id=kwargs["scenario_id"], execution=execution,
+                close=lambda:closes.append(kwargs["scenario_id"]))
+        authority_api = NS(ProfileCoverageAuthority=lambda **kwargs:NS(observe_completion=lambda *args,**kwargs:execution))
+        fake_args = (args[0], authority_api, *args[2:])
+        # Execute the actual P1 receipt builder; mock all benchmark/execution boundaries.
+        with mock.patch.object(f, "_verified_plan", return_value=fake_args), \
+             mock.patch.object(f, "run_serial_scenario_binding", side_effect=binding), \
+             mock.patch.object(f, "_scenario_attack_receipt", return_value=tuple(CumulativeEntryTests.p1_double()["scenario_attacks"]["noise-outlier"])), \
+             mock.patch.object(f, "_performance_correctness_rejection_attacks", return_value=tuple(CumulativeEntryTests.p1_double()["correctness_rejections"])), \
+             mock.patch.object(f.subprocess, "Popen", side_effect=AssertionError("native launch forbidden")), \
+             mock.patch.object(f.subprocess, "run", side_effect=AssertionError("native launch forbidden")):
+            produced = f._run_performance_remaining_r1_child(cumulative_selector="p3-cumulative274-r1")
+        self.assertEqual(sorted(closes), ["correctness-regression", "noise-outlier"])
+        self.assertEqual(produced["retained_outliers"], {"noise-outlier":(102,1,48)})
+        receipt = CumulativeEntryTests().simulate("p3-cumulative274-r1")
+        receipt["p1_sibling"] = json.loads(json.dumps(produced))
+        f._validate_c274_receipt(receipt, plan)
+        for value in (None, {}, {"foreign":[102,1,48]}, {"noise-outlier":[True,1,48]},
+                      {"noise-outlier":[102,-1,48]}, {"noise-outlier":[102,48,48]},
+                      {"noise-outlier":[0,1,48]}, {"noise-outlier":[102,1]},
+                      {"noise-outlier":[102,1,48],"extra":[102,1,48]}):
+            bad=copy.deepcopy(receipt)
+            if value is None: bad["p1_sibling"].pop("retained_outliers")
+            else: bad["p1_sibling"]["retained_outliers"]=value
+            with self.subTest(value=value), self.assertRaises(AssertionError): f._validate_c274_receipt(bad,plan)
+
+    def test_exact_receipt_rejects_tampering(self):
+        from tests.support import wp08_release_coverage as f
+        plan = self.installed()[-1]; receipt = CumulativeEntryTests().simulate("p3-cumulative274-r1")
+        f._validate_c274_receipt(receipt, plan)
+        for field in receipt:
+            bad = copy.deepcopy(receipt); bad.pop(field)
+            with self.subTest(field=field), self.assertRaises(AssertionError): f._validate_c274_receipt(bad, plan)
+        mutations = [lambda r:r.update(extra=True), lambda r:r.update(plan_bindings=True),
+            lambda r:r["dynamic"].update(passed=1), lambda r:r["static"].update(invalid=False),
+            lambda r:r["closure"].update(plan_digest="wrong"),
+            lambda r:r["closure"]["case_ids"].__setitem__(0,"foreign"),
+            lambda r:r["closure"]["oracle_identities"][0].__setitem__(0,"foreign"),
+            lambda r:r["closure"].update(active_handles=1),
+            lambda r:r["p1_sibling"].update(restart="not-checked"),
+            lambda r:r["p1_sibling"].update(scenario_attacks={}),
+            lambda r:r["p1_sibling"].update(correctness_rejections=[]),
+            lambda r:r["p1_sibling"].update(noise_rejection={})]
+        for mutate in mutations:
+            bad=copy.deepcopy(receipt); mutate(bad)
+            with self.assertRaises(AssertionError): f._validate_c274_receipt(bad, plan)
 
 
 class OracleClosureEntryTests(unittest.TestCase):
@@ -2525,14 +2765,15 @@ class OracleClosureEntryTests(unittest.TestCase):
         ) as boundary:
             with self.assertRaises(self.WorkloadBoundaryReached):
                 fixture._run_performance_remaining_r1_child(
-                    cumulative_selector=None,
+                    cumulative_selector=fixture.P3_CUMULATIVE274_R1_SELECTOR,
                 )
             self.assertEqual(boundary.call_count, 1)
             self.assertEqual(
                 len(boundary.call_args.kwargs["plan"].oracle_bindings),
-                122,
+                137,
             )
         for selector in (
+            None,
             fixture.P2A_CUMULATIVE_R2_SELECTOR,
             fixture.P2B_CUMULATIVE_R1_SELECTOR,
         ):

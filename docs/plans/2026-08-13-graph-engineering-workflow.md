@@ -1328,3 +1328,100 @@ or staging/production rollout is involved. Retain failed attempts. An unexpected
 public-contract/target/material-architecture requirement returns to human authority.
 No known open design choice blocks these tasks. History: 2026-09-22 — six-scenario
 bounded plan, estimated task sizes, evidence-backed actual-duration reporting.
+
+### P3 cumulative274 readiness plan — 2026-09-23
+
+This is the design-only continuation after commit `852b0da`. It implements the
+[cumulative274 Spec](../specs/graph-engineering-workflow.md#p3-cumulative274-entry-design--2026-09-23)
+and [Impact](../impact/graph-engineering-workflow.md#p3-cumulative274-design-impact--2026-09-23)
+under [PRD v2](../prd/baselines/graph-engineering-workflow-v2.md) and
+[Positioning](../positioning/graph-engineering-workflow.md). Phase D is authorized;
+phases I and R below are concrete proposals, not execution authority.
+
+#### Tasks, dependencies and ownership
+
+Coordinator `/root` is the sole writer. Independent artifact reviewers are
+read-only. The table is the local task index; actual elapsed time and decisions
+belong in detached records, not estimated checkboxes. Estimates are planning
+sizes, not command timeouts. Dependencies are linear and each task blocks the
+next; no external Kanban or service is required.
+
+| Task / phase | Size / estimate | Depends on | Owned scope | Exit |
+|---|---|---|---|---|
+| C274-D1 / design | S / 1–2h | direct design approval | Four approved design docs and detached records | Exact identity/impact inventories, independent Spec→Impact→Plan→Test Plan reviews; stop at implementation authority. |
+| C274-I1 / RED | S / 1–2h | D1 plus separate implementation approval | Three test files listed below | Failing exact-closure, receipt, historical and cleanup tests; all launch mocks verified. |
+| C274-I2 / entry | M / half day | I1 | Existing test support runner | Explicit selector and independent identity closure, full gate/receipt path, exact terminal and parent cleanup. |
+| C274-I3 / verification | S / 1–2h | I2 | Four Python targets and detached checks | Required bounded methods pass serially; protected/configuration/source closure unchanged; no workload launched. |
+| C274-I4 / Candidate | S / 1–2h | I3 | Future Manifest, four design docs, four Python targets, detached evidence | Fresh staged-tree evidence and independent Candidate review; stop for commit authority. |
+| C274-R1 / launch readiness | XS / 30min | I4 and verified source state | Read-only exact source/Candidate/limits and launch request | Separate owner approval of exact run, including P1 performance sibling and no automatic rerun. |
+| C274-R2 / cumulative | M / up to4h workload | R1 | Fresh private offline run roots and detached evidence | Actual274 gate, terminal cleanup and exact receipt, or retained failure with no acceptance claim. |
+
+- [ ] D1: hash exact274/137 identities, record independent verdicts and actual reducer decisions; all four design bytes match reviewed digests.
+- [ ] I1: a missing implementation fails tests, while no cumulative/performance child is launched by entry tests.
+- [ ] I2: use a distinct `p3-cumulative274-r1` branch; preserve historical selectors and default helper behavior; do not loosen partial receipt validation.
+- [ ] I3: cover every Test Plan CUJ; distinguish bounded integration proof from deferred actual full-run proof.
+- [ ] I4: build exact Candidate only after input freeze and relevant checks; do not automatically commit.
+- [ ] R1: bind run authority to verified code/configuration digests, exact argv, one attempt,14400s/60s and P1 sibling inclusion.
+- [ ] R2: independently review actual result/currentness and resource evidence; failed/interrupted runs remain incomplete.
+
+#### Exact proposed implementation target list
+
+An implementation approval would authorize the following tracked files only:
+
+1. `tests/support/wp08_release_coverage.py`
+2. `tests/unit/test_wp08_scenario_truth.py`
+3. `tests/contract/test_wp08_remaining54_contracts.py`
+4. `tests/integration/test_wp08_release_coverage.py`
+5. `docs/specs/graph-engineering-workflow.md`
+6. `docs/impact/graph-engineering-workflow.md`
+7. `docs/plans/2026-08-13-graph-engineering-workflow.md`
+8. `docs/test-plans/graph-engineering-workflow.md`
+9. `.workflow/manifest.json`
+
+Detached task review/evidence records remain separate. Documentation changes are
+limited to routine traceability and testability corrections. No production code,
+bootstrap, wheel resource, source list, build/evidence helper, registry limit or
+schema change is on this list. Such a need requires an explicit scope decision.
+The current design approval authorizes only the four documents, not this future
+nine-file list. Keep the existing Manifest unchanged until implementation approval.
+
+#### Verification and development risks
+
+Use the matching [Test Plan](../test-plans/graph-engineering-workflow.md#p3-cumulative274-verification-design--2026-09-23)
+for exact proposed test method identities and verified-child harness recipe.
+Native tests <=600s; canonical evidence commands <=300s; serial and fail-fast.
+Do not run entire scenario/performance suites as a shortcut. Existing evidence
+is historical support, not replacement for fresh evidence on changed inputs.
+No code/configuration/test/pin changes while any native or canonical command runs.
+
+Local interpreter, attestation issuer and SQLite/CAS fixtures are available.
+Implementation and workload authority are the only planned external decisions.
+Risks during development: (1) shared helper defaults silently affect historical
+selectors—use explicit new branches and legacy rejection tests; (2) tests leak
+into real full runs—mock the child boundary and assert zero unmocked launch;
+(3) broad attestation repinning hides input drift—compare actual source/resource
+closure first and stop on unexpected production changes. A full-run performance
+failure cannot be repaired by increasing limits under this proposal.
+
+There is no deployment/rollout percentage. The additive selector remains
+unaccepted until tested and reviewed. Revert an unaccepted implementation only
+within its authorized files; retain failed records. Unknown target effects after
+forced termination are reconciled, not replayed. No open product/architecture
+question is assumed; a discovered core/API need is decided before I2.
+
+#### Proposed launch request, not granted
+
+After implementation verification, request one local offline invocation of the
+new entry using the project's Python with source roots `core`, `application`,
+`storage`, `adapters` and project root. Intended entry call:
+`tests.support.wp08_release_coverage._verified_runner_main(["p3-cumulative274-r1"])`.
+The reviewed launch argv must call this parent (never `--verified-child`
+directly), bind exact source state and capture sanitized progress/receipt.
+Include actual P1 sibling performance operations and all274 bindings in the same
+14400-second total,60-second heartbeat, strict serial execution and fail-fast
+cleanup. Monitoring remains PAUSED; do not schedule or rerun automatically.
+A launch request must be concrete against the implemented bytes before approval.
+
+History: 2026-09-23 — design-only readiness, exact future implementation list and
+separate launch proposal. Checklist examples about fixed phase counts, rollout
+percentages or arbitrary coverage percentages do not override this bounded scope.

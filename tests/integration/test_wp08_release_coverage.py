@@ -17,6 +17,46 @@ from tests.unit import test_wp08_profile_contracts as slice1
 class WP08ReleaseCoverageTests(unittest.TestCase):
     maxDiff = None
 
+    def test_c274_incomplete_factory_aborts_without_replay(self):
+        from tests.support import wp08_scenario_truth as lifecycle
+        api4 = fixture.load_slice4_api()
+        api, coverage, matrix, profile, overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        result = fixture.run_serial_profile_binding(api4=api4, plan=plan,
+            profile_id="release-operations", column="normal", disposition="P", quiescent=True)
+        factory = None
+        closed = False
+        from contextlib import ExitStack
+        from graph_engineering.adapters.local_release_simulator import LocalReleaseTarget
+        guards = ExitStack()
+        invoke = guards.enter_context(mock.patch.object(LocalReleaseTarget, "invoke", side_effect=AssertionError("release replay forbidden")))
+        try:
+            observation = result.observe_current()
+            factory = api.CoverageRecordFactory(execution_authority=result.authority, coverage_policy=coverage)
+            record = factory.issue_execution(observation, matrix=matrix, profile=profile, overlay=overlay)
+            decision = api.ReleaseCoverageGate.evaluate(matrix, coverage_records=(record,), coverage_factory=factory)
+            self.assertFalse(decision.passed)
+            self.assertEqual((len(decision.missing_test_ids), decision.invalid_test_ids, decision.stale_test_ids), (273, (), ()))
+            with self.assertRaisesRegex(ValueError, "combined coverage gate was not consumed"):
+                factory.finalize_after_gate(decision)
+            # Any reopen-time simulator action would violate the sealed lifecycle.
+            fixture._close_c274_factory(factory, decision)
+            closed = True
+            self.assertEqual(result.binding_lifecycle.state, "PERMANENTLY_CLOSED")
+            invoke.assert_not_called()
+            self.assertEqual(result.release_operations_reader.active_readers(), 0)
+            self.assertEqual(lifecycle.PrivateBindingReopenPort.active_handle_count(), 0)
+            self.assertEqual(lifecycle.PrivateBindingReopenPort.active_reopened_binding_count(), 0)
+            with self.assertRaises(ValueError): result.observe_current()
+        finally:
+            try:
+                if factory is not None and not closed: fixture._close_c274_factory(factory, None)
+            finally:
+                try:
+                    result.close()
+                finally:
+                    guards.close()
+
     def test_release_scenario_plan_has_exact_six_distinct_bindings(self):
         api4 = fixture.load_slice4_api()
         _api, _coverage, matrix, _profile, _overlay = self._profile_contracts("release-operations")

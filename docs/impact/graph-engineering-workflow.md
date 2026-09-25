@@ -1434,3 +1434,58 @@ verification; fix within the approved targets then recapture affected evidence.
 If a staged source changes after canonical capture, restage and recapture before
 creating a new Candidate. No deployment rollback procedure applies: this batch
 does not publish or deploy. A future commit remains separately authorized.
+
+### P3 cumulative274 design impact — 2026-09-23
+
+Scope: [cumulative274 Spec](../specs/graph-engineering-workflow.md#p3-cumulative274-entry-design--2026-09-23)
+under the unchanged approved PRD v2. Direct approval is design/review only;
+implementation, workload execution and commit remain separate decisions.
+
+The current entry graph has historical 226/113 and 230/115 cumulative checkpoints;
+its default oracle closure describes 244/122. Configured state is now274/137.
+The new selector must have its own exact expected closure, receipt validator,
+full-gate expectations and safe terminal routing. Do not globally change defaults
+or reinterpret historical partial results. Dispatch for current release mandatory
+and scenario bindings already exists; the new entry composes these actual paths.
+
+| Surface | Proposed impact | Required evidence |
+|---|---|---|
+| `tests/support/wp08_release_coverage.py` | New explicit selector, exact preflight/receipt, full-run orchestration, parent cancellation cleanup; retain old selectors | Wrong input rejects before launch; positive routing, failure cleanup and historical compatibility checks. |
+| `tests/unit/test_wp08_scenario_truth.py` | Focused mocked-launch entry/receipt/deadline tests | Exact identity/type checks, no accidental workload; bad selector/receipt cannot pass. |
+| `tests/contract/test_wp08_remaining54_contracts.py` | Current274 independent closure and legacy rejection contracts | All binding/oracle rows and installed digests checked; historical selectors reject newer plan without execution. |
+| `tests/integration/test_wp08_release_coverage.py` | Bounded actual-factory incomplete-gate/abort and currentness regressions | No fake authority promoted to actual full coverage; zero replay and deterministic cleanup. |
+| Four current design documents | Current scope, decisions and implementation/launch proposals | Independent per-artifact review and immutable reducer results. |
+| `.workflow/manifest.json` in a future implementation batch | Exact implementation targets and verification scope | New implementation approval before changing; no mutation in this design batch. |
+
+`p3-c274-impact-inventory-r0.json` records actual baseline SHA-256s and membership
+checks: the four proposed Python targets are absent from production `_SOURCE_FILES`
+and test attestor `SOURCE_FILES`, and all existing installation bootstraps have
+no references to them. Thus these edits do not require production source/package
+list changes, new wheel resources or bootstrap repinning. Existing verified test
+capture still binds changed test/support bytes to the Candidate. Recheck this
+closure after implementation; a newly discovered transitive production change
+invalidates this impact conclusion and requires expanded authority.
+
+Read-only dependency surfaces include the installed274 plan/137 oracles, Support
+Matrix, registry limits, `CoverageRecordFactory`/`ReleaseCoverageGate`, lifecycle
+ports, source attestation issuer and existing verified-byte test/evidence runners.
+No build helper, evidence helper, schema1.0–1.4, dependency1.1, package manifest,
+core API, DB/event/GraphRef contract or external adapter change is proposed.
+
+The new receipt stays internal test-runner JSON, never an executable authority.
+No migration or rollout is needed. Additive selector isolation is the rollback
+boundary: leave it unavailable until its evidence passes; retain original
+selectors and old records. A design-only amendment requires no runtime rollback.
+
+Risks: acceptance from counts alone (exact installed identity/row/digest joins);
+wrong lifecycle selection (actual consumed-decision identity plus bounded
+factory negative proof); cancellation orphaning child/control resources (parent
+stop/reap before deleting roots); broad default oracle changes (explicit selector
+and legacy tests); runtime overrun (14400-second total including P1, no increased
+budget). RSS/FD diagnostics cannot replace deterministic lifetime checks.
+
+Residual limitation: bounded tests cannot establish274 cumulative acceptance or
+4-hour feasibility. Only a separately authorized actual run can do that. A failed
+attempt remains failed; do not patch sources during execution or automatically
+rerun. The design introduces no material architecture decision, so no new ADR is
+required; discovery of one returns to the human before implementation.
