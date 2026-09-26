@@ -1425,3 +1425,22 @@ A launch request must be concrete against the implemented bytes before approval.
 History: 2026-09-23 — design-only readiness, exact future implementation list and
 separate launch proposal. Checklist examples about fixed phase counts, rollout
 percentages or arbitrary coverage percentages do not override this bounded scope.
+
+### C274-RUN-001 focused repair — 2026-09-25
+
+Direct owner instruction “修复” authorizes this reversible correction and bounded
+verification under the existing T2 task. Preserve prior run failure evidence.
+1. Independently review this Spec/Impact/Plan/Test Plan correction.
+2. Add a real release binding identity regression; retain RED from the current
+   generic-root assertion before changing the implementation.
+3. Adapt the sealed release identity path without reopening or weakening identity
+   uniqueness; exercise actual P/R and scenario bindings plus negative associations.
+4. Run focused checks serially (canonical per-command<=300s), verify protected
+   non-target bytes, then obtain independent implementation/evidence/Candidate review.
+5. Stop before commit and any actual cumulative/performance rerun; those are
+   separately authorized. No limit extension, monitoring or automatic retry.
+
+Exact targets: Manifest; the existing Spec, Impact, Plan and Test Plan;
+`tests/support/wp08_release_coverage.py`;
+`tests/integration/test_wp08_release_coverage.py`;
+`tests/unit/test_wp08_scenario_truth.py`. Do not modify the release runtime or core.

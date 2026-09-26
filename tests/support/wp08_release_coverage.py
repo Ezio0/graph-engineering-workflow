@@ -568,6 +568,8 @@ class SerialCoverageExecution:
         )
 
     def binding_identity_projection(self) -> dict[str, object]:
+        if self.profile_id == "release-operations" or self.release_operations_reader is not None:
+            return self._release_binding_identity_projection()
         repository_root = self.private_repository_root
         action_root = self.private_action_root
         if repository_root is None or action_root is None:
@@ -627,6 +629,59 @@ class SerialCoverageExecution:
         if real_e2e_root is not None:
             real_e2e_root.seal_binding_identity(projection)
         return projection
+
+    def _release_binding_identity_projection(self) -> dict[str, object]:
+        from graph_engineering.application.profile_coverage import (
+            ProfileCoverageAuthority, ProfileCoverageBindingLifecycle, _ReleaseCoverageReadBinding,
+        )
+        from graph_engineering.core.profile_coverage import ProfileCoverageExecutionRecord
+        from graph_engineering.core.release_operations import ReleaseRecoveryBinding
+
+        reader, authority, record, lifecycle = (
+            self.release_operations_reader, self.authority, self.execution, self.binding_lifecycle)
+        if (type(reader) is not _ReleaseCoverageReadBinding
+                or type(authority) is not ProfileCoverageAuthority
+                or type(record) is not ProfileCoverageExecutionRecord
+                or type(lifecycle) is not ProfileCoverageBindingLifecycle):
+            raise AssertionError("release binding identity capability is unavailable or foreign")
+        context = reader._context()  # Registered original object, process and thread.
+        if (context["authority"] is not authority or context["record"] is not record
+                or authority._ProfileCoverageAuthority__release_reader is not reader
+                or authority._binding_lifecycle is not lifecycle
+                or record._authority is not authority):
+            raise AssertionError("release binding identity association is foreign")
+        lifecycle._require_process_local_current()
+        issued = authority._ProfileCoverageAuthority__issued.get(id(record))
+        # _require_record() performs fresh reads/reopens. Here only verify the
+        # original issuance; normal lifecycle phases still own live currentness.
+        if (issued is None or issued[0] is not record or issued[4] is not record._capability
+                or record.to_dict() != thaw(context["record_document"])
+                or lifecycle.state != "QUIESCED" or context["handle"] is not None
+                or type(context["binding"]) is not ReleaseRecoveryBinding):
+            raise AssertionError("release binding identity issuance or lifetime changed")
+        binding = context["binding"].to_dict()
+        planned = authority._plan.binding(self.test_id)
+        if (self.profile_id != "release-operations"
+                or (record.test_id, record.profile_id, record.column_id)
+                != (self.test_id, self.profile_id, self.column_id)
+                or (planned["task_id"], planned["profile_id"], planned["column_id"],
+                    planned["selector_kind"], planned["scenario_id"], planned["disposition"])
+                != (record.task_id, record.profile_id, record.column_id,
+                    record.selector_kind, record.scenario_id, self.disposition)
+                or binding["task_id"] != record.task_id
+                or record.result != {"P": "COMPLETED", "R": "EXPECTED_REJECTION"}.get(self.disposition)):
+            raise AssertionError("release binding identity selector is foreign")
+        # Release command scopes are repository-backed, not separate generic
+        # fixture directories. Keep physical identities free of task labels so
+        # cumulative uniqueness cannot be satisfied by relabeling shared roots.
+        return {
+            "repository_root": binding["repository_scope_digest"],
+            "command_root": binding["repository_scope_digest"],
+            "task": binding["task_id"],
+            "branch_ref": ["branch:" + binding["task_id"], "ref:" + binding["task_id"]],
+            "action_root": binding["namespace_identity"],
+            "target": binding["root_identity"],
+        }
 
     def _lifecycle_projection(self, shared: object) -> dict[str, object]:
         if shared is not self.private_shared_runtime:

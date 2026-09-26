@@ -2255,7 +2255,10 @@ class CumulativeEntryTests(unittest.TestCase):
                 return self
             def binding_identity_projection(self):
                 key = "shared" if attack == "identity" else self.test_id
-                return {field: key for field in ("repository_root", "task", "target", "branch_ref", "action_root", "command_root")}
+                identity = {field: key for field in ("repository_root", "task", "target", "branch_ref", "action_root", "command_root")}
+                if attack and attack.startswith("shared-resource:"):
+                    identity[attack.split(":", 1)[1]] = "shared-physical-resource"
+                return identity
             def close(self):
                 closed.append(self.test_id)
                 if attack == "close": raise AssertionError("simulated close failure")
@@ -2424,6 +2427,16 @@ class CumulativeEntryTests(unittest.TestCase):
 
 class Cumulative274EntryTests(unittest.TestCase):
     """Bounded entry tests. No cumulative or performance workload is launched."""
+
+    def test_shared_physical_identity_rejects_distinct_logical_tasks(self):
+        for field in ("repository_root", "target", "action_root", "command_root"):
+            runner = CumulativeEntryTests()
+            with self.subTest(field=field), self.assertRaisesRegex(AssertionError, "identities are shared"):
+                runner.simulate("p3-cumulative274-r1", "shared-resource:" + field)
+            made, closed, finalized, aborted, _ = runner.last_simulation
+            self.assertEqual(len({row.test_id for row in made}), 274)
+            self.assertEqual(closed, [row.test_id for row in reversed(made)])
+            self.assertEqual((finalized, aborted), ([], []))
 
     @staticmethod
     def installed():

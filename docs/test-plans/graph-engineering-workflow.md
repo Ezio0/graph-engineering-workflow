@@ -2545,3 +2545,25 @@ and independent review; R1/R2→actual J3/J4/J5 and full receipt. References:
 [PRD](../prd/graph-engineering-workflow.md),
 [Positioning](../positioning/graph-engineering-workflow.md), the above Plan/Spec
 and [Impact](../impact/graph-engineering-workflow.md#p3-cumulative274-design-impact--2026-09-23).
+
+### C274-RUN-001 focused regression — 2026-09-25
+
+Reproduce the actual missing-root failure with a real quiescent release binding,
+not a fake projection. Cover mandatory P/R and at least one scenario through
+the same projection call used before cumulative factory construction. Validate
+exact six-field identity, unchanged generation/purpose/reader and reopen counts
+and FD count across identity reads, identity stability before/after issue and
+use/precommit, defensive returned values, and refusal after termination.
+
+Reject fake reader and foreign real reader/record/authority/lifecycle association;
+reject changed result/installed task or selector metadata. After producer setup,
+guard simulator invoke and lifecycle reopen/run during identity-only calls. Verify
+real distinct bindings produce distinct resource fields; separately test that
+shared resource identities remain rejected even when logical task labels differ.
+Retain generic/real-E2E and cumulative orchestration/cleanup regressions with mocked
+launch. Split real cases into independent commands if needed to stay<=300s; never
+run the actual P1 benchmark or cumulative workload as part of this repair.
+
+Check non-target tracked bytes against460ace6, compile changed Python, validate
+workflow and capture fresh staged-tree evidence. Independent review must distinguish
+bounded repair verification from a new actual274 gate acceptance.

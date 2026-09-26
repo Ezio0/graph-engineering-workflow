@@ -5,7 +5,7 @@
   "tier_decision": {
     "suggested": "T2",
     "declared": "T2",
-    "justification": "Approved cumulative274 entry implementation, bounded mocked-launch and one-binding verification only; actual cumulative/performance launch and irreversible actions excluded."
+    "justification": "Existing T2 C274-RUN-001 repair: sealed release identity adapter and bounded real-binding regression; no actual cumulative/performance rerun or irreversible action."
   },
   "roles": {
     "human-owner": "Human Owner",
@@ -19,7 +19,6 @@
     "docs/plans/2026-08-13-graph-engineering-workflow.md",
     "docs/specs/graph-engineering-workflow.md",
     "docs/test-plans/graph-engineering-workflow.md",
-    "tests/contract/test_wp08_remaining54_contracts.py",
     "tests/integration/test_wp08_release_coverage.py",
     "tests/support/wp08_release_coverage.py",
     "tests/unit/test_wp08_scenario_truth.py"

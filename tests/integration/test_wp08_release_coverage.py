@@ -17,6 +17,126 @@ from tests.unit import test_wp08_profile_contracts as slice1
 class WP08ReleaseCoverageTests(unittest.TestCase):
     maxDiff = None
 
+    def _assert_c274_release_identity(self, disposition, scenario=None):
+        import os
+        from tests.support import wp08_scenario_truth as lifecycle
+        from graph_engineering.adapters.local_release_simulator import LocalReleaseTarget
+
+        api4 = fixture.load_slice4_api()
+        api, coverage, matrix, profile, overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        result = (fixture.run_serial_profile_binding(api4=api4, plan=plan,
+            profile_id="release-operations", column="normal", disposition=disposition, quiescent=True)
+            if scenario is None else fixture.run_serial_scenario_binding(api4=api4, plan=plan,
+                scenario_id=scenario, disposition=disposition, quiescent=True))
+        factory = None
+        try:
+            reader = result.release_operations_reader
+            life = result.binding_lifecycle
+            binding = reader._context()["binding"].to_dict()
+            expected = {"repository_root": binding["repository_scope_digest"],
+                "command_root": binding["repository_scope_digest"], "task": binding["task_id"],
+                "branch_ref": ["branch:" + binding["task_id"], "ref:" + binding["task_id"]],
+                "action_root": binding["namespace_identity"], "target": binding["root_identity"]}
+
+            def state():
+                return (life.state, life.generation, life.expected_purpose, reader.active_readers(),
+                    lifecycle.PrivateBindingReopenPort.active_handle_count(),
+                    lifecycle.PrivateBindingReopenPort.active_reopened_binding_count(),
+                    len(os.listdir("/dev/fd")))
+
+            def identity():
+                before = state()
+                with mock.patch.object(type(reader), "open", side_effect=AssertionError("identity reopened reader")), \
+                     mock.patch.object(type(life), "run", side_effect=AssertionError("identity advanced lifecycle")):
+                    actual = result.binding_identity_projection()
+                self.assertEqual(actual, expected)
+                self.assertEqual(state(), before)
+                return actual
+
+            with mock.patch.object(LocalReleaseTarget, "invoke", side_effect=AssertionError("identity replayed action")):
+                self.assertIsNone(result.private_repository_root)
+                self.assertIsNone(result.private_action_root)
+                value = identity()  # RED: the actual cumulative identity call, with real release resources.
+                value["target"]["kind"] = "caller-mutated"
+                identity()
+                for field, replacement in (("test_id", "foreign"), ("profile_id", "foreign"), ("column_id", "foreign"),
+                        ("disposition", "R" if disposition == "P" else "P")):
+                    with self.subTest(field=field), mock.patch.object(result, field, replacement), \
+                         self.assertRaises((ValueError, AssertionError)):
+                        result.binding_identity_projection()
+                for fake in (object(), object.__new__(type(reader))):
+                    with mock.patch.object(result, "release_operations_reader", fake), \
+                         self.assertRaises((ValueError, AssertionError)):
+                        result.binding_identity_projection()
+                for field, replacement in (("_capability", object()), ("task_id", "foreign")):
+                    original = getattr(result.execution, field)
+                    try:
+                        object.__setattr__(result.execution, field, replacement)
+                        with self.subTest(record_field=field), self.assertRaises((ValueError, AssertionError)):
+                            result.binding_identity_projection()
+                    finally:
+                        object.__setattr__(result.execution, field, original)
+                identity()
+                observation = result.observe_current()
+                identity()
+                factory = api.CoverageRecordFactory(execution_authority=result.authority, coverage_policy=coverage)
+                record = factory.issue_execution(observation, matrix=matrix, profile=profile, overlay=overlay)
+                identity()
+                decision = api.ReleaseCoverageGate.evaluate(matrix, coverage_records=(record,), coverage_factory=factory)
+                self.assertFalse(decision.passed)
+                self.assertEqual((len(decision.missing_test_ids), decision.invalid_test_ids, decision.stale_test_ids),
+                    (273, (), ()))
+                identity()
+                fixture._close_c274_factory(factory, decision)
+                factory = None
+                with self.assertRaises((ValueError, AssertionError)):
+                    result.binding_identity_projection()
+        finally:
+            try:
+                if factory is not None:
+                    fixture._close_c274_factory(factory, None)
+            finally:
+                result.close()
+
+    def test_c274_release_identity_mandatory_p(self):
+        self._assert_c274_release_identity("P")
+
+    def test_c274_release_identity_mandatory_r(self):
+        self._assert_c274_release_identity("R")
+
+    def test_c274_release_identity_scenario_p(self):
+        self._assert_c274_release_identity("P", "health-gate")
+
+    def test_c274_release_identity_scenario_r(self):
+        self._assert_c274_release_identity("R", "partial-deploy")
+
+    def test_c274_release_identity_rejects_foreign_associations(self):
+        from graph_engineering.adapters.local_release_simulator import LocalReleaseTarget
+        api4 = fixture.load_slice4_api()
+        _api, _coverage, matrix, _profile, _overlay = self._profile_contracts("release-operations")
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        results = []
+        try:
+            for disposition in ("P", "R"):
+                results.append(fixture.run_serial_profile_binding(api4=api4, plan=plan,
+                    profile_id="release-operations", column="normal", disposition=disposition, quiescent=True))
+            left, right = results
+            with mock.patch.object(LocalReleaseTarget, "invoke", side_effect=AssertionError("identity replayed action")):
+                before = left.binding_identity_projection()
+                other = right.binding_identity_projection()
+                self.assertEqual(set(before), set(other))
+                for field in before:
+                    self.assertNotEqual(before[field], other[field], field)
+                for field in ("release_operations_reader", "authority", "execution", "binding_lifecycle"):
+                    with self.subTest(field=field), mock.patch.object(left, field, getattr(right, field)), \
+                         self.assertRaises((ValueError, AssertionError)):
+                        left.binding_identity_projection()
+                self.assertEqual(left.binding_identity_projection(), before)
+        finally:
+            for result in reversed(results):
+                result.close()
+
     def test_c274_incomplete_factory_aborts_without_replay(self):
         from tests.support import wp08_scenario_truth as lifecycle
         api4 = fixture.load_slice4_api()

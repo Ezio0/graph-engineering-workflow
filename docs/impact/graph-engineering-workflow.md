@@ -1489,3 +1489,18 @@ Residual limitation: bounded tests cannot establish274 cumulative acceptance or
 attempt remains failed; do not patch sources during execution or automatically
 rerun. The design introduces no material architecture decision, so no new ADR is
 required; discovery of one returns to the human before implementation.
+
+### C274-RUN-001 repair impact — 2026-09-25
+
+Actual run r1 at commit460ace6 failed after274 observations and before factory
+construction. All274 closes returned without a reported cleanup error; the
+post-success global FD baseline assertion was not reached. Preserve failed logs
+and independent diagnosis; no cumulative acceptance is claimed.
+
+The repair affects only the test support projection and targeted unit/integration
+coverage, with corresponding design/plan/test-plan and Manifest registration.
+No production source, package resource, schema, registry, budget, authority gate,
+PRD or positioning change is needed. The principal risk is treating reconstructible
+recovery data as authority or masking shared physical roots with task labels.
+Exact registered reader/record/lifecycle linkage and resource-only uniqueness
+regressions address that risk. A bounded green result is source readiness only.

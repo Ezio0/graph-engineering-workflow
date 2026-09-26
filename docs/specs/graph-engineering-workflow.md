@@ -3703,3 +3703,28 @@ preceding scenario6 contract. See the matching cumulative274 sections of
 [Plan](../plans/2026-08-13-graph-engineering-workflow.md) and
 [Test Plan](../test-plans/graph-engineering-workflow.md). Existing whole-document
 structure is retained; this amendment adds no public API or external standard.
+
+### C274-RUN-001 release identity repair — 2026-09-25
+
+The authorized actual run reached all274 execution/issue observations but failed
+before factory construction: release bindings use a retained release reader, not
+generic private repository/action roots. This is an internal test-runner adapter
+correction under the existing Intent Baseline; no public API or engine change.
+
+Before the generic-root branch, quiescent release identity projection must verify
+exact reader/authority/record/lifecycle types, registered reader context and object
+associations, original record issuance, the current process-local lifecycle seal,
+and the installed binding's task/profile/column/selector/disposition. Use only
+the original reader's sealed recovery binding. Validated JSON is lookup data, not
+execution authority; a reconstructed reader or foreign record cannot substitute.
+
+Map repository_root and command_root to the sealed repository_scope_digest
+(the release command scope is repository-backed); task to its verified task_id;
+branch_ref to the existing logical branch/ref convention for that task; action_root
+to namespace_identity; target to root_identity alone so a changed target label
+cannot conceal a shared physical target. Return fresh detached data. Preserve
+all six cross-binding uniqueness checks; do not mix task labels into physical
+identity fields. Identity projection must not run lifecycle phases, reopen ports,
+observe current resources, or invoke simulator actions. Existing gate phases
+remain responsible for fresh physical currentness. Closed or foreign capability
+associations fail closed. The generic and real-E2E branches remain unchanged.
