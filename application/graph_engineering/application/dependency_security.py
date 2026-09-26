@@ -13,6 +13,7 @@ import threading
 import tomllib
 import weakref
 from collections.abc import Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 
@@ -93,6 +94,73 @@ def _self_digest(
     return expected
 
 
+_pure_projection_local = threading.local()
+
+
+class _PureProjectionOperation:
+    """Two detached parse results, never authority or a currentness verdict."""
+
+    __slots__ = ("owner", "entries")
+
+    def __init__(self) -> None:
+        self.owner = (os.getpid(), threading.get_ident())
+        self.entries: dict[str, tuple[object, ...]] = {}
+
+
+@contextmanager
+def _dependency_pure_operation():
+    """Own one synchronous phase; nested phases deliberately start empty."""
+    previous = getattr(_pure_projection_local, "current", None)
+    operation = _PureProjectionOperation()
+    _pure_projection_local.current = operation
+    try:
+        yield operation
+    finally:
+        operation.entries.clear()
+        _pure_projection_local.current = previous
+
+
+def _detach_pure_projection(value):
+    if type(value) in (str, int, bool, bytes, type(None)):
+        return value
+    if type(value) is tuple:
+        return tuple(_detach_pure_projection(item) for item in value)
+    if type(value) is FrozenMap:
+        return freeze(thaw(value))
+    if type(value) in (
+        DependencyAdvisoryRegistryData,
+        DependencyGraphPolicyData,
+        DependencyRemediationRegistryData,
+    ):
+        return replace(value, **{
+            name: _detach_pure_projection(getattr(value, name))
+            for name in value.__dataclass_fields__
+        })
+    raise TypeError("dependency pure projection result type is unsupported")
+
+
+def _reuse_installation_parse(slot, parser, resources, schema_ids):
+    operation = getattr(_pure_projection_local, "current", None)
+    if (
+        type(operation) is not _PureProjectionOperation
+        or operation.owner != (os.getpid(), threading.get_ident())
+        or slot not in {"bootstrap", "graph"}
+        or type(resources) is not tuple
+        or any(type(body) is not bytes for body in resources)
+        or type(schema_ids) is not tuple
+        or any(type(row) is not tuple or any(type(item) is not str for item in row)
+               for row in schema_ids)
+    ):
+        return parser(resources, schema_ids)
+    entry = operation.entries.get(slot)
+    if entry is not None and entry[0] is parser and entry[1:3] == (resources, schema_ids):
+        return _detach_pure_projection(entry[3])
+    parsed = parser(resources, schema_ids)
+    # Store only after successful parsing, and never expose the stored value.
+    operation.entries[slot] = (parser, resources, schema_ids, _detach_pure_projection(parsed))
+    return parsed
+
+
 def _bootstrap_projection() -> tuple[
     DependencyAdvisoryRegistryData,
     FrozenMap,
@@ -103,8 +171,29 @@ def _bootstrap_projection() -> tuple[
         _dependency_advisory_installation_resources,
     )
 
+    from graph_engineering import DistributionIdentityError, _dependency_advisory_installation_resources
+
     try:
         resources = _dependency_advisory_installation_resources()
+    except DistributionIdentityError as error:
+        raise DependencySecurityError('dependency advisory installation bootstrap is unavailable') from error
+    return _reuse_installation_parse(
+        'bootstrap', _parse_bootstrap_projection, resources,
+        (DEPENDENCY_SECURITY_SCHEMA_IDS, DEPENDENCY_GRAPH_SCHEMA_IDS),
+    )
+
+
+def _parse_bootstrap_projection(resources, schema_ids) -> tuple[
+    DependencyAdvisoryRegistryData,
+    FrozenMap,
+    tuple[str, ...],
+]:
+    from graph_engineering import (
+        DistributionIdentityError,
+        _dependency_advisory_installation_resources,
+    )
+
+    try:
         (
             provenance_bytes,
             registry_bytes,
@@ -113,7 +202,7 @@ def _bootstrap_projection() -> tuple[
             source_attestation_bytes,
             schema_registry_bytes,
         ) = resources[:6]
-        schema_count = len(DEPENDENCY_SECURITY_SCHEMA_IDS)
+        schema_count = len(schema_ids[0])
         if len(resources) != 6 + schema_count + 8:
             raise DependencySecurityError(
                 "dependency advisory installation resource closure is incomplete"
@@ -523,7 +612,7 @@ def _bootstrap_projection() -> tuple[
     if (
         type(vectors) is not list
         or type(bootstrap_vectors) is not list
-        or len(vectors) != len(DEPENDENCY_SECURITY_SCHEMA_IDS)
+        or len(vectors) != len(schema_ids[0])
         or len(schema_bodies) != len(vectors)
     ):
         raise DependencySecurityError("dependency advisory schema closure is incomplete")
@@ -557,7 +646,7 @@ def _bootstrap_projection() -> tuple[
             raise DependencySecurityError("dependency advisory schema bytes changed")
         identities.append(str(schema_id))
         raw_digests.append(raw)
-    if tuple(identities) != DEPENDENCY_SECURITY_SCHEMA_IDS:
+    if tuple(identities) != schema_ids[0]:
         raise DependencySecurityError("dependency advisory schema identities are not exact")
     projection = freeze({
         "registry_digest": registry.registry_digest,
@@ -592,13 +681,31 @@ def _graph_installation_projection() -> tuple[
 ]:
     """Load the protected ADR-0006 r7 graph/remediation installation bytes."""
 
+    from graph_engineering import DistributionIdentityError, _dependency_graph_installation_resources
+
+    try:
+        resources = _dependency_graph_installation_resources()
+    except DistributionIdentityError as error:
+        raise DependencySecurityError('dependency graph installation bootstrap is unavailable') from error
+    return _reuse_installation_parse(
+        'graph', _parse_graph_installation_projection, resources,
+        (DEPENDENCY_SECURITY_SCHEMA_IDS, DEPENDENCY_GRAPH_SCHEMA_IDS),
+    )
+
+
+def _parse_graph_installation_projection(resources, schema_ids) -> tuple[
+    DependencyGraphPolicyData,
+    DependencyRemediationRegistryData,
+    FrozenMap,
+]:
+    """Load the protected ADR-0006 r7 graph/remediation installation bytes."""
+
     from graph_engineering import (
         DistributionIdentityError,
         _dependency_graph_installation_resources,
     )
 
     try:
-        resources = _dependency_graph_installation_resources()
         if len(resources) != 8 + 32:
             raise DependencySecurityError(
                 "dependency graph installation closure is incomplete"
@@ -709,7 +816,7 @@ def _graph_installation_projection() -> tuple[
         identities.append(str(schema_id))
         schema_rows.append({"schema_id": str(schema_id), "raw_sha256": raw})
     expected_schema_ids = tuple(sorted((
-        *DEPENDENCY_SECURITY_SCHEMA_IDS, *DEPENDENCY_GRAPH_SCHEMA_IDS,
+        *schema_ids[0], *schema_ids[1],
     )))
     if tuple(identities) != expected_schema_ids:
         raise DependencySecurityError("dependency graph schema identities are not exact")

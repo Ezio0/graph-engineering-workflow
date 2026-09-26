@@ -980,5 +980,122 @@ class WP08ProfileExpansionTests(unittest.TestCase):
             self.assertEqual(candidate, before)
 
 
+class DependencyPureProjectionTests(unittest.TestCase):
+    def test_reuses_pure_results_but_rereads_and_detaches(self):
+        import graph_engineering as package
+        from graph_engineering.application import dependency_security as dep
+        from unittest import mock
+
+        for loader_name, reader_name, parser_name in (
+            ("_dependency_advisory_installation_resources", "_bootstrap_projection", "_parse_bootstrap_projection"),
+            ("_dependency_graph_installation_resources", "_graph_installation_projection", "_parse_graph_installation_projection"),
+        ):
+            reader = getattr(dep, reader_name)
+            expected = reader()
+            with mock.patch.object(package, loader_name, wraps=getattr(package, loader_name)) as loader, mock.patch.object(dep, parser_name, wraps=getattr(dep, parser_name)) as parser:
+                with dep._dependency_pure_operation() as operation:
+                    first = reader()
+                    self.assertEqual(first, expected)
+                    object.__setattr__(first[0], "registry_id", "poisoned-return")
+                    self.assertEqual(reader(), expected)
+                    self.assertEqual(loader.call_count, 2)
+                    self.assertEqual(parser.call_count, 1)
+                    self.assertLessEqual(len(operation.entries), 2)
+                self.assertFalse(operation.entries)
+                self.assertEqual(reader(), expected)
+                self.assertEqual(parser.call_count, 2)
+
+    def test_changed_bytes_and_loader_failure_reject_after_hit(self):
+        import graph_engineering as package
+        from graph_engineering.application import dependency_security as dep
+        from unittest import mock
+
+        with dep._dependency_pure_operation():
+            expected = dep._bootstrap_projection()
+            resources = package._dependency_advisory_installation_resources()
+            changed = (resources[0], resources[1] + b" ", *resources[2:])
+            with mock.patch.object(package, "_dependency_advisory_installation_resources", return_value=changed):
+                for _ in range(2):
+                    with self.assertRaises(dep.DependencySecurityError):
+                        dep._bootstrap_projection()
+            self.assertEqual(dep._bootstrap_projection(), expected)
+            with mock.patch.object(package, "_dependency_advisory_installation_resources", side_effect=package.DistributionIdentityError("physical source changed")):
+                with self.assertRaises(dep.DependencySecurityError):
+                    dep._bootstrap_projection()
+
+    def test_schema_identity_is_part_of_key(self):
+        from graph_engineering.application import dependency_security as dep
+        from unittest import mock
+        with dep._dependency_pure_operation():
+            dep._bootstrap_projection()
+            with mock.patch.object(dep, "DEPENDENCY_SECURITY_SCHEMA_IDS", tuple(reversed(dep.DEPENDENCY_SECURITY_SCHEMA_IDS))):
+                with self.assertRaises(dep.DependencySecurityError):
+                    dep._bootstrap_projection()
+            dep._graph_installation_projection()
+            with mock.patch.object(dep, "DEPENDENCY_GRAPH_SCHEMA_IDS", ("urn:gew:foreign-schema", *dep.DEPENDENCY_GRAPH_SCHEMA_IDS[1:])):
+                with self.assertRaises(dep.DependencySecurityError):
+                    dep._graph_installation_projection()
+
+    def test_nested_thread_and_process_identity_do_not_share_results(self):
+        import threading
+        from graph_engineering.application import dependency_security as dep
+        from unittest import mock
+        original = dep._parse_bootstrap_projection
+        with mock.patch.object(dep, "_parse_bootstrap_projection", wraps=original) as parser:
+            with dep._dependency_pure_operation() as outer:
+                expected = dep._bootstrap_projection()
+                with dep._dependency_pure_operation() as inner:
+                    self.assertEqual(dep._bootstrap_projection(), expected)
+                    self.assertIsNot(outer, inner)
+                self.assertFalse(inner.entries)
+                self.assertEqual(dep._bootstrap_projection(), expected)
+                self.assertEqual(parser.call_count, 2)
+                results = []
+                def read_other_thread():
+                    try: results.append(dep._bootstrap_projection())
+                    except BaseException as error: results.append(error)
+                thread = threading.Thread(target=read_other_thread)
+                thread.start(); thread.join()
+                self.assertEqual(results, [expected])
+                self.assertEqual(parser.call_count, 3)
+                # Simulate inherited storage with a foreign recorded process owner;
+                # do not change os.getpid used by the actual source attestation.
+                owner = outer.owner
+                outer.owner = (-1, owner[1])
+                self.assertEqual(dep._bootstrap_projection(), expected)
+                self.assertEqual(parser.call_count, 4)
+                outer.owner = owner
+            self.assertFalse(outer.entries)
+
+    def test_exception_clears_scope_and_new_phase_reparses(self):
+        from graph_engineering.application import dependency_security as dep
+        from unittest import mock
+        class Abort(BaseException): pass
+        with mock.patch.object(dep, "_parse_bootstrap_projection", wraps=dep._parse_bootstrap_projection) as parser:
+            with self.assertRaises(Abort):
+                with dep._dependency_pure_operation() as failed:
+                    dep._bootstrap_projection()
+                    raise Abort()
+            self.assertFalse(failed.entries)
+            with dep._dependency_pure_operation():
+                dep._bootstrap_projection()
+            self.assertEqual(parser.call_count, 2)
+
+    def test_resource_type_and_parser_identity_cannot_reuse_entry(self):
+        import graph_engineering as package
+        from graph_engineering.application import dependency_security as dep
+        from unittest import mock
+        with dep._dependency_pure_operation():
+            expected = dep._bootstrap_projection()
+            with mock.patch.object(dep, "_parse_bootstrap_projection", side_effect=dep.DependencySecurityError("different parser")):
+                with self.assertRaises(dep.DependencySecurityError):
+                    dep._bootstrap_projection()
+            resources = package._dependency_advisory_installation_resources()
+            with mock.patch.object(package, "_dependency_advisory_installation_resources", return_value=list(resources)), mock.patch.object(dep, "_parse_bootstrap_projection", wraps=dep._parse_bootstrap_projection) as parser:
+                self.assertEqual(dep._bootstrap_projection(), expected)
+                self.assertEqual(dep._bootstrap_projection(), expected)
+                self.assertEqual(parser.call_count, 2)
+
+
 if __name__ == "__main__":
     unittest.main()

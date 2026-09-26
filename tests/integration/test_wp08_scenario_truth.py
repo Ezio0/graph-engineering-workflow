@@ -384,15 +384,123 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
         finally:
             result.close()
 
-    def test_f1_generic_dependency_routes_reopen_all_four_phases(self) -> None:
-        import graph_engineering
+    def test_dependency_pure_reuse_rejects_same_bytes_cold_replacement(self) -> None:
         from graph_engineering.application import dependency_security
 
-        api, coverage, matrix, profile, overlay = (
-            fixture._verified_runner_contracts("dependency-security")
+        api4 = fixture.load_slice4_api()
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=self.matrix())
+        result = fixture.run_serial_profile_binding(
+            api4=api4, plan=plan, profile_id="dependency-security",
+            column="normal", disposition="R", quiescent=False,
         )
+        authority = None
+        seal = None
+        try:
+            factory, observation = result.authority._dependency_security
+            authority = dependency_security.DependencySecurityObservationReopenAuthority.from_current(
+                factory, observation,
+            )
+            seal = authority.seal_current(factory, observation)
+            # Keep the repository live while the dependency capability is sealed.
+            before = fixture._serial_state_signature(result.probe, result.target, real_e2e=False)
+            path = seal._paths[0]
+            body = path.read_bytes()
+            backup = path.with_name(path.name + ".pure-reuse-original")
+            with dependency_security._dependency_pure_operation() as operation:
+                dependency_security._bootstrap_projection()
+                dependency_security._graph_installation_projection()
+                self.assertEqual(set(operation.entries), {"bootstrap", "graph"})
+                capability = seal._capability
+                object.__setattr__(seal, "_capability", object())
+                try:
+                    with self.assertRaisesRegex(dependency_security.DependencySecurityError, "seal is foreign"):
+                        authority.rehydrate_current(
+                            seal, repository=result.probe.repository,
+                            category_application=result.application,
+                        )
+                finally:
+                    object.__setattr__(seal, "_capability", capability)
+                os.replace(path, backup)
+                try:
+                    path.write_bytes(body)
+                    self.assertNotEqual(path.stat().st_ino, backup.stat().st_ino)
+                    with self.assertRaisesRegex(dependency_security.DependencySecurityError, "reopened projection changed"):
+                        authority.rehydrate_current(
+                            seal, repository=result.probe.repository,
+                            category_application=result.application,
+                        )
+                finally:
+                    path.unlink(missing_ok=True)
+                    os.replace(backup, path)
+                self.assertEqual((authority.state, authority.generation), ("QUIESCED", 0))
+                # A restored source must really reopen, excluding a closed-runtime
+                # error as a false positive for either negative assertion.
+                reopened_factory, reopened = authority.rehydrate_current(
+                    seal, repository=result.probe.repository,
+                    category_application=result.application,
+                )
+                self.assertIs(reopened_factory.require_current(reopened), reopened)
+                seal = authority.seal_current(reopened_factory, reopened)
+            self.assertEqual(operation.entries, {})
+            self.assertEqual((authority.state, authority.generation), ("QUIESCED", 1))
+            self.assertEqual(fixture._serial_state_signature(
+                result.probe, result.target, real_e2e=False,
+            ), before)
+        finally:
+            try:
+                if authority is not None:
+                    authority.revoke(seal if authority.state == "QUIESCED" else None)
+            finally:
+                result.close()
+        self.assertEqual(runtime_fixture.PrivateBindingReopenPort.active_handle_count(), 0)
+
+    def test_dependency_pure_reuse_positive_issue(self) -> None:
+        self._dependency_routes_reopen_all_four_phases(
+            (("normal", "normal", None, "P"),), stop_after_issue=True,
+        )
+
+    def test_dependency_pure_reuse_positive_live_gate(self) -> None:
+        api, coverage, matrix, profile, overlay = fixture._verified_runner_contracts("dependency-security")
         api4 = fixture.load_slice4_api()
         plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        started = time.monotonic()
+        result = fixture.run_serial_profile_binding(
+            api4=api4, plan=plan, profile_id="dependency-security",
+            column="normal", disposition="P", quiescent=False,
+        )
+        factory = None
+        try:
+            self.assertIsNone(result.binding_lifecycle)
+            before = (result.target.path.read_bytes(), result.target.mutation_count)
+            context = result.dependency_security_context
+            print(f"live-P setup {time.monotonic() - started:.3f}s", flush=True)
+            observation = result.observe_current()
+            factory = api.CoverageRecordFactory(
+                execution_authority=result.authority, coverage_policy=coverage,
+            )
+            record = factory.issue_execution(observation, matrix=matrix, profile=profile, overlay=overlay)
+            print(f"live-P record {time.monotonic() - started:.3f}s", flush=True)
+            decision = api.ReleaseCoverageGate.evaluate(
+                matrix, coverage_records=(record,), coverage_factory=factory,
+            )
+            self.assertFalse(decision.passed)  # One record cannot satisfy the whole matrix.
+            self.assertEqual((result.target.path.read_bytes(), result.target.mutation_count), before)
+            self.assertEqual(context.resolver_observation_count, 1)
+            self.assertEqual(context.rehydration_count, 0)
+        finally:
+            if factory is not None:
+                fixture.abort_uncommitted_coverage_factory(factory)
+            result.close()
+        self.assertEqual(runtime_fixture.PrivateBindingReopenPort.active_handle_count(), 0)
+        print(f"live-P cleanup {time.monotonic() - started:.3f}s", flush=True)
+
+    def test_dependency_pure_reuse_normal_rejection_all_phases(self) -> None:
+        self._dependency_routes_reopen_all_four_phases((("normal", "normal", None, "R"),))
+
+    def test_dependency_pure_reuse_scenario_rejection_all_phases(self) -> None:
+        self._dependency_routes_reopen_all_four_phases((("vulnerable-graph", None, "vulnerable-graph", "R"),))
+
+    def test_f1_generic_dependency_routes_reopen_all_four_phases(self) -> None:
         routes = (
             ("mandatory-artifacts", "artifacts", None, "P"),
             ("mandatory-artifacts", "artifacts", None, "R"),
@@ -401,14 +509,43 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
             ("mandatory-real-e2e", "real-e2e", None, "P"),
             ("mandatory-real-e2e", "real-e2e", None, "R"),
         )
+        self._dependency_routes_reopen_all_four_phases(routes)
+
+    def _dependency_routes_reopen_all_four_phases(self, routes, *, stop_after_issue=False) -> None:
+        import graph_engineering
+        from graph_engineering.application import dependency_security
+
+        api, coverage, matrix, profile, overlay = (
+            fixture._verified_runner_contracts("dependency-security")
+        )
+        api4 = fixture.load_slice4_api()
+        plan = api4.ProfileCoverageExecutionPlan.from_installation(matrix=matrix)
+        phase_parses = {}
+
+        def observe_parse(slot, parser):
+            def parse(*args):
+                operation = getattr(dependency_security._pure_projection_local, "current", None)
+                if operation is not None:
+                    counts = phase_parses.setdefault(operation, {})
+                    counts[slot] = counts.get(slot, 0) + 1
+                return parser(*args)
+            return parse
+
         parser = graph_engineering._dependency_advisory_preflight_observation
         with mock.patch.object(
             graph_engineering,
             "_dependency_advisory_preflight_observation",
             wraps=parser,
-        ) as parser_reread:
+        ) as parser_reread, mock.patch.object(
+            dependency_security, "_parse_bootstrap_projection",
+            side_effect=observe_parse("bootstrap", dependency_security._parse_bootstrap_projection),
+        ) as bootstrap_parse, mock.patch.object(
+            dependency_security, "_parse_graph_installation_projection",
+            side_effect=observe_parse("graph", dependency_security._parse_graph_installation_projection),
+        ) as graph_parse:
             for route, column, scenario_id, disposition in routes:
                 with self.subTest(route=route, disposition=disposition):
+                    started = time.monotonic()
                     result = (
                         fixture.run_serial_profile_binding(
                             api4=api4,
@@ -427,6 +564,7 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
                             quiescent=True,
                         )
                     )
+                    print(f"{route}-{disposition} setup {time.monotonic() - started:.3f}s", flush=True)
                     record_factory = None
                     closed = False
                     try:
@@ -441,6 +579,7 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
                             (reopen.state, reopen.generation), ("QUIESCED", 0),
                         )
                         parser_count = parser_reread.call_count
+                        phase_parses.clear()
                         repository_bytes = self._private_tree_signature(
                             result.private_repository_root.root
                         )
@@ -460,38 +599,52 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
                                 real_e2e_root.cumulative_launch_count,
                             )
                         observation = result.observe_current()
-                        record_factory = api.CoverageRecordFactory(
-                            execution_authority=result.authority,
-                            coverage_policy=coverage,
-                        )
-                        record = record_factory.issue_execution(
-                            observation,
-                            matrix=matrix,
-                            profile=profile,
-                            overlay=overlay,
-                        )
-                        decision = api.ReleaseCoverageGate.evaluate(
-                            matrix,
-                            coverage_records=(record,),
-                            coverage_factory=record_factory,
-                        )
-                        self.assertFalse(decision.passed)
+                        print(f"{route}-{disposition} issue {time.monotonic() - started:.3f}s", flush=True)
+                        if not stop_after_issue:
+                            record_factory = api.CoverageRecordFactory(
+                                execution_authority=result.authority,
+                                coverage_policy=coverage,
+                            )
+                            record = record_factory.issue_execution(
+                                observation,
+                                matrix=matrix,
+                                profile=profile,
+                                overlay=overlay,
+                            )
+                            decision = api.ReleaseCoverageGate.evaluate(
+                                matrix,
+                                coverage_records=(record,),
+                                coverage_factory=record_factory,
+                            )
+                            self.assertFalse(decision.passed)
+                            print(f"{route}-{disposition} gate {time.monotonic() - started:.3f}s", flush=True)
                         self.assertEqual(
                             (
                                 result.binding_lifecycle.state,
                                 result.binding_lifecycle.generation,
                                 result.binding_lifecycle.expected_purpose,
                             ),
-                            ("QUIESCED", 4, None),
+                            ("QUIESCED", 1, "use") if stop_after_issue else ("QUIESCED", 4, None),
                         )
                         self.assertEqual(
                             (reopen.state, reopen.generation,
                              reopen.rehydration_count),
-                            ("QUIESCED", 4, 4),
+                            ("QUIESCED", 1, 1) if stop_after_issue else ("QUIESCED", 4, 4),
                         )
                         self.assertGreaterEqual(
-                            parser_reread.call_count - parser_count, 8,
+                            parser_reread.call_count - parser_count, 2 if stop_after_issue else 8,
                         )
+                        # Each real phase starts fresh, while repeated pure reads
+                        # within that phase reuse only their parsed projections.
+                        self.assertEqual(len(phase_parses), 1 if stop_after_issue else 4)
+                        for operation, counts in phase_parses.items():
+                            self.assertEqual(counts["bootstrap"], 1)
+                            self.assertTrue(set(counts) <= {"bootstrap", "graph"})
+                            self.assertTrue(all(value == 1 for value in counts.values()))
+                            self.assertEqual(operation.entries, {})
+                        self.assertIsNone(getattr(
+                            dependency_security._pure_projection_local, "current", None,
+                        ))
                         self.assertEqual(context.resolver_observation_count, 1)
                         self.assertEqual(context.rehydration_count, 0)
                         self.assertEqual(
@@ -534,19 +687,21 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
                             )
                         if disposition == "R":
                             self.assertEqual(result.state_after, result.state_before)
-                        fixture.abort_uncommitted_coverage_factory(record_factory)
-                        closed = True
-                        self.assertEqual(
-                            result.binding_lifecycle.state,
-                            "PERMANENTLY_CLOSED",
-                        )
-                        self.assertEqual(reopen.state, "TERMINAL")
+                        if record_factory is not None:
+                            fixture.abort_uncommitted_coverage_factory(record_factory)
+                            closed = True
+                            self.assertEqual(
+                                result.binding_lifecycle.state,
+                                "PERMANENTLY_CLOSED",
+                            )
+                            self.assertEqual(reopen.state, "TERMINAL")
                     finally:
                         if record_factory is not None and not closed:
                             fixture.abort_uncommitted_coverage_factory(
                                 record_factory
                             )
                         result.close()
+                    print(f"{route}-{disposition} cleanup {time.monotonic() - started:.3f}s", flush=True)
                     self.assertEqual(
                         runtime_fixture.PrivateBindingReopenPort.
                         active_handle_count(),

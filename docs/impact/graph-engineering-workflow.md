@@ -1504,3 +1504,23 @@ PRD or positioning change is needed. The principal risk is treating reconstructi
 recovery data as authority or masking shared physical roots with task labels.
 Exact registered reader/record/lifecycle linkage and resource-only uniqueness
 regressions address that risk. A bounded green result is source readiness only.
+
+### C274-RUN-002 pure computation impact
+
+The previous full run timed out at14400s after274 record issuances; preserve its
+failed result. This increment moves deterministic installation parsing behind
+an operation-local memo in application dependency security and wraps each
+coverage lifecycle phase with the private scope. All physical resource acquisition,
+source integrity, currentness/capability checks and subprocess preflight remain.
+
+Main risks: incomplete pure keys, mutable result poisoning, inherited/thread-local
+state surviving a phase, and accidentally caching live validation. Exact verified
+bytes plus schema inputs, detached results, PID/thread binding, bounded two-slot
+retention and finally cleanup address these. Mutation/failure/cross-phase tests
+must prove the boundaries. No core/schema/resource/dependency version changes are
+planned; if mandatory integrity artifacts fall outside the approved exact target
+list, enumerate and obtain scope expansion before editing them.
+
+The first increment may have limited benefit because preflight and I/O remain.
+Representative timing is performance evidence, not274 acceptance. Commit and full
+run remain separate.

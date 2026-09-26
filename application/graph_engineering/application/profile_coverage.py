@@ -359,11 +359,16 @@ class ProfileCoverageBindingLifecycle:
         self.__lifecycle._require_current_seal(self.__seal)
 
     def run(self, purpose: object, phase: object) -> object:
-        value, next_seal = self.__lifecycle.run_phase(
-            self.__seal, purpose, phase, self,
+        from graph_engineering.application.dependency_security import (
+            _dependency_pure_operation,
         )
-        self.__seal = next_seal
-        return value
+
+        with _dependency_pure_operation():
+            value, next_seal = self.__lifecycle.run_phase(
+                self.__seal, purpose, phase, self,
+            )
+            self.__seal = next_seal
+            return value
 
     def terminate(self, terminal_action: object) -> None:
         self.__lifecycle.terminate(self.__seal, terminal_action, self)

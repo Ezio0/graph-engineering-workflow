@@ -3728,3 +3728,47 @@ identity fields. Identity projection must not run lifecycle phases, reopen ports
 observe current resources, or invoke simulator actions. Existing gate phases
 remain responsible for fresh physical currentness. Closed or foreign capability
 associations fail closed. The generic and real-E2E branches remain unchanged.
+
+### C274-RUN-002 pure projection reuse
+
+The approved runtime-remediation increment targets repeated deterministic parsing,
+not cached currentness. One measured normal-P observation repeats bootstrap425
+times; physical reads, source attestation and preflight remain mandatory.
+
+Flow: fresh authenticated installation bytes -> operation-local pure parse lookup
+-> detached parsed projection -> existing authority/physical/currentness checks.
+Only application dependency-security code owns the memo; the coverage lifecycle
+opens an independent operation immediately around each run_phase call (including
+reopen and reseal). No public API, persistence, schema, installation pin, budget,
+phase ordering or success/receipt semantics change. The current Intent Baseline
+and existing opaque authority remain authoritative.
+
+Split bootstrap and graph installation helpers into acquisition wrappers and
+pure parsers. Wrappers invoke existing protected resource loaders on every call,
+including hits; errors retain their existing fail-closed category. Parsers take
+all resource bytes and schema-identity tuples as explicit immutable inputs. Memo
+keys bind parser identity, exact tuple-of-bytes and schema tuples, without lossy
+digests or path-only keys. Byte/type changes miss; parse failure does not populate
+an entry. Returned parsed dataclasses/projections are defensively detached from
+stored values; memoized data cannot issue an authority or mark evidence current.
+
+The private synchronous operation records PID and thread identity, with two
+slots at most (latest bootstrap and graph inputs). It is installed in thread-local
+state and contains no live authority, callback, file handle or validity boolean.
+A nested explicit operation starts empty and restores its enclosing operation
+on return; it never shares entries with another phase or binding. On all exits
+including BaseException, clear entries and restore prior thread-local state.
+Foreign PID/thread, absent context or unsupported inputs bypass reuse. Standalone
+calls retain uncached behavior. No global/thread-lifetime result cache is allowed.
+The operation does not yield to async work; adding such use requires a new review.
+
+Do not reuse observation/currentness results, clock/advisory status, reconstructed
+physical state, capabilities, preflight responses or registry authorities. Each
+require_current and before/after closure preflight still executes, so mutation
+within a phase and across issue/use/precommit/gate remains observable.
+
+Acceptance requires equivalent evidence/decisions and rejection behavior, bounded
+retention/cleanup, fewer repeated pure parse calls, and lower unprofiled normal-P
+observation time than the matching baseline. Collect P/R samples separately from
+setup and profiler output; report variance/limits without promising full-run PASS.
+No new timeout or full cumulative run is authorized by this increment.

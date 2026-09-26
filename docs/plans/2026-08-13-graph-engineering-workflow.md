@@ -1444,3 +1444,50 @@ Exact targets: Manifest; the existing Spec, Impact, Plan and Test Plan;
 `tests/support/wp08_release_coverage.py`;
 `tests/integration/test_wp08_release_coverage.py`;
 `tests/unit/test_wp08_scenario_truth.py`. Do not modify the release runtime or core.
+
+### C274-RUN-002 pure reuse implementation plan
+
+Owner confirmation of the reviewed runtime-remediation proposal authorizes its
+exact application-layer target expansion and bounded reversible work. Preserve
+the preceding source/run history and replayed reducer evidence.
+
+- [ ] RT-01 (XS, estimate20min): independent Spec/Impact/Plan/Test Plan review;
+  detailed operation lifetime, full pure key and exception cleanup are explicit.
+- [ ] RT-02 (S, estimate45min, depends RT-01): retain unprofiled P/R baseline;
+  write failing regressions for within-operation reuse and real mutation rejection.
+- [ ] RT-03 (S, estimate45min, depends RT-02): split acquisition/pure parse;
+  implement bounded detached memo and per-phase scope, retaining all live checks.
+- [ ] RT-04 (S, estimate45min, depends RT-03): focused unit/integration checks,
+  P/R/scenario samples, mutation/replay/cleanup regressions and required workflow/
+  source hygiene; serial commands<=300s, no full274 or P1 sibling benchmark.
+- [ ] RT-05 (XS, estimate20min, depends RT-04): capture staged-tree evidence,
+  independent implementation/verification/Candidate review, stop before commit.
+
+Record actual task times/evidence in detached execution records on completion.
+Reclassify affected scope and retain T2. Exact targets are those in the approved
+C274 runtime-remediation envelope and active Manifest; no implicit extra files.
+
+
+### C274-RUN-002 revision 4 bounded verification repair
+
+The owner approved one additional revision after the real four-phase P command
+failed at 290 seconds. Retain that attempt and the revision-3 E_LOOP decision;
+use the task-local approved maximum of 4 without changing repository policy.
+
+RT04 is refined into separate real-path commands: quiescent P issue/close;
+normal R all four phases; scenario R all four phases; live P record/gate/abort;
+warm-memo physical replacement; generic and real-E2E compatibility; pure units;
+source/workflow checks. Keep each native child <=290s and canonical command
+<=300s. Fail fast. Do not run the timed-out P combination again unchanged.
+
+Measure memo reuse per actual operation, excluding parser calls outside an
+operation. Assert fresh operations, live preflights, generation/purpose, unchanged
+action/resolver counters and cleanup. Do not alter opaque seals or advance phases
+by hand. Record the coverage partition honestly: P quiescent issue and P live gate
+are distinct paths; P quiescent four-phase completion remains unverified. This
+bounded repair cannot establish full274 acceptance or its runtime feasibility.
+
+Complete revised Test Plan review before editing tests. Obtain implementation
+review only after selected native results establish the revised test design;
+then stage, capture canonical evidence, review verification and prepare Candidate.
+Record timeout cleanup observations without claiming unavailable finally evidence.

@@ -2567,3 +2567,58 @@ run the actual P1 benchmark or cumulative workload as part of this repair.
 Check non-target tracked bytes against460ace6, compile changed Python, validate
 workflow and capture fresh staged-tree evidence. Independent review must distinguish
 bounded repair verification from a new actual274 gate acceptance.
+
+### C274-RUN-002 pure reuse verification
+
+Critical journeys: repeated valid reads in one operation preserve exact derived
+data while invoking protected loaders every time; changed input bytes reject
+after a previous hit; same-bytes physical/source replacement still rejects;
+foreign capability stays invalid; cache result mutation cannot affect later
+reads; next phase/thread/process starts with no shared memo; nested operations
+remain isolated; successful and exceptional exits release memo retention.
+
+Use actual installation acquisition in focused tests, wrapping pure parsers only
+to observe computation reuse. In-memory semantic corruption fixtures exercise
+validation errors; existing physical cold-replacement/attestation and real
+lifecycle tests verify that mocks do not substitute for the trust boundary.
+Test real P and R mandatory dependency bindings and a graph rejection scenario
+where applicable. Confirm generation/expected purpose and action/resolver replay
+boundaries across issue/use/precommit/gate. Use no user data or external network.
+
+First retain meaningful RED for absent operation reuse, then GREEN with native
+verified test delivery. Keep the runtime source protected; no mocking of the
+authority boundary to make performance pass. Measure same normal-P/R setup and
+observation separately without profiler before/after; supplement with pure-parser
+call counts and saved source hashes. A single timing pair is indicative and not
+a p95 estimate; prior comparable full-run timing provides context, not a substitute
+for baseline. Each command<=300s and strict serial. Avoid multi-binding commands
+whose measured aggregate would exceed this bound.
+
+Run changed-file compilation, workflow and protected non-target source checks,
+affected tests and independent evidence review. All pass claims bind current
+source/evidence. No full cumulative/P1 rerun or commit follows automatically.
+
+
+#### Revision 4 coverage partition after bounded timeout
+
+Retain the failed P four-phase attempt. Exercise quiescent normal P observation
+(issue, generation 1, next purpose use) and close in one command. Exercise real
+normal R and vulnerable-graph R separately through issue/use/precommit/gate,
+with the real factory, gate and abort. Add a separate live normal P factory/gate
+command to check P record consumption and currentness without a quiescent owner.
+No command may bypass lifecycle order or serialize/forge opaque authority.
+
+This partitions coverage across real paths; it does not prove same-instance
+quiescent P four-phase completion. That combination and full274 acceptance remain
+unverified. Retain this limitation in verification and Candidate reports.
+
+Count pure-parser work only while an actual operation is active, grouped by
+operation identity: one parse per used slot per phase, separate owners across
+phases, empty entries after exit. Protected loaders/preflight stay live; calls
+outside an operation must not be mistaken for cache misses inside a phase.
+Existing cold-replacement, cross-owner/type/key and exception cases remain.
+Every successful real binding command must close resources and assert no private
+reopen handles remain. Capture per-stage elapsed diagnostics to locate a failure
+without retrying a whole passing suite. Preserve 290/300-second limits and fail
+fast. Timeout evidence cannot prove finally cleanup; record observed process
+status separately and preserve unproven temporary roots.
