@@ -3772,3 +3772,21 @@ retention/cleanup, fewer repeated pure parse calls, and lower unprofiled normal-
 observation time than the matching baseline. Collect P/R samples separately from
 setup and profiler output; report variance/limits without promising full-run PASS.
 No new timeout or full cumulative run is authorized by this increment.
+
+### C274-RUN-003 performance installation pin repair
+
+The owner authorizes a focused correction after the committed pure-reuse change
+left profile_coverage.py outside the performance installation's pinned closure.
+Keep the existing Intent Baseline and architecture. Update only that resource's
+raw SHA256 in the performance bootstrap and pyproject performance section, then
+recompute the dependent protected closure semantic digest, bootstrap semantic
+digest and bootstrap raw SHA256 using the existing canonical digest contract.
+Do not alter runtime validation, resources/order, schemas, dependencies, limits
+or benchmark thresholds. Inspect transitive pins before declaring the closure
+complete; a newly required target outside this repair must be reported.
+
+Acceptance: the real performance registry initializes from the current attested
+checkout without invoking a benchmark; all 38 protected bytes and both pin vectors
+agree; changed bytes and replaced protected installation inputs remain rejected.
+The build backend must accept and package the corrected closure. This is source
+readiness only: full274/P1 execution and commit require separate authority.

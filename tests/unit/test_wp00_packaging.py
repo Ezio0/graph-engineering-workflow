@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
+import os
 import pathlib
 import shutil
 import subprocess
@@ -19,6 +20,99 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 class PackagingContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    def test_performance_installation_closure_matches_packaged_resources(self) -> None:
+        from graph_engineering.application.performance_benchmark import (
+            PerformanceBenchmarkRegistryFactory,
+        )
+        from scripts import build_backend
+
+        # Initialize the real consumer before any workload is allowed to start.
+        factory = PerformanceBenchmarkRegistryFactory.from_installation()
+        authority = factory.registry()
+        self.assertIs(factory.require_current(authority), authority)
+        pin = self.pyproject["tool"]["gew"]["profile"]["performance-benchmark"]
+        bootstrap = json.loads((ROOT / pin["bootstrap-source"]).read_text())
+        resources = bootstrap["protected_resources"]
+        self.assertEqual(len(resources), 38)
+        self.assertEqual(resources, [
+            {"source": row["source"], "resource": row["resource"],
+             "raw_sha256": row["raw-sha256"]}
+            for row in pin["protected-resources"]
+        ])
+        with tempfile.TemporaryDirectory(prefix="gew-performance-pin-wheel-") as directory:
+            wheel = pathlib.Path(directory) / build_backend.build_wheel(directory)
+            with zipfile.ZipFile(wheel) as archive:
+                self.assertEqual(archive.read(pin["bootstrap-resource"]),
+                                 (ROOT / pin["bootstrap-source"]).read_bytes())
+                for row in resources:
+                    with self.subTest(source=row["source"]):
+                        body = (ROOT / row["source"]).read_bytes()
+                        self.assertEqual(hashlib.sha256(body).hexdigest(), row["raw_sha256"])
+                        self.assertEqual(archive.read(row["resource"]), body)
+
+    def test_performance_installation_rejects_source_drift_and_replaced_root(self) -> None:
+        from tests.support.source_checkout_attestation import issue_source_checkout_attestation
+
+        with tempfile.TemporaryDirectory(prefix="gew-performance-pin-attack-") as directory:
+            temporary = pathlib.Path(directory).resolve()
+            clone = temporary / "project"
+            clone.mkdir()
+            for name in ("core", "application", "storage", "adapters", "config", "scripts", "tests"):
+                shutil.copytree(ROOT / name, clone / name,
+                                ignore=shutil.ignore_patterns("__pycache__"))
+            shutil.copy2(ROOT / "pyproject.toml", clone / "pyproject.toml")
+            control = temporary / "control"
+            issue_source_checkout_attestation(clone, control)
+            code = '''
+import pathlib, shutil, sys
+root = pathlib.Path.cwd()
+sys.path[:0] = [str(root / name) for name in ("core", "application", "storage", "adapters")]
+from graph_engineering import DistributionIdentityError
+from graph_engineering.application.performance_benchmark import PerformanceBenchmarkRegistryFactory
+from graph_engineering.core.performance_benchmark import PerformanceBenchmarkError
+load = PerformanceBenchmarkRegistryFactory.from_installation
+load()
+victim = root / "application/graph_engineering/application/profile_coverage.py"
+original = victim.read_bytes()
+try:
+    victim.write_bytes(original + b"\\n# unauthorized drift\\n")
+    try:
+        load()
+    except PerformanceBenchmarkError as error:
+        assert isinstance(error.__cause__, DistributionIdentityError)
+        assert str(error.__cause__) == "source checkout attestation binding changed"
+    else:
+        raise AssertionError("changed source was accepted")
+finally:
+    victim.write_bytes(original)
+load()
+parked = root.with_name("original-project")
+root.rename(parked)
+try:
+    shutil.copytree(parked, root)
+    assert victim.read_bytes() == original
+    try:
+        load()
+    except PerformanceBenchmarkError as error:
+        assert isinstance(error.__cause__, DistributionIdentityError)
+        assert str(error.__cause__) == "source checkout attestation binding changed"
+    else:
+        raise AssertionError("replacement installation root was accepted")
+finally:
+    if root.exists():
+        shutil.rmtree(root)
+    parked.rename(root)
+load()
+print("changed bytes and identical-content installation replacement rejected; restoration accepted")
+'''
+            environment = dict(os.environ)
+            environment["GEW_INSTALLATION_CONTROL_ROOT"] = str(control)
+            result = subprocess.run(
+                [sys.executable, "-B", "-X", "gew_installation_control_root=" + str(control),
+                 "-c", code], cwd=clone, env=environment, capture_output=True, text=True, timeout=60,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_project_requires_supported_python_and_exact_approved_runtime_dependency(self) -> None:
         project = self.pyproject["project"]

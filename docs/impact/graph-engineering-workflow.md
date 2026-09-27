@@ -1524,3 +1524,17 @@ list, enumerate and obtain scope expansion before editing them.
 The first increment may have limited benefit because preflight and I/O remain.
 Representative timing is performance evidence, not274 acceptance. Commit and full
 run remain separate.
+
+### C274-RUN-003 installation closure impact
+
+Run r3 at c8128eb failed after 3.896s in P1 registry initialization, before full274
+binding execution. Of 38 protected performance resources, only profile_coverage.py
+had a stale pin. Both implementation and Candidate review missed this reverse
+dependency; the prior plan-only launch preflight did not initialize this registry.
+The integrity rejection is correct and must remain intact. Preserve failed run
+and independent diagnosis records. Configuration changes affect the bootstrap
+JSON and pyproject performance metadata; package resource validation is therefore
+required. No engine/runtime algorithm, timing limit, PRD or ADR change is needed.
+Add a permanent installation-closure regression and use existing provenance
+negative checks. Evidence must distinguish configuration consistency from actual
+benchmark/cumulative acceptance.

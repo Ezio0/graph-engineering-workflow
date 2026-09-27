@@ -1491,3 +1491,19 @@ Complete revised Test Plan review before editing tests. Obtain implementation
 review only after selected native results establish the revised test design;
 then stage, capture canonical evidence, review verification and prepare Candidate.
 Record timeout cleanup observations without claiming unavailable finally evidence.
+
+### C274-RUN-003 focused installation repair
+
+Owner instruction “授权这一项修复” authorizes the two performance configuration
+files, a packaging regression and necessary Manifest/design/verification records.
+This is a newly observed defect after the completed C274-RUN-002 commit, not a
+reset of its revision budget; preserve that complete historical chain.
+- [ ] PIN01 (XS,20min): review Spec/Impact/Plan/Test Plan; record exact scope.
+- [ ] PIN02 (XS,20min; PIN01): add real registry/38-resource packaging regression;
+  retain failure, refresh only stale pin and dependent digests, inspect references.
+- [ ] PIN03 (S,45min; PIN02): serial bounded checks <=300s: new regression, existing
+  five-loader stale-byte contract, physical replacement negative checks and offline
+  package closure verification; workflow and exact source-boundary checks.
+- [ ] PIN04 (XS,20min; PIN03): stage exact targets, canonical evidence and independent
+  implementation/verification/Candidate reviews. Stop before commit or actual run.
+Actual results/times and immutable decisions belong in detached task records.

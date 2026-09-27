@@ -2622,3 +2622,21 @@ reopen handles remain. Capture per-stage elapsed diagnostics to locate a failure
 without retrying a whole passing suite. Preserve 290/300-second limits and fail
 fast. Timeout evidence cannot prove finally cleanup; record observed process
 status separately and preserve unproven temporary roots.
+
+### C274-RUN-003 installation readiness verification
+
+CUJ PIN-A: before any benchmark launch, load the real performance registry from
+an attested checkout, compare all 38 protected resources with current bytes and
+pyproject pins, and require the production build backend's package inputs to
+contain the same protected resource and bootstrap bytes. No workload simulation
+or benchmark child may substitute for successful factory initialization.
+CUJ PIN-B: reuse existing five-loader stale-byte contracts; add a focused regression
+for changed protected source bytes and a same-byte-replaced installation root
+in a disposable attested copy
+when no existing equivalent covers the performance input. Rejection must leave
+the original checkout unchanged. Restored valid input must initialize successfully.
+CUJ PIN-C: verify offline wheel resource consistency through the existing backend
+and exact Manifest/staged-file equality, no tracked unstaged inputs, unchanged
+non-target files, and current source/policy binding. Serial native commands<=290s
+and canonical<=300s; fail fast. Capture RED before configuration changes and
+canonical GREEN after all edits. No full274/P1 benchmark, network or limit changes.

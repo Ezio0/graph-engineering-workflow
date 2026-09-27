@@ -5,7 +5,7 @@
   "tier_decision": {
     "suggested": "T2",
     "declared": "T2",
-    "justification": "T2 C274-RUN-002 approved application-layer pure projection reuse; preserve all live checks; bounded verification only."
+    "justification": "T2 approved C274-RUN-003 performance installation pin repair; bounded installation and package checks only."
   },
   "roles": {
     "human-owner": "Human Owner",
@@ -15,14 +15,13 @@
   },
   "target_files": [
     ".workflow/manifest.json",
-    "application/graph_engineering/application/dependency_security.py",
-    "application/graph_engineering/application/profile_coverage.py",
+    "config/performance/performance-benchmark-installation-bootstrap-v1.json",
     "docs/impact/graph-engineering-workflow.md",
     "docs/plans/2026-08-13-graph-engineering-workflow.md",
     "docs/specs/graph-engineering-workflow.md",
     "docs/test-plans/graph-engineering-workflow.md",
-    "tests/integration/test_wp08_scenario_truth.py",
-    "tests/unit/test_wp08_profile_expansion.py"
+    "pyproject.toml",
+    "tests/unit/test_wp00_packaging.py"
   ],
   "artifacts": {
     "positioning": [
