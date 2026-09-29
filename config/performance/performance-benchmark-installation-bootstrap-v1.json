@@ -1,6 +1,6 @@
 {
   "bootstrap_id": "performance-benchmark-installation-v1",
-  "build_backend_raw_sha256": "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b",
+  "build_backend_raw_sha256": "22d4e76f7ce30bf05acbe62004feab0228a59ccee58f26e28d6c6f39689968a7",
   "build_backend_resource": "graph_engineering/build_backend.py",
   "build_backend_source": "scripts/build_backend.py",
   "child_raw_sha256": "9de5fcfdc5fdcbf6a84aa5adb4e58ecd4291af571210c4ae38b6fc74aae07f32",
@@ -36,7 +36,7 @@
   "profile_schema_registry_raw_sha256": "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd",
   "profile_schema_registry_resource": "graph_engineering/config/contracts/profile-schema-registry-v1.json",
   "profile_schema_registry_source": "config/contracts/profile-schema-registry-v1.json",
-  "protected_closure_digest": "sha256-jcs-v1:5d64af9e13b5a1573fe07cd95b0eedbfea74b2ec2912c9e75a2f9e64a35ae296",
+  "protected_closure_digest": "sha256-jcs-v1:835869bdee109bd1d51cdf852ddfd3e52d0da27b11d3d26fc0ad5433b80f270c",
   "protected_resources": [
     {
       "raw_sha256": "9de5fcfdc5fdcbf6a84aa5adb4e58ecd4291af571210c4ae38b6fc74aae07f32",
@@ -224,7 +224,7 @@
       "source": "core/graph_engineering/core/profile_execution.py"
     },
     {
-      "raw_sha256": "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b",
+      "raw_sha256": "22d4e76f7ce30bf05acbe62004feab0228a59ccee58f26e28d6c6f39689968a7",
       "resource": "graph_engineering/build_backend.py",
       "source": "scripts/build_backend.py"
     }
@@ -356,5 +356,5 @@
   "source_registry_raw_sha256": "8e61edb0f2ba802d8b6e6c9ceb04808e308f4566d7b85a9b5b8651d9d748d3e4",
   "source_registry_resource": "graph_engineering/config/performance/performance-source-registry-v1.json",
   "source_registry_source": "config/performance/performance-source-registry-v1.json",
-  "bootstrap_digest": "sha256-jcs-v1:6473c4ff3a7471ff8c41856dab5de5c32c4254c83732e9c58d7586372e8633a0"
+  "bootstrap_digest": "sha256-jcs-v1:bfb12ef491f2fdce5114f5a680466170d172e868b078c5b7acc8b5a7d88961e0"
 }

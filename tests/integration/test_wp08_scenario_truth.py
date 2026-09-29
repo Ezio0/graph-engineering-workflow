@@ -2571,3 +2571,40 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PreflightConfigurationReuseIntegrationTests(unittest.TestCase):
+    def test_real_preflight_preserves_reads_attestations_and_isolated_result(self):
+        import sys
+        import pathlib
+        import hashlib
+        import graph_engineering as package
+        from tests.integration.test_wp08a_targeted_repair import ExtensionTargetedRepairTests
+
+        helper = ExtensionTargetedRepairTests()
+        with helper._offline_preflight_fixture() as fixture:
+            backend, candidate, wheelhouse, *_ = fixture
+            counts = {"read": 0, "parse": 0, "attest": 0}
+            def trace(frame, event, arg):
+                if event != "call":
+                    return
+                caller = frame.f_back
+                if caller is not None and caller.f_code is backend._configuration.__code__:
+                    if frame.f_code is pathlib.Path.read_text.__code__:
+                        counts["read"] += 1
+                    if frame.f_code is backend.tomllib.loads.__code__:
+                        counts["parse"] += 1
+                if frame.f_code is backend._package_parser_attestation.__code__:
+                    counts["attest"] += 1
+            old = sys.getprofile()
+            sys.setprofile(trace)
+            try:
+                plan = backend.preflight_offline_candidate(candidate, wheelhouse)
+            finally:
+                sys.setprofile(old)
+            self.assertEqual(counts, {"read": 12, "parse": 1, "attest": 3})
+            observation = package._dependency_advisory_preflight_observation(str(candidate), str(wheelhouse), "before")
+            self.assertEqual({item["wheel_raw_sha256"] for item in observation["members"]},
+                             {binding.raw_digest for binding in plan.wheel_bindings})
+            self.assertEqual(hashlib.sha256(candidate.read_bytes()).hexdigest(),
+                             next(binding.raw_digest for binding in plan.wheel_bindings if binding.path == str(candidate)))

@@ -104,7 +104,7 @@
     "source_issuer_raw_sha256": "d03644ab0db302f260981fb9e38c985c9d6ec2c1bc528d9dfd20b1379c81ba1d"
   },
   "package_authority_pins": {
-    "build_backend_raw_sha256": "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b",
+    "build_backend_raw_sha256": "22d4e76f7ce30bf05acbe62004feab0228a59ccee58f26e28d6c6f39689968a7",
     "distribution_name": "graph-engineering-workflow",
     "distribution_version": "0.1.0"
   },
@@ -235,7 +235,7 @@
     },
     {
       "path": "scripts/build_backend.py",
-      "raw_sha256": "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b"
+      "raw_sha256": "22d4e76f7ce30bf05acbe62004feab0228a59ccee58f26e28d6c6f39689968a7"
     },
     {
       "path": "storage/graph_engineering/storage/repository.py",
@@ -246,6 +246,6 @@
       "raw_sha256": "7f1aba74e0ddc66d68b015425eba6919585066327a6ea64983739015dda2be2e"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:b0fba74fc24e08b9b5bda28b8c1ac0e382f05ed11bfc5e8d5be274530a924446",
-  "bootstrap_digest": "sha256-jcs-v1:1f59bc439d0ceffa98970f1c926d3e2fb892bb11bd038fef3a13e079dde87e56"
+  "protected_closure_digest": "sha256-jcs-v1:cd56c6c4ccfc5ce1de5f1193ee07d79d20c1137c2a7ae52aac6a80e56238ea61",
+  "bootstrap_digest": "sha256-jcs-v1:a8fedb5269e4fb69e4bcda91088f20dfc2aaf4518323ff52ad51fa6b8cdd416a"
 }

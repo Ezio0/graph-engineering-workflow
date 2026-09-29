@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import base64
 import contextlib
+import contextvars
+import copy
 import csv
 import hashlib
 import importlib
@@ -17,6 +19,7 @@ import re
 import stat
 import struct
 import sys
+import threading
 import tomllib
 import unicodedata
 import zipfile
@@ -98,8 +101,39 @@ class OfflineDependencyPlan(NamedTuple):
     plan_digest: str
 
 
+_CONFIGURATION_PARSER = tomllib.loads
+_CONFIGURATION_OPERATION: contextvars.ContextVar[dict[str, object] | None] = (
+    contextvars.ContextVar("configuration_parse_operation", default=None)
+)
+
+
+@contextlib.contextmanager
+def _configuration_parse_operation() -> Iterator[None]:
+    state: dict[str, object] = {"owner": (os.getpid(), threading.get_ident())}
+    token = _CONFIGURATION_OPERATION.set(state)
+    try:
+        yield
+    finally:
+        state.clear()
+        _CONFIGURATION_OPERATION.reset(token)
+
+
 def _configuration() -> dict[str, object]:
-    return tomllib.loads(PYPROJECT.read_text(encoding="utf-8"))
+    # A warm pure parse must never bypass the original read or its failures.
+    text = PYPROJECT.read_text(encoding="utf-8")
+    parser = tomllib.loads
+    state = _CONFIGURATION_OPERATION.get()
+    if (
+        state is None
+        or state.get("owner") != (os.getpid(), threading.get_ident())
+        or parser is not _CONFIGURATION_PARSER
+    ):
+        return parser(text)
+    if state.get("parser") is parser and state.get("text") == text:
+        return copy.deepcopy(state["value"])
+    value = parser(text)
+    state.update(parser=parser, text=text, value=copy.deepcopy(value))
+    return value
 
 
 def _canonical_json(value: object) -> bytes:
@@ -1880,6 +1914,16 @@ def preflight_offline_candidate(
 
     if _probe_hook is not None and not callable(_probe_hook):
         raise TypeError("offline preflight probe hook must be callable")
+    with _configuration_parse_operation():
+        return _preflight_offline_candidate(candidate_wheel, wheelhouse, _probe_hook=_probe_hook)
+
+
+def _preflight_offline_candidate(
+    candidate_wheel: pathlib.Path,
+    wheelhouse: pathlib.Path,
+    *,
+    _probe_hook: Callable[[str], None] | None,
+) -> OfflineDependencyPlan:
     parser_attestation = _package_parser_attestation()
     project = _project()
     dependencies = tuple(str(item) for item in project.get("dependencies", []))

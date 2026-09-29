@@ -78,9 +78,9 @@
     },
     {
       "path": "scripts/build_backend.py",
-      "raw_sha256": "9c74df0d1ab9f44deb4ebc7860d16fe35304ed7d85e654802f9193984adcf99b"
+      "raw_sha256": "22d4e76f7ce30bf05acbe62004feab0228a59ccee58f26e28d6c6f39689968a7"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:cbc7dfdce3f0319f8eee2dd8c90e6898072c3a29dc7fb87da3f939a355bf9071",
-  "bootstrap_digest": "sha256-jcs-v1:934554cdb8b3aa3641a043e2f71592f77e284bccb1f0882c57fe9e40b9f4e58e"
+  "protected_closure_digest": "sha256-jcs-v1:b86b149ab6185a003249aeee33a707c5e74c30728367f79a3d91dfbb3b14aea9",
+  "bootstrap_digest": "sha256-jcs-v1:ef1c2bf4e8e96538155ae1094542b28f176387ffec61512c6d1d81a1d00ac8e8"
 }

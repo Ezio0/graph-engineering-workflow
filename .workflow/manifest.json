@@ -5,7 +5,7 @@
   "tier_decision": {
     "suggested": "T2",
     "declared": "T2",
-    "justification": "T2 approved C274-RUN-003 performance installation pin repair; bounded installation and package checks only."
+    "justification": "T2 approved C274-RUN-005 bounded backend configuration parsing reuse and active closure verification."
   },
   "roles": {
     "human-owner": "Human Owner",
@@ -15,12 +15,17 @@
   },
   "target_files": [
     ".workflow/manifest.json",
+    "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
     "config/performance/performance-benchmark-installation-bootstrap-v1.json",
-    "docs/impact/graph-engineering-workflow.md",
-    "docs/plans/2026-08-13-graph-engineering-workflow.md",
-    "docs/specs/graph-engineering-workflow.md",
-    "docs/test-plans/graph-engineering-workflow.md",
+    "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+    "config/release-operations/release-operations-installation-bootstrap-v1.json",
+    "docs/impact/preflight-configuration-parse-reuse.md",
+    "docs/plans/2026-09-29-preflight-configuration-parse-reuse.md",
+    "docs/specs/preflight-configuration-parse-reuse.md",
+    "docs/test-plans/preflight-configuration-parse-reuse.md",
     "pyproject.toml",
+    "scripts/build_backend.py",
+    "tests/integration/test_wp08_scenario_truth.py",
     "tests/unit/test_wp00_packaging.py"
   ],
   "artifacts": {
@@ -31,13 +36,13 @@
       "docs/prd/graph-engineering-workflow.md"
     ],
     "spec": [
-      "docs/specs/graph-engineering-workflow.md"
+      "docs/specs/preflight-configuration-parse-reuse.md"
     ],
     "plan": [
-      "docs/plans/2026-08-13-graph-engineering-workflow.md"
+      "docs/plans/2026-09-29-preflight-configuration-parse-reuse.md"
     ],
     "test_plan": [
-      "docs/test-plans/graph-engineering-workflow.md"
+      "docs/test-plans/preflight-configuration-parse-reuse.md"
     ]
   },
   "incidents": []

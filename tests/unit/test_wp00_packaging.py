@@ -307,3 +307,196 @@ print("changed bytes and identical-content installation replacement rejected; re
 
 if __name__ == "__main__":
     unittest.main()
+
+class PreflightConfigurationReuseTests(unittest.TestCase):
+    @staticmethod
+    def _load_backend():
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("gew_parse_reuse_test", ROOT / "scripts/build_backend.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def _fixture(self):
+        import contextlib
+
+        @contextlib.contextmanager
+        def fixture():
+            module = self._load_backend()
+            with tempfile.TemporaryDirectory(prefix="gew-config-parse-") as directory:
+                module.PYPROJECT = pathlib.Path(directory) / "pyproject.toml"
+                module.PYPROJECT.write_text('value = 1\n[nested]\nitems = [1, 2]\n')
+                yield module
+        return fixture()
+
+    @staticmethod
+    def _counts(module):
+        import contextlib
+
+        @contextlib.contextmanager
+        def counted():
+            counts = {"read": 0, "parse": 0}
+            old = sys.getprofile()
+            codes = {pathlib.Path.read_text.__code__: "read", module.tomllib.loads.__code__: "parse"}
+            def trace(frame, event, arg):
+                if event == "call" and frame.f_code in codes:
+                    counts[codes[frame.f_code]] += 1
+            sys.setprofile(trace)
+            try:
+                yield counts
+            finally:
+                sys.setprofile(old)
+        return counted()
+
+    def test_fresh_reads_exact_text_and_detached_toml_values(self):
+        import datetime
+        import math
+        with self._fixture() as backend, self._counts(backend) as count:
+            with backend._configuration_parse_operation():
+                first = backend._configuration()
+                first["nested"]["items"].append(9)
+                self.assertEqual(backend._configuration()["nested"]["items"], [1, 2])
+                self.assertEqual(count, {"read": 2, "parse": 1})
+                original = backend.PYPROJECT.read_text()
+                backend.PYPROJECT.write_text('value = 2\n')
+                self.assertEqual(backend._configuration()["value"], 2)
+                backend.PYPROJECT.write_text(original)
+                self.assertEqual(backend._configuration()["value"], 1)
+                self.assertEqual(count["parse"], 3)
+                backend.PYPROJECT.write_text('date = 2026-09-30\ntime = 12:30:00\nx = nan\ny = inf\n')
+                a, b = backend._configuration(), backend._configuration()
+                self.assertEqual(a["date"], datetime.date(2026, 9, 30))
+                self.assertEqual(b["time"], datetime.time(12, 30))
+                self.assertTrue(math.isnan(b["x"]))
+                self.assertTrue(math.isinf(b["y"]))
+                self.assertIsNot(a, b)
+                self.assertEqual(count["parse"], 4)
+            backend._configuration()
+            backend._configuration()
+            self.assertEqual(count["parse"], 6)
+
+    def test_warm_read_and_parse_failures_and_replaced_parser(self):
+        from unittest import mock
+        with self._fixture() as backend:
+            with backend._configuration_parse_operation():
+                backend._configuration()
+                backend.PYPROJECT.write_text('value = [')
+                with self.assertRaises(tomllib.TOMLDecodeError):
+                    backend._configuration()
+                with self.assertRaises(tomllib.TOMLDecodeError):
+                    backend._configuration()
+                backend.PYPROJECT.unlink()
+                with self.assertRaises(FileNotFoundError):
+                    backend._configuration()
+                backend.PYPROJECT.write_text('value = 1\n')
+                backend._configuration()
+                with mock.patch.object(backend.tomllib, "loads", side_effect=[{"value": 2}, {"value": 3}]) as parser:
+                    self.assertEqual(backend._configuration()["value"], 2)
+                    self.assertEqual(backend._configuration()["value"], 3)
+                    self.assertEqual(parser.call_count, 2)
+                self.assertEqual(backend._configuration()["value"], 1)
+
+    def test_nested_exception_cleanup_and_separate_operations(self):
+        class Cancelled(BaseException):
+            pass
+        with self._fixture() as backend, self._counts(backend) as count:
+            with backend._configuration_parse_operation():
+                backend._configuration()
+                try:
+                    with backend._configuration_parse_operation():
+                        backend._configuration()
+                        backend._configuration()
+                        raise Cancelled()
+                except Cancelled:
+                    pass
+                backend._configuration()
+                self.assertEqual(count["parse"], 2)
+            with self.assertRaises(Cancelled):
+                with backend._configuration_parse_operation():
+                    backend._configuration()
+                    raise Cancelled()
+            with backend._configuration_parse_operation():
+                backend._configuration()
+                backend._configuration()
+            self.assertEqual(count["parse"], 4)
+
+    def test_copied_context_thread_and_fork_do_not_reuse_parent(self):
+        import contextvars
+        import threading
+        with self._fixture() as backend:
+            with backend._configuration_parse_operation():
+                backend._configuration()
+                results = []
+                context = contextvars.copy_context()
+                def worker():
+                    with self._counts(backend) as counts:
+                        backend._configuration()
+                        backend._configuration()
+                        results.append(dict(counts))
+                thread = threading.Thread(target=context.run, args=(worker,))
+                thread.start()
+                thread.join(timeout=5)
+                self.assertFalse(thread.is_alive())
+                self.assertEqual(results, [{"read": 2, "parse": 2}])
+                if hasattr(os, "fork"):
+                    read_fd, write_fd = os.pipe()
+                    pid = os.fork()
+                    if pid == 0:
+                        os.close(read_fd)
+                        try:
+                            with self._counts(backend) as counts:
+                                backend._configuration()
+                                backend._configuration()
+                            os.write(write_fd, json.dumps(counts).encode())
+                            os._exit(0)
+                        except BaseException:
+                            os._exit(1)
+                    os.close(write_fd)
+                    try:
+                        result = json.loads(os.read(read_fd, 1024))
+                    finally:
+                        os.close(read_fd)
+                        _, status = os.waitpid(pid, 0)
+                    self.assertEqual(status, 0)
+                    self.assertEqual(result, {"read": 2, "parse": 2})
+
+    def test_all_affected_installation_closures_match_real_wheel(self):
+        from graph_engineering.application.migration_rehearsal import _installation_projection
+        from graph_engineering.application.scenario_truth import ScenarioTruthRegistryFactory
+        from graph_engineering.application.release_operations import ReleaseOperationsRegistryFactory
+        from graph_engineering.application.performance_benchmark import PerformanceBenchmarkRegistryFactory
+        from scripts import build_backend
+
+        # Exercise real installation consumers before inspecting packaged bytes.
+        self.assertEqual(_installation_projection(), _installation_projection())
+        scenario = ScenarioTruthRegistryFactory.from_installation()
+        scenario_authority = scenario.registry()
+        self.assertIs(scenario.require_current(scenario_authority), scenario_authority)
+        release = ReleaseOperationsRegistryFactory.from_installation()
+        release.require_installed_authority()
+        release.registry()
+        performance = PerformanceBenchmarkRegistryFactory.from_installation()
+        performance_authority = performance.registry()
+        self.assertIs(performance.require_current(performance_authority), performance_authority)
+        provenance = tomllib.loads((ROOT / "pyproject.toml").read_text())
+        with tempfile.TemporaryDirectory(prefix="gew-parse-closure-wheel-") as directory:
+            wheel = pathlib.Path(directory) / build_backend.build_wheel(directory)
+            with zipfile.ZipFile(wheel) as archive:
+                for family in ("migration-rehearsal", "performance-benchmark", "scenario-truth", "release-operations"):
+                    with self.subTest(family=family):
+                        pin = provenance["tool"]["gew"]["profile"][family]
+                        raw = (ROOT / pin["bootstrap-source"]).read_bytes()
+                        self.assertEqual(hashlib.sha256(raw).hexdigest(), pin["bootstrap-raw-sha256"])
+                        self.assertEqual(archive.read(pin["bootstrap-resource"]), raw)
+                        bootstrap = json.loads(raw)
+                        self.assertEqual(bootstrap["bootstrap_digest"], pin["bootstrap-digest"])
+                        for row in bootstrap["protected_resources"]:
+                            source = row.get("source", row.get("path"))
+                            body = (ROOT / source).read_bytes()
+                            self.assertEqual(hashlib.sha256(body).hexdigest(), row["raw_sha256"])
+                            if "resource" in row:
+                                resource = row["resource"]
+                            else:
+                                sources = pin["protected-sources"]
+                                resource = pin["protected-resources"][sources.index(source)]
+                            self.assertEqual(archive.read(resource), body)
