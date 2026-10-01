@@ -19,7 +19,9 @@ import stat
 import subprocess
 import sys
 import tomllib
+import threading
 import zipfile
+from contextlib import contextmanager
 from pkgutil import extend_path
 from types import MappingProxyType
 
@@ -1118,7 +1120,81 @@ def _category_policy_locations(
     return values[0], values[1]
 
 
-def _dependency_advisory_locations(
+_dependency_location_local = threading.local()
+_DEPENDENCY_LOCATION_TOML_LOADS = tomllib.loads
+
+
+class _DependencyLocationOperation:
+    """At most three immutable projections, never live validation results."""
+
+    __slots__ = ("owner", "entries")
+
+    def __init__(self) -> None:
+        self.owner = (os.getpid(), threading.get_ident())
+        self.entries: dict[str, tuple[object, ...]] = {}
+
+
+@contextmanager
+def _dependency_location_operation():
+    previous = getattr(_dependency_location_local, "current", None)
+    operation = _DependencyLocationOperation()
+    _dependency_location_local.current = operation
+    try:
+        yield operation
+    finally:
+        operation.entries.clear()
+        _dependency_location_local.current = previous
+
+
+def _immutable_dependency_location(value: object) -> bool:
+    return type(value) is str or (
+        type(value) is tuple
+        and all(_immutable_dependency_location(item) for item in value)
+    )
+
+
+def _reuse_dependency_location(slot, projector, provenance, location_kind):
+    operation = getattr(_dependency_location_local, "current", None)
+    owned = (
+        type(operation) is _DependencyLocationOperation
+        and operation.owner == (os.getpid(), threading.get_ident())
+    )
+    eligible = (
+        owned
+        and type(slot) is str
+        and _DEPENDENCY_LOCATION_PROJECTORS.get(slot) is projector
+        and tomllib.loads is _DEPENDENCY_LOCATION_TOML_LOADS
+        and type(provenance) is bytes
+        and type(location_kind) is str
+        and location_kind in ("source", "resource")
+    )
+    if not eligible:
+        if owned and type(slot) is str:
+            operation.entries.pop(slot, None)
+        return projector(provenance, location_kind=location_kind)
+    entry = operation.entries.get(slot)
+    if entry is not None and (
+        entry[0] is projector and entry[1] is tomllib.loads
+        and entry[2:4] == (provenance, location_kind)
+    ):
+        return entry[4]
+    # A failed/changed input must not leave an older success in this slot.
+    operation.entries.pop(slot, None)
+    value = projector(provenance, location_kind=location_kind)
+    if _immutable_dependency_location(value):
+        operation.entries[slot] = (
+            projector, tomllib.loads, provenance, location_kind, value,
+        )
+    return value
+
+
+def _dependency_advisory_locations(provenance: bytes, *, location_kind: str):
+    return _reuse_dependency_location(
+        "advisory", _parse_dependency_advisory_locations, provenance, location_kind,
+    )
+
+
+def _parse_dependency_advisory_locations(
     provenance: bytes,
     *,
     location_kind: str,
@@ -1368,7 +1444,13 @@ def _dependency_advisory_installation_resources() -> tuple[bytes, ...]:
     return provenance, *bodies
 
 
-def _dependency_graph_locations(
+def _dependency_graph_locations(provenance: bytes, *, location_kind: str):
+    return _reuse_dependency_location(
+        "graph", _parse_dependency_graph_locations, provenance, location_kind,
+    )
+
+
+def _parse_dependency_graph_locations(
     provenance: bytes,
     *,
     location_kind: str,
@@ -1874,6 +1956,38 @@ with tempfile.TemporaryDirectory(
 '''
 
 
+def _parse_dependency_parser_requirement_location(
+    provenance: bytes, *, location_kind: str,
+) -> str:
+    del location_kind
+    try:
+        document = tomllib.loads(provenance.decode("utf-8", errors="strict"))
+        path = document["tool"]["gew"]["build"]["package-parser-requirement"]["path"]
+    except (KeyError, TypeError, UnicodeError, tomllib.TOMLDecodeError) as error:
+        raise DistributionIdentityError(
+            "dependency parser requirement bootstrap is malformed"
+        ) from error
+    if path != "config/supply-chain/extension-package-parser-requirement-v1.json":
+        raise DistributionIdentityError(
+            "dependency parser requirement path is substituted"
+        )
+    return path
+
+
+def _dependency_parser_requirement_location(provenance: bytes, *, location_kind: str):
+    return _reuse_dependency_location(
+        "parser", _parse_dependency_parser_requirement_location,
+        provenance, location_kind,
+    )
+
+
+_DEPENDENCY_LOCATION_PROJECTORS = MappingProxyType({
+    "advisory": _parse_dependency_advisory_locations,
+    "graph": _parse_dependency_graph_locations,
+    "parser": _parse_dependency_parser_requirement_location,
+})
+
+
 def _dependency_parser_resources() -> tuple[bytes, bytes, bytes, str]:
     raw_module_path = pathlib.Path(__file__)
     try:
@@ -1898,17 +2012,9 @@ def _dependency_parser_resources() -> tuple[bytes, bytes, bytes, str]:
             owner,
         )
         _validate_source_checkout_attestation(source_root)
-    try:
-        document = tomllib.loads(provenance.decode("utf-8", errors="strict"))
-        path = document["tool"]["gew"]["build"]["package-parser-requirement"]["path"]
-    except (KeyError, TypeError, UnicodeError, tomllib.TOMLDecodeError) as error:
-        raise DistributionIdentityError(
-            "dependency parser requirement bootstrap is malformed"
-        ) from error
-    if path != "config/supply-chain/extension-package-parser-requirement-v1.json":
-        raise DistributionIdentityError(
-            "dependency parser requirement path is substituted"
-        )
+    path = _dependency_parser_requirement_location(
+        provenance, location_kind="resource" if source_root is None else "source",
+    )
     return backend, provenance, requirement, path
 
 

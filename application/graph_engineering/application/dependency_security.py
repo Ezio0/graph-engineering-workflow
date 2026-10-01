@@ -110,11 +110,14 @@ class _PureProjectionOperation:
 @contextmanager
 def _dependency_pure_operation():
     """Own one synchronous phase; nested phases deliberately start empty."""
+    from graph_engineering import _dependency_location_operation
+
     previous = getattr(_pure_projection_local, "current", None)
     operation = _PureProjectionOperation()
     _pure_projection_local.current = operation
     try:
-        yield operation
+        with _dependency_location_operation():
+            yield operation
     finally:
         operation.entries.clear()
         _pure_projection_local.current = previous

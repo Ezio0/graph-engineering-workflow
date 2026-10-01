@@ -1,92 +1,56 @@
-# Preflight configuration parse reuse — implementation plan
+# Preflight configuration parse reuse implementation plan
 
-## 1. Summary
+## Objective
 
-Implement the reviewed [design](../specs/preflight-configuration-parse-reuse.md)
-only after the C274-RUN-005 target-boundary approval. Four dependent tasks cover
-red tests, backend implementation and pins, bounded verification, and independent
-Candidate review. Planning estimate: 4–7 hours; actual time is not yet known.
-Completion means behavior and closure tests pass with exact evidence; it does
-not mean the full274 timeout is resolved.
+Implement the approved [Spec](../specs/preflight-configuration-parse-reuse.md)
+without weakening currentness, then establish actual whole-path benefit.
 
-## 2. Phases
+## Inputs
 
-P0: record approval and bind the repair Manifest; exit with valid scope and
-artifact reviews. P1: red tests then implementation; exit with green behavior
-and active closure checks. P2: bounded comparison and independent review; exit
-with a concrete Candidate or a documented failed/inconclusive result.
+Use approval r3, comprehensive diagnosis/request r0, existing approved PRD,
+Impact and Test Plan. Preserve historical rejected revisions. The proposed budget amendment allows
+revision 4, following revision 3; it does not reset prior attempts.
 
-## 3. Tasks and dependencies
+## T-301: Design and authority (XS, estimate 30 min)
 
-Owner for edits: /root. Independent reviewer: existing project reviewer.
-Task IDs are local tracking IDs; no external board is used.
+Depends on human scope approval, received. Actual recorded by detached timestamps.
+- [ ] Bind the 17-path allowlist and actual Manifest changes; independently review four artifacts.
+- [ ] Replay prior reductions and advance only on current reducer decisions.
 
-- T1 (S, 1–2h, P0/P1): bind approved targets and write behavioral tests in
-  `tests/unit/test_wp00_packaging.py`; depends on human scope approval.
-  - [ ] New positive-reuse expectations fail against baseline for the intended reason.
-  - [ ] Existing rejection expectations remain valid; baseline failure retained.
-- T2 (S, 1–2h, P1): implement backend context and refresh six-file pin closure;
-  depends on T1; blocks T3.
-  - [ ] No physical read/check site removed or reordered.
-  - [ ] All direct and reverse pins validate using current consumers.
-- T3 (S, 1–2h, P2): execute the [test plan](../test-plans/preflight-configuration-parse-reuse.md);
-  depends on T2; blocks T4.
-  - [ ] Every critical journey has current passing evidence or a reported blocker.
-  - [ ] Unprofiled comparison reports measured times without extrapolation.
-- T4 (XS, 30–60min, P2): exact Manifest/staged-tree binding and independent
-  implementation, verification and Candidate review; depends on T3.
-  - [ ] All findings resolved within approved budgets; no manufactured file changes.
-  - [ ] Commit remains unexecuted until separately authorized.
+## T-302: Semantic tests and implementation (S, estimate 1–2 h)
 
-Actual time for T1–T4: not started; record on completion.
+Depends on T-301. Actual recorded in command evidence.
+- [ ] Add failing behavior tests for all three slots, owner/parser/failure cases.
+- [ ] Add observer success/failure/restoration tests and P four-phase selector.
+- [ ] Implement bounded package scope, application entry and test-local observer.
+- [ ] Refresh active closure pins and pass focused tests.
 
-## 4. Dependencies
+## T-303: Performance screening (S, estimate 1 h)
 
-Internal: reviewed design, current source at the pinned base, and human target
-amendment (pending). Infrastructure: existing Python environment and source
-attestation helper (available). External dependencies: none; no network needed.
-Approval is the entry prerequisite, not a substitute for independent artifact gates.
+Depends on T-302 semantic pass. Actual captured per command.
+- [ ] Freeze tree fingerprints and exact P/R paired sequence before running.
+- [ ] Execute exactly two pairs per disposition with continuous four phases.
+- [ ] Stop on timeout/nonconvergence; preserve outputs, never add favorable runs.
+- [ ] After approved correction, sample other high-cost profiles with lawful abort/cleanup.
+  Keep full combined-gate finalization unmeasured; do not infer it from abort.
 
-## 5. Development risks
+## T-304: Verification and Candidate (S, estimate 1 h)
 
-Pin omissions are high-impact; validate all four active consumers and real wheel
-resources before any workload. Context behavior regressions require focused
-red/green tests. Excess copying may erase savings; compare unprofiled runs and
-stop if inconclusive. Preserve the design's read and exception constraints.
+Depends on T-303. Actual captured in canonical recorder and review records.
+- [ ] Independently review implementation; run approved canonical selectors.
+- [ ] Produce workload-weighted model including unknowns, no speculative speedup.
+- [ ] Independently review verification and Candidate, stop before commit.
 
-## 6. Rollout and rollback
+## Dependencies and ownership
 
-Local Candidate only; no production rollout, feature flag or percentage traffic.
-A single changed rejection outcome, stale pin or scope mismatch blocks completion.
-Rollback restores the proposed change set and associated pins together; expected
-editing effort is under 30 minutes, verification time depends on failed checks.
-No commit or full-run operation is included in this plan.
+T-301 -> T-302 -> T-303 -> T-304 is acyclic. Coordinator owns all source edits;
+independent reviewers are read-only. No concurrent source writers/worktrees.
+All new workflow evidence remains under the existing detached directory.
 
-## 7. Verification
+## Stop and rollback
 
-Follow the linked test plan: focused unit behavior, real isolated preflight,
-installation/package closure and existing adversarial regressions. Use fresh
-attested roots and explicit project Manifest/Policy for canonical checks.
-Native command cap 290 seconds, canonical cap 300 seconds, strict serial work.
-Run applicable static and repository checks required by current project Policy.
-
-## 8. Open decisions
-
-Before implementation: human approval of exact C274-RUN-005 allowlist and bounded
-verification. Before Candidate: exact changed targets and current evidence binding.
-Before any complete workload retry: separate one-run request, after measured gain
-and package preflight; that request is outside this plan.
-
-## 9. References
-
-[Spec](../specs/preflight-configuration-parse-reuse.md),
-[Impact](../impact/preflight-configuration-parse-reuse.md),
-[PRD](../prd/graph-engineering-workflow.md),
-[Positioning](../positioning/graph-engineering-workflow.md).
-
-## 10. History
-
-2026-09-29: prepared bounded proposal; implementation not started. Checklist
-adaptation: local tasks replace board fields; production rollout and arbitrary
-coverage percentages do not apply. Human approval and independent reviews remain
-pending for implementation entry; document preparation does not mark them passed.
+Native 290s/canonical 300s remain. At failed comparison preserve the exact diff,
+restore rejected runtime and pins if required, and report structural feasibility.
+At reducer E_LOOP or any material expansion stop without resetting history.
+Insufficient total headroom forbids recommending another full run. Separate
+human authority is required for commit and any full274 attempt.

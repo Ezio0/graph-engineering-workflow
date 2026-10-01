@@ -1,100 +1,100 @@
-# Preflight configuration parse reuse — test plan
+# Preflight configuration parse reuse test plan
 
-## 1. Scope and critical journeys
+## Boundary
 
-The [plan](../plans/2026-09-29-preflight-configuration-parse-reuse.md) is a proposal
-pending target approval. All following journeys require evidence; no numerical
-line-coverage quota replaces behavior checks.
+This is bounded repair verification, not full274 acceptance. Keep existing
+290s native and 300s canonical limits; no timeout increase or retries.
 
-CUJ1: identical text is read at every old site and parsed once per operation.
-CUJ2: changed/malformed/unreadable text and physical resource attacks reject at
-the original boundary after a warm entry. CUJ3: returned mutations, nesting,
-exceptions, parser replacement, thread and PID changes cannot borrow results.
-CUJ4: all affected source installations and real wheel resources validate.
-CUJ5: real isolated normal-R and representative rejection paths preserve their
-outcomes and lifecycle ordering. CUJ6: an unprofiled comparison measures actual
-cost with all checks active. Full274/P1, network and deployment are out of scope.
+## CUJ-1: Safe pure reuse
 
-## 2. Layers and ownership
+Packaging-level tests use real provenance bytes. Verify equal immutable outputs
+and one eligible parse per slot for repeated inputs; changed/reverted/malformed
+bytes, replaced parser/projector and unsupported results cannot reuse success.
+Test nested scopes, thread/foreign PID (plus actual fork where supported) and
+BaseException cleanup. Counting spies may instrument lower-level parsing only
+when deliberately testing replacement fallback; never replace trusted parser
+identity and then claim a production cache hit.
 
-T1/T2 unit tests use unittest in `tests/unit/test_wp00_packaging.py`; T3 integration
-uses existing scenario and WP08a adversarial selectors. Package checks build a
-real wheel in a disposable directory. /root owns implementation, an independent
-reviewer assesses evidence. Test counts are determined by distinct behaviors,
-not template quotas. Direct helper tests do not substitute for the child protocol.
+## CUJ-2: Fresh acquisition
 
-## 3. Behavioral strategy
+Exercise real source attestation and actual built wheel closure consumers.
+Existing same-byte cold replacement, isolated preflight and active bootstrap
+regressions remain. Compare resource acquisition, source projection and child
+counts on equivalent full phases using wrappers outside pure-projector identity
+checks. Counts must remain unchanged; no fake validation result is accepted.
 
-Unit checks use real TOML parsing and temporary files. Instrument read/parse counts
-without replacing the eligible parser's identity; use profiling/call tracing or
-an internal deterministic observation available only in test-loaded modules.
-A parser spy replacing the callable tests the uncached replacement branch only.
-Require repeated reads, one eligible parse for unchanged text, misses for changed
-text and reversion, and independent nested dictionaries/lists/scalars including
-TOML date/time and non-finite floats. Warm before read failures and malformed text.
-Check normal and BaseException cleanup, nested parent restoration, separate
-operations, foreign thread and forked process fallback using disposable modules.
+## CUJ-3: Observation transparency
 
-Integration runs the real isolated protocol and normal-R four-phase regression.
-Use existing preflight probe hooks for post-warm wheel/requirement replacement
-and compare original error boundaries. No mocks for attestation, wheel traversal,
-currentness, parser trust or child execution. Instrumentation must not skip work.
-Retain existing P issue-only coverage with its limitations; do not claim same-
-instance P four-phase completion. Representative scenario rejection runs separately.
+Test helper `_observe_cumulative_phases` around a fake lifecycle whose original
+run returns a sentinel or raises a specific BaseException. Assert one call,
+original object identity, per-binding start/done/error and restored method after
+normal, observer-failure and body-failure exits. Unknown lifecycle delegates.
+Run real four-phase regressions and preserve cleanup error-group behavior.
+Add best-effort finalization start/done/error events at existing call boundaries.
 
-Closure checks extend the existing performance pin test to migration, scenario
-and release consumers, retaining performance coverage. Verify bootstrap/closure
-semantic digests via real consumer initialization/currentness, raw source hashes,
-TOML reverse pins and actual packaged bytes at each declared resource path.
-Also execute the source drift and identical-content root replacement regression.
-Existing WP08a tests `test_wp08a_qr_r3_008_parser_attestation_rejects_missing_wrong_and_shadow`,
-`test_wp08a_qr_r3_008_same_path_replacements_reject_before_plan`, and
-`test_wp08a_final_r3_008_002_parser_protected_fields_are_exact` remain unchanged.
+## CUJ-4: Real complete paths
 
-## 4. Data and cleanup
+Normal P entry: existing `_dependency_routes_reopen_all_four_phases` with
+`(('normal','normal',None,'P'),)` in one test. R entry: existing
+`test_dependency_pure_reuse_normal_rejection_all_phases`. Both retain original
+assertions for all four generations, quiescence, bytes and no action replay.
+Each command contains one entire chain; a timeout is failure, not partial pass.
 
-Use synthetic existing wheel/registry fixtures and isolated temporary directories.
-No real personal data. Source attestation must bind each comparison checkout's
-actual bytes; environment and -X control roots must agree. Clear contexts on all
-exits, close fixtures and preserve failed results. Do not alter tracked sources
-while a measurement is running.
+## Fixed performance experiment
 
-## 5. Environment and limits
+Before runs snapshot baseline commit and prototype tracked-file bytes into fresh
+roots. Order: R baseline1/prototype1, R baseline2/prototype2, P baseline1/prototype1,
+P baseline2/prototype2. Eight commands maximum, each <=290s. No cProfile or
+projector substitution. Exact same injected P test body runs on both revisions.
+Capture wall elapsed plus phase and unchanged physical/child counts; instrumentation
+is identical in both. Each reduction must exceed its disposition's baseline
+range. Failure stops remaining dependent work; no extra samples to manufacture pass.
 
-Use the existing .venv Python with -B, strict serial commands, native <=290 seconds
-and canonical <=300 seconds. Split independent test cases into bounded commands;
-never splice one lifecycle across processes and claim continuous completion.
-No installation, network, staging or production is required. Canonical evidence
-must bind the final Manifest, exact changed tree and explicit project Policy.
-Any project-mandated static/hygiene checks remain required; this plan does not
-waive them. No test execution has occurred as part of plan preparation.
+## Representative and terminal sampling
 
-## 6. Performance and security acceptance
+After the original eight-command screening and approved correction: for each
+baseline/prototype, run a single
+`normal`, P, quiescent `run_serial_profile_binding` for `performance` and
+`release-operations`. Use `_verified_runner_contracts(profile_id)`, installation
+plan, `observe_current`, factory issue, `ReleaseCoverageGate.evaluate`, and
+`abort_uncommitted_coverage_factory`, then result.close in finally.
+Do not invoke complete-plan finalization: _bind_combined_gate requires all
+plan.bindings, and one record never grants that consumption state. Validate four
+phase generations, expected incomplete-matrix decision, terminal state and zero
+active handles. The original baseline failure remains recorded. After explicit correction
+authority, allow four remaining commands: corrected performance baseline and
+prototype, then release-operations baseline and prototype; five representative
+attempts total including the retained failure, each <=290s. No further retries.
+Measured terminal time is abort/cleanup only. Full combined-gate finalization
+remains unknown and cannot be replaced by these measurements.
 
-First confirm behavior, then run two serial baseline/prototype pairs of the same
-normal-R regression without cProfile (four commands max, <=290s each). Use separate
-fresh roots with their own complete attested closures and fixed fixtures. Report
-phase wall times, live read/preflight counts and parse counts. Keep a reduction
-claim only if both pairs improve and the smallest pair reduction exceeds baseline
-run-to-run variation; otherwise report inconclusive and stop this experiment.
-This is a screening rule, not statistical confidence or a full274 prediction.
-A safety mismatch rejects the optimization regardless of speed. No automatic
-repetition beyond these pairs; timeout/failure stops the experiment for diagnosis.
+## Canonical evidence
 
-## 7. Completion and unresolved decisions
+Reuse the existing canonical closure/regression selectors for packaging and
+source/wheel consumers, adding the new focused cache/observer suite and P selector
+in separate commands as needed to stay within 300s. Freeze exact argv/counts in
+a detached canonical plan before staging/capture; do not expand full acceptance.
+Independent implementation, verification and Candidate reviews remain required.
 
-CUJ1–CUJ6 must have explicit outcomes before Candidate. An inconclusive performance
-result is not approval to increase budgets or remove checks. Independent review
-checks exact source binding and limits; preserve red and failed records. Human
-scope approval is required before new test/runtime writes. Commit and complete
-workload authority remain separate; no open test issue is silently waived.
+## Model and stop criteria
 
-## 8. References
+Use historical nine-profile counts and disjoint stage timings. Credit measured
+improvement only to covered representative categories with explicit uncertainty;
+uncovered categories receive no speedup credit. Keep whole-gate, cross-hour
+variance and terminal scaling unknown rather than zero. Target 20% headroom is
+an engineering feasibility criterion, not Policy or run authority. Insufficient
+headroom leads to a structural decision, never another automatic 4h attempt.
 
-[Design](../specs/preflight-configuration-parse-reuse.md),
-[Plan](../plans/2026-09-29-preflight-configuration-parse-reuse.md),
-[Impact](../impact/preflight-configuration-parse-reuse.md),
-[PRD](../prd/graph-engineering-workflow.md),
-[Positioning](../positioning/graph-engineering-workflow.md).
-Checklist adaptation: risk-based counts and bounded local times replace generic
-pyramid counts, millisecond limits and staging examples. No current PASS is claimed.
+## Evidence reuse after correction
+
+Retain all eight original P/R results as evidence for their exact runtime bytes;
+do not rerun them for this document/budget-only correction. Verify equality of
+all execution inputs and installation protected resources before reusing those
+measurements. They are not new-tree canonical evidence; capture the fixed
+canonical commands only after the corrected artifact tree is reviewed/staged.
+
+## Evidence and authority
+
+Retain failed runs, logs, exact source hashes and historical revisions. No true
+PII, network, deployment or credential access. Tests use private synthetic roots.
+User authorized this bounded repair; commit and full274 remain separate gates.

@@ -14,7 +14,7 @@
   "profile_schema_registry_digest": "sha256-jcs-v1:913235899306d64a4bc8eff96b3a4bbddd61ec6a7e57b8dfdaafe98041c81f76",
   "profile_schema_registry_id": "urn:gew:schema-registry:profiles:1.0.0",
   "profile_schema_registry_raw_sha256": "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd",
-  "protected_closure_digest": "sha256-jcs-v1:9b5af505b88bc6d69cd4ec00a6977ef23128f8ee40afef723bf06082203a46e1",
+  "protected_closure_digest": "sha256-jcs-v1:c4a1ad702ad9e01e7cbae9aff9fcddcd009918030c8afbfd9c69817c43faf5f3",
   "protected_resources": [
     {
       "raw_sha256": "049000ebc8355e092f960cfeca817223d835c59567b710d0c1eacc56084c0276",
@@ -27,7 +27,7 @@
       "source": "application/graph_engineering/application/profile_execution.py"
     },
     {
-      "raw_sha256": "ae3709588dda2294fac1b3b466379144d268ef1f3f310a21ebf9020a0bbc0065",
+      "raw_sha256": "b76b74fbeba77e2d916f6e8539d9ebf60a4c556619630c4767c9a0f4bd599db5",
       "resource": "graph_engineering/__init__.py",
       "source": "core/graph_engineering/__init__.py"
     },
@@ -126,5 +126,5 @@
   "transform_manifest_digest": "sha256-jcs-v1:e5305adc1012d26464ebca7a05f1570e3f13c0b3e8e1ef061d120b17203b16c4",
   "transform_manifest_id": "migration-rehearsal-transform-manifest-v1",
   "transform_raw_sha256": "0b68dc63f71cec61ebe014e50ce161b68b129448021d18faa0e4548577a60d6f",
-  "bootstrap_digest": "sha256-jcs-v1:03c7150ce647f0fce22b0bfc23146c0db94d72a96407172fd4403fe5292ade47"
+  "bootstrap_digest": "sha256-jcs-v1:b7396a97f802516c2c1a10e2dab44e9e2b372b4d3cd13a1ad825d70cee4b399b"
 }

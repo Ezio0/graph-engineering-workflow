@@ -6370,6 +6370,64 @@ def _run_performance_remaining_r1_child(
     }
 
 
+def _cumulative_progress_safely(progress, stage, **fields):
+    """Diagnostics must never change a test result or mask its primary error."""
+    try:
+        progress(stage, **fields)
+    except BaseException:
+        pass
+
+
+@contextmanager
+def _observe_cumulative_operation(progress, stage, **fields):
+    started = time.monotonic_ns()
+    _cumulative_progress_safely(progress, stage + "-start", **fields)
+    try:
+        yield
+    except BaseException:
+        _cumulative_progress_safely(
+            progress, stage + "-error", duration_ns=time.monotonic_ns() - started,
+            **fields,
+        )
+        raise
+    else:
+        _cumulative_progress_safely(
+            progress, stage + "-done", duration_ns=time.monotonic_ns() - started,
+            **fields,
+        )
+
+
+@contextmanager
+def _observe_cumulative_phases(results, progress):
+    """Observe existing serial gate calls without changing the core gate API."""
+    from graph_engineering.application.profile_coverage import (
+        ProfileCoverageBindingLifecycle,
+    )
+
+    bindings = {
+        id(result.binding_lifecycle): (result.binding_lifecycle, index, result.test_id)
+        for index, result in enumerate(results, start=1)
+    }
+    original = ProfileCoverageBindingLifecycle.run
+
+    def observed(lifecycle, purpose, phase):
+        binding = bindings.get(id(lifecycle))
+        if binding is None or binding[0] is not lifecycle or purpose != "gate":
+            return original(lifecycle, purpose, phase)
+        with _observe_cumulative_operation(
+            progress, "gate-binding", index=binding[1], test_id=binding[2],
+            purpose=purpose,
+        ):
+            return original(lifecycle, purpose, phase)
+
+    ProfileCoverageBindingLifecycle.run = observed
+    try:
+        yield
+    finally:
+        ProfileCoverageBindingLifecycle.run = original
+        bindings.clear()
+
+
 def _run_cumulative_child(selector: str) -> dict[str, object]:
     """Run one exact checkpoint through the shared serial lifecycle."""
 
@@ -6571,11 +6629,12 @@ def _run_cumulative_child(selector: str) -> dict[str, object]:
             progress("record-done", index=index, test_id=result.test_id)
         records = tuple(issued_records)
         progress("dynamic-gate-start", records=len(records))
-        dynamic_decision = api.ReleaseCoverageGate.evaluate(
-            matrix,
-            coverage_records=records,
-            coverage_factory=factory,
-        )
+        with _observe_cumulative_phases(results, progress):
+            dynamic_decision = api.ReleaseCoverageGate.evaluate(
+                matrix,
+                coverage_records=records,
+                coverage_factory=factory,
+            )
         record_ids = tuple(record.test_id for record in records)
         if (
             dynamic_decision.passed is not full
@@ -6656,7 +6715,8 @@ def _run_cumulative_child(selector: str) -> dict[str, object]:
             "static-gate-done",
             missing=len(static_decision.missing_test_ids),
         )
-        finalize_consumed_coverage_factory(factory, dynamic_decision)
+        with _observe_cumulative_operation(progress, "terminal-finalization"):
+            finalize_consumed_coverage_factory(factory, dynamic_decision)
         factory_closed = True
         if any(
             result.binding_lifecycle.state != "PERMANENTLY_CLOSED"

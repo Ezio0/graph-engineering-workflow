@@ -500,3 +500,140 @@ class PreflightConfigurationReuseTests(unittest.TestCase):
                                 sources = pin["protected-sources"]
                                 resource = pin["protected-resources"][sources.index(source)]
                             self.assertEqual(archive.read(resource), body)
+
+
+class DependencyLocationReuseTests(unittest.TestCase):
+    """Pure computation reuse must not confer resource/currentness authority."""
+
+    def setUp(self):
+        import graph_engineering as package
+        self.package = package
+        self.body = (ROOT / "pyproject.toml").read_bytes()
+
+    def _calls(self, function, action):
+        counts = []
+        previous = sys.getprofile()
+        def profile(frame, event, argument):
+            if event == "call" and frame.f_code is function.__code__:
+                counts.append(None)
+        try:
+            sys.setprofile(profile)
+            action()
+        finally:
+            sys.setprofile(previous)
+        return len(counts)
+
+    def test_location_slots_reuse_only_within_phase_and_kind(self):
+        p = self.package
+        projectors = (
+            (p._dependency_advisory_locations, p._parse_dependency_advisory_locations),
+            (p._dependency_graph_locations, p._parse_dependency_graph_locations),
+            (p._dependency_parser_requirement_location,
+             p._parse_dependency_parser_requirement_location),
+        )
+        for public, pure in projectors:
+            with self.subTest(projector=public.__name__):
+                expected = public(self.body, location_kind="source")
+                def action():
+                    with p._dependency_location_operation() as operation:
+                        for _ in range(3):
+                            self.assertEqual(public(self.body, location_kind="source"), expected)
+                        public(self.body, location_kind="resource")
+                        public(self.body, location_kind="source")
+                        self.assertEqual(len(operation.entries), 1)
+                    self.assertEqual(operation.entries, {})
+                    public(self.body, location_kind="source")
+                self.assertEqual(self._calls(pure, action), 4)
+
+    def test_location_failed_changed_and_reverted_input_reparses(self):
+        p = self.package
+        for slot in ("advisory", "graph", "parser"):
+            pure = p._DEPENDENCY_LOCATION_PROJECTORS[slot]
+            def action():
+                with p._dependency_location_operation() as operation:
+                    call = lambda body: p._reuse_dependency_location(slot, pure, body, "source")
+                    value = call(self.body)
+                    self.assertEqual(call(self.body + b"\n# changed\n"), value)
+                    self.assertEqual(call(self.body), value)
+                    with self.assertRaises(p.DistributionIdentityError):
+                        call(b"[")
+                    self.assertNotIn(slot, operation.entries)
+                    self.assertEqual(call(self.body), value)
+            self.assertEqual(self._calls(pure, action), 5)
+
+    def test_location_parser_and_projector_substitution_cannot_hit(self):
+        from unittest import mock
+        p = self.package
+        original = p.tomllib.loads
+        with p._dependency_location_operation() as operation:
+            p._dependency_advisory_locations(self.body, location_kind="source")
+            with mock.patch.object(p.tomllib, "loads", wraps=original) as parser:
+                for _ in range(2):
+                    p._dependency_advisory_locations(self.body, location_kind="source")
+                self.assertEqual(parser.call_count, 2)
+                self.assertEqual(operation.entries, {})
+            replacement = mock.Mock(return_value=["mutable"])
+            with mock.patch.object(p, "_parse_dependency_advisory_locations", replacement):
+                first = p._dependency_advisory_locations(self.body, location_kind="source")
+                first.append("caller mutation")
+                p._dependency_advisory_locations(self.body, location_kind="source")
+                self.assertEqual(replacement.call_count, 2)
+                self.assertEqual(operation.entries, {})
+
+    def test_location_nested_thread_fork_and_baseexception_cleanup(self):
+        import threading
+        p = self.package
+        def call():
+            return p._dependency_graph_locations(self.body, location_kind="source")
+        with p._dependency_location_operation() as outer:
+            expected = call()
+            class Cancel(BaseException):
+                pass
+            with self.assertRaises(Cancel):
+                with p._dependency_location_operation() as inner:
+                    self.assertEqual(inner.entries, {})
+                    self.assertEqual(call(), expected)
+                    raise Cancel()
+            self.assertEqual(inner.entries, {})
+            self.assertIs(p._dependency_location_local.current, outer)
+            counts = []
+            errors = []
+            def foreign_thread():
+                try:
+                    p._dependency_location_local.current = outer
+                    counts.append(self._calls(p._parse_dependency_graph_locations,
+                                              lambda: (call(), call())))
+                except BaseException as error:
+                    errors.append(error)
+                finally:
+                    p._dependency_location_local.current = None
+            thread = threading.Thread(target=foreign_thread)
+            thread.start(); thread.join()
+            self.assertEqual(errors, [])
+            self.assertEqual(counts, [2])
+            if hasattr(os, "fork"):
+                child = os.fork()
+                if child == 0:
+                    try:
+                        count = self._calls(p._parse_dependency_graph_locations,
+                                            lambda: (call(), call()))
+                        os._exit(0 if count == 2 else 1)
+                    except BaseException:
+                        os._exit(2)
+                self.assertEqual(os.waitpid(child, 0)[1], 0)
+            self.assertEqual(call(), expected)
+            self.assertEqual(len(outer.entries), 1)
+        self.assertEqual(outer.entries, {})
+        self.assertIsNone(p._dependency_location_local.current)
+
+    def test_application_phase_owns_location_lifetime(self):
+        from graph_engineering.application import dependency_security
+        p = self.package
+        with dependency_security._dependency_pure_operation():
+            outer = p._dependency_location_local.current
+            p._dependency_graph_locations(self.body, location_kind="source")
+            with dependency_security._dependency_pure_operation():
+                self.assertIsNot(p._dependency_location_local.current, outer)
+            self.assertIs(p._dependency_location_local.current, outer)
+        self.assertEqual(outer.entries, {})
+        self.assertIsNone(p._dependency_location_local.current)

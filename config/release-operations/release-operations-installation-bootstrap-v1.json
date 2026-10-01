@@ -199,7 +199,7 @@
     },
     {
       "path": "core/graph_engineering/__init__.py",
-      "raw_sha256": "ae3709588dda2294fac1b3b466379144d268ef1f3f310a21ebf9020a0bbc0065"
+      "raw_sha256": "b76b74fbeba77e2d916f6e8539d9ebf60a4c556619630c4767c9a0f4bd599db5"
     },
     {
       "path": "core/graph_engineering/core/artifacts/__init__.py",
@@ -246,6 +246,6 @@
       "raw_sha256": "7f1aba74e0ddc66d68b015425eba6919585066327a6ea64983739015dda2be2e"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:cd56c6c4ccfc5ce1de5f1193ee07d79d20c1137c2a7ae52aac6a80e56238ea61",
-  "bootstrap_digest": "sha256-jcs-v1:a8fedb5269e4fb69e4bcda91088f20dfc2aaf4518323ff52ad51fa6b8cdd416a"
+  "protected_closure_digest": "sha256-jcs-v1:a91f123fee85b607a9cd46934eb8902703c226d56b9c47da7108ba93f43a4674",
+  "bootstrap_digest": "sha256-jcs-v1:cc224995e617284510d0a65941d7fc1cb1c66475f4291caeeb2fc4584be83e82"
 }

@@ -5,7 +5,7 @@
   "tier_decision": {
     "suggested": "T2",
     "declared": "T2",
-    "justification": "T2 approved C274-RUN-005 bounded backend configuration parsing reuse and active closure verification."
+    "justification": "T2 consolidated C274 runtime repair with explicitly approved one-revision budget amendment and corrected representative abort/cleanup verification."
   },
   "roles": {
     "human-owner": "Human Owner",
@@ -15,17 +15,19 @@
   },
   "target_files": [
     ".workflow/manifest.json",
+    "application/graph_engineering/application/dependency_security.py",
     "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
-    "config/performance/performance-benchmark-installation-bootstrap-v1.json",
     "config/profiles/scenario-truth-installation-bootstrap-v1.json",
     "config/release-operations/release-operations-installation-bootstrap-v1.json",
+    "config/workflow-policy.json",
+    "core/graph_engineering/__init__.py",
     "docs/impact/preflight-configuration-parse-reuse.md",
     "docs/plans/2026-09-29-preflight-configuration-parse-reuse.md",
     "docs/specs/preflight-configuration-parse-reuse.md",
     "docs/test-plans/preflight-configuration-parse-reuse.md",
     "pyproject.toml",
-    "scripts/build_backend.py",
     "tests/integration/test_wp08_scenario_truth.py",
+    "tests/support/wp08_release_coverage.py",
     "tests/unit/test_wp00_packaging.py"
   ],
   "artifacts": {

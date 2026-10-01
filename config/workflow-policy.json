@@ -136,7 +136,7 @@
   },
   "artifact_review": {
     "independent_review_required": true,
-    "max_revision_cycles": 3,
+    "max_revision_cycles": 4,
     "allowed_verdicts": [
       "PASS",
       "REVISE",
@@ -273,7 +273,7 @@
     "patterns": {
       "personal-name": "\\bEzio\\b",
       "fictional-name-en": "\\bYang Lei\\b",
-      "fictional-name-zh": "杨磊",
+      "fictional-name-zh": "\u6768\u78ca",
       "private-home-path": "/Users/[A-Za-z0-9._-]+",
       "personal-profile": "\\bezio-(zero|infinite|quarter|half)\\b"
     },

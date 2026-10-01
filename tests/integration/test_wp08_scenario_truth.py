@@ -494,6 +494,9 @@ class ScenarioTruthIntegrationTests(unittest.TestCase):
         self.assertEqual(runtime_fixture.PrivateBindingReopenPort.active_handle_count(), 0)
         print(f"live-P cleanup {time.monotonic() - started:.3f}s", flush=True)
 
+    def test_dependency_location_positive_all_phases(self) -> None:
+        self._dependency_routes_reopen_all_four_phases((("normal", "normal", None, "P"),))
+
     def test_dependency_pure_reuse_normal_rejection_all_phases(self) -> None:
         self._dependency_routes_reopen_all_four_phases((("normal", "normal", None, "R"),))
 
@@ -2608,3 +2611,60 @@ class PreflightConfigurationReuseIntegrationTests(unittest.TestCase):
                              {binding.raw_digest for binding in plan.wheel_bindings})
             self.assertEqual(hashlib.sha256(candidate.read_bytes()).hexdigest(),
                              next(binding.raw_digest for binding in plan.wheel_bindings if binding.path == str(candidate)))
+
+
+class CumulativePhaseObservationTests(unittest.TestCase):
+    def test_observer_preserves_values_errors_and_restores_method(self):
+        from types import SimpleNamespace
+        from graph_engineering.application import profile_coverage
+        sentinel = object()
+        class Cancel(BaseException):
+            pass
+        primary = Cancel("primary")
+        class Lifecycle:
+            def run(self, purpose, callback):
+                return callback()
+        original = Lifecycle.run
+        lifecycle = Lifecycle()
+        result = SimpleNamespace(binding_lifecycle=lifecycle, test_id="synthetic-binding")
+        events = []
+        def progress(stage, **fields):
+            events.append((stage, fields))
+        with mock.patch.object(profile_coverage, "ProfileCoverageBindingLifecycle", Lifecycle):
+            with fixture._observe_cumulative_phases((result,), progress):
+                self.assertIs(lifecycle.run("gate", lambda: sentinel), sentinel)
+                def fail():
+                    raise primary
+                with self.assertRaises(Cancel) as error:
+                    lifecycle.run("gate", fail)
+                self.assertIs(error.exception, primary)
+                other = Lifecycle()
+                self.assertIs(other.run("gate", lambda: sentinel), sentinel)
+            self.assertIs(Lifecycle.run, original)
+            self.assertEqual([x[0] for x in events], [
+                "gate-binding-start", "gate-binding-done",
+                "gate-binding-start", "gate-binding-error",
+            ])
+            def broken_observer(*args, **kwargs):
+                raise Cancel("observer")
+            with self.assertRaises(Cancel) as error:
+                with fixture._observe_cumulative_phases((result,), broken_observer):
+                    self.assertIs(lifecycle.run("gate", lambda: sentinel), sentinel)
+                    lifecycle.run("gate", fail)
+            self.assertIs(error.exception, primary)
+            self.assertIs(Lifecycle.run, original)
+
+    def test_progress_failure_does_not_mask_terminal_failure(self):
+        class CleanupFailure(BaseException):
+            pass
+        primary = CleanupFailure()
+        def broken(*a, **kw):
+            raise RuntimeError("log unavailable")
+        with self.assertRaises(CleanupFailure) as caught:
+            with fixture._observe_cumulative_operation(broken, "terminal"):
+                raise primary
+        self.assertIs(caught.exception, primary)
+        value = []
+        with fixture._observe_cumulative_operation(broken, "terminal"):
+            value.append("completed")
+        self.assertEqual(value, ["completed"])
