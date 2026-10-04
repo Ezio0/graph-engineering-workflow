@@ -27,9 +27,17 @@ class OwnerTurnError(RuntimeError):
 OPERATIONS = frozenset({
     "discover", "create", "clarify", "approve", "run",
     "status", "resume", "escalate", "result",
+    "grant_learning", "revoke_learning", "record_learning_context",
+    "collect_learning", "report_learning", "purge_learning",
 })
 _NO_TASK = frozenset({"discover", "create"})
 _PAYLOAD_FIELDS = {
+    "grant_learning": frozenset({"expected_generation", "metric_ids", "expires_at_ns"}),
+    "revoke_learning": frozenset({"expected_generation"}),
+    "record_learning_context": frozenset({"expected_generation", "expected_context_version", "abandonment_code", "prior_task_id"}),
+    "collect_learning": frozenset({"expected_head", "expected_generation", "expected_context_version"}),
+    "report_learning": frozenset({"experiment_id", "task_ids"}),
+    "purge_learning": frozenset({"trigger", "expected_generation"}),
     "discover": frozenset(),
     "create": frozenset({"occurred_at", "lease_ttl_ns"}),
     "clarify": frozenset({
@@ -95,6 +103,20 @@ class OwnerTurnRequest:
         payload = value["payload"]
         if not isinstance(payload, Mapping) or set(payload) != _PAYLOAD_FIELDS[operation]:
             raise OwnerTurnError("owner-turn operation payload is not exact")
+        if operation in {
+            "grant_learning", "revoke_learning", "record_learning_context",
+            "collect_learning", "report_learning", "purge_learning",
+        }:
+            from graph_engineering.core.learning import LearningError
+            from graph_engineering.application.learning import LearningPolicyLoader
+
+            try:
+                LearningPolicyLoader.from_installation().validate_request({
+                    "schema_version": "1.0.0", "operation": operation,
+                    "request_id": value["turn_id"], "task_id": task_id, **payload,
+                })
+            except LearningError:
+                raise OwnerTurnError("owner-turn learning payload is invalid") from None
         for name in ("schema_version", "turn_id", "owner_id", "runtime_kind", "runtime_lineage_id"):
             _text(value[name], name)
         if operation in {"create", "clarify", "approve", "run"}:
@@ -200,6 +222,18 @@ class OwnerTurnApplication:
         if operation == "discover":
             return {"capability_digest": session.capabilities.capability_digest}
         assert task_id is not None
+        if operation in {
+            "grant_learning", "revoke_learning", "record_learning_context",
+            "collect_learning", "report_learning", "purge_learning",
+        }:
+            learning_request = {
+                "schema_version": "1.0.0", "operation": operation,
+                "task_id": task_id, "request_id": request.turn_id, **payload,
+            }
+            return RuntimeMutationGateway.invoke(
+                session, session.proof,
+                lambda runtime: self._tasks.learning(learning_request, runtime),
+            )
         if operation == "create":
             identity = {
                 "task_id": task_id, "owner_id": session.proof.owner_id,

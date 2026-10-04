@@ -3790,3 +3790,375 @@ checkout without invoking a benchmark; all 38 protected bytes and both pin vecto
 agree; changed bytes and replaced protected installation inputs remain rejected.
 The build backend must accept and package the corrected closure. This is source
 readiness only: full274/P1 execution and commit require separate authority.
+
+## WP-09 local product learning — design R1, 2026-10-02
+
+### W9.1 Overview and authority
+
+This supplement makes FR-13 / US-12 and §13.2 implementable. The owner approved
+`GEW-WP09-LOCAL-LEARNING-DESIGN-V1` for five design files only. Existing PRD and
+Intent remain approved. Every interface and table below is **proposed**, not
+present in the product. Independent design PASS does not approve W9-D1 (the
+storage decision), implementation, collection of real task data or release.
+
+The local owner requests an aggregate or a learning report through an authenticated
+runtime. No scheduler or background collector is introduced. The accepted full274/P1
+run on `2cd667e` remains evidence for its exact local execution, not PMF evidence.
+
+### W9.2 Goals
+
+- Cover all four GEW-PMF journeys with positive and rejection evidence before
+  WP09 exit, including consent, counter-evidence and retention.
+- Produce byte-identical semantic aggregates for the same verified source head,
+  consent generation, owner-context version/digest, relation dependency vector and policy; duplicate requests add no sample.
+- Persist zero source/prompt/secret/body text in PMF rows, diagnostics or reports.
+- Distinguish observed facts, unavailable facts and hypotheses for every metric;
+  no unknown observation becomes zero or an inferred success.
+
+These are contract criteria under [PRD FR-13](../prd/graph-engineering-workflow.md),
+not business success thresholds. Real PMF validation remains a Human/Agent activity.
+
+### W9.3 Scope exclusions
+
+This design adds no automatic product-direction change (PRD owner control), cloud
+telemetry or external messages (local-first and separate disclosure authority),
+or WP10 installation/activation and WP11 release proof (separate work packages).
+It does not reinterpret continued coding authority as telemetry consent. No
+historical prompt parsing, sentiment analysis, cross-owner tracking or collection
+from the reference repository is proposed.
+
+### W9.4 Architecture and verified existing seams
+
+```mermaid
+flowchart LR
+  O[Authenticated local owner request] --> A[Learning application]
+  A --> C[Current task consent and generation]
+  C --> S[Bounded committed-source projection]
+  S --> P[Pure aggregate and rule evaluation]
+  P --> T[Transactional local PMF tables]
+  T --> R[Ephemeral owner report with current consent checks]
+  C --> X[Revoke and suppress]
+  X --> T
+  T --> G[Existing retention policy and guarded purge]
+```
+
+All components execute in the caller's local process; SQLite and installed policy
+resources remain local. Core owns closed data and deterministic rules. Application
+owns runtime authorization and source joins. Storage owns atomic consent/aggregate
+updates and bounded queries. Runtime adapters expose the same owner operations.
+
+Existing code, inspected at `2cd667e`:
+
+| Source | Available guarantee | Required WP09 addition |
+|---|---|---|
+| `TaskApplication.runtime_show`, `RuntimeContext.require_issued` | owner/runtime/lineage binding; bare `show` is denied | consent-aware learning application, no bare query bypass |
+| `TaskRepository._validate_replay_rows`, `replay` | committed head, transaction and chain integrity | bounded projection; existing `replay` uses `fetchall` and verifies referenced objects, so it is not a bounded PMF reader |
+| `TaskSnapshot.graph_ref` | profile and risk-path binding | versioned projection to closed metric codes |
+| `CompletionGate.complete` and task lifecycle reducer | gated `task.completed`, `task.category_assessed`, canceled/failed/rollback states | read facts only; never synthesize completion |
+| `OwnerTurnRequest` / `OwnerTurnApplication` | exact owner operations and authenticated dispatch | explicit learning operations; existing `approve` is not consent |
+| `RetentionEngine.evaluate`, `SecurityContextIssuer.authorize_purge` | current task security subject, blockers, consumed purge authorization | PMF subject registration and transactional aggregate deletion; category existence alone supplies neither |
+
+W9-D1 recommendation: add dedicated PMF tables **inside the existing local
+repository database**, using its connection/locking/transaction/security machinery.
+Do not place disposable PMF aggregates in immutable CAS/event bodies. Alternative:
+a separate database avoids a main schema change but creates consent/source/purge
+coordination across databases. Main-database tables are preferred for atomic
+revocation and purge. This is a material, unapproved architecture proposal;
+record an ADR and explicit owner decision before code. No migration runs in this
+five-file design task. Existing task event schemas and six-pin GraphRef stay intact.
+
+### W9.5 Closed data, provenance and storage proposal
+
+Contract family `pmf-v1` rejects unknown fields, bool-as-integer, non-finite numbers,
+unknown enum/config IDs and oversized inputs. No caller-supplied metric bodies are
+accepted. Metric codes, reason codes, duration buckets and rule thresholds come
+from versioned installed configuration, never from arbitrary owner text.
+
+Proposed persisted entities (all identifiers are opaque internal references;
+reports expose only authorized local navigable references, not arbitrary paths):
+
+| Entity | Exact semantic fields and constraints |
+|---|---|
+| Consent | task key, owner/runtime/lineage binding digest, monotonic generation, state (`granted`, `revoked`), allowed metric IDs, grant source-head sequence, expiry, policy digest, owner-request receipt digest; no default grant |
+| Aggregate | schema version, task key, source revision/head digest, consent generation, owner-context version/digest, relation dependency vector, policy digest, selected metric values and per-metric availability codes, provenance sequence ranges, content digest; unique `(task key, policy digest)` current row |
+| Owner context | task key, consent generation, monotonically increasing context version, canonical context digest, owner request digest, abandonment code (`abandoned` or `not-stated`), optional same-owner prior-task reference; explicitly owner-reported, not machine-measured |
+| Suppression/tombstone | task key, consent generation, action code, policy digest, trusted time, purge authorization digest when required; no copied metrics or raw request text |
+| Learning report | ephemeral view: rule/config digest, cohort vector of source heads, consent generations, context versions/digests and relation dependency vectors, eligible/unknown/excluded counts, metrics with denominators, hypothesis ID, verdict, counter-evidence references and experiment ID; never an authority artifact |
+
+Proposed tables `pmf_consents`, `pmf_aggregates`, `pmf_owner_context`, `pmf_tombstones` use task foreign
+keys and unique constraints. Consent receipts contain only allowlisted decision
+fields; their digests are reproducible integrity checks, not proof of owner identity
+on their own. Identity comes from the live issued runtime and current task binding.
+No raw owner name, repository path or free-form text enters these tables. Task keys
+and digests are linkable local metadata, **not anonymized data**. Use existing
+owner-only repository filesystem controls. No automatic export or backup copy is
+introduced. SQLite deletion means logical removal, not guaranteed forensic erasure
+of journals, filesystem snapshots or user-created backups; do not promise otherwise.
+
+Metric source contract:
+
+| Metric | Allowed evidence and precise meaning | Missing-data rule |
+|---|---|---|
+| category / risk path | current verified materialized `graph_ref.profile_id` / `risk_path` at captured revision | unsupported legacy or unmapped profile = unknown |
+| completion / abandonment | validated terminal completion events; canceled is a distinct observed outcome, never inferred intent to abandon | absent terminal = incomplete; abandonment comes only from `record_learning_context`; otherwise unknown |
+| post-PRD interruptions | distinct transition into `awaiting_human` via `task.human_decision_required` after an accepted PRD event, excluding duplicates/replay and initial PRD negotiation | no proven PRD boundary or incomplete source window = unknown; reason is a mapped closed code, unmapped reason = unknown |
+| revisions | validated review outcome requiring revision, counted by distinct node/review identity, not task transaction count | lack of a mapped review outcome = unknown |
+| elapsed bucket | provenance-qualified endpoints for `task.run_started` and terminal; trusted elapsed bucket only with verified clock provenance in the same domain; includes pauses, not CPU time | current `runtime.occurred_at` is caller-reported, not a trusted elapsed source; invalid, ambiguous, backward or absent endpoints = unknown |
+| failure / recovery | validated failure event and later recovery/resume sequence; report recovery attempt separately from eventual completion | resume alone is not successful recovery |
+| repeat use | consented explicit task relation supplied by owner, verified same owner and consent on both tasks; no identity/device inference | no relation = unknown, not first use |
+| authorized stage | current, owner-issued action authority records linked to task and exact stage; record granted and consumed separately | planning text, action attempt, test PASS and generic `approve` are not voluntary action authority; unsupported source = unknown |
+
+First grant is prospective: it records the current source head. Historical event
+payloads before that boundary may be read only for minimal identity/PRD/graph
+validation, not mined for metrics. A report must label the observation window;
+zero is valid only for a complete verified window. Regrant starts a new window;
+revoked data is not silently backfilled. Relations and source fields not supported
+by the initial mapping remain explicitly unknown. This does not claim complete
+historical learning; future mappings require versioned design and tests.
+
+Bounded source capture uses one repository read transaction and verified current
+head. Authorize owner identity and consent before reading event payloads. Preflight
+row count and encoded byte totals, iterate bounded rows, validate transaction/chain
+links and filter within the same reader, retaining only allowlisted facts. Reject
+oversize before `fetchall`, JSON allocation or copying referenced CAS bodies. Never
+call `referenced_objects` to collect content for PMF. Do not accept caller-created
+head digests as trusted provenance. Recheck head, consent generation, context version/digest, every relation endpoint dependency, policy and
+security subject in the aggregate write transaction; mismatch aborts without a row.
+No cross-transaction partial totals or automatic pagination through a failed bound.
+
+Owner context contributes separately labeled self-report metrics. A task can be machine-completed and owner-abandoned; preserve both as counter-evidence rather than overwrite one. Changing owner context invalidates its aggregate and report head vector. Revoke/expiry of either end removes the relation from reports.
+
+Context concurrency contract: absent context has version0 and a fixed canonical
+empty digest; an accepted mutation uses compare-and-swap and increments the version,
+even when task head and consent generation are unchanged. Each aggregate binds its
+local context and a flat relation vector `(prior task key, current source head,
+consent generation, context version, context digest)`. Relation endpoints must be
+in the explicit bounded task set, belong to the same owner, have live metric consent,
+and differ from the current task. No recursive traversal or relation-chain expansion.
+Capture and final publication/retrieval validate both ends under one database snapshot
+and transaction; a changed/deleted context or revoked endpoint produces E_STALE or
+E_CONSENT and zero publication. Canonical digest covers the complete closed context
+including the optional relation; digest alone is not proof of currentness. Old
+aggregates become stale and are suppressed until an explicit new collection. Reports
+cannot return a current-looking old context alongside a new task head. This applies
+also to owner-context deletion and both-end expiry/regrant.
+
+Time provenance contract: `repository._validate_event` checks `occurred_at` as an
+identity string; `TaskApplication` stores `runtime.occurred_at`. A valid event digest
+proves retained bytes, **not a trusted clock**. Current historical endpoints therefore
+have provenance `caller-reported`; they never populate `trusted_elapsed_bucket`.
+The proposed clock-qualified input has source kind (`trusted`, `caller-reported`,
+`unavailable`), clock-domain ID, endpoint instants and an issuer-bound provenance
+reference. A trusted pair requires independently validated issuer provenance and one
+compatible clock domain. Endpoints must parse as bounded RFC3339 timestamps with
+explicit UTC offset, normalize to UTC and remain ordered. Invalid format, missing
+offset/endpoints, mixed or unverified domains, forged clock label and reverse order
+produce unavailable/unknown trusted duration. A syntactically valid arbitrary caller
+time remains caller-reported even if ordered; an optional separately named reported
+bucket cannot enter a rule requiring trusted elapsed. The repository trusted clock
+used for consent expiry and purge does not retroactively attest old event timestamps.
+Any new trusted observation source must be specified, target-bound and independently
+reviewed under W9-D2 before implementation; no current source guarantee is invented.
+
+Only closed facts enter projection output. Event bodies can exist transiently in
+the trusted reader to verify hashes, never in PMF output/logs/exceptions. Errors
+contain stable code and opaque reference only, not rejected values.
+
+### W9.6 Proposed API surface
+
+These are new application contracts, **not existing callable APIs**. All operations
+require `RuntimeSession`/issued task runtime identity; reject foreign owner,
+runtime or lineage before source access. A request ID is idempotent only for the
+same exact request digest; reuse with different fields is a conflict.
+
+| Operation | Request → response | Authority / errors |
+|---|---|---|
+| `grant_learning(task_id, request_id, expected_generation, metric_ids, expires_at)` | closed consent request → consent receipt with new generation and source boundary | explicit owner operation; E_AUTH, E_CONSENT, E_CONFLICT, E_POLICY |
+| `revoke_learning(task_id, request_id, expected_generation)` | task/generation → suppression receipt and purge status | owner can revoke without active grant; replay is idempotent; E_AUTH, E_CONFLICT, E_STORAGE |
+| `record_learning_context(task_id, request_id, expected_generation, expected_context_version, abandonment_code, prior_task_id)` | closed owner context → context receipt; optional relation requires current consent on both same-owner tasks | explicit owner report, never derived from inactivity; E_AUTH, E_CONSENT, E_CONFLICT, E_SOURCE |
+| `collect_learning(task_id, expected_head, expected_generation, expected_context_version)` | exact source binding → aggregate reference or stable refusal | live grant + requested metric subset; E_AUTH, E_CONSENT, E_SOURCE, E_LIMIT, E_STALE, E_POLICY |
+| `report_learning(task_ids, experiment_id)` | bounded explicit task set and installed experiment ID → ephemeral learning report | current consent for each task, no catalog-wide discovery; E_AUTH, E_CONSENT, E_STALE, E_LIMIT, E_POLICY |
+| `purge_learning(task_id, trigger, expected_generation)` | current subject and allowed policy trigger → tombstone or blocked decision | live owner/runtime plus existing retention and purge authorization; E_AUTH, E_STALE, E_HOLD, E_STORAGE |
+
+Runtime integration extends the versioned owner-operation vocabulary rather than
+reusing `approve`. Schema registration rejects older clients that send unsupported
+operations; existing operations retain their exact fields and behavior. No HTTP,
+new transport, daemon, implicit scheduled sweep or CLI activation is required.
+Returned aggregate/report objects are immutable and short lived; retained handles
+must recheck consent/generation/head/policy on every use. Revoke cannot retract
+text already viewed or manually copied by an owner; it prevents later system use.
+
+### W9.7 Error model and report decisions
+
+`E_AUTH`: denied identity, no automatic retry. `E_CONSENT`: absent/expired/revoked
+consent, owner action required. `E_SOURCE`: corrupt or unverified source, task
+integrity handling rather than skipping rows. `E_STALE` / `E_CONFLICT`: observed
+head/generation changed; no partial success, owner may issue a fresh request.
+`E_LIMIT`: policy resource bound exceeded; no silent truncation. `E_POLICY`:
+unknown/malformed config or incompatible schema, fail closed. `E_HOLD`: purge
+blocked by current retention constraints; remain suppressed. `E_STORAGE`: write
+failure; transaction rollback, no success receipt. Messages never interpolate input.
+
+Rules produce `supports`, `counter-evidence`, `mixed`, or `insufficient-data` with
+sample count, known denominator, excluded/unknown counts and exact predicate
+configuration. Threshold comparison uses integer/rational arithmetic. A config
+must specify required metrics, comparator, threshold, minimum sample count,
+hypothesis ID and next-experiment ID. No metric may substitute for another.
+All configured rules, including unfavorable ones, appear in deterministic order.
+Insufficient samples take precedence over a favorable rate; report does not claim
+causality or approve product direction. No business threshold is invented here.
+
+### W9.8 Failure, concurrency and retention
+
+| Failure | Detection and required result |
+|---|---|
+| revoke races with collection/report | generation checked in final transaction; revoked generation cannot publish or be returned; no silent retry |
+| process crashes during write | one database transaction rolls back or commits complete receipt; same request recovery cannot duplicate a sample |
+| partial/corrupt source or newer task head | reject whole capture; do not merge snapshots or preserve a favorable partial result |
+| unknown fields or synthetic secret in nominal metric | closed schema/code registry rejects before persistence; stable error only |
+| expiry/clock rollback | trusted repository clock and current expiry check; time regression rejects; old report handles denied |
+| disk full / lock timeout | existing bounded connection/lock behavior; no success receipt, source task state unaffected |
+| revoke with retention hold | atomic suppression first; physical purge waits for live guard clearance, with visible blocked status |
+
+Revoke invalidates consent and suppresses all aggregates for the task atomically;
+subsequent reports exclude it even if physical deletion is blocked. Expiry has the
+same read suppression, without requiring a background job. Grant never resurrects
+old rows. GC runs only on an explicit operation. Register the PMF subject in current
+task security state; call the existing retention engine and consume an engine-issued
+purge authorization through the existing issuer. Deletion and tombstone consumption
+must share the repository transaction; a separate successful authorization followed
+by an unchecked delete is prohibited. New storage hooks may be required; their
+implementation is not authorized here. Legal hold, rollback dependency and unresolved
+actions still block deletion. The current `pmf-aggregate` policy is 7,776,000 seconds
+(90 days), `garbage-collect`, tombstone required; this design does not increase it.
+Consent-expiry/revoke suppression is immediate regardless of that retention age.
+
+### W9.9 Resource and verification budgets
+
+Versioned proposed PMF policy carries maximum tasks/request, source rows/task,
+encoded bytes/row and total capture bytes, aggregate bytes, rule count and report
+bytes. Initial synthetic-test defaults proposed for review: 32 tasks, 10,000 rows
+per task, 64 KiB/row, 8 MiB total capture, 16 KiB aggregate, 64 rules, 256 KiB report.
+These are engineering admission bounds, not observed throughput or PRD performance
+claims; all must be enforced before allocation and tested at/over boundary. Shared
+request accounting prevents per-task multiplication of the total byte budget.
+No raw source survives into aggregate/report buffers. Host latency distributions
+will be measured during implementation; no p95/p99 claim exists yet. Local test
+commands keep native 290s / evidence 300s limits; no full274/P1 rerun in this scope.
+
+### W9.10 Security and privacy matrix
+
+| Actor | Task facts | Consent | Aggregate/report | Purge |
+|---|---|---|---|---|
+| bound local owner | existing authorized read | explicit grant/revoke | selected consented tasks | guarded request |
+| same runtime agent | only within issued request | cannot infer or mint owner decision | approved metric projection only | cannot bypass guard |
+| foreign owner/runtime/lineage | deny | deny | deny | deny |
+| report/rule engine | immutable minimized facts only | read checked generation | deterministic evaluation | none |
+
+Workspaces, identifiers, chronology and digests may be sensitive metadata. Only
+closed codes, counts and buckets leave the trusted reader. Configuration and
+schema digests are bound to installed WorkContext; changed bytes invalidate use.
+Do not pass prompts or source to a model to construct a learning report. Any future
+narrative generator consumes only the minimized report and needs separate design.
+
+### W9.11 Decisions before implementation
+
+W9-D1, deadline **before storage code or migration**: owner selects the recommended
+same-database PMF tables and ADR, or the separate-store alternative. Design review
+assesses this proposal; it does not grant the decision. W9-D2, deadline **before
+implementation**: freeze exact source mapping, schema/pin target list and synthetic
+verification argv after W9-D1; any extra target returns to the existing authority
+boundary. No business success threshold or real-data consent is requested now.
+Implementation remains stopped until these conditions and independent design gates
+are met. No unresolved question is hidden behind a callable API placeholder.
+
+### W9.12 References
+
+[Positioning](../positioning/graph-engineering-workflow.md),
+[PRD](../prd/graph-engineering-workflow.md),
+[Impact](../impact/graph-engineering-workflow.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md),
+[Test Plan](../test-plans/graph-engineering-workflow.md), ADR-0001/0002 and existing
+security/retention contracts govern this design. No external dependency or standard
+change is introduced. Approval and review records are retained in the existing
+Policy-permitted detached directory with the distinct WP09 task ID; the old C274
+checkpoint remains its completed history.
+
+
+## WP09 approved implementation and three-metric sources — 2026-10-04
+
+## 目标与当前状态
+
+用户批准先补齐可信耗时、评审修订次数和 PRD 批准后人工中断次数的真实来源设计，再实施。本补充取代 A2 R2 中将这三项永久留空的首轮建议；第四项授权阶段统计仍不在本增量实现。沿用主 PRD FR13、主 Spec W9 的最小化、显式同意、窗口、上下文和保留约束。本节设计和确切实施范围已获用户批准。真实数据采集与提交未授权。
+
+## 来源审计与选择
+
+- `application/graph_engineering/application/tasks.py::_record_review_from_runner_channel` 校验专用通道、reviewing run、已验证候选、作者/评审者独立性，再写 `runner.review_history` 并发出 `node.review_recorded`。事件 payload 只有 run_id；不能只数事件名字来推断 REVISE。
+- `core/graph_engineering/core/graph/state.py` 的 `task.prd_approved` / `task.prd_reapproved` 带 baseline_refs、graph_ref、authority_refs、owner_decision_ref；状态机从 awaiting_prd_approval 到 ready。`task.human_decision_required` 从 running 进入 awaiting_human，`task.pause_deferred` 也能进入 awaiting_human，但不代表代理请求人工决策。
+- `storage/graph_engineering/storage/repository.py::commit` 在同一事务中验证事件链、旧 snapshot 和新 snapshot，再持久化事件/任务。现有 occurred_at 来自 RuntimeContext 调用方；不能作为可信耗时。
+
+## 采集位置与数据流
+
+```mermaid
+flowchart LR
+ A[真实应用语义操作] --> B[应用内受限测量通道]
+ B --> C[仓库事务：校验源状态与事件]
+ C --> D[本地系统时钟适配器]
+ C --> E[同事务 PMF observation 状态]
+ D --> E
+ E --> F[显式 collect / report：重新验证当前性]
+```
+
+在显式 grant 后，已安装的前台任务事务同步维护最小 observation 状态；无守护进程、无扫描历史内容。此处是相对旧设计“仅 collect 时读取”的明确变更，须纳入实施授权。未 grant、已过期、已撤销均不采样、不读取额外评审内容、不写 PMF。普通任务事件不增加 PMF 内容或新字段。
+
+四张表不增加：`pmf_aggregates` 的每 task/policy 行分开存储 observation_state 与 derived_view。Observation 不随 collect 或 context 变更清零；derived_view 则按原 context/version/vector 规则失效。撤销立即抑制使用，删除遵守现有 retention/hold/purge。策略切换或 regrant 开新 observation epoch，绝不沿用旧计数伪装完整窗口。
+
+拟新增 observation_state 闭合字段：schema_version、task_key、policy_digest、consent_generation、epoch、grant_sequence、last_observed_sequence、last_transaction_id、last_head_digest、current_prd_sequence、current_baseline_digest、revision_count、human_interruption_count、start_sample、terminal_sample、availability_codes、state_digest。字段必须有配置上限；不保存 review body、finding 文本、author/reviewer 姓名、原始 boot identity。start/terminal sample 仅含 event_sequence、event_digest、clock_kind、clock_domain_digest、ticks_ns。opaque task key 和 digest 仍是可关联元数据。
+
+## 应用通道与原子性
+
+不得新增接受调用方 counter、时间样本或 trusted=true 的公开 API。应用安装时建立 factory-only 测量通道；仅真实 run/PRD/review/人工等待/terminal 语义路径可请求投影。仓库在持锁事务中对照旧/新 domain snapshot、runner state 与 validated events 再导出标量，不信任调用方提交的任意 runner JSON。普通 commit、裸构造 measurement 对象、跨 task/runtime/lineage 通道都不能产出可信 observation。精确实现必须覆盖应用 tasks.py 的关键语义路径与仓库 commit/recover，而非只在 CLI 包装计时。
+
+事件、observation 和 transaction receipt 同事务提交；任何回滚不推进 observation。重复 transaction_id 返回原结果，不能重采样或增加计数。崩溃恢复只接受已提交 observation；若存在已提交任务事件但没有应有 observation（旧版本写入或缺失 hook），标记 source_gap，直到新 grant 开新窗口；不从 caller 时间补洞。可检测的计量错误在本事务写 unavailable 状态，不妨碍合法任务；数据库事务故障仍整体回滚。不得吞掉未知异常并宣称采集完整。
+
+信任边界沿用已验证安装和 owner-only 本地仓库：应用输入伪造、跨任务、状态替换必须拒绝；单纯摘要匹配不授予采样权限。拥有系统管理员或对整个受信任安装/数据库进行任意改写的攻击者不在该测量证明能力内。本补充不声称提供硬件级防篡改时钟。
+
+## 指标一：可信运行观测耗时
+
+定义：同一 observation epoch 内，真实 task.run_started 事务即将提交时的系统采样，到首个真实 terminal（task.completed / task.category_assessed 成功终态 / task.canceled / task.failed）事务相同位置的采样差。名称为“运行观测耗时”，包含人工等待与系统睡眠，不是 CPU 执行时间，也不包括第一次 run_started 之前的 PRD 讨论。失败是一个结束点；恢复后的新运行段单独标记，不覆盖首段。多个事件同事务只有一个采样点，允许同事务起止为零但标注事务粒度。
+
+平台适配器拟新增 `storage/.../learning_clock.py`，core 只消费闭合样本：Darwin 使用 mach_continuous_time 加 mach_timebase_info 的整数纳秒换算；Linux 使用 CLOCK_BOOTTIME。两者均采用包含系统休眠的连续时钟。时钟域须绑定 repository/installation incarnation、系统 boot identity、clock kind/version；Linux 还绑定 time namespace identity。原始机器/boot 值仅瞬时读取后归一化摘要，不记录或报告。无法可靠获取域身份则 unavailable，不用 wall-clock 代替。Darwin 域固定由 sysctlbyname(kern.bootsessionuuid) 的有效 UUID 建立；Linux 固定由 /proc/sys/kernel/random/boot_id 的有效 UUID 及 /proc/self/ns/time 的 fstat 设备/inode 建立，采样前后重读域并要求相等。未知、读失败或不稳定均 unavailable，禁止 boot wall-time 回退和 caller 注入域。安装/仓库 incarnation 使用已有绑定的身份；复制到另一根目录或安装域变化不能沿用样本。
+
+同一 boot/domain 下，进程重启后可沿用持久化 start_sample；系统重启、namespace 改变、counter 倒退、采样缺失、未知 provider 或整数溢出均 unknown，并保留原因。壁钟调整不改变该差值。机器关机跨 boot 的总时间不可由连续时钟证明，明确不估算。report 只输出配置分桶与来源标记，不暴露 raw ticks。正常新任务必须存在真实 provider 的集成正例；旧任务或 grant 晚于 run start 不假造起点。
+
+官方依据：[Apple mach_continuous_time](https://developer.apple.com/documentation/kernel/1646199-mach_continuous_time)、[Linux timekeeping](https://cdn.kernel.org/doc/html/latest/core-api/timekeeping.html)。OS provider 是否可用须由实现测试证明，文档不是已执行证据。
+
+## 指标二：评审修订次数
+
+只在有效 `node.review_recorded` 提交中计数。比对 old/new runner.review_history，必须恰有对应新增记录，并匹配 event.payload.run_id、当前 run.node_id/run_id/attempt、validated output.body_digest、真实 ReviewResult.verdict、评审独立性检查。仅 verdict=REVISE 加一；PASS/ESCALATE/BLOCKED 不算修订。`node.revise_requested` 是后续执行动作，不重复加一。
+
+窗口为 sequence > max(grant_sequence,current_prd_sequence)，截至 last_observed_sequence。新 PRD/reapproval 开当前 baseline 统计窗口并重置窗口内两项计数，报告标注 window_start 和 baseline_digest；不是累计全部历史项目次数。去重依赖已验证 event_id/sequence + transaction 唯一性，(run_id,attempt,body_digest) 标识评审尝试；重复提交不增计数。同一内容再次被合法评审算新的尝试，但不得将一次评审重复写入。只保存计数和游标，关联字段瞬时验证，不保存审稿内容。窗口完整且无 REVISE 才能显示 0。
+
+## 指标三：PRD 批准后人工中断次数
+
+有效 PRD 边界由真实 approve_prd 应用路径提交的 task.prd_approved/reapproved 及其 baseline/owner_decision/authority 绑定建立。grant 前最近一次批准只读取最小身份/边界元数据，不挖掘历史指标；若无法在有界读取中证明，显示 unknown。之后重新批准按上述 baseline 窗口重开。
+
+只计 validated task.human_decision_required 导致的 running→awaiting_human，一次状态进入算一次。一个等待状态中的消息、重复通知、查询、恢复重放都不重复计数；用户主动 pause / pause_deferred、初次 PRD 审批、取消请求、单纯 BLOCKED 不计入该指标。该名称明确是“代理请求人工决策次数”，不是所有聊天消息或审批按钮次数；平台 UI 之外未进入引擎的人工对话不在覆盖范围内。
+
+## 测试与实施顺序补充
+
+沿用 W9-C01–C10 和原 106 条逐项命令，新增具名测试，仍为每项 native 290s / recorder 300s，串行失败即停：
+
+1. ClockProviderTests：真实 provider 单调采样；跨子进程同域；域/boot/namespace 改变拒绝；伪造 provider/channel 拒绝；整数换算、倒退、缺失、wall-clock 改变；平台不可用明确报 unavailable。Darwin/Linux 各自需要原生平台证据，不能以模拟另一 OS 宣称通过；真实 sleep 语义由原生接口契约加适配器测试支撑，不自动让用户机器休眠。
+2. LearningMetricSourceTests：真实 run 到合法终态的正例；暂停/恢复；重复请求不重采样；事务失败/崩溃边界；重启保留起点；grant 晚于 start；计量源 gap；revoke 与 task commit 竞态；context 更新不丢 observation。
+3. LearningMetricSourceTests：真实专用 reviewer channel 的 REVISE/PASS/ESCALATE/BLOCKED；一次 review 与 revise_requested 不双计；伪造 runner.history、错 run/attempt/body、同作者评审、重复 tx 拒绝/不计；reapproval 重置并标窗口。
+4. LearningMetricSourceTests：真实 approve_prd 后人工等待；grant 在批准前/后；未批准、pause_deferred、重复通知不计；再次运行再进入等待可再计；边界缺失/超限为 unknown 而非 0。
+5. Privacy/packaging：配置关闭或未授权时 clock/review reader 调用次数为 0；错误/记录无 canary/原始 boot identity；真实 wheel 采样与三个现有 active pin consumer 校验。
+
+先更新主 Spec/Impact/Plan/Test Plan 和 ADR 草案，再独立审查受影响部分，然后 TDD 实施时钟/通道、事务 observation、三指标投影、安装闭包。此前同数据库位置决定不重开。新增观测机制、文件范围和测试必须在具体实施授权中明示；实现授权见 2026-10-04 用户明确批准及 detached 绑定记录。
+
+## 尚未解决与边界
+
+授权阶段统计仍 unavailable，不能宣称 WP09 全部完成。用户已明确批准“初始化 PMF 后禁用导出”的兼容性限制；尚未实施。真实数据、安装升级、commit/push、full274/P1 均排除。Darwin 原生接口已完成只读可用性探测（非产品测试）：连续时钟/时间基数有效；启动 UUID 在沙箱内被拒绝，系统环境可用。Linux 尚无原生证据，实现交付时须分平台如实报告，不以 Mac 的结果声明 Linux 通过。原生双平台证据是平台支持声明的门槛，不可用 wall-clock boot timestamp 推断域。
+
+本节在冲突处替代旧 W9 提案：已批准 foreground consent-gated observations；前三项不再整体 unavailable。第四项授权阶段统计仍 unavailable。保持原数据访问、保留与预算要求。

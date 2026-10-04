@@ -47,6 +47,7 @@ _SOURCE_FILES = (
     "adapters/graph_engineering/adapters/performance_environment.py",
     "application/graph_engineering/application/actions.py",
     "application/graph_engineering/application/dependency_security.py",
+    "application/graph_engineering/application/learning.py",
     "application/graph_engineering/application/migration_rehearsal.py",
     "application/graph_engineering/application/performance_benchmark.py",
     "application/graph_engineering/application/profile_coverage.py",
@@ -116,6 +117,10 @@ _SOURCE_FILES = (
     "config/contracts/schemas/dependency-security-observation-1.1.0.json",
     "config/contracts/schemas/dependency-security-observation-input-1.0.0.json",
     "config/contracts/schemas/dependency-security-observation-input-1.1.0.json",
+    "config/contracts/schemas/learning-input-1.0.0.json",
+    "config/contracts/schemas/learning-policy-1.0.0.json",
+    "config/contracts/schemas/learning-record-1.0.0.json",
+    "config/contracts/schemas/learning-report-1.0.0.json",
     "config/contracts/schemas/logical-body-manifest-1.0.0.json",
     "config/contracts/schemas/migration-crash-recovery-observation-1.0.0.json",
     "config/contracts/schemas/migration-crash-recovery-observation-input-1.0.0.json",
@@ -185,6 +190,8 @@ _SOURCE_FILES = (
     "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
     "config/contracts/schemas/scenario-truth-policy-registry-1.0.0.json",
     "config/contracts/schemas/scenario-truth-policy-registry-input-1.0.0.json",
+    "config/learning/learning-experiments-v1.json",
+    "config/learning/learning-policy-v1.json",
     "config/migration/migration-rehearsal-fixture-v1.json",
     "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
     "config/migration/migration-rehearsal-registry-v1.json",
@@ -365,6 +372,7 @@ _SOURCE_FILES = (
     "core/graph_engineering/core/artifacts/records.py",
     "core/graph_engineering/core/contracts/schema.py",
     "core/graph_engineering/core/dependency_security.py",
+    "core/graph_engineering/core/learning.py",
     "core/graph_engineering/core/migration_rehearsal.py",
     "core/graph_engineering/core/performance_benchmark.py",
     "core/graph_engineering/core/profile_coverage.py",
@@ -376,10 +384,11 @@ _SOURCE_FILES = (
     "pyproject.toml",
     "scripts/build_backend.py",
     "storage/graph_engineering/storage/clock.py",
+    "storage/graph_engineering/storage/learning.py",
+    "storage/graph_engineering/storage/learning_clock.py",
     "storage/graph_engineering/storage/migration.py",
     "storage/graph_engineering/storage/repository.py",
     "storage/graph_engineering/storage/security.py",
-
 )
 
 
@@ -3463,3 +3472,54 @@ def _attested_source_member(
         return bytes(body)
     finally:
         os.close(descriptor)
+
+
+def _learning_installation_resources() -> tuple[bytes, ...]:
+    """Re-read six exact attested learning resources, preserving source/wheel parity."""
+    locations = (
+        'config/learning/learning-policy-v1.json',
+        'config/learning/learning-experiments-v1.json',
+        'config/contracts/schemas/learning-input-1.0.0.json',
+        'config/contracts/schemas/learning-record-1.0.0.json',
+        'config/contracts/schemas/learning-report-1.0.0.json',
+        'config/contracts/schemas/learning-policy-1.0.0.json',
+    )
+    try:
+        module_path = pathlib.Path(__file__).resolve(strict=True)
+    except OSError:
+        module_path = None
+    source_root = None if module_path is None else _source_checkout_root(module_path)
+    if source_root is None:
+        # Capture the closed set once, with installation checks on both sides.
+        # Each member still undergoes its own current RECORD/path/hash check.
+        _validate_distribution_identity()
+        distributions = _matching_installed_distributions()
+        if len(distributions) != 1:
+            raise DistributionIdentityError('learning distribution identity is not unique')
+        distribution = distributions[0]
+        root_location = distribution.locate_file('')
+        archive_name = getattr(getattr(root_location, 'root', None), 'filename', None)
+        archive_prefix = getattr(root_location, 'at', None)
+        archive = (pathlib.Path(archive_name).resolve(strict=True)
+                   if type(archive_name) is str and type(archive_prefix) is str else None)
+        root = pathlib.Path(root_location).resolve(strict=True) if archive is None else None
+        identity = None if archive is None else _archive_identity(archive)
+        record = distribution.read_text('RECORD')
+        if type(record) is not str:
+            raise DistributionIdentityError('learning distribution RECORD is absent')
+        resources = tuple('graph_engineering/' + path for path in locations)
+        if archive is not None:
+            _validate_archive_resource_uniqueness(distribution, archive, resources)
+        bodies = tuple(_record_resource(distribution, root, archive, path) for path in resources)
+        _validate_distribution_identity()
+        if (record != distribution.read_text('RECORD')
+                or archive is not None and _archive_identity(archive) != identity):
+            raise DistributionIdentityError('learning distribution changed during capture')
+        return bodies
+    _validate_source_checkout_attestation(source_root)
+    owner = os.lstat(source_root).st_uid
+    if any(path not in _SOURCE_FILES for path in locations):
+        raise DistributionIdentityError('learning resource is outside installation attestation')
+    bodies = tuple(_attested_source_member(source_root,path,owner) for path in locations)
+    _validate_source_checkout_attestation(source_root)
+    return bodies

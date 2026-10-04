@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:learning-policy:1.0.0",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "learning-policy"
+        },
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "policy_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "max_tasks": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "max_rows_per_task": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "max_row_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "max_capture_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "max_aggregate_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "max_rules": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "max_report_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "retention_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "max_tasks",
+            "max_rows_per_task",
+            "max_row_bytes",
+            "max_capture_bytes",
+            "max_aggregate_bytes",
+            "max_rules",
+            "max_report_bytes",
+            "retention_seconds"
+          ],
+          "additionalProperties": false
+        },
+        "metric_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 11,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "category",
+              "risk_path",
+              "completion",
+              "abandonment",
+              "revision_count",
+              "human_interruption_count",
+              "elapsed_bucket",
+              "failure",
+              "recovery_attempt",
+              "repeat_use",
+              "authorized_stage"
+            ]
+          }
+        },
+        "elapsed_buckets_ns": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "rules": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "metric_id": {
+                "enum": [
+                  "category",
+                  "risk_path",
+                  "completion",
+                  "abandonment",
+                  "revision_count",
+                  "human_interruption_count",
+                  "elapsed_bucket",
+                  "failure",
+                  "recovery_attempt",
+                  "repeat_use",
+                  "authorized_stage"
+                ]
+              },
+              "comparator": {
+                "enum": [
+                  "gte",
+                  "lte"
+                ]
+              },
+              "numerator": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "denominator": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "min_samples": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "rule_id",
+              "metric_id",
+              "comparator",
+              "numerator",
+              "denominator",
+              "min_samples"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "policy_id",
+        "limits",
+        "metric_ids",
+        "elapsed_buckets_ns",
+        "rules"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "learning-experiments"
+        },
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "experiments": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "properties": {
+              "experiment_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "rule_ids": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                }
+              }
+            },
+            "required": [
+              "experiment_id",
+              "rule_ids"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "experiments"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "type": "object",
+  "unevaluatedProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    }
+  },
+  "required": [
+    "schema_version"
+  ]
+}

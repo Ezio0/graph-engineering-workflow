@@ -1538,3 +1538,143 @@ required. No engine/runtime algorithm, timing limit, PRD or ADR change is needed
 Add a permanent installation-closure regression and use existing provenance
 negative checks. Evidence must distinguish configuration consistency from actual
 benchmark/cumulative acceptance.
+
+
+## WP-09 local product learning — design impact R1, 2026-10-02
+
+Authority: `GEW-WP09-LOCAL-LEARNING-DESIGN-V1`, owner “批准开始”. Current
+changes are exactly Manifest plus the four main design artifacts. PRD/Intent,
+Positioning, all code/configuration, Policy budget4, committed history and the
+accepted C274 r6 receipt remain unchanged. This is design readiness, not WP09 exit.
+
+### Existing dependencies and observed gaps
+
+Spec W9.4 records inspected interfaces. Runtime query authorization and committed
+source integrity are reusable; neither existing `TaskRepository.replay` nor
+`lifecycle_facts` supplies a bounded PMF collector. `pmf-aggregate` retention
+configuration exists, but no PMF subject registration, consent table or learning
+application does. New work must not weaken existing query or purge authorities.
+FR-13 and PMF001–004 require all four: minimized observations, owner context,
+negative learning evidence and consent/retention. Counting successful C274 tests
+would satisfy none of those product requirements.
+
+### Architecture decision and compatibility
+
+W9-D1 recommends four same-database tables (consents, aggregates, owner context,
+tombstones). This needs an explicit owner architecture decision and ADR before
+implementation. Main event rows/CAS must not contain disposable PMF metric bodies;
+audit integrity and telemetry deletion have different lifetimes. Existing approved
+retention semantics and current security-subject bindings apply. Same-database
+transactions avoid a new cross-database revoke/publish race; no new dependency is
+proposed. Existing repository schema upgrade/downgrade behavior must be inspected
+and tested, rather than adding `CREATE TABLE` during an ordinary query. This local
+schema proposal is not authorization for WP10 installation or activation.
+
+Existing owner operations and graph/event schemas remain compatible. New learning
+operations require explicit versioned parsing/dispatch tests. Unknown PMF schema or
+policy blocks learning without breaking ordinary task execution. No default grant,
+background capture or historical metric backfill. No source imports from the
+reference project, new network access, production data or external telemetry.
+
+### Candidate implementation boundary, not write authority
+
+The following is the bounded implementation inventory to reconcile after W9-D1.
+Existing paths are dependencies, not permission to edit them during this task.
+An exact approved subset, including any generated pin closure, must precede code.
+
+| Group | Candidate paths | Why |
+|---|---|---|
+| core | `core/graph_engineering/core/learning.py` (new) | closed projection/rule/error contracts |
+| application | `application/graph_engineering/application/learning.py` (new), `owner_turns.py`, `runtime.py`, `security.py` in that directory | authenticated operations, generation/currentness, subject issuance |
+| storage | `storage/graph_engineering/storage/learning.py` (new), `repository.py`, `connection.py`, `security.py`, `migration.py` in that directory | bounded committed reader, atomic grant/revoke/purge, approved schema transition |
+| configuration | `config/learning/learning-policy-v1.json`, `learning-experiments-v1.json` (new); `config/contracts/schemas/learning-input-1.0.0.json`, `learning-record-1.0.0.json`, `learning-report-1.0.0.json`, `learning-policy-1.0.0.json` (new) | closed schema resources and configurable admission/rules; synthetic experiment has no product-success claim |
+| installation | `core/graph_engineering/__init__.py`, `scripts/build_backend.py`, `pyproject.toml`; active dependency, migration, performance, scenario-truth and release-operations bootstraps only if their protected source closure changes | package new resources, exact installed pins and source/wheel parity; never rewrite historical bootstrap versions |
+| tests | `tests/unit/test_wp09_learning.py`, `tests/contract/test_wp09_learning_contracts.py`, `tests/integration/test_wp09_learning.py`, `tests/security/test_wp09_learning_privacy.py` (new), existing `tests/unit/test_wp00_packaging.py` as needed | meaningful public behavior, adversarial source/consent, packaging |
+| architecture | proposed `docs/adr/0010-local-product-learning-storage.md` (new) | record W9-D1 after human decision, not created under current five-file scope |
+
+The full list is deliberately **not represented as a frozen implementation
+allowlist**: exact schema migration resources and transitive pin changes depend on
+W9-D1 and a source-closure audit. Spec W9-D2 blocks implementation until every such
+path is enumerated and reviewed. No broad glob grants code-write authority.
+A first pure-contract slice can be scoped separately if storage remains undecided;
+it would not complete FR-13 or be presented as usable product learning.
+
+### Risks, invalidation and rollback
+
+- Privacy risk: task IDs, timestamps and hashes remain linkable metadata. Enforce
+  field closure and owner-only access; no raw text logging, including exceptions.
+- Integrity risk: a valid hash without trusted source binding is not authority.
+  Whole-window completeness, source-head and consent-generation checks are required.
+- Resource risk: generic replay/CAS copies can exceed a PMF bound. Reject before
+  allocation and fail the entire request instead of reporting truncated totals.
+- Retention risk: revocation, expiry, legal hold and consumed purge authority must
+  remain distinct. Suppression is immediate; blocked physical deletion is visible.
+- Measurement risk: explicit windows, known denominators and self-report labels
+  prevent “unknown = zero”, success-only sampling and false causal claims.
+
+Schema/policy/source changes invalidate derived learning views and report handles;
+they do not invalidate historical C274 evidence for its original commit. New code
+would require its own verification, never reuse that receipt as proof of changed
+bytes. Design-only changes here require format, scope, links and independent
+artifact review; no product tests or four-hour rerun are relevant.
+
+Roll back this design by reverting only its supplement and Manifest after any
+separately authorized commit. Future product rollback must disable collection,
+suppress derived views and preserve migration compatibility and audit tombstones;
+never delete raw task event history to implement PMF deletion. No migration or
+real-data rollout is being performed now.
+
+R1 source clarification: existing event timestamps are caller-reported despite
+valid chain digests; a future trusted duration source may expand W9-D2 targets and
+must be reviewed before code. Consent-expiry trusted time cannot certify historical
+duration. Owner-context versions/digests and both-end relation dependencies now join
+aggregate/report identity and atomic currentness checks; task-head binding alone
+is insufficient. These refine existing privacy/traceability goals, not data authority.
+
+
+## WP09 implementation authority and impact — 2026-10-04
+
+Owner explicitly approved the reviewed 38-file boundary, synchronous consent-gated observation and export restriction. This supersedes earlier design-only and unavailable-three-metric statements. Event schemas/CAS bodies stay unchanged; observation state is a separate closed column within pmf_aggregates. Review application/tasks.py semantics, storage commit/recover atomicity, source clock privacy and migration pre-output guard. Fourth stage-authority metric remains unavailable.
+
+Exact target inventory:
+
+- `.workflow/manifest.json`
+- `application/graph_engineering/application/learning.py`
+- `application/graph_engineering/application/owner_turns.py`
+- `application/graph_engineering/application/runtime.py`
+- `application/graph_engineering/application/security.py`
+- `application/graph_engineering/application/tasks.py`
+- `config/contracts/schemas/learning-input-1.0.0.json`
+- `config/contracts/schemas/learning-policy-1.0.0.json`
+- `config/contracts/schemas/learning-record-1.0.0.json`
+- `config/contracts/schemas/learning-report-1.0.0.json`
+- `config/learning/learning-experiments-v1.json`
+- `config/learning/learning-policy-v1.json`
+- `config/migration/migration-rehearsal-installation-bootstrap-v1.json`
+- `config/profiles/scenario-truth-installation-bootstrap-v1.json`
+- `config/release-operations/release-operations-installation-bootstrap-v1.json`
+- `core/graph_engineering/__init__.py`
+- `core/graph_engineering/core/learning.py`
+- `docs/adr/0010-local-product-learning-storage.md`
+- `docs/impact/graph-engineering-workflow.md`
+- `docs/plans/2026-08-13-graph-engineering-workflow.md`
+- `docs/specs/graph-engineering-workflow.md`
+- `docs/test-plans/graph-engineering-workflow.md`
+- `pyproject.toml`
+- `scripts/run_wp09_tests.py`
+- `storage/graph_engineering/storage/connection.py`
+- `storage/graph_engineering/storage/learning.py`
+- `storage/graph_engineering/storage/learning_clock.py`
+- `storage/graph_engineering/storage/migration.py`
+- `storage/graph_engineering/storage/repository.py`
+- `storage/graph_engineering/storage/security.py`
+- `tests/contract/test_wp09_learning_contracts.py`
+- `tests/integration/test_wp09_learning.py`
+- `tests/integration/test_wp09_learning_metric_sources.py`
+- `tests/security/test_wp09_learning_privacy.py`
+- `tests/support/source_checkout_attestation.py`
+- `tests/unit/test_wp00_packaging.py`
+- `tests/unit/test_wp09_learning.py`
+- `tests/unit/test_wp09_learning_clock.py`
+
+Four new product modules include storage learning_clock.py. Release-operations bootstrap additionally binds application/tasks.py. Refresh only actual changed active pins and pyproject metadata; preserve historical bootstrap bytes. Unknown provider/domain causes unavailable, never fake clock authority. Do not execute owner-data migration. Accepted export restriction applies even to empty/partial PMF schema or tombstones, checked under the same exclusive token before mkdir, backup or holds.

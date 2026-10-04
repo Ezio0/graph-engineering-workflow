@@ -763,6 +763,17 @@ class TaskApplication:
     def list(self) -> tuple[dict[str, object], ...]:
         raise ApplicationError("runtime query authority is required")
 
+    def learning(self, request: object, runtime: RuntimeContext) -> dict[str, object]:
+        from graph_engineering.application.learning import LearningPolicyLoader
+        from graph_engineering.storage.learning import _execute_owner_request
+
+        if type(runtime) is not RuntimeContext:
+            raise ApplicationError("learning runtime is missing or forged")
+        runtime.require_issued()
+        policy = LearningPolicyLoader.from_installation()
+        closed = policy.validate_request(request)
+        return _execute_owner_request(self._repository, closed, runtime, policy)
+
     def runtime_show(self, task_id: str, runtime: RuntimeContext) -> TaskView:
         runtime.require_issued()
         view = self.__show(task_id)
@@ -1503,7 +1514,9 @@ class TaskApplication:
                     (fence_request.resource_id,),
                 )
                 fence_token = fence_request._authority.seal_fence(fence_request)
-            result = self._repository.commit(CommitBatch(
+            from graph_engineering.application.learning import _commit_observed
+
+            result = _commit_observed(self, CommitBatch(
                 transaction_id=request_id,
                 task_id=task_id,
                 expected_task_revision=view.repository_revision,
@@ -1529,7 +1542,7 @@ class TaskApplication:
                     "fencing_token": dict(lease.fencing_tokens)[f"task:{task_id}"],
                 },
                 object_digests=object_digests,
-            ), fence_token=fence_token, source_fence_token=source_fence_request)
+            ), runtime, fence_token=fence_token, source_fence_token=source_fence_request)
         finally:
             if target_lock is not None:
                 self._repository._locks.release(target_lock)
@@ -2130,7 +2143,9 @@ class TaskApplication:
                 runner_state["graph_digest"] = (
                     next_snapshot.graph_ref.get("graph_digest") if next_snapshot.graph_ref else None
                 )
-            result = self._repository.commit(CommitBatch(
+            from graph_engineering.application.learning import _commit_observed
+
+            result = _commit_observed(self, CommitBatch(
                 transaction_id=request_id,
                 task_id=task_id,
                 expected_task_revision=repository_revision,
@@ -2164,7 +2179,7 @@ class TaskApplication:
                 scope_graph_definition=scope_graph_definition,
                 extension_pin_delta=extension_pin_delta,
                 object_digests=materialization_object_digests,
-            ))
+            ), runtime)
         finally:
             self._leases.release(lease_id)
         return CommandReceipt(

@@ -100,7 +100,7 @@
   },
   "source_authority_pins": {
     "policy_id": "source-checkout-attestation-v1",
-    "source_file_count": 342,
+    "source_file_count": 352,
     "source_issuer_raw_sha256": "d03644ab0db302f260981fb9e38c985c9d6ec2c1bc528d9dfd20b1379c81ba1d"
   },
   "package_authority_pins": {
@@ -135,7 +135,7 @@
     },
     {
       "path": "application/graph_engineering/application/tasks.py",
-      "raw_sha256": "cd6e60e6059feadc3e029827557f176c670d253c23a19fb6afa90c53be93306f"
+      "raw_sha256": "50b6e2271f191baeeb457af3e80e4852eb376f82afface5fcf951cdc74e8e331"
     },
     {
       "path": "config/actions/action-policy-local-actions-v1.json",
@@ -199,7 +199,7 @@
     },
     {
       "path": "core/graph_engineering/__init__.py",
-      "raw_sha256": "b76b74fbeba77e2d916f6e8539d9ebf60a4c556619630c4767c9a0f4bd599db5"
+      "raw_sha256": "3e36d987176c90217376ed64721b768664580318f2c5c11570404ece18a1ca65"
     },
     {
       "path": "core/graph_engineering/core/artifacts/__init__.py",
@@ -239,13 +239,13 @@
     },
     {
       "path": "storage/graph_engineering/storage/repository.py",
-      "raw_sha256": "deb7fa85199ecbbdd39402dc5754d2418940d7ae7ff05f8b079532c8712fbbe8"
+      "raw_sha256": "4d7f828333883411cde9293a17aa70758889789310e78258c777809f07528b97"
     },
     {
       "path": "storage/graph_engineering/storage/security.py",
       "raw_sha256": "7f1aba74e0ddc66d68b015425eba6919585066327a6ea64983739015dda2be2e"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:a91f123fee85b607a9cd46934eb8902703c226d56b9c47da7108ba93f43a4674",
-  "bootstrap_digest": "sha256-jcs-v1:cc224995e617284510d0a65941d7fc1cb1c66475f4291caeeb2fc4584be83e82"
+  "protected_closure_digest": "sha256-jcs-v1:840388b04762459e3ef7a9c7b3c8d35a7897cc78731ef330f88d445fffe915c7",
+  "bootstrap_digest": "sha256-jcs-v1:87dabee71f153668fc0e53924855ecd871fff6f7ee35670cd6b100c8cfd5629f"
 }

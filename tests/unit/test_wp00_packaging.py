@@ -500,6 +500,49 @@ class PreflightConfigurationReuseTests(unittest.TestCase):
                                 sources = pin["protected-sources"]
                                 resource = pin["protected-resources"][sources.index(source)]
                             self.assertEqual(archive.read(resource), body)
+                installed = pathlib.Path(directory) / "installed"
+                archive.extractall(installed)
+            # Learning must load from the built wheel with no checkout path or
+            # source attestation in the child interpreter. RECORD remains the
+            # authority for every policy/schema read, including retained loaders.
+            code = r'''
+import pathlib, sys
+installed = pathlib.Path(sys.argv[1])
+sys.path.insert(0, str(installed))
+import graph_engineering
+from graph_engineering.application.learning import LearningPolicyLoader
+assert pathlib.Path(graph_engineering.__file__).is_relative_to(installed)
+loader = LearningPolicyLoader.from_installation()
+assert loader.limits['max_tasks'] == 32
+assert loader.require_current() == loader.digest
+resources = (
+    'config/learning/learning-policy-v1.json',
+    'config/contracts/schemas/learning-input-1.0.0.json',
+)
+for resource in resources:
+    victim = installed / 'graph_engineering' / resource
+    original = victim.read_bytes()
+    for mode in ('changed', 'missing'):
+        try:
+            if mode == 'changed':
+                victim.write_bytes(original + b' ')
+            else:
+                victim.unlink()
+            try:
+                loader.require_current()
+            except graph_engineering.DistributionIdentityError:
+                pass
+            else:
+                raise AssertionError('unbound learning resource accepted')
+        finally:
+            victim.write_bytes(original)
+    assert loader.require_current() == loader.digest
+'''
+            result = subprocess.run(
+                [sys.executable, "-I", "-B", "-c", code, str(installed)],
+                cwd=directory, capture_output=True, timeout=60,
+            )
+            self.assertEqual(result.returncode, 0, "isolated wheel learning consumer failed")
 
 
 class DependencyLocationReuseTests(unittest.TestCase):

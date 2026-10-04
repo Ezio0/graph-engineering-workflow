@@ -2640,3 +2640,270 @@ and exact Manifest/staged-file equality, no tracked unstaged inputs, unchanged
 non-target files, and current source/policy binding. Serial native commands<=290s
 and canonical<=300s; fail fast. Capture RED before configuration changes and
 canonical GREEN after all edits. No full274/P1 benchmark, network or limit changes.
+
+
+## WP-09 local product learning — test design R2, 2026-10-02
+
+### W9-T1 Scope and present status
+
+This is a design of future tests under FR-13, GEW-PMF-001–004 and Spec W9. No WP09
+product test has run. Current work verifies only the five-file design changes.
+W9-D1/W9-D2 and implementation authority precede new tests/code; evidence names
+below are proposed test IDs, not existing passing cases. Real data and full274/P1
+repetition are excluded. All critical journeys below require positive and refusal
+coverage before WP09 completion; no invented percentage/line-count target applies.
+
+### W9-T2 Critical journeys and observable oracles
+
+| IDs / requirement | Journey | Observable success and refusal |
+|---|---|---|
+| W9-C01 / PMF004 | explicit owner grant, no default consent | grant binds task/head/generation/metric set; absent/expired/wrong-owner grants cause zero metric reads and zero PMF rows |
+| W9-C02 / PMF001,002 | bounded genuine committed capture | same source head, consent generation, context version/digest, relation dependency vector and policy yield identical semantic output; PRD boundary/window included; missing endpoints or incomplete observations remain unknown, not zero |
+| W9-C03 / PMF002 | terminal outcome and self-report | completed/canceled/failure remain distinct; owner abandonment and repeat relation are labeled self-report; inactivity and resume never fabricate abandonment/recovery |
+| W9-C04 / PMF003 | learning from unfavorable evidence | synthetic supported, mixed, counter-evidence and insufficient-data cohorts give exact configured outcomes/denominators; unfavorable rules cannot be dropped |
+| W9-C05 / PMF004 | revoke/expiry concurrent with publication | deterministic barriers before final commit show one legal ordering; no old-generation response or later handle use after revocation linearizes |
+| W9-C06 / PMF004 | retention and guarded deletion | explicit GC uses real current security subject/decision; hold, rollback dependency or unresolved claim yields suppressed-but-blocked; allowed deletion and tombstone atomic |
+| W9-C07 / PMF002,004 | restart, duplicate request and crash recovery | replay same exact request does not add sample; changed request digest rejected; each crash cut yields complete pre/post state, never partial consent/aggregate |
+| W9-C08 / NFR01,06 | authorized local runtime and offline report | real runtime gateway identity; foreign owner/runtime/lineage denied, no daemon/network/content export; old owner operations preserve compatibility |
+| W9-C09 / NFR07 | configurable rules and admission limits | change installed config in a newly valid fixture changes bounds/rules, not code; unknown/tampered policy rejected; same config/report input deterministic |
+| W9-C10 / NFR06 | installed closure and source substitution | source and built wheel load all new schemas/config; same-path replacement, wrong digest and missing resource reject before collection |
+
+FR13 P integrates C01–C10 in a local synthetic owner session: grant → collect →
+record context → verify old aggregate/report is rejected as stale → explicitly
+collect again with the new context binding → report unfavorable evidence → revoke
+→ denied report → guarded purge/restart. FR13 R is an independently prepared task/root exercising foreign
+identity, invalid source and revoked consent; it cannot reuse P authority objects.
+No fixture may directly fabricate an issued runtime, retention decision, committed
+completion record or trusted aggregate to claim integration success.
+
+### W9-T3 Layer and mock policy
+
+| Layer | Proposed files | Real boundaries / allowed doubles | Per-command ceiling |
+|---|---|---|---|
+| unit | `tests/unit/test_wp09_learning.py` | pure schemas, rational metrics, buckets and rule truth tables; immutable minimized fixtures only | native290s / recorder300s |
+| contract | `tests/contract/test_wp09_learning_contracts.py` | exact runtime operation/schema versions, valid installed registry; no strings asserted as a substitute for behavior | native290s / recorder300s |
+| integration | `tests/integration/test_wp09_learning.py` | real synthetic SQLite transactions, TaskApplication/runtime identity and repository source heads; fault injection only at named storage boundaries | native290s / recorder300s |
+| security | `tests/security/test_wp09_learning_privacy.py` | real security-subject issuance/retention/purge authorization, adversarial inputs, bounded-reader sentinels | native290s / recorder300s |
+| packaging | existing `tests/unit/test_wp00_packaging.py` plus focused wheel consumer | actual built wheel and protected config resources, no import-only fake | native290s / recorder300s |
+
+Serial commands with fresh private roots. A2 freezes exact class/method selectors,
+expected test count and command argv after the implementation boundary is known;
+no unconstrained discovery or total-suite rerun is authorized by this table. Record
+failures and stop the batch; only diagnosed changed inputs justify a targeted new
+attempt within current authority and budget. No automatic timeout increase.
+
+### W9-T4 Required adversarial matrix
+
+- Rejected unknown keys, raw body in a nominal code field, oversized UTF-8,
+  bool-as-int, negative count, NaN/Infinity, forged digest and duplicate source row.
+  Synthetic canary text must be absent from rows, reports, errors, logs and receipts.
+- Source head changes during read/write; missing transaction rows; cross-task
+  event/authority/context substitution; coherent caller-made hashes; cold replay
+  under a foreign runtime; CAS content must not be copied into learning buffers.
+- Admission tests at exactly each configured bound and one beyond, including
+  aggregate multi-task budget. Use a fetch/parse sentinel and real oversized row
+  proving rejection before materialization, not merely after allocating a blob.
+- Consent expiry, regrant, disallowed metric set, revoke and source/context changes
+  during report assembly. Retained immutable handles revalidate; an earlier grant
+  object cannot authorize later use. Regrant does not restore erased observations.
+- Hold/rollback/unresolved-action state changes between retention evaluation and
+  consume/delete. Crash before/after every durable write and after authorization
+  acquisition. Tombstone/row/receipt consistency checked from a fresh process.
+- Duration events in reverse order, no terminal event, no PRD boundary, missing
+  review mapping, zero known denominator and undersized cohort all retain explicit
+  unknown/insufficient-data semantics. Test valid zero only with a complete window.
+- Same-owner prior-task relation with missing/revoked consent at either end is not
+  usable. Self-reported abandonment cannot overwrite machine completion or become
+  a causal claim. Policy-selected experiment includes all unfavorable findings.
+
+### W9-T5 Current design checks and future evidence
+
+Current checks: parse Manifest/approval; exact five-file diff; unchanged PRD/Intent,
+Policy and all code/config; resolve document links and inspected source symbols;
+check `git diff --check`; run existing workflow `check` with explicit project Policy;
+independent Spec/Impact/Plan/Test Plan review with retained actual reducer decisions.
+No new product tests are needed to validate these reversible document changes.
+
+Future evidence binds exact commit/tree, installed policy/schema digests, source
+head vectors, consent generation and command outcomes. At most minimized synthetic
+codes/digests/counts are retained; never dump full environments or real user data.
+Candidate evidence must be current for implemented bytes. C274 r6 remains historical
+accepted evidence and cannot substitute for any WP09 case or new-tree regression.
+
+### W9-T6 Acceptance and exclusions
+
+Design exit: reviewed coherent proposal, precise implementation gates and no hidden
+schema/collection authority. Implementation exit: all ten CUJs and FR13 P/R covered,
+no open blocker, current privacy/retention and packaging evidence, independent
+review. Product-market-fit judgment and real experiment thresholds require owner
+participation; neither synthetic tests nor generated hypotheses establish PMF.
+Unknown metric fields may be reported honestly, but a permanently unimplemented
+required metric cannot be counted as complete WP09 coverage. W9-D2 must resolve
+source mappings before claiming the implementation ready.
+
+### W9-T7 R1 source-time and context oracles
+
+Time matrix: a valid issuer-bound same-domain trusted pair yields the configured
+trusted bucket; ordered caller-provided RFC3339 timestamps, even with valid event
+chain digests, yield unknown trusted elapsed and at most a separately labeled
+caller-reported bucket. Missing provenance/endpoint, invalid syntax, absent offset,
+incompatible domains, forged trusted labels and reverse order yield unavailable
+trusted duration. Inject both syntactically valid arbitrary values and invalid
+strings through real runtime/event storage, not a trusted fixture constructor.
+Existing repository trusted-clock expiry tests are separate and cannot certify
+those caller timestamps. If the trusted-duration source is not implemented, its
+positive fixture cannot be used to claim real-source WP09 coverage.
+
+Context matrix: collect at fixed source head, consent generation and policy with
+context version N/digest A. Change only context via the real owner operation to
+N+1/digest B: the old aggregate is stale, and new collection identity differs.
+Place deterministic barriers after capture and before final collect/report publish;
+change local context, change the related task's context, revoke the related task's
+consent, or expire/regrant either end. Verify exact dependency-vector mismatch,
+E_STALE/E_CONSENT and no stale response or persisted publication. Race context CAS
+writers: one expected-version winner, one conflict, idempotent same-request replay.
+Reject self/foreign/unconsented relations and traversal outside the explicit bounded
+set. Deleting context and returning to the empty state must not reuse an old version
+or resurrect an earlier report. Owner context does not mutate authoritative outcome.
+
+
+## WP09 approved exact verification inventory — 2026-10-04
+
+Supersedes W9-T3 pending selectors and the A2 R2 four-unavailable-metric slice. Main Spec source supplement supplies the three metrics and positive/refusal matrix; W9-C01–C10, prior privacy/race/retention contracts continue. Fourth stage-authority metric remains unavailable. 67 new tests and 65 existing methods, each exact selector run once per required RED/GREEN state; not claimed executed. No skips or zero collection can yield PASS. Native clock capability probes do not replace product tests.
+
+Every selector below uses `.venv/bin/python -B scripts/run_wp09_tests.py --test SELECTOR --timeout-seconds 290`, expected exactly one test, zero failures/skips for GREEN.
+
+- `tests.unit.test_wp09_learning.LearningTests.test_closed_fields`
+- `tests.unit.test_wp09_learning.LearningTests.test_rational_denominators`
+- `tests.unit.test_wp09_learning.LearningTests.test_duplicate_identity`
+- `tests.unit.test_wp09_learning.LearningTests.test_window_unknown_vs_zero`
+- `tests.unit.test_wp09_learning.LearningTests.test_counter_evidence_rules`
+- `tests.unit.test_wp09_learning.LearningTests.test_caller_time_not_trusted`
+- `tests.unit.test_wp09_learning.LearningTests.test_context_relation_identity`
+- `tests.unit.test_wp09_learning.LearningTests.test_boundary_limits`
+- `tests.contract.test_wp09_learning_contracts.LearningContractTests.test_six_operations`
+- `tests.contract.test_wp09_learning_contracts.LearningContractTests.test_explicit_consent_parser`
+- `tests.contract.test_wp09_learning_contracts.LearningContractTests.test_unknown_schema_policy`
+- `tests.contract.test_wp09_learning_contracts.LearningContractTests.test_installed_resource_binding`
+- `tests.contract.test_wp09_learning_contracts.LearningContractTests.test_legacy_owner_operations`
+- `tests.contract.test_wp09_learning_contracts.LearningContractTests.test_replay_request_conflict`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_fr13_positive`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_fr13_refusal`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_prospective_regrant`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_context_cas_stale_recollect`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_relation_endpoint_currentness`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_source_head_race`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_revoke_publish_race`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_schema_upgrade_restart`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_schema_upgrade_crash`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_migration_no_pmf_export`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_terminal_vs_self_report`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_source_mapping_unknowns`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_failure_recovery_sequence`
+- `tests.integration.test_wp09_learning.LearningIntegrationTests.test_caller_time_provenance`
+- `tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_foreign_identity_before_read`
+- `tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_expired_consent_no_read`
+- `tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_corrupt_chain_rejected`
+- `tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_preallocation_bounds`
+- `tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_cas_body_not_copied`
+- `tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_canary_absent`
+- `tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_retained_handle_currentness`
+- `tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_purge_legal_hold`
+- `tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_purge_authority_consumption`
+- `tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_purge_crash_restart`
+- `tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_clock_rollback`
+- `tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_tampered_installed_policy`
+- `tests.contract.test_wp03_connection.ConnectionFactoryTests.test_policy_and_capability_are_closed_and_fail_on_durability_weakening`
+- `tests.contract.test_wp03_connection.ConnectionFactoryTests.test_open_contract_pragmas_roles_modes_and_symlink_fail_closed`
+- `tests.contract.test_wp03_connection.ConnectionFactoryTests.test_connection_is_thread_and_fork_bound_and_transactions_are_explicit`
+- `tests.contract.test_wp03_connection.ConnectionFactoryTests.test_busy_retry_is_finite_and_failed_transaction_has_no_partial_write`
+- `tests.conformance.test_wp03_repository.RepositoryConformanceTests.test_atomic_commit_replay_catalog_cas_and_idempotent_recovery`
+- `tests.conformance.test_wp03_repository.RepositoryConformanceTests.test_before_commit_fault_is_old_and_after_commit_fault_is_recoverable_new`
+- `tests.conformance.test_wp03_repository.RepositoryConformanceTests.test_corruption_or_missing_committed_object_blocks_integrity`
+- `tests.conformance.test_wp03_repository.RepositoryConformanceTests.test_replay_binds_index_columns_and_transaction_revision_and_head`
+- `tests.conformance.test_wp03_repository.RepositoryConformanceTests.test_snapshot_is_derived_and_can_only_be_repaired_from_valid_committed_head`
+- `tests.conformance.test_wp03_repository.RepositoryConformanceTests.test_real_process_kill_exposes_only_old_before_commit_or_new_after_commit`
+- `tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_011_public_export_is_complete_and_clears_durable_hold`
+- `tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_012_migration_held_export_reuses_exact_exclusive_token`
+- `tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_013_bundle_tamper_or_missing_object_fails_validation`
+- `tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_014_import_replays_exact_history_and_objects_in_isolated_root`
+- `tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_015_activation_recovery_exposes_only_verified_active_or_blocked`
+- `tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_016_stale_restore_creates_gap_and_never_lowers_fence`
+- `tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_017_fault_schedule_is_exact_sorted_and_executable`
+- `tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_018_interrupted_export_hold_requires_explicit_recovery`
+- `tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_019_concurrent_public_exports_do_not_reenter_or_partial_publish`
+- `tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_020_sigkill_before_verifying_preserves_old_active`
+- `tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_021_sigkill_after_verifying_rolls_back_to_old_active`
+- `tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_022_sigkill_before_active_rolls_back_to_old_active`
+- `tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_023_sigkill_after_active_preserves_new_active`
+- `tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_024_two_process_activation_has_one_authority`
+- `tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_025_command_shared_scope_cannot_cross_activation_switch`
+- `tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_026_corrupt_history_publishes_stable_explicit_blocked`
+- `tests.unit.test_wp07_owner_turns.WP07OwnerTurnTests.test_gew_rt_045_each_owner_turn_is_one_exact_versioned_operation`
+- `tests.unit.test_wp07_runtime_contract.WP07RuntimeContractTests.test_gew_rt_001_runtime_identity_is_exact_immutable_and_digest_bound`
+- `tests.unit.test_wp07_runtime_contract.WP07RuntimeContractTests.test_gew_rt_002_owner_and_lineage_proofs_bind_one_runtime_instance`
+- `tests.unit.test_wp07_runtime_contract.WP07RuntimeContractTests.test_gew_rt_003_capability_handshake_is_exact_and_compatible`
+- `tests.unit.test_wp07_runtime_contract.WP07RuntimeContractTests.test_gew_rt_004_capability_missing_or_version_mismatch_rejects_session`
+- `tests.unit.test_wp07_runtime_contract.WP07RuntimeContractTests.test_gew_rt_005_runtime_adapter_protocol_requires_every_port`
+- `tests.unit.test_wp07_runtime_contract.WP07RuntimeContractTests.test_gew_rt_006_agent_and_reviewer_results_are_request_and_identity_bound`
+- `tests.unit.test_wp07_runtime_contract.WP07RuntimeContractTests.test_gew_rt_007_tool_and_human_ports_preserve_prepared_refs_and_pending`
+- `tests.unit.test_wp07_runtime_contract.WP07RuntimeContractTests.test_gew_rt_008_presentation_segments_bind_one_delivery_receipt`
+- `tests.unit.test_wp07_runtime_contract.WP07RuntimeContractTests.test_gew_rt_009_canonical_executable_locator_rejects_symlink_mode_and_digest`
+- `tests.unit.test_wp07_runtime_contract.WP07RuntimeContractTests.test_gew_rt_010_session_rejects_cross_runtime_owner_or_lineage`
+- `tests.security.test_wp05a_retention_and_extensions.RetentionTests.test_raw_tool_output_is_purged_after_extraction_with_tombstone`
+- `tests.security.test_wp05a_retention_and_extensions.RetentionTests.test_holds_and_unresolved_actions_block_purge`
+- `tests.security.test_wp05a_retention_and_extensions.RetentionTests.test_secret_body_persistence_and_unknown_category_fail_closed`
+- `tests.security.test_wp05a_retention_and_extensions.RetentionTests.test_purge_decision_must_be_revalidated_against_current_hold_snapshot`
+- `tests.security.test_wp05a_retention_and_extensions.RetentionTests.test_current_purge_is_consumed_exactly_once`
+- `tests.security.test_wp05a_retention_and_extensions.RetentionTests.test_current_unresolved_claim_is_read_from_repository`
+- `tests.security.test_wp05a_retention_and_extensions.ExtensionGateTests.test_builtin_data_descriptor_can_pass_but_non_builtin_executable_is_rejected`
+- `tests.unit.test_wp00_packaging.PackagingContractTests.test_performance_installation_closure_matches_packaged_resources`
+- `tests.unit.test_wp00_packaging.PackagingContractTests.test_performance_installation_rejects_source_drift_and_replaced_root`
+- `tests.unit.test_wp00_packaging.PackagingContractTests.test_project_requires_supported_python_and_exact_approved_runtime_dependency`
+- `tests.unit.test_wp00_packaging.PackagingContractTests.test_console_script_uses_installed_distribution_namespace`
+- `tests.unit.test_wp00_packaging.PackagingContractTests.test_responsibility_roots_map_to_one_namespace`
+- `tests.unit.test_wp00_packaging.PackagingContractTests.test_core_does_not_import_forbidden_layers`
+- `tests.unit.test_wp00_packaging.PackagingContractTests.test_runtime_files_do_not_bind_reference_project`
+- `tests.unit.test_wp00_packaging.PackagingContractTests.test_source_manifest_closes_profile_oracle_input_generation_two`
+- `tests.unit.test_wp00_packaging.PackagingContractTests.test_build_backend_rejects_unowned_and_symlinked_package_inputs`
+- `tests.unit.test_wp00_packaging.PackagingContractTests.test_build_backend_rejects_internal_and_external_symlink_ancestors`
+- `tests.unit.test_wp00_packaging.PackagingContractTests.test_build_backend_rejects_mapping_traversal`
+- `tests.unit.test_wp00_packaging.PreflightConfigurationReuseTests.test_fresh_reads_exact_text_and_detached_toml_values`
+- `tests.unit.test_wp00_packaging.PreflightConfigurationReuseTests.test_warm_read_and_parse_failures_and_replaced_parser`
+- `tests.unit.test_wp00_packaging.PreflightConfigurationReuseTests.test_nested_exception_cleanup_and_separate_operations`
+- `tests.unit.test_wp00_packaging.PreflightConfigurationReuseTests.test_copied_context_thread_and_fork_do_not_reuse_parent`
+- `tests.unit.test_wp00_packaging.PreflightConfigurationReuseTests.test_all_affected_installation_closures_match_real_wheel`
+- `tests.unit.test_wp00_packaging.DependencyLocationReuseTests.test_location_slots_reuse_only_within_phase_and_kind`
+- `tests.unit.test_wp00_packaging.DependencyLocationReuseTests.test_location_failed_changed_and_reverted_input_reparses`
+- `tests.unit.test_wp00_packaging.DependencyLocationReuseTests.test_location_parser_and_projector_substitution_cannot_hit`
+- `tests.unit.test_wp00_packaging.DependencyLocationReuseTests.test_location_nested_thread_fork_and_baseexception_cleanup`
+- `tests.unit.test_wp00_packaging.DependencyLocationReuseTests.test_application_phase_owns_location_lifetime`
+- `tests.unit.test_wp00_packaging.PackagingContractTests.test_wp09_installed_resources_and_tamper`
+- `tests.unit.test_wp09_learning_clock.ClockProviderTests.test_native_monotonic`
+- `tests.unit.test_wp09_learning_clock.ClockProviderTests.test_cross_process_domain`
+- `tests.unit.test_wp09_learning_clock.ClockProviderTests.test_changed_domain`
+- `tests.unit.test_wp09_learning_clock.ClockProviderTests.test_forged_provider`
+- `tests.unit.test_wp09_learning_clock.ClockProviderTests.test_integer_and_backward`
+- `tests.unit.test_wp09_learning_clock.ClockProviderTests.test_wall_clock_independence`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_real_run_terminal`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_pause_resume`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_duplicate_transaction`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_rollback_and_crash`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_restart_start_sample`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_late_grant_unknown`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_source_gap`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_revoke_commit_race`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_context_preserves_observation`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_real_review_verdicts`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_review_no_double_count`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_forged_review_binding`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_reapproval_window`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_real_human_interruptions`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_pre_post_approval_grants`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_non_decision_waits`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_repeat_wait_entry`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_missing_boundary`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_no_consent_no_sampling`
+- `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_wheel_real_provider`
+
+Also run the approved architecture, source, build/reproducibility, explicit-project-policy workflow and git diff checks after relevant code changes. Clock tests exercise actual installed provider and genuine source/channel while controlled doubles cover error conditions; no fake issued runtime or fabricated authorization. Consent off asserts zero clock/extra metric reads. Linux support requires native Linux evidence; do not silently skip a required platform claim. Freeze/source-hash execution inputs per Candidate protocol.

@@ -1507,3 +1507,141 @@ reset of its revision budget; preserve that complete historical chain.
 - [ ] PIN04 (XS,20min; PIN03): stage exact targets, canonical evidence and independent
   implementation/verification/Candidate reviews. Stop before commit or actual run.
 Actual results/times and immutable decisions belong in detached task records.
+
+
+## WP-09 local product learning — plan R1, 2026-10-02
+
+### W9-P1 Summary and current exit
+
+Deliver the [Spec W9 design](../specs/graph-engineering-workflow.md), Impact and
+Test Plan inside the approved five-file scope. The current exit is independently
+reviewed design plus explicit W9-D1/W9-D2 decisions ready for the owner. Product
+implementation, real-data collection and commit are not included. Existing FR-13
+and Intent approval remain valid; no Positioning/PRD restart is needed.
+
+### W9-P2 Phases
+
+| Phase | Deliverable | Exit |
+|---|---|---|
+| D — current design | source map, data/API/privacy/storage proposal and tests | four artifact verdicts and deterministic decisions retained; every material decision visible |
+| A — future authority | W9-D1 ADR and exact W9-D2 implementation targets/argv | owner architecture/scope decision and independent affected design review |
+| B — future construction | closed core, bounded reader, transactional storage and runtime operations | RED then GREEN for all critical journeys, no forbidden output or partial publication |
+| V — future verification | source/wheel parity, local synthetic end-to-end report and independent evidence | WP09-specific exit evidence; no inference of product-market fit or release readiness |
+
+### W9-P3 Dependency-ordered work
+
+One author `/root`; independent read-only reviewers use distinct canonical identities.
+No concurrent writers. Sizes are engineering estimates, not runtime promises:
+XS ≈ 30min, S ≈ 1–2h, M ≈ half-day; actual elapsed remains unmeasured until executed
+and must be recorded in per-command evidence. Each task maps to Spec W9 interfaces.
+
+- [ ] D1 (S, current): bind human approval, existing source seams, schema/consent
+  proposal and retention constraints. Acceptance: exact five changed targets;
+  source references resolve; no code/database modification. Blocks D2.
+- [ ] D2 (S, after D1): independently review Spec → Impact → Plan → Test Plan;
+  retain immutable verdict/reducer records, budget4 and stable findings. Acceptance:
+  no hidden implementation authority; W9-D1 decision remains explicit. Blocks A1.
+- [ ] A1 (XS, future, after D2): owner selects W9-D1 storage approach. Record ADR
+  and exact architecture outcome; no schema mutation before this decision. Blocks A2.
+- [ ] A2 (S, after A1): inspect migration/source/pin closure, freeze exact targets,
+  policy defaults and named test argv. Acceptance: every changed path is allowed,
+  every actual source mapping has a positive and refusal fixture. Blocks B1.
+- [ ] B1 (S, after A2): RED closed schemas/rational rule evaluation/unknown window
+  semantics; implement pure projection and self-report separation. Acceptance:
+  duplicate input cannot increase denominator, forbidden payload never escapes.
+- [ ] B2 (M, after B1): RED real repository source-head, chain and resource limits;
+  implement bounded transactional reader. Acceptance: over-limit rejects before
+  materialization; corrupt, cross-task and racing inputs publish nothing.
+- [ ] B3 (M, after B2): RED approved local schema migration and crash points;
+  implement consent/context/aggregate/tombstone transaction hooks. Acceptance:
+  revoke wins at linearization, replay is idempotent, old runtime remains usable
+  under the approved compatibility contract. No install/activation operation.
+- [ ] B4 (M, after B3): RED owner grant/revoke/collect/context/report/purge journeys;
+  wire authenticated application and runtime vocabulary. Acceptance: foreign
+  identity denied before reading metrics; every retained handle checks currentness.
+- [ ] B5 (S, after B4): RED retention-subject, blockers and crash-after-authorization
+  cases; wire guarded purge. Acceptance: atomic suppression, blocked deletion is
+  visible, tombstone and deletion agree after restart. Blocks V1.
+- [ ] V1 (S, after B5): refresh only changed installation resources/pins; run bounded
+  source and wheel tests. Acceptance: new schemas/modules actually installed,
+  tampered resources rejected, existing owner operations remain compatible.
+- [ ] V2 (S, after V1): verify PMF001–004 / FR13 P/R with private synthetic roots;
+  independently review implementation and verification. Acceptance: zero blocking
+  findings and source-bound evidence, no real content or false PMF claim.
+- [ ] V3 (XS, after V2): prepare Candidate and review under the then-current
+  Manifest; stop before separate commit/push/release authority.
+
+### W9-P4 Dependencies
+
+Approved PRD and C274 local closure are available; they do not provide telemetry
+consent. Existing runtime, repository and retention interfaces are available but
+need the additions in Spec W9.4. No new external library/service is proposed.
+Private synthetic local repositories are the verification environment; real user
+repositories and cloud runtimes are not required. W9-D1 and W9-D2 block code, not
+authoring or independent review of this design proposal.
+
+### W9-P5 Implementation risks
+
+Source coverage may be thinner than assumed: A2 must classify every metric as
+observed, owner-reported or unavailable before B1. Pin/migration expansion may
+exceed the inventory: A2 freezes the actual closure and escalates only concrete
+extra paths. Cross-component consent/purge wiring is high impact: B3/B5 require
+real transaction/crash tests before runtime exposure. No pressure to complete
+allows falling back to unbounded replay or deleting audit history.
+
+### W9-P6 Rollout and rollback
+
+No rollout now. Future implementation is disabled without explicit task consent;
+first verification is synthetic-only. Real-data use, installation, migration on
+owner data, publication and deployment need their applicable separate authority.
+An invariant failure disables the new learning entry rather than ordinary task
+operations. Schema downgrade strategy is decided with W9-D1; no unmeasured rollback
+time promise. Percentage rollout/canary is inapplicable to this local design task.
+
+### W9-P7 Verification
+
+Use [Test Plan W9](../test-plans/graph-engineering-workflow.md). Author tests before
+code; freeze selectors and budgets in A2. Current design checks are Markdown/JSON
+structure, local references, exact diff scope and independent review. No tests
+that merely compare prose; no full274 run for documentation. Human PMF interpretation
+is a later product activity and cannot be replaced by a synthetic acceptance result.
+
+### W9-P8 Open decisions
+
+W9-D1 architecture and W9-D2 exact implementation closure are due before A/B code;
+see Spec W9.11. Real experiment targets and real-data consent are due before any
+real collection, not needed to author or test the mechanism synthetically. An
+independent design PASS is never an implicit resolution of those decisions.
+
+### W9-P9 References
+
+[PRD](../prd/graph-engineering-workflow.md),
+[Positioning](../positioning/graph-engineering-workflow.md),
+[Spec](../specs/graph-engineering-workflow.md),
+[Impact](../impact/graph-engineering-workflow.md),
+[Test Plan](../test-plans/graph-engineering-workflow.md).
+
+### W9-P10 History
+
+2026-10-02 R0: owner approved five-file WP09 design stage. Preserve all earlier
+implementation and C274 execution records. Checkbox state above describes this
+new design/implementation sequence, not historical WP08 progress.
+
+2026-10-02 R1: A2 must freeze clock provenance and separate caller-reported from
+trusted elapsed inputs. B1/B2 acceptance includes arbitrary valid caller timestamps;
+B3/B4 acceptance includes context CAS/version invalidation and both relation-end
+consent/context checks at publication. These changes resolve independent design
+findings; they do not authorize a new clock source, implementation or schema work.
+
+
+## WP09 approved construction — 2026-10-04
+
+Owner approved implementation and bounded tests after source-design review. This supersedes the earlier unapproved A/B status, retaining W9-P3 task sizes/dependencies and actual-time recording requirement.
+
+- [ ] I1 (S, 1–2h): sync reviewed design and ADR; exact scope/source checks and independent reviews.
+- [ ] I2 (M, half-day, I1): RED/GREEN closed core/config, real clock provider and genuine application measurement channel; native capability proof, forged sources rejected.
+- [ ] I3 (M, half-day, I2): RED/GREEN schema maintenance, consent/context/observation transaction, bounded collection and report, revoke/currentness and migration guard.
+- [ ] I4 (M, half-day, I3): RED/GREEN genuine retention subject and purge authorization with crash/race fixtures.
+- [ ] I5 (S, 1–2h, I4): installed source/pin/wheel closure and 132 exact test commands, independent implementation/verification review and Candidate preparation. Stop before commit/push.
+
+Estimates are not elapsed promises. Each test is a separate native <=290s child, canonical recorder <=300s, serial fail-fast. Preserve source/head and time evidence; Linux native unavailability limits platform claims rather than being replaced by a simulated PASS. No full274/P1.

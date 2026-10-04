@@ -1860,6 +1860,27 @@ class InstallationMigrationRepository:
             raise MigrationRepositoryError("migration ledger head does not bind the exact history")
         return tuple(history)
 
+    def initialize_learning_storage(self) -> None:
+        """Explicit local maintenance, serialized with export and activation."""
+        token = self._control_lock.acquire("exclusive")
+        try:
+            self.initialize_learning_under_installation_exclusive(token)
+        finally:
+            self._control_lock.release(token)
+
+    def initialize_learning_under_installation_exclusive(self, token: _ControlLockToken) -> None:
+        from graph_engineering.core.learning import LearningError
+        from .learning import _initialize_schema
+
+        self._control_lock.require_held(token, "exclusive")
+        _manifest, factory = self._current_factory(token)
+        try:
+            with factory.open("migration") as connection:
+                with connection.transaction():
+                    _initialize_schema(connection, self._fault)
+        except (LearningError, sqlite3.DatabaseError) as error:
+            raise MigrationRepositoryError("learning schema maintenance failed") from error
+
     def export_bundle(self, destination: pathlib.Path, *, export_id: str) -> MigrationBundle:
         try:
             token = self._control_lock.acquire("exclusive")
@@ -1888,6 +1909,22 @@ class InstallationMigrationRepository:
         if type(export_id) is not str or not export_id or not destination.is_absolute() or destination.exists():
             raise MigrationRepositoryError("export identity or destination is invalid")
         source_manifest, source_factory = self._current_factory(token)
+        # This check shares the installation-exclusive lock with PMF maintenance.
+        # Even empty or partially initialized learning storage forbids export:
+        # consent and suppression metadata must not escape in an online backup.
+        try:
+            with source_factory.open("doctor") as connection:
+                learning_table = connection.execute(
+                    "SELECT 1 FROM sqlite_master WHERE lower(name) IN "
+                    "('pmf_consents','pmf_aggregates','pmf_owner_context','pmf_tombstones') LIMIT 1"
+                ).fetchone()
+                learning_version = connection.execute(
+                    "SELECT 1 FROM schema_versions WHERE lower(component) = 'pmf' LIMIT 1"
+                ).fetchone()
+        except (sqlite3.DatabaseError, RepositoryError):
+            raise MigrationRepositoryError("learning export metadata is unavailable") from None
+        if learning_table is not None or learning_version is not None:
+            raise MigrationRepositoryError("learning storage disables migration export")
         destination.mkdir(mode=self._policy.root_mode)
         objects_root = destination / self._policy.bundle_objects_directory
         objects_root.mkdir(mode=self._policy.root_mode)

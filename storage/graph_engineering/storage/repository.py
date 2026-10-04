@@ -2541,6 +2541,7 @@ class TaskRepository:
         *,
         fence_token: object | None = None,
         source_fence_token: object | None = None,
+        learning_observation: object | None = None,
     ) -> CommitResult:
         if self._context_validator is not None:
             self._context_validator()
@@ -2797,6 +2798,11 @@ class TaskRepository:
                                     schema_registry=self._concrete_action_schemas,
                                     context=self._concrete_action_context,
                                 )
+                            from .learning import _observe_task_commit
+                            _observe_task_commit(
+                                self, connection, batch, validated, prior_snapshot_json,
+                                snapshot, learning_observation,
+                            )
                             self._evolve_security_state(
                                 connection,
                                 batch.task_id,

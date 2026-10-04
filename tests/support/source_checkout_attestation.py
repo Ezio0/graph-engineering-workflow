@@ -30,6 +30,7 @@ SOURCE_FILES = (
     "adapters/graph_engineering/adapters/performance_environment.py",
     "application/graph_engineering/application/actions.py",
     "application/graph_engineering/application/dependency_security.py",
+    "application/graph_engineering/application/learning.py",
     "application/graph_engineering/application/migration_rehearsal.py",
     "application/graph_engineering/application/performance_benchmark.py",
     "application/graph_engineering/application/profile_coverage.py",
@@ -99,6 +100,10 @@ SOURCE_FILES = (
     "config/contracts/schemas/dependency-security-observation-1.1.0.json",
     "config/contracts/schemas/dependency-security-observation-input-1.0.0.json",
     "config/contracts/schemas/dependency-security-observation-input-1.1.0.json",
+    "config/contracts/schemas/learning-input-1.0.0.json",
+    "config/contracts/schemas/learning-policy-1.0.0.json",
+    "config/contracts/schemas/learning-record-1.0.0.json",
+    "config/contracts/schemas/learning-report-1.0.0.json",
     "config/contracts/schemas/logical-body-manifest-1.0.0.json",
     "config/contracts/schemas/migration-crash-recovery-observation-1.0.0.json",
     "config/contracts/schemas/migration-crash-recovery-observation-input-1.0.0.json",
@@ -168,6 +173,8 @@ SOURCE_FILES = (
     "config/contracts/schemas/scenario-truth-observation-input-1.0.0.json",
     "config/contracts/schemas/scenario-truth-policy-registry-1.0.0.json",
     "config/contracts/schemas/scenario-truth-policy-registry-input-1.0.0.json",
+    "config/learning/learning-experiments-v1.json",
+    "config/learning/learning-policy-v1.json",
     "config/migration/migration-rehearsal-fixture-v1.json",
     "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
     "config/migration/migration-rehearsal-registry-v1.json",
@@ -348,6 +355,7 @@ SOURCE_FILES = (
     "core/graph_engineering/core/artifacts/records.py",
     "core/graph_engineering/core/contracts/schema.py",
     "core/graph_engineering/core/dependency_security.py",
+    "core/graph_engineering/core/learning.py",
     "core/graph_engineering/core/migration_rehearsal.py",
     "core/graph_engineering/core/performance_benchmark.py",
     "core/graph_engineering/core/profile_coverage.py",
@@ -359,10 +367,11 @@ SOURCE_FILES = (
     "pyproject.toml",
     "scripts/build_backend.py",
     "storage/graph_engineering/storage/clock.py",
+    "storage/graph_engineering/storage/learning.py",
+    "storage/graph_engineering/storage/learning_clock.py",
     "storage/graph_engineering/storage/migration.py",
     "storage/graph_engineering/storage/repository.py",
     "storage/graph_engineering/storage/security.py",
-
 )
 
 

@@ -1,0 +1,304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:learning-input:1.0.0",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "operation": {
+          "const": "grant_learning"
+        },
+        "metric_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 11,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "category",
+              "risk_path",
+              "completion",
+              "abandonment",
+              "revision_count",
+              "human_interruption_count",
+              "elapsed_bucket",
+              "failure",
+              "recovery_attempt",
+              "repeat_use",
+              "authorized_stage"
+            ]
+          }
+        },
+        "expires_at_ns": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 19
+        },
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "expected_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "request_id",
+        "task_id",
+        "operation",
+        "metric_ids",
+        "expires_at_ns",
+        "schema_version",
+        "expected_generation"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "operation": {
+          "const": "revoke_learning"
+        },
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "expected_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "request_id",
+        "task_id",
+        "operation",
+        "schema_version",
+        "expected_generation"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "operation": {
+          "const": "record_learning_context"
+        },
+        "prior_task_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "expected_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "expected_context_version": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "abandonment_code": {
+          "enum": [
+            "abandoned",
+            "not-stated"
+          ]
+        }
+      },
+      "required": [
+        "request_id",
+        "task_id",
+        "operation",
+        "prior_task_id",
+        "schema_version",
+        "expected_generation",
+        "expected_context_version",
+        "abandonment_code"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "operation": {
+          "const": "collect_learning"
+        },
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "expected_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "expected_context_version": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "expected_head": {
+          "type": "string",
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+          "maxLength": 78
+        }
+      },
+      "required": [
+        "request_id",
+        "task_id",
+        "operation",
+        "schema_version",
+        "expected_generation",
+        "expected_context_version",
+        "expected_head"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "operation": {
+          "const": "report_learning"
+        },
+        "experiment_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "task_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "schema_version": {
+          "const": "1.0.0"
+        }
+      },
+      "required": [
+        "request_id",
+        "task_id",
+        "operation",
+        "experiment_id",
+        "task_ids",
+        "schema_version"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "operation": {
+          "const": "purge_learning"
+        },
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "expected_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "trigger": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "request_id",
+        "task_id",
+        "operation",
+        "schema_version",
+        "expected_generation",
+        "trigger"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "type": "object",
+  "unevaluatedProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    }
+  },
+  "required": [
+    "schema_version"
+  ]
+}

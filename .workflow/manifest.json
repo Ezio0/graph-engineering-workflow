@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0",
   "workflow_version": "4.0.0",
-  "task_id": "GEW-REMAINING54-V1",
+  "task_id": "GEW-WP09-LOCAL-LEARNING-DESIGN-V1",
   "tier_decision": {
     "suggested": "T2",
     "declared": "T2",
-    "justification": "T2 consolidated C274 runtime repair with explicitly approved one-revision budget amendment and corrected representative abort/cleanup verification."
+    "justification": "T2 user-requested checkpoint of the implemented WP09 consent/observation foundation and 34 changed files. Collect/report/purge and remaining approved verification continue after this commit; this is not WP09 completion."
   },
   "roles": {
     "human-owner": "Human Owner",
@@ -15,20 +15,39 @@
   },
   "target_files": [
     ".workflow/manifest.json",
-    "application/graph_engineering/application/dependency_security.py",
+    "application/graph_engineering/application/learning.py",
+    "application/graph_engineering/application/owner_turns.py",
+    "application/graph_engineering/application/tasks.py",
+    "config/contracts/schemas/learning-input-1.0.0.json",
+    "config/contracts/schemas/learning-policy-1.0.0.json",
+    "config/contracts/schemas/learning-record-1.0.0.json",
+    "config/contracts/schemas/learning-report-1.0.0.json",
+    "config/learning/learning-experiments-v1.json",
+    "config/learning/learning-policy-v1.json",
     "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
     "config/profiles/scenario-truth-installation-bootstrap-v1.json",
     "config/release-operations/release-operations-installation-bootstrap-v1.json",
-    "config/workflow-policy.json",
     "core/graph_engineering/__init__.py",
-    "docs/impact/preflight-configuration-parse-reuse.md",
-    "docs/plans/2026-09-29-preflight-configuration-parse-reuse.md",
-    "docs/specs/preflight-configuration-parse-reuse.md",
-    "docs/test-plans/preflight-configuration-parse-reuse.md",
+    "core/graph_engineering/core/learning.py",
+    "docs/adr/0010-local-product-learning-storage.md",
+    "docs/impact/graph-engineering-workflow.md",
+    "docs/plans/2026-08-13-graph-engineering-workflow.md",
+    "docs/specs/graph-engineering-workflow.md",
+    "docs/test-plans/graph-engineering-workflow.md",
     "pyproject.toml",
-    "tests/integration/test_wp08_scenario_truth.py",
-    "tests/support/wp08_release_coverage.py",
-    "tests/unit/test_wp00_packaging.py"
+    "scripts/run_wp09_tests.py",
+    "storage/graph_engineering/storage/learning.py",
+    "storage/graph_engineering/storage/learning_clock.py",
+    "storage/graph_engineering/storage/migration.py",
+    "storage/graph_engineering/storage/repository.py",
+    "tests/contract/test_wp09_learning_contracts.py",
+    "tests/integration/test_wp09_learning.py",
+    "tests/integration/test_wp09_learning_metric_sources.py",
+    "tests/security/test_wp09_learning_privacy.py",
+    "tests/support/source_checkout_attestation.py",
+    "tests/unit/test_wp00_packaging.py",
+    "tests/unit/test_wp09_learning.py",
+    "tests/unit/test_wp09_learning_clock.py"
   ],
   "artifacts": {
     "positioning": [
@@ -38,13 +57,13 @@
       "docs/prd/graph-engineering-workflow.md"
     ],
     "spec": [
-      "docs/specs/preflight-configuration-parse-reuse.md"
+      "docs/specs/graph-engineering-workflow.md"
     ],
     "plan": [
-      "docs/plans/2026-09-29-preflight-configuration-parse-reuse.md"
+      "docs/plans/2026-08-13-graph-engineering-workflow.md"
     ],
     "test_plan": [
-      "docs/test-plans/preflight-configuration-parse-reuse.md"
+      "docs/test-plans/graph-engineering-workflow.md"
     ]
   },
   "incidents": []
