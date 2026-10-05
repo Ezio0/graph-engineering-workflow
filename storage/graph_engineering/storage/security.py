@@ -99,6 +99,37 @@ class SecurityStateRepository:
             raise RepositoryIntegrityError("security state requires an attested repository")
         self._factory = factory
 
+    @classmethod
+    def _refresh_learning_subject_locked(cls,connection,task_id,policy_digest,changed_at_ns,max_bytes):
+        """Invalidate existing PMF retention decisions; never invent trust roots."""
+        import hashlib
+        from .codec import parse_canonical_json,canonical_json
+        size=connection.execute('SELECT length(CAST(state_json AS BLOB)) FROM task_security_states WHERE task_id=?',
+            (task_id,)).fetchone()
+        if size is None:return
+        if size[0]>max_bytes:raise RepositoryIntegrityError('learning security state exceeds bound')
+        row=connection.execute('SELECT s.state_json,s.state_digest,s.task_revision,s.task_snapshot_digest,t.revision,t.snapshot_digest '
+            'FROM task_security_states s JOIN tasks t ON t.task_id=s.task_id WHERE s.task_id=?',(task_id,)).fetchone()
+        state=parse_canonical_json(row[0])
+        if (type(state) is not dict or set(state)!=_STATE_KEYS or row[2:]!=(row[4],row[5],row[4],row[5])
+                or semantic_record_digest({'contract':'task-security-state-v1','value':state})!=row[1]):
+            raise RepositoryIntegrityError('learning security state is not current')
+        ref='learning:'+hashlib.sha256(policy_digest.encode()).hexdigest()
+        subject=state['retention_subjects'].get(ref)
+        if subject is None:return
+        if (type(subject) is not dict or subject.get('category')!='pmf-aggregate'
+                or type(subject.get('revision')) is not int or not 0<=subject['revision']<2**53-1):
+            raise RepositoryIntegrityError('learning retention subject is invalid')
+        subject['revision']+=1
+        subject['snapshot_digest']=row[5]
+        if changed_at_ns is not None:subject['created_at']=cls._clock_text(changed_at_ns)
+        body=canonical_json(state)
+        if len(body.encode())>max_bytes:raise RepositoryIntegrityError('learning security state exceeds bound')
+        digest=semantic_record_digest({'contract':'task-security-state-v1','value':state})
+        if connection.execute('UPDATE task_security_states SET state_json=?,state_digest=? WHERE task_id=? AND state_digest=?',
+                (body,digest,task_id,row[1])).rowcount!=1:
+            raise RepositoryConflictError('learning security refresh lost its CAS')
+
     @staticmethod
     def _mapping(value: object, keys: frozenset[str], label: str) -> dict[str, object]:
         if type(value) is not dict or set(value) != keys:
@@ -385,67 +416,73 @@ class SecurityStateRepository:
         task_id = self._identity(task_id, "task ID")
         with self._factory.open("application") as connection:
             with connection.transaction():
-                state, state_digest = self._load_task_state(connection, task_id, context)
-                if not hmac.compare_digest(decision.task_context_digest, state_digest):
-                    raise RepositoryConflictError("purge decision is stale for current security state")
-                subjects = state["retention_subjects"]
-                assert isinstance(subjects, dict)
-                subject = subjects.get(decision.subject_ref)
-                if type(subject) is not dict:
-                    raise RepositoryIntegrityError("retention subject is not current")
-                snapshot_digest = require_jcs_digest(subject.get("snapshot_digest"))
-                if not hmac.compare_digest(snapshot_digest, decision.subject_snapshot_digest):
-                    raise RepositoryConflictError("retention subject changed after decision")
-                if subject.get("sensitivity") == "secret" or any(
-                    subject.get(field) is not False
-                    for field in ("legal_hold", "rollback_dependency", "unresolved_action")
-                ):
-                    raise RepositoryConflictError("current durable retention blockers forbid purge")
-                unresolved = connection.execute(
-                    "SELECT 1 FROM claims WHERE task_id=? AND state='unresolved' LIMIT 1",
-                    (task_id,),
-                ).fetchone()
-                if unresolved is not None:
-                    raise RepositoryConflictError("current unresolved action claim forbids purge")
-                if decision.tombstone_required is not True:
-                    raise RepositoryIntegrityError("purge authorization requires an audit tombstone")
-                decision_value = {
-                    "action": decision.action,
-                    "subject_ref": decision.subject_ref,
-                    "category": decision.category,
-                    "trigger": decision.trigger,
-                    "tombstone_required": decision.tombstone_required,
-                    "reason": decision.reason,
-                    "subject_snapshot_digest": decision.subject_snapshot_digest,
-                    "security_state_digest": decision.task_context_digest,
-                }
-                decision_digest = semantic_record_digest({
-                    "contract": "retention-decision-v1",
-                    "value": decision_value,
-                })
-                authorization_id = semantic_record_digest({
-                    "contract": "consumed-purge-authorization-v1",
-                    "task_id": task_id,
-                    "decision_digest": decision_digest,
-                })
-                consumed_at = trusted_now(connection)
-                try:
-                    connection.execute(
-                        "INSERT INTO purge_authorizations(authorization_id,task_id,subject_ref,"
-                        "subject_snapshot_digest,security_state_digest,decision_digest,consumed_at_ns) "
-                        "VALUES(?,?,?,?,?,?,?)",
-                        (
-                            authorization_id,
-                            task_id,
-                            decision.subject_ref,
-                            snapshot_digest,
-                            state_digest,
-                            decision_digest,
-                            consumed_at,
-                        ),
-                    )
-                except sqlite3.IntegrityError as error:
-                    raise RepositoryConflictError("purge decision was already consumed") from error
+                return self._authorize_purge_locked(connection,task_id,decision,context)
+
+    def _authorize_purge_locked(self,connection,task_id,decision,context):
+        self._factory._require_owned_transaction(connection)
+        if type(decision) is not RetentionDecision or decision.action!='purge':
+            raise RepositoryIntegrityError('only a purge decision can be consumed')
+        state, state_digest = self._load_task_state(connection, task_id, context)
+        if not hmac.compare_digest(decision.task_context_digest, state_digest):
+            raise RepositoryConflictError("purge decision is stale for current security state")
+        subjects = state["retention_subjects"]
+        assert isinstance(subjects, dict)
+        subject = subjects.get(decision.subject_ref)
+        if type(subject) is not dict:
+            raise RepositoryIntegrityError("retention subject is not current")
+        snapshot_digest = require_jcs_digest(subject.get("snapshot_digest"))
+        if not hmac.compare_digest(snapshot_digest, decision.subject_snapshot_digest):
+            raise RepositoryConflictError("retention subject changed after decision")
+        if subject.get("sensitivity") == "secret" or any(
+            subject.get(field) is not False
+            for field in ("legal_hold", "rollback_dependency", "unresolved_action")
+        ):
+            raise RepositoryConflictError("current durable retention blockers forbid purge")
+        unresolved = connection.execute(
+            "SELECT 1 FROM claims WHERE task_id=? AND state='unresolved' LIMIT 1",
+            (task_id,),
+        ).fetchone()
+        if unresolved is not None:
+            raise RepositoryConflictError("current unresolved action claim forbids purge")
+        if decision.tombstone_required is not True:
+            raise RepositoryIntegrityError("purge authorization requires an audit tombstone")
+        decision_value = {
+            "action": decision.action,
+            "subject_ref": decision.subject_ref,
+            "category": decision.category,
+            "trigger": decision.trigger,
+            "tombstone_required": decision.tombstone_required,
+            "reason": decision.reason,
+            "subject_snapshot_digest": decision.subject_snapshot_digest,
+            "security_state_digest": decision.task_context_digest,
+        }
+        decision_digest = semantic_record_digest({
+            "contract": "retention-decision-v1",
+            "value": decision_value,
+        })
+        authorization_id = semantic_record_digest({
+            "contract": "consumed-purge-authorization-v1",
+            "task_id": task_id,
+            "decision_digest": decision_digest,
+        })
+        consumed_at = trusted_now(connection)
+        try:
+            connection.execute(
+                "INSERT INTO purge_authorizations(authorization_id,task_id,subject_ref,"
+                "subject_snapshot_digest,security_state_digest,decision_digest,consumed_at_ns) "
+                "VALUES(?,?,?,?,?,?,?)",
+                (
+                    authorization_id,
+                    task_id,
+                    decision.subject_ref,
+                    snapshot_digest,
+                    state_digest,
+                    decision_digest,
+                    consumed_at,
+                ),
+            )
+        except sqlite3.IntegrityError as error:
+            raise RepositoryConflictError("purge decision was already consumed") from error
         return ConsumedPurgeAuthorization(
             authorization_id,
             task_id,

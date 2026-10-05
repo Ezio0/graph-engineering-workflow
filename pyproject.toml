@@ -349,8 +349,8 @@ schema-vectors = [
 
 [tool.gew.profile.scenario-truth]
 bootstrap-id = "urn:gew:scenario-truth-installation-bootstrap:1.0.0"
-bootstrap-digest = "sha256-jcs-v1:2aeb93d528087b156e155cde8789221465ef306cd368a8adbc993b4b3ea5b0a5"
-bootstrap-raw-sha256 = "024f4e32c970c959b13a50313956058da18ec3dd94e03f2323c540f0616bf57f"
+bootstrap-digest = "sha256-jcs-v1:a8ddd5897a908444b5c6b57f9af4a32795ae89bcc7694cda6a6726c1354e7f5c"
+bootstrap-raw-sha256 = "4c98a6971e8d8bf07dc3f9eac09c07039bbe72031c1bba3a33e9cf4e24db57dd"
 bootstrap-source = "config/profiles/scenario-truth-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/profiles/scenario-truth-installation-bootstrap-v1.json"
 policy-source = "config/profiles/scenario-truth-policy-registry-v1.json"
@@ -406,8 +406,8 @@ distribution-version = "0.1.0"
 
 [tool.gew.profile.release-operations]
 bootstrap-id = "urn:gew:release-operations-installation-bootstrap:1.0.0"
-bootstrap-digest = "sha256-jcs-v1:87dabee71f153668fc0e53924855ecd871fff6f7ee35670cd6b100c8cfd5629f"
-bootstrap-raw-sha256 = "62aca47c1602fae90284058320872716efad0544c45722bda8e9aaecd40ed288"
+bootstrap-digest = "sha256-jcs-v1:5a13cda3b1e0dd775d4aca7cec071ae8b8d4aa540e0ac464d1ed48b38a0e20b8"
+bootstrap-raw-sha256 = "6d041b96f11f2eceb6a1c69b20d9a9b67caea91b1bea2a5f0d3c7819ba7eeb81"
 bootstrap-source = "config/release-operations/release-operations-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/release-operations/release-operations-installation-bootstrap-v1.json"
 policy-source = "config/release-operations/release-operations-policy-registry-v1.json"

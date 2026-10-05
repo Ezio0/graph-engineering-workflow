@@ -48,7 +48,7 @@ SECURITY_SCHEMA_NAMES = (
     "security-runtime-manifest-1.0.0.json",
 )
 SECURITY_RUNTIME_ID = "security-runtime-default"
-SECURITY_RUNTIME_DIGEST = "sha256-jcs-v1:9b5fdbfa92fd9823cba13b824552d207ed861ac17365ecf107f52fb46aaa3d8e"
+SECURITY_RUNTIME_DIGEST = "sha256-jcs-v1:60ec8d6f924d821e47d5554c1cb01b2a26fe412d298f80b0ae56b87a53e04c90"
 
 
 def load_json(path: pathlib.Path) -> dict[str, object]:

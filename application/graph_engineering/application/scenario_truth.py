@@ -440,7 +440,7 @@ def _refactor_proof(binding, fixture, pins, root, root_identity):
     ) != candidate_bytes:
         raise ScenarioTruthError("scenario refactor candidate changed during gate")
 
-    def proof_observation(document, body):  # type: ignore[no-untyped-def]
+    def proof_observation(document: dict[str, object], body: bytes) -> dict[str, object]:
         value = copy.deepcopy(document)
         value["value_digest"] = "sha256:" + hashlib.sha256(body).hexdigest()
         return value
@@ -581,7 +581,7 @@ class ScenarioTruthObservationFactory:
             raise ScenarioTruthError("scenario baseline binding or controls changed")
         return issued[1]
 
-    def reject(self, attack_id: str, request: object, *, baseline_receipt=None) -> ScenarioTruthRejectionReceipt:
+    def reject(self, attack_id: str, request: object, *, baseline_receipt: object = None) -> ScenarioTruthRejectionReceipt:
         self._owner.require_observer(self)
         if self._executed or self._mutation_count:
             raise ScenarioTruthError("scenario rejection observer is one-shot")
@@ -901,7 +901,7 @@ class ScenarioTruthObservationFactory:
             raise ScenarioTruthError("scenario target request aliases a role or path")
         return request
 
-    def execute(self, request: object, *, baseline_receipt=None) -> ScenarioTruthObservation:
+    def execute(self, request: object, *, baseline_receipt: object = None) -> ScenarioTruthObservation:
         value = self._validate_request(request)
         self._owner.require_observer(self)
         if self._executed or self._mutation_count:

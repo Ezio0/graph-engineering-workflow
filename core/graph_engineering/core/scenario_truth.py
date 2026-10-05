@@ -223,7 +223,8 @@ def validate_execution_contract(value: object, targets: object) -> None:
     gates = contract["ordered_gates"]
     if type(gates) is not list or len(gates) != 3:
         raise ScenarioTruthError("ordered gate closure is incomplete")
-    ids, kinds = [], []
+    ids = []
+    kinds = []
     for item in gates:
         row = _exact(item, ("gate_id", "kind"), "ordered gate")
         ids.append(_text(row["gate_id"], "gate ID"))
@@ -236,7 +237,7 @@ _REFACTOR_CONTRACT_FIELDS = (
     "contract_id", "environment_id", "gate_ids", "behavior_cases",
     "required_edges", "forbidden_edges", "nonfunctional_target",
 )
-_BEHAVIOR_FIELDS = (
+_CASE_CONTRACT_FIELDS = (
     "case_id", "input_digest", "output_digest", "error_digest",
     "side_effect_digest",
 )
@@ -277,9 +278,9 @@ def _behavior_vector(value: object, label: str) -> tuple[Mapping[str, object], .
     rows: list[Mapping[str, object]] = []
     case_ids: list[str] = []
     for item in value:
-        row = _exact(item, _BEHAVIOR_FIELDS, label)
+        row = _exact(item, _CASE_CONTRACT_FIELDS, label)
         case_ids.append(_text(row["case_id"], "behavior case ID"))
-        for field in _BEHAVIOR_FIELDS[1:]:
+        for field in _CASE_CONTRACT_FIELDS[1:]:
             _digest(row[field], f"behavior {field}")
         rows.append(row)
     if len(case_ids) != len(set(case_ids)):

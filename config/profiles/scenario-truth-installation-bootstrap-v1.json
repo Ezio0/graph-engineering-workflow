@@ -58,7 +58,7 @@
     },
     {
       "path": "application/graph_engineering/application/scenario_truth.py",
-      "raw_sha256": "d408db1f4ad1d890259672f8e2a6487a4044f9cf686c33b7c097a71af74bb401"
+      "raw_sha256": "cd0481fc9826194da4b923dc272f5b84957852cacae12bfa608af39a0f32e41d"
     },
     {
       "path": "core/graph_engineering/__init__.py",
@@ -74,13 +74,13 @@
     },
     {
       "path": "core/graph_engineering/core/scenario_truth.py",
-      "raw_sha256": "1801635b0a189aeea170501ab293b11935d6ebf358583aa5963732d49c75e3ea"
+      "raw_sha256": "251518c992e3296d2d6a8cad63e11ba8a51f8f80c0a95d751703a67ab9f34fdf"
     },
     {
       "path": "scripts/build_backend.py",
       "raw_sha256": "22d4e76f7ce30bf05acbe62004feab0228a59ccee58f26e28d6c6f39689968a7"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:cd6f455a1b2a5c06deb7f50dbd7efeac8dc5b076e85edc2aae6359d99d5152be",
-  "bootstrap_digest": "sha256-jcs-v1:2aeb93d528087b156e155cde8789221465ef306cd368a8adbc993b4b3ea5b0a5"
+  "protected_closure_digest": "sha256-jcs-v1:448f216112ae9eed9a497fa7724759c7dc13b0f4f83ad82de43a93d2feeeb432",
+  "bootstrap_digest": "sha256-jcs-v1:a8ddd5897a908444b5c6b57f9af4a32795ae89bcc7694cda6a6726c1354e7f5c"
 }

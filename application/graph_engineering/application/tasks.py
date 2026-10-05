@@ -379,6 +379,8 @@ class TaskApplication:
         context: WorkContext,
         project_resolver: CanonicalGitIdentityResolver | None = None,
         materialization_objects: ObjectRepository | None = None,
+        learning_security_issuer: object | None = None,
+        learning_retention_registry: object | None = None,
     ) -> None:
         if type(schema_registry) is not ClosedSchemaRegistry or type(context) is not WorkContext:
             raise ApplicationError("application requires attested contracts and work context")
@@ -393,6 +395,19 @@ class TaskApplication:
         self._leases = leases
         self._schemas = schema_registry
         self._context = context
+        if learning_security_issuer is not None:
+            from graph_engineering.application.security import SecurityContextIssuer
+            if (type(learning_security_issuer) is not SecurityContextIssuer
+                    or learning_security_issuer._repository._factory is not repository._factory):
+                raise ApplicationError("learning security must belong to the routed repository")
+        if learning_retention_registry is not None:
+            from graph_engineering.core.security.retention import RetentionPolicyRegistry
+            if type(learning_retention_registry) is not RetentionPolicyRegistry or learning_security_issuer is None:
+                raise ApplicationError('learning retention requires an installed issuer and registry')
+            learning_security_issuer.runtime.require_policy('retention',learning_retention_registry.registry_id,
+                learning_retention_registry.registry_digest)
+        self._learning_security_issuer=learning_security_issuer
+        self._learning_retention_registry=learning_retention_registry
         if project_resolver is not None and type(project_resolver) is not CanonicalGitIdentityResolver:
             raise ApplicationError("project resolver is missing or forged")
         self._project_resolver = project_resolver
@@ -772,7 +787,17 @@ class TaskApplication:
         runtime.require_issued()
         policy = LearningPolicyLoader.from_installation()
         closed = policy.validate_request(request)
-        return _execute_owner_request(self._repository, closed, runtime, policy)
+        if closed['operation'] in {'collect_learning','report_learning','purge_learning'}:
+            import sqlite3
+            from graph_engineering.core.learning import LearningError
+            from graph_engineering.storage.errors import RepositoryError
+            try:
+                return _execute_owner_request(self, closed, runtime, policy)
+            except LearningError:
+                raise
+            except (RepositoryError,sqlite3.DatabaseError,RecursionError,ValueError,KeyError,TypeError):
+                raise LearningError('LEARNING_SOURCE') from None
+        return _execute_owner_request(self, closed, runtime, policy)
 
     def runtime_show(self, task_id: str, runtime: RuntimeContext) -> TaskView:
         runtime.require_issued()

@@ -161,6 +161,28 @@
             ],
             "additionalProperties": false
           }
+        },
+        "category_codes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "risk_path_codes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
         }
       },
       "required": [
@@ -170,7 +192,9 @@
         "limits",
         "metric_ids",
         "elapsed_buckets_ns",
-        "rules"
+        "rules",
+        "category_codes",
+        "risk_path_codes"
       ],
       "additionalProperties": false
     },

@@ -10,6 +10,7 @@ import platform
 import re
 import shutil
 import sqlite3
+import weakref
 import stat
 import subprocess
 import threading
@@ -817,6 +818,9 @@ def _read_only_authorizer(
     return sqlite3.SQLITE_DENY
 
 
+_ISSUED_CONNECTION_OWNERS = weakref.WeakKeyDictionary()
+
+
 class ManagedConnection:
     """PID/thread-bound explicit-transaction connection."""
 
@@ -1009,6 +1013,13 @@ class ManagedConnection:
 
 class ConnectionFactory:
     """The only supported SQLite open path."""
+
+    def _require_owned_transaction(self, connection):
+        if (type(connection) is not ManagedConnection
+                or _ISSUED_CONNECTION_OWNERS.get(connection) is not self
+                or not connection._in_transaction or connection._role!='application'):
+            raise RepositoryConfigurationError("connection is not this repository's active transaction")
+        connection._check()
 
     SCHEMA_VERSION: Final[str] = "1.0"
     SYNCHRONOUS_EXTRA_CODE: Final[int] = 3
@@ -1332,9 +1343,11 @@ class ConnectionFactory:
                 closed = getattr(self._command_scope, "_connection_closed")
                 opened(connection_token)
                 on_close = lambda: closed(connection_token)
-            return ManagedConnection(
+            connection = ManagedConnection(
                 raw, role, self._policy, self._context_validator, on_close,
             )
+            _ISSUED_CONNECTION_OWNERS[connection] = self
+            return connection
         except BaseException:
             raw.close()
             raise

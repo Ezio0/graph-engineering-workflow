@@ -2895,6 +2895,14 @@ validation、review、invalidation 和 completion。默认不记录 prompt body�
 revision、耗时区间、失败/恢复、重复使用和用户主动授权到达的阶段。产品指标配置与
 原始用户内容分离。Agent 可以生成假设与反证报告，不能自行改变产品方向。
 
+WP09 的类别与风险路径从同一有界捕获中校验过的 `TaskSnapshot.graph_ref`
+提取，仅接受安装策略中的 `category_codes` / `risk_path_codes`；未知编码保留不可用。
+失败计数只覆盖同意生效且当前 PRD 窗口内的真实 `task.failed`，或运行中的节点
+经 runner 进入 `node.blocked`；评审阻塞不计作运行失败。恢复尝试仅在已观察到失败后，
+任务从 blocked/failed 经真实 `task.resumed` 进入 ready 时计数，消耗待恢复标记。
+恢复尝试不等于完成，也不把自动 fallback 当作 owner resume。重新同意或 PRD 重批
+重置失败/恢复窗口，不从旧事件回填；普通 pause/resume 不增加恢复计数。
+
 ## 14. 可靠性与失败处理
 
 | 失败 | 确定性处理 |

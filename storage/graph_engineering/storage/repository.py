@@ -2226,6 +2226,9 @@ class TaskRepository:
         binding["binding_digest"] = SecurityBinding.digest_document(binding)
         state["task_revision"] = new_revision
         state["task_snapshot_digest"] = snapshot_digest
+        for subject in state.get('retention_subjects',{}).values():
+            if isinstance(subject,dict) and subject.get('category')=='pmf-aggregate':
+                subject['snapshot_digest']=snapshot_digest
         state_digest = semantic_record_digest({
             "contract": "task-security-state-v1",
             "value": state,
@@ -2798,16 +2801,16 @@ class TaskRepository:
                                     schema_registry=self._concrete_action_schemas,
                                     context=self._concrete_action_context,
                                 )
-                            from .learning import _observe_task_commit
-                            _observe_task_commit(
-                                self, connection, batch, validated, prior_snapshot_json,
-                                snapshot, learning_observation,
-                            )
                             self._evolve_security_state(
                                 connection,
                                 batch.task_id,
                                 new_revision,
                                 snapshot_digest,
+                            )
+                            from .learning import _observe_task_commit
+                            _observe_task_commit(
+                                self, connection, batch, validated, prior_snapshot_json,
+                                snapshot, learning_observation,
                             )
                             connection.execute(
                                 "INSERT INTO transactions(transaction_id,request_digest,task_id,revision,head_digest) "

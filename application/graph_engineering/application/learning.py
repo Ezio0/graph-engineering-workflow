@@ -15,13 +15,13 @@ from graph_engineering.core.contracts.schema import (
 
 
 def _strict_document(body: bytes) -> dict[str,object]:
-    def pairs(items):
+    def pairs(items: list[tuple[str, object]]) -> dict[str, object]:
         result={}
         for key,value in items:
             if key in result:raise LearningError('LEARNING_RESOURCE')
             result[key]=value
         return result
-    def invalid(_value):raise LearningError('LEARNING_RESOURCE')
+    def invalid(_value: str) -> None:raise LearningError('LEARNING_RESOURCE')
     try:
         value=json.loads(body,object_pairs_hook=pairs,parse_constant=invalid)
     except (ValueError,UnicodeError,RecursionError):
@@ -44,7 +44,7 @@ class LearningPolicyLoader:
         self._policy=_strict_document(bodies[0])
         self._experiments=_strict_document(bodies[1])
         self._schemas={name:_strict_document(body) for name,body in zip(('input','record','report','policy'),bodies[2:],strict=True)}
-        profile=SchemaProfilePolicy.from_dict({'profile_id':'urn:gew:schema-profile:default:1.0.0','schema_version':'1.0.0','dialect_id':'https://json-schema.org/draft/2020-12/schema'})
+        profile=SchemaProfilePolicy.from_dict({'profile_id':'urn:gew:schema-profile:default:1.0.0','schema_version':'1.0.0','dialect_id':self._schemas['input']['$schema']})
         try:
             for schema in self._schemas.values():validate_schema_profile(schema,profile)
         except ValueError:raise LearningError('LEARNING_SCHEMA') from None
@@ -60,7 +60,7 @@ class LearningPolicyLoader:
         if validate_instance(self._schemas[name],value,source_id=self._schemas[name]['$id']):
             raise LearningError('LEARNING_SCHEMA')
 
-    def validate_policy_document(self,value):
+    def validate_policy_document(self,value: dict[str, object]) -> None:
         self._validate('policy',value)
         if value.get('kind') != 'learning-policy':raise LearningError('LEARNING_POLICY')
         boundaries=value['elapsed_buckets_ns']
@@ -70,7 +70,7 @@ class LearningPolicyLoader:
             raise LearningError('LEARNING_POLICY')
         if any(r['metric_id'] not in value['metric_ids'] for r in rules):raise LearningError('LEARNING_POLICY')
 
-    def validate_experiment_document(self,value):
+    def validate_experiment_document(self,value: dict[str, object]) -> None:
         self._validate('policy',value)
         if value.get('kind') != 'learning-experiments':raise LearningError('LEARNING_EXPERIMENT')
         known={r['rule_id'] for r in self._policy['rules']}
@@ -78,7 +78,7 @@ class LearningPolicyLoader:
         if len({r['experiment_id'] for r in rows})!=len(rows) or any(not set(r['rule_ids'])<=known for r in rows):
             raise LearningError('LEARNING_EXPERIMENT')
 
-    def validate_request(self,value):
+    def validate_request(self,value: object) -> dict[str, object]:
         # Enforce installed admission bounds before copying or iterating input.
         if type(value) is not dict or len(value) > 8:
             raise LearningError('LEARNING_REQUEST')
@@ -95,15 +95,16 @@ class LearningPolicyLoader:
             raise LearningError('LEARNING_METRICS')
         return result
 
-    def validate_record(self,value):self._validate('record',value)
-    def observation_capacity(self):
+    def validate_record(self,value: object) -> None:self._validate('record',value)
+    def observation_capacity(self) -> int:
         """Conservative UTF-8 JSON ceiling from the installed closed schema."""
-        def bound(schema):
+        def bound(schema: dict[str, object]) -> int:
             if 'anyOf' in schema:return max(map(bound,schema['anyOf']))
             if 'const' in schema:return len(json.dumps(schema['const']).encode())
             if 'enum' in schema:return max(len(json.dumps(v).encode()) for v in schema['enum'])
             kind=schema.get('type')
             if kind=='null':return 4
+            if kind=='boolean':return 5
             if kind=='integer':return len(str(schema['maximum']))+1
             if kind=='string':
                 length=schema.get('maxLength')
@@ -114,11 +115,11 @@ class LearningPolicyLoader:
                 return 2+sum(len(json.dumps(k).encode())+2+bound(v) for k,v in schema['properties'].items())
             raise LearningError('LEARNING_SCHEMA')
         return bound(self._schemas['record']['oneOf'][0])
-    def validate_report(self,value):self._validate('report',value)
-    def policy_document(self):return json.loads(json.dumps(self._policy))
-    def experiment_document(self):return json.loads(json.dumps(self._experiments))
+    def validate_report(self,value: object) -> None:self._validate('report',value)
+    def policy_document(self) -> dict[str, object]:return json.loads(json.dumps(self._policy))
+    def experiment_document(self) -> dict[str, object]:return json.loads(json.dumps(self._experiments))
 
-    def require_current(self):
+    def require_current(self) -> str:
         if self.from_installation().digest != self.digest:raise LearningError('LEARNING_POLICY_STALE')
         return self.digest
 

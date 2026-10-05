@@ -40,5 +40,21 @@
       "denominator": 2,
       "min_samples": 2
     }
+  ],
+  "category_codes": [
+    "new-feature",
+    "bug-fix",
+    "hotfix",
+    "refactor-debt",
+    "migration",
+    "dependency-security",
+    "performance",
+    "release-operations",
+    "incident-response"
+  ],
+  "risk_path_codes": [
+    "full-planned",
+    "compact-planned",
+    "emergency"
   ]
 }

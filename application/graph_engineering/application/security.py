@@ -173,6 +173,87 @@ class SecurityContextIssuer:
         """Issue from a current task row plus repository-owned high-water clock."""
 
         record = self._repository.load_current_task_state(task_id, self._context)
+        return self._issue_task_record(record)
+
+    def _issue_task_context_locked(self, connection, task_id):
+        """Internal issuance from the caller's repository transaction."""
+        from graph_engineering.storage.security import CurrentTaskSecurityState
+        from graph_engineering.storage.clock import strict_trusted_now
+        self._repository._factory._require_owned_transaction(connection)
+        state,digest=self._repository._load_task_state(connection,task_id,self._context)
+        return self._issue_task_record(CurrentTaskSecurityState(state,digest,
+            self._repository._clock_text(strict_trusted_now(connection))))
+
+    def _register_learning_subject_locked(self,connection,task_id,runtime,policy_digest,max_bytes):
+        """Register only persisted PMF data, preserving current task blockers."""
+        import hashlib
+        from graph_engineering.storage.codec import canonical_json,semantic_record_digest
+        from graph_engineering.core.learning import decimal_ns
+        current=self._issue_task_context_locked(connection,task_id)
+        runtime.require_issued()
+        if (current.binding.owner_id!=runtime.owner_id or current.binding.runtime_kind!=runtime.runtime_kind
+                or current.binding.runtime_lineage_id!=runtime.runtime_lineage_id):
+            raise SecurityIssuanceError("learning security identity differs")
+        state,digest=self._repository._load_task_state(connection,task_id,self._context)
+        if digest!=current.state_digest:raise SecurityIssuanceError("learning security state changed")
+        row=connection.execute('SELECT retained_at_ns FROM pmf_aggregates WHERE task_id=? AND policy_digest=?',
+            (task_id,policy_digest)).fetchone()
+        if row is None:raise SecurityIssuanceError("learning subject has no persisted data")
+        subjects=state['retention_subjects']
+        if type(subjects) is not dict:raise SecurityIssuanceError('retention registry is invalid')
+        flags={name:False for name in ('legal_hold','rollback_dependency','unresolved_action')}
+        for subject in subjects.values():
+            if type(subject) is not dict:raise SecurityIssuanceError('retention subject is invalid')
+            for name in flags:
+                if type(subject.get(name)) is not bool:raise SecurityIssuanceError("retention blocker is unknown")
+                flags[name]=flags[name] or subject[name]
+        if connection.execute("SELECT 1 FROM claims WHERE task_id=? AND state='unresolved' LIMIT 1",(task_id,)).fetchone():
+            flags['unresolved_action']=True
+        ref='learning:'+hashlib.sha256(policy_digest.encode()).hexdigest()
+        previous=subjects.get(ref)
+        if previous is not None and (type(previous) is not dict
+                or previous.get('category')!='pmf-aggregate'
+                or type(previous.get('revision')) is not int
+                or not 0<=previous['revision']<2**53-1):
+            raise SecurityIssuanceError('retention subject revision is invalid')
+        revision=1 if previous is None else previous['revision']+1
+        subjects[ref]={'category':'pmf-aggregate','created_at':self._repository._clock_text(decimal_ns(row[0])),
+            'sensitivity':'confidential','extracted':False,**flags,
+            'snapshot_digest':current.binding.snapshot_digest,'revision':revision}
+        body=canonical_json(state)
+        growth_reserve=16-len(str(revision))
+        if len(body.encode())+growth_reserve>max_bytes:raise SecurityIssuanceError('retention registry is oversized')
+        updated=semantic_record_digest({'contract':'task-security-state-v1','value':state})
+        changed=connection.execute('UPDATE task_security_states SET state_json=?,state_digest=? '
+            'WHERE task_id=? AND state_digest=?',(body,updated,task_id,digest)).rowcount
+        if changed!=1:raise SecurityIssuanceError("learning security registration lost its CAS")
+        return ref
+
+    def _authorize_learning_purge_locked(self,connection,task_id,runtime,policy,registry,trigger):
+        """Evaluate and consume only the persisted learning subject in one transaction."""
+        from graph_engineering.core.security.retention import RetentionEngine
+        self._repository._factory._require_owned_transaction(connection)
+        subject=self._register_learning_subject_locked(connection,task_id,runtime,policy.digest,
+            policy.limits['max_row_bytes'])
+        current=self._issue_task_context_locked(connection,task_id)
+        decision=RetentionEngine.evaluate(runtime=self.runtime,task_context=current,registry=registry,
+            subject_ref=subject,trigger=trigger)
+        if decision.action!='purge':return decision.action,None
+        authorization=self._repository._authorize_purge_locked(connection,task_id,decision,self._context)
+        return 'purged',authorization.authorization_id
+
+    def _issue_task_record(self, record) -> TaskSecurityContext:
+        import inspect
+        frame=inspect.currentframe()
+        try:
+            caller=None if frame is None else frame.f_back
+            if (caller is None or caller.f_code not in {
+                    SecurityContextIssuer.issue_task_context.__code__,
+                    SecurityContextIssuer._issue_task_context_locked.__code__}
+                    or caller.f_locals.get('self') is not self):
+                raise SecurityIssuanceError("task security record is not issuer-owned")
+        finally:
+            del frame,caller
         state = record.state
         try:
             parse_timestamp(record.current_time, "task security clock")

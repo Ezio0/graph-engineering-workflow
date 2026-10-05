@@ -17,9 +17,44 @@ import zipfile
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 
+def learning_wheel_probe(code):
+    """Run a real unpacked wheel in an isolated interpreter outside the checkout."""
+    from scripts import build_backend
+    with tempfile.TemporaryDirectory(prefix='gew-learning-wheel-') as directory:
+        wheel=pathlib.Path(directory)/build_backend.build_wheel(directory)
+        installed=pathlib.Path(directory)/'installed'
+        with zipfile.ZipFile(wheel) as archive:archive.extractall(installed)
+        prelude="import pathlib,sys\ninstalled=pathlib.Path(sys.argv[1])\nsys.path.insert(0,str(installed))\n"
+        result=subprocess.run([sys.executable,'-I','-B','-c',prelude+code,str(installed)],
+            cwd=directory,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=60)
+        if result.returncode:raise AssertionError('isolated learning wheel probe failed')
+
+
 class PackagingContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    def test_wp09_installed_resources_and_tamper(self):
+        learning_wheel_probe("""
+import graph_engineering
+from graph_engineering.application.learning import LearningPolicyLoader
+assert pathlib.Path(graph_engineering.__file__).is_relative_to(installed)
+loader=LearningPolicyLoader.from_installation()
+resources=['config/learning/learning-policy-v1.json','config/learning/learning-experiments-v1.json']
+resources+=['config/contracts/schemas/learning-'+kind+'-1.0.0.json' for kind in ('input','record','report','policy')]
+for name in resources:
+    path=installed/'graph_engineering'/name
+    original=path.read_bytes()
+    for mode in ('changed','missing'):
+        try:
+            if mode=='changed':path.write_bytes(original+b' ')
+            else:path.unlink()
+            try:loader.require_current()
+            except graph_engineering.DistributionIdentityError:pass
+            else:raise AssertionError('changed installed bytes accepted')
+        finally:path.write_bytes(original)
+    assert loader.require_current()==loader.digest
+""")
 
     def test_performance_installation_closure_matches_packaged_resources(self) -> None:
         from graph_engineering.application.performance_benchmark import (
