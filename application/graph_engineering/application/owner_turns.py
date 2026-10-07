@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from contextlib import nullcontext
 
 from graph_engineering.application.runtime import (
     RuntimeMutationGateway,
@@ -25,6 +26,7 @@ class OwnerTurnError(RuntimeError):
 
 
 OPERATIONS = frozenset({
+    "authorize_action", "action_authority_status", "revoke_action_authority",
     "discover", "create", "clarify", "approve", "run",
     "status", "resume", "escalate", "result",
     "grant_learning", "revoke_learning", "record_learning_context",
@@ -32,6 +34,10 @@ OPERATIONS = frozenset({
 })
 _NO_TASK = frozenset({"discover", "create"})
 _PAYLOAD_FIELDS = {
+    "authorize_action": frozenset({"request_id", "action_id", "expected_task_revision",
+        "expected_snapshot_digest", "expected_security_digest", "expected_journal_revision"}),
+    "action_authority_status": frozenset({"request_id", "action_id"}),
+    "revoke_action_authority": frozenset({"request_id", "action_id", "expected_generation"}),
     "grant_learning": frozenset({"expected_generation", "metric_ids", "expires_at_ns"}),
     "revoke_learning": frozenset({"expected_generation"}),
     "record_learning_context": frozenset({"expected_generation", "expected_context_version", "abandonment_code", "prior_task_id"}),
@@ -169,19 +175,23 @@ class OwnerTurnRequest:
 class OwnerTurnApplication:
     """Dispatch exactly one installed owner turn to existing application use cases."""
 
-    __slots__ = ("_tasks", "_scope_loader", "_session_factory")
+    __slots__ = ("_tasks", "_scope_loader", "_session_factory", "_task_provider", "_action_authority")
 
     def __init__(
         self,
-        tasks: TaskApplication,
+        tasks: TaskApplication | None,
         scope_loader: Callable[[Mapping[str, object]], ProjectScope],
         session_factory: Callable[[], RuntimeSession],
+        *, task_provider=None, action_authority=None,
     ) -> None:
-        if type(tasks) is not TaskApplication or not callable(scope_loader) or not callable(session_factory):
+        if ((type(tasks) is not TaskApplication and not (tasks is None and callable(task_provider)))
+                or not callable(scope_loader) or not callable(session_factory)):
             raise OwnerTurnError("owner-turn application dependencies are invalid")
         self._tasks = tasks
         self._scope_loader = scope_loader
         self._session_factory = session_factory
+        self._task_provider = task_provider
+        self._action_authority = action_authority
 
     @staticmethod
     def _task_id(request: OwnerTurnRequest) -> str:
@@ -217,6 +227,25 @@ class OwnerTurnApplication:
         request: OwnerTurnRequest,
         task_id: str | None,
     ) -> Mapping[str, object]:
+        if request.operation in {"authorize_action", "action_authority_status", "revoke_action_authority"}:
+            from graph_engineering.application.action_authority import ActionAuthorizationApplication
+            if type(self._action_authority) is not ActionAuthorizationApplication:
+                raise OwnerTurnError("action authorization service is unavailable")
+            method = {"authorize_action": "authorize", "action_authority_status": "status",
+                      "revoke_action_authority": "revoke"}[request.operation]
+            from graph_engineering.core.action_authority import ActionAuthorityError
+            try:
+                return getattr(self._action_authority, method)(session, {
+                    "schema_version": "1.0.0", "task_id": task_id, **request.payload,
+                })
+            except ActionAuthorityError as error:
+                raise OwnerTurnError(error.code) from None
+        with (self._task_provider() if self._task_provider else nullcontext(self._tasks)) as tasks:
+            if type(tasks) is not TaskApplication:
+                raise OwnerTurnError("task provider did not produce a task application")
+            return self._dispatch_tasks(tasks, session, request, task_id)
+
+    def _dispatch_tasks(self, tasks, session, request, task_id):
         operation = request.operation
         payload = request.payload
         if operation == "discover":
@@ -232,7 +261,7 @@ class OwnerTurnApplication:
             }
             return RuntimeMutationGateway.invoke(
                 session, session.proof,
-                lambda runtime: self._tasks.learning(learning_request, runtime),
+                lambda runtime: tasks.learning(learning_request, runtime),
             )
         if operation == "create":
             identity = {
@@ -242,7 +271,7 @@ class OwnerTurnApplication:
             }
             receipt = RuntimeMutationGateway.create(
                 session, session.proof, identity,
-                lambda runtime: self._tasks.execute(
+                lambda runtime: tasks.execute(
                     task_id, TaskCommand("create", 0, {"identity": identity}), runtime,
                 ),
                 occurred_at=payload["occurred_at"],  # type: ignore[arg-type]
@@ -252,8 +281,8 @@ class OwnerTurnApplication:
         if operation == "clarify":
             project_scope = self._scope_loader(payload["project_scope"])  # type: ignore[arg-type]
             clarified = RuntimeMutationGateway.task(
-                session, session.proof, self._tasks, task_id,
-                lambda runtime: self._tasks.execute_scope(
+                session, session.proof, tasks, task_id,
+                lambda runtime: tasks.execute_scope(
                     task_id,
                     TaskCommand("bind_project_scope", payload["expected_task_revision"], {
                         "project_scope_ref": {
@@ -267,8 +296,8 @@ class OwnerTurnApplication:
                 lease_ttl_ns=payload["lease_ttl_ns"],  # type: ignore[arg-type]
             )
             requested = RuntimeMutationGateway.task(
-                session, session.proof, self._tasks, task_id,
-                lambda runtime: self._tasks.execute(
+                session, session.proof, tasks, task_id,
+                lambda runtime: tasks.execute(
                     task_id,
                     TaskCommand("request_prd_approval", clarified.task_revision, {
                         "prd_candidate_ref": payload["prd_candidate_ref"],
@@ -280,14 +309,14 @@ class OwnerTurnApplication:
             )
             return {"task_revision": requested.task_revision, "event_types": list(requested.event_types)}
         if operation == "approve":
-            current = RuntimeQueryGateway.show(session, session.proof, self._tasks, task_id)
+            current = RuntimeQueryGateway.show(session, session.proof, tasks, task_id)
             scope_ref = dict(current.snapshot.project_scope_ref or {})
             scope_ref["status"] = "frozen"
             approval = dict(payload["approval"])  # type: ignore[arg-type]
             approval["project_scope_ref"] = scope_ref
             receipt = RuntimeMutationGateway.task(
-                session, session.proof, self._tasks, task_id,
-                lambda runtime: self._tasks.execute(
+                session, session.proof, tasks, task_id,
+                lambda runtime: tasks.execute(
                     task_id,
                     TaskCommand("approve_prd", payload["expected_task_revision"], approval),
                     runtime,
@@ -298,8 +327,8 @@ class OwnerTurnApplication:
             return {"task_revision": receipt.task_revision, "event_types": list(receipt.event_types)}
         if operation == "run":
             receipt = RuntimeMutationGateway.task(
-                session, session.proof, self._tasks, task_id,
-                lambda runtime: self._tasks.execute(
+                session, session.proof, tasks, task_id,
+                lambda runtime: tasks.execute(
                     task_id,
                     TaskCommand("run", payload["expected_task_revision"], {
                         "compatibility_evidence_ref": payload["compatibility_evidence_ref"],
@@ -312,7 +341,7 @@ class OwnerTurnApplication:
             )
             return {"task_revision": receipt.task_revision, "event_types": list(receipt.event_types)}
         if operation in {"status", "resume"}:
-            view = RuntimeQueryGateway.show(session, session.proof, self._tasks, task_id)
+            view = RuntimeQueryGateway.show(session, session.proof, tasks, task_id)
             return {
                 "task_revision": view.snapshot.task_revision,
                 "repository_revision": view.repository_revision,
@@ -335,7 +364,7 @@ class OwnerTurnApplication:
             presentation = DeliveryPresentation.from_dict(payload["presentation"])
             if presentation.task_id != task_id:
                 raise OwnerTurnError("owner-turn presentation task binding is invalid")
-            current = RuntimeQueryGateway.show(session, session.proof, self._tasks, task_id)
+            current = RuntimeQueryGateway.show(session, session.proof, tasks, task_id)
             if presentation.content_digest != current.snapshot.snapshot_digest:
                 raise OwnerTurnError("owner-turn presentation snapshot binding is invalid")
             return session.present(presentation).to_dict()

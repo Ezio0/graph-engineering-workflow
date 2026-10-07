@@ -10,6 +10,7 @@ from graph_engineering.adapters.runtime_config import (
     RuntimeAdapterRejection,
 )
 from graph_engineering.adapters.runtime_locator import VerifiedExecutable
+from graph_engineering.core.action_authority import ActionHumanRequestV1, ActionHumanDecisionV1
 from graph_engineering.core.runtime import (
     AgentRequest,
     AgentResult,
@@ -28,6 +29,7 @@ from graph_engineering.core.runtime import (
     RuntimeResourceGuard,
     ToolRequest,
     ToolResult,
+    runtime_record_digest,
 )
 
 
@@ -45,8 +47,11 @@ class RuntimeInvocationPorts:
     invoke_tool: Callable[[ToolRequest, OwnerIdentity, RuntimeLineage], ToolResult]
     request_human: Callable[[HumanDecisionRequest, OwnerIdentity, RuntimeLineage], HumanDecision]
     present: Callable[[DeliveryPresentation, OwnerIdentity, RuntimeLineage], DeliveryReceipt]
+    request_action_decision: Callable[[ActionHumanRequestV1, OwnerIdentity, RuntimeLineage], ActionHumanDecisionV1] | None = None
 
     def __post_init__(self) -> None:
+        if self.request_action_decision is not None and not callable(self.request_action_decision):
+            raise RuntimeAdapterRejection("action decision port is invalid")
         if any(not callable(value) for value in (
             self.authorize_task, self.attest_reviewer,
             self.invoke_agent, self.invoke_reviewer, self.invoke_tool,
@@ -87,6 +92,12 @@ class BoundRuntimePortSession:
     def request_human(self, request: HumanDecisionRequest) -> HumanDecision:
         return self.ports.request_human(request, self.owner, self.lineage)
 
+    def request_action_decision(self, request: ActionHumanRequestV1) -> ActionHumanDecisionV1:
+        port = self.ports.request_action_decision
+        if port is None:
+            raise RuntimeAdapterRejection("action decision port is unavailable")
+        return port(request, self.owner, self.lineage)
+
     def present(self, presentation: DeliveryPresentation) -> DeliveryReceipt:
         return self.ports.present(presentation, self.owner, self.lineage)
 
@@ -112,7 +123,13 @@ class BoundRuntimeAdapter:
         return self._handshake.resolve_lineage(raw_input)
 
     def discover_capabilities(self, request: RuntimeCompatibilityRequest) -> CapabilitySet:
-        return self._handshake.discover_capabilities(request)
+        result = self._handshake.discover_capabilities(request)
+        if self._ports.request_action_decision is None and "human.action-decision.v1" in result.capabilities:
+            body = result.to_dict()
+            body.pop("capability_digest")
+            body["capabilities"] = [v for v in result.capabilities if v != "human.action-decision.v1"]
+            result = CapabilitySet.from_dict({**body, "capability_digest": runtime_record_digest("capabilities", body)})
+        return result
 
     @property
     def resource_guard(self) -> RuntimeResourceGuard:

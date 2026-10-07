@@ -72,43 +72,37 @@ class ActionJournalRepository:
                 )
                 return self._load(connection, prepared.action_id)
 
+    def _record_authorized_locked(self, connection, authority, expected_revision):
+        self._factory._require_owned_transaction(connection)
+        row = connection.execute("SELECT action_id,revision,state FROM action_journal WHERE task_id=? AND prepared_digest=?",
+            (authority.task_id,authority.prepared_action_digest)).fetchone()
+        if row is None or row[1:] != (expected_revision,"prepared") or authority.status != "active":
+            raise RepositoryConflictError("action authorization journal CAS is stale")
+        document = self.authority_document(authority)
+        if connection.execute("UPDATE action_journal SET state='authorized',revision=revision+1,authority_json=?,authority_digest=? WHERE action_id=? AND revision=? AND state='prepared'",
+                (canonical_json(document),authority.authority_digest,row[0],expected_revision)).rowcount != 1:
+            raise RepositoryConflictError("action authorization journal CAS lost")
+        return self._load(connection,row[0])
+
     def record_authorized(self, authority: AuthorityEnvelope) -> ActionJournalRecord:
+        """Compatibility read: only a genuine, already registered grant is accepted."""
+        from .action_authority import ActionAuthorityLedger, installed_policy
         if type(authority) is not AuthorityEnvelope:
             raise RepositoryIntegrityError("authority contract is invalid")
-        document = self.authority_document(authority)
         with self._factory.open("application") as connection:
             with connection.transaction():
-                row = connection.execute(
-                    "SELECT task_id,state,prepared_digest FROM action_journal WHERE prepared_digest=?",
-                    (authority.prepared_action_digest,),
-                ).fetchone()
-                if row is None or row[0] != authority.task_id or row[1] != "prepared":
-                    raise RepositoryConflictError("authority does not bind one current prepared action")
-                if authority.status != "active":
-                    raise RepositoryConflictError("only active authority can authorize an action")
-                connection.execute(
-                    "UPDATE action_journal SET state='authorized',revision=revision+1,authority_json=?,authority_digest=? "
-                    "WHERE prepared_digest=? AND state='prepared'",
-                    (canonical_json(document), authority.authority_digest, authority.prepared_action_digest),
-                )
-                action_id = connection.execute(
-                    "SELECT action_id FROM action_journal WHERE prepared_digest=?", (authority.prepared_action_digest,),
-                ).fetchone()[0]
-                return self._load(connection, action_id)
+                row=connection.execute("SELECT action_id FROM action_journal WHERE task_id=? AND prepared_digest=?",
+                    (authority.task_id,authority.prepared_action_digest)).fetchone()
+                if row is None:
+                    raise RepositoryConflictError("authority is not registered")
+                record,_=ActionAuthorityLedger(self._factory,installed_policy())._validate_authorized_locked(connection,self,row[0])
+                if record.authority!=authority:
+                    raise RepositoryConflictError("registered authority differs")
+                return record
 
     def revoke(self, action_id: str, authority_id: str) -> ActionJournalRecord:
-        with self._factory.open("application") as connection:
-            with connection.transaction():
-                record = self._load(connection, action_id)
-                if record.authority is None or record.authority.authority_id != authority_id or record.state != "authorized":
-                    raise RepositoryConflictError("authority is not active for this action")
-                changed = connection.execute(
-                    "UPDATE action_journal SET state='revoked',revision=revision+1 WHERE action_id=? AND state='authorized'",
-                    (action_id,),
-                ).rowcount
-                if changed != 1:
-                    raise RepositoryConflictError("authority revocation lost its journal CAS")
-                return self._load(connection, action_id)
+        del action_id,authority_id
+        raise RepositoryConflictError("revocation requires the live owner authorization application")
 
     def load(self, action_id: str) -> ActionJournalRecord:
         with self._factory.open("doctor") as connection:

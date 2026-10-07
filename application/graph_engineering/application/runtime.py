@@ -5,6 +5,8 @@ from __future__ import annotations
 import os
 import secrets
 import threading
+
+from graph_engineering.core.action_authority import ActionHumanRequestV1, ActionHumanDecisionV1
 from collections.abc import Mapping
 from dataclasses import dataclass
 
@@ -270,6 +272,40 @@ class RuntimeSession:
             or result.request_id != request.request_id or result.task_id != request.task_id
         ):
             raise RuntimeSessionError("tool result binding is invalid")
+        return result
+
+    def request_action_decision(self, request: ActionHumanRequestV1) -> ActionHumanDecisionV1:
+        """Invoke a bound human port; detached decision values cannot enter here."""
+        from graph_engineering.core.action_authority import (
+            ActionAuthorityError, ActionHumanRequestV1, ActionHumanDecisionV1,
+        )
+        self.require_current()
+        if type(request) is not ActionHumanRequestV1:
+            raise ActionAuthorityError("invalid_request")
+        request = ActionHumanRequestV1.from_dict(request.to_dict())
+        self._guard.validate(request.to_dict(), source_id="runtime-action-human-request")
+        self._authorize_invocation("human.action-decision.v1", request.challenge.task_id)
+        if (request.challenge.owner_id != self._owner.owner_id
+                or request.runtime_lineage_id != self._proof.lineage_id
+                or request.session_id != self._proof.session_id
+                or request.challenge.runtime_kind != self._identity.runtime_kind):
+            raise ActionAuthorityError("identity_mismatch")
+        port = getattr(self._port_session, "request_action_decision", None)
+        if not callable(port):
+            raise ActionAuthorityError("unsupported_contract")
+        try:
+            result = port(request)
+        except ActionAuthorityError:
+            raise
+        except Exception:
+            raise ActionAuthorityError("human_unavailable") from None
+        self.require_current()
+        self._authorize_invocation("human.action-decision.v1", request.challenge.task_id)
+        if type(result) is not ActionHumanDecisionV1:
+            raise ActionAuthorityError("decision_mismatch")
+        self._guard.validate(result.to_dict(), source_id="runtime-action-human-result")
+        result = ActionHumanDecisionV1.from_dict(result.to_dict())
+        result.require_request(request)
         return result
 
     def request_human(self, request: HumanDecisionRequest) -> HumanDecision:

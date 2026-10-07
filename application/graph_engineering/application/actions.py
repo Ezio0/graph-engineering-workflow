@@ -958,18 +958,8 @@ class ActionCoordinator:
             retained._root._require_open()
         prepared_record = self._journal.find_prepared(authority.prepared_action_digest)
         prepared = prepared_record.prepared
-        if prepared_record.state == "authorized":
-            recorded = prepared_record.authority
-            if (
-                recorded is None
-                or not hmac.compare_digest(
-                    recorded.authority_digest, authority.authority_digest
-                )
-            ):
-                raise ValueError("authorized action authority body changed")
-            return recorded
         if (
-            prepared_record.state != "prepared"
+            prepared_record.state != "authorized"
             or
             authority.authorized_action_kind != prepared.action_kind
             or authority.authorized_resources != prepared.resources
@@ -993,10 +983,29 @@ class ActionCoordinator:
         self._journal.record_authorized(authority)
         return authority
 
-    def revoke(self, action_id: str, authority_id: str) -> None:
-        if self._installation_validator is not None:
-            self._installation_validator()
-        self._journal.revoke(action_id, authority_id)
+    def revoke(self, action_id: str, authority_id: str, *, session: object = None,
+               request_id: str | None = None, expected_generation: int | None = None) -> dict[str, object]:
+        from graph_engineering.application.action_authority import ActionAuthorizationApplication
+        from graph_engineering.application.runtime import RuntimeSession
+        from graph_engineering.core.action_authority import ActionAuthorityError
+        from graph_engineering.storage.action_authority import ActionAuthorityLedger, installed_policy
+        if (type(session) is not RuntimeSession or type(request_id) is not str
+                or type(expected_generation) is not int or not 0 <= expected_generation <= 2**53-1):
+            raise ActionAuthorityError('identity_mismatch')
+        scope=self._retained_scope(require_idle=True)
+        factory=self._journal._factory
+        service=ActionAuthorizationApplication(scope._manager,
+            schema_registry=self._journal._schemas,context=self._journal._context)
+        ledger=ActionAuthorityLedger(factory,installed_policy())
+        with factory.open('application') as connection:
+            with connection.transaction():
+                record=self._journal._load(connection,action_id)
+                if record.authority is None or record.authority.authority_id!=authority_id:
+                    raise ActionAuthorityError('stale_binding')
+                request=service._request(dict(schema_version='1.0.0',request_id=request_id,
+                    task_id=record.task_id,action_id=action_id),preconditions=False)
+                return service._revoke_locked(connection,session,request,expected_generation,
+                    ledger,self._journal,self._issuer)
 
     @staticmethod
     def _lease_assertion(lease: LeaseGrant, task_id: str) -> dict[str, object]:

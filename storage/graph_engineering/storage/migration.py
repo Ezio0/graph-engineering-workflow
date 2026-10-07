@@ -195,6 +195,51 @@ _NAMESPACE_SEQUENCE = (
 )
 
 
+_AUTHORITY_NAMESPACE = "action_authority_events"
+_AUTHORITY_COLUMNS = ["request_id", "sequence", "event_kind", "generation", "body_json", "event_digest"]
+
+
+def _record_names(records):
+    enabled = _AUTHORITY_NAMESPACE in records
+    names = _NAMESPACE_SEQUENCE + ((_AUTHORITY_NAMESPACE,) if enabled else ())
+    if set(records) != set(names):
+        raise MigrationRepositoryError("bundle logical namespaces are invalid")
+    markers = [row for row in _project_rows(records, "schema_versions", ("component", "version"))
+               if row[0] == "action-authority"]
+    if markers != ([("action-authority", "1.0")] if enabled else []):
+        raise MigrationRepositoryError("action authority schema marker is inconsistent")
+    if enabled:
+        record = records[_AUTHORITY_NAMESPACE]
+        if (type(record) is not dict or set(record) != {"columns", "rows"}
+                or record["columns"] != _AUTHORITY_COLUMNS or type(record["rows"]) is not list
+                or any(type(row) is not list or len(row) != 6 for row in record["rows"])):
+            raise MigrationRepositoryError("action authority namespace shape is invalid")
+    return names
+
+
+def _authority_names(connection, factory):
+    marker = connection.execute("SELECT version FROM schema_versions WHERE component='action-authority'").fetchone()
+    present = connection.execute("SELECT name FROM sqlite_master WHERE name IN "
+        "('action_authority_events','action_authority_task','action_authority_digest')").fetchall()
+    if marker is None and not present:
+        return _NAMESPACE_SEQUENCE
+    from .action_authority import ActionAuthorityLedger, installed_policy, _require_schema
+    from graph_engineering.core.action_authority import ActionAuthorityError
+    try:
+        _require_schema(connection)
+        policy = installed_policy()
+        ledger = ActionAuthorityLedger(factory, policy)
+        identities = connection.execute('SELECT DISTINCT request_id FROM action_authority_events LIMIT ?',
+            (policy.max_requests + 1,)).fetchall()
+        if len(identities) > policy.max_requests:
+            raise MigrationRepositoryError("action authority identity capacity exceeded")
+        for (request_id,) in identities:
+            ledger._read_locked(connection, request_id)
+    except ActionAuthorityError:
+        raise MigrationRepositoryError("action authority component integrity failed") from None
+    return _NAMESPACE_SEQUENCE + (_AUTHORITY_NAMESPACE,)
+
+
 def _repository_digest_from_records(
     records: Mapping[str, object],
     repository_id: str,
@@ -214,21 +259,26 @@ def _repository_digest_from_records(
         projected = tuple(tuple(row[index] for index in indexes) for row in rows)
         return tuple(sorted(projected))
 
-    return semantic_record_digest({
+    _record_names(records)
+    body = {
         "repository_id": repository_id,
         "tasks": project(
             "tasks",
             ("task_id", "revision", "head_digest", "snapshot_digest", "integrity_status"),
         ),
         "schemas": project("schema_versions", ("component", "version")),
-    })
+    }
+    if _AUTHORITY_NAMESPACE in records:
+        body["action_authority"] = semantic_record_digest(records[_AUTHORITY_NAMESPACE])
+    return semantic_record_digest(body)
 
 
 def _read_live_records(factory: ConnectionFactory) -> dict[str, object]:
     records: dict[str, object] = {}
     with factory.open("doctor") as connection:
-        for namespace in _NAMESPACE_SEQUENCE:
-            cursor = connection.execute(f'SELECT * FROM "{namespace}"')
+        for namespace in _authority_names(connection, factory):
+            ordering = ' ORDER BY request_id,sequence' if namespace == _AUTHORITY_NAMESPACE else ''
+            cursor = connection.execute(f'SELECT * FROM "{namespace}"' + ordering)
             columns = [item[0] for item in cursor.description]
             records[namespace] = {
                 "columns": columns,
@@ -246,7 +296,7 @@ def _candidate_projection(
     projected: dict[str, object] = {"repository_id": repository_id, "namespaces": {}}
     namespaces = projected["namespaces"]
     assert isinstance(namespaces, dict)
-    for namespace in _NAMESPACE_SEQUENCE:
+    for namespace in _record_names(records):
         if namespace in {
             "export_holds", "migration_ledger", "migration_ledger_transitions",
         }:
@@ -1325,7 +1375,12 @@ class InstallationMigrationRepository:
             schemas = connection.execute(
                 "SELECT component,version FROM schema_versions ORDER BY component"
             ).fetchall()
-        return semantic_record_digest({"repository_id": selected.repository_id, "tasks": tasks, "schemas": schemas})
+            body = {"repository_id": selected.repository_id, "tasks": tasks, "schemas": schemas}
+            if _AUTHORITY_NAMESPACE in _authority_names(connection, selected):
+                rows = connection.execute('SELECT * FROM action_authority_events ORDER BY request_id,sequence').fetchall()
+                body["action_authority"] = semantic_record_digest({"columns": _AUTHORITY_COLUMNS,
+                    "rows": [list(row) for row in rows]})
+        return semantic_record_digest(body)
 
     def _fences(self, factory: ConnectionFactory | None = None) -> tuple[tuple[str, int], ...]:
         selected = self._factory if factory is None else factory
@@ -1860,6 +1915,18 @@ class InstallationMigrationRepository:
             raise MigrationRepositoryError("migration ledger head does not bind the exact history")
         return tuple(history)
 
+    def initialize_action_authority_storage(self) -> None:
+        """Explicit maintenance only; never run from a foreground action request."""
+        from .action_authority import _initialize_schema
+        token = self._control_lock.acquire("exclusive")
+        try:
+            _manifest, factory = self._current_factory(token)
+            with factory.open("migration") as connection:
+                with connection.transaction():
+                    _initialize_schema(connection, self._fault)
+        finally:
+            self._control_lock.release(token)
+
     def initialize_learning_storage(self) -> None:
         """Explicit local maintenance, serialized with export and activation."""
         token = self._control_lock.acquire("exclusive")
@@ -1980,7 +2047,7 @@ class InstallationMigrationRepository:
             records, "resource_fences", ("resource_id", "fencing_token"),
         )
         manifest_unsigned = {
-            "schema_version": "1.0",
+            "schema_version": "1.1" if _AUTHORITY_NAMESPACE in records else "1.0",
             "source_manifest_digest": source_manifest.manifest_digest,
             "source_repository_digest": source_repository_digest,
             "source_fencing_high_water": [list(item) for item in source_fences],
@@ -2033,8 +2100,24 @@ class InstallationMigrationRepository:
             if connection.execute("PRAGMA integrity_check").fetchone() != ("ok",):
                 raise MigrationRepositoryError("backup database integrity failed")
             records: dict[str, object] = {}
-            for namespace in _NAMESPACE_SEQUENCE:
-                cursor = connection.execute(f'SELECT * FROM "{namespace}"')
+            names = _authority_names(connection, self._factory)
+            tables = {row[0] for row in connection.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")}
+            if tables != set(names):
+                raise MigrationRepositoryError("backup table namespace is not exact")
+            from .connection import SCHEMA_SQL
+            reference = sqlite3.connect(':memory:')
+            try:
+                reference.executescript(SCHEMA_SQL)
+                for namespace in _NAMESPACE_SEQUENCE:
+                    if (connection.execute(f'PRAGMA table_info("{namespace}")').fetchall()
+                            != reference.execute(f'PRAGMA table_info("{namespace}")').fetchall()):
+                        raise MigrationRepositoryError("backup table column shape is not exact")
+            finally:
+                reference.close()
+            for namespace in names:
+                ordering = ' ORDER BY request_id,sequence' if namespace == _AUTHORITY_NAMESPACE else ''
+                cursor = connection.execute(f'SELECT * FROM "{namespace}"' + ordering)
                 columns = [item[0] for item in cursor.description]
                 records[namespace] = {"columns": columns, "rows": [list(row) for row in cursor.fetchall()]}
             return records
@@ -2089,7 +2172,7 @@ class InstallationMigrationRepository:
         if (
             not isinstance(manifest_value, dict)
             or set(manifest_value) != fields
-            or manifest_value.get("schema_version") != "1.0"
+            or manifest_value.get("schema_version") not in {"1.0", "1.1"}
         ):
             raise MigrationRepositoryError("bundle manifest is not exact")
         unsigned = {key: value for key, value in manifest_value.items() if key != "bundle_digest"}
@@ -2103,8 +2186,11 @@ class InstallationMigrationRepository:
             maximum_nodes=self._policy.max_json_nodes,
             maximum_depth=self._policy.max_json_depth,
         )
-        if canonical_bytes(records) != records_body or set(records) != set(_NAMESPACE_SEQUENCE):
+        if canonical_bytes(records) != records_body:
             raise MigrationRepositoryError("bundle logical namespaces are invalid")
+        _record_names(records)
+        if (_AUTHORITY_NAMESPACE in records) != (manifest_value["schema_version"] == "1.1"):
+            raise MigrationRepositoryError("bundle version and action authority component differ")
         identity = _load_snapshot_identity(manifest_value["snapshot_identity"])
         if _repository_digest_from_records(
             records, identity.source_repository_id,
@@ -2209,7 +2295,12 @@ class InstallationMigrationRepository:
             self._fault("import.before_records")
             with target_factory.open("migration") as connection:
                 with connection.transaction():
-                    for namespace in _NAMESPACE_SEQUENCE:
+                    if _AUTHORITY_NAMESPACE in records:
+                        from .action_authority import _initialize_schema
+                        _initialize_schema(connection, self._fault)
+                        marker = next(row for row in records["schema_versions"]["rows"] if row[0] == "action-authority")
+                        connection.execute("UPDATE schema_versions SET applied_at=? WHERE component='action-authority'", (marker[2],))
+                    for namespace in _record_names(records):
                         if namespace in {"schema_versions", "objects", "export_holds"}:
                             continue
                         record = records[namespace]

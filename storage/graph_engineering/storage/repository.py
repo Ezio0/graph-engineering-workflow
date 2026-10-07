@@ -2609,6 +2609,18 @@ class TaskRepository:
                                 previous_sequence = head[1]
                                 previous_digest = head[2]
                                 prior_snapshot_json = parse_canonical_json(head[3])
+                            if (batch.claim_delta is not None
+                                    or any(event.get("event_type") in {"action.execution_started",
+                                        "action.compensation_execution_started"} for event in batch.events)
+                                    or batch.claim_compensation_delta is not None
+                                    and batch.claim_compensation_delta.get("operation")=="start_claim_compensation"
+                                    or batch.action_journal_delta is not None
+                                    and batch.action_journal_delta.get("operation") in {"start","compensation_start"}):
+                                from .action_authority import ActionAuthorityLedger, installed_policy
+                                if self._action_journal is None:
+                                    raise RepositoryIntegrityError("action start requires a bound journal")
+                                ActionAuthorityLedger(self._factory,installed_policy())._validate_start_locked(
+                                    connection,self._action_journal,batch)
                             extension_pin_binding = self._validate_extension_pin_commit_locked(
                                 connection, batch, task_exists=head is not None,
                             )

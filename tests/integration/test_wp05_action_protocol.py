@@ -351,7 +351,7 @@ class WP05ActionProtocolTests(unittest.TestCase):
             target.failure_mode = None
             compensation = fixture.coordinator.prepare(compensation_prepared_document())
             before = fixture.journal.load(compensation.action_id)
-            with self.assertRaisesRegex(ValueError, "baseline/snapshot"):
+            with self.assertRaisesRegex(ValueError, "stale_binding"):
                 fixture.coordinator.authorize(authority_document(compensation))
             after = fixture.journal.load(compensation.action_id)
             self.assertEqual((after.state, after.revision), (before.state, before.revision))
@@ -368,9 +368,19 @@ class WP05ActionProtocolTests(unittest.TestCase):
                 value, ACTION_DOCUMENT_CONTEXT,
             )
             prepared = fixture.raw_coordinator.prepare(value)
+            authority = fixture.coordinator.authorize(authority_document(prepared))
+            from graph_engineering.storage.codec import canonical_json, semantic_record_digest
+            with fixture.repository._factory.open("application") as connection:
+                with connection.transaction():
+                    row = connection.execute("SELECT state_json FROM task_security_states WHERE task_id=?", (prepared.task_id,)).fetchone()
+                    state = json.loads(row[0])
+                    state["authority_digests"].remove(authority.authority_digest)
+                    digest = semantic_record_digest({"contract":"task-security-state-v1","value":state})
+                    connection.execute("UPDATE task_security_states SET state_json=?,state_digest=? WHERE task_id=?",
+                        (canonical_json(state),digest,prepared.task_id))
             before = fixture.journal.load(prepared.action_id)
             with self.assertRaisesRegex(ValueError, "not present in current durable"):
-                fixture.raw_coordinator.authorize(authority_document(prepared))
+                fixture.raw_coordinator.authorize(fixture.journal._journal.authority_document(authority))
             after = fixture.journal.load(prepared.action_id)
             self.assertEqual((after.state, after.revision), (before.state, before.revision))
             self.assertNotIn(

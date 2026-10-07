@@ -100,6 +100,26 @@ class SecurityStateRepository:
         self._factory = factory
 
     @classmethod
+    def _change_action_membership_locked(cls, connection, task_id, authority_digest,
+                                         present, context, expected_digest):
+        """CAS one membership in the caller's registration/revocation transaction."""
+        state, digest = cls._load_task_state(connection, task_id, context)
+        if digest != expected_digest:
+            raise RepositoryConflictError("action security membership lost its CAS")
+        values = set(state["authority_digests"])
+        if present:
+            values.add(authority_digest)
+        else:
+            values.discard(authority_digest)
+        state["authority_digests"] = sorted(values)
+        body = canonical_text(state)
+        new_digest = semantic_record_digest({"contract":"task-security-state-v1", "value":state})
+        if connection.execute("UPDATE task_security_states SET state_json=?,state_digest=? WHERE task_id=? AND state_digest=?",
+                (body,new_digest,task_id,expected_digest)).rowcount != 1:
+            raise RepositoryConflictError("action security membership lost its CAS")
+        return new_digest
+
+    @classmethod
     def _refresh_learning_subject_locked(cls,connection,task_id,policy_digest,changed_at_ns,max_bytes):
         """Invalidate existing PMF retention decisions; never invent trust roots."""
         import hashlib

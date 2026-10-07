@@ -464,13 +464,14 @@ class WP05RecoveryClaimTests(unittest.TestCase):
             plan = disclosure_plan(fixture, compensation)
             target.failure_mode = None
 
+            lineage = fixture.issuer.issue_task_context(original.task_id).binding.runtime_lineage_id
             def run() -> str:
                 try:
                     with action_coordinator_for_thread(fixture) as coordinator:
                         return coordinator.compensate_unknown(
                             original.action_id, compensation_action_id=compensation.action_id,
                             recovery_lease=fixture.action_lease, owner_id="owner-wp05",
-                            runtime_kind="codex", runtime_lineage_id="lineage-wp05",
+                            runtime_kind="codex", runtime_lineage_id=lineage,
                             target=target, observer=target.observer_port(), disclosure_plan=plan,
                         ).route
                 except (LockUnavailableError, RepositoryConflictError, ValueError):
@@ -1064,7 +1065,7 @@ class WP05RecoveryClaimTests(unittest.TestCase):
                                 compensation_action_id=compensation.action_id,
                                 recovery_lease=fixture.action_lease,
                                 owner_id="owner-wp05", runtime_kind="codex",
-                                runtime_lineage_id="lineage-wp05", target=child_target,
+                                runtime_lineage_id=child_issuer.issue_task_context(original.task_id).binding.runtime_lineage_id, target=child_target,
                                 observer=FileObserver(), disclosure_plan=plan,
                             )
                         child_manager.close()

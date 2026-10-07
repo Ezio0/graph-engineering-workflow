@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import json
 import pathlib
-from collections.abc import Mapping
+from contextlib import contextmanager
+from collections.abc import Mapping, Iterator
 from typing import NoReturn
 from typing import cast
 
@@ -43,7 +44,7 @@ from graph_engineering.storage.repository import TaskRepository
 
 
 class LocalOwnerTurnRuntime:
-    """Own one daemon-free repository command scope for an installed owner flow."""
+    """Build fresh command-scoped dependencies for each installed owner operation."""
 
     def __init__(
         self,
@@ -155,24 +156,38 @@ class LocalOwnerTurnRuntime:
             maintenance, locks, maintenance_objects, control_root=control_root,
             policy_document=migration_policy,
         )
-        scope = manager.command_scope()
-        scope.__enter__()
-        bound_factory = factory.bind_command_scope(scope)
-        objects = ObjectRepository(bound_factory, locks)
-        leases = ResourceLeaseRepository(bound_factory, locks)
-        repository = TaskRepository(
-            bound_factory, locks, objects, command_scope=scope,
-        )
-        tasks = TaskApplication(
-            repository, repository, leases, schema_registry=schemas,
-            context=WorkContext(profile, schedule),
-        )
+        active_tasks = []
+
+        @contextmanager
+        def task_provider() -> Iterator[TaskApplication]:
+            with manager.command_scope() as scope:
+                _manifest, current = manager._current_factory(scope._control_token())
+                bound_factory = current.bind_command_scope(scope)
+                owns_locks = bound_factory.data_root != locks._root
+                current_locks = LockedFileRegistry(bound_factory) if owns_locks else locks
+                objects = ObjectRepository(bound_factory, current_locks)
+                try:
+                    leases = ResourceLeaseRepository(bound_factory, current_locks)
+                    repository = TaskRepository(bound_factory, current_locks, objects, command_scope=scope)
+                    tasks = TaskApplication(repository, repository, leases, schema_registry=schemas,
+                        context=WorkContext(profile, schedule))
+                    active_tasks.append(tasks)
+                    yield tasks
+                finally:
+                    active_tasks.clear()
+                    objects.close()
+                    if owns_locks:
+                        current_locks.close()
 
         def authorize(
             task_id: str, owner: OwnerIdentity, lineage: RuntimeLineage,
         ) -> Mapping[str, object] | None:
             try:
-                loaded = repository.load(task_id)
+                if active_tasks:
+                    loaded = active_tasks[0]._repository.load(task_id)
+                else:
+                    with task_provider() as current_tasks:
+                        loaded = current_tasks._repository.load(task_id)
                 identity = loaded["domain"]["identity"]
             except Exception:
                 return None
@@ -238,16 +253,22 @@ class LocalOwnerTurnRuntime:
                 value, schema_registry=scope_schemas, context=WorkContext(profile, schedule)
             )
 
-        self.application = OwnerTurnApplication(tasks, scope_loader, session_factory)
-        self._resources = (
-            scope, manager, objects, maintenance_objects, locks,
-        )
+        from graph_engineering.application.action_authority import ActionAuthorizationApplication
+        from graph_engineering import _installation_owned_resources
+        security_manifest = json.loads(_installation_owned_resources((
+            "config/contracts/security-schema-registry-v1.json",))[0])
+        security_bodies = {resource["schema_id"]: available[resource["schema_id"]]
+                           for resource in security_manifest["resources"]}
+        security_schemas = ClosedSchemaRegistry.build(security_manifest, security_bodies, profile, schema_policy)
+        action_authority = ActionAuthorizationApplication(manager, schema_registry=security_schemas,
+            context=WorkContext(profile, schedule))
+        self.application = OwnerTurnApplication(None, scope_loader, session_factory,
+            task_provider=task_provider, action_authority=action_authority)
+        self._resources = (manager, maintenance_objects, locks)
 
     def close(self) -> None:
-        scope, manager, objects, maintenance_objects, locks = self._resources
-        scope.__exit__(None, None, None)
+        manager, maintenance_objects, locks = self._resources
         manager.close()
-        objects.close()
         maintenance_objects.close()
         locks.close()
 

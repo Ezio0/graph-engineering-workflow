@@ -167,43 +167,84 @@ class JournalFixture:
 
 
 class TestOnlyTrustedCoordinator:
-    """Fixture facade for a repository-attested HumanDecision authority node."""
+    """Legacy test input facade; grants come only from the live action service."""
 
-    def __init__(self, coordinator: ActionCoordinator, factory: object) -> None:
-        self._coordinator = coordinator
-        self._factory = factory
+    def __init__(self, coordinator, factory, *, session=None, service=None, release=None, bind=None):
+        self._coordinator=coordinator
+        self._factory=factory
+        self._session=session
+        self._service=service
+        self._release=release
+        self._bind=bind
+        self._requests={}
 
-    def __getattr__(self, name: str):
-        return getattr(self._coordinator, name)
+    def __getattr__(self, name):
+        method=getattr(self._coordinator,name)
+        if name in {'execute','execute_concrete_git','compensate_unknown'} and self._session is not None:
+            def invoke(*args,**kwargs):
+                if kwargs.get('runtime_lineage_id')=='lineage-wp05':
+                    kwargs['runtime_lineage_id']=self._session.proof.lineage_id
+                return method(*args,**kwargs)
+            return invoke
+        return method
 
-    def authorize(self, value: dict[str, object]) -> AuthorityEnvelope:
-        authority = AuthorityEnvelope.from_dict(value, context=security_context())
-        with self._factory.open("application") as connection:
+    def authorize(self, value):
+        if self._session is None or self._service is None:
+            raise ValueError('fixture requires a genuine action decision session')
+        from graph_engineering.core.security._common import parse_timestamp
+        authority=AuthorityEnvelope.from_dict(value,context=security_context())
+        record=self._coordinator._journal.load(next_action_id(self._coordinator._journal,value))
+        prepared=record.prepared
+        expected=authority_document(prepared)
+        if (any(value[k]!=expected[k] for k in expected if k not in {'authority_digest','authority_id','issued_at','expires_at'})
+                or not parse_timestamp(authority.issued_at,'issued') <= parse_timestamp(self._coordinator._issuer.issue_task_context(authority.task_id).current_time,'now')
+                < parse_timestamp(authority.expires_at,'expires')):
+            raise ValueError('fixture authority input differs from requested action')
+        with self._factory.open('application') as connection:
             with connection.transaction():
-                row = connection.execute(
-                    "SELECT state_json FROM task_security_states WHERE task_id=?",
-                    (authority.task_id,),
-                ).fetchone()
-                if row is None:
-                    raise AssertionError("trusted fixture task security state is missing")
-                state = parse_canonical_json(row[0])
-                if type(state) is not dict or type(state.get("authority_digests")) is not list:
-                    raise AssertionError("trusted fixture task security state is invalid")
-                state["authority_digests"] = sorted(
-                    set(state["authority_digests"]) | {authority.authority_digest},
-                )
-                destinations = state.get("destinations")
-                if type(destinations) is not dict or type(destinations.get("owner-wp05")) is not dict:
-                    raise AssertionError("trusted fixture destination state is invalid")
-                destinations["owner-wp05"]["prepared_action_digest"] = authority.prepared_action_digest
-                state_digest = semantic_record_digest({
-                    "contract": "task-security-state-v1", "value": state,
-                })
-                connection.execute(
-                    "UPDATE task_security_states SET state_json=?,state_digest=? WHERE task_id=?",
-                    (canonical_json(state), state_digest, authority.task_id),
-                )
-        return self._coordinator.authorize(value)
+                state,_=SecurityStateRepository._load_task_state(connection,authority.task_id,security_context())
+                state['destinations']['owner-wp05']['prepared_action_digest']=prepared.prepared_action_digest
+                digest=semantic_record_digest({'contract':'task-security-state-v1','value':state})
+                connection.execute('UPDATE task_security_states SET state_json=?,state_digest=? WHERE task_id=?',
+                    (canonical_json(state),digest,authority.task_id))
+                revision,snapshot=connection.execute('SELECT revision,snapshot_digest FROM tasks WHERE task_id=?',
+                    (authority.task_id,)).fetchone()
+        request=dict(schema_version='1.0.0',request_id='request:fixture:'+authority.authority_digest.split(':')[-1],
+            task_id=authority.task_id,action_id=record.action_id,expected_task_revision=revision,
+            expected_snapshot_digest=snapshot,expected_security_digest=digest,expected_journal_revision=record.revision)
+        request=self._requests.setdefault(authority.authority_digest,request)
+        self._release()
+        try:
+            self._service.authorize(self._session,request)
+        finally:
+            self._bind()
+        current=self._coordinator._journal.load(record.action_id).authority
+        self._coordinator.authorize(self._coordinator._journal.authority_document(current))
+        return current
+
+    def revoke(self, action_id, authority_id):
+        record=self._coordinator._journal.load(action_id)
+        if record.authority is None:
+            raise ValueError('fixture action has no grant')
+        request=next(value for value in self._requests.values() if value['action_id']==action_id)
+        if authority_id not in {'authority-wp05','authority-wp05-rollback',record.authority.authority_id}:
+            raise ValueError('fixture authority identity differs')
+        self._release()
+        try:
+            status=self._service.status(self._session,{k:request[k] for k in ('schema_version','request_id','task_id','action_id')})
+            return self._service.revoke(self._session,{k:request[k] for k in ('schema_version','request_id','task_id','action_id')}
+                | {'expected_generation':status['receipt']['generation']})
+        finally:
+            self._bind()
+
+
+def next_action_id(journal, value):
+    with journal._factory.open('doctor') as connection:
+        rows=connection.execute('SELECT action_id FROM action_journal WHERE task_id=? AND prepared_digest=?',
+            (value['task_id'],value['prepared_action_digest'])).fetchall()
+    if len(rows)!=1:
+        raise ValueError('fixture authority does not identify exactly one prepared action')
+    return rows[0][0]
 
 
 @dataclass
@@ -249,7 +290,20 @@ def action_stack(
 ) -> Iterator[ActionFixture]:
     epoch = datetime.datetime(2026, 8, 14, 0, 30, tzinfo=datetime.timezone.utc)
     manual_time = ManualTime(int(epoch.timestamp() * 1_000_000_000))
-    with repository_stack(manual_time=manual_time) as (_root, factory, locks, objects, repository, leases):
+    from tests.support.action_authority import action_session
+    from tests.unit.test_action_authority import decision
+    from graph_engineering.application.action_authority import ActionAuthorizationApplication
+    with repository_stack(manual_time=manual_time) as (_root, factory, locks, objects, repository, leases), action_session(
+            lambda req,owner,lineage:decision(req),owner_override='owner-wp05') as active_session:
+        manager=factory._test_installation_manager
+        objects.close()
+        repository.command_scope.__exit__(None,None,None)
+        manager.initialize_action_authority_storage()
+        scope=manager.command_scope();scope.__enter__()
+        command_factory=factory.bind_command_scope(scope)
+        objects=ObjectRepository(command_factory,locks)
+        leases=ResourceLeaseRepository(command_factory,locks)
+        repository=TaskRepository(command_factory,locks,objects,command_scope=scope)
         task_application = task_runtime = None
         if domain_task:
             from graph_engineering.application.tasks import TaskApplication
@@ -262,12 +316,12 @@ def action_stack(
                 context=work_context(), materialization_objects=objects,
             )
             task_runtime = runtime_context(
-                "owner-wp05", "codex", "lineage-wp05", "actor-wp05",
+                "owner-wp05", "codex", active_session.proof.lineage_id, "actor-wp05",
                 "2026-08-14T00:00:00Z", 10**15,
             )
             task_application.execute(task_id, TaskCommand("create", 0, {"identity": {
                 "task_id": task_id, "owner_id": "owner-wp05",
-                "runtime_kind": "codex", "runtime_lineage_id": "lineage-wp05",
+                "runtime_kind": "codex", "runtime_lineage_id": active_session.proof.lineage_id,
             }}), task_runtime)
         else:
             initial_lease = leases.acquire_many(
@@ -304,7 +358,7 @@ def action_stack(
                 )
         binding = binding_document()
         binding.update({
-            "task_id": task_id, "owner_id": "owner-wp05", "runtime_lineage_id": "lineage-wp05",
+            "task_id": task_id, "owner_id": "owner-wp05", "runtime_lineage_id": active_session.proof.lineage_id,
             "baselines": {"intent": digest("intent")}, "snapshot_digest": digest("snapshot"),
             "targets": [{"target_id": "target-project", "target_kind": "project", "canonical_identity": "project-main", "target_digest": digest("target")}],
         })
@@ -330,12 +384,7 @@ def action_stack(
         )
         destinations = {"owner-wp05": {"kind": "owner", "trust_boundary": "owner-session", "target_digest": digest("owner-session"), "prepared_action_digest": prepared.prepared_action_digest}}
         state = task_security_state_document(binding=binding, destinations=destinations)
-        expected_authority = authority_document(prepared)
-        compensation_authority = authority_document(compensation_prepared)
-        state["authority_digests"] = sorted([
-            expected_authority["authority_digest"],
-            compensation_authority["authority_digest"],
-        ])
+        state["authority_digests"] = []
         state["data_refs"] = {"action-payload": {"digest": digest("payload-source"), "sensitivity": "internal", "retention_class": "evidence-body"}}
         if domain_task:
             state["task_revision"] = task_row[0]
@@ -389,13 +438,46 @@ def action_stack(
             installation_scope=repository.command_scope,
             **concrete_kwargs,
         )
-        coordinator = TestOnlyTrustedCoordinator(raw_coordinator, command_factory)
-        yield ActionFixture(
-            coordinator, raw_coordinator, repository, objects, locks,
-            JournalFixture(journal, command_factory), leases, action_lease, other_lease,
-            context, schemas, issuer, manual_time,
-            factory, task_application, task_runtime, task_id,
-        )
+        service=ActionAuthorizationApplication(manager,schema_registry=schemas,context=context)
+        fixture=ActionFixture(None,raw_coordinator,repository,objects,locks,
+            JournalFixture(journal,command_factory),leases,action_lease,other_lease,
+            context,schemas,issuer,manual_time,factory,task_application,task_runtime,task_id)
+
+        def release_scope():
+            fixture.objects.close()
+            fixture.repository.command_scope.__exit__(None,None,None)
+
+        def bind_scope():
+            fresh=manager.command_scope();fresh.__enter__()
+            bound=factory.bind_command_scope(fresh)
+            fresh_objects=ObjectRepository(bound,locks)
+            fresh_leases=ResourceLeaseRepository(bound,locks)
+            fresh_issuer=SecurityContextIssuer(SecurityStateRepository(bound),schema_registry=schemas,context=context)
+            fresh_journal=ActionJournalRepository(bound,schema_registry=schemas,context=context)
+            fresh_repository=TaskRepository(bound,locks,fresh_objects,action_journal=fresh_journal,
+                concrete_action_schemas=action_adapter_schema_registry(context),concrete_action_context=context,command_scope=fresh)
+            fresh_policy=ActionPolicy.from_dict(json.loads((ROOT/'config/actions'/policy_name).read_text()),
+                schema_registry=schemas,context=context,runtime=fresh_issuer.runtime)
+            fresh_coordinator=ActionCoordinator(journal=fresh_journal,repository=fresh_repository,
+                leases=fresh_leases,locks=locks,objects=fresh_objects,security_issuer=fresh_issuer,
+                action_policy=fresh_policy,installation_scope=fresh,fault_hook=fixture.raw_coordinator._fault,**concrete_kwargs)
+            fixture.raw_coordinator=fresh_coordinator
+            fixture.repository=fresh_repository;fixture.objects=fresh_objects;fixture.leases=fresh_leases
+            fixture.issuer=fresh_issuer;fixture.journal=JournalFixture(fresh_journal,bound)
+            if fixture.task_application is not None:
+                prior=fixture.task_application
+                fixture.task_application=TaskApplication(fresh_repository,fresh_repository,fresh_leases,
+                    schema_registry=prior._schemas,context=prior._context,materialization_objects=fresh_objects)
+            fixture.coordinator._coordinator=fresh_coordinator
+            fixture.coordinator._factory=bound
+
+        fixture.coordinator=TestOnlyTrustedCoordinator(raw_coordinator,command_factory,
+            session=active_session,service=service,release=release_scope,bind=bind_scope)
+        try:
+            yield fixture
+        finally:
+            release_scope()
+
 
 
 @contextmanager

@@ -5,7 +5,7 @@
   "tier_decision": {
     "suggested": "T2",
     "declared": "T2",
-    "justification": "T2 continuation of approved WP09 implementation after checkpoint 04e2ce1: bounded capture/report and existing retention/purge integration within original 38 targets. Full WP09 acceptance remains pending. Human approved one-line stale security fixture pin correction on 2026-10-05; scope now 39 exact targets. Owner approved exact source registration, closed-field tuple rename and static lint/type command correction; scope now 41 targets. Owner approved baseline type-only corrections; scope now42. Commit checkpoint narrows to24 actually changed files within42 authorized targets; unmodified authorized files remain in the implementation envelope."
+    "justification": "Owner approved reviewed action-authority implementation package r1 on 2026-10-06: 53 exact targets, 241 named selectors, six static commands; checkpoint ecaa416 retained. No commit, push, real installation upgrade or external action authority. Owner approved required source inventory amendment:54 targets, unchanged241 tests and6statics."
   },
   "roles": {
     "human-owner": "Human Owner",
@@ -15,29 +15,39 @@
   },
   "target_files": [
     ".workflow/manifest.json",
-    "application/graph_engineering/application/learning.py",
-    "application/graph_engineering/application/scenario_truth.py",
-    "application/graph_engineering/application/security.py",
-    "application/graph_engineering/application/tasks.py",
-    "config/contracts/schemas/learning-policy-1.0.0.json",
-    "config/contracts/schemas/learning-record-1.0.0.json",
-    "config/contracts/schemas/learning-report-1.0.0.json",
-    "config/learning/learning-policy-v1.json",
+    "adapters/graph_engineering/adapters/owner_turn_local.py",
+    "adapters/graph_engineering/adapters/runtime_adapters.py",
+    "application/graph_engineering/application/action_authority.py",
+    "application/graph_engineering/application/actions.py",
+    "application/graph_engineering/application/owner_turns.py",
+    "application/graph_engineering/application/runtime.py",
+    "config/actions/action-authority-policy-v1.json",
+    "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
     "config/profiles/scenario-truth-installation-bootstrap-v1.json",
     "config/release-operations/release-operations-installation-bootstrap-v1.json",
+    "config/verification/action-authority-registration-boundary-v1.json",
     "config/verification/wp-00-targets.json",
-    "core/graph_engineering/core/scenario_truth.py",
-    "docs/specs/graph-engineering-workflow.md",
+    "core/graph_engineering/__init__.py",
+    "core/graph_engineering/core/action_authority.py",
+    "docs/adr/0011-action-authority-decision-ledger.md",
+    "docs/impact/action-authority-registration.md",
+    "docs/plans/2026-10-06-action-authority-registration.md",
+    "docs/specs/action-authority-registration.md",
+    "docs/test-plans/action-authority-registration.md",
     "pyproject.toml",
-    "storage/graph_engineering/storage/connection.py",
-    "storage/graph_engineering/storage/learning.py",
+    "storage/graph_engineering/storage/action_authority.py",
+    "storage/graph_engineering/storage/actions.py",
+    "storage/graph_engineering/storage/migration.py",
     "storage/graph_engineering/storage/repository.py",
     "storage/graph_engineering/storage/security.py",
-    "tests/integration/test_wp09_learning.py",
-    "tests/integration/test_wp09_learning_metric_sources.py",
-    "tests/security/test_wp09_learning_privacy.py",
-    "tests/support/wp05a_security.py",
-    "tests/unit/test_wp00_packaging.py"
+    "tests/integration/test_action_authority.py",
+    "tests/integration/test_action_authority_wheel.py",
+    "tests/integration/test_wp05_action_protocol.py",
+    "tests/integration/test_wp05_recovery_claim.py",
+    "tests/support/action_authority.py",
+    "tests/support/source_checkout_attestation.py",
+    "tests/support/wp05_actions.py",
+    "tests/unit/test_action_authority.py"
   ],
   "artifacts": {
     "positioning": [
@@ -47,13 +57,16 @@
       "docs/prd/graph-engineering-workflow.md"
     ],
     "spec": [
-      "docs/specs/graph-engineering-workflow.md"
+      "docs/specs/graph-engineering-workflow.md",
+      "docs/specs/action-authority-registration.md"
     ],
     "plan": [
-      "docs/plans/2026-08-13-graph-engineering-workflow.md"
+      "docs/plans/2026-08-13-graph-engineering-workflow.md",
+      "docs/plans/2026-10-06-action-authority-registration.md"
     ],
     "test_plan": [
-      "docs/test-plans/graph-engineering-workflow.md"
+      "docs/test-plans/graph-engineering-workflow.md",
+      "docs/test-plans/action-authority-registration.md"
     ]
   },
   "incidents": []

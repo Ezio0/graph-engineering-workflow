@@ -45,6 +45,7 @@ _SOURCE_FILES = (
     "adapters/graph_engineering/adapters/local_release_simulator.py",
     "adapters/graph_engineering/adapters/performance_correctness.py",
     "adapters/graph_engineering/adapters/performance_environment.py",
+    "application/graph_engineering/application/action_authority.py",
     "application/graph_engineering/application/actions.py",
     "application/graph_engineering/application/dependency_security.py",
     "application/graph_engineering/application/learning.py",
@@ -59,6 +60,7 @@ _SOURCE_FILES = (
     "application/graph_engineering/application/scenario_truth.py",
     "application/graph_engineering/application/security.py",
     "application/graph_engineering/application/tasks.py",
+    "config/actions/action-authority-policy-v1.json",
     "config/actions/action-policy-local-actions-v1.json",
     "config/actions/action-policy-v1.json",
     "config/actions/concrete-action-policy-v1.json",
@@ -366,6 +368,7 @@ _SOURCE_FILES = (
     "config/test-oracles/profile-release-operations-rollback-v1.json",
     "config/test-oracles/profile-release-operations-target-v1.json",
     "core/graph_engineering/__init__.py",
+    "core/graph_engineering/core/action_authority.py",
     "core/graph_engineering/core/artifacts/__init__.py",
     "core/graph_engineering/core/artifacts/contracts.py",
     "core/graph_engineering/core/artifacts/manifest.py",
@@ -383,6 +386,7 @@ _SOURCE_FILES = (
     "core/graph_engineering/core/source_checkout.py",
     "pyproject.toml",
     "scripts/build_backend.py",
+    "storage/graph_engineering/storage/action_authority.py",
     "storage/graph_engineering/storage/clock.py",
     "storage/graph_engineering/storage/learning.py",
     "storage/graph_engineering/storage/learning_clock.py",
@@ -3484,6 +3488,15 @@ def _learning_installation_resources() -> tuple[bytes, ...]:
         'config/contracts/schemas/learning-report-1.0.0.json',
         'config/contracts/schemas/learning-policy-1.0.0.json',
     )
+    return _installation_owned_resources(locations)
+
+
+def _action_authority_installation_policy() -> bytes:
+    """Read only the installed authority policy under the attestation boundary."""
+    return _installation_owned_resources(('config/actions/action-authority-policy-v1.json',))[0]
+
+
+def _installation_owned_resources(locations: tuple[str, ...]) -> tuple[bytes, ...]:
     try:
         module_path = pathlib.Path(__file__).resolve(strict=True)
     except OSError:
