@@ -20,6 +20,11 @@ LOCK_FILENAME = "installation-maintenance.lock"
 KEY_FILENAME = "source-checkout-attestation-v1.key"
 ATTESTATION_FILENAME = "source-checkout-attestation-v1.json"
 SOURCE_FILES = (
+    "config/learning/learning-policy-v2.json",
+    "config/contracts/schemas/learning-policy-1.1.0.json",
+    "config/contracts/schemas/learning-record-1.1.0.json",
+    "config/contracts/schemas/learning-report-1.1.0.json",
+
     "adapters/graph_engineering/adapters/__init__.py",
     "adapters/graph_engineering/adapters/action_adapters.py",
     "adapters/graph_engineering/adapters/command_native.py",

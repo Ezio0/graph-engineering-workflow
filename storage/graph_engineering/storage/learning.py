@@ -9,7 +9,7 @@ from .connection import ManagedConnection
 from .codec import canonical_json, parse_canonical_json, semantic_record_digest
 
 
-PMF_SCHEMA_VERSION = "1.0.0"
+PMF_SCHEMA_VERSION = "1.1.0"
 PMF_TABLES = ("pmf_consents", "pmf_aggregates", "pmf_owner_context", "pmf_tombstones")
 _SCHEMA = (
     """CREATE TABLE pmf_consents (
@@ -71,12 +71,13 @@ def schema_present(connection: ManagedConnection) -> bool:
     return table is not None or marker is not None
 
 
-def require_schema(connection: ManagedConnection) -> None:
+def require_schema(connection: ManagedConnection, *, allow_legacy: bool = False) -> None:
     """Reject partial, unknown, or replaced layouts without trying to repair them."""
     marker = connection.execute(
         "SELECT version FROM schema_versions WHERE component='pmf'"
     ).fetchone()
-    if marker != (PMF_SCHEMA_VERSION,):
+    supported = (("1.0.0",), (PMF_SCHEMA_VERSION,)) if allow_legacy else ((PMF_SCHEMA_VERSION,),)
+    if marker not in supported:
         raise LearningError("LEARNING_SCHEMA_UNAVAILABLE")
     for name, expected in zip(PMF_TABLES, _SCHEMA, strict=True):
         # Compare inside SQLite so a corrupt oversized DDL is not materialized.
@@ -91,7 +92,12 @@ def _initialize_schema(connection: ManagedConnection, fault) -> None:
     """Called only inside the maintenance manager's exclusive transaction."""
     try:
         if schema_present(connection):
-            require_schema(connection)
+            require_schema(connection, allow_legacy=True)
+            marker=connection.execute("SELECT version FROM schema_versions WHERE component='pmf'").fetchone()
+            if marker!= (PMF_SCHEMA_VERSION,):
+                fault('learning.upgrade_before_version')
+                connection.execute("UPDATE schema_versions SET version=? WHERE component='pmf'",(PMF_SCHEMA_VERSION,))
+                fault('learning.after_version')
             return
         applied_at = str(strict_trusted_now(connection))
         for index, statement in enumerate(_SCHEMA):
@@ -175,7 +181,7 @@ def _consent(connection, task_id, policy):
 
 
 def _new_observation(head, generation, metrics):
-    return {'schema_version':'1.0.0','grant_sequence':head[1],
+    return {'schema_version':'1.1.0','authorization_window':None,'grant_sequence':head[1],
         'last_observed_sequence':head[1],'last_transaction_id':f'consent:{generation}',
         'last_head_digest':head[2],'current_prd_sequence':None,'current_baseline_digest':None,
         'revision_count':0,'human_interruption_count':0,
@@ -315,7 +321,7 @@ def _capture_current_observation(application,request,runtime,policy):
         raise LearningError('LEARNING_SOURCE') from None
 
 
-def _capture_current_observation_locked(application,connection,request,runtime,policy,capture_budget=None,consent_reserved=False,allowed_tasks=None,endpoint_read=False):
+def _capture_current_observation_locked(application,connection,request,runtime,policy,capture_budget=None,consent_reserved=False,allowed_tasks=None,endpoint_read=False,authorization_cache=None):
     """Private read projection, not a publishable report or write authority.
 
     The caller owns one SQL transaction spanning admission and capture. Full
@@ -457,7 +463,8 @@ def _capture_current_observation_locked(application,connection,request,runtime,p
     if relations and 'repeat_use' not in parse_canonical_json(consent['metrics_json']):raise LearningError('LEARNING_CONSENT')
     runtime.require_issued()
     policy.require_current()
-    return {'relation_vector':relations,'task_id':task_id,'source_head':head[2],'source_revision':head[0],
+    authorization_source,authorization_count=_authorization_capture(application,connection,task_id,consent,observation,expected_identity,head,snapshot,policy,capture_budget,{} if authorization_cache is None else authorization_cache)
+    return {'authorization_source':authorization_source,'authorization_count':authorization_count,'relation_vector':relations,'task_id':task_id,'source_head':head[2],'source_revision':head[0],
         'consent_generation':consent['generation'],'context_version':version,
         'context_digest':context_digest,'policy_digest':policy.digest,'observation':observation,
         'metric_ids':parse_canonical_json(consent['metrics_json']),'owner_context':owner_context,
@@ -470,12 +477,15 @@ def _collect_locked(application,connection,request,runtime,policy,captured):
     from graph_engineering.application.security import SecurityIssuanceError
     issuer=application._learning_security_issuer
     if issuer is None:raise LearningError('LEARNING_SECURITY')
+    _require_authorization_live_locked(application,connection,captured)
     observation=captured['observation']
     selected=set(captured['metric_ids'])
     metrics={name:{'value':None,'availability':'unavailable'} for name in sorted(METRIC_IDS)}
     for name in ('revision_count','human_interruption_count'):
         if name in selected:
             metrics[name]=metric_count(observation[name],complete=observation['availability']=='complete')
+    if 'authorized_stage' in selected and captured.get('authorization_count') is not None:
+        metrics['authorized_stage']={'value':captured['authorization_count'],'availability':'observed'}
     configured=policy.policy_document()
     graph_ref=captured['graph_ref'] or {}
     for name,source,codes in (('category','profile_id','category_codes'),('risk_path','risk_path','risk_path_codes')):
@@ -501,7 +511,7 @@ def _collect_locked(application,connection,request,runtime,policy,captured):
         'context_version','context_digest','policy_digest')}
     if 'repeat_use' in selected and captured['relation_vector']:
         metrics['repeat_use']={'value':1,'availability':'owner-reported'}
-    derived.update(schema_version='1.0.0',relation_vector=captured['relation_vector'],metrics=metrics,
+    derived.update(schema_version='1.1.0',authorization_source=captured.get('authorization_source'),relation_vector=captured['relation_vector'],metrics=metrics,
         provenance={'grant_sequence':observation['grant_sequence'],
             'window_start':max(observation['grant_sequence'],observation['current_prd_sequence'] or 0),
             'window_end':observation['last_observed_sequence'],
@@ -561,6 +571,7 @@ def _current_derived(connection,captured,policy):
     for name in ('task_id','source_head','source_revision','consent_generation','context_version','context_digest','policy_digest'):
         if value[name]!=captured[name]:raise LearningError('LEARNING_STALE')
     if value['relation_vector']!=captured['relation_vector']:raise LearningError('LEARNING_STALE')
+    if value.get('authorization_source')!=captured.get('authorization_source'):raise LearningError('LEARNING_STALE')
     return value,row[1]
 
 
@@ -586,7 +597,9 @@ def _report_locked(application,connection,request,runtime,policy):
     for task_id,consent in consents.items():_require_live(consent,endpoints[task_id][2],policy,now)
     budget=[policy.limits['max_capture_bytes']-consent_reserve]
     observations=[]
+    captures=[]
     vector=[]
+    authorization_cache={}
     selected={}
     output_bytes=0
     for task_id in task_ids:
@@ -595,7 +608,7 @@ def _report_locked(application,connection,request,runtime,policy):
         version=context[1] if context is not None and context[0]==consent['generation'] else 0
         captured=_capture_current_observation_locked(application,connection,{'task_id':task_id,
             'expected_head':heads[task_id][2],'expected_generation':consent['generation'],
-            'expected_context_version':version},runtime,policy,budget,consent_reserved=True,allowed_tasks=set(task_ids),endpoint_read=True)
+            'expected_context_version':version},runtime,policy,budget,consent_reserved=True,allowed_tasks=set(task_ids),endpoint_read=True,authorization_cache=authorization_cache)
         size=connection.execute('SELECT length(CAST(state_json AS BLOB)) FROM task_security_states WHERE task_id=?',(task_id,)).fetchone()
         if size is None:raise LearningError('LEARNING_SECURITY')
         if size[0]>policy.limits['max_row_bytes'] or size[0]>budget[0]:raise LearningError('LEARNING_BOUND')
@@ -605,9 +618,10 @@ def _report_locked(application,connection,request,runtime,policy):
         output_bytes+=len(canonical_json(value).encode())
         if output_bytes>policy.limits['max_report_bytes']:raise LearningError('LEARNING_BOUND')
         observations.append(value)
+        captures.append(captured)
         selected[task_id]=set(captured['metric_ids'])
         vector.append({**{key:value[key] for key in ('task_id','source_head','source_revision',
-            'consent_generation','context_version','context_digest','relation_vector')},'aggregate_digest':digest})
+            'consent_generation','context_version','context_digest','relation_vector')},'aggregate_digest':digest,'authorization_source':value.get('authorization_source')})
     cohort='sha256:'+hashlib.sha256(canonical_json(vector).encode()).hexdigest()
     rules=[]
     eligible=set();unknown=set();excluded=set()
@@ -634,7 +648,7 @@ def _report_locked(application,connection,request,runtime,policy):
         rules.append({'rule_id':rule_id,'metric_id':rule['metric_id'],'predicate':predicate,
             'numerator':numerator,'denominator':denominator,'unknown_count':missing,'excluded_count':omitted,
             'counter_evidence_refs':counter,'verdict':evaluate_rule(numerator,denominator,predicate)})
-    report={'schema_version':'1.0.0','policy_digest':policy.digest,'experiment_id':request['experiment_id'],
+    report={'schema_version':'1.1.0','policy_digest':policy.digest,'experiment_id':request['experiment_id'],
         'cohort_digest':cohort,'cohort_vector':vector,'eligible_count':len(eligible),
         'unknown_count':len(unknown-eligible),'excluded_count':len(excluded-eligible-unknown),
         'observations':observations,'rules':rules}
@@ -660,6 +674,7 @@ def _report_locked(application,connection,request,runtime,policy):
     policy.require_current();runtime.require_issued()
     now=strict_trusted_now(connection)
     for task_id,consent in consents.items():_require_live(consent,endpoints[task_id][2],policy,now)
+    for captured in captures:_require_authorization_live_locked(application,connection,captured)
     return report
 
 
@@ -827,6 +842,20 @@ def _execute_owner_request(application, request, runtime, policy):
                 state='granted'
                 observation=_new_observation(head,generation,request['metric_ids'])
                 _prd_boundary(repository,connection,request['task_id'],head,policy,observation)
+                if 'authorized_stage' in request['metric_ids']:
+                    from .action_authority import ActionAuthorityLedger, installed_policy
+                    from graph_engineering.core.action_authority import ActionAuthorityError
+                    try:
+                        watermark=ActionAuthorityLedger(repository._factory,installed_policy())._order_watermark_locked(
+                            connection,[policy.limits['max_capture_bytes']],max_rows=policy.limits['max_rows_per_task'])
+                    except ActionAuthorityError as error:
+                        if error.code=='epoch_changed':watermark=None
+                        elif error.code=='capacity_exhausted':raise LearningError('LEARNING_BOUND') from None
+                        else:raise LearningError('LEARNING_SOURCE') from None
+                    if watermark is not None:
+                        observation['authorization_window']={'schema_version':'1.0.0','consent_generation':generation,
+                            'policy_digest':policy.digest,'category_mapping_digest':semantic_record_digest(policy.policy_document()['authorized_action_categories']),
+                            'watermark':watermark}
                 policy.validate_record(observation)
                 body=canonical_json(observation)
                 if len(body.encode())>policy.limits['max_aggregate_bytes']:
@@ -902,6 +931,7 @@ def _execute_owner_request(application, request, runtime, policy):
             if operation=='collect_learning':
                 _require_live(_consent(connection,request['task_id'],policy),binding,policy,strict_trusted_now(connection))
                 _require_relation_live(connection,captured,runtime,policy)
+                _require_authorization_live_locked(application,connection,captured)
             return result
 
 
@@ -1077,3 +1107,104 @@ def _observe_task_commit(repository,connection,batch,events,before,after,ticket)
     from .security import SecurityStateRepository
     SecurityStateRepository._refresh_learning_subject_locked(connection,batch.task_id,policy.digest,now,policy.limits['max_row_bytes'])
     policy.require_current()
+
+
+def _authorization_capture(application,connection,task_id,consent,observation,identity,head,snapshot,policy,budget,cache):
+    """Consented task bodies only; shared global proof reads metadata, not bodies."""
+    from .action_authority import ActionAuthorityLedger, installed_policy
+    from graph_engineering.core.action_authority import ActionAuthorityError
+    from graph_engineering.core.learning import authorization_watermark, authorized_category_count, authorization_event_eligible
+    if 'authorized_stage' not in parse_canonical_json(consent['metrics_json']):return None,None
+    window=observation.get('authorization_window')
+    if window is None or observation['availability']!='complete':return None,None
+    mapping=policy.policy_document()['authorized_action_categories'];mapping_digest=semantic_record_digest(mapping)
+    if (window['consent_generation']!=consent['generation'] or window['policy_digest']!=policy.digest
+            or window['category_mapping_digest']!=mapping_digest):raise LearningError('LEARNING_STALE')
+    start=authorization_watermark(window['watermark'])
+    ledger=ActionAuthorityLedger(application._repository._factory,installed_policy())
+    epoch=ledger._epoch()
+    if tuple(start[k] for k in ('installation_id','repository_id','activation_epoch'))!=epoch:return None,None
+    try:
+        if 'order' not in cache:
+            cache['order']=ledger._validate_order_locked(connection,budget,max_rows=policy.limits['max_rows_per_task'])
+        ordered=cache['order']
+        if ordered is None:return None,None
+        chain=ordered['chain'];end=ordered['watermark']
+        if (start['ordinal']>end['ordinal'] or start['anchor_digest']!=end['anchor_digest']
+                or chain[start['ordinal']]['order_digest']!=start['order_digest']):
+            raise LearningError('LEARNING_SOURCE')
+        proof=dict(observation)
+        _prd_boundary(application._repository,connection,task_id,head,policy,proof)
+        if proof['availability']!='complete':return None,None
+        row=connection.execute('SELECT x.revision FROM project_scopes s JOIN transactions x '
+            'ON x.task_id=s.task_id AND x.transaction_id=s.approved_transaction_id '
+            "WHERE s.task_id=? AND s.status='frozen'",(task_id,)).fetchone()
+        if row is None:raise LearningError('LEARNING_SOURCE')
+        baselines={x['kind']:x['digest'] for x in snapshot['domain']['baseline_refs']}
+        if 'intent' not in baselines:return None,None
+        boundary={'prd_revision':row[0],'baseline_digest':baselines['intent']}
+        source={'window_digest':semantic_record_digest(window),'watermark':end,
+            **boundary,'category_mapping_digest':mapping_digest}
+        qualified_identity={**identity,**dict(zip(('installation_id','repository_id','activation_epoch'),epoch,strict=True))}
+        source_sql=" FROM action_authority_events WHERE json_extract(body_json,'$.challenge.task_id')=?"
+        requests=connection.execute('SELECT DISTINCT request_id'+source_sql+' LIMIT ?',
+            (task_id,ledger.policy.max_requests+1)).fetchall()
+        if len(requests)>ledger.policy.max_requests:raise LearningError('LEARNING_BOUND')
+        total=0
+        count=0
+        for (request_id,) in requests:
+            rows,size,maximum,foreign=connection.execute(
+                'SELECT count(*),coalesce(sum(length(CAST(body_json AS BLOB))+512),0),'
+                'coalesce(max(length(CAST(body_json AS BLOB))),0),'
+                "coalesce(sum(CASE WHEN json_extract(body_json,'$.challenge.task_id') IS NOT ? "
+                "OR json_extract(body_json,'$.challenge.owner_id') IS NOT ? "
+                "OR json_extract(body_json,'$.challenge.runtime_kind') IS NOT ? "
+                "OR json_extract(body_json,'$.challenge.runtime_lineage_id') IS NOT ? THEN 1 ELSE 0 END),0) "
+                'FROM action_authority_events WHERE request_id=?',
+                (task_id,identity['owner_id'],identity['runtime_kind'],identity['runtime_lineage_id'],request_id)).fetchone()
+            if foreign:raise LearningError('LEARNING_SOURCE')
+            count+=rows;total+=size
+            if maximum>min(policy.limits['max_row_bytes'],ledger.policy.max_record_bytes):
+                raise LearningError('LEARNING_BOUND')
+        if count>policy.limits['max_rows_per_task'] or total>budget[0]:raise LearningError('LEARNING_BOUND')
+        budget[0]-=total
+        ordinals={(x['request_id'],x['request_sequence']):x['ordinal'] for x in chain[1:]}
+        kinds=[]
+        for (request_id,) in requests:
+            for event in ledger._read_locked(connection,request_id):
+                challenge=event['challenge']
+                if challenge['task_id']!=task_id or any(challenge[k]!=identity[k] for k in identity):
+                    raise LearningError('LEARNING_SOURCE')
+                ordinal=ordinals.get((request_id,event['sequence']))
+                if ordinal is not None and ordinal>start['ordinal'] and authorization_event_eligible(event,qualified_identity,boundary):
+                    kinds.append(challenge['action_kind'])
+        return source,authorized_category_count(kinds,mapping)
+    except ActionAuthorityError as error:
+        if error.code=='epoch_changed':return None,None
+        if error.code=='capacity_exhausted':raise LearningError('LEARNING_BOUND') from None
+        raise LearningError('LEARNING_SOURCE') from None
+
+
+def _require_authorization_live_locked(application,connection,captured):
+    """Fixed metadata currentness guard; a retained capture cannot publish stale."""
+    source=captured.get('authorization_source')
+    if source is None:return
+    from .action_authority import _order_schema, _order_epoch
+    from graph_engineering.core.action_authority import ActionAuthorityError
+    scope=application._repository.command_scope
+    scope.require_current()
+    epoch=(scope.installation_id,scope.repository_id,scope.activation_epoch)
+    watermark=source['watermark']
+    try:
+        if not _order_schema(connection) or _order_epoch(epoch)!=watermark['order_epoch']:
+            raise LearningError('LEARNING_STALE')
+        widths=connection.execute('SELECT coalesce(max(length(CAST(order_digest AS BLOB))),0) FROM action_authority_order '
+            'WHERE order_epoch=?',(watermark['order_epoch'],)).fetchone()[0]
+        if widths!=78:raise LearningError('LEARNING_STALE')
+        row=connection.execute('SELECT ordinal,order_digest FROM action_authority_order WHERE order_epoch=? '
+            'ORDER BY ordinal DESC LIMIT 1',(watermark['order_epoch'],)).fetchone()
+        anchor=connection.execute('SELECT order_digest FROM action_authority_order WHERE order_epoch=? AND ordinal=0',
+            (watermark['order_epoch'],)).fetchone()
+        if row!=(watermark['ordinal'],watermark['order_digest']) or anchor!=(watermark['anchor_digest'],):
+            raise LearningError('LEARNING_STALE')
+    except ActionAuthorityError:raise LearningError('LEARNING_STALE') from None

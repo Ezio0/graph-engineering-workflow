@@ -1,6 +1,6 @@
 {
   "activation_status": "rehearsal-only-wp10-blocked",
-  "bootstrap_digest": "sha256-jcs-v1:e72fa8c8197e8e24eac07b8957dbb7b8375a2403bdbf49d9cac79977080aa13f",
+  "bootstrap_digest": "sha256-jcs-v1:0c70c054689f1d63a58491934b351a31bd9f7bcf5b4942cc6255b2733e0bd7d4",
   "bootstrap_id": "urn:gew:migration-rehearsal-bootstrap:v1",
   "build_backend_raw_sha256": "22d4e76f7ce30bf05acbe62004feab0228a59ccee58f26e28d6c6f39689968a7",
   "build_backend_resource": "graph_engineering/scripts/build_backend.py",
@@ -15,7 +15,7 @@
   "profile_schema_registry_digest": "sha256-jcs-v1:913235899306d64a4bc8eff96b3a4bbddd61ec6a7e57b8dfdaafe98041c81f76",
   "profile_schema_registry_id": "urn:gew:schema-registry:profiles:1.0.0",
   "profile_schema_registry_raw_sha256": "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd",
-  "protected_closure_digest": "sha256-jcs-v1:7b075986998c161f3bf41af2f0ed30351cfa9968880b1956e9df2b188b8f9040",
+  "protected_closure_digest": "sha256-jcs-v1:3f56ef5c2e366e24e5ceb4dc9c8128bec594aee3a6055fb852d7f8b85a72cdc6",
   "protected_resources": [
     {
       "raw_sha256": "049000ebc8355e092f960cfeca817223d835c59567b710d0c1eacc56084c0276",
@@ -28,7 +28,7 @@
       "source": "application/graph_engineering/application/profile_execution.py"
     },
     {
-      "raw_sha256": "17489c03902f0ea760d52594084bd6dce8f5c9d15ba713077c13e3a3db915782",
+      "raw_sha256": "70f17622b3907c994dc1e1a2ea293abbd54dd55ddddd034d4fa641705b2c8a7e",
       "resource": "graph_engineering/__init__.py",
       "source": "core/graph_engineering/__init__.py"
     },
@@ -48,7 +48,7 @@
       "source": "scripts/build_backend.py"
     },
     {
-      "raw_sha256": "7e8303d3b7af18cb7caeb545767d5b36f4d6721b04384baae07e31e33441c7b7",
+      "raw_sha256": "8702af669a393ea9ec66333f86ceafc6f08bab77a890508c7ff7bcf38a82a9ca",
       "resource": "graph_engineering/storage/migration.py",
       "source": "storage/graph_engineering/storage/migration.py"
     }

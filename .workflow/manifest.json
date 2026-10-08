@@ -1,53 +1,49 @@
 {
   "schema_version": "1.0",
   "workflow_version": "4.0.0",
-  "task_id": "GEW-WP09-LOCAL-LEARNING-DESIGN-V1",
+  "task_id": "GEW-WP09-AUTHORIZED-STAGE-IMPLEMENTATION-V1",
   "tier_decision": {
     "suggested": "T2",
     "declared": "T2",
-    "justification": "Owner approved reviewed action-authority implementation package r1 on 2026-10-06: 53 exact targets, 241 named selectors, six static commands; checkpoint ecaa416 retained. No commit, push, real installation upgrade or external action authority. Owner approved required source inventory amendment:54 targets, unchanged241 tests and6statics."
+    "justification": "Owner approved independently reviewed37 exact files,211 named synthetic tests and6statics on2026-10-08. Design graph replay and current artifact hashes verified before phase handoff. ce476d4 retained; no commit/push/real-installation upgrade authority."
   },
   "roles": {
     "human-owner": "Human Owner",
     "product-reviewer": "Human Owner",
-    "technical-reviewer": "/root/p3_c274_candidate_reviewer",
+    "technical-reviewer": "/root/authorized_stage_candidate_reviewer",
     "authorized-committer": "/root"
   },
   "target_files": [
     ".workflow/manifest.json",
-    "adapters/graph_engineering/adapters/owner_turn_local.py",
-    "adapters/graph_engineering/adapters/runtime_adapters.py",
-    "application/graph_engineering/application/action_authority.py",
-    "application/graph_engineering/application/actions.py",
-    "application/graph_engineering/application/owner_turns.py",
-    "application/graph_engineering/application/runtime.py",
-    "config/actions/action-authority-policy-v1.json",
+    "application/graph_engineering/application/learning.py",
+    "config/contracts/schemas/learning-policy-1.1.0.json",
+    "config/contracts/schemas/learning-record-1.1.0.json",
+    "config/contracts/schemas/learning-report-1.1.0.json",
+    "config/learning/learning-policy-v2.json",
     "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
     "config/profiles/scenario-truth-installation-bootstrap-v1.json",
     "config/release-operations/release-operations-installation-bootstrap-v1.json",
-    "config/verification/action-authority-registration-boundary-v1.json",
+    "config/verification/authorized-stage-learning-boundary-v1.json",
     "config/verification/wp-00-targets.json",
     "core/graph_engineering/__init__.py",
-    "core/graph_engineering/core/action_authority.py",
-    "docs/adr/0011-action-authority-decision-ledger.md",
-    "docs/impact/action-authority-registration.md",
-    "docs/plans/2026-10-06-action-authority-registration.md",
-    "docs/specs/action-authority-registration.md",
-    "docs/test-plans/action-authority-registration.md",
+    "core/graph_engineering/core/learning.py",
+    "docs/adr/0012-authorization-learning-window-cursor.md",
+    "docs/impact/authorized-stage-learning.md",
+    "docs/plans/2026-10-07-authorized-stage-learning.md",
+    "docs/specs/authorized-stage-learning.md",
+    "docs/test-plans/authorized-stage-learning.md",
     "pyproject.toml",
     "storage/graph_engineering/storage/action_authority.py",
-    "storage/graph_engineering/storage/actions.py",
+    "storage/graph_engineering/storage/learning.py",
     "storage/graph_engineering/storage/migration.py",
-    "storage/graph_engineering/storage/repository.py",
-    "storage/graph_engineering/storage/security.py",
-    "tests/integration/test_action_authority.py",
-    "tests/integration/test_action_authority_wheel.py",
-    "tests/integration/test_wp05_action_protocol.py",
-    "tests/integration/test_wp05_recovery_claim.py",
+    "tests/contract/test_authorized_stage_learning.py",
+    "tests/integration/test_authorized_stage_learning.py",
+    "tests/integration/test_authorized_stage_learning_wheel.py",
+    "tests/integration/test_wp09_learning.py",
+    "tests/security/test_authorized_stage_learning.py",
     "tests/support/action_authority.py",
     "tests/support/source_checkout_attestation.py",
-    "tests/support/wp05_actions.py",
-    "tests/unit/test_action_authority.py"
+    "tests/unit/test_authorized_stage_learning.py"
   ],
   "artifacts": {
     "positioning": [
@@ -58,15 +54,15 @@
     ],
     "spec": [
       "docs/specs/graph-engineering-workflow.md",
-      "docs/specs/action-authority-registration.md"
+      "docs/specs/authorized-stage-learning.md"
     ],
     "plan": [
       "docs/plans/2026-08-13-graph-engineering-workflow.md",
-      "docs/plans/2026-10-06-action-authority-registration.md"
+      "docs/plans/2026-10-07-authorized-stage-learning.md"
     ],
     "test_plan": [
       "docs/test-plans/graph-engineering-workflow.md",
-      "docs/test-plans/action-authority-registration.md"
+      "docs/test-plans/authorized-stage-learning.md"
     ]
   },
   "incidents": []

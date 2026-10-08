@@ -196,12 +196,28 @@ _NAMESPACE_SEQUENCE = (
 
 
 _AUTHORITY_NAMESPACE = "action_authority_events"
+_ORDER_NAMESPACE = "action_authority_order"
+_ORDER_COLUMNS = ["order_epoch", "ordinal", "kind", "request_id", "request_sequence",
+                  "ledger_event_digest", "previous_order_digest", "body_json", "order_digest"]
+
+
+def _namespace_ordering(namespace):
+    if namespace == _AUTHORITY_NAMESPACE:
+        return " ORDER BY request_id COLLATE BINARY,sequence"
+    if namespace == _ORDER_NAMESPACE:
+        return " ORDER BY order_epoch,ordinal"
+    return ""
+
+
 _AUTHORITY_COLUMNS = ["request_id", "sequence", "event_kind", "generation", "body_json", "event_digest"]
 
 
 def _record_names(records):
     enabled = _AUTHORITY_NAMESPACE in records
-    names = _NAMESPACE_SEQUENCE + ((_AUTHORITY_NAMESPACE,) if enabled else ())
+    ordered = _ORDER_NAMESPACE in records
+    if ordered and not enabled:
+        raise MigrationRepositoryError("order component requires action authority")
+    names = _NAMESPACE_SEQUENCE + ((_AUTHORITY_NAMESPACE,) if enabled else ()) + ((_ORDER_NAMESPACE,) if ordered else ())
     if set(records) != set(names):
         raise MigrationRepositoryError("bundle logical namespaces are invalid")
     markers = [row for row in _project_rows(records, "schema_versions", ("component", "version"))
@@ -214,6 +230,16 @@ def _record_names(records):
                 or record["columns"] != _AUTHORITY_COLUMNS or type(record["rows"]) is not list
                 or any(type(row) is not list or len(row) != 6 for row in record["rows"])):
             raise MigrationRepositoryError("action authority namespace shape is invalid")
+    order_markers = [row for row in _project_rows(records, "schema_versions", ("component", "version"))
+                     if row[0] == "action-authority-order"]
+    if order_markers != ([("action-authority-order", "1.0")] if ordered else []):
+        raise MigrationRepositoryError("order component schema marker is inconsistent")
+    if ordered:
+        record = records[_ORDER_NAMESPACE]
+        if (type(record) is not dict or set(record) != {"columns", "rows"}
+                or record["columns"] != _ORDER_COLUMNS or type(record["rows"]) is not list
+                or any(type(row) is not list or len(row) != 9 for row in record["rows"])):
+            raise MigrationRepositoryError("order namespace shape is invalid")
     return names
 
 
@@ -222,6 +248,11 @@ def _authority_names(connection, factory):
     present = connection.execute("SELECT name FROM sqlite_master WHERE name IN "
         "('action_authority_events','action_authority_task','action_authority_digest')").fetchall()
     if marker is None and not present:
+        from .action_authority import _order_schema
+        try:
+            _order_schema(connection)
+        except Exception:
+            raise MigrationRepositoryError("orphan order component") from None
         return _NAMESPACE_SEQUENCE
     from .action_authority import ActionAuthorityLedger, installed_policy, _require_schema
     from graph_engineering.core.action_authority import ActionAuthorityError
@@ -235,9 +266,11 @@ def _authority_names(connection, factory):
             raise MigrationRepositoryError("action authority identity capacity exceeded")
         for (request_id,) in identities:
             ledger._read_locked(connection, request_id)
+        from .action_authority import _order_proofs_locked
+        ordered = _order_proofs_locked(connection, policy) is not None
     except ActionAuthorityError:
         raise MigrationRepositoryError("action authority component integrity failed") from None
-    return _NAMESPACE_SEQUENCE + (_AUTHORITY_NAMESPACE,)
+    return _NAMESPACE_SEQUENCE + (_AUTHORITY_NAMESPACE,) + ((_ORDER_NAMESPACE,) if ordered else ())
 
 
 def _repository_digest_from_records(
@@ -270,6 +303,8 @@ def _repository_digest_from_records(
     }
     if _AUTHORITY_NAMESPACE in records:
         body["action_authority"] = semantic_record_digest(records[_AUTHORITY_NAMESPACE])
+    if _ORDER_NAMESPACE in records:
+        body["action_authority_order"] = semantic_record_digest(records[_ORDER_NAMESPACE])
     return semantic_record_digest(body)
 
 
@@ -277,7 +312,7 @@ def _read_live_records(factory: ConnectionFactory) -> dict[str, object]:
     records: dict[str, object] = {}
     with factory.open("doctor") as connection:
         for namespace in _authority_names(connection, factory):
-            ordering = ' ORDER BY request_id,sequence' if namespace == _AUTHORITY_NAMESPACE else ''
+            ordering = _namespace_ordering(namespace)
             cursor = connection.execute(f'SELECT * FROM "{namespace}"' + ordering)
             columns = [item[0] for item in cursor.description]
             records[namespace] = {
@@ -1376,9 +1411,14 @@ class InstallationMigrationRepository:
                 "SELECT component,version FROM schema_versions ORDER BY component"
             ).fetchall()
             body = {"repository_id": selected.repository_id, "tasks": tasks, "schemas": schemas}
-            if _AUTHORITY_NAMESPACE in _authority_names(connection, selected):
+            names = _authority_names(connection, selected)
+            if _AUTHORITY_NAMESPACE in names:
                 rows = connection.execute('SELECT * FROM action_authority_events ORDER BY request_id,sequence').fetchall()
                 body["action_authority"] = semantic_record_digest({"columns": _AUTHORITY_COLUMNS,
+                    "rows": [list(row) for row in rows]})
+            if _ORDER_NAMESPACE in names:
+                rows = connection.execute("SELECT * FROM action_authority_order ORDER BY order_epoch,ordinal").fetchall()
+                body["action_authority_order"] = semantic_record_digest({"columns": _ORDER_COLUMNS,
                     "rows": [list(row) for row in rows]})
         return semantic_record_digest(body)
 
@@ -1927,6 +1967,18 @@ class InstallationMigrationRepository:
         finally:
             self._control_lock.release(token)
 
+    def initialize_action_authority_order_storage(self) -> None:
+        """Explicit exclusive initialization/resealing of optional ordering audit."""
+        from .action_authority import _initialize_order_schema
+        token=self._control_lock.acquire('exclusive')
+        try:
+            manifest,factory=self._current_factory(token)
+            with factory.open('migration') as connection:
+                with connection.transaction():
+                    _initialize_order_schema(connection,factory,
+                        (manifest.installation_id,manifest.repository_id,manifest.activation_epoch),self._fault)
+        finally:self._control_lock.release(token)
+
     def initialize_learning_storage(self) -> None:
         """Explicit local maintenance, serialized with export and activation."""
         token = self._control_lock.acquire("exclusive")
@@ -2047,7 +2099,7 @@ class InstallationMigrationRepository:
             records, "resource_fences", ("resource_id", "fencing_token"),
         )
         manifest_unsigned = {
-            "schema_version": "1.1" if _AUTHORITY_NAMESPACE in records else "1.0",
+            "schema_version": "1.2" if _ORDER_NAMESPACE in records else ("1.1" if _AUTHORITY_NAMESPACE in records else "1.0"),
             "source_manifest_digest": source_manifest.manifest_digest,
             "source_repository_digest": source_repository_digest,
             "source_fencing_high_water": [list(item) for item in source_fences],
@@ -2116,7 +2168,7 @@ class InstallationMigrationRepository:
             finally:
                 reference.close()
             for namespace in names:
-                ordering = ' ORDER BY request_id,sequence' if namespace == _AUTHORITY_NAMESPACE else ''
+                ordering = _namespace_ordering(namespace)
                 cursor = connection.execute(f'SELECT * FROM "{namespace}"' + ordering)
                 columns = [item[0] for item in cursor.description]
                 records[namespace] = {"columns": columns, "rows": [list(row) for row in cursor.fetchall()]}
@@ -2172,7 +2224,7 @@ class InstallationMigrationRepository:
         if (
             not isinstance(manifest_value, dict)
             or set(manifest_value) != fields
-            or manifest_value.get("schema_version") not in {"1.0", "1.1"}
+            or manifest_value.get("schema_version") not in {"1.0", "1.1", "1.2"}
         ):
             raise MigrationRepositoryError("bundle manifest is not exact")
         unsigned = {key: value for key, value in manifest_value.items() if key != "bundle_digest"}
@@ -2189,7 +2241,8 @@ class InstallationMigrationRepository:
         if canonical_bytes(records) != records_body:
             raise MigrationRepositoryError("bundle logical namespaces are invalid")
         _record_names(records)
-        if (_AUTHORITY_NAMESPACE in records) != (manifest_value["schema_version"] == "1.1"):
+        if ((_AUTHORITY_NAMESPACE in records) != (manifest_value["schema_version"] in {"1.1", "1.2"})
+                or (_ORDER_NAMESPACE in records) != (manifest_value["schema_version"] == "1.2")):
             raise MigrationRepositoryError("bundle version and action authority component differ")
         identity = _load_snapshot_identity(manifest_value["snapshot_identity"])
         if _repository_digest_from_records(
@@ -2300,6 +2353,11 @@ class InstallationMigrationRepository:
                         _initialize_schema(connection, self._fault)
                         marker = next(row for row in records["schema_versions"]["rows"] if row[0] == "action-authority")
                         connection.execute("UPDATE schema_versions SET applied_at=? WHERE component='action-authority'", (marker[2],))
+                    if _ORDER_NAMESPACE in records:
+                        from .action_authority import _ORDER_TABLE
+                        connection.execute(_ORDER_TABLE)
+                        marker = next(row for row in records["schema_versions"]["rows"] if row[0] == "action-authority-order")
+                        connection.execute("INSERT INTO schema_versions(component,version,applied_at) VALUES(?,?,?)", marker)
                     for namespace in _record_names(records):
                         if namespace in {"schema_versions", "objects", "export_holds"}:
                             continue

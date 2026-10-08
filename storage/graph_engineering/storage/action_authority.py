@@ -82,9 +82,9 @@ class ActionAuthorityLedger:
 
     def _read_locked(self, connection, request_id):
         _require_schema(connection)
-        sizes = connection.execute('SELECT length(CAST(body_json AS BLOB)) FROM action_authority_events WHERE request_id=? ORDER BY sequence LIMIT ?',
+        sizes = connection.execute('SELECT length(CAST(body_json AS BLOB)),length(CAST(event_kind AS BLOB)),length(CAST(event_digest AS BLOB)) FROM action_authority_events WHERE request_id=? ORDER BY sequence LIMIT ?',
             (request_id,self.policy.max_events+1)).fetchall()
-        if len(sizes)>self.policy.max_events or any(n[0]>self.policy.max_record_bytes for n in sizes):
+        if len(sizes)>self.policy.max_events or any(n[0]>self.policy.max_record_bytes or n[1]>32 or n[2]>78 for n in sizes):
             raise ActionAuthorityError('capacity_exhausted')
         rows=connection.execute('SELECT sequence,event_kind,generation,body_json,event_digest FROM action_authority_events WHERE request_id=? ORDER BY sequence LIMIT ?',
             (request_id,self.policy.max_events+1)).fetchall()
@@ -195,18 +195,52 @@ class ActionAuthorityLedger:
         if not valid:
             raise ActionAuthorityError('integrity_error')
 
+    def _validate_order_locked(self, connection, capture_budget=None, *, max_rows=None):
+        proofs=_order_proofs_locked(connection,self.policy,max_rows=max_rows,capture_budget=capture_budget)
+        if proofs is None:return None
+        chain=_partition(proofs,self._epoch())
+        return {'watermark':_watermark(chain,self._epoch()),'chain':chain}
+
+    def _order_watermark_locked(self, connection, capture_budget=None, *, max_rows=None):
+        value=self._validate_order_locked(connection,capture_budget,max_rows=max_rows)
+        return None if value is None else value['watermark']
+
+    def _append_order_locked(self, connection, event, prior):
+        self.factory._require_owned_transaction(connection)
+        chain=prior['chain'];epoch=self._epoch();ordinal=len(chain)
+        if ordinal>2**53-1:raise ActionAuthorityError('capacity_exhausted')
+        body=dict(schema_version='1.0.0',kind='event',order_epoch=_order_epoch(epoch),ordinal=ordinal,
+            previous_order_digest=chain[-1]['order_digest'],request_id=event['request_id'],
+            request_sequence=event['sequence'],ledger_event_digest=event['event_digest'])
+        connection.execute('INSERT INTO action_authority_order VALUES(?,?,?,?,?,?,?,?,?)',
+            (_order_epoch(epoch),ordinal,'event',event['request_id'],event['sequence'],event['event_digest'],
+             body['previous_order_digest'],canonical_json(body),semantic_record_digest(body)))
+
     def _insert_locked(self, connection, body):
+        prior=self._validate_order_locked(connection)
+        if prior is not None and connection.execute("SELECT count(*) FROM action_authority_order").fetchone()[0]>=self.policy.max_requests*self.policy.max_events:
+            raise ActionAuthorityError('capacity_exhausted')
         _bounded_shape(body,max_bytes=self.policy.max_record_bytes)
         raw=canonical_json(body)
         if len(raw.encode())>self.policy.max_record_bytes:
             raise ActionAuthorityError('capacity_exhausted')
         digest=semantic_record_digest(body)
+        if prior is not None:
+            if len(body['request_id'].encode())+len(digest)+64>1024:
+                raise ActionAuthorityError('capacity_exhausted')
+            projected=dict(schema_version='1.0.0',kind='event',order_epoch=prior['watermark']['order_epoch'],
+                ordinal=len(prior['chain']),previous_order_digest=prior['watermark']['order_digest'],
+                request_id=body['request_id'],request_sequence=body['sequence'],ledger_event_digest=digest)
+            if len(canonical_json(projected).encode())>1024:
+                raise ActionAuthorityError('capacity_exhausted')
         try:
             connection.execute('INSERT INTO action_authority_events(request_id,sequence,event_kind,generation,body_json,event_digest) VALUES(?,?,?,?,?,?)',
                 (body['request_id'],body['sequence'],body['event_kind'],body['generation'],raw,digest))
         except sqlite3.IntegrityError:
             raise ActionAuthorityError('stale_binding') from None
-        return {**body,'event_digest':digest}
+        event={**body,'event_digest':digest}
+        if prior is not None:self._append_order_locked(connection,event,prior)
+        return event
 
     def _create_locked(self, connection, challenge):
         self.factory._require_owned_transaction(connection)
@@ -342,3 +376,165 @@ class ActionAuthorityLedger:
                 raise ActionAuthorityError('invalid_request')
         if payload.get('snapshot_digest')!=head['challenge']['snapshot_digest']:
             raise ActionAuthorityError('stale_binding')
+
+
+_ORDER_TABLE = '''CREATE TABLE action_authority_order (
+order_epoch TEXT NOT NULL, ordinal INTEGER NOT NULL CHECK(ordinal>=0 AND ordinal<=9007199254740991),
+kind TEXT NOT NULL CHECK(kind IN ('anchor','event')), request_id TEXT, request_sequence INTEGER,
+ledger_event_digest TEXT, previous_order_digest TEXT, body_json TEXT NOT NULL, order_digest TEXT NOT NULL,
+PRIMARY KEY(order_epoch,ordinal), UNIQUE(order_epoch,request_id,request_sequence)) STRICT'''
+_ORDER_COLUMNS = ['order_epoch','ordinal','kind','request_id','request_sequence',
+                  'ledger_event_digest','previous_order_digest','body_json','order_digest']
+
+
+def _order_schema(connection):
+    marker=connection.execute("SELECT version FROM schema_versions WHERE component='action-authority-order'").fetchone()
+    present=connection.execute("SELECT sql FROM sqlite_master WHERE name='action_authority_order'").fetchone()
+    if marker is None and present is None:return False
+    if marker!=('1.0',) or present!=(_ORDER_TABLE,):
+        raise ActionAuthorityError('upgrade_required')
+    _require_schema(connection)
+    return True
+
+
+def _order_epoch(epoch):
+    return semantic_record_digest(dict(zip(('installation_id','repository_id','activation_epoch'),epoch,strict=True)))
+
+
+def _legacy_seal(rows):
+    return semantic_record_digest({'contract':'action-authority-legacy-seal-v1',
+        'columns':['request_id','sequence','event_digest'],'rows':rows})
+
+
+def _order_proofs_locked(connection, policy, *, max_rows=None, capture_budget=None):
+    """Global metadata only: never select original ledger body_json."""
+    if not _order_schema(connection):return None
+    bound=policy.max_requests*policy.max_events
+    row_limit=bound if max_rows is None else min(bound,max_rows)
+    ledger_size=connection.execute('SELECT count(*),coalesce(sum(length(CAST(request_id AS BLOB))+length(CAST(event_digest AS BLOB))+64),0),'
+        'coalesce(max(length(CAST(request_id AS BLOB))+length(CAST(event_digest AS BLOB))+64),0) FROM action_authority_events').fetchone()
+    order_size=connection.execute('SELECT count(*),coalesce(sum(length(CAST(body_json AS BLOB))+'
+        'length(CAST(order_epoch AS BLOB))+coalesce(length(CAST(request_id AS BLOB)),0)+'
+        'coalesce(length(CAST(ledger_event_digest AS BLOB)),0)+coalesce(length(CAST(previous_order_digest AS BLOB)),0)+'
+        'length(CAST(order_digest AS BLOB))+128),0),'
+        'coalesce(max(max(length(CAST(body_json AS BLOB)),length(CAST(order_epoch AS BLOB)),'
+        'coalesce(length(CAST(request_id AS BLOB)),0),coalesce(length(CAST(ledger_event_digest AS BLOB)),0),'
+        'coalesce(length(CAST(previous_order_digest AS BLOB)),0),length(CAST(order_digest AS BLOB)))),0) '
+        'FROM action_authority_order').fetchone()
+    if ledger_size[0]>row_limit or order_size[0]>row_limit or ledger_size[2]>1024 or order_size[2]>1024:
+        raise ActionAuthorityError('capacity_exhausted')
+    charge=2*ledger_size[1]+order_size[1]+512
+    if capture_budget is not None:
+        if charge>capture_budget[0]:raise ActionAuthorityError('capacity_exhausted')
+        capture_budget[0]-=charge
+    # The lengths/counts above precede both body-free metadata materializations.
+    metadata=connection.execute('SELECT request_id,sequence,event_digest FROM action_authority_events ORDER BY request_id COLLATE BINARY,sequence').fetchall()
+    by_pointer={(request,seq):digest for request,seq,digest in metadata}
+    groups={}
+    from .codec import require_jcs_digest
+    from .errors import RepositoryIntegrityError
+    try:
+        for row in connection.execute('SELECT '+','.join(_ORDER_COLUMNS)+' FROM action_authority_order ORDER BY order_epoch,ordinal'):
+            epoch,ordinal,kind,request,seq,event_digest,previous,raw,digest=row
+            body=parse_canonical_json(raw)
+            require_jcs_digest(epoch);require_jcs_digest(digest)
+            if semantic_record_digest(body)!=digest:raise ValueError('order digest')
+            chain=groups.setdefault(epoch,[])
+            if ordinal!=len(chain):raise ValueError('order gap')
+            if kind=='anchor':
+                fields={'schema_version','kind','installation_id','repository_id','activation_epoch','legacy_rows_digest','legacy_row_count'}
+                if (ordinal!=0 or set(body)!=fields or body['kind']!='anchor' or body['schema_version']!='1.0.0'
+                        or any(x is not None for x in (request,seq,event_digest,previous))
+                        or type(body['legacy_row_count']) is not int or not 0<=body['legacy_row_count']<=bound
+                        or type(body['activation_epoch']) is not int or not 1<=body['activation_epoch']<=2**53-1
+                        or any(type(body[k]) is not str or not 1<=len(body[k])<=128 for k in ('installation_id','repository_id'))
+                        or _order_epoch(tuple(body[k] for k in ('installation_id','repository_id','activation_epoch')))!=epoch):
+                    raise ValueError('order anchor')
+                require_jcs_digest(body['legacy_rows_digest'])
+            else:
+                fields={'schema_version','kind','order_epoch','ordinal','previous_order_digest','request_id','request_sequence','ledger_event_digest'}
+                expected=dict(schema_version='1.0.0',kind='event',order_epoch=epoch,ordinal=ordinal,
+                    previous_order_digest=previous,request_id=request,request_sequence=seq,ledger_event_digest=event_digest)
+                if (not chain or set(body)!=fields or body!=expected or previous!=chain[-1]['order_digest']
+                        or type(seq) is not int or seq<1 or by_pointer.get((request,seq))!=event_digest):
+                    raise ValueError('order pointer')
+                require_jcs_digest(event_digest)
+            chain.append({**body,'order_digest':digest})
+    except (ValueError,TypeError,KeyError,RepositoryIntegrityError):
+        raise ActionAuthorityError('integrity_error') from None
+    if not groups:raise ActionAuthorityError('integrity_error')
+    # Anchors seal the complete ledger at activation. Epoch intervals therefore
+    # partition the monotone row count, even when several empty epochs share it.
+    all_pointers=set()
+    for chain in groups.values():
+        for event in chain[1:]:
+            pointer=(event['request_id'],event['request_sequence'])
+            if pointer in all_pointers:raise ActionAuthorityError('integrity_error')
+            all_pointers.add(pointer)
+    historic={pointer for pointer in by_pointer if pointer not in all_pointers}
+    for count in sorted({chain[0]['legacy_row_count'] for chain in groups.values()}):
+        peers=[chain for chain in groups.values() if chain[0]['legacy_row_count']==count]
+        if count!=len(historic) or sum(bool(chain[1:]) for chain in peers)>1:
+            raise ActionAuthorityError('integrity_error')
+        legacy=[[request,seq,digest] for request,seq,digest in metadata if (request,seq) in historic]
+        seal=_legacy_seal(legacy)
+        if any(chain[0]['legacy_rows_digest']!=seal for chain in peers):
+            raise ActionAuthorityError('integrity_error')
+        for chain in peers:
+            historic.update((event['request_id'],event['request_sequence']) for event in chain[1:])
+    if historic!=set(by_pointer):raise ActionAuthorityError('integrity_error')
+    return {'groups':groups,'metadata':metadata}
+
+
+def _partition(proofs,epoch):
+    chain=proofs['groups'].get(_order_epoch(epoch))
+    if chain is None:raise ActionAuthorityError('epoch_changed')
+    pointers={(row['request_id'],row['request_sequence']) for row in chain[1:]}
+    legacy=[[request,seq,digest] for request,seq,digest in proofs['metadata'] if (request,seq) not in pointers]
+    if len(legacy)!=chain[0]['legacy_row_count'] or _legacy_seal(legacy)!=chain[0]['legacy_rows_digest']:
+        raise ActionAuthorityError('integrity_error')
+    return chain
+
+
+def _watermark(chain,epoch):
+    return dict(order_epoch=_order_epoch(epoch),ordinal=len(chain)-1,order_digest=chain[-1]['order_digest'],
+        anchor_digest=chain[0]['order_digest'],**dict(zip(('installation_id','repository_id','activation_epoch'),epoch,strict=True)))
+
+
+def _initialize_order_schema(connection,factory,epoch,fault):
+    """Exclusive installation maintenance; original bodies remain immutable."""
+    from .connection import ManagedConnection, _ISSUED_CONNECTION_OWNERS
+    if (type(connection) is not ManagedConnection or not connection._in_transaction
+            or connection._role!='migration' or _ISSUED_CONNECTION_OWNERS.get(connection) is not factory):
+        raise ActionAuthorityError('invalid_request')
+    connection._check()
+    _require_schema(connection)
+    policy=installed_policy()
+    enabled=_order_schema(connection)
+    if enabled:
+        proofs=_order_proofs_locked(connection,policy)
+        if _order_epoch(epoch) in proofs['groups']:
+            _partition(proofs,epoch)
+            return
+    else:
+        connection.execute(_ORDER_TABLE)
+        fault('action_authority.order_after_table')
+    # Only this maintenance path validates all original request bodies.
+    sizes=connection.execute('SELECT count(*),coalesce(max(length(CAST(body_json AS BLOB))),0),'
+        'coalesce(max(length(CAST(request_id AS BLOB))+length(CAST(event_digest AS BLOB))+64),0) FROM action_authority_events').fetchone()
+    if sizes[0]>policy.max_requests*policy.max_events or sizes[1]>policy.max_record_bytes or sizes[2]>1024:
+        raise ActionAuthorityError('capacity_exhausted')
+    ids=connection.execute('SELECT DISTINCT request_id FROM action_authority_events LIMIT ?', (policy.max_requests+1,)).fetchall()
+    if len(ids)>policy.max_requests:raise ActionAuthorityError('capacity_exhausted')
+    ledger=ActionAuthorityLedger(factory,policy)
+    for (request,) in ids:ledger._read_locked(connection,request)
+    metadata=connection.execute('SELECT request_id,sequence,event_digest FROM action_authority_events ORDER BY request_id COLLATE BINARY,sequence').fetchall()
+    body=dict(schema_version='1.0.0',kind='anchor',**dict(zip(('installation_id','repository_id','activation_epoch'),epoch,strict=True)),
+        legacy_rows_digest=_legacy_seal([list(row) for row in metadata]),legacy_row_count=len(metadata))
+    connection.execute('INSERT INTO action_authority_order VALUES(?,0,\'anchor\',NULL,NULL,NULL,NULL,?,?)',
+        (_order_epoch(epoch),canonical_json(body),semantic_record_digest(body)))
+    fault('action_authority.order_after_anchor')
+    if not enabled:
+        connection.execute("INSERT INTO schema_versions(component,version,applied_at) VALUES('action-authority-order','1.0','initial')")
+    fault('action_authority.order_after_marker')
+    _partition(_order_proofs_locked(connection,policy),epoch)

@@ -37,6 +37,11 @@ _CONTROL_LOCK = "installation-maintenance.lock"
 _ATTESTATION_KEY = "source-checkout-attestation-v1.key"
 _ATTESTATION_FILE = "source-checkout-attestation-v1.json"
 _SOURCE_FILES = (
+    "config/learning/learning-policy-v2.json",
+    "config/contracts/schemas/learning-policy-1.1.0.json",
+    "config/contracts/schemas/learning-record-1.1.0.json",
+    "config/contracts/schemas/learning-report-1.1.0.json",
+
     "adapters/graph_engineering/adapters/__init__.py",
     "adapters/graph_engineering/adapters/action_adapters.py",
     "adapters/graph_engineering/adapters/command_native.py",
@@ -3481,12 +3486,16 @@ def _attested_source_member(
 def _learning_installation_resources() -> tuple[bytes, ...]:
     """Re-read six exact attested learning resources, preserving source/wheel parity."""
     locations = (
-        'config/learning/learning-policy-v1.json',
+        'config/learning/learning-policy-v2.json',
         'config/learning/learning-experiments-v1.json',
         'config/contracts/schemas/learning-input-1.0.0.json',
+        'config/contracts/schemas/learning-record-1.1.0.json',
+        'config/contracts/schemas/learning-report-1.1.0.json',
+        'config/contracts/schemas/learning-policy-1.1.0.json',
         'config/contracts/schemas/learning-record-1.0.0.json',
         'config/contracts/schemas/learning-report-1.0.0.json',
         'config/contracts/schemas/learning-policy-1.0.0.json',
+        'config/learning/learning-policy-v1.json',
     )
     return _installation_owned_resources(locations)
 

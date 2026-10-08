@@ -49,7 +49,7 @@ def ledger_stack():
 
 
 @contextmanager
-def registration_stack(port, fault_hook=lambda _point:None, *, learning=True):
+def registration_stack(port, fault_hook=lambda _point:None, *, learning=True, action_kinds=("commit",), task_id="task:learning-1", owner_override=None):
     """Actual task transitions plus synthetic installed trust, with zero grants."""
     import json
     from tests.support.wp03_repository import repository_stack,ROOT
@@ -68,7 +68,7 @@ def registration_stack(port, fault_hook=lambda _point:None, *, learning=True):
     from graph_engineering.storage.leases import ResourceLeaseRepository
     from graph_engineering.storage.actions import ActionJournalRepository
     from graph_engineering.storage.codec import canonical_json,semantic_record_digest
-    with repository_stack() as stack, action_session(port) as active:
+    with repository_stack() as stack, action_session(port,owner_override=owner_override) as active:
         _,base,locks,*_=stack
         base._test_installation_scope.__exit__(None,None,None)
         manager=base._test_installation_manager
@@ -83,12 +83,12 @@ def registration_stack(port, fault_hook=lambda _point:None, *, learning=True):
                 leases=ResourceLeaseRepository(factory,locks)
                 repository=TaskRepository(factory,locks,objects,command_scope=scope)
                 tasks=TaskApplication(repository,repository,leases,schema_registry=SCHEMAS,context=WORK)
-                identity=dict(task_id='task:learning-1',owner_id=active.proof.owner_id,
+                identity=dict(task_id=task_id,owner_id=active.proof.owner_id,
                     runtime_kind=active.capabilities.runtime_kind,runtime_lineage_id=active.proof.lineage_id)
                 RuntimeMutationGateway.create(active,active.proof,identity,
                     lambda runtime:tasks.execute(identity['task_id'],TaskCommand('create',0,{'identity':identity}),runtime),
                     occurred_at='synthetic-create',lease_ttl_ns=100)
-                approve(tasks,active,baseline_digest=semantic_record_digest({'intent':'synthetic action authority'}))
+                approve(tasks,active,baseline_digest=semantic_record_digest({'intent':'synthetic action authority'}),task_id=task_id)
                 with factory.open('application') as conn:
                     with conn.transaction():
                         revision,snapshot,raw=conn.execute('SELECT revision,snapshot_digest,snapshot_json FROM tasks WHERE task_id=?',(identity['task_id'],)).fetchone()
@@ -107,6 +107,7 @@ def registration_stack(port, fault_hook=lambda _point:None, *, learning=True):
                 prepared=prepared_document(context=context)
                 prepared.update(task_id=identity['task_id'],resources=['target:project','task:'+identity['task_id']],
                     baseline_digest=binding['baselines']['intent'],snapshot_digest=snapshot)
+                prepared['action_kind']=action_kinds[0]
                 prepared['prepared_action_digest']=PreparedAction.digest_document(prepared,context)
                 with factory.open('application') as conn:
                     with conn.transaction():
@@ -119,6 +120,11 @@ def registration_stack(port, fault_hook=lambda _point:None, *, learning=True):
                             (canonical_json(state),state_digest,identity['task_id']))
                 journal=ActionJournalRepository(factory,schema_registry=schemas,context=context)
                 journal.record_prepared(PreparedAction.from_dict(prepared,context=context))
+                for index,kind in enumerate(action_kinds[1:],1):
+                    extra={**prepared,'action_id':prepared['action_id']+':'+str(index),'action_kind':kind,
+                           'idempotency_key':prepared['idempotency_key']+':'+str(index)}
+                    extra['prepared_action_digest']=PreparedAction.digest_document(extra,context)
+                    journal.record_prepared(PreparedAction.from_dict(extra,context=context))
                 request=dict(schema_version='1.0.0',request_id='request:registration',task_id=identity['task_id'],
                     action_id=prepared['action_id'],expected_task_revision=revision,expected_snapshot_digest=snapshot,
                     expected_security_digest=state_digest,expected_journal_revision=1)
@@ -297,3 +303,53 @@ class AuthorityProcess:
                 self._os.waitpid(self.pid,0)
             self._joined=True
         self._os.close(self._read);self._os.close(self._gate_write)
+
+
+def prepare_task_action(service, active, task_id, action_id, *, create_task=True, action_kind='commit'):
+    """Genuine domain/prepare transitions with synthetic initial security inputs.
+
+    No authority membership, decisions, order rows or approval events are seeded.
+    """
+    import json
+    from tests.support.wp05a_security import binding_document,task_security_state_document
+    from tests.support.wp05_actions import prepared_document,digest
+    from tests.integration.test_wp07_runtime_parity import SCHEMAS,WORK
+    from tests.integration.test_wp09_learning_metric_sources import approve
+    from graph_engineering.application.tasks import TaskApplication
+    from graph_engineering.application.runtime import RuntimeMutationGateway
+    from graph_engineering.core.graph.state import TaskCommand
+    from graph_engineering.core.security.identity import SecurityBinding
+    from graph_engineering.core.actions import PreparedAction
+    from graph_engineering.storage.objects import ObjectRepository
+    from graph_engineering.storage.repository import TaskRepository
+    from graph_engineering.storage.leases import ResourceLeaseRepository
+    from graph_engineering.storage.actions import ActionJournalRepository
+    from graph_engineering.storage.codec import canonical_json,semantic_record_digest
+    with service._scope() as (ledger,_journal,_issuer):
+        factory=ledger.factory;locks=service._manager._locks;objects=ObjectRepository(factory,locks)
+        try:
+            repository=TaskRepository(factory,locks,objects,command_scope=factory._command_scope)
+            tasks=TaskApplication(repository,repository,ResourceLeaseRepository(factory,locks),schema_registry=SCHEMAS,context=WORK)
+            identity=dict(task_id=task_id,owner_id=active.proof.owner_id,runtime_kind=active.capabilities.runtime_kind,runtime_lineage_id=active.proof.lineage_id)
+            if create_task:
+                RuntimeMutationGateway.create(active,active.proof,identity,
+                    lambda runtime:tasks.execute(task_id,TaskCommand('create',0,{'identity':identity}),runtime),occurred_at='synthetic-create',lease_ttl_ns=100)
+                approve(tasks,active,baseline_digest=semantic_record_digest({'intent':task_id}),task_id=task_id)
+            with factory.open('application') as conn,conn.transaction():
+                revision,snapshot,raw=conn.execute('SELECT revision,snapshot_digest,snapshot_json FROM tasks WHERE task_id=?',(task_id,)).fetchone()
+                domain=json.loads(raw)['domain'];existing=conn.execute('SELECT state_json FROM task_security_states WHERE task_id=?',(task_id,)).fetchone()
+                if existing is None:
+                    binding=binding_document();binding.update(identity,scope_id=domain['project_scope_ref']['scope_id'],scope_digest=domain['project_scope_ref']['digest'],baselines={x['kind']:x['digest'] for x in domain['baseline_refs']},snapshot_digest=snapshot)
+                    binding['targets'][0]['target_digest']=digest('target');binding['binding_digest']=SecurityBinding.digest_document(binding)
+                    state=task_security_state_document(binding=binding);state.update(task_revision=revision,task_snapshot_digest=snapshot,authority_digests=[])
+                else:state=json.loads(existing[0]);binding=state['binding']
+                prepared=prepared_document(context=service._context);prepared.update(task_id=task_id,action_id=action_id,action_kind=action_kind,idempotency_key='idempotency:'+action_id,resources=['target:project','task:'+task_id],baseline_digest=binding['baselines']['intent'],snapshot_digest=snapshot)
+                prepared['prepared_action_digest']=PreparedAction.digest_document(prepared,service._context)
+                state['destinations']['owner-wp05']={'kind':'owner','trust_boundary':'owner-session','target_digest':digest('owner-session'),'prepared_action_digest':prepared['prepared_action_digest']}
+                state['data_refs']['action-payload']={'digest':digest('payload-source'),'sensitivity':'internal','retention_class':'evidence-body'}
+                state_digest=semantic_record_digest({'contract':'task-security-state-v1','value':state})
+                conn.execute('INSERT INTO task_security_states VALUES(?,?,?,?,?) ON CONFLICT(task_id) DO UPDATE SET task_revision=excluded.task_revision,task_snapshot_digest=excluded.task_snapshot_digest,state_json=excluded.state_json,state_digest=excluded.state_digest',(task_id,revision,snapshot,canonical_json(state),state_digest))
+            journal=ActionJournalRepository(factory,schema_registry=service._schemas,context=service._context)
+            journal.record_prepared(PreparedAction.from_dict(prepared,context=service._context))
+            return dict(schema_version='1.0.0',request_id='request:'+action_id,task_id=task_id,action_id=action_id,expected_task_revision=revision,expected_snapshot_digest=snapshot,expected_security_digest=state_digest,expected_journal_revision=1)
+        finally:objects.close()

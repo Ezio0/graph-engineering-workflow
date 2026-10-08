@@ -152,3 +152,55 @@ def decimal_ns(value: object) -> int:
     if type(value) is not str or not 1 <= len(value) <= 19 or not value.isascii() or not value.isdigit() or (len(value)>1 and value[0]=='0'):
         raise LearningError('LEARNING_TIME')
     return require_bound(int(value),2**63-1)
+
+
+_AUTHORIZATION_WATERMARK_FIELDS = frozenset({
+    'order_epoch','ordinal','order_digest','anchor_digest',
+    'installation_id','repository_id','activation_epoch',
+})
+
+
+def authorization_watermark(value: object) -> dict[str, object]:
+    """Closed minimized cursor; validation never turns it into an authority."""
+    if type(value) is not dict or set(value) != _AUTHORIZATION_WATERMARK_FIELDS:
+        raise LearningError('LEARNING_SOURCE')
+    for name in ('order_epoch','order_digest','anchor_digest'):
+        if type(value[name]) is not str or re.fullmatch(r'sha256-jcs-v1:[0-9a-f]{64}',value[name]) is None:
+            raise LearningError('LEARNING_SOURCE')
+    for name in ('installation_id','repository_id'):_identifier(value[name])
+    require_bound(value['ordinal'],2**53-1)
+    require_bound(value['activation_epoch'],2**53-1)
+    if value['activation_epoch']==0:raise LearningError('LEARNING_SOURCE')
+    return dict(value)
+
+
+def authorization_mapping(value: object) -> dict[str,str]:
+    if type(value) is not dict or not 1 <= len(value) <= 64:
+        raise LearningError('LEARNING_POLICY')
+    for key,category in value.items():
+        for code in (key,category):
+            if type(code) is not str or len(code)>64 or re.fullmatch(r'[a-z][a-z0-9._-]*',code) is None:
+                raise LearningError('LEARNING_POLICY')
+    return {key:value[key] for key in sorted(value)}
+
+
+def authorized_category_count(validated_approvals: list[str], category_mapping: object) -> int | None:
+    """Consume validated approval-kind facts, independent of current grant heads."""
+    mapping=authorization_mapping(category_mapping)
+    if type(validated_approvals) is not list:raise LearningError('LEARNING_SOURCE')
+    categories=set()
+    for kind in validated_approvals:
+        if type(kind) is not str:raise LearningError('LEARNING_SOURCE')
+        if kind not in mapping:return None
+        categories.add(mapping[kind])
+    return len(categories)
+
+
+def authorization_event_eligible(event: dict[str,object], identity: dict[str,object], boundary: dict[str,object]) -> bool:
+    """Predicate for already validated body/digest chains and proven PRD revision."""
+    if event.get('event_kind')!='approved':return False
+    challenge=event['challenge']
+    return (all(challenge.get(key)==value for key,value in identity.items())
+        and challenge.get('baseline_digest')==boundary['baseline_digest']
+        and type(challenge.get('task_revision')) is int
+        and challenge['task_revision']>=boundary['prd_revision'])

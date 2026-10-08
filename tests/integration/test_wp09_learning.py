@@ -659,7 +659,7 @@ class LearningIntegrationTests(unittest.TestCase):
                 )])
                 self.assertEqual(connection.execute(
                     "SELECT version FROM schema_versions WHERE component='pmf'"
-                ).fetchall(), [("1.0.0",)])
+                ).fetchall(), [("1.1.0",)])
             with factory._for_maintenance().open("migration") as connection:
                 with connection.transaction():
                     connection.execute("UPDATE schema_versions SET version='999' WHERE component='pmf'")
