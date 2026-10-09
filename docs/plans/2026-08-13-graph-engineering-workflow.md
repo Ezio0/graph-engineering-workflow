@@ -1645,3 +1645,334 @@ Owner approved implementation and bounded tests after source-design review. This
 - [ ] I5 (S, 1–2h, I4): installed source/pin/wheel closure and 132 exact test commands, independent implementation/verification review and Candidate preparation. Stop before commit/push.
 
 Estimates are not elapsed promises. Each test is a separate native <=290s child, canonical recorder <=300s, serial fail-fast. Preserve source/head and time evidence; Linux native unavailability limits platform claims rather than being replaced by a simulated PASS. No full274/P1.
+
+## WP09 report completion plan — R0, 2026-10-08
+
+### R9-P1 Summary and exit
+
+Deliver the [Spec R9](../specs/graph-engineering-workflow.md#wp09-report-completion-design--r0-2026-10-08)
+configured hypothesis/next-experiment report and four real decision oracles. Current
+stage authorizes only six design files and independent reviews. Design exit is
+the reviewed Spec/ADR/Impact/Plan/Test Plan plus an exact proposed implementation
+allowlist and named bounded commands. Implementation exit later requires real
+cohort/lifecycle/config variation, current canonical evidence and independent
+Candidate review. No whole-project, PMF, Linux or release completion is inferred.
+
+### R9-P2 Phases and dependency graph
+
+```mermaid
+flowchart LR
+ D[Design reviews and inventory] --> A[Exact implementation authority]
+ A --> C[RED then core and closed resources]
+ C --> T[Transactional report and genuine fixtures]
+ T --> P[Installed closure and pin refresh]
+ P --> V[Bounded verification and independent reviews]
+ V --> Q[Exact Candidate and separate commit authority]
+```
+
+All coding tasks are future, contingent on A. Root is sole writer; reviewers are
+read-only and independent. The detached graph is the task tracker; no extra Kanban
+or new project board. Estimates below are task sizes, not test-runtime promises;
+actual elapsed belongs in immutable command records and the future task report.
+
+### R9-P3 Tasks and acceptance
+
+| ID | Size / estimate | Depends / blocks | Targets and observable exit |
+|---|---|---|---|
+| D1 | S /1–2h | approved owner decision /D2 | six design files; exact meaning, version/ref/budget/API contract; Spec/ADR and Impact independent PASS |
+| D2 | S /1–2h | D1 /A | Plan/Test Plan; complete pin/source closure and37 new+211 regression selectors; independent PASS and actual reducer completion |
+| A | XS /30min | D2 /C1 | exact proposed allowlist/argv request; record owner implementation approval, no implied irreversible action |
+| C1 | S /1–2h | A /C2 | new unit tests first, then core hypothesis reduction; unchanged exact rational rule truth tables and precedence/ref unions |
+| C2 | S /1–2h | C1 /T1 | five additive resources and loader; all references/coverage/legacy/limits validated; config is installation-owned |
+| T1 | M /half-day | C2 /P1 | storage report and genuine test helper; actual CompletionGate and source collection, four cohorts and full FR13 P/R with no fabricated positives |
+| P1 | S /1–2h | T1 /V1 | source/resource/mapping/three bootstrap pins and wheel/config fixtures; all active digests/mirrors exact, old bytes preserved |
+| V1 | M /half-day | P1 /Q | exact bounded commands serial/fail-fast; current evidence/implementation/verification independent PASS, no skipped selectors |
+| Q | S /1–2h | V1 /commit gate | Candidate's targets equal actual staged paths; independent exact Candidate review; stop for separate commit authority |
+
+- [ ] D1: reproduce every exact target digest and independent decision; no product changes.
+- [ ] D2: AST names proposed now, collector verifies them after authorized authoring;
+  every critical journey has its observable oracle and existing selectors remain.
+- [ ] A: preserve the full requested scope, timeouts and exclusions; no invented approval.
+- [ ] C1/C2: preserve RED; unsupported metrics stay unknown; no engine business thresholds.
+- [ ] T1: public runtime/SQLite report path reaches supports/mixed/counter/insufficient;
+  exact denominators/references, context/revoke/purge/restart and valid config changes.
+- [ ] P1: five new resource hashes and all old bytes tracked; source/wheel substitutions refuse.
+- [ ] V1: stage once after native success and freeze all source inputs; each canonical
+  command collects/executes exactly one test or is a declared static check.
+- [ ] Q: exact scope/evidence preflight before costly capture; no allowlist superset Candidate.
+
+### R9-P4 Exact proposed implementation allowlist
+
+An implementation approval would authorize only the following31 files. This list
+is an allowlist, not the eventual Candidate target list. At Candidate preparation
+declare exactly the files that actually changed inside this allowlist; independent
+review records that mechanical narrowing without adding files/semantics. Preserve
+every allowed-but-unchanged file and its relevant regression tests.
+
+1. `.workflow/manifest.json`
+2. `docs/specs/graph-engineering-workflow.md`
+3. `docs/impact/graph-engineering-workflow.md`
+4. `docs/plans/2026-08-13-graph-engineering-workflow.md`
+5. `docs/test-plans/graph-engineering-workflow.md`
+6. `docs/adr/0013-learning-hypothesis-report-decisions.md`
+7. `core/graph_engineering/core/learning.py`
+8. `application/graph_engineering/application/learning.py`
+9. `storage/graph_engineering/storage/learning.py`
+10. `core/graph_engineering/__init__.py`
+11. `pyproject.toml`
+12. `config/learning/learning-policy-v3.json`
+13. `config/learning/learning-experiments-v2.json`
+14. `config/contracts/schemas/learning-policy-1.2.0.json`
+15. `config/contracts/schemas/learning-experiments-1.1.0.json`
+16. `config/contracts/schemas/learning-report-1.2.0.json`
+17. `config/migration/migration-rehearsal-installation-bootstrap-v1.json`
+18. `config/profiles/scenario-truth-installation-bootstrap-v1.json`
+19. `config/release-operations/release-operations-installation-bootstrap-v1.json`
+20. `config/verification/wp-00-targets.json`
+21. `config/verification/learning-report-completion-boundary-v1.json`
+22. `tests/support/source_checkout_attestation.py`
+23. `tests/support/learning_reports.py`
+24. `tests/fixtures/learning-report-config-variants-v1.json`
+25. `tests/unit/test_learning_reports.py`
+26. `tests/contract/test_learning_reports.py`
+27. `tests/integration/test_learning_reports.py`
+28. `tests/security/test_learning_reports.py`
+29. `tests/integration/test_learning_reports_wheel.py`
+30. `tests/contract/test_authorized_stage_learning.py`
+31. `tests/integration/test_wp09_learning.py`
+
+The last existing integration file permits genuine helper reuse/lifecycle oracle
+corrections only, keeping every existing selector; it need not change if the new
+helper suffices. The existing authorized-stage contract file adapts active-resource
+assertions while retaining actual legacy versions/negative validation. No runtime
+adapter, completion implementation, authority registration, migration code, schema
+marker, order semantics, sibling project, policy budget or historical resource is
+on this list. Newly required targets must be decided before touching them.
+
+### R9-P5 Dependency and resource closure
+
+All engines/SQLite/runtime ports are present at source baseline `c051c09`; no
+new package/service/network dependency is planned. Existing task/artifact/runner/
+CompletionGate services are the positive completion path; synthetic reviewer/runtime
+ports may produce typed artifacts but cannot insert a committed completion or
+aggregate. Owner sessions must come from existing actual issued-runtime fixtures.
+If that path requires production API changes, T1 stops for the exact target decision.
+
+Add the five new resources to core initializer/test source-attestation lists,
+pyproject owned-root mapping and wp00 verification inventory. Keep all earlier
+learning versions registered. The loader's ordered active/legacy resource set is
+fifteen bodies: current ten plus five new, with active policy/experiment/report
+positions updated and prior resources retained. Use an explicit keyed mapping to
+their schema/version identities rather than accidentally treating the new
+experiments as a policy. Source and installed-wheel loaders must agree exactly.
+
+Initializer changes invalidate its raw pin in all three active bootstraps, and
+their dependent raw/semantic digests/vector mirrors in pyproject. Refresh those
+exact edges only; bootstrap vectors, counts and unaffected source pins stay exact.
+Record before/after closure and original versioned resource bytes. Configuration
+variants reside in a synthetic fixture, separately validated and attested/installed;
+the engine bytes must be identical across variants. Never patch the loader into
+trusting supplied maps or rewrite the main source during running tests.
+
+### R9-P6 Development risks and mitigations
+
+During C2, conflating resource versions may validate old experiments with the new
+policy schema: use explicit paired active/legacy keys and schema compatibility tests.
+During T1, shortcuts may manufacture completed tasks: assert actual completion-gate
+events and issued-runtime source lineage; absence of the seam is an exception.
+During P1, broad repinning may hide drift: compare complete vectors and unchanged
+historic bytes, including the current source file set and actual built wheel RECORD.
+During V1, costly wheel fixtures plus recorder snapshots may cause contention:
+strict serial execution, unchanged290/300 ceilings, fail-fast and retained failures.
+No elapsed/performance promise is based on estimates. Actual time is recorded per
+task command; relevant changed inputs/failures justify retries, not pressure to pass.
+
+### R9-P7 Verification and transition
+
+Use [Test Plan R9](../test-plans/graph-engineering-workflow.md) for exact37 new
+selectors and211 existing selectors plus six static commands. New behavior is
+test-first; run selected native checks on changed inputs, then freeze the complete
+staged tree and capture the declared canonical set. All product-source changes
+invalidate old current-tree Candidate/evidence; retain them as historical support.
+Documentation-only checks apply during the current stage, with zero new product
+tests run or declared PASS. No full-suite directory discovery or full274/P1 rerun.
+
+### R9-P8 Rollout and rollback
+
+No owner installation or real-data rollout. After a future authorized implementation,
+only isolated local synthetic source/wheel fixtures are used. Proposed schema1.2
+output is explicitly versioned; consumers that do not support it refuse. Existing
+owner input1.0 and old report validators remain. Any invariant failure blocks new
+report paths, without weakening existing task/action safety. No production rollback
+time or percentage canary applies; unaccepted changes can be reverted only within
+the authorized targets, preserving rejected records. PMF export remains restricted.
+
+### R9-P9 Open decisions
+
+No unresolved report product meaning remains after the selected Spec/ADR semantics.
+Implementation and its exact31/37+211/six-static boundary require the Owner after
+the design graph completes. Newly discovered file/API/budget/data/architecture
+expansion is due before the affected task. Commit/push/release/install and later
+WP10/WP11 authority remain separate. Linux environment evidence is not a missing
+choice for synthetic local design; it is a later platform acceptance requirement.
+
+### R9-P10 References and history
+
+[Positioning](../positioning/graph-engineering-workflow.md), [PRD](../prd/graph-engineering-workflow.md),
+[Spec](../specs/graph-engineering-workflow.md), [ADR0013](../adr/0013-learning-hypothesis-report-decisions.md),
+[Impact](../impact/graph-engineering-workflow.md), [Test Plan](../test-plans/graph-engineering-workflow.md).
+2026-10-08 R0: Owner approved report semantics and six-file design only; dependency
+inventory and implementation boundary proposed. Actual future implementation times
+remain unmeasured, recorded in detached execution evidence rather than fabricated here.
+
+
+## Security trust bootstrap implementation plan — B1, 2026-10-08
+
+### B1-P1 Summary and boundary
+
+Plan realizes reviewed [Spec B1](../specs/graph-engineering-workflow.md#security-trust-bootstrap-design--b1-2026-10-08),
+[ADR0014](../adr/0014-security-trust-bootstrap.md) and [Impact B1](../impact/graph-engineering-workflow.md).
+Current authority is six-file design only. Future code/test tasks below require the
+concrete48-file extension and exact argv approved by Owner. Preserve the current
+report r1 product/evidence and retained37+211 tests. Three phases: foundation,
+current durable issuance/migration, genuine acceptance/final evidence. Ten small
+tasks below total estimated27h, actual not started/unmeasured; estimates schedule
+work, never predict a PASS or replace measured command times.
+
+### B1-P2 Phases and exits
+
+P0 foundation (D0–D2): verify frozen upstream, define closed schemas/owned resource
+loading and installation atomic receipt maintenance; exit genuine source/wheel
+install initialization with fault/retry closure. P1 durable task/issuer/migration
+(D3–D5): empty initial state from real approvals, replay after evolution, all issuer
+entry points enforce fresh sources and optional codec handles old/new roots; exit
+no partial write/trust fallback and no-PMF roundtrip. P2 acceptance (D6–D9): real
+cohort/lifecycle/config/wheel tests, exact pin closure, final serial evidence and
+independent review; exit all named final-tree commands pass and Candidate is
+reviewable. No irreversible action is part of these exits.
+
+### B1-P3 Task breakdown and exact ownership
+
+Root is sole writer. Fresh read-only reviewers are assigned at required artifact
+and Candidate gates. Kanban/task records are detached D0–D9 within the approved
+future task, registered before code; no new roadmap/product direction. Estimates
+and actual time are tracked per task in detached records, not invented here.
+
+| ID/phase | Size/estimate | Owner | Depends; blocks | Files / behavior |
+|---|---|---|---|---|
+| D0/P0 | XS/0.5h | /root | Owner extension; D1 | Manifest/verification boundaries; recover exact reviewed chain, scope and selector inventory |
+| D1/P0 | M/4h | /root | D0; D2,D3 | First collect C01–04/W02 and source/wheel loader support; then descriptor/registry/3 schemas, core initializer/pyproject/test attestation: closed31 resources and bounded loader |
+| D2/P0 | M/4h | /root | D1; D3 | First collect I01/I05/S03/S05 with maintenance/fault fixtures; then storage/security.py,migration.py,application/security_bootstrap.py: receipt DDL and explicit install transaction |
+| D3/P1 | M/4h | /root | D2; D4,D5 | First collect I02/I04/I06/S01/S02 with issued task/restart/process fixtures; then application/security_bootstrap.py,storage/security.py,repository.py: bounded durable projection and task receipt CAS |
+| D4/P1 | M/4h | /root | D3; D5,D6 | First collect I03/I09/I10/S04 with evolution/currentness fixtures; then application/security.py,storage/security.py: all issuer entry points, no fallback and evolved replay |
+| D5/P1 | M/4h | /root | D4; D6 | First collect I08 with no-PMF migration fixtures; then storage/migration.py,security.py: optional namespaces/digest/atomic import and origin/currentness distinction |
+| D6/P2 | S/2h | /root | D4,D5; D7 | Consolidate existing tests/support/security_bootstrap.py/bootstrap test modules; collect I07/S06/S07/W01/W03/W04 before any remaining helper/production repair; real completion/retention/bounds/privacy |
+| D7/P2 | S/2h | /root | D6; D8 | retained learning report integration/security/wheel/support files: remaining19 acceptance, positive P/R/config variation |
+| D8/P2 | S/2h | /root | D7; D9 | three active bootstrap configs,pyproject,WP00/boundaries: exact pin/resource/source closure and focused checks |
+| D9/P2 | XS/0.5h overhead | /root + independent reviewer | D8; Owner irreversible gate | detached evidence/reviews; final frozen exact native/canonical inventory; execution time additionally measured |
+
+Estimates total27h excluding actual final command runtime and review latency. Every
+task is XS/S/M; failures create new preserved attempts, not claimed elapsed results.
+No concurrent writer or second repository checkout is required.
+
+D1–D5 each owns its named test methods and required additions to
+tests/support/security_bootstrap.py before implementing that task's behavior. Tests
+must collect first, establish meaningful behavioral RED, then GREEN through the real
+port. Contract projection fixtures do not count as positive task initialization.
+D1's W02 checks installed resource loading, not the later initialization lifecycle.
+S05 is collected at D2 for installation partial-state refusal, and expanded at D4
+for all issuer entry points before D4 completion. D6 consolidates and fills the
+remaining journey oracles; it is not the first fixture/test creation task.
+
+Before every producing task's source/wheel acceptance, that same task updates the
+already-allowed core/test source inventories, pyproject owned mappings, WP00 membership
+for every new owned-root file and affected raw/semantic pins in the three active
+bootstraps/pyproject mirrors. Build/attest a fresh complete private fixture from those
+current bytes; never reuse a stale package or postpone required pins until D8.
+D1 creates resource/loading fixtures, D2 adds installation/fault fixtures, D3 adds
+normal task/approval/runtime/process fixtures, D4 adds real evolution/barrier fixtures,
+and D5 adds migration fixtures after D4's fresh issuer admission passes, because
+I08 verifies guarded issuance at the destination. D8 verifies final combined closure rather than
+providing the first valid installation. All these files are in the same48-file
+allowlist; order within each task is collect → behavioral RED → implementation/
+current package/pins → GREEN. The task-level dependency graph remains acyclic.
+
+### B1-P4 Mechanically checkable task acceptance
+
+- [ ] D0: approved exact extension, live target hash/Intent recovery,273 unique test selectors/six static argv and unchanged290/300 ceilings verified; no old partial PASS promoted.
+- [ ] D1: C01–04/W02 verify closed descriptor/receipts/projection,31 real owned resources and legacy bytes; no self-referential descriptor hash or caller loader map.
+- [ ] D2: I01/I05/S03/S05 establish installation all-or-none, immutable same-resource retry and failure refusal on actual roots.
+- [ ] D3: I02/I04/I06 and S01/S02 establish same-owner durable approvals, empty execution state, crash recovery/CAS and conflicting request refusal.
+- [ ] D4: I03/I09/I10/S04/S05 verify replay preserves evolved registries/holds, marker downgrade fails and all four issuer entry points reread current sources.
+- [ ] D5: I08 plus retained migration regressions verify optional no-PMF export/import, unchanged origin receipts, fresh destination attestation and existing PMF export refusal.
+- [ ] D6: I07/S06/S07/W01–04 verify actual production fixtures, budget admission/privacy/hold preservation and installed construction; no SQL positive trust or private seals.
+- [ ] D7: all37 retained report methods, including the remaining19, collect1/execute1/skip0 using real services; independently installed valid variants keep engine hashes identical.
+- [ ] D8: changed target hashes agree across three existing vectors/mirrors; untouched bytes/count/order remain exact; wheel RECORD/source attestations and build/static checks pass.
+- [ ] D9: exact273 tests +6 statics bound to final tree pass, independent implementation/Candidate review converges; separately authorized staging if required, no commit/push authority inferred.
+
+### B1-P5 Dependencies and risk controls
+
+Internal: existing runtime/task/scope/artifact/completion/retention/migration services
+available at c051c09 and retained report r1 bytes. Missing initializer is the only
+new port designed here. External: no new package/service/network dependency.
+Infrastructure: existing local .venv, SQLite, private source attestations and offline
+wheel toolchain; use synthetic roots only. Pending Owner implementation extension
+blocks all D0–D9 mutations/testing; complete design preparation first.
+
+Resource/schema cycle risk at D1 (medium/high): descriptor excludes its own raw hash,
+receipt vector includes actual full capture. Trust bypass risk at D3–D4 (medium/high):
+source event replay and same-owned transaction, no caller proofs, exact marker/table
+completeness. Codec drift at D5 (medium/high): optional namespace checks and no-PMF
+roundtrip before positive report work. Broad repinning at D8 (medium/high): explicit
+before/after vector comparison and all untouched resource hashes frozen. Wheel
+runtime contention at D9 (medium/high): strict serial fail-fast, preserve failures,
+unchanged native290/canonical300. No parallel tests while source/pins change.
+
+### B1-P6 Verification strategy
+
+[Test Plan B1](../test-plans/graph-engineering-workflow.md) supplies exact25 bootstrap
+selectors with4 contract/10 integration/7 security/4 wheel behaviors, plus retained
+37 report and211 regression selectors. Use test-first meaningful RED/GREEN for new
+ports; initially absent selectors fail collection and do not count as RED behavior.
+Once collected, absence of the port/refusal behavior supplies explicit RED, then
+actual implementation supplies GREEN. No tests mirroring prose/implementation.
+Native focused checks may precede final evidence. Final target/argv/collector
+preflight before costly canonical capture;273 exact tests and six statics on frozen
+tree, no optional skip or broad discovery. Source changes invalidate current evidence;
+retry only changed inputs, actual failure or concrete unresolved concerns.
+
+### B1-P7 Rollout and rollback
+
+Local synthetic source/wheel only, not Owner install rollout. No percentage canary
+or recovery-time claim applies. Any currentness/integrity/resource failure refuses
+new trust. Keep prior optional/legacy contracts; never auto-repair accepted roots.
+If unaccepted implementation fails, revise inside approved exact targets and keep
+failed records. A later revert/commit/deploy is separately authorized. PMF export
+remains prohibited; Linux/WP10/WP11/full274/P1/monitoring are later excluded work.
+
+### B1-P8 Open questions and stage gates
+
+No remaining intended bootstrap semantics are left unspecified. Owner decision
+for exact implementation boundary/argv is due before D0; affects all code/tests.
+A new required file, dependency, authority, trust rule or budget is a new decision
+before its affected task. Material reviewer exceptions stop at the actual reducer
+decision. Independent artifact PASS allows the next reversible design node only.
+
+### B1-P9 References
+
+[Positioning](../positioning/graph-engineering-workflow.md), [PRD](../prd/graph-engineering-workflow.md),
+[Spec](../specs/graph-engineering-workflow.md), [ADR0014](../adr/0014-security-trust-bootstrap.md),
+[Impact](../impact/graph-engineering-workflow.md), [Test Plan](../test-plans/graph-engineering-workflow.md).
+Detached security-trust-bootstrap-implementation-inventory-r0.json defines all48
+allowed files and31 resource inputs; test-inventory-r0.json defines all argv.
+
+### B1-P10 History
+
+2026-10-08 B1: Owner approved design-only six-file bootstrap extension; ten bounded
+future tasks proposed, no product implementation/elapsed results claimed.
+R1: assign each producer its collectable tests/support and current package/pin
+prerequisites before acceptance; D6 consolidates and D8 verifies final closure.
+Reconcile M task estimates to27h (GEW-SECURITY-BOOTSTRAP-PLAN-R0-001).
+R2: make D5 depend explicitly on D4 for its destination guarded-issuance oracle;
+same files, selectors, task sizes and estimates. Preserve r1 PASS as historical
+review; this changed Plan requires a fresh independent binding before advancement.

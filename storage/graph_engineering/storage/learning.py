@@ -578,7 +578,7 @@ def _current_derived(connection,captured,policy):
 def _report_locked(application,connection,request,runtime,policy):
     """Revalidate an explicit cohort in one transaction and return a bounded view."""
     import hashlib
-    from graph_engineering.core.learning import evaluate_rule
+    from graph_engineering.core.learning import evaluate_rule,hypothesis_verdict,counter_evidence_union
     task_ids=sorted(request['task_ids'])
     if request['task_id'] not in task_ids:raise LearningError('LEARNING_TASKS')
     experiments={row['experiment_id']:row for row in policy.experiment_document()['experiments']}
@@ -595,7 +595,11 @@ def _report_locked(application,connection,request,runtime,policy):
     consents={task_id:_consent(connection,task_id,policy) for task_id in task_ids}
     now=strict_trusted_now(connection)
     for task_id,consent in consents.items():_require_live(consent,endpoints[task_id][2],policy,now)
-    budget=[policy.limits['max_capture_bytes']-consent_reserve]
+    # This whole-report reservation precedes source projections and output growth.
+    report_reserve=policy.admit_report(experiment,len(task_ids))
+    remaining=policy.limits['max_capture_bytes']-consent_reserve-report_reserve
+    if remaining<0:raise LearningError('LEARNING_BOUND')
+    budget=[remaining]
     observations=[]
     captures=[]
     vector=[]
@@ -648,12 +652,22 @@ def _report_locked(application,connection,request,runtime,policy):
         rules.append({'rule_id':rule_id,'metric_id':rule['metric_id'],'predicate':predicate,
             'numerator':numerator,'denominator':denominator,'unknown_count':missing,'excluded_count':omitted,
             'counter_evidence_refs':counter,'verdict':evaluate_rule(numerator,denominator,predicate)})
-    report={'schema_version':'1.1.0','policy_digest':policy.digest,'experiment_id':request['experiment_id'],
+    by_rule={row['rule_id']:row for row in rules}
+    catalog={row['experiment_id']:row for row in policy.experiment_document()['suggested_experiments']}
+    hypotheses=[]
+    for hypothesis in sorted(experiment['hypotheses'],key=lambda row:row['hypothesis_id']):
+        required_ids=sorted(hypothesis['required_rule_ids'])
+        required=[by_rule[rule_id] for rule_id in required_ids]
+        verdict=hypothesis_verdict(required)
+        hypotheses.append({'hypothesis_id':hypothesis['hypothesis_id'],'required_rule_ids':required_ids,
+            'verdict':verdict,'next_experiment_ref':dict(catalog[hypothesis['next_experiment_ids'][verdict]]),
+            'counter_evidence_refs':counter_evidence_union(required,task_ids)})
+    report={'schema_version':'1.2.0','policy_digest':policy.digest,'experiment_id':request['experiment_id'],
         'cohort_digest':cohort,'cohort_vector':vector,'eligible_count':len(eligible),
         'unknown_count':len(unknown-eligible),'excluded_count':len(excluded-eligible-unknown),
-        'observations':observations,'rules':rules}
+        'observations':observations,'rules':rules,'hypotheses':hypotheses}
     policy.validate_report(report)
-    if len(canonical_json(report).encode())>policy.limits['max_report_bytes']:raise LearningError('LEARNING_BOUND')
+    if len(canonical_json(report).encode())>report_reserve:raise LearningError('LEARNING_BOUND')
     anchor=consents[request['task_id']]
     receipts=anchor['receipts'];digest=request_digest(request);replay=False
     for prior in receipts:

@@ -4170,3 +4170,542 @@ flowchart LR
 授权阶段统计仍 unavailable，不能宣称 WP09 全部完成。用户已明确批准“初始化 PMF 后禁用导出”的兼容性限制；尚未实施。真实数据、安装升级、commit/push、full274/P1 均排除。Darwin 原生接口已完成只读可用性探测（非产品测试）：连续时钟/时间基数有效；启动 UUID 在沙箱内被拒绝，系统环境可用。Linux 尚无原生证据，实现交付时须分平台如实报告，不以 Mac 的结果声明 Linux 通过。原生双平台证据是平台支持声明的门槛，不可用 wall-clock boot timestamp 推断域。
 
 本节在冲突处替代旧 W9 提案：已批准 foreground consent-gated observations；前三项不再整体 unavailable。第四项授权阶段统计仍 unavailable。保持原数据访问、保留与预算要求。
+
+## WP09 report completion design — R0, 2026-10-08
+
+### R9.1 Overview
+
+Complete FR-13 / US-12's local hypothesis, counter-evidence and next-experiment
+reporting. Owner approved the mixed-result meaning and exact six-file design
+stage; this is detailed design, not product implementation authority. The approved
+PRD and Intent Baseline are unchanged. Historical W9 unavailability/implementation
+status above describes earlier increments: `c051c09` now implements authorized_stage
+under [its reviewed contract](authorized-stage-learning.md). No success predicate
+for that count is introduced here. [ADR0013](../adr/0013-learning-hypothesis-report-decisions.md)
+records this report decision. This section supersedes W9.7's ambiguous mixed rule
+language and earlier future-only API descriptions for the affected report behavior.
+
+### R9.2 Goals
+
+R9-G1: every selected experiment rule appears once, with its exact rational
+predicate, numerator, known denominator, unknown/excluded counts and unfavorable
+task references. R9-G2: every configured hypothesis yields exactly one of four
+defined decisions and one configured next-experiment reference. R9-G3: genuine
+synthetic cohorts establish all four decisions and the complete FR13 owner
+journey, without fabricated completion/authority records. R9-G4: two valid
+installed configurations change rules/bounds and behavior without engine edits;
+invalid or changed inputs produce no partial report/receipt. These are exact
+oracles, not adoption, causal or latency claims.
+
+### R9.3 Non-goals and delivery boundary
+
+Retain the [PRD boundary](../prd/graph-engineering-workflow.md): no default
+telemetry, autonomous direction approval or content export. This increment does
+not introduce predicates for count/time/category metrics, real-data experiments,
+background collection or automatic experiment execution. The accepted restriction
+on migration export from PMF-initialized repositories remains, even after purge.
+Owner installation upgrades, Linux/release acceptance, WP10/WP11 execution and
+full274/P1 are later work, not weakened product requirements. Commit, push, merge,
+deployment, release and external communication require their separate authority.
+
+### R9.4 Architecture
+
+```mermaid
+flowchart LR
+  Config[Attested policy and experiment resources] --> Loader[Closed cross-reference validation]
+  Owner[Issued owner runtime and explicit cohort] --> Report[Existing SQLite report transaction]
+  Sources[Current consented task observations] --> Report
+  Loader --> Report
+  Report --> Rules[Existing exact rational rule evaluation]
+  Rules --> Hypotheses[Pure four-result hypothesis reduction]
+  Loader --> Hypotheses
+  Hypotheses --> Current[Existing final currentness and receipt guards]
+  Current --> View[Minimized ephemeral report]
+```
+
+Core owns pure hypothesis reduction; application owns installed resource validation;
+storage owns current cohort/source reading and report assembly. Execution remains
+foreground local processes and the existing repository transaction. There is no
+new table, service, daemon, runtime adapter or command vocabulary. Owner/runtime
+identity, security subjects, consent, source ordering and final currentness are
+unchanged. A pure result or suggestion never supplies action authority.
+
+### R9.5 Data model and closed configuration
+
+Preserve all existing resource bytes and versioned contracts. Add policy `1.2.0`
+(`learning-policy-v3.json`), experiment document `1.1.0`
+(`learning-experiments-v2.json`), its separate closed schema
+`learning-experiments-1.1.0.json`, policy schema `learning-policy-1.2.0.json` and
+report schema `learning-report-1.2.0.json`. Observation/derived records stay `1.1.0`,
+owner input stays `1.0.0`, PMF marker stays `1.1.0`, ordering and bundle formats
+stay unchanged. No storage migration or historical record rewrite is needed.
+
+Policy rules retain their existing fields and meaning; `1.2.0` adds bounded
+positive integer `max_hypotheses` and `max_suggested_experiments` to limits. Installed
+defaults are64 and256, respectively: at most64 hypotheses and four distinct
+outcome suggestions each. Existing max_rules64, max_tasks32, 8MiB capture,16KiB
+aggregate and256KiB report limits remain. Changed fixture limits may be smaller;
+they cannot exceed these schema ceilings. Policy cannot turn the categorical
+authorized_stage metric into an unapproved Boolean predicate.
+
+Experiment document is the closed object `{kind:"learning-experiments",
+schema_version:"1.1.0",experiments:[...],suggested_experiments:[...]}`. At most64
+reportable experiment entries, each `{experiment_id,rule_ids,hypotheses}` with
+1..64 unique rule IDs and1..max_hypotheses hypothesis entries. Each hypothesis is
+`{hypothesis_id,required_rule_ids,next_experiment_ids}`. Required IDs are nonempty,
+unique and contained in that experiment's rule_ids; their union must equal all
+experiment rule_ids. The same rule may belong to multiple hypotheses, but never
+appears twice in the report's rules list. Hypothesis IDs are globally unique.
+All IDs use the existing bounded128-character identifier grammar. Unknown keys,
+duplicate JSON keys, duplicate IDs, nonexistent rules and incomplete coverage
+are invalid. Every rule refers to a known policy metric; existing unapproved
+metric predicates remain insufficient-data, never implicitly mapped to completion.
+
+`next_experiment_ids` has exactly four keys: supports, counter-evidence, mixed,
+insufficient-data. Each value names a suggested_experiments entry. Catalog entries
+are closed `{experiment_id,purpose_code}`, with unique IDs disjoint from reportable
+experiment IDs; purpose_code is one of `replicate`, `investigate-counter-evidence`,
+`resolve-rule-disagreement`, `collect-more-samples`. At most
+max_suggested_experiments entries. The catalog contains planning references only:
+no outgoing references, task content, prompt, command, URL, thresholds or execution
+payload. Suggestions are not reportable experiment configurations; passing a
+catalog ID to report_learning refuses with LEARNING_EXPERIMENT. This bipartite,
+one-way reference structure makes cycles impossible: an attempted self/cross-cycle
+through a reportable ID, or outgoing catalog edge, is invalid. Missing/dangling
+catalog IDs refuse. Extra unused catalog entries are valid bounded configuration.
+The Owner/Agent must separately design and authorize any actual next experiment.
+
+The new installed default retains the existing synthetic-completion rule and its
+threshold1/2 and min_samples2, under one configured synthetic hypothesis. Outcome
+references may use four synthetic catalog IDs with matching purpose codes. No
+new business threshold or real experiment is invented. More demanding/disagreeing
+completion rules exist only in explicitly valid synthetic test configurations.
+
+### R9.6 API and report decision semantics
+
+Keep all six owner learning operations and request fields unchanged. Existing
+`report_learning(task_ids,experiment_id)` authenticates every cohort endpoint and
+requires live consent before source bodies. Active output becomes report `1.2.0`;
+it preserves `1.1.0` fields and adds ordered `hypotheses`. Each entry is exactly
+`{hypothesis_id,required_rule_ids,verdict,next_experiment_ref,counter_evidence_refs}`.
+next_experiment_ref is the exact `{experiment_id,purpose_code}` catalog projection.
+Counter references are the sorted unique union of required rules' unfavorable
+references, bounded by the explicit cohort. Required rule IDs and all output
+rule/hypothesis lists are sorted by ID. Existing per-rule predicate/count fields
+carry the evidence; no sum of overlapping rule denominators is reported as a
+distinct sample count. Output reveals no names of authorized action categories,
+authority bodies or task text.
+
+Evaluate a hypothesis from all its required rule decisions: any insufficient-data
+has precedence; otherwise both supports and counter-evidence produce mixed;
+otherwise unanimous supports produces supports, and unanimous counter-evidence
+produces counter-evidence. Empty/unknown/duplicate rule decisions are invalid,
+not vacuous success. A single threshold rule with a mixture of completed/canceled
+tasks still yields its rational threshold decision, not automatically mixed.
+Existing pure evaluate_rule remains unchanged. Proposed pure
+`hypothesis_verdict(required_rule_results) -> str` and config-driven report summary
+are internal deterministic functions, not authority-bearing ports.
+
+Rules for completion use the existing genuine completed/canceled/failed event
+classification; incomplete or unobserved completion is unknown. Unselected metric
+consent is excluded, not unknown or false. No terminal outcome substitutes for
+owner-reported abandonment. Cohort identity remains bound to exact source heads,
+consent/context/relations, policy digest and authorization end watermarks. The
+combined installed policy digest includes the new experiment/catalog resources;
+changing any rule/group/suggestion invalidates old consent/aggregate/report use.
+Fresh consent/collection is required; old request replay cannot return a current
+looking report with a new recommendation. Suggestions grant no new reading scope.
+
+### R9.7 Error model and version compatibility
+
+Retain stable LEARNING_SCHEMA/POLICY/EXPERIMENT/BOUND/SOURCE/STALE/CONSENT/SECURITY
+errors and current request-conflict handling. Invalid closed objects/reference
+partitions reject at loading before task metric access; raw rejected values never
+appear in messages. A stale source/config or revoke/expiry rejects the whole report
+and writes no receipt. No automatic retry or sample exclusion hides such failures.
+
+Retain explicit validators/resources for reports1.0/1.1, policies1.0/1.1 and
+experiments1.0. They validate historic inputs only and do not fabricate hypotheses
+for old reports. The active installed configuration must be the matched
+policy1.2/experiments1.1 pair. Old owner request schemas still work; an old consumer
+that accepts only report1.1 must reject unknown1.2, not assume response-shape
+compatibility. This increment does not claim automatic upgrade of that consumer.
+
+### R9.8 Failure and recovery
+
+| Failure | Detection and required behavior |
+|---|---|
+| Missing group/rule/suggestion or cycle attempt | closed semantic validation refuses before cohort source reads |
+| Rule lacks minimum samples | hypothesis insufficient-data, all known/unknown/excluded counts retained |
+| Source/config changes or consent revokes before publication | existing final guard refuses whole report, no partial result or receipt |
+| Crash at report receipt write | owned transaction commits the complete receipt or nothing; exact retry cannot add samples |
+| Catalog/report allocation exceeds limit | refuse before allocation/serialization exceeds admitted budgets; no truncation |
+| Fresh fixture configuration changes result | exact pinned resources permit changed result; stale prior handles/receipts refuse |
+
+Keep original task/event/action authorization receipt bytes unchanged. Revoke
+suppresses learning before guarded physical purge. Real retention authorization,
+tombstone and deletion remain atomic; holds and unresolved claims stay visible.
+
+### R9.9 Resource budget
+
+Use installed limits before iterating/copying hypothesis/catalog collections and
+before growing emitted summaries; bounded IDs/counts prevent unbounded sort or
+reference graph storage. Admission accounts for total report observations, rules,
+hypotheses, repeated required IDs and counter-reference unions within max_report_bytes.
+Check conservative schema capacity before retaining candidate output, then exact
+UTF-8 length before return. Report-specific additions may not allocate beyond the
+existing shared capture allowance or new count limits. Existing attested-resource
+physical bounds remain; no permission or trusted-source bypass is introduced.
+Each future test native child<=290s/canonical recorder<=300s, serial and fail-fast.
+Record actual elapsed time; no p99, throughput, network or dollar budget is claimed
+for this local report design. These metrics are outside its measured boundary.
+
+### R9.10 Security and privacy
+
+| Actor/resource | Allowed access |
+|---|---|
+| Issued same-owner runtime, selected cohort with live consent | current minimized observations/rule/hypothesis report |
+| Foreign owner/runtime/lineage or absent/expired/revoked consent | zero metric/source body reads and no report publication |
+| Installation resource verifier | exact attested closed config/catalog bytes; no caller config substitution |
+| Owner/Agent viewing a suggestion | read its opaque ID/purpose, no implied experiment/action execution |
+
+Task IDs and counter references remain local identifiers already in reports.
+Catalog IDs/purpose codes contain no PII, source/prompt/body/secret or arbitrary
+instructions. Positive test fixtures must be genuinely installed/attested, including
+their changed exact resources; monkeypatching the production loader to trust caller
+maps is not evidence. Same-database isolation/currentness and retention protections
+remain as in W9 and authorized-stage design. No catalog-wide task discovery occurs.
+
+### R9.11 Implementation boundary and open decisions
+
+No product meaning is left unspecified: group reduction and planning references
+are selected above. Implementation is still separately unauthorized. Before that
+decision, freeze the exact dependency/pin closure and named tests in the Plan/Test
+Plan; independent reviewers must verify all four exit gaps (FR13 references,
+mixed/genuine cohorts, full P/R lifecycle, valid installed config change). A newly
+required production port/file, permission/data-access expansion, raw prose payload,
+predicate or budget changes return to the Owner rather than becoming a test seam.
+The six-file design graph ends after independently reviewed Test Plan. Linux and
+WP10/WP11 acceptance remain explicit later requirements, not grounds to reinterpret
+this synthetic-only scope or loosen accepted export behavior.
+
+### R9.12 References and currentness
+
+Upstream: [Positioning](../positioning/graph-engineering-workflow.md),
+[PRD FR13/US12](../prd/graph-engineering-workflow.md), [ADR0010](../adr/0010-local-product-learning-storage.md),
+[authorized-stage contract](authorized-stage-learning.md), [ADR0012](../adr/0012-authorization-learning-window-cursor.md).
+Downstream: [Impact](../impact/graph-engineering-workflow.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md),
+[Test Plan](../test-plans/graph-engineering-workflow.md). Source baseline `c051c09`;
+current scoped increment211 tests/6statics is historical support for unchanged
+product bytes, not execution evidence for any proposed report feature.
+
+
+## Security trust bootstrap design — B1, 2026-10-08
+
+### B1-S1 Intent, authority and existing failure
+
+Owner approved the exact six-file design request r1 (raw SHA256
+`7a34e218b1a82bcdb2cad7d07021b222bca3b01261ecf85659efede91d98fb25`).
+PRD FR-13 / US-12, R9 report semantics and R9-T2 genuine positive evidence remain
+unchanged. Current report implementation r1 has partial verification and an actual
+ESCALATE decision; it is not a completed Candidate. This design does not authorize
+bootstrap code, tests, Owner upgrades or irreversible actions. Four revision cycles
+remain the design limit. [ADR0014](../adr/0014-security-trust-bootstrap.md) records
+this realization of the explicitly approved installation/task initialization choice.
+
+SecurityContextIssuer validates durable trust, but no production service creates
+security_runtime_installation or the first task_security_states row. Migration
+copies existing rows; test SQL INSERT helpers cannot establish new positive trust.
+Add explicit deterministic initialization services, independent of Agent outputs.
+
+### B1-S2 Components and trusted input
+
+Proposed InstallationMigrationRepository.initialize_security_storage() acquires
+the existing installation control-exclusive lock, obtains the current exact factory,
+and loads the closed installation resource bundle internally. It has no manifest,
+registry, policy, owner, trust-document or alternate-root argument. No foreground
+request, issuer constructor or migration open silently initializes or repairs trust.
+
+Proposed SecurityBootstrapService.initialize_task(task_id, request_id,
+expected_revision, expected_snapshot_digest, runtime) executes inside the current
+manager command_scope and one factory-owned transaction. Runtime must be an exact,
+currently issued RuntimeContext produced by a live RuntimeSession; require_issued
+must succeed and owner/kind/lineage must equal the durable task
+identity. Task ID/request ID/revision/snapshot are untrusted selectors and CAS
+expectations, never trust inputs. The service receives exact production repository
+dependencies; the caller cannot provide a state, targets, authority array, clock,
+issuer seal or schema/policy override. Internal storage write methods require the
+owned transaction and application validation, and are not public trust-map setters.
+Both initializers return their validated closed receipt1.0.0 as immutable data;
+it is audit output, never an execution capability. All components run locally in
+the same application process over the existing SQLite repository; wheel fixtures
+use a fresh process with the same semantics.
+
+```mermaid
+flowchart LR
+  A[Current installation attestation] --> B[Closed security resource loader]
+  B --> C[Explicit maintenance initializer]
+  C --> D[(Runtime row and installation receipt)]
+  E[Issued owner RuntimeContext] --> F[Task bootstrap service]
+  G[Durable task replay and frozen approvals] --> F
+  D --> F
+  F --> H[(Initial state and task receipt)]
+  H --> I[Current SecurityContextIssuer]
+  B --> I
+  G --> I
+  I --> J[Existing learning and retention services]
+```
+
+| Actor | Installation maintenance | Task initial state | Execute/report |
+|---|---|---|---|
+| Local installation maintenance owner | Current exclusive lock and attested resources | No caller trust setter | No grant implied |
+| Issued same-owner runtime | Cannot bypass maintenance | Current task/CAS/frozen approvals | Existing consent/authority gates |
+| Foreign runtime / agent output | Denied | Denied | Denied |
+| Read-only reviewer | None | None | Reads authorized sanitized evidence only |
+
+### B1-S3 Installed resource contract
+
+Use _installation_owned_resources via a security-specific production loader. Source
+checkout requires the existing owner-bound installation attestation; wheel requires
+the unique matching distribution, exact RECORD/path/hash checks and before/after
+identity checks. The caller cannot issue source attestation as a production shortcut.
+Tests may attest a private complete synthetic source fixture through the existing
+test issuer; installed-wheel positives use RunningDistributionProbe, real
+ExecutableLocator and RuntimeAdapterFactory, never direct private seal construction.
+
+The exact31 resource paths are frozen in detached
+security-trust-bootstrap-implementation-inventory-r0.json. They comprise5 new
+descriptor/registry/schema resources, the existing default runtime and foundation
+registry,3 existing work/schema profiles,6 existing policies and15 foundation
+schemas. Add all31 owned-resource mappings to pyproject as needed, and all missing
+members to both source-attestation inventories. Existing resource bytes remain
+unchanged. The descriptor is installation-owned configuration, not a caller input;
+it binds ordered path/raw-digest pairs for the other30 members (excluding itself
+to avoid a circular raw hash), foundation/bootstrap registry identities,
+runtime manifest and policy identities, existing resource/cost/schema profile
+identities and descriptor_digest. No network resolution or fallback paths.
+
+Validate each schema body against its registry raw hash, the closed registry and
+schema IDs; each policy through its existing parser and domain-separated semantic
+digest; manifest references must exactly match these policies/registry. Bootstrap
+descriptor and two receipts use separate closed bootstrap schemas1.0.0, leaving
+foundation registry/manifest1.0 and legacy resources intact. Descriptor digest uses
+semantic_digest_charged with contract security-bootstrap, schema security-bootstrap
+1.0.0 and projection excluding descriptor_digest. Closed resources are captured
+once under bounds, then installation identity/resource currentness is checked again
+immediately before commit and at issuer use. A stale cached blob is insufficient.
+
+### B1-S4 Durable initial task derivation
+
+Within the owned transaction, bounded repository capture/replay validates current
+task snapshot, revision, integrity, task.created identity, PRD approval/baseline
+events and the unique frozen scope approval record/event. No snapshot-only body is
+trusted. Require at least one approved PRD baseline; build baselines by kind from
+current baseline_refs, rejecting duplicate kinds and absent/unapproved references.
+Use current project_scope_ref and exact frozen source/approval digest. Drafted,
+missing, ambiguous, rebased mismatches or non-current sources refuse.
+
+Initial SecurityBinding1.0.0 derives task/owner/runtime lineage from these sources,
+scope_id/scope_digest from the frozen scope, baselines from approved refs and
+snapshot_digest from the current replayed snapshot. Its sole initial target is the
+approved aggregate ProjectScope: target_id=scope_id, target_kind=project-scope,
+canonical_identity=scope_id, target_digest=scope_digest. It represents all scope
+content by its digest and satisfies the existing nonempty target contract. It does
+not create individual repository/service action targets or allow execution against
+them; later executable target binding needs its existing authorized action path.
+Compute binding_digest using SecurityBinding.digest_document; validate the resulting
+binding through the existing closed schema/identity contract before persistence.
+
+State keys/version remain the current exact task-security-state-v1 contract:
+schema_version1.0.0, task_id, task_revision, task_snapshot_digest, binding,
+destinations, authority_digests, data_refs, evidence_expectations, retention_subjects.
+authority_digests=[]; all four registries={}. Task/binding snapshot references agree.
+state_digest is semantic_record_digest({'contract':'task-security-state-v1',
+'value':state}). Empty executable authority grants no action, disclosure, data
+retention exception or PMF consent. Existing unresolved claims are checked by the
+actual retention service at use; later PMF subject registration preserves all flags.
+
+### B1-S5 Receipt schemas and storage atomicity
+
+Use two auxiliary append-only tables created only during explicit maintenance:
+security_bootstrap_installation_receipts (singleton key1, receipt_json,
+receipt_digest) and security_bootstrap_task_receipts (task_id primary key/FK,
+request_id unique, request_digest, receipt_json, receipt_digest). Install marker is
+schema_versions component=security-bootstrap/version=1.0.0. Existing security row
+schemas and task event/transaction contracts are unchanged; do not repurpose task
+transactions or invent an unaudited task event. Task initialization does not increment
+task revision or generate a completion/authority event.
+
+Closed installation receipt fields: schema_version1.0.0, origin_installation_id,
+origin_repository_id, origin_activation_epoch, descriptor_digest,
+resource_vector_digest, manifest_digest, schema_registry_digest, receipt_digest.
+resource_vector_digest binds the exact ordered path/raw-hash vector. The installation
+row, marker and receipt are all-or-none in one owned transaction. Receipt digest is
+semantic_digest_charged with contract security-installation-receipt, schema1.0.0,
+projection excluding receipt_digest; nonnegative integral activation epoch follows
+the existing installation contract, not a caller clock. No timestamp is needed.
+
+Closed task receipt fields: schema_version1.0.0, task_id, request_id, request_digest,
+installation_receipt_digest, initial_task_revision, initial_snapshot_digest,
+initial_state_digest, identity_digest, baseline_refs_digest, scope_approval_digest,
+receipt_digest. Identity/baseline digests use semantic_record_digest domains
+security-bootstrap-identity-v1 and security-bootstrap-baselines-v1 respectively;
+scope_approval_digest is the validated existing scope approval record digest.
+request_digest is semantic_record_digest(domain security-bootstrap-request-v1,
+value={task_id,request_id,expected_revision,expected_snapshot_digest,identity_digest}).
+Receipt uses semantic_digest_charged contract security-task-initialization-receipt,
+schema1.0.0, projection excluding receipt_digest. Initial state and task receipt
+commit atomically. No task body, evidence text, clock sample or raw path is in receipts.
+JSON IDs/digests remain correlatable local metadata, not anonymized data.
+
+### B1-S6 Replay, existing rows and recovery
+
+Maintenance on a complete same-resource initialization returns the same receipt
+without writes. Any partial marker/row/receipt combination, unknown marker, invalid
+receipt, manifest mismatch or changed trust-resource vector refuses; no overwrite,
+adoption of preexisting unreceipted trust, resealing or policy downgrade. Historical
+fixtures without the new marker can still exercise legacy issuer tests, but cannot
+count as new bootstrap positive provenance. A detected new marker with missing
+receipt/table or malformed rows always fails closed, never falls back to legacy.
+
+Same task request ID/digest returns the original receipt only after checking current
+installation proof, task identity, frozen scope and baseline continuity plus current
+security state integrity. Its expected initial revision/snapshot are checked against
+the stored receipt on replay, not against a legitimate later snapshot. Existing
+_evolve_security_state may advance snapshot/revision and PMF/action services may add
+registries/authority: replay preserves those exact current bytes. Different request
+ID for an initialized task, ID reused for another digest/task, changed baseline/scope/
+owner/lineage, unreceipted existing state or partial state/receipt rejects. Missing
+state with an existing receipt is corruption, not a bootstrap retry. A crash before
+commit yields neither row; after durable commit a lost response retries to the same
+receipt. Concurrent initializations serialize; one commit, same-request replay or
+different-request rejection. No policy/clock fence is consumed twice.
+
+### B1-S7 Currentness and issuer integration
+
+For marker-bearing roots, SecurityContextIssuer constructor, read_task_state,
+issue_task_context and _issue_task_context_locked all require the actual current
+manager/factory command binding and freshly verified installed resources/receipt.
+The locked entry point uses its existing owned transaction and shares the command
+scope; it does not acquire an installation-exclusive lock from inside a transaction.
+Validate task receipt and bounded durable source continuity before issuing opaque
+attestations. Compare current binding identity/baselines/scope/aggregate target with
+fresh durable facts; compare current revision/snapshot/state digest through the
+existing state reader. Reapproval/rebase therefore fails closed until a separately
+designed authorized transition; initialization never refreshes or erases it. Ordinary
+snapshot evolution with unchanged baseline/scope continues normally. Unreceipted
+legacy roots retain their existing API behavior, are explicitly distinguishable and
+do not establish new acceptance. No private seal or mutable marker can be supplied
+by a caller to select legacy mode on a bootstrapped root.
+
+Control lock ordering remains installation lock → managed connection/transaction.
+Installation initialization uses exclusive; task/issuer use command_scope shared.
+Before publication recheck active installation/repository/activation tuple and
+resource identity, task CAS and immutable source bindings. Roll back on any race.
+Trust resources changed after issuance cause refusal on next use, not cached reuse.
+
+### B1-S8 Migration and compatibility
+
+Add optional receipt namespaces/marker to the existing migration codec, namespace
+order, digest projection, bounded validation and atomic import initialization. Old
+bundles with no marker/tables retain their exact format/meaning. Marker-bearing
+bundles require complete receipt tables and state/manifest referential consistency;
+missing, unexpected or digest-invalid records refuse. Export/import preserves
+origin receipt bytes as historical provenance, never calls initialization or grants
+new authority. Current destination command/resource attestation remains mandatory;
+origin tuple is audit identity, not a token for the destination activation. Runtime
+owner/kind/lineage and task/scope/baseline must still match. Installation retries
+compare current trusted resource identities, not require current origin tuple equal
+to historical origin. No implicit policy/resource upgrade or state reset is allowed.
+Imported bootstrap records cannot be read as legacy by removing their marker.
+
+PMF presence/marker keeps the existing export refusal even after purge. This design
+does not enable PMF export or introduce a blanket export restriction for security
+bootstrap alone. Synthetic no-PMF roundtrip acceptance covers preserved receipts,
+destination currentness and transplanted mismatches. No actual Owner installation
+migration/upgrade is authorized. Foundational state/manifest/binding versions stay
+1.0.0, learning observation/PMF1.1 and report1.2 remain as previously designed.
+
+### B1-S9 Resource, privacy and failure bounds
+
+All parsing, resource capture, snapshot/event/scope joins, receipt rows, hashing and
+projection allocation use existing WorkContext/resource/cost/schema profiles.
+Admit counts and UTF-8 bytes before fetch/materialization/allocation; bootstrap
+descriptor has closed path/hash arrays and schema limits consistent with these
+profiles and the31-member closure, without increasing any profile budget. Task
+identity IDs follow gew-id; digests use the specified domains; baselines<=16 and
+aggregate target count=1 satisfy existing contract limits. Marker/table probes
+do not perform task-body reads before runtime/installation admission. Never echo
+raw records in errors. Bounded error categories: SECURITY_BOOTSTRAP_RESOURCE,
+AUTHORITY, STALE, INTEGRITY, CONFLICT and RESOURCE_LIMIT. SecurityBootstrapError
+carries only code and a constant message; maintenance wraps it as the existing
+MigrationRepositoryError without raw cause text. They do not add outcomes
+to existing learning report semantics. Unknown exceptions cannot be labeled success.
+RESOURCE_LIMIT requires smaller admitted inputs; AUTHORITY/RESOURCE/INTEGRITY/
+CONFLICT require correction or an explicit maintenance decision, never blind retry.
+STALE requires fresh current selectors after recapture, unless retrying a durable
+same-request receipt under B1-S6. Lost-response retry uses the original request.
+Receipts stay in the owner-only repository with the existing repository retention/
+backup rules; no automatic deletion, external export of PMF data or new logs.
+HTTP latency/throughput targets do not apply to this explicit local maintenance
+port. WorkContext admission and actual per-command290/300 ceilings are the
+measurable limits; no unmeasured operation latency guarantee is introduced.
+
+### B1-S10 Genuine report acceptance construction
+
+Private source or wheel fixture → actual production resource/runtime handshake →
+explicit installation initialization → TaskApplication create, scope freeze and
+PRD approval → same-owner initialize_task → genuine PMF grant and normal prospective
+task events → collect/report. Completion goes through existing runner, real artifact
+validators/body manifests, CompletionGate and TaskApplication.complete; cancel
+uses real prepared retention/cancel path. Only external typed agent/reviewer output
+may be synthetic; unconditional PassingValidator, SQL trust/completion inserts,
+direct issuer seals or fabricated aggregate fences do not qualify. Minimal scope
+target is not executable authority; bootstrap cannot satisfy commit/deploy grants.
+
+R9 I01–I09/S01–S06/W01–W04 remain mandatory, including genuine four-outcome cohorts,
+owner P/R lifecycle, retry/races, configuration variation and wheel closure. Valid
+two-known-rule configuration variants are independently installed/attested with
+identical engine hashes and fresh grants; policy/config replacement without a new
+valid installation is a negative. Real collect registers the minimized PMF retention
+subject; real purge decision/authorization/consumption/tombstone paths remain. The
+existing bounded synthetic retention/expiry clock exception does not alter elapsed
+measurement or native290/canonical300 test ceilings.
+
+### B1-S11 Exact future boundary and acceptance
+
+The detached implementation inventory freezes the union of retained31 report
+targets and17 additional bootstrap targets; duplicates are mechanically removed.
+Only future Owner approval can activate that union. Schema/resource originals are
+load inputs, not mutable targets. Pin closure includes core initializer, application
+security/bootstrap, storage security/repository/migration changes; recompute exact
+existing protected source hashes, closure/bootstrap digests and pyproject mirrors
+in the three active bootstraps, preserving vectors/counts and untouched bytes. Add
+new resources/code to owned-source lists, owned mappings and WP00 target inventory.
+No base connection DDL, task reducer, runtime adapter or new dependency is required.
+If feasibility shows another target or authority, stop before writing it.
+
+Acceptance B1-C01: exact attested installation closure creates row/marker/receipt
+atomically; malformed/missing/replaced resources refuse. B1-C02: current issued
+same-owner task derives genuine approved bindings and empty execution state.
+B1-C03: replay survives normal task/security evolution without reset, changed
+requests/identity/scope/baseline refuse. B1-C04: faults/races create no partial trust,
+issuer use checks fresh installed and durable state. B1-C05: optional migration
+retains old compatibility and historical origin without destination trust bypass,
+PMF export remains blocked. B1-C06: report acceptance uses these production services
+on source/wheel; all retained37+211 selectors remain exact. Future Test Plan freezes
+new bootstrap selectors plus that retained inventory, no directory/full274/P1 run.
+
+### B1-S12 Delivery, rollout and unresolved authority
+
+Design graph independently reviews Spec/ADR → Impact → Plan → Test Plan, then freezes
+the concrete implementation extension and exact test argv for Owner decision.
+No current bootstrap code/tests or product PASS claim. Future implementation is
+test-first, isolated synthetic macOS/source/wheel only, serial fail-fast with the
+existing290/300 ceilings. No Owner upgrade, real data, Linux certification, WP10/11,
+monitoring or irreversible actions. Root remains sole writer; fresh read-only artifact
+reviewers cannot acquire mutation authority. Existing report failures/evidence remain
+immutable. New design bindings invalidate current shared-document descendants and
+require a fresh combined implementation review/Candidate; historical evidence is not
+promoted to current full verification. Commit/push/merge/release remain separate.

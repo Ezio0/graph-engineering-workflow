@@ -1678,3 +1678,198 @@ Exact target inventory:
 - `tests/unit/test_wp09_learning_clock.py`
 
 Four new product modules include storage learning_clock.py. Release-operations bootstrap additionally binds application/tasks.py. Refresh only actual changed active pins and pyproject metadata; preserve historical bootstrap bytes. Unknown provider/domain causes unavailable, never fake clock authority. Do not execute owner-data migration. Accepted export restriction applies even to empty/partial PMF schema or tombstones, checked under the same exclusive token before mkdir, backup or holds.
+
+## WP09 report completion impact — R0, 2026-10-08
+
+Scope: approved six-file design only for [Spec R9](../specs/graph-engineering-workflow.md#wp09-report-completion-design--r0-2026-10-08)
+and [ADR0013](../adr/0013-learning-hypothesis-report-decisions.md). PRD FR13/US12 and
+Intent remain unchanged. The proposed implementation adds configured hypothesis
+decisions and planning references; its targets/argv need separate owner approval.
+
+| Component | Proposed change and effect | Required verification |
+|---|---|---|
+| core learning | pure reduction across required rule decisions; evaluate_rule untouched | precedence/empty/unknown/duplicate/input-order truth tables |
+| installed learning loader | active policy1.2, experiments1.1, report1.2; exact closed cross-reference validation and old validators retained | valid config changes behavior; malformed/dangling/cyclic/duplicate/oversized config refuses |
+| transactional report | sorted hypotheses/catalog projection, bounded unfavorable-reference union; preserve counts and final guards | four genuine cohorts, privacy/currentness/replay/receipt/crash and full FR13 P/R journey |
+| config and schema resources | five additive versioned resources; policy limits add hypothesis/catalog bounds | active/legacy exact formats, old resource bytes preserved and known schema ceilings |
+| package/source registration | include five resources in source lists and wheel mapping; three active bootstrap initializer pins refresh | exact source/wheel closure and stale/missing/substituted resources reject |
+| test-only fixtures | genuine multiple tasks/completion gate; separate valid installed configurations | no fabricated completion/aggregate/security authority, no loader trust monkeypatch |
+
+No PMF table/schema/order/bundle changes. Observation and derived record1.1,
+input1.0, PMF1.1, authority receipts and category counting remain intact. Policy
+digest changes when installed rules/hypotheses/catalog changes: old consent and
+captures cannot silently cross configuration epochs. Fresh explicit consent is
+required; old owner input shape is compatible, old1.1-only report consumers must
+refuse unknown output1.2. This is a report contract change, not an automatic
+consumer/owner-installation upgrade. Historical report/policy resources still
+validate their original formats without invented hypothesis fields.
+
+### Exact proposed implementation closure
+
+The [Plan](../plans/2026-08-13-graph-engineering-workflow.md) will freeze the exact
+allowlist. Expected seams are the six design targets; core/application/storage
+learning and core initializer; pyproject; the five new resources; verification
+source inventory and report boundary input; three active initializer-pinning
+bootstraps; source attestation test helper; genuine report test helper; five report
+test files and existing authorized-stage contract tests. Do not modify other
+runtime, completion-gate, authority, repository/migration code, trust provider,
+historical resources or config/workflow-policy.json.
+
+The existing authorized-stage contract tests assert active policy1.1, ten resource
+bodies and experiment1.0. Future implementation must preserve the same selectors
+while testing old versions from their retained resources and new active resources
+exactly; do not delete their schema/privacy/source-vector checks or pretend active
+versions remain old. The other211 existing selectors remain the regression
+boundary, with the additional report tests named in the new Test Plan.
+
+Observed current dependency edges: core initializer raw hash is pinned by
+migration-rehearsal, scenario-truth and release-operations bootstrap resources.
+Each bootstrap's raw/semantic digest and protected-vector mirrors are embedded
+in pyproject. New schema/config resources enter core and test attestation source
+lists, pyproject owned-root mapping and config/verification/wp-00-targets.json.
+Learning module changes are covered by source attestation rather than an invented
+extra bootstrap pin. Recompute only affected active digests/mirrors; inspect the
+whole closed resource vectors and preserve historical versions byte-for-byte.
+
+### Risk and containment
+
+Rule overlap could overcount samples: summaries reference the retained per-rule
+denominators and never sum them. Favorable-only filtering could hide counter
+evidence: exact rule/group coverage rejects omissions and retains sorted references.
+Catalog/config changes could replay a stale suggestion: digest/consent/cohort and
+final source guards refuse old handles/requests. Config/resource allocations could
+exceed report bounds: explicit count/reference/byte admission precedes buffering.
+Caller configurations could bypass attestation: only newly valid installed
+synthetic fixtures prove positive variation; altered returned maps are not authority.
+
+No real-data or deployment impact is authorized. PMF migration-export restriction
+remains even after purge. No native Linux, clean install/upgrade, current full274/P1,
+WP10/WP11 acceptance or product-market fit claim follows from this report work.
+Unknown newly required target/API/security/predicate is an owner exception before
+implementation. Detected integrity failures refuse rather than truncate/retry;
+uncommitted changes stay reviewable and historical failed evidence is retained.
+
+
+## Security trust bootstrap impact — B1, 2026-10-08
+
+### B1-I1 Scope and necessity
+
+[Spec B1](../specs/graph-engineering-workflow.md#security-trust-bootstrap-design--b1-2026-10-08)
+and [ADR0014](../adr/0014-security-trust-bootstrap.md) realize the Owner-approved
+missing installation/task initializer. PRD FR13/R9 report decisions and genuine
+positive evidence are unchanged. Current six-file design authority excludes product
+implementation/testing. Prior report r1 partial evidence and ESCALATE remain.
+
+### B1-I2 Call paths and modules
+
+New application/security_bootstrap.py orchestrates installation-owned loader,
+issued RuntimeContext validation, bounded durable task/scope/baseline derivation,
+receipt issuance and owned-transaction CAS. Existing storage/security.py gains
+private bounded initial writers, optional receipt DDL/read validation and immutable
+receipt result handling; it does not expose caller-supplied trust-map setters.
+storage/repository.py supplies bounded owned-transaction recovery/projection reuse.
+application/security.py adds marker-bearing provenance/currentness admission to all
+four issuance/read entry points. Existing snapshot evolution/PMF subject registration
+remain, and retries preserve evolved state bytes. No task graph reducer/event,
+base connection schema or runtime adapter change is planned.
+
+storage/migration.py adds explicit exclusive maintenance and complete optional
+receipt namespace/marker codec validation, bounded repository digest inclusion and
+atomic import initialization. Old unmarked roots/bundles remain compatible; new
+receipt-bearing roots cannot fall back when their marker/table is missing. Origins
+are historical metadata; destination trust still requires actual current attestation.
+No new PMF export permission or new blanket bootstrap export prohibition.
+
+### B1-I3 Exact future file and resource closure
+
+The immutable detached security-trust-bootstrap-implementation-inventory-r0.json
+lists48 unique prospective targets: retained31 plus17 additional files. Actual
+future Manifest must narrow to changed/staged members, never manufacture diffs.
+All31 installation resource paths are enumerated there;26 existing bytes are pinned
+and5 new closed descriptor/registry/schema resources are proposed. Existing runtime,
+foundation registry,15 foundation schemas,6 policies and3 work/schema profiles are
+load-only; their bytes are not mutable targets. Source-attestation additions are
+the exact27 missing members (including the new application module). Both core
+initializer and test source inventory agree; pyproject installs every required
+resource with exact RECORD membership. WP00 registers every actually new file
+under its existing owned roots, preserving those roots and all prior membership.
+This includes the five new bootstrap descriptor/registry/schema resources and
+config/verification/security-trust-bootstrap-boundary-v1.json, as well as new
+source/test modules. The optional schema marker is created explicitly, never on
+generic open.
+
+Refresh only the affected protected-resource hashes and dependent raw/semantic
+closure/bootstrap digests in the three named active migration/scenario/release
+bootstraps and pyproject mirrors. Preserve each vector's paths/order/counts and
+all unaffected hashes. Loader and package membership are separate obligations;
+an installed byte that was never attested is not trusted. No dependencies/network
+services or sibling runtime reference are added. Another necessary target or
+contract change is an Owner decision before code, not an implicit plan permission.
+
+### B1-I4 Data, audit and privacy
+
+Initial state retains the existing closed1.0.0 shape with one approved scope target,
+empty executable authorities and empty destination/data/evidence/retention registries.
+Two append-only receipt namespaces retain minimized IDs, digests and origin epoch;
+no task/artifact content, reviewer prompt, absolute environment path or time sample.
+Receipts are correlatable owner-only metadata governed by existing repository
+access/retention/backup rules. New receipts are not authorization capabilities.
+Later holds/claims/retention subjects cannot be erased by initialization/retry.
+No new trusted wall/elapsed clock or positive source is invented.
+
+### B1-I5 Failure and compatibility impact
+
+Additional refusal surfaces: absent/mismatched attested resource, duplicate/partial
+receipt state, wrong owner/runtime lineage, changed scope/baseline, stale CAS,
+replaced installation and bounds. Legacy unmarked roots preserve existing behavior
+but are distinguishable and cannot count as new positive bootstrap evidence.
+Marker-bearing rows require receipt/currentness on every issuer entry point.
+Normal revision/snapshot evolution is allowed; reapproval/rebase requires a separate
+authorized transition, so existing bootstrap state is never silently refreshed.
+No legacy report/policy/input bytes are rewritten and learning PMF1.1/report1.2 stay.
+
+Installation and task creation each use a transaction/receipt boundary. Same-request
+lost-response retry returns the original receipt; conflicting request refuses.
+Install lock precedes DB transaction, shared command scope precedes task/issuer work.
+No nested exclusive acquisition inside a task transaction. Migration no-PMF roundtrip
+preserves old origin bytes while validating current destination facts. PMF export
+stays blocked even after purge. Partial imported namespaces fail closed.
+
+### B1-I6 Verification boundary and regression
+
+Future bootstrap contracts, real SQLite/runtime fault/race tests, security refusal
+and actual wheel tests supplement retained37 report tests and211 exact regressions.
+The new Test Plan freezes each selector/argv; no directory discovery, skip/zero
+collection PASS, native timeout extension or full274/P1 suite. Genuine cohorts and
+FR13 P/R use production initializers and actual completion/retention services.
+The old SQL helper remains historical regression setup, not positive evidence for
+new tests. Owner installation upgrade/data access/Linux are not exercised here.
+
+Current design checks verify links/Manifest/whitespace/allowlist/inventory and compare
+every protected report/Intent byte. No bootstrap product tests are run or claimed.
+After new implementation authority, exact combined final-tree evidence and fresh
+independent implementation/Candidate review supersede incomplete report evidence.
+
+### B1-I7 Rollout, risk and authority
+
+Future initial use is isolated local synthetic source/wheel roots only. No production
+canary, upgrade, deploy or external communication. Resource/receipt mismatch blocks
+initialization or use; no auto-repair/fallback. Optional receipts require export/import
+coverage to avoid silently dropping audit rows. Preserve unaccepted code/evidence
+for review; any later rollback is confined to then-authorized targets. No estimate
+is presented as measured latency or an acceptance result.
+
+Design → independent review/reducer → concrete48-target implementation extension
+and exact bounded argv → Owner decision. Commit, push, merge, release and later
+WP10/WP11 remain separate. This resolves design/testability only; it does not itself
+resolve the pending genuine-positive implementation or full final evidence findings.
+
+### B1-I8 References and history
+
+[Positioning](../positioning/graph-engineering-workflow.md), [PRD](../prd/graph-engineering-workflow.md),
+[Spec](../specs/graph-engineering-workflow.md), [ADR0014](../adr/0014-security-trust-bootstrap.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md), [Test Plan](../test-plans/graph-engineering-workflow.md).
+2026-10-08 B1: narrow Owner-approved trust initialization design; actual implementation
+target/resource/pin closure identified, retained product and authority unchanged.
+R1: clarify complete WP00 owned-root membership for new configuration resources
+and verification boundary as well as modules (GEW-SECURITY-BOOTSTRAP-IMPACT-R0-001).

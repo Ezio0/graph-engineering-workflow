@@ -1,0 +1,787 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:security-bootstrap:1.0.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "descriptor_id": {
+      "type": "string",
+      "format": "gew-id"
+    },
+    "resources": {
+      "type": "array",
+      "minItems": 30,
+      "maxItems": 30,
+      "uniqueItems": true,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/security-bootstrap-schema-registry-v1.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/security-bootstrap-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/security-installation-receipt-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/security-task-initialization-receipt-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/security/security-runtime-v1.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/security-schema-registry-v1.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/resource-profile-v1.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/cost-schedule-v1.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schema-profile-v1.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/actions/action-policy-v1.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/security/disclosure-policy-v1.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/security/evidence-policies-v1.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/security/input-safety-policy-v1.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/security/redaction-policy-v1.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/security/retention-policies-v1.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/action-journal-entry-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/action-policy-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/authority-envelope-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/data-disclosure-plan-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/disclosure-policy-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/disclosure-receipt-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/evidence-policy-registry-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/evidence-record-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/input-safety-policy-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/intent-baseline-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/prepared-action-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/redaction-policy-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/retention-policy-registry-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/security-binding-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "const": "config/contracts/schemas/security-runtime-manifest-1.0.0.json"
+            },
+            "raw_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "raw_sha256"
+          ],
+          "unevaluatedProperties": false
+        }
+      ],
+      "items": false
+    },
+    "foundation_registry": {
+      "type": "object",
+      "properties": {
+        "registry_id": {
+          "type": "string",
+          "format": "gew-id"
+        },
+        "registry_digest": {
+          "type": "string",
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "registry_id",
+        "registry_digest"
+      ],
+      "unevaluatedProperties": false
+    },
+    "bootstrap_registry": {
+      "type": "object",
+      "properties": {
+        "registry_id": {
+          "type": "string",
+          "format": "gew-id"
+        },
+        "registry_digest": {
+          "type": "string",
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "registry_id",
+        "registry_digest"
+      ],
+      "unevaluatedProperties": false
+    },
+    "runtime_manifest": {
+      "type": "object",
+      "properties": {
+        "manifest_id": {
+          "type": "string",
+          "format": "gew-id"
+        },
+        "manifest_digest": {
+          "type": "string",
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "manifest_id",
+        "manifest_digest"
+      ],
+      "unevaluatedProperties": false
+    },
+    "policies": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "object",
+          "properties": {
+            "policy_id": {
+              "type": "string",
+              "format": "gew-id"
+            },
+            "policy_digest": {
+              "type": "string",
+              "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "policy_id",
+            "policy_digest"
+          ],
+          "unevaluatedProperties": false
+        },
+        "disclosure": {
+          "type": "object",
+          "properties": {
+            "policy_id": {
+              "type": "string",
+              "format": "gew-id"
+            },
+            "policy_digest": {
+              "type": "string",
+              "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "policy_id",
+            "policy_digest"
+          ],
+          "unevaluatedProperties": false
+        },
+        "evidence": {
+          "type": "object",
+          "properties": {
+            "policy_id": {
+              "type": "string",
+              "format": "gew-id"
+            },
+            "policy_digest": {
+              "type": "string",
+              "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "policy_id",
+            "policy_digest"
+          ],
+          "unevaluatedProperties": false
+        },
+        "input-safety": {
+          "type": "object",
+          "properties": {
+            "policy_id": {
+              "type": "string",
+              "format": "gew-id"
+            },
+            "policy_digest": {
+              "type": "string",
+              "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "policy_id",
+            "policy_digest"
+          ],
+          "unevaluatedProperties": false
+        },
+        "redaction": {
+          "type": "object",
+          "properties": {
+            "policy_id": {
+              "type": "string",
+              "format": "gew-id"
+            },
+            "policy_digest": {
+              "type": "string",
+              "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "policy_id",
+            "policy_digest"
+          ],
+          "unevaluatedProperties": false
+        },
+        "retention": {
+          "type": "object",
+          "properties": {
+            "policy_id": {
+              "type": "string",
+              "format": "gew-id"
+            },
+            "policy_digest": {
+              "type": "string",
+              "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "policy_id",
+            "policy_digest"
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "required": [
+        "action",
+        "disclosure",
+        "evidence",
+        "input-safety",
+        "redaction",
+        "retention"
+      ],
+      "unevaluatedProperties": false
+    },
+    "profiles": {
+      "type": "object",
+      "properties": {
+        "resource": {
+          "type": "object",
+          "properties": {
+            "profile_id": {
+              "type": "string",
+              "format": "gew-id"
+            },
+            "body_digest": {
+              "const": "sha256-raw-v1:8976f8fa464f06228a488e63346db8f266585b66407cedbaaffe203b43446812"
+            }
+          },
+          "required": [
+            "profile_id",
+            "body_digest"
+          ],
+          "unevaluatedProperties": false
+        },
+        "cost": {
+          "type": "object",
+          "properties": {
+            "schedule_id": {
+              "type": "string",
+              "format": "gew-id"
+            },
+            "body_digest": {
+              "const": "sha256-raw-v1:f6ac2b7d9281358a112aee5ca902d41005c741c291f67176a6a29cefdb06e29f"
+            }
+          },
+          "required": [
+            "schedule_id",
+            "body_digest"
+          ],
+          "unevaluatedProperties": false
+        },
+        "schema": {
+          "type": "object",
+          "properties": {
+            "profile_id": {
+              "type": "string",
+              "format": "gew-id"
+            },
+            "body_digest": {
+              "const": "sha256-raw-v1:9972a12f35471f542f8a9f8d990e18334a4beadc7cfb97a0388454447fb5eb63"
+            }
+          },
+          "required": [
+            "profile_id",
+            "body_digest"
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "required": [
+        "resource",
+        "cost",
+        "schema"
+      ],
+      "unevaluatedProperties": false
+    },
+    "descriptor_digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "schema_version",
+    "descriptor_id",
+    "resources",
+    "foundation_registry",
+    "bootstrap_registry",
+    "runtime_manifest",
+    "policies",
+    "profiles",
+    "descriptor_digest"
+  ],
+  "unevaluatedProperties": false
+}

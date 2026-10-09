@@ -1,0 +1,354 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_id": "learning-report-config-variants-v1",
+  "variants": [
+    {
+      "variant_id": "default",
+      "policy_patch": {},
+      "experiments_patch": {}
+    },
+    {
+      "variant_id": "two-known-rules",
+      "policy_patch": {
+        "rules": [
+          {
+            "rule_id": "synthetic-completion",
+            "metric_id": "completion",
+            "comparator": "gte",
+            "numerator": 1,
+            "denominator": 2,
+            "min_samples": 2
+          },
+          {
+            "rule_id": "synthetic-completion-strict",
+            "metric_id": "completion",
+            "comparator": "gte",
+            "numerator": 3,
+            "denominator": 4,
+            "min_samples": 2
+          }
+        ],
+        "limits": {
+          "max_tasks": 3,
+          "max_rows_per_task": 10000,
+          "max_row_bytes": 65536,
+          "max_capture_bytes": 8388608,
+          "max_aggregate_bytes": 16384,
+          "max_rules": 2,
+          "max_report_bytes": 262144,
+          "retention_seconds": 7776000,
+          "max_hypotheses": 2,
+          "max_suggested_experiments": 4
+        }
+      },
+      "experiments_patch": {
+        "experiments": [
+          {
+            "experiment_id": "synthetic-default",
+            "rule_ids": [
+              "synthetic-completion",
+              "synthetic-completion-strict"
+            ],
+            "hypotheses": [
+              {
+                "hypothesis_id": "synthetic-completion-hypothesis",
+                "required_rule_ids": [
+                  "synthetic-completion",
+                  "synthetic-completion-strict"
+                ],
+                "next_experiment_ids": {
+                  "supports": "synthetic-next-supports",
+                  "counter-evidence": "synthetic-next-counter-evidence",
+                  "mixed": "synthetic-next-mixed",
+                  "insufficient-data": "synthetic-next-insufficient-data"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "variant_id": "insufficient-precedence",
+      "policy_patch": {
+        "rules": [
+          {
+            "rule_id": "synthetic-completion",
+            "metric_id": "completion",
+            "comparator": "gte",
+            "numerator": 1,
+            "denominator": 2,
+            "min_samples": 2
+          },
+          {
+            "rule_id": "synthetic-completion-strict",
+            "metric_id": "completion",
+            "comparator": "gte",
+            "numerator": 3,
+            "denominator": 4,
+            "min_samples": 1
+          }
+        ],
+        "limits": {
+          "max_tasks": 3,
+          "max_rows_per_task": 10000,
+          "max_row_bytes": 65536,
+          "max_capture_bytes": 8388608,
+          "max_aggregate_bytes": 16384,
+          "max_rules": 2,
+          "max_report_bytes": 262144,
+          "retention_seconds": 7776000,
+          "max_hypotheses": 2,
+          "max_suggested_experiments": 4
+        }
+      },
+      "experiments_patch": {
+        "experiments": [
+          {
+            "experiment_id": "synthetic-default",
+            "rule_ids": [
+              "synthetic-completion",
+              "synthetic-completion-strict"
+            ],
+            "hypotheses": [
+              {
+                "hypothesis_id": "synthetic-completion-hypothesis",
+                "required_rule_ids": [
+                  "synthetic-completion",
+                  "synthetic-completion-strict"
+                ],
+                "next_experiment_ids": {
+                  "supports": "synthetic-next-supports",
+                  "counter-evidence": "synthetic-next-counter-evidence",
+                  "mixed": "synthetic-next-mixed",
+                  "insufficient-data": "synthetic-next-insufficient-data"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "variant_id": "shared-rule-overlap",
+      "policy_patch": {
+        "rules": [
+          {
+            "rule_id": "synthetic-completion",
+            "metric_id": "completion",
+            "comparator": "gte",
+            "numerator": 1,
+            "denominator": 2,
+            "min_samples": 2
+          },
+          {
+            "rule_id": "synthetic-completion-strict",
+            "metric_id": "completion",
+            "comparator": "gte",
+            "numerator": 3,
+            "denominator": 4,
+            "min_samples": 2
+          }
+        ],
+        "limits": {
+          "max_tasks": 3,
+          "max_rows_per_task": 10000,
+          "max_row_bytes": 65536,
+          "max_capture_bytes": 8388608,
+          "max_aggregate_bytes": 16384,
+          "max_rules": 2,
+          "max_report_bytes": 262144,
+          "retention_seconds": 7776000,
+          "max_hypotheses": 2,
+          "max_suggested_experiments": 4
+        }
+      },
+      "experiments_patch": {
+        "experiments": [
+          {
+            "experiment_id": "synthetic-default",
+            "rule_ids": [
+              "synthetic-completion",
+              "synthetic-completion-strict"
+            ],
+            "hypotheses": [
+              {
+                "hypothesis_id": "synthetic-completion-hypothesis",
+                "required_rule_ids": [
+                  "synthetic-completion",
+                  "synthetic-completion-strict"
+                ],
+                "next_experiment_ids": {
+                  "supports": "synthetic-next-supports",
+                  "counter-evidence": "synthetic-next-counter-evidence",
+                  "mixed": "synthetic-next-mixed",
+                  "insufficient-data": "synthetic-next-insufficient-data"
+                }
+              },
+              {
+                "hypothesis_id": "synthetic-shared-hypothesis",
+                "required_rule_ids": [
+                  "synthetic-completion"
+                ],
+                "next_experiment_ids": {
+                  "supports": "synthetic-next-supports",
+                  "counter-evidence": "synthetic-next-counter-evidence",
+                  "mixed": "synthetic-next-mixed",
+                  "insufficient-data": "synthetic-next-insufficient-data"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "variant_id": "report-exact-capacity",
+      "policy_patch": {
+        "rules": [
+          {
+            "rule_id": "synthetic-completion",
+            "metric_id": "completion",
+            "comparator": "gte",
+            "numerator": 1,
+            "denominator": 2,
+            "min_samples": 2
+          },
+          {
+            "rule_id": "synthetic-completion-strict",
+            "metric_id": "completion",
+            "comparator": "gte",
+            "numerator": 3,
+            "denominator": 4,
+            "min_samples": 2
+          }
+        ],
+        "limits": {
+          "max_tasks": 3,
+          "max_rows_per_task": 10000,
+          "max_row_bytes": 65536,
+          "max_capture_bytes": 8388608,
+          "max_aggregate_bytes": 16384,
+          "max_rules": 2,
+          "max_report_bytes": 76491,
+          "retention_seconds": 7776000,
+          "max_hypotheses": 2,
+          "max_suggested_experiments": 4
+        }
+      },
+      "experiments_patch": {
+        "experiments": [
+          {
+            "experiment_id": "synthetic-default",
+            "rule_ids": [
+              "synthetic-completion",
+              "synthetic-completion-strict"
+            ],
+            "hypotheses": [
+              {
+                "hypothesis_id": "synthetic-completion-hypothesis",
+                "required_rule_ids": [
+                  "synthetic-completion",
+                  "synthetic-completion-strict"
+                ],
+                "next_experiment_ids": {
+                  "supports": "synthetic-next-supports",
+                  "counter-evidence": "synthetic-next-counter-evidence",
+                  "mixed": "synthetic-next-mixed",
+                  "insufficient-data": "synthetic-next-insufficient-data"
+                }
+              },
+              {
+                "hypothesis_id": "synthetic-shared-hypothesis",
+                "required_rule_ids": [
+                  "synthetic-completion"
+                ],
+                "next_experiment_ids": {
+                  "supports": "synthetic-next-supports",
+                  "counter-evidence": "synthetic-next-counter-evidence",
+                  "mixed": "synthetic-next-mixed",
+                  "insufficient-data": "synthetic-next-insufficient-data"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_report_reservation_bytes": 76491
+    },
+    {
+      "variant_id": "report-one-under",
+      "policy_patch": {
+        "rules": [
+          {
+            "rule_id": "synthetic-completion",
+            "metric_id": "completion",
+            "comparator": "gte",
+            "numerator": 1,
+            "denominator": 2,
+            "min_samples": 2
+          },
+          {
+            "rule_id": "synthetic-completion-strict",
+            "metric_id": "completion",
+            "comparator": "gte",
+            "numerator": 3,
+            "denominator": 4,
+            "min_samples": 2
+          }
+        ],
+        "limits": {
+          "max_tasks": 3,
+          "max_rows_per_task": 10000,
+          "max_row_bytes": 65536,
+          "max_capture_bytes": 8388608,
+          "max_aggregate_bytes": 16384,
+          "max_rules": 2,
+          "max_report_bytes": 76490,
+          "retention_seconds": 7776000,
+          "max_hypotheses": 2,
+          "max_suggested_experiments": 4
+        }
+      },
+      "experiments_patch": {
+        "experiments": [
+          {
+            "experiment_id": "synthetic-default",
+            "rule_ids": [
+              "synthetic-completion",
+              "synthetic-completion-strict"
+            ],
+            "hypotheses": [
+              {
+                "hypothesis_id": "synthetic-completion-hypothesis",
+                "required_rule_ids": [
+                  "synthetic-completion",
+                  "synthetic-completion-strict"
+                ],
+                "next_experiment_ids": {
+                  "supports": "synthetic-next-supports",
+                  "counter-evidence": "synthetic-next-counter-evidence",
+                  "mixed": "synthetic-next-mixed",
+                  "insufficient-data": "synthetic-next-insufficient-data"
+                }
+              },
+              {
+                "hypothesis_id": "synthetic-shared-hypothesis",
+                "required_rule_ids": [
+                  "synthetic-completion"
+                ],
+                "next_experiment_ids": {
+                  "supports": "synthetic-next-supports",
+                  "counter-evidence": "synthetic-next-counter-evidence",
+                  "mixed": "synthetic-next-mixed",
+                  "insufficient-data": "synthetic-next-insufficient-data"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_report_reservation_bytes": 76491
+    }
+  ]
+}

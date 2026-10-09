@@ -18,7 +18,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class AuthorizedStageContractTests(unittest.TestCase):
     def test_policy_v11_closed(self):
-        loader=LearningPolicyLoader.from_installation();policy=loader.policy_document()
+        loader=LearningPolicyLoader.from_installation();policy=json.loads((ROOT/'config/learning/learning-policy-v2.json').read_bytes())
         self.assertEqual(policy['schema_version'],'1.1.0');loader.validate_policy_document(policy)
         for patch in ({'extra':'canary'},{'authorized_action_categories':{}},
                       {'authorized_action_categories':{'commit':'Bad Code'}},
@@ -78,7 +78,7 @@ class AuthorizedStageContractTests(unittest.TestCase):
     def test_resource_closure(self):
         from graph_engineering import _learning_installation_resources
         from tests.support.source_checkout_attestation import SOURCE_FILES
-        resources=_learning_installation_resources();self.assertEqual(len(resources),10)
+        resources=_learning_installation_resources();self.assertEqual(len(resources),15)
         paths=('config/learning/learning-policy-v2.json','config/contracts/schemas/learning-record-1.1.0.json',
                'config/contracts/schemas/learning-report-1.1.0.json','config/contracts/schemas/learning-policy-1.1.0.json')
         for path in paths:
@@ -99,7 +99,7 @@ class AuthorizedStageContractTests(unittest.TestCase):
             self.assertEqual(derived(service)['metrics']['authorized_stage']['availability'],'unavailable')
 
     def test_experiment_schema_compatibility(self):
-        loader=LearningPolicyLoader.from_installation();experiment=loader.experiment_document()
+        loader=LearningPolicyLoader.from_installation();experiment=json.loads((ROOT/'config/learning/learning-experiments-v1.json').read_bytes())
         self.assertEqual(experiment['schema_version'],'1.0.0');loader.validate_experiment_document(experiment)
         with self.assertRaises(LearningError):loader.validate_policy_document(experiment)
         bad={**experiment,'authorized_action_categories':{'commit':'commit'}}

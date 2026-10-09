@@ -1,0 +1,3567 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-WP09-REPORT-COMPLETION-IMPLEMENTATION-V1",
+  "target_files": [
+    ".workflow/manifest.json",
+    "docs/specs/graph-engineering-workflow.md",
+    "docs/impact/graph-engineering-workflow.md",
+    "docs/plans/2026-08-13-graph-engineering-workflow.md",
+    "docs/test-plans/graph-engineering-workflow.md",
+    "docs/adr/0013-learning-hypothesis-report-decisions.md",
+    "core/graph_engineering/core/learning.py",
+    "application/graph_engineering/application/learning.py",
+    "storage/graph_engineering/storage/learning.py",
+    "core/graph_engineering/__init__.py",
+    "pyproject.toml",
+    "config/learning/learning-policy-v3.json",
+    "config/learning/learning-experiments-v2.json",
+    "config/contracts/schemas/learning-policy-1.2.0.json",
+    "config/contracts/schemas/learning-experiments-1.1.0.json",
+    "config/contracts/schemas/learning-report-1.2.0.json",
+    "config/migration/migration-rehearsal-installation-bootstrap-v1.json",
+    "config/profiles/scenario-truth-installation-bootstrap-v1.json",
+    "config/release-operations/release-operations-installation-bootstrap-v1.json",
+    "config/verification/wp-00-targets.json",
+    "config/verification/learning-report-completion-boundary-v1.json",
+    "tests/support/source_checkout_attestation.py",
+    "tests/support/learning_reports.py",
+    "tests/fixtures/learning-report-config-variants-v1.json",
+    "tests/unit/test_learning_reports.py",
+    "tests/contract/test_learning_reports.py",
+    "tests/integration/test_learning_reports.py",
+    "tests/security/test_learning_reports.py",
+    "tests/integration/test_learning_reports_wheel.py",
+    "tests/contract/test_authorized_stage_learning.py",
+    "tests/integration/test_wp09_learning.py"
+  ],
+  "commands": [
+    {
+      "id": "LR-001",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_all_support",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-002",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_all_counter",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-003",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_mixed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-004",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_insufficient_precedence",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-005",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_empty_required_rules_rejected",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-006",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_unknown_verdict_rejected",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-007",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_duplicate_rule_rejected",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-008",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_input_order_invariance",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-009",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_ratio_semantics_unchanged",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-010",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_counter_union_bounds",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-011",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_policy_v12_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-012",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_experiments_v11_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-013",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_required_rule_coverage",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-014",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_suggestion_partition_cycles",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-015",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_legacy_versions_preserved",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-016",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_report_v12_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-017",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_owner_input_unchanged",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-018",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_installed_resource_closure",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-019",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_supported_cohort",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-020",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_counter_cohort",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-021",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_mixed_hypothesis",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-022",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_insufficient_cohort",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-023",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_unknown_vs_excluded",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-024",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_overlap_no_duplicates",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-025",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_fr13_full_owner_journey",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-026",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_valid_installed_config_changes",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-027",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_report_retry_idempotent",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-028",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_learning_reports.LearningReportPrivacyTests.test_no_consent_no_source_read",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-029",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_learning_reports.LearningReportPrivacyTests.test_foreign_endpoint_no_read",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-030",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_learning_reports.LearningReportPrivacyTests.test_config_change_stale_replay",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-031",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_learning_reports.LearningReportPrivacyTests.test_revoke_report_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-032",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_learning_reports.LearningReportPrivacyTests.test_report_preallocation_limit",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-033",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_learning_reports.LearningReportPrivacyTests.test_no_content_in_reports_or_receipts",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-034",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_installed_hypothesis_report",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-035",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_installed_valid_config_variation",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-036",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_legacy_resources_preserved",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-037",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_missing_or_replaced_resource_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-038",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_closed_watermark",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-039",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_category_dedup",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-040",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_alias_mapping",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-041",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_mapping_digest",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-042",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_unmapped_category_unavailable",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-043",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_pending_rejected_excluded",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-044",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_revoked_history_retained",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-045",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_revision_baseline_filter",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-046",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_unknown_vs_zero",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-047",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_ordinal_bounds",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-048",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_source_projection",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-049",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_count_bounds",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-050",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_policy_v11_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-051",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_record_v11_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-052",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_report_v11_source_vector",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-053",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_input_v10_unchanged",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-054",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_receipt_v10_unchanged",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-055",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_old_policy_compatibility",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-056",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_resource_closure",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-057",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_unknown_component_version",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-058",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_experiment_schema_compatibility",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-059",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_mapping_change_requires_regrant",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-060",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_genuine_approval_count",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-061",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_same_category_retry",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-062",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_late_consent_excludes_approval",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-063",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_consent_first_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-064",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_approval_first_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-065",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_report_first_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-066",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_approval_before_report_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-067",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_unchanged_pending_commit_window",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-068",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_prd_reapproval_rejects_old_challenge",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-069",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_regrant_rejects_changed_security",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-070",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_revoke_expiry_keeps_history",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-071",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_order_append_atomic_faults",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-072",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_anchor_upgrade_atomic_faults",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-073",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_pmf_upgrade_legacy_unavailable",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-074",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_legacy_bundle_import",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-075",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_bundle_v12_roundtrip",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-076",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_new_epoch_reseal",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-077",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_forged_order_partition",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-078",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning_wheel.AuthorizedStageWheelTests.test_installed_genuine_chain",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-079",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning_wheel.AuthorizedStageWheelTests.test_installed_old_owner_contract",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-080",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_no_consent_no_ledger_read",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-081",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_total_preallocation",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-082",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_foreign_identity_epoch",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-083",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_canary_absent",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-084",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_purge_keeps_action_audit",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-085",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_selected_task_body_gate",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-086",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_selected_body_tamper",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-087",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_closed_fields",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-088",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_rational_denominators",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-089",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_duplicate_identity",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-090",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_window_unknown_vs_zero",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-091",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_counter_evidence_rules",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-092",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_caller_time_not_trusted",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-093",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_context_relation_identity",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-094",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_boundary_limits",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-095",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_native_monotonic",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-096",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_cross_process_domain",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-097",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_changed_domain",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-098",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_forged_provider",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-099",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_integer_and_backward",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-100",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_wall_clock_independence",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-101",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_six_operations",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-102",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_explicit_consent_parser",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-103",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_unknown_schema_policy",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-104",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_installed_resource_binding",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-105",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_legacy_owner_operations",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-106",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_replay_request_conflict",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-107",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_failure_recovery_sequence",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-108",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_source_mapping_unknowns",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-109",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_caller_time_provenance",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-110",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_relation_endpoint_currentness",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-111",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_revoke_publish_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-112",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_fr13_positive",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-113",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_fr13_refusal",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-114",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_terminal_vs_self_report",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-115",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_context_cas_stale_recollect",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-116",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_source_head_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-117",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_prospective_regrant",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-118",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_schema_upgrade_restart",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-119",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_schema_upgrade_crash",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-120",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_migration_no_pmf_export",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-121",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_reapproval_window",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-122",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_restart_start_sample",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-123",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_review_no_double_count",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-124",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_forged_review_binding",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-125",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_repeat_wait_entry",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-126",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_pause_resume",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-127",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_non_decision_waits",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-128",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_revoke_commit_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-129",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_wheel_real_provider",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-130",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_source_gap",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-131",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_duplicate_transaction",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-132",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_real_human_interruptions",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-133",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_missing_boundary",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-134",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_real_review_verdicts",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-135",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_context_preserves_observation",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-136",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_pre_post_approval_grants",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-137",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_real_run_terminal",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-138",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_no_consent_no_sampling",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-139",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_late_grant_unknown",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-140",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_rollback_and_crash",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-141",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_tampered_installed_policy",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-142",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_cas_body_not_copied",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-143",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_canary_absent",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-144",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_purge_crash_restart",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-145",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_purge_legal_hold",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-146",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_retained_handle_currentness",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-147",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_purge_authority_consumption",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-148",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_corrupt_chain_rejected",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-149",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_expired_consent_no_read",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-150",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_preallocation_bounds",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-151",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_foreign_identity_before_read",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-152",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_clock_rollback",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-153",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_closed_contracts",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-154",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_digest_binding",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-155",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_nonce_session_binding",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-156",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_terminal_transitions",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-157",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_exact_request_conflict",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-158",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_policy_bounds",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-159",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_receipt_status",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-160",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_epoch_tuple",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-161",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_forged_or_wrong_source_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-162",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_capacity_reserves_terminal_entries",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-163",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_genuine_approval_registration",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-164",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_pending_rejected_no_membership",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-165",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_atomic_commit_faults_and_retry",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-166",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_revoke_pending_and_approved",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-167",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_superseded_invocation_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-168",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_direct_commit_batch_cannot_bypass",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-169",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_wait_releases_installation_scope",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-170",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_restart_pending_requires_new_decision",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-171",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_precondition_changes_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-172",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_unrelated_security_change_and_relevant_staleness",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-173",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_unsupported_component_and_contract",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-174",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_migration_component_compatibility",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-175",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_revoke_first_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-176",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_claim_first_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-177",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_registration_revoke_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-178",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_three_start_paths_share_guard",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-179",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_restore_epoch_and_claim_audit",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-180",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_mixed_learning_source_chain",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-181",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority_wheel.ActionAuthorityWheelTests.test_wheel_runtime_port_parity",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-182",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority_wheel.ActionAuthorityWheelTests.test_local_config_cannot_approve",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-183",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_011_public_export_is_complete_and_clears_durable_hold",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-184",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_012_migration_held_export_reuses_exact_exclusive_token",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-185",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_013_bundle_tamper_or_missing_object_fails_validation",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-186",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_014_import_replays_exact_history_and_objects_in_isolated_root",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-187",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_015_activation_recovery_exposes_only_verified_active_or_blocked",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-188",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_016_stale_restore_creates_gap_and_never_lowers_fence",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-189",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_017_fault_schedule_is_exact_sorted_and_executable",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-190",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_018_interrupted_export_hold_requires_explicit_recovery",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-191",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_019_concurrent_public_exports_do_not_reenter_or_partial_publish",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-192",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_020_sigkill_before_verifying_preserves_old_active",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-193",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_021_sigkill_after_verifying_rolls_back_to_old_active",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-194",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_022_sigkill_before_active_rolls_back_to_old_active",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-195",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_023_sigkill_after_active_preserves_new_active",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-196",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_024_two_process_activation_has_one_authority",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-197",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_025_command_shared_scope_cannot_cross_activation_switch",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-198",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_026_corrupt_history_publishes_stable_explicit_blocked",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-199",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_040_one_control_authority_spans_exact_durable_migration_graph",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-200",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_041_ledger_history_and_head_tamper_fail_exact_validation",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-201",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_post_activation_operations_route_only_current_repository",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-202",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_042_versioned_fault_schedule_covers_every_production_cut",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-203",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_043_every_durable_cut_sigkill_recovers_active_or_blocked",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-204",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_044_two_process_orchestrators_have_one_exact_authority",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-205",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_045_recovery_cuts_preserve_hold_and_rollback_oracles",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-206",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_046_restore_gap_cuts_recover_blocked_or_reactivated",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-207",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_034_export_uses_exact_stable_control_exclusive",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-208",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_035_bundle_binds_approved_snapshot_identity",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-209",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_036_bundle_reader_is_exact_bounded_and_no_follow",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-210",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_037_activation_recomputes_exact_candidate",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-211",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_038_activation_seeds_candidate_fencing_high_water",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-212",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_039_restore_gap_is_persistent_and_blocks_commands",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-213",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_receipt_and_compensation_have_no_direct_durable_or_adapter_bypass",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-214",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_prepare_authorize_started_claim_call_receipt_and_target_reconcile",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-215",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_wp05_code_r1_002_normal_receipt_object_is_durable_and_exactly_bound",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-216",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_non_idempotent_timeout_is_unknown_and_never_auto_replayed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-217",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_crash_after_effect_leaves_started_claim_and_never_replays",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-218",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_failure_before_effect_reconciles_no_effect_without_replay",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-219",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_success_receipt_with_target_mismatch_remains_durably_unreconciled",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-220",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_post_call_observation_binding_mutations_never_consume_claim",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-221",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_reconcile_observation_binding_mutations_never_consume_claim",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-222",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_succeeded_unresolved_action_can_later_reconcile_with_fresh_exact_evidence",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-223",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_compensation_with_stale_snapshot_is_zero_write_rejected",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-224",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_missing_repository_authority_membership_is_zero_write_fail_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-225",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_durable_action_bodies_are_bounded_before_model_digest_or_use",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-226",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_wp05_code_r1_001_rejects_recomputed_wrong_observation_resource",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-227",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_wp05_code_r1_001_rejects_recomputed_wrong_rollback_state",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-228",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_expired_p",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-229",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_wp05_code_r1_002_compensation_receipt_object_is_durable_and_exactly_bound",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-230",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_live_p",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-231",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_start_replay_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-232",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_exact_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-233",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_no_new_lease_claim_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-234",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_authority_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-235",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_compensation_only_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-236",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_verify_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-237",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_attempt_id_p",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-238",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_concurrency_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-239",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_lock_span_p",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-240",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_verify_p",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-241",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_no_replay_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-242",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_attempt_id_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-243",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_receipt_binding_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-244",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_start_event_payload_exact_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-245",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_reconcile_event_payload_exact_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-246",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_freeze_p",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-247",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_process_crash_matrix",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-248",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_wp05_code_r1_002_invocation_oracle_rejects_known_double_call_mutation",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "LR-249",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/check_architecture.py"
+      ]
+    },
+    {
+      "id": "LR-250",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/check_sources.py",
+        "lint"
+      ]
+    },
+    {
+      "id": "LR-251",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/check_sources.py",
+        "type"
+      ]
+    },
+    {
+      "id": "LR-252",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/verify_build.py"
+      ]
+    },
+    {
+      "id": "LR-253",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/verify_reproducible_build.py"
+      ]
+    },
+    {
+      "id": "LR-254",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ]
+    }
+  ],
+  "native_timeout_seconds": 290,
+  "canonical_timeout_seconds": 300,
+  "serial": true,
+  "fail_fast": true,
+  "expected_tests": 248,
+  "expected_skips": 0
+}

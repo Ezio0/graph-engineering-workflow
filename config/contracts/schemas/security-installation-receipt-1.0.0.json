@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:security-installation-receipt:1.0.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "origin_installation_id": {
+      "type": "string",
+      "format": "gew-id"
+    },
+    "origin_repository_id": {
+      "type": "string",
+      "format": "gew-id"
+    },
+    "origin_activation_epoch": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "descriptor_digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "resource_vector_digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "manifest_digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "schema_registry_digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    },
+    "receipt_digest": {
+      "type": "string",
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "schema_version",
+    "origin_installation_id",
+    "origin_repository_id",
+    "origin_activation_epoch",
+    "descriptor_digest",
+    "resource_vector_digest",
+    "manifest_digest",
+    "schema_registry_digest",
+    "receipt_digest"
+  ],
+  "unevaluatedProperties": false
+}

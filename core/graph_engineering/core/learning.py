@@ -106,6 +106,43 @@ def elapsed_bucket(duration_ns: int | None, boundaries: tuple[int,...]) -> int |
     return sum(duration_ns>=b for b in boundaries)
 
 
+def hypothesis_verdict(required_rule_results: object) -> str:
+    """Reduce distinct required rules; an unknown sample never becomes a vote."""
+    if type(required_rule_results) is not list or not 1 <= len(required_rule_results) <= 64:
+        raise LearningError('LEARNING_HYPOTHESIS')
+    seen=set(); verdicts=set()
+    for row in required_rule_results:
+        if type(row) is not dict:
+            raise LearningError('LEARNING_HYPOTHESIS')
+        rule_id=_identifier(row.get('rule_id'))
+        verdict=row.get('verdict')
+        if rule_id in seen or type(verdict) is not str or verdict not in ('supports','counter-evidence','insufficient-data'):
+            raise LearningError('LEARNING_HYPOTHESIS')
+        seen.add(rule_id); verdicts.add(verdict)
+    if 'insufficient-data' in verdicts:return 'insufficient-data'
+    if len(verdicts)>1:return 'mixed'
+    return next(iter(verdicts))
+
+
+def counter_evidence_union(required_rule_results: object, cohort_task_ids: object) -> list[str]:
+    """Bound and deduplicate references inside the explicit report cohort."""
+    if (type(required_rule_results) is not list or len(required_rule_results)>64
+            or type(cohort_task_ids) is not list or not 1 <= len(cohort_task_ids) <= 32):
+        raise LearningError('LEARNING_BOUND')
+    cohort=set()
+    for task_id in cohort_task_ids:cohort.add(_identifier(task_id))
+    if len(cohort)!=len(cohort_task_ids):raise LearningError('LEARNING_TASKS')
+    result=set()
+    for row in required_rule_results:
+        if type(row) is not dict:raise LearningError('LEARNING_HYPOTHESIS')
+        refs=row.get('counter_evidence_refs')
+        if type(refs) is not list or len(refs)>len(cohort):raise LearningError('LEARNING_BOUND')
+        for task_id in refs:
+            if _identifier(task_id) not in cohort:raise LearningError('LEARNING_HYPOTHESIS')
+            result.add(task_id)
+    return sorted(result)
+
+
 _IDENTITY_FIELDS=frozenset({'task_id','source_head','consent_generation','context_version','context_digest','relation_vector','policy_digest'})
 
 

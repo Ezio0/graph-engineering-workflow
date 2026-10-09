@@ -2907,3 +2907,462 @@ Every selector below uses `.venv/bin/python -B scripts/run_wp09_tests.py --test 
 - `tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_wheel_real_provider`
 
 Also run the approved architecture, source, build/reproducibility, explicit-project-policy workflow and git diff checks after relevant code changes. Clock tests exercise actual installed provider and genuine source/channel while controlled doubles cover error conditions; no fake issued runtime or fabricated authorization. Consent off asserts zero clock/extra metric reads. Linux support requires native Linux evidence; do not silently skip a required platform claim. Freeze/source-hash execution inputs per Candidate protocol.
+
+## WP09 report completion test design — R1, 2026-10-08
+
+### R9-T1 Scope and critical journeys
+
+This is design-only under [Spec R9](../specs/graph-engineering-workflow.md#wp09-report-completion-design--r0-2026-10-08),
+[ADR0013](../adr/0013-learning-hypothesis-report-decisions.md) and
+[Plan R9](../plans/2026-08-13-graph-engineering-workflow.md). All following new
+methods/fixtures are proposed, not implemented, collected or passing. Owner
+implementation authority precedes tests/code. Cover every critical journey below;
+no arbitrary percentage/line count or test-pyramid count substitutes for oracles.
+Scope includes configured report decisions, closure, genuine cohort/lifecycle,
+privacy/currentness and valid configuration variation. Real user data, native Linux,
+owner upgrades, WP10/WP11, full274/P1, monitoring and irreversible actions are excluded.
+
+| CUJ / upstream | Required behavior | New selectors below / existing regression |
+|---|---|---|
+| RC01 /W9-C04 | exact four hypothesis outcomes with insufficient precedence | U01–04,I01–04; existing rational rule tests |
+| RC02 /W9-C02,04 | counts/unknown/excluded/ref unions, no overlap double counting or unfavorable omission | U08–10,I05–06; existing source/reapproval/relation tests |
+| RC03 /W9.7 | closed group/rule/suggestion partition; missing/duplicate/cyclic references refuse before task sources | U05–07,C01–04,S01; existing malformed-source refusal |
+| RC04 /FR13 P/R | genuine owner lifecycle and independently prepared refusal root | I07,S01–02; existing retention/purge/clock tests |
+| RC05 /W9-C05,07 | replay/currentness/config/revoke publication remains atomic | I09,S03–04; existing consent expiry/context/head/ordering races |
+| RC06 /W9-C09 | count/UTF-8/reference admission before oversized report/config output allocation | U10,C01–02,S05; existing shared capture budget tests |
+| RC07 /PMF004 | no body/prompt/secret in outputs, receipts/errors; no implied experiment action | S06; existing PMF/authority privacy tests |
+| RC08 /W9-C09 | valid installed config changes rules/bounds without engine edits | I08,W02; tamper refusal is a separate negative |
+| RC09 /W9-C10 | exact installed/source resource closure, old bytes/versions preserved | C05–08,W01–04; existing wheel/authority/migration tests |
+
+### R9-T2 Layers and test construction
+
+Use unittest and the existing exact single-test runner. Proposed37 methods:
+10 unit,8 contract,9 integration,6 security and4 installed-wheel integration.
+Put arithmetic at the pure layer, reference/schema checks at contracts and real
+process/SQLite/installed facts at integration/security/wheel. Counts reflect risk,
+not a mandated pyramid. Native child<=290s and recorder<=300s for every method;
+no unmeasured per-layer latency promises. Run serially, fail-fast, with no skipped
+tests; each named argv must attest collected1/executed1 and the exact selector.
+
+Mock only the external synthetic agent/reviewer output port, rejection/fault
+inputs and controlled negative corruptions. Source/DB/identity/resource validation,
+public learning operations, installed loader and completion gate remain real.
+Exception for bounded retention/expiry tests, including I07: permit the existing
+controlled repository-clock fixture in isolated synthetic roots to advance the
+trusted retention/consent clock past the configured age/expiry. Keep the actual
+retention decision, issued purge authorization, consumption, atomic deletion and
+tombstone paths intact. This fixture is not a trusted elapsed-source measurement;
+do not replace native elapsed observation clocks or claim real90-day retention
+duration evidence. No production age/expiry, timeout or policy limit is changed.
+Typed artifact authoring/registration and genuine independent review records may
+use existing production services, but no direct committed completion/aggregate or
+security/authority insertion may count as a positive result. A synthetic task reaches
+completed only through the normal runner/completion gate under an issued runtime,
+with all required evidence and current bindings. Genuine cancel uses existing
+retention/task application path. Fixture helpers reuse services rather than add
+test-only production completion ports. Missing production seam is an exception.
+
+### R9-T3 Exact outcome and lifecycle oracles
+
+For the existing synthetic completion rule threshold1/2,min_samples2:
+I01 uses two genuinely completed tasks: numerator2/denominator2, supports.
+I02 uses two genuinely canceled tasks:0/2,counter-evidence, both task references
+retained and its configured investigation suggestion returned. I03 uses three
+eligible tasks, two completed and one canceled, with two valid synthetic required
+rules gte1/2 and gte3/4,min_samples2: same2/3 denominator for each, supports and
+counter respectively, group mixed; its union of unfavorable references is exact.
+I04 uses one eligible task with min_samples2: insufficient-data. Include a second
+rule whose known samples support; insufficient precedence must still win. These
+fixture thresholds are synthetic test inputs, not new real product policy.
+
+I05 adds genuinely incomplete completion and completion-omitted live consent:
+the former is unknown, the latter excluded; neither changes the known denominator.
+I06 shares one rule between two hypotheses, retaining exactly one report rule and
+original cohort task identity/counts; every hypothesis's required rules are present
+and counter-reference unions are sorted/unique, never multiplied sample counts.
+U09 asserts mixed success/failure samples under one threshold keep that rule's
+supports/counter decision. Tests must fail if rules are omitted or their thresholds,
+numerators/denominators, hypothesis precedence or catalog reference is changed.
+
+I07 follows the same genuine P owner/root: grant → collect → context change → old
+aggregate/report stale refusal → fresh collect with new context → unfavorable
+report with enough samples → revoke → denied report → guarded purge → actual process
+restart and tombstone/no-resurrection assertions. Capture original action/task
+receipt/event bytes and verify report/context/revoke/purge does not rewrite them.
+Use only the retention-clock fixture allowance above to reach the genuine purge
+age inside this method's290s child; record exact configured age and keep the
+retention-authority refusal cases intact rather than suppressing their checks.
+The R root is independently prepared, with distinct issued runtime/authority objects,
+and exercises foreign or revoked identity before metric access; never reuse P proof.
+
+I08/W02 use two independently valid pinned source/installed configurations and
+the same semantic eligible cohort, with exact identical engine-module hashes.
+Vary the configured completion threshold/minimum and a smaller report/hypothesis
+bound: record changed decision/suggestion or admission refusal as configured,
+without changing engine code. Fixture source heads/cohort/policy digests may differ;
+do not copy a retained aggregate/consent across them. Tampering a returned map or
+monkeypatching loader trust does not establish a positive variation.
+
+S04 uses independent processes and barriers for report-first and revoke-first
+transaction order. Production BEGIN IMMEDIATE excludes concurrent writes; assert
+that exclusion instead of releasing the lock to invent an interleaving. Revoke-first
+publishes no old-generation response/receipt; report-first remains a consistent
+earlier result and subsequent retained handle/replay refuses. S03 changes valid
+installed config and verifies old consent/report replay cannot return a new-looking
+suggestion; new consent/capture returns the exact new configuration.
+
+S05 covers exactly-at/one-over hypothesis/catalog/reference/output byte bounds,
+including multi-hypothesis duplicate reference overhead and UTF-8 sizing. A
+fetch/parse/summary-buffer sentinel must prove rejection before the disallowed
+materialization/growth, not a large allocation followed by rejection. S06 places
+canaries in genuine synthetic task/artifact/authorization bodies, then inspects
+report, error, receipt and persisted learning bytes; no prompt/body/secret copy or
+catalog execution side effect. I09 preserves exact replay output/receipt and
+sample count, rejects changed request digests and stale sources.
+
+### R9-T4 Exact new selector inventory
+
+The following stable IDs define the37 proposed methods, in this order:
+
+- U01 `tests.unit.test_learning_reports.LearningReportUnitTests.test_all_support`
+- U02 `tests.unit.test_learning_reports.LearningReportUnitTests.test_all_counter`
+- U03 `tests.unit.test_learning_reports.LearningReportUnitTests.test_mixed`
+- U04 `tests.unit.test_learning_reports.LearningReportUnitTests.test_insufficient_precedence`
+- U05 `tests.unit.test_learning_reports.LearningReportUnitTests.test_empty_required_rules_rejected`
+- U06 `tests.unit.test_learning_reports.LearningReportUnitTests.test_unknown_verdict_rejected`
+- U07 `tests.unit.test_learning_reports.LearningReportUnitTests.test_duplicate_rule_rejected`
+- U08 `tests.unit.test_learning_reports.LearningReportUnitTests.test_input_order_invariance`
+- U09 `tests.unit.test_learning_reports.LearningReportUnitTests.test_ratio_semantics_unchanged`
+- U10 `tests.unit.test_learning_reports.LearningReportUnitTests.test_counter_union_bounds`
+- C01 `tests.contract.test_learning_reports.LearningReportContractTests.test_policy_v12_closed`
+- C02 `tests.contract.test_learning_reports.LearningReportContractTests.test_experiments_v11_closed`
+- C03 `tests.contract.test_learning_reports.LearningReportContractTests.test_required_rule_coverage`
+- C04 `tests.contract.test_learning_reports.LearningReportContractTests.test_suggestion_partition_cycles`
+- C05 `tests.contract.test_learning_reports.LearningReportContractTests.test_legacy_versions_preserved`
+- C06 `tests.contract.test_learning_reports.LearningReportContractTests.test_report_v12_closed`
+- C07 `tests.contract.test_learning_reports.LearningReportContractTests.test_owner_input_unchanged`
+- C08 `tests.contract.test_learning_reports.LearningReportContractTests.test_installed_resource_closure`
+- I01 `tests.integration.test_learning_reports.LearningReportIntegrationTests.test_supported_cohort`
+- I02 `tests.integration.test_learning_reports.LearningReportIntegrationTests.test_counter_cohort`
+- I03 `tests.integration.test_learning_reports.LearningReportIntegrationTests.test_mixed_hypothesis`
+- I04 `tests.integration.test_learning_reports.LearningReportIntegrationTests.test_insufficient_cohort`
+- I05 `tests.integration.test_learning_reports.LearningReportIntegrationTests.test_unknown_vs_excluded`
+- I06 `tests.integration.test_learning_reports.LearningReportIntegrationTests.test_overlap_no_duplicates`
+- I07 `tests.integration.test_learning_reports.LearningReportIntegrationTests.test_fr13_full_owner_journey`
+- I08 `tests.integration.test_learning_reports.LearningReportIntegrationTests.test_valid_installed_config_changes`
+- I09 `tests.integration.test_learning_reports.LearningReportIntegrationTests.test_report_retry_idempotent`
+- S01 `tests.security.test_learning_reports.LearningReportPrivacyTests.test_no_consent_no_source_read`
+- S02 `tests.security.test_learning_reports.LearningReportPrivacyTests.test_foreign_endpoint_no_read`
+- S03 `tests.security.test_learning_reports.LearningReportPrivacyTests.test_config_change_stale_replay`
+- S04 `tests.security.test_learning_reports.LearningReportPrivacyTests.test_revoke_report_process_race`
+- S05 `tests.security.test_learning_reports.LearningReportPrivacyTests.test_report_preallocation_limit`
+- S06 `tests.security.test_learning_reports.LearningReportPrivacyTests.test_no_content_in_reports_or_receipts`
+- W01 `tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_installed_hypothesis_report`
+- W02 `tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_installed_valid_config_variation`
+- W03 `tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_legacy_resources_preserved`
+- W04 `tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_missing_or_replaced_resource_refused`
+
+Existing regression inventory is the exact49 new_selectors plus162
+regression_selectors in unchanged
+`config/verification/authorized-stage-learning-boundary-v1.json` (raw SHA256
+`c49537731976405f99f903ab7d14db98a8cc82beb2bac53029996bd2032f3074`).
+This is an explicit211-method list, not discovery. Also see its complete method
+names in [the authorized-stage Test Plan](authorized-stage-learning.md).
+Freeze the concatenated37+211 list as248 distinct selectors in the detached
+design inventory and future proposed boundary configuration. Keep existing method
+names even where active-version assertions must become explicit legacy-version
+tests. Verify AST/collector identities once after authoring; no renamed/removed
+regression, optional skips or import-only pass.
+
+Every test argv is exactly:
+
+```text
+.venv/bin/python -B scripts/run_wp09_tests.py --test <exact-selector> --timeout-seconds 290
+```
+
+Six future static argv:
+
+- `.venv/bin/python -B scripts/check_architecture.py`
+- `.venv/bin/python -B scripts/check_sources.py lint`
+- `.venv/bin/python -B scripts/check_sources.py type`
+- `.venv/bin/python -B scripts/verify_build.py`
+- `.venv/bin/python -B scripts/verify_reproducible_build.py`
+- `git diff --check`
+
+### R9-T5 Data, installations and cleanup
+
+Use synthetic task identities and private temporary source/installation/repository
+roots. The proposed `tests/fixtures/learning-report-config-variants-v1.json` holds
+bounded variant inputs; test-only helpers construct and independently validate
+their exact complete policy/experiment documents before attestation/build. Retain
+actual source/pin/resource/RECORD identity; no original checkout source changes while
+tests run. Engine hashes agree across valid variants; each uses fresh consent and
+normal source capture. Stop/reap child groups before deleting a fixture root.
+
+Local macOS native/offline wheel fixtures are current scope. CI/Linux/staging/
+production are not executed or certified by this design. New configuration tests
+may build/install isolated package fixtures, not upgrade the Owner's installation.
+The sibling workflow project is not a runtime dependency and need not be readable.
+
+### R9-T6 Non-functional and compatibility boundaries
+
+Security, privacy, byte/count admission, report atomicity, recovery and versioned
+installed closure are in scope. Old learning1.0/1.1 bytes/validators, owner input1.0,
+authority receipts, genuine category sources and migration regressions remain.
+No PMF schema migration; export stays refused after PMF initialization/purge.
+HTTP throughput, GUI/accessibility, causal PMF claims, native Linux and real
+install upgrade/release performance are outside this local report increment.
+This does not waive their later product acceptance. No timeout or revision-budget
+extension can substitute for a failing/unfinished result.
+
+### R9-T7 Design and future execution gates
+
+Current design checks: JSON/Manifest structure, document references, exact six-file
+scope, frozen selector uniqueness/count and independent artifact review/reducer.
+No tests are added merely to compare prose. After separate implementation approval,
+keep meaningful RED/GREEN evidence, verify before staging, then exact Candidate
+scope/argv preflight before expensive canonical capture. Run all254 declared
+commands on the final frozen product tree, serial and fail-fast; no concurrent
+source/pin edits. Retain all failures/retries and use changed inputs/concrete
+diagnosis for relevant recapture. Fresh evidence is required for changed product
+bytes, not for a historical unchanged push. Candidate review and irreversible
+authority remain separate. Any newly required API/target/data/budget/predicate is
+an Owner decision before proceeding. There are no unspecified product outcomes.
+
+### R9-T8 References and history
+
+[Positioning](../positioning/graph-engineering-workflow.md), [PRD](../prd/graph-engineering-workflow.md),
+[Spec](../specs/graph-engineering-workflow.md), [ADR0013](../adr/0013-learning-hypothesis-report-decisions.md),
+[Impact](../impact/graph-engineering-workflow.md), [Plan](../plans/2026-08-13-graph-engineering-workflow.md).
+2026-10-08 R0: owner-approved detailed design proposes37 new/211 existing tests,
+six statics and genuine C04/C09/FR13 exit oracles; no implementation or test PASS
+is inferred from method names or historical increment evidence.
+2026-10-08 R1: resolve independent R9-TIME-01 by explicitly permitting the existing
+synthetic repository clock for bounded retention/expiry only; same37/211 selectors,
+real purge/retention/elapsed authority and290/300 ceilings retained.
+
+
+## Security trust bootstrap test design — B1, 2026-10-08
+
+### B1-T1 Scope and critical journeys
+
+[Spec B1](../specs/graph-engineering-workflow.md#security-trust-bootstrap-design--b1-2026-10-08),
+[ADR0014](../adr/0014-security-trust-bootstrap.md), [Impact](../impact/graph-engineering-workflow.md)
+and [Plan B1](../plans/2026-08-13-graph-engineering-workflow.md) are upstream.
+Current authority is design only: all25 new bootstrap tests below are proposed,
+unimplemented/unexecuted. Retain exact37 report and211 regression methods and their
+real positive source requirements. Require all critical journeys/oracles below;
+no arbitrary line-coverage ratio or test-count pyramid replaces them.
+
+| CUJ / Spec | Exit oracle | Selectors |
+|---|---|---|
+| BC01 / C01 | attested resource closure, immutable atomic install/replay, no partial writes | C01–02,I01,I05,S03,W02–03 |
+| BC02 / C02,S4 | real issued same-owner/current approvals derive empty executable state; invalid initial approvals/replay publish nothing | C03,I02,S01–02,S05,W01 |
+| BC03 / C03 | same original request preserves evolved state; conflicts/foreign/reapproval refuse | I03,I06,I10,S01,S04 |
+| BC04 / C04 | failures/races/currentness and marker corruption refuse before publishing trust | I04–06,I09,S03–06 |
+| BC05 / C05 | optional old/new no-PMF migration preserves provenance, destination currentness and PMF refusal | I08,C04 + retained migration/PMF selectors |
+| BC06 / C06,R9-T2 | real collect/report/lifecycle, variants and installed positives with no SQL/private seal bypass | I07,S07,W01,W04 + all retained report acceptance |
+
+### B1-T2 Layers, bounds and mocks
+
+4 contract tests exercise real closed schema/parser/resource/projection validation;
+10 integration tests use actual SQLite, installation/task/runtime services, durable
+fault/restart/race control and local report lifecycle.7 security tests establish
+negative admission/currentness/minimization/hold invariants.4 installed-wheel tests
+use a fresh actual installed child and RECORD-attested runtime/resource path.
+There is no new pure arithmetic to justify additional unit tests; the retained10
+report unit tests remain. unittest and the existing single-test runner are used.
+Each exact method must collect1/execute1/skip0. Every layer has the existing native
+290s ceiling and canonical300s; no invented lower per-layer latency promises.
+
+Mock only external typed agent/reviewer outputs, explicit fault callbacks and
+controlled negative corruption. Do not mock production schema/resource/identity/
+receipt validation, security issuer, actual DB transaction or completion/retention
+gates. A source fixture may use the existing test-only source attestation issuer
+on a complete private copied root. Positive runtime comes from real
+RunningDistributionProbe/ExecutableLocator/RuntimeAdapterFactory/RuntimeSession
+and its issued RuntimeContext; test helpers cannot construct a private runtime seal.
+Direct trust/completion SQL inserts and unconditional PassingValidator cannot
+establish any new positive. SQL corruption is allowed only as a negative mutation
+after production services created the installation/task/scope source it corrupts;
+initial-derivation refusals occur before task security initialization, after genuine
+installation and task-source creation. It cannot manufacture an accepted source
+or repaired trust row. R9's existing repository-clock exception
+is confined to synthetic retention/consent expiry; elapsed clocks remain native.
+
+### B1-T3 Exact bootstrap selector inventory
+
+In this order, the25 methods are:
+
+- C01 `tests.contract.test_security_bootstrap.SecurityBootstrapContractTests.test_descriptor_closed`
+- C02 `tests.contract.test_security_bootstrap.SecurityBootstrapContractTests.test_receipts_closed`
+- C03 `tests.contract.test_security_bootstrap.SecurityBootstrapContractTests.test_scope_target_projection`
+- C04 `tests.contract.test_security_bootstrap.SecurityBootstrapContractTests.test_legacy_resource_bytes_preserved`
+- I01 `tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_installation_atomic_replay`
+- I02 `tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_task_derivation_empty_authority`
+- I03 `tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_retry_preserves_evolved_state`
+- I04 `tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_task_crash_restart`
+- I05 `tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_installation_crash_restart`
+- I06 `tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_parallel_initialization`
+- I07 `tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_genuine_learning_lifecycle`
+- I08 `tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_migration_roundtrip`
+- I09 `tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_legacy_roots_distinguishable`
+- I10 `tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_scope_reapproval_refused`
+- S01 `tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_foreign_unissued_runtime_refused`
+- S02 `tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_caller_trust_payload_refused`
+- S03 `tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_missing_replaced_resources_refused`
+- S04 `tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_stale_sources_race`
+- S05 `tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_partial_marker_corruption_refused`
+- S06 `tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_bounded_before_materialization`
+- S07 `tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_receipts_minimized_holds_preserved`
+- W01 `tests.integration.test_security_bootstrap_wheel.SecurityBootstrapWheelTests.test_installed_bootstrap_learning`
+- W02 `tests.integration.test_security_bootstrap_wheel.SecurityBootstrapWheelTests.test_installed_resource_closure`
+- W03 `tests.integration.test_security_bootstrap_wheel.SecurityBootstrapWheelTests.test_installed_substitution_refused`
+- W04 `tests.integration.test_security_bootstrap_wheel.SecurityBootstrapWheelTests.test_installed_legacy_config_variants`
+
+The immutable detached security-trust-bootstrap-test-inventory-r0.json freezes
+these25 plus the unchanged37 report/211 regression selectors and all279 argv.
+No alias, rename, skip, directory discovery or import-only pass. Existing211
+class/method identities are verified by AST; future selectors are explicit planned
+methods, not claimed collected. This273-test boundary is distinct from the excluded
+historical full274/P1 profile. Final canonical inventory adds the same six statics.
+
+### B1-T4 Concrete behavior and fault oracles
+
+C01 admits a closed30-other-member descriptor and rejects unknown/duplicate/dangling
+paths, wrong raw/semantic identities and self-hash cycles; actual full31 vector is
+receipt-bound. C02 validates exact receipt shapes/domains/references and rejects
+unknown fields, mismatched initial state/source digests. C03 validates the sole
+aggregate scope target/nonempty approved baselines and empty execution fields using
+existing identity/schema contracts. C04 compares all26 existing resource bytes and
+foundation/learning contract versions, independently of new package mappings.
+
+I01 initialize/retry returns one original install receipt and exact manifest/marker,
+no new rows on repeat. I02 creates real task, freezes scope, approves PRD and uses
+issued same-owner initializer; assert empty authority/registries, real derived binding,
+no task revision/event change and action/disclosure refusal.
+
+I02 also exercises initial refusals, before any task security row/receipt exists,
+with an exact same-owner issued context and correct current CAS selectors:
+
+| Initial-source defect / B1-S4,B1-C02 | Existing selector | Construction and exit oracle |
+|---|---|---|
+| No committed PRD approval / approval still draft | I02 | Normal TaskApplication-created task/frozen scope without PRD approval; a draft artifact is not approval. initialize_task refuses. |
+| Missing frozen scope / scope remains drafted | I02 | Normal scope draft before approval; no approved frozen source. Refuse, never freeze/adopt it. |
+| Missing scope approval record/event or ambiguous frozen approval | I02,S05 | Negative mutation of a genuine service-created scope/approval, deleting its approval reference or introducing conflicting scoped rows. Refuse even if caller supplies the original valid snapshot selector. |
+| Duplicate baseline kinds / baseline reference not backed by committed approval | I02,S05 | Negative mutation of a genuine task's current references or approval association; exercise duplicate kinds and an unapproved reference independently. Refuse, never deduplicate/adopt/copy caller baselines. |
+| Invalid replay / snapshot-only identity, scope or baseline provenance | I02,S05 | Corrupt event/transaction/head linkage, or substitute a locally digest-consistent snapshot projection that disagrees with the committed event replay. Refuse; a self-consistent snapshot alone cannot issue trust. |
+
+For each case record exact task row/revision/snapshot/event/transaction/source bytes
+immediately before calling initialize_task; assert neither task_security_states nor
+security_bootstrap_task_receipts acquires a row and all recorded source bytes remain
+identical after refusal/reopen. Existing installation receipt stays exact. No repair,
+new task event, revision change or replacement source is allowed. Give each mutation
+an independently valid unmutated fixture/control case, without treating the mutated
+root as positive evidence. S05 repeats relevant corruption admission through the
+new service; preexisting regression refusal at another API is not this oracle.
+All cases are subcases of existing named methods, same25/37/211 inventory and
+290/300 ceilings; use immutable resource/wheel fixture reuse within a method and
+fresh service-created task/root state, not additional timeout allowances.
+
+I03 uses actual task
+events and real PMF registration to evolve security state; retry original selectors
+returns original receipt without changing current bytes/subject flags; another
+request ID/digest refuses. I04 faults immediately before state INSERT, between state
+and task receipt INSERT, before COMMIT, and after durable COMMIT before response;
+fresh reopen sees neither state/receipt or both, exact retry recognized once.
+I05 repeats the analogous manifest/marker/install receipt fault cuts and asserts
+unknown/partial prior states are refused, never repaired. Inject faults via the
+existing repository callback mechanism; after-commit lost-response cuts are
+application callback boundaries, never fabricated SQL commits.
+
+I06 two processes with genuine distinct issued runtimes for the same durable
+owner/kind/lineage contend using barrier-controlled real locks: same request yields
+one creation/two identical receipts; different request has one creation/one conflict,
+no deadlock/partial row/duplicate receipt. I07 uses grant → prospective completion/
+cancel → collect → report → real revoke/deny/purge/tombstone/restart with actual
+retention subject/fence consumption. I08 exports a legitimately bootstrapped no-PMF
+root, imports with current destination manager/resources, checks exact original
+receipt bytes/history and newly guarded issuance; mutated origin/resource/task
+reference refuses. A second PMF-initialized/purged root still refuses export.
+I09 unmarked historical root uses existing API but is explicitly not bootstrap
+positive; any receipt table without marker or marker without tables refuses on all
+four issuer entry points. I10 real PRD reapproval/scope change fails current issuer/
+initializer replay without overwriting state; ordinary unchanged-scope snapshot
+evolution from I03 remains valid. Refusal must preserve the original receipt/state.
+
+S01 wrong/unissued/closed/PID-thread-invalid contexts and foreign owner/kind/lineage
+refuse before task-body capture. S02 attempts caller manifest/registry/policy/state/
+targets/authority/clock arguments and direct production setter/private-seal paths;
+only defined selectors/issued context accepted, no trust rows written. S03 actual
+missing/replaced schema/policy/manifest/RECORD and descriptor references refuse;
+same semantic content with unauthorized installed raw bytes is not accepted.
+S04 barriers at capture/precommit/issuance change actual activation/task/scope/
+baseline/resources; final guard refuses and rolls back, no stale publication.
+S05 remove marker while retaining receipts, remove receipt with marker, introduce
+unreceipted state, invalid digest/partial namespaces/unknown marker; bootstrap and
+all issuer entry points refuse without legacy fallback. S06 use real finite
+WorkContext admission plus instrumented task-body/capture boundary to establish
+oversized rows/resources/receipts/counts rejected before materialization/allocation,
+not merely eventual rejection; no enlarged production profile. S07 sensitive
+sentinel in legitimate external task bodies never appears in receipts/errors,
+and actual hold/claim/retention state survives retry and blocks purge normally.
+
+W01 actual installed production bootstrap/runtime/task/completion/learning lifecycle,
+without sibling reference or SQL trust writes. W02 verifies exactly31 resources,
+real RECORD closure and matching source/wheel validation. W03 actual absent/replaced/
+ambiguous installed resource or changed distribution refuses before writes/use.
+W04 legacy schemas stay exact; separately valid installed two-known-rule config
+variant changes genuine decisions/bounds with identical engine hashes, new consent
+and normal source capture. Unattested replacement is a negative, not a variant.
+
+### B1-T5 Exact argv and evidence
+
+Each test uses exactly:
+
+```text
+.venv/bin/python -B scripts/run_wp09_tests.py --test <exact-selector> --timeout-seconds 290
+```
+
+Six statics retain argv exactly: `.venv/bin/python -B scripts/check_architecture.py`,
+`.venv/bin/python -B scripts/check_sources.py lint`, `.venv/bin/python -B scripts/check_sources.py type`,
+`.venv/bin/python -B scripts/verify_build.py`, `.venv/bin/python -B scripts/verify_reproducible_build.py`,
+`git diff --check`. Order:25 bootstrap methods,37 report methods,211 exact regressions,
+six statics; strictly serial/fail-fast. Each retains success/failure, exact selector/
+argv/counts, source/resource/tree binding and actual elapsed time. No full-suite
+discovery or timeout-budget increase. Snapshot/recorder work uses the existing
+canonical300 ceiling; do not substitute a native PASS for final canonical evidence.
+
+### B1-T6 Data, environments and cleanup
+
+Only synthetic task/owner/scope IDs, sentinel bodies and private temporary roots.
+Reuse production services in proposed tests/support/security_bootstrap.py and retained
+learning_reports.py. Fixtures reuse a built wheel only within a named method where
+its exact bytes remain immutable; each process owns fresh repository/command/runtime
+state. Before deletion reap child groups, release locks and close factories. No real
+PII, Owner installation upgrades or production data. macOS source/offline installed
+wheel current scope; CI/Linux/staging/production evidence remains later authorized
+work. No external network/install dependency or sibling runtime requirement.
+
+### B1-T7 Non-functional and open gates
+
+In scope: deterministic trust/currentness/privacy, count/UTF-8 admission, crash/retry,
+process races, source/wheel closure and old/new migration compatibility. GUI/accessibility/
+HTTP throughput, native Linux/real install upgrade, full274/P1, WP10/WP11/monitoring
+are outside this bounded local increment. No lower latency or coverage percentage
+is asserted without a configured measurable requirement. Current design runs only
+Manifest/links/whitespace/protected-source/inventory checks and independent review.
+Product tests begin after concrete Owner implementation approval. Existing report
+partial evidence remains partial. Any new file/dependency/authority/trust rule/budget
+needs a decision before its affected task. All named behavior oracles are required.
+
+### B1-T8 References and history
+
+[Positioning](../positioning/graph-engineering-workflow.md), [PRD](../prd/graph-engineering-workflow.md),
+[Spec](../specs/graph-engineering-workflow.md), [ADR0014](../adr/0014-security-trust-bootstrap.md),
+[Impact](../impact/graph-engineering-workflow.md), [Plan](../plans/2026-08-13-graph-engineering-workflow.md).
+2026-10-08 B1: exact25 bootstrap +37 report +211 regression methods/six statics
+proposed with unchanged290/300 bounds. No new product test executed or passed.
+R1: add explicit initial-source refusal subcases and zero-write/source-preservation
+oracles to I02/S05 (GEW-SECURITY-BOOTSTRAP-TEST-PLAN-R0-001); same selector/argv,
+target and budget boundary.

@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0.0",
+  "descriptor_id": "security-bootstrap-default",
+  "resources": [
+    {
+      "path": "config/contracts/security-bootstrap-schema-registry-v1.json",
+      "raw_sha256": "e95225a0c745c99f46b3b5d20a643c1f937b84d72873ab2863346686200ff39e"
+    },
+    {
+      "path": "config/contracts/schemas/security-bootstrap-1.0.0.json",
+      "raw_sha256": "9600a496f637332165d8846c54707ba25083873955213bdb24514011bcb09cf0"
+    },
+    {
+      "path": "config/contracts/schemas/security-installation-receipt-1.0.0.json",
+      "raw_sha256": "a67dcf8adbc779cee0fcf90e65c75077758a7097dc0ea88c86590faed6ac2870"
+    },
+    {
+      "path": "config/contracts/schemas/security-task-initialization-receipt-1.0.0.json",
+      "raw_sha256": "866db54876a216eebee9be59f7a53c04cc69cfa40da12375753a5933d06343eb"
+    },
+    {
+      "path": "config/security/security-runtime-v1.json",
+      "raw_sha256": "1ee3c20f2e94ba665a082524d0b2dd45e6cc5c0cffabfa52e964c864b1df4c9e"
+    },
+    {
+      "path": "config/contracts/security-schema-registry-v1.json",
+      "raw_sha256": "746da8cda357b8a469c78ab4017a457e88083ab8bcf4082d7a4a794219f8169b"
+    },
+    {
+      "path": "config/contracts/resource-profile-v1.json",
+      "raw_sha256": "8976f8fa464f06228a488e63346db8f266585b66407cedbaaffe203b43446812"
+    },
+    {
+      "path": "config/contracts/cost-schedule-v1.json",
+      "raw_sha256": "f6ac2b7d9281358a112aee5ca902d41005c741c291f67176a6a29cefdb06e29f"
+    },
+    {
+      "path": "config/contracts/schema-profile-v1.json",
+      "raw_sha256": "9972a12f35471f542f8a9f8d990e18334a4beadc7cfb97a0388454447fb5eb63"
+    },
+    {
+      "path": "config/actions/action-policy-v1.json",
+      "raw_sha256": "732a04401b31b3c946126ed0b92cd881e3cd64905dfbab297106b300439ef489"
+    },
+    {
+      "path": "config/security/disclosure-policy-v1.json",
+      "raw_sha256": "c6d1a5b753db5b34e389d8b26eda3c698f48b6d15f2bdcc320d57b9d8c502fea"
+    },
+    {
+      "path": "config/security/evidence-policies-v1.json",
+      "raw_sha256": "ca61c0c85a4a428100a10c7f424b061c1ed652f63a8b82adedc1a37ee3132fb3"
+    },
+    {
+      "path": "config/security/input-safety-policy-v1.json",
+      "raw_sha256": "f5383188a4610e1de974c8eda51e4bfe30bc430ccfdfe27e8511da025702db4e"
+    },
+    {
+      "path": "config/security/redaction-policy-v1.json",
+      "raw_sha256": "84f40c8f08c3cefacc50934b27d03acd9c61df060399510e1177fe2f6b6d6527"
+    },
+    {
+      "path": "config/security/retention-policies-v1.json",
+      "raw_sha256": "b5ffdef6ec736cd56b62f9975e596c7fb2873b6d33c0c7d7adb6f673c6e10600"
+    },
+    {
+      "path": "config/contracts/schemas/action-journal-entry-1.0.0.json",
+      "raw_sha256": "becb16a537c74de447ec3d9f3ab58bf1598a965796f3490f4c513dc15d722dec"
+    },
+    {
+      "path": "config/contracts/schemas/action-policy-1.0.0.json",
+      "raw_sha256": "9946a9ad46581a966163b0b53d7c55fb7200cf6e35f8736af1fa9654f0093a56"
+    },
+    {
+      "path": "config/contracts/schemas/authority-envelope-1.0.0.json",
+      "raw_sha256": "27bb9a5ef180225851b8aafb131ef1dd7cf4b12763e5c239600c3627e276efbb"
+    },
+    {
+      "path": "config/contracts/schemas/data-disclosure-plan-1.0.0.json",
+      "raw_sha256": "2cbc5d3ad7db8d1dc05e06f3d0fec1874e9a3cd70bbf4abe902b86ffa137486c"
+    },
+    {
+      "path": "config/contracts/schemas/disclosure-policy-1.0.0.json",
+      "raw_sha256": "4f3af7eaa36576ecb1950f6947290605e740fc3fcc3bed61c3b9a58356a17792"
+    },
+    {
+      "path": "config/contracts/schemas/disclosure-receipt-1.0.0.json",
+      "raw_sha256": "f8f8ae943e04a453dcd09969bbceed58ec32c8e0fac27ed88eafbba6737ffe17"
+    },
+    {
+      "path": "config/contracts/schemas/evidence-policy-registry-1.0.0.json",
+      "raw_sha256": "38add7b1fe501d84ebac258c6b32eef92a921b1922068cf16e11a978bcede3e7"
+    },
+    {
+      "path": "config/contracts/schemas/evidence-record-1.0.0.json",
+      "raw_sha256": "4a0e7c46a6b7fa2701d9455614d56faaf08d7186f6d7ab9c6d4559f343b299f7"
+    },
+    {
+      "path": "config/contracts/schemas/input-safety-policy-1.0.0.json",
+      "raw_sha256": "dc309b7d807ac0c13c4c2e5ba47e5f7ac6c1a9524b6637d4b73f4ff20da1d585"
+    },
+    {
+      "path": "config/contracts/schemas/intent-baseline-1.0.0.json",
+      "raw_sha256": "27409c9223027ce97c7f2bfdde247df534ca59dc602e087b4deafcb8faa9aa09"
+    },
+    {
+      "path": "config/contracts/schemas/prepared-action-1.0.0.json",
+      "raw_sha256": "65add08cfe44b5cdf853fae9926dd52f6b291b6be823b310f39d810bdf042211"
+    },
+    {
+      "path": "config/contracts/schemas/redaction-policy-1.0.0.json",
+      "raw_sha256": "4f5d026d01f7644cc1883340bcdf7a6064ffb43b5ca726f864e359a30c7920a5"
+    },
+    {
+      "path": "config/contracts/schemas/retention-policy-registry-1.0.0.json",
+      "raw_sha256": "f0f1db1966006518811fa14e97d42a8a9441fe72078ed1a98f78ad60c3d32a52"
+    },
+    {
+      "path": "config/contracts/schemas/security-binding-1.0.0.json",
+      "raw_sha256": "da04b6d4767ca2cde6907a71f5238ee782efd96a25957b389518b4b5927316a7"
+    },
+    {
+      "path": "config/contracts/schemas/security-runtime-manifest-1.0.0.json",
+      "raw_sha256": "09f95da2c4caf8e0ddf729ae05f0d78a1197643e2e5e41a756fc4c21cc286b07"
+    }
+  ],
+  "foundation_registry": {
+    "registry_id": "urn:gew:schema-registry:security-foundation:1.0.0",
+    "registry_digest": "sha256-jcs-v1:5af3f2ba14d440f50e6194d9ea1aa9bc510e6573a0f19e7a8d564fdf9f0fd9b4"
+  },
+  "bootstrap_registry": {
+    "registry_id": "urn:gew:schema-registry:security-bootstrap:1.0.0",
+    "registry_digest": "sha256-jcs-v1:9c11701f40834c4540814269c38cbcd8a831292e2eb839814b3cd0397e2191db"
+  },
+  "runtime_manifest": {
+    "manifest_id": "security-runtime-default",
+    "manifest_digest": "sha256-jcs-v1:60ec8d6f924d821e47d5554c1cb01b2a26fe412d298f80b0ae56b87a53e04c90"
+  },
+  "policies": {
+    "action": {
+      "policy_id": "action-policy-default",
+      "policy_digest": "sha256-jcs-v1:9cb3b0e31c8eab193a26e38632909a7c5f4f5e883403151bfd10a9066ee8ce26"
+    },
+    "disclosure": {
+      "policy_id": "disclosure-default",
+      "policy_digest": "sha256-jcs-v1:f0cf26b04185e961157a147979f3c6608e2d8ba0fc6947318b97a6711186b28e"
+    },
+    "evidence": {
+      "policy_id": "evidence-default",
+      "policy_digest": "sha256-jcs-v1:93c46845fb22c01b3b109cd9ad716abbc6f05ca1fbe3490bbd2264caaa7fd6b3"
+    },
+    "input-safety": {
+      "policy_id": "input-safety-default",
+      "policy_digest": "sha256-jcs-v1:7290c7fed6193fc7e4ab166fa81cf8309c33c9d0278461c0b23acf31c91d31cc"
+    },
+    "redaction": {
+      "policy_id": "redaction-default",
+      "policy_digest": "sha256-jcs-v1:65868c76b5118ce0a4609097770ac893842c429eaba159e889ec7c50b4931aa8"
+    },
+    "retention": {
+      "policy_id": "retention-default",
+      "policy_digest": "sha256-jcs-v1:36625b80fd867613618482a45701de2cb65ca2a245b6c616e0fe32b9ff5b458c"
+    }
+  },
+  "profiles": {
+    "resource": {
+      "profile_id": "urn:gew:resource-profile:default:1.0.0",
+      "body_digest": "sha256-raw-v1:8976f8fa464f06228a488e63346db8f266585b66407cedbaaffe203b43446812"
+    },
+    "cost": {
+      "schedule_id": "urn:gew:cost-schedule:default:1.0.0",
+      "body_digest": "sha256-raw-v1:f6ac2b7d9281358a112aee5ca902d41005c741c291f67176a6a29cefdb06e29f"
+    },
+    "schema": {
+      "profile_id": "urn:gew:schema-profile:default:1.0.0",
+      "body_digest": "sha256-raw-v1:9972a12f35471f542f8a9f8d990e18334a4beadc7cfb97a0388454447fb5eb63"
+    }
+  },
+  "descriptor_digest": "sha256-jcs-v1:751a03f4392f3a065a63663aa05a509e388ad986e2dc200b52740fa71de19cad"
+}

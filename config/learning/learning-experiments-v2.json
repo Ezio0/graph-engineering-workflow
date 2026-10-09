@@ -1,0 +1,44 @@
+{
+  "kind": "learning-experiments",
+  "schema_version": "1.1.0",
+  "experiments": [
+    {
+      "experiment_id": "synthetic-default",
+      "rule_ids": [
+        "synthetic-completion"
+      ],
+      "hypotheses": [
+        {
+          "hypothesis_id": "synthetic-completion-hypothesis",
+          "required_rule_ids": [
+            "synthetic-completion"
+          ],
+          "next_experiment_ids": {
+            "supports": "synthetic-next-supports",
+            "counter-evidence": "synthetic-next-counter-evidence",
+            "mixed": "synthetic-next-mixed",
+            "insufficient-data": "synthetic-next-insufficient-data"
+          }
+        }
+      ]
+    }
+  ],
+  "suggested_experiments": [
+    {
+      "experiment_id": "synthetic-next-supports",
+      "purpose_code": "replicate"
+    },
+    {
+      "experiment_id": "synthetic-next-counter-evidence",
+      "purpose_code": "investigate-counter-evidence"
+    },
+    {
+      "experiment_id": "synthetic-next-mixed",
+      "purpose_code": "resolve-rule-disagreement"
+    },
+    {
+      "experiment_id": "synthetic-next-insufficient-data",
+      "purpose_code": "collect-more-samples"
+    }
+  ]
+}

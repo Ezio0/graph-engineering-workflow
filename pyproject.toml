@@ -21,6 +21,38 @@ graph-engineering = "graph_engineering.cli:main"
 "adapters/graph_engineering/adapters" = "graph_engineering.adapters"
 
 [tool.gew.build.owned-root-files]
+"config/security/security-bootstrap-v1.json" = "graph_engineering/config/security/security-bootstrap-v1.json"
+"config/contracts/security-bootstrap-schema-registry-v1.json" = "graph_engineering/config/contracts/security-bootstrap-schema-registry-v1.json"
+"config/contracts/schemas/security-bootstrap-1.0.0.json" = "graph_engineering/config/contracts/schemas/security-bootstrap-1.0.0.json"
+"config/contracts/schemas/security-installation-receipt-1.0.0.json" = "graph_engineering/config/contracts/schemas/security-installation-receipt-1.0.0.json"
+"config/contracts/schemas/security-task-initialization-receipt-1.0.0.json" = "graph_engineering/config/contracts/schemas/security-task-initialization-receipt-1.0.0.json"
+"config/security/security-runtime-v1.json" = "graph_engineering/config/security/security-runtime-v1.json"
+"config/actions/action-policy-v1.json" = "graph_engineering/config/actions/action-policy-v1.json"
+"config/security/disclosure-policy-v1.json" = "graph_engineering/config/security/disclosure-policy-v1.json"
+"config/security/evidence-policies-v1.json" = "graph_engineering/config/security/evidence-policies-v1.json"
+"config/security/input-safety-policy-v1.json" = "graph_engineering/config/security/input-safety-policy-v1.json"
+"config/security/redaction-policy-v1.json" = "graph_engineering/config/security/redaction-policy-v1.json"
+"config/security/retention-policies-v1.json" = "graph_engineering/config/security/retention-policies-v1.json"
+"config/contracts/schemas/action-journal-entry-1.0.0.json" = "graph_engineering/config/contracts/schemas/action-journal-entry-1.0.0.json"
+"config/contracts/schemas/action-policy-1.0.0.json" = "graph_engineering/config/contracts/schemas/action-policy-1.0.0.json"
+"config/contracts/schemas/authority-envelope-1.0.0.json" = "graph_engineering/config/contracts/schemas/authority-envelope-1.0.0.json"
+"config/contracts/schemas/data-disclosure-plan-1.0.0.json" = "graph_engineering/config/contracts/schemas/data-disclosure-plan-1.0.0.json"
+"config/contracts/schemas/disclosure-policy-1.0.0.json" = "graph_engineering/config/contracts/schemas/disclosure-policy-1.0.0.json"
+"config/contracts/schemas/disclosure-receipt-1.0.0.json" = "graph_engineering/config/contracts/schemas/disclosure-receipt-1.0.0.json"
+"config/contracts/schemas/evidence-policy-registry-1.0.0.json" = "graph_engineering/config/contracts/schemas/evidence-policy-registry-1.0.0.json"
+"config/contracts/schemas/evidence-record-1.0.0.json" = "graph_engineering/config/contracts/schemas/evidence-record-1.0.0.json"
+"config/contracts/schemas/input-safety-policy-1.0.0.json" = "graph_engineering/config/contracts/schemas/input-safety-policy-1.0.0.json"
+"config/contracts/schemas/intent-baseline-1.0.0.json" = "graph_engineering/config/contracts/schemas/intent-baseline-1.0.0.json"
+"config/contracts/schemas/prepared-action-1.0.0.json" = "graph_engineering/config/contracts/schemas/prepared-action-1.0.0.json"
+"config/contracts/schemas/redaction-policy-1.0.0.json" = "graph_engineering/config/contracts/schemas/redaction-policy-1.0.0.json"
+"config/contracts/schemas/retention-policy-registry-1.0.0.json" = "graph_engineering/config/contracts/schemas/retention-policy-registry-1.0.0.json"
+"config/contracts/schemas/security-binding-1.0.0.json" = "graph_engineering/config/contracts/schemas/security-binding-1.0.0.json"
+"config/contracts/schemas/security-runtime-manifest-1.0.0.json" = "graph_engineering/config/contracts/schemas/security-runtime-manifest-1.0.0.json"
+"config/learning/learning-policy-v3.json" = "graph_engineering/config/learning/learning-policy-v3.json"
+"config/learning/learning-experiments-v2.json" = "graph_engineering/config/learning/learning-experiments-v2.json"
+"config/contracts/schemas/learning-policy-1.2.0.json" = "graph_engineering/config/contracts/schemas/learning-policy-1.2.0.json"
+"config/contracts/schemas/learning-experiments-1.1.0.json" = "graph_engineering/config/contracts/schemas/learning-experiments-1.1.0.json"
+"config/contracts/schemas/learning-report-1.2.0.json" = "graph_engineering/config/contracts/schemas/learning-report-1.2.0.json"
 "core/graph_engineering/__init__.py" = "graph_engineering/__init__.py"
 "application/graph_engineering/cli.py" = "graph_engineering/cli.py"
 "config/contracts/artifact-contracts-v1.json" = "graph_engineering/config/contracts/artifact-contracts-v1.json"
@@ -191,8 +223,8 @@ transform-raw-sha256 = "0b68dc63f71cec61ebe014e50ce161b68b129448021d18faa0e45485
 transform-source = "config/migration/migration-rehearsal-transform-manifest-v1.json"
 transform-resource = "graph_engineering/config/migration/migration-rehearsal-transform-manifest-v1.json"
 bootstrap-id = "urn:gew:migration-rehearsal-bootstrap:v1"
-bootstrap-digest = "sha256-jcs-v1:0c70c054689f1d63a58491934b351a31bd9f7bcf5b4942cc6255b2733e0bd7d4"
-bootstrap-raw-sha256 = "23439044807b4e566502cc9cb7b079bdf3e02079b0c94531e6b58f53bbef003d"
+bootstrap-digest = "sha256-jcs-v1:8b7c8d3643db142c92d575fd8cff92f5dbab78edd185fdf6f099246dea1e8781"
+bootstrap-raw-sha256 = "d1464a16709b41618db3d42757026be139a8aef6e28d7ab489376ddc44df1e94"
 bootstrap-source = "config/migration/migration-rehearsal-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/migration/migration-rehearsal-installation-bootstrap-v1.json"
 profile-schema-registry-id = "urn:gew:schema-registry:profiles:1.0.0"
@@ -206,15 +238,15 @@ source-attestation-policy-id = "source-checkout-attestation-v1"
 build-backend-raw-sha256 = "22d4e76f7ce30bf05acbe62004feab0228a59ccee58f26e28d6c6f39689968a7"
 build-backend-source = "scripts/build_backend.py"
 build-backend-resource = "graph_engineering/scripts/build_backend.py"
-protected-closure-digest = "sha256-jcs-v1:3f56ef5c2e366e24e5ceb4dc9c8128bec594aee3a6055fb852d7f8b85a72cdc6"
+protected-closure-digest = "sha256-jcs-v1:190a7aaca3c9625b770a99a293b084d2f929b0cadb480a19310a01b304540721"
 protected-resources = [
   { raw-sha256 = "049000ebc8355e092f960cfeca817223d835c59567b710d0c1eacc56084c0276", resource = "graph_engineering/application/migration_rehearsal.py", source = "application/graph_engineering/application/migration_rehearsal.py" },
   { raw-sha256 = "ff88c598e8d7e6964fa1dd9d90caeb22935cb499c43ee6b6b47bba982fa34101", resource = "graph_engineering/application/profile_execution.py", source = "application/graph_engineering/application/profile_execution.py" },
-  { raw-sha256 = "70f17622b3907c994dc1e1a2ea293abbd54dd55ddddd034d4fa641705b2c8a7e", resource = "graph_engineering/__init__.py", source = "core/graph_engineering/__init__.py" },
+  { raw-sha256 = "7e1d7e3757af4d5a405e9a7448f0f6ac006bd527c7ddc989a6b0e3127c2b1edc", resource = "graph_engineering/__init__.py", source = "core/graph_engineering/__init__.py" },
   { raw-sha256 = "2a7d82251d04e517acbf45ba26b9b5382560ce1138e707e576ddd84c1b2a6269", resource = "graph_engineering/core/migration_rehearsal.py", source = "core/graph_engineering/core/migration_rehearsal.py" },
   { raw-sha256 = "07d6fd953dc970a1229106789913859ec4ad38e913ec439bf73c1bb013ec2e45", resource = "graph_engineering/core/profile_execution.py", source = "core/graph_engineering/core/profile_execution.py" },
   { raw-sha256 = "22d4e76f7ce30bf05acbe62004feab0228a59ccee58f26e28d6c6f39689968a7", resource = "graph_engineering/scripts/build_backend.py", source = "scripts/build_backend.py" },
-  { raw-sha256 = "8702af669a393ea9ec66333f86ceafc6f08bab77a890508c7ff7bcf38a82a9ca", resource = "graph_engineering/storage/migration.py", source = "storage/graph_engineering/storage/migration.py" },
+  { raw-sha256 = "a56af9babdc16f174a18a07132eacb195414baf4b75a889887688d4440a80ab6", resource = "graph_engineering/storage/migration.py", source = "storage/graph_engineering/storage/migration.py" },
 ]
 schema-vectors = [
   { schema-id = "urn:gew:schema:category-completion-assessment-input:1.2.0", raw-sha256 = "684edf2729181e51ccd80bb2815a275bdfa669916c653f15e4a158557a375ef9", source = "config/contracts/schemas/category-completion-assessment-input-1.2.0.json", resource = "graph_engineering/config/contracts/schemas/category-completion-assessment-input-1.2.0.json" },
@@ -356,8 +388,8 @@ schema-vectors = [
 
 [tool.gew.profile.scenario-truth]
 bootstrap-id = "urn:gew:scenario-truth-installation-bootstrap:1.0.0"
-bootstrap-digest = "sha256-jcs-v1:b88256cc97c23429248b5b37a263a6787a397759087f0e9bf9731563a52d9097"
-bootstrap-raw-sha256 = "a7fd0de5d15c8a912efd125626085e642f131f1754f8bd2b89a57622b7cc293c"
+bootstrap-digest = "sha256-jcs-v1:3f8903b481dfe221a6dde343fdbeb27ff05ef31796b45b02261b3431a504e9c3"
+bootstrap-raw-sha256 = "3ceed28310d57242e127406225c1117402ff11817369de0b1e46ef3d53c609e7"
 bootstrap-source = "config/profiles/scenario-truth-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/profiles/scenario-truth-installation-bootstrap-v1.json"
 policy-source = "config/profiles/scenario-truth-policy-registry-v1.json"
@@ -413,8 +445,8 @@ distribution-version = "0.1.0"
 
 [tool.gew.profile.release-operations]
 bootstrap-id = "urn:gew:release-operations-installation-bootstrap:1.0.0"
-bootstrap-digest = "sha256-jcs-v1:3397904d4dd35e167d7be89f4fa0dc39594846d45f73c9dd89ca6cd0ca845faf"
-bootstrap-raw-sha256 = "de3f7be9353c049ebbeb4daaab4da597cf63b228a3b07a7ac5a12bdded8858ed"
+bootstrap-digest = "sha256-jcs-v1:ea7842a51ea94846d818dcc6e9b5642f90c13a351cbc4c9b78ad35935f4ac5ee"
+bootstrap-raw-sha256 = "c1d72f6fe18b94c9c7ed70d9c4c4854b97eb1e0f665192715671405e6f392b7f"
 bootstrap-source = "config/release-operations/release-operations-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/release-operations/release-operations-installation-bootstrap-v1.json"
 policy-source = "config/release-operations/release-operations-policy-registry-v1.json"
@@ -1311,4 +1343,11 @@ forbidden-environment-patterns = [
   "(?i)[a-z][a-z0-9+.-]*://[^\\s'\"]+",
   "(?i)(?:^|\\s)(?:/Users/|/home/|[A-Z]:\\\\Users\\\\)",
   "(?i)\\b(?:sqlite|postgres(?:ql)?|mysql|mariadb|mongodb)\\+?[a-z0-9+.-]*://",
+]
+
+[tool.gew.security-bootstrap-seeds]
+schema-version = "1.0.0"
+resources = [
+  { source = "config/contracts/resource-profile-v1.json", resource = "graph_engineering/config/contracts/resource-profile-v1.json", size-bytes = 565, raw-sha256 = "8976f8fa464f06228a488e63346db8f266585b66407cedbaaffe203b43446812" },
+  { source = "config/contracts/cost-schedule-v1.json", resource = "graph_engineering/config/contracts/cost-schedule-v1.json", size-bytes = 1329, raw-sha256 = "f6ac2b7d9281358a112aee5ca902d41005c741c291f67176a6a29cefdb06e29f" },
 ]

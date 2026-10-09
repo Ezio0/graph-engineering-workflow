@@ -82,6 +82,8 @@ class SecurityContextIssuer:
         self._repository = repository
         self._schemas = schema_registry
         self._context = context
+        self._bootstrap_provenance = False
+        self._bootstrap_check()
         from graph_engineering.storage.repository import _recovery_scope
         from graph_engineering.core.contracts.canonical import canonical_byte_length
 
@@ -110,6 +112,32 @@ class SecurityContextIssuer:
                 object.__setattr__(runtime, name, fields[name])
             object.__setattr__(runtime, "_issuer", object())
             self._runtime = runtime
+        self._bootstrap_check()
+
+    def _bootstrap_check(self, task_id=None, *, connection=None, expected_state_digest=None):
+        """Preserve historical APIs, but never downgrade a witnessed bootstrap root."""
+        from .security_bootstrap import _guard_bootstrap_locked, SecurityBootstrapError
+        from graph_engineering.storage.security import _bootstrap_schema_present
+        from graph_engineering.storage.errors import RepositoryError
+        import sqlite3
+        factory=self._repository._factory
+        try:
+            if connection is None:
+                with factory.open('doctor') as probe:
+                    present=_bootstrap_schema_present(probe)
+                if not present and not self._bootstrap_provenance:return False
+                with factory.open('application') as owned,owned.transaction():
+                    result=_guard_bootstrap_locked(owned,factory,self._context,task_id=task_id,
+                        expected_state_digest=expected_state_digest,require_provenance=self._bootstrap_provenance,
+                        schema_registry=self._schemas)
+            else:
+                result=_guard_bootstrap_locked(connection,factory,self._context,task_id=task_id,
+                    expected_state_digest=expected_state_digest,require_provenance=self._bootstrap_provenance,
+                    schema_registry=self._schemas)
+            if result:self._bootstrap_provenance=True
+            return result
+        except (SecurityBootstrapError, RepositoryError, sqlite3.DatabaseError, TypeError, ValueError, RuntimeError):
+            raise SecurityIssuanceError('SECURITY_BOOTSTRAP_INTEGRITY') from None
 
     @property
     def runtime(self) -> SecurityRuntimeManifest:
@@ -121,6 +149,7 @@ class SecurityContextIssuer:
         from graph_engineering.storage.repository import _recovery_scope
         from graph_engineering.core.contracts.canonical import canonical_byte_length
 
+        self._bootstrap_check(task_id)
         with _recovery_scope(self._context, self, self._repository) as budget, ExitStack() as stack:
             installed = self._repository.load_installed_runtime(self._context)
             stack.callback(budget.release_projection, installed)
@@ -164,6 +193,7 @@ class SecurityContextIssuer:
             object.__setattr__(result, "state", record.state)
             object.__setattr__(result, "state_digest", record.state_digest)
             object.__setattr__(result, "runtime_manifest_digest", self._runtime.manifest_digest)
+            self._bootstrap_check(task_id,expected_state_digest=record.state_digest)
             with budget.reserve(self._context, units=4 * size, byte_count=size,
                     source_id="security-projection") as reservation:
                 reservation.transfer(result)
@@ -172,6 +202,9 @@ class SecurityContextIssuer:
     def issue_task_context(self, task_id: str) -> TaskSecurityContext:
         """Issue from a current task row plus repository-owned high-water clock."""
 
+        if self._bootstrap_check(task_id):
+            with self._repository._factory.open('application') as connection,connection.transaction():
+                return self._issue_task_context_locked(connection,task_id)
         record = self._repository.load_current_task_state(task_id, self._context)
         return self._issue_task_record(record)
 
@@ -180,9 +213,15 @@ class SecurityContextIssuer:
         from graph_engineering.storage.security import CurrentTaskSecurityState
         from graph_engineering.storage.clock import strict_trusted_now
         self._repository._factory._require_owned_transaction(connection)
-        state,digest=self._repository._load_task_state(connection,task_id,self._context)
-        return self._issue_task_record(CurrentTaskSecurityState(state,digest,
-            self._repository._clock_text(strict_trusted_now(connection))))
+        self._bootstrap_check(task_id,connection=connection)
+        from graph_engineering.storage.repository import _recovery_scope
+        with _recovery_scope(self._context) as budget, ExitStack() as stack:
+            state,digest=self._repository._load_task_state(connection,task_id,self._context)
+            stack.callback(budget.release_projection,state)
+            result=self._issue_task_record(CurrentTaskSecurityState(state,digest,
+                self._repository._clock_text(strict_trusted_now(connection))))
+            self._bootstrap_check(task_id,connection=connection,expected_state_digest=digest)
+            return result
 
     def _register_learning_subject_locked(self,connection,task_id,runtime,policy_digest,max_bytes):
         """Register only persisted PMF data, preserving current task blockers."""
@@ -217,9 +256,14 @@ class SecurityContextIssuer:
                 or not 0<=previous['revision']<2**53-1):
             raise SecurityIssuanceError('retention subject revision is invalid')
         revision=1 if previous is None else previous['revision']+1
-        subjects[ref]={'category':'pmf-aggregate','created_at':self._repository._clock_text(decimal_ns(row[0])),
+        subject={'category':'pmf-aggregate','created_at':self._repository._clock_text(decimal_ns(row[0])),
             'sensitivity':'confidential','extracted':False,**flags,
             'snapshot_digest':current.binding.snapshot_digest,'revision':revision}
+        if previous is not None and previous=={**subject,'revision':previous['revision']}:
+            if len(canonical_json(state).encode())>max_bytes:
+                raise SecurityIssuanceError('retention registry is oversized')
+            return ref
+        subjects[ref]=subject
         body=canonical_json(state)
         growth_reserve=16-len(str(revision))
         if len(body.encode())+growth_reserve>max_bytes:raise SecurityIssuanceError('retention registry is oversized')

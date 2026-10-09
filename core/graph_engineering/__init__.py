@@ -37,6 +37,39 @@ _CONTROL_LOCK = "installation-maintenance.lock"
 _ATTESTATION_KEY = "source-checkout-attestation-v1.key"
 _ATTESTATION_FILE = "source-checkout-attestation-v1.json"
 _SOURCE_FILES = (
+    "application/graph_engineering/application/security_bootstrap.py",
+    "config/security/security-bootstrap-v1.json",
+    "config/contracts/security-bootstrap-schema-registry-v1.json",
+    "config/contracts/schemas/security-bootstrap-1.0.0.json",
+    "config/contracts/schemas/security-installation-receipt-1.0.0.json",
+    "config/contracts/schemas/security-task-initialization-receipt-1.0.0.json",
+    "config/contracts/security-schema-registry-v1.json",
+    "config/security/disclosure-policy-v1.json",
+    "config/security/evidence-policies-v1.json",
+    "config/security/input-safety-policy-v1.json",
+    "config/security/redaction-policy-v1.json",
+    "config/security/retention-policies-v1.json",
+    "config/contracts/schemas/action-journal-entry-1.0.0.json",
+    "config/contracts/schemas/action-policy-1.0.0.json",
+    "config/contracts/schemas/authority-envelope-1.0.0.json",
+    "config/contracts/schemas/data-disclosure-plan-1.0.0.json",
+    "config/contracts/schemas/disclosure-policy-1.0.0.json",
+    "config/contracts/schemas/disclosure-receipt-1.0.0.json",
+    "config/contracts/schemas/evidence-policy-registry-1.0.0.json",
+    "config/contracts/schemas/evidence-record-1.0.0.json",
+    "config/contracts/schemas/input-safety-policy-1.0.0.json",
+    "config/contracts/schemas/intent-baseline-1.0.0.json",
+    "config/contracts/schemas/prepared-action-1.0.0.json",
+    "config/contracts/schemas/redaction-policy-1.0.0.json",
+    "config/contracts/schemas/retention-policy-registry-1.0.0.json",
+    "config/contracts/schemas/security-binding-1.0.0.json",
+    "config/contracts/schemas/security-runtime-manifest-1.0.0.json",
+
+    "config/learning/learning-policy-v3.json",
+    "config/learning/learning-experiments-v2.json",
+    "config/contracts/schemas/learning-policy-1.2.0.json",
+    "config/contracts/schemas/learning-experiments-1.1.0.json",
+    "config/contracts/schemas/learning-report-1.2.0.json",
     "config/learning/learning-policy-v2.json",
     "config/contracts/schemas/learning-policy-1.1.0.json",
     "config/contracts/schemas/learning-record-1.1.0.json",
@@ -488,25 +521,27 @@ def _source_file_projection(source_root: pathlib.Path, owner: int) -> tuple[dict
                 raise DistributionIdentityError(
                     "source checkout attestation file binding is unsafe"
                 )
-            body = bytearray()
+            digest = hashlib.sha256()
+            size = 0
             while True:
-                chunk = os.read(descriptor, 1024 * 1024)
+                chunk = os.read(descriptor, 65536)
                 if not chunk:
                     break
-                body.extend(chunk)
+                digest.update(chunk)
+                size += len(chunk)
             after = os.fstat(descriptor)
             if (
                 (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns)
                 != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns)
-                or len(body) != before.st_size
+                or size != before.st_size
             ):
                 raise DistributionIdentityError(
                     "source checkout attestation file binding changed"
                 )
         finally:
             os.close(descriptor)
-        digests[relative] = hashlib.sha256(body).hexdigest()
-        sizes[relative] = len(body)
+        digests[relative] = digest.hexdigest()
+        sizes[relative] = size
     return digests, sizes
 
 
@@ -667,17 +702,52 @@ def _matching_installed_distributions() -> list[importlib.metadata.Distribution]
     return matches
 
 
+_record_capture_local = threading.local()
+_DISTRIBUTION_FILES_DESCRIPTOR = importlib.metadata.Distribution.files
+
+
+@contextmanager
+def _record_capture_operation():
+    previous=getattr(_record_capture_local,'current',None)
+    if previous is not None and previous[0]==(os.getpid(),threading.get_ident()):
+        yield
+        return
+    current=((os.getpid(),threading.get_ident()),{})
+    _record_capture_local.current=current
+    try:yield
+    finally:
+        current[1].clear()
+        _record_capture_local.current=previous
+
+
+def _record_matches(distribution,resource_name):
+    """Reuse only the pure RECORD index inside one capture; reread bytes on every use."""
+    current=getattr(_record_capture_local,'current',None)
+    eligible=(current is not None and current[0]==(os.getpid(),threading.get_ident())
+              and getattr(type(distribution),'files',None) is _DISTRIBUTION_FILES_DESCRIPTOR)
+    body=distribution.read_text('RECORD') if eligible else None
+    key=(str(distribution.locate_file('')),body)
+    index=None if not eligible else current[1].get(key)
+    if index is None:
+        files=distribution.files
+        index={}
+        for item in (() if files is None else files):
+            name=pathlib.PurePosixPath(str(item)).as_posix()
+            index.setdefault(name,[]).append(item)
+        if eligible and body==distribution.read_text('RECORD'):
+            current[1].clear();current[1][key]=index
+    return index.get(resource_name,[])
+
+
 def _record_resource(
     distribution: importlib.metadata.Distribution,
     distribution_root: pathlib.Path | None,
     distribution_archive: pathlib.Path | None,
     resource_name: str,
+    *,
+    maximum_bytes: int | None = None,
 ) -> bytes:
-    files = distribution.files
-    matches = [] if files is None else [
-        item for item in files
-        if pathlib.PurePosixPath(str(item)).as_posix() == resource_name
-    ]
+    matches = _record_matches(distribution,resource_name)
     if not matches:
         raise DistributionIdentityError(
             f"installed {resource_name} RECORD identity is unavailable"
@@ -705,6 +775,8 @@ def _record_resource(
             member_mode = member.external_attr >> 16
             if member.is_dir() or stat.S_ISLNK(member_mode):
                 raise DistributionIdentityError(f"installed {resource_name} is unsafe")
+            if maximum_bytes is not None and member.file_size > maximum_bytes:
+                raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE_LIMIT')
             body = located.read_bytes()
         else:
             if distribution_root is None:
@@ -718,12 +790,20 @@ def _record_resource(
             metadata = os.lstat(path)
             if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISREG(metadata.st_mode):
                 raise DistributionIdentityError(f"installed {resource_name} is unsafe")
-            body = path.read_bytes()
+            if maximum_bytes is None:
+                body = path.read_bytes()
+            else:
+                if metadata.st_size > maximum_bytes:
+                    raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE_LIMIT')
+                body = _attested_source_member(distribution_root, resource_name,
+                                               metadata.st_uid, maximum_bytes=maximum_bytes)
     except (KeyError, OSError) as error:
         raise DistributionIdentityError(
             f"installed {resource_name} is unavailable"
         ) from error
     recorded_hash = matches[0].hash
+    if maximum_bytes is not None and len(body) > maximum_bytes:
+        raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE_LIMIT')
     if recorded_hash is None or recorded_hash.mode != "sha256":
         raise DistributionIdentityError(
             f"installed {resource_name} RECORD hash is missing"
@@ -904,6 +984,11 @@ def _validate_archive_resource_uniqueness(
 def _validate_distribution_identity() -> (
     tuple[tuple[str, bytes], ...] | None
 ):
+    with _record_capture_operation():
+        return _validate_distribution_identity_capture()
+
+
+def _validate_distribution_identity_capture():
     raw_module_path = pathlib.Path(__file__)
     try:
         module_path = raw_module_path.resolve(strict=True)
@@ -3448,6 +3533,8 @@ def _attested_source_member(
     source_root: pathlib.Path,
     relative: str,
     owner: int,
+    *,
+    maximum_bytes: int | None = None,
 ) -> bytes:
     path = source_root.joinpath(*pathlib.PurePosixPath(relative).parts)
     descriptor = os.open(
@@ -3465,11 +3552,16 @@ def _attested_source_member(
             or before.st_nlink != 1
         ):
             raise DistributionIdentityError("category policy source is unsafe")
+        if maximum_bytes is not None and before.st_size > maximum_bytes:
+            raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE_LIMIT')
         body = bytearray()
         while True:
-            chunk = os.read(descriptor, 1024 * 1024)
+            chunk = os.read(descriptor, 1024 * 1024 if maximum_bytes is None
+                            else min(65536, maximum_bytes - len(body) + 1))
             if not chunk:
                 break
+            if maximum_bytes is not None and len(body) + len(chunk) > maximum_bytes:
+                raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE_LIMIT')
             body.extend(chunk)
         after = os.fstat(descriptor)
         if (
@@ -3484,10 +3576,10 @@ def _attested_source_member(
 
 
 def _learning_installation_resources() -> tuple[bytes, ...]:
-    """Re-read six exact attested learning resources, preserving source/wheel parity."""
+    """Re-read active and historic contracts under the source/wheel attestation."""
     locations = (
-        'config/learning/learning-policy-v2.json',
-        'config/learning/learning-experiments-v1.json',
+        'config/learning/learning-policy-v3.json',
+        'config/learning/learning-experiments-v2.json',
         'config/contracts/schemas/learning-input-1.0.0.json',
         'config/contracts/schemas/learning-record-1.1.0.json',
         'config/contracts/schemas/learning-report-1.1.0.json',
@@ -3496,6 +3588,11 @@ def _learning_installation_resources() -> tuple[bytes, ...]:
         'config/contracts/schemas/learning-report-1.0.0.json',
         'config/contracts/schemas/learning-policy-1.0.0.json',
         'config/learning/learning-policy-v1.json',
+        'config/learning/learning-policy-v2.json',
+        'config/learning/learning-experiments-v1.json',
+        'config/contracts/schemas/learning-policy-1.2.0.json',
+        'config/contracts/schemas/learning-experiments-1.1.0.json',
+        'config/contracts/schemas/learning-report-1.2.0.json',
     )
     return _installation_owned_resources(locations)
 
@@ -3505,16 +3602,30 @@ def _action_authority_installation_policy() -> bytes:
     return _installation_owned_resources(('config/actions/action-authority-policy-v1.json',))[0]
 
 
-def _installation_owned_resources(locations: tuple[str, ...]) -> tuple[bytes, ...]:
+def _installation_owned_resources(locations: tuple[str, ...], *, context=None, maximum_sizes=None) -> tuple[bytes, ...]:
+    with _record_capture_operation():
+        return _installation_owned_resource_capture(locations,context=context,maximum_sizes=maximum_sizes)
+
+
+def _installation_owned_resource_capture(locations: tuple[str, ...], *, context=None, maximum_sizes=None) -> tuple[bytes, ...]:
     try:
         module_path = pathlib.Path(__file__).resolve(strict=True)
     except OSError:
         module_path = None
     source_root = None if module_path is None else _source_checkout_root(module_path)
+    if maximum_sizes is not None and (type(maximum_sizes) is not tuple or len(maximum_sizes)!=len(locations)
+            or any(type(size) is not int or not 1<=size<=9007199254740991 for size in maximum_sizes)):
+        raise TypeError('SECURITY_BOOTSTRAP_RESOURCE')
+    maximum_bytes = None
+    if context is not None:
+        from graph_engineering.core.contracts.resources import WorkContext
+        if type(context) is not WorkContext:
+            raise TypeError('SECURITY_BOOTSTRAP_RESOURCE')
+        context.check_limit('array_items', len(locations), source_id='security-bootstrap')
+        maximum_bytes = context.profile.limits['raw_document_bytes']
     if source_root is None:
         # Capture the closed set once, with installation checks on both sides.
         # Each member still undergoes its own current RECORD/path/hash check.
-        _validate_distribution_identity()
         distributions = _matching_installed_distributions()
         if len(distributions) != 1:
             raise DistributionIdentityError('learning distribution identity is not unique')
@@ -3532,16 +3643,102 @@ def _installation_owned_resources(locations: tuple[str, ...]) -> tuple[bytes, ..
         resources = tuple('graph_engineering/' + path for path in locations)
         if archive is not None:
             _validate_archive_resource_uniqueness(distribution, archive, resources)
-        bodies = tuple(_record_resource(distribution, root, archive, path) for path in resources)
+        if context is not None or maximum_sizes is not None:
+            sizes = []
+            for path in resources:
+                located = distribution.locate_file(path)
+                size = (getattr(located, 'root').getinfo(getattr(located, 'at')).file_size
+                        if archive is not None else os.lstat(located).st_size)
+                if context is not None:context.check_limit('raw_document_bytes', size, source_id='security-bootstrap')
+                if maximum_sizes is not None and size>maximum_sizes[len(sizes)]:
+                    raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE_LIMIT')
+                sizes.append(size)
+            if context is not None:context.check_limit('temporary_units', 4 * sum(sizes), source_id='security-bootstrap')
+        _validate_distribution_identity()
+        bodies = tuple(_record_resource(distribution, root, archive, path,
+                                       maximum_bytes=None if context is None and maximum_sizes is None else sizes[index])
+                       for index, path in enumerate(resources))
         _validate_distribution_identity()
         if (record != distribution.read_text('RECORD')
                 or archive is not None and _archive_identity(archive) != identity):
             raise DistributionIdentityError('learning distribution changed during capture')
         return bodies
-    _validate_source_checkout_attestation(source_root)
-    owner = os.lstat(source_root).st_uid
     if any(path not in _SOURCE_FILES for path in locations):
         raise DistributionIdentityError('learning resource is outside installation attestation')
-    bodies = tuple(_attested_source_member(source_root,path,owner) for path in locations)
+    if context is not None or maximum_sizes is not None:
+        sizes = [os.lstat(source_root / path).st_size for path in locations]
+        for index,size in enumerate(sizes):
+            if context is not None:context.check_limit('raw_document_bytes', size, source_id='security-bootstrap')
+            if maximum_sizes is not None and size>maximum_sizes[index]:
+                raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE_LIMIT')
+        if context is not None:context.check_limit('temporary_units', 4 * sum(sizes), source_id='security-bootstrap')
     _validate_source_checkout_attestation(source_root)
+    owner = os.lstat(source_root).st_uid
+    bodies = tuple(_attested_source_member(source_root,path,owner,
+                                          maximum_bytes=None if context is None and maximum_sizes is None else sizes[index])
+                   for index, path in enumerate(locations))
+    _validate_source_checkout_attestation(source_root)
+    return bodies
+
+
+def _security_bootstrap_seed_resources():
+    """Seed sizes are installed identity facts; they do not grant larger work limits."""
+    provenance=_installation_owned_resources(('pyproject.toml',))[0]
+    try:
+        pins=tomllib.loads(provenance.decode('utf-8'))['tool']['gew']['security-bootstrap-seeds']
+    except (KeyError,TypeError,ValueError,UnicodeError):
+        raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE') from None
+    paths=('config/contracts/resource-profile-v1.json','config/contracts/cost-schedule-v1.json')
+    if (type(pins) is not dict or set(pins)!={'schema-version','resources'}
+            or pins['schema-version']!='1.0.0' or type(pins['resources']) is not list or len(pins['resources'])!=2):
+        raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
+    rows=pins['resources']
+    for path,row in zip(paths,rows,strict=True):
+        if (type(row) is not dict or set(row)!={'source','resource','size-bytes','raw-sha256'}
+                or row['source']!=path or row['resource']!='graph_engineering/'+path
+                or type(row['size-bytes']) is not int or not 1<=row['size-bytes']<=9007199254740991
+                or type(row['raw-sha256']) is not str or re.fullmatch('[0-9a-f]{64}',row['raw-sha256']) is None):
+            raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
+    bodies=_installation_owned_resources(paths,maximum_sizes=tuple(row['size-bytes'] for row in rows))
+    if any(len(body)!=row['size-bytes'] or hashlib.sha256(body).hexdigest()!=row['raw-sha256']
+           for row,body in zip(rows,bodies,strict=True)):
+        raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
+    if _installation_owned_resources(('pyproject.toml',))[0]!=provenance:
+        raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
+    return bodies
+
+
+
+
+def _security_bootstrap_installation_resources(context) -> tuple[bytes, ...]:
+    """Capture the closed installation resource vector under current attestation."""
+    from graph_engineering.core.contracts import parse_json
+    from graph_engineering.core.contracts.digest import semantic_digest_charged
+    descriptor_member='config/security/security-bootstrap-v1.json'
+    original=_installation_owned_resources((descriptor_member,),context=context)[0]
+    descriptor = parse_json(original, context=context, source_id='security-bootstrap')
+    expected = {'schema_version', 'descriptor_id', 'resources', 'foundation_registry',
+                'bootstrap_registry', 'runtime_manifest', 'policies', 'profiles', 'descriptor_digest'}
+    if type(descriptor) is not dict or set(descriptor) != expected or descriptor['schema_version'] != '1.0.0':
+        raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
+    rows = descriptor['resources']
+    if (type(rows) is not list or len(rows)!=30
+            or any(type(row) is not dict or set(row)!={'path','raw_sha256'}
+                   or type(row['path']) is not str or row['path'] not in _SOURCE_FILES for row in rows)):
+        raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
+    locations=(descriptor_member,*(row['path'] for row in rows))
+    if len(set(locations))!=31:
+        raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
+    bodies=_installation_owned_resources(locations,context=context)
+    if bodies[0]!=original:
+        raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
+    for path, body, row in zip(locations[1:], bodies[1:], rows, strict=True):
+        if (type(row) is not dict or set(row) != {'path', 'raw_sha256'}
+                or row['path'] != path or row['raw_sha256'] != hashlib.sha256(body).hexdigest()):
+            raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
+    unsigned = {k:v for k,v in descriptor.items() if k != 'descriptor_digest'}
+    if semantic_digest_charged(unsigned, context, contract_type='urn:gew:contract:security-bootstrap',
+            projection_id='urn:gew:digest-projection:security-bootstrap:1.0.0',
+            schema_id='urn:gew:schema:security-bootstrap:1.0.0') != descriptor['descriptor_digest']:
+        raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
     return bodies

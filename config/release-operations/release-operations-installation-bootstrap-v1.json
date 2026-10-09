@@ -1,89 +1,4 @@
 {
-  "schema_version": "1.0.0",
-  "bootstrap_id": "urn:gew:release-operations-installation-bootstrap:1.0.0",
-  "policy_registry_id": "urn:gew:release-operations-policy-registry:v1",
-  "policy_registry_digest": "sha256-jcs-v1:0857a382a94068fd0dd3db3a7d8d581bbf717374ced56cc332d64a41e28c9181",
-  "policy_registry_raw_sha256": "462c78c314bdf1c9f73f68be93c0f4a43c96d2b0f2641765c4bfc8da74735667",
-  "fixture_registry_id": "urn:gew:release-simulator-fixture-registry:v1",
-  "fixture_registry_digest": "sha256-jcs-v1:68e9412ffb9f8323d7c33341cb150fa29b23443054b45e86f429374f4ae4df77",
-  "fixture_registry_raw_sha256": "490744599b6d528f132278f9301aa986240f0b74a36dd059bd82cb6b2508aa88",
-  "profile_schema_registry_id": "urn:gew:schema-registry:profiles:1.0.0",
-  "profile_schema_registry_digest": "sha256-jcs-v1:913235899306d64a4bc8eff96b3a4bbddd61ec6a7e57b8dfdaafe98041c81f76",
-  "profile_schema_registry_raw_sha256": "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd",
-  "schema_vectors": [
-    {
-      "schema_id": "urn:gew:schema:category-completion-assessment-input:1.4.0",
-      "raw_sha256": "3b3421128d51dccdbb6ce6c32cc6f6ab7715cf9d25d6fc0903e093d80ef02f45"
-    },
-    {
-      "schema_id": "urn:gew:schema:category-completion-assessment:1.4.0",
-      "raw_sha256": "2a443352f7bb3490f567297c74880bf378d538f9a17968450c68b344be036b2f"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-artifact-manifest-input:1.0.0",
-      "raw_sha256": "beb8e6a75ad0419f456a296fd0abced092750947d437fab358b42bfadddbdfbb"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-artifact-manifest:1.0.0",
-      "raw_sha256": "4310d8a06cc7316e90119b9747e3c6cfcf72bd33f46489a3e07ae4776deaad9c"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-deployment-observation-input:1.0.0",
-      "raw_sha256": "a4cd341ff81198f5c211d864a2dde4ec0e7204c46f7e8501f3af1975b85cf489"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-deployment-observation:1.0.0",
-      "raw_sha256": "30d86746f1e64666673947fe5dbd2079193f9da23112f83447041896ed856bfa"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-health-observation-input:1.0.0",
-      "raw_sha256": "866559fecd73fe8eca119d14aa1aa8db9e16e459976d4122df1ccd275f106082"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-health-observation:1.0.0",
-      "raw_sha256": "c4f2ec66c579853b31c2bab1cd0003cd6c7148f865d33f6b66c47e4997d33d6c"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-operations-installation-bootstrap-input:1.0.0",
-      "raw_sha256": "d1d1ce66905a67364ceaea82ec8622d5e6f6b9df7fad786d5a56f2a9a960fc15"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-operations-installation-bootstrap:1.0.0",
-      "raw_sha256": "6b564f780f8144813eec388bcb0f9afed4827debf38db20892623ec65390e209"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-operations-observation-input:1.0.0",
-      "raw_sha256": "88d0f95a29e7a3041862c2c55eb32db052b04a1c257fb8fd3dda4fe599b8e342"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-operations-observation:1.0.0",
-      "raw_sha256": "8f38ad3c61f445fb8b34cfe68fdf66f4665a20466d7b1f79476248c2c267d644"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-operations-policy-registry-input:1.0.0",
-      "raw_sha256": "7a53ef6dbd83976c8b73a4d809c4155d8580fa6d22cff9fb29c5f3d1f747134f"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-operations-policy-registry:1.0.0",
-      "raw_sha256": "9bd136522454a76a5ec80cca2bf878873c19dcc72bb5160cb31323adf41f9f27"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-recovery-binding-input:1.0.0",
-      "raw_sha256": "a7d9c530729098ba69b44e76cd26992f0a87528cd42321dd20029d763bec7c61"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-recovery-binding:1.0.0",
-      "raw_sha256": "7ee7297703e73e00913da09f83f3edeaedc051e5544388c627a9b702a7bce1c2"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-simulator-fixture-registry-input:1.0.0",
-      "raw_sha256": "32e5960f70cb6c7e3580f12ba21a1bb22731f18a5910632d4f2230674479bfc1"
-    },
-    {
-      "schema_id": "urn:gew:schema:release-simulator-fixture-registry:1.0.0",
-      "raw_sha256": "167e43b8617d903674c213dfd2fee0f148a784492355ff5d8967ef6be729f71f"
-    }
-  ],
   "action_authority_pins": {
     "adapter_registry_digest": "sha256-jcs-v1:74a2631fb27db21102a04ab27eb5d6de6efc73d3f6498660bb257a5aa13096e5",
     "adapter_registry_raw_sha256": "6edcc4928fe454d8bd22767ce43f052c339b0e296ac2386b3e5b7b607b8631cb",
@@ -91,23 +6,30 @@
     "concrete_policy_raw_sha256": "dc52f124f199c8d366a959c37be067299c6ec64894e6e3b1f83f7ce3b06bbb40",
     "default_action_policy_digest": "sha256-jcs-v1:9cb3b0e31c8eab193a26e38632909a7c5f4f5e883403151bfd10a9066ee8ce26",
     "default_action_policy_raw_sha256": "732a04401b31b3c946126ed0b92cd881e3cd64905dfbab297106b300439ef489",
-    "local_action_policy_digest": "sha256-jcs-v1:fbc54e5d0dc2b4927d818e388ac06f2c51edacca68adf9a0b6343a8cdc0212a8",
-    "local_action_policy_raw_sha256": "45b9125edf23db1370c41d4236b6f9235977068c03ca40be5bd4e88781ca8e48",
     "default_runtime_digest": "sha256-jcs-v1:60ec8d6f924d821e47d5554c1cb01b2a26fe412d298f80b0ae56b87a53e04c90",
     "default_runtime_raw_sha256": "1ee3c20f2e94ba665a082524d0b2dd45e6cc5c0cffabfa52e964c864b1df4c9e",
+    "local_action_policy_digest": "sha256-jcs-v1:fbc54e5d0dc2b4927d818e388ac06f2c51edacca68adf9a0b6343a8cdc0212a8",
+    "local_action_policy_raw_sha256": "45b9125edf23db1370c41d4236b6f9235977068c03ca40be5bd4e88781ca8e48",
     "local_runtime_digest": "sha256-jcs-v1:28437ee8e9281422f0406d45707ebb3458e087cd0ab4d2cdea33aca99d92dd42",
     "local_runtime_raw_sha256": "5eea85f72d13920d6c1ba5931921caec60de999d87ac24008050eae68a7519b1"
   },
-  "source_authority_pins": {
-    "policy_id": "source-checkout-attestation-v1",
-    "source_file_count": 356,
-    "source_issuer_raw_sha256": "d03644ab0db302f260981fb9e38c985c9d6ec2c1bc528d9dfd20b1379c81ba1d"
-  },
+  "bootstrap_digest": "sha256-jcs-v1:ea7842a51ea94846d818dcc6e9b5642f90c13a351cbc4c9b78ad35935f4ac5ee",
+  "bootstrap_id": "urn:gew:release-operations-installation-bootstrap:1.0.0",
+  "fixture_registry_digest": "sha256-jcs-v1:68e9412ffb9f8323d7c33341cb150fa29b23443054b45e86f429374f4ae4df77",
+  "fixture_registry_id": "urn:gew:release-simulator-fixture-registry:v1",
+  "fixture_registry_raw_sha256": "490744599b6d528f132278f9301aa986240f0b74a36dd059bd82cb6b2508aa88",
   "package_authority_pins": {
     "build_backend_raw_sha256": "22d4e76f7ce30bf05acbe62004feab0228a59ccee58f26e28d6c6f39689968a7",
     "distribution_name": "graph-engineering-workflow",
     "distribution_version": "0.1.0"
   },
+  "policy_registry_digest": "sha256-jcs-v1:0857a382a94068fd0dd3db3a7d8d581bbf717374ced56cc332d64a41e28c9181",
+  "policy_registry_id": "urn:gew:release-operations-policy-registry:v1",
+  "policy_registry_raw_sha256": "462c78c314bdf1c9f73f68be93c0f4a43c96d2b0f2641765c4bfc8da74735667",
+  "profile_schema_registry_digest": "sha256-jcs-v1:913235899306d64a4bc8eff96b3a4bbddd61ec6a7e57b8dfdaafe98041c81f76",
+  "profile_schema_registry_id": "urn:gew:schema-registry:profiles:1.0.0",
+  "profile_schema_registry_raw_sha256": "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd",
+  "protected_closure_digest": "sha256-jcs-v1:5a2dacb5aa1b8b5bc6e0f7435f311c2cdf00a3cefd4cc134c8c9079042fc938e",
   "protected_resources": [
     {
       "path": "adapters/graph_engineering/adapters/action_adapters.py",
@@ -131,7 +53,7 @@
     },
     {
       "path": "application/graph_engineering/application/security.py",
-      "raw_sha256": "a09150a795bc1335298f8c3c42b78fd8b268ed99692b206616dff804c16d6732"
+      "raw_sha256": "a46c74547176773e512eeecb506a2068f9a7d2d684e13c6502a48946cd34210a"
     },
     {
       "path": "application/graph_engineering/application/tasks.py",
@@ -199,7 +121,7 @@
     },
     {
       "path": "core/graph_engineering/__init__.py",
-      "raw_sha256": "70f17622b3907c994dc1e1a2ea293abbd54dd55ddddd034d4fa641705b2c8a7e"
+      "raw_sha256": "7e1d7e3757af4d5a405e9a7448f0f6ac006bd527c7ddc989a6b0e3127c2b1edc"
     },
     {
       "path": "core/graph_engineering/core/artifacts/__init__.py",
@@ -239,13 +161,91 @@
     },
     {
       "path": "storage/graph_engineering/storage/repository.py",
-      "raw_sha256": "3990bf8e964d706a816bda5f775d903412e7d0cdfb84fadcd584bb61e1260eec"
+      "raw_sha256": "6b22db04e050b75add793603f3072f1d36bef4dc588a2a42295683add5a24a4b"
     },
     {
       "path": "storage/graph_engineering/storage/security.py",
-      "raw_sha256": "8a97a429256c324f6c24057079b1b44c48fff6fc0ee735da89aa64a82ec9cf18"
+      "raw_sha256": "a237f8bece5dc606801b226a14422ac6b38f92451d983a5b056cc4125ca0bc75"
     }
   ],
-  "protected_closure_digest": "sha256-jcs-v1:373aaeb19fb5142200d94dd05154a68a67cc9aa749e78fa612fb5faa63527bb3",
-  "bootstrap_digest": "sha256-jcs-v1:3397904d4dd35e167d7be89f4fa0dc39594846d45f73c9dd89ca6cd0ca845faf"
+  "schema_vectors": [
+    {
+      "raw_sha256": "3b3421128d51dccdbb6ce6c32cc6f6ab7715cf9d25d6fc0903e093d80ef02f45",
+      "schema_id": "urn:gew:schema:category-completion-assessment-input:1.4.0"
+    },
+    {
+      "raw_sha256": "2a443352f7bb3490f567297c74880bf378d538f9a17968450c68b344be036b2f",
+      "schema_id": "urn:gew:schema:category-completion-assessment:1.4.0"
+    },
+    {
+      "raw_sha256": "beb8e6a75ad0419f456a296fd0abced092750947d437fab358b42bfadddbdfbb",
+      "schema_id": "urn:gew:schema:release-artifact-manifest-input:1.0.0"
+    },
+    {
+      "raw_sha256": "4310d8a06cc7316e90119b9747e3c6cfcf72bd33f46489a3e07ae4776deaad9c",
+      "schema_id": "urn:gew:schema:release-artifact-manifest:1.0.0"
+    },
+    {
+      "raw_sha256": "a4cd341ff81198f5c211d864a2dde4ec0e7204c46f7e8501f3af1975b85cf489",
+      "schema_id": "urn:gew:schema:release-deployment-observation-input:1.0.0"
+    },
+    {
+      "raw_sha256": "30d86746f1e64666673947fe5dbd2079193f9da23112f83447041896ed856bfa",
+      "schema_id": "urn:gew:schema:release-deployment-observation:1.0.0"
+    },
+    {
+      "raw_sha256": "866559fecd73fe8eca119d14aa1aa8db9e16e459976d4122df1ccd275f106082",
+      "schema_id": "urn:gew:schema:release-health-observation-input:1.0.0"
+    },
+    {
+      "raw_sha256": "c4f2ec66c579853b31c2bab1cd0003cd6c7148f865d33f6b66c47e4997d33d6c",
+      "schema_id": "urn:gew:schema:release-health-observation:1.0.0"
+    },
+    {
+      "raw_sha256": "d1d1ce66905a67364ceaea82ec8622d5e6f6b9df7fad786d5a56f2a9a960fc15",
+      "schema_id": "urn:gew:schema:release-operations-installation-bootstrap-input:1.0.0"
+    },
+    {
+      "raw_sha256": "6b564f780f8144813eec388bcb0f9afed4827debf38db20892623ec65390e209",
+      "schema_id": "urn:gew:schema:release-operations-installation-bootstrap:1.0.0"
+    },
+    {
+      "raw_sha256": "88d0f95a29e7a3041862c2c55eb32db052b04a1c257fb8fd3dda4fe599b8e342",
+      "schema_id": "urn:gew:schema:release-operations-observation-input:1.0.0"
+    },
+    {
+      "raw_sha256": "8f38ad3c61f445fb8b34cfe68fdf66f4665a20466d7b1f79476248c2c267d644",
+      "schema_id": "urn:gew:schema:release-operations-observation:1.0.0"
+    },
+    {
+      "raw_sha256": "7a53ef6dbd83976c8b73a4d809c4155d8580fa6d22cff9fb29c5f3d1f747134f",
+      "schema_id": "urn:gew:schema:release-operations-policy-registry-input:1.0.0"
+    },
+    {
+      "raw_sha256": "9bd136522454a76a5ec80cca2bf878873c19dcc72bb5160cb31323adf41f9f27",
+      "schema_id": "urn:gew:schema:release-operations-policy-registry:1.0.0"
+    },
+    {
+      "raw_sha256": "a7d9c530729098ba69b44e76cd26992f0a87528cd42321dd20029d763bec7c61",
+      "schema_id": "urn:gew:schema:release-recovery-binding-input:1.0.0"
+    },
+    {
+      "raw_sha256": "7ee7297703e73e00913da09f83f3edeaedc051e5544388c627a9b702a7bce1c2",
+      "schema_id": "urn:gew:schema:release-recovery-binding:1.0.0"
+    },
+    {
+      "raw_sha256": "32e5960f70cb6c7e3580f12ba21a1bb22731f18a5910632d4f2230674479bfc1",
+      "schema_id": "urn:gew:schema:release-simulator-fixture-registry-input:1.0.0"
+    },
+    {
+      "raw_sha256": "167e43b8617d903674c213dfd2fee0f148a784492355ff5d8967ef6be729f71f",
+      "schema_id": "urn:gew:schema:release-simulator-fixture-registry:1.0.0"
+    }
+  ],
+  "schema_version": "1.0.0",
+  "source_authority_pins": {
+    "policy_id": "source-checkout-attestation-v1",
+    "source_file_count": 356,
+    "source_issuer_raw_sha256": "d03644ab0db302f260981fb9e38c985c9d6ec2c1bc528d9dfd20b1379c81ba1d"
+  }
 }

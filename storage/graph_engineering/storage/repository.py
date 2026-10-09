@@ -36,6 +36,91 @@ _MAINTENANCE_REPOSITORY_SEAL = object()
 _RECOVERY_INSTALLATION_CONTEXT = ContextVar("recovery_installation_context", default=None)
 
 
+@contextmanager
+def _security_bootstrap_sources_locked(connection, factory, task_id, context):
+    """Bounded committed task/approval capture in the already owned transaction."""
+    factory._require_owned_transaction(connection)
+    with _security_bootstrap_source_facts(connection,task_id,context) as facts:
+        yield facts
+
+
+@contextmanager
+def _security_bootstrap_source_facts(connection, task_id, context):
+    """Pure bounded validation for migration; these facts issue no authority."""
+    scope_columns=('scope_id','version','metadata_revision','scope_digest','status','source_json','source_digest',
+                   'change_json','change_digest','created_transaction_id','approved_transaction_id','approved_event_digest')
+    groups=[('task',('revision','head_sequence','head_digest','integrity_status','snapshot_json','snapshot_digest'),
+             'tasks WHERE task_id=:task_id'),
+        ('event',('e.sequence','e.body_json','e.event_id','e.event_type','e.previous_event_digest','e.event_digest',
+                  'e.transaction_id','t.task_id','t.revision','t.head_digest','t.request_digest'),
+         'events e LEFT JOIN transactions t ON t.transaction_id=e.transaction_id WHERE e.task_id=:task_id ORDER BY e.sequence'),
+        ('scope',scope_columns,'project_scopes WHERE task_id=:task_id'),
+        ('approval',('scope_digest','transaction_id','record_json','record_digest'),
+         'project_scope_approvals WHERE task_id=:task_id')]
+    with _recovery_scope(context) as budget, ExitStack() as stack:
+        captured=stack.enter_context(_recovery_rows(connection,groups,{'task_id':task_id},context,budget,
+                                                   source_id='security-bootstrap-sources'))
+        def parsed(encoded: str) -> object:
+            value=stack.enter_context(_recovery_json(encoded,context,budget,source_id='security-bootstrap-sources'))
+            return value
+        if len(captured['task'])!=1:
+            raise RepositoryIntegrityError('security bootstrap task is absent')
+        row=captured['task'][0];snapshot=parsed(row[4])
+        if (type(snapshot) is not dict or snapshot.get('task_id')!=task_id
+                or snapshot.get('revision')!=row[0] or row[3]!='ok'
+                or _recovery_record_digest({'contract':'repository-snapshot-v1','value':snapshot},context,budget,
+                    source_id='security-bootstrap-snapshot')!=row[5]):
+            raise RepositoryIntegrityError('security bootstrap snapshot is inconsistent')
+        domain=snapshot.get('domain')
+        if type(domain) is not dict:
+            raise RepositoryIntegrityError('security bootstrap domain is absent')
+        events=TaskRepository._validate_replay_rows(TaskRepository,task_id,row[:4],captured['event'],
+            parser=parsed,_budget=budget,_context=context)
+        wrapped=[{'event':event,'transaction_id':source[6]} for event,source in zip(events,captured['event'],strict=True)]
+        scope=TaskRepository._validate_captured_recovery_scope(TaskRepository,domain,captured,scope_columns,
+            wrapped,parsed,context,budget)
+        reference=domain.get('project_scope_ref')
+        if (scope is None or scope['status']!='frozen' or reference.get('status')!='frozen'
+                or scope['scope_id']!=reference.get('scope_id') or scope['version']!=reference.get('version')):
+            raise RepositoryIntegrityError('security bootstrap scope is not approved')
+        creations=[event for event in events if event['event_type']=='task.created']
+        approvals=[event for event in events if event['event_type'] in {'task.prd_approved','task.prd_reapproved'}]
+        if (len(creations)!=1 or not approvals
+                or creations[0]['payload'].get('identity')!=domain.get('identity')
+                or approvals[-1]['payload'].get('baseline_refs')!=domain.get('baseline_refs')
+                or not approvals[-1]['payload'].get('owner_decision_ref')):
+            raise RepositoryIntegrityError('security bootstrap identity or baseline is unapproved')
+        baselines=domain.get('baseline_refs')
+        identity=domain.get('identity')
+        if (type(baselines) is not list or not baselines or type(identity) is not dict
+                or any(type(ref) is not dict or ref.get('approved_by')!=identity.get('owner_id') for ref in baselines)
+                or not any(ref.get('kind')=='prd' for ref in baselines)
+                or len({ref.get('kind') for ref in baselines})!=len(baselines)):
+            raise RepositoryIntegrityError('security bootstrap baselines are ambiguous')
+        for ref in baselines:require_jcs_digest(ref['digest'])
+        approval_digests=[approval[3] for approval in captured['approval'] if approval[0]==scope['scope_digest']]
+        if len(approval_digests)!=1:
+            raise RepositoryIntegrityError('security bootstrap scope approval is ambiguous')
+        approval_row=next(approval for approval in captured['approval'] if approval[0]==scope['scope_digest'])
+        approval_record=parsed(approval_row[2])
+        approval_fields={'schema_version','task_id','scope_digest','transaction_id','scope_event_digest',
+            'approval_event_digest','owner_decision_ref','baseline_refs','graph_ref','authority_refs',
+            'authority_expansion','change_digest'}
+        decision=approvals[-1];payload=decision['payload']
+        decision_rows=[event for event in captured['event'] if event[5]==decision['event_digest']]
+        if (type(approval_record) is not dict or set(approval_record)!=approval_fields
+                or approval_record['schema_version']!='1.0' or approval_record['task_id']!=task_id
+                or approval_record['approval_event_digest']!=decision['event_digest']
+                or len(decision_rows)!=1 or decision_rows[0][6]!=scope['approved_transaction_id']
+                or approval_record['transaction_id']!=scope['approved_transaction_id']
+                or any(approval_record[field]!=payload.get(field) for field in (
+                    'owner_decision_ref','baseline_refs','graph_ref','authority_refs'))
+                or approval_record['change_digest']!=(None if scope['change'] is None else scope['change']['change_digest'])):
+            raise RepositoryIntegrityError('security bootstrap approval record differs from its committed decision')
+        yield dict(revision=row[0],snapshot_digest=row[5],snapshot=snapshot,events=events,
+                   identity=identity,baselines=baselines,scope=scope,scope_approval_digest=approval_digests[0])
+
+
 class _RecoveryReadReservation:
     """One allocation's lifetime; transfer keeps the same charge alive."""
 

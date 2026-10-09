@@ -1,0 +1,71 @@
+{
+  "kind": "learning-policy",
+  "schema_version": "1.2.0",
+  "policy_id": "learning-local-v3",
+  "limits": {
+    "max_tasks": 32,
+    "max_rows_per_task": 10000,
+    "max_row_bytes": 65536,
+    "max_capture_bytes": 8388608,
+    "max_aggregate_bytes": 16384,
+    "max_rules": 64,
+    "max_report_bytes": 262144,
+    "retention_seconds": 7776000,
+    "max_hypotheses": 64,
+    "max_suggested_experiments": 256
+  },
+  "metric_ids": [
+    "category",
+    "risk_path",
+    "completion",
+    "abandonment",
+    "revision_count",
+    "human_interruption_count",
+    "elapsed_bucket",
+    "failure",
+    "recovery_attempt",
+    "repeat_use",
+    "authorized_stage"
+  ],
+  "elapsed_buckets_ns": [
+    60000000000,
+    300000000000,
+    1800000000000,
+    7200000000000
+  ],
+  "rules": [
+    {
+      "rule_id": "synthetic-completion",
+      "metric_id": "completion",
+      "comparator": "gte",
+      "numerator": 1,
+      "denominator": 2,
+      "min_samples": 2
+    }
+  ],
+  "category_codes": [
+    "new-feature",
+    "bug-fix",
+    "hotfix",
+    "refactor-debt",
+    "migration",
+    "dependency-security",
+    "performance",
+    "release-operations",
+    "incident-response"
+  ],
+  "risk_path_codes": [
+    "full-planned",
+    "compact-planned",
+    "emergency"
+  ],
+  "authorized_action_categories": {
+    "commit": "commit",
+    "deploy": "deploy",
+    "external-communication": "external-communication",
+    "merge": "merge",
+    "push": "push",
+    "release": "release",
+    "rollback": "rollback"
+  }
+}

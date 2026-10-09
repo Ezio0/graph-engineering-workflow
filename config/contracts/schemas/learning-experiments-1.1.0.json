@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gew:schema:learning-experiments:1.1.0",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "const": "learning-experiments"
+    },
+    "schema_version": {
+      "const": "1.1.0"
+    },
+    "experiments": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "properties": {
+          "experiment_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "rule_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 64,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          "hypotheses": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 64,
+            "items": {
+              "type": "object",
+              "properties": {
+                "hypothesis_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "required_rule_ids": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 64,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  }
+                },
+                "next_experiment_ids": {
+                  "type": "object",
+                  "properties": {
+                    "supports": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "counter-evidence": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "mixed": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "insufficient-data": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    }
+                  },
+                  "required": [
+                    "supports",
+                    "counter-evidence",
+                    "mixed",
+                    "insufficient-data"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "hypothesis_id",
+                "required_rule_ids",
+                "next_experiment_ids"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "experiment_id",
+          "rule_ids",
+          "hypotheses"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "suggested_experiments": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "properties": {
+          "experiment_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "purpose_code": {
+            "enum": [
+              "replicate",
+              "investigate-counter-evidence",
+              "resolve-rule-disagreement",
+              "collect-more-samples"
+            ]
+          }
+        },
+        "required": [
+          "experiment_id",
+          "purpose_code"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "kind",
+    "schema_version",
+    "experiments",
+    "suggested_experiments"
+  ],
+  "additionalProperties": false,
+  "unevaluatedProperties": false
+}

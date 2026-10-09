@@ -199,6 +199,24 @@ _AUTHORITY_NAMESPACE = "action_authority_events"
 _ORDER_NAMESPACE = "action_authority_order"
 _ORDER_COLUMNS = ["order_epoch", "ordinal", "kind", "request_id", "request_sequence",
                   "ledger_event_digest", "previous_order_digest", "body_json", "order_digest"]
+_BOOTSTRAP_NAMES = ('security_bootstrap_installation_receipts','security_bootstrap_task_receipts')
+_BOOTSTRAP_COLUMNS = (['singleton','receipt_json','receipt_digest'],
+                      ['task_id','request_id','request_digest','receipt_json','receipt_digest'])
+_BOOTSTRAP_TIME_COLUMNS = {'leases':('issued_at','expires_at'),'purge_authorizations':('consumed_at_ns',)}
+
+
+def _bootstrap_transport_rows(namespace, columns, rows, bootstrapped):
+    """Keep SQLite nanoseconds exact outside JCS's integer range; legacy bytes stay exact."""
+    output=[list(row) for row in rows]
+    if bootstrapped:
+        for name in _BOOTSTRAP_TIME_COLUMNS.get(namespace,()):
+            index=columns.index(name)
+            for row in output:
+                value=row[index]
+                if type(value) is not int or not 0<=value<=2**63-1:
+                    raise MigrationRepositoryError('security bootstrap clock value is invalid')
+                if value>2**53-1:row[index]=str(value)
+    return output
 
 
 def _namespace_ordering(namespace):
@@ -217,9 +235,31 @@ def _record_names(records):
     ordered = _ORDER_NAMESPACE in records
     if ordered and not enabled:
         raise MigrationRepositoryError("order component requires action authority")
-    names = _NAMESPACE_SEQUENCE + ((_AUTHORITY_NAMESPACE,) if enabled else ()) + ((_ORDER_NAMESPACE,) if ordered else ())
+    bootstrapped=any(name in records for name in _BOOTSTRAP_NAMES)
+    names = (_NAMESPACE_SEQUENCE + ((_AUTHORITY_NAMESPACE,) if enabled else ())
+             + ((_ORDER_NAMESPACE,) if ordered else ()) + (_BOOTSTRAP_NAMES if bootstrapped else ()))
     if set(records) != set(names):
         raise MigrationRepositoryError("bundle logical namespaces are invalid")
+    bootstrap_markers=[row for row in _project_rows(records,'schema_versions',('component','version'))
+                       if row[0].casefold()=='security-bootstrap']
+    if bootstrap_markers!=([('security-bootstrap','1.0.0')] if bootstrapped else []):
+        raise MigrationRepositoryError('security bootstrap marker is inconsistent')
+    if bootstrapped:
+        for name,columns in zip(_BOOTSTRAP_NAMES,_BOOTSTRAP_COLUMNS,strict=True):
+            record=records[name]
+            if (type(record) is not dict or set(record)!={'columns','rows'} or record['columns']!=columns
+                    or type(record['rows']) is not list or any(type(row) is not list or len(row)!=len(columns)
+                                                               for row in record['rows'])):
+                raise MigrationRepositoryError('security bootstrap namespace is invalid')
+        from graph_engineering.core.learning import decimal_ns
+        for name,time_columns in _BOOTSTRAP_TIME_COLUMNS.items():
+            for row in _project_rows(records,name,time_columns):
+                for value in row:
+                    if type(value) is str:
+                        if decimal_ns(value)<=2**53-1:
+                            raise MigrationRepositoryError('security bootstrap clock encoding is not canonical')
+                    elif type(value) is not int or not 0<=value<=2**53-1:
+                        raise MigrationRepositoryError('security bootstrap clock encoding is invalid')
     markers = [row for row in _project_rows(records, "schema_versions", ("component", "version"))
                if row[0] == "action-authority"]
     if markers != ([("action-authority", "1.0")] if enabled else []):
@@ -244,6 +284,10 @@ def _record_names(records):
 
 
 def _authority_names(connection, factory):
+    from .security import _bootstrap_migration_facts, SecurityBootstrapError
+    try:bootstrap_names=_bootstrap_migration_facts(connection)
+    except (SecurityBootstrapError,RepositoryError,sqlite3.DatabaseError,TypeError,ValueError,RuntimeError):
+        raise MigrationRepositoryError('security bootstrap migration integrity failed') from None
     marker = connection.execute("SELECT version FROM schema_versions WHERE component='action-authority'").fetchone()
     present = connection.execute("SELECT name FROM sqlite_master WHERE name IN "
         "('action_authority_events','action_authority_task','action_authority_digest')").fetchall()
@@ -253,7 +297,7 @@ def _authority_names(connection, factory):
             _order_schema(connection)
         except Exception:
             raise MigrationRepositoryError("orphan order component") from None
-        return _NAMESPACE_SEQUENCE
+        return _NAMESPACE_SEQUENCE + bootstrap_names
     from .action_authority import ActionAuthorityLedger, installed_policy, _require_schema
     from graph_engineering.core.action_authority import ActionAuthorityError
     try:
@@ -270,7 +314,7 @@ def _authority_names(connection, factory):
         ordered = _order_proofs_locked(connection, policy) is not None
     except ActionAuthorityError:
         raise MigrationRepositoryError("action authority component integrity failed") from None
-    return _NAMESPACE_SEQUENCE + (_AUTHORITY_NAMESPACE,) + ((_ORDER_NAMESPACE,) if ordered else ())
+    return _NAMESPACE_SEQUENCE + (_AUTHORITY_NAMESPACE,) + ((_ORDER_NAMESPACE,) if ordered else ()) + bootstrap_names
 
 
 def _repository_digest_from_records(
@@ -305,19 +349,22 @@ def _repository_digest_from_records(
         body["action_authority"] = semantic_record_digest(records[_AUTHORITY_NAMESPACE])
     if _ORDER_NAMESPACE in records:
         body["action_authority_order"] = semantic_record_digest(records[_ORDER_NAMESPACE])
+    if _BOOTSTRAP_NAMES[0] in records:
+        body['security_bootstrap']={name:semantic_record_digest(records[name]) for name in _BOOTSTRAP_NAMES}
     return semantic_record_digest(body)
 
 
 def _read_live_records(factory: ConnectionFactory) -> dict[str, object]:
     records: dict[str, object] = {}
     with factory.open("doctor") as connection:
-        for namespace in _authority_names(connection, factory):
+        names=_authority_names(connection, factory)
+        for namespace in names:
             ordering = _namespace_ordering(namespace)
             cursor = connection.execute(f'SELECT * FROM "{namespace}"' + ordering)
             columns = [item[0] for item in cursor.description]
             records[namespace] = {
                 "columns": columns,
-                "rows": [list(row) for row in cursor.fetchall()],
+                "rows": _bootstrap_transport_rows(namespace,columns,cursor.fetchall(),_BOOTSTRAP_NAMES[0] in names),
             }
     return records
 
@@ -1420,6 +1467,11 @@ class InstallationMigrationRepository:
                 rows = connection.execute("SELECT * FROM action_authority_order ORDER BY order_epoch,ordinal").fetchall()
                 body["action_authority_order"] = semantic_record_digest({"columns": _ORDER_COLUMNS,
                     "rows": [list(row) for row in rows]})
+            if _BOOTSTRAP_NAMES[0] in names:
+                body['security_bootstrap']={}
+                for name,columns in zip(_BOOTSTRAP_NAMES,_BOOTSTRAP_COLUMNS,strict=True):
+                    rows=connection.execute('SELECT * FROM '+name).fetchall()
+                    body['security_bootstrap'][name]=semantic_record_digest({'columns':columns,'rows':[list(row) for row in rows]})
         return semantic_record_digest(body)
 
     def _fences(self, factory: ConnectionFactory | None = None) -> tuple[tuple[str, int], ...]:
@@ -1967,6 +2019,31 @@ class InstallationMigrationRepository:
         finally:
             self._control_lock.release(token)
 
+    def initialize_security_storage(self) -> object:
+        """Initialize trusted installation state only under explicit maintenance."""
+        from .security import (_bootstrap_bundle, _initialize_security_bootstrap_locked,
+                               _bootstrap_installation_locked, SecurityBootstrapError)
+        token = self._control_lock.acquire('exclusive')
+        try:
+            activation,factory = self._current_factory(token)
+            bundle = _bootstrap_bundle()
+            with factory.open('migration') as connection:
+                with connection.transaction():
+                    receipt = _initialize_security_bootstrap_locked(connection,factory,activation,bundle,self._fault)
+                    self._fault('security-bootstrap.before-commit')
+                    current,current_factory = self._current_factory(token)
+                    if ((current.installation_id,current.repository_id,current.activation_epoch)
+                            != (activation.installation_id,activation.repository_id,activation.activation_epoch)
+                            or current_factory.repository_id != factory.repository_id):
+                        raise SecurityBootstrapError('SECURITY_BOOTSTRAP_STALE')
+                    _bootstrap_installation_locked(connection,factory,_bootstrap_bundle())
+            self._fault('security-bootstrap.after-commit')
+            return receipt
+        except (SecurityBootstrapError, sqlite3.DatabaseError):
+            raise MigrationRepositoryError('security bootstrap maintenance refused') from None
+        finally:
+            self._control_lock.release(token)
+
     def initialize_action_authority_order_storage(self) -> None:
         """Explicit exclusive initialization/resealing of optional ordering audit."""
         from .action_authority import _initialize_order_schema
@@ -2171,7 +2248,8 @@ class InstallationMigrationRepository:
                 ordering = _namespace_ordering(namespace)
                 cursor = connection.execute(f'SELECT * FROM "{namespace}"' + ordering)
                 columns = [item[0] for item in cursor.description]
-                records[namespace] = {"columns": columns, "rows": [list(row) for row in cursor.fetchall()]}
+                records[namespace] = {"columns": columns, "rows": _bootstrap_transport_rows(
+                    namespace,columns,cursor.fetchall(),_BOOTSTRAP_NAMES[0] in names)}
             return records
         finally:
             connection.close()
@@ -2348,6 +2426,11 @@ class InstallationMigrationRepository:
             self._fault("import.before_records")
             with target_factory.open("migration") as connection:
                 with connection.transaction():
+                    if _BOOTSTRAP_NAMES[0] in records:
+                        from .security import _BOOTSTRAP_SCHEMA, _BOOTSTRAP_TRIGGERS
+                        for statement in _BOOTSTRAP_SCHEMA+_BOOTSTRAP_TRIGGERS:connection.execute(statement)
+                        marker=next(row for row in records['schema_versions']['rows'] if row[0]=='security-bootstrap')
+                        connection.execute('INSERT INTO schema_versions(component,version,applied_at) VALUES(?,?,?)',marker)
                     if _AUTHORITY_NAMESPACE in records:
                         from .action_authority import _initialize_schema
                         _initialize_schema(connection, self._fault)
@@ -2378,6 +2461,8 @@ class InstallationMigrationRepository:
                             f'INSERT INTO "{namespace}"({names}) VALUES({placeholders}){conflict}',
                             rows,
                         )
+                    from .security import _bootstrap_migration_facts
+                    _bootstrap_migration_facts(connection)
             self._fault("import.after_records")
             for task in target_repository.query_catalog({}):
                 target_repository.replay(task["task_id"])

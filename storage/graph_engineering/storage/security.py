@@ -21,6 +21,309 @@ from .connection import ConnectionFactory, ManagedConnection
 from .errors import RepositoryConflictError, RepositoryIntegrityError
 
 
+class SecurityBootstrapError(ValueError):
+    """A sanitized bootstrap category, never a record or capability."""
+
+
+_BOOTSTRAP_TABLES = ('security_bootstrap_installation_receipts', 'security_bootstrap_task_receipts')
+_BOOTSTRAP_SCHEMA = (
+    """CREATE TABLE security_bootstrap_installation_receipts (
+        singleton INTEGER PRIMARY KEY CHECK(singleton=1),
+        receipt_json TEXT NOT NULL,
+        receipt_digest TEXT NOT NULL
+    ) STRICT""",
+    """CREATE TABLE security_bootstrap_task_receipts (
+        task_id TEXT PRIMARY KEY REFERENCES tasks(task_id),
+        request_id TEXT NOT NULL UNIQUE,
+        request_digest TEXT NOT NULL,
+        receipt_json TEXT NOT NULL,
+        receipt_digest TEXT NOT NULL
+    ) STRICT""",
+)
+_BOOTSTRAP_TRIGGERS = tuple(
+    f"CREATE TRIGGER {table}_no_{operation.lower()} BEFORE {operation} ON {table} "
+    "BEGIN SELECT RAISE(ABORT,'security bootstrap receipts are immutable'); END"
+    for table in _BOOTSTRAP_TABLES for operation in ('UPDATE', 'DELETE')
+)
+
+
+def _bootstrap_schema_present(connection):
+    return bool(connection.execute(
+        "SELECT 1 FROM sqlite_master WHERE lower(name) LIKE 'security_bootstrap_%' LIMIT 1"
+    ).fetchone() or connection.execute(
+        "SELECT 1 FROM schema_versions WHERE lower(component)='security-bootstrap' LIMIT 1"
+    ).fetchone())
+
+
+def _bootstrap_require_schema(connection):
+    if connection.execute("SELECT COUNT(*) FROM sqlite_master WHERE lower(name) LIKE 'security_bootstrap_%'").fetchone()!=(6,):
+        raise SecurityBootstrapError('SECURITY_BOOTSTRAP_INTEGRITY')
+    if connection.execute("SELECT version FROM schema_versions WHERE component='security-bootstrap'").fetchone() != ('1.0.0',):
+        raise SecurityBootstrapError('SECURITY_BOOTSTRAP_INTEGRITY')
+    for name, statement in zip(_BOOTSTRAP_TABLES, _BOOTSTRAP_SCHEMA, strict=True):
+        if connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=? AND sql=?",
+                              (name, statement)).fetchone() is None:
+            raise SecurityBootstrapError('SECURITY_BOOTSTRAP_INTEGRITY')
+    for statement in _BOOTSTRAP_TRIGGERS:
+        name = statement.split()[2]
+        if connection.execute("SELECT 1 FROM sqlite_master WHERE type='trigger' AND name=? AND sql=?",
+                              (name, statement)).fetchone() is None:
+            raise SecurityBootstrapError('SECURITY_BOOTSTRAP_INTEGRITY')
+
+
+def _bootstrap_digest(body, name, context):
+    from graph_engineering.core.contracts.digest import semantic_digest_charged
+    return semantic_digest_charged({k:v for k,v in body.items() if k != 'receipt_digest'}, context,
+        contract_type='urn:gew:contract:' + name,
+        projection_id='urn:gew:digest-projection:' + name + ':1.0.0',
+        schema_id='urn:gew:schema:' + name + ':1.0.0')
+
+
+def _bootstrap_bundle(context=None):
+    """Validate current installation bytes; no caller pins or issuer seals."""
+    import hashlib
+    from graph_engineering import (DistributionIdentityError, _security_bootstrap_seed_resources,
+                                   _security_bootstrap_installation_resources)
+    from graph_engineering.core.contracts.registry import ClosedSchemaRegistry
+    from graph_engineering.core.contracts.resources import ResourceProfile, CostSchedule
+    from graph_engineering.core.contracts.schema import SchemaProfilePolicy
+    from graph_engineering.core.security.attestation import SecurityRuntimeManifest, validate_installed_runtime_document
+    from graph_engineering.core.actions import ActionPolicy
+    from graph_engineering.core.security.disclosure import DisclosurePolicy
+    from graph_engineering.core.security.evidence import EvidencePolicyRegistry
+    from graph_engineering.core.security.inputs import InputSafetyPolicy
+    from graph_engineering.core.security.privacy import RedactionPolicy
+    from graph_engineering.core.security.retention import RetentionPolicyRegistry
+    from graph_engineering.core.contracts.errors import ContractError
+    try:
+        if context is None:
+            raw = _security_bootstrap_seed_resources()
+            context = WorkContext(ResourceProfile.from_dict(parse_json(raw[0])),
+                                  CostSchedule.from_dict(parse_json(raw[1])))
+        bodies = _security_bootstrap_installation_resources(context)
+        descriptor = parse_json(bodies[0], context=context, source_id='security-bootstrap')
+        paths = ['config/security/security-bootstrap-v1.json'] + [r['path'] for r in descriptor['resources']]
+        documents = {p:parse_json(b, context=context, source_id='security-bootstrap')
+                     for p,b in zip(paths,bodies,strict=True)}
+        profile = ResourceProfile.from_dict(documents['config/contracts/resource-profile-v1.json'])
+        costs = CostSchedule.from_dict(documents['config/contracts/cost-schedule-v1.json'])
+        # A command may narrow its work profile, never increase installed ceilings.
+        profile.narrowed_by(context.profile.to_dict())
+        if context.schedule.to_dict() != costs.to_dict():
+            raise SecurityBootstrapError('SECURITY_BOOTSTRAP_RESOURCE')
+        schema_policy = SchemaProfilePolicy.from_dict(documents['config/contracts/schema-profile-v1.json'])
+        registries = {}
+        for name in ('security-schema-registry-v1', 'security-bootstrap-schema-registry-v1'):
+            manifest = documents['config/contracts/' + name + '.json']
+            ids = {r['schema_id'] for r in manifest['resources']}
+            schemas = {doc['$id']:bodies[index] for index,p in enumerate(paths)
+                       if (doc:=documents[p]).get('$id') in ids}
+            registries[name] = ClosedSchemaRegistry.build(manifest, schemas, profile, schema_policy, context)
+        foundation = registries['security-schema-registry-v1']; bootstrap = registries['security-bootstrap-schema-registry-v1']
+        if bootstrap.validate('urn:gew:schema:security-bootstrap:1.0.0', descriptor, context):
+            raise SecurityBootstrapError('SECURITY_BOOTSTRAP_RESOURCE')
+        manifest = documents['config/security/security-runtime-v1.json']
+        fields = validate_installed_runtime_document(manifest, expected_manifest_id=manifest['manifest_id'],
+            expected_manifest_digest=manifest['manifest_digest'], schema_registry=foundation, context=context)
+        if (descriptor['foundation_registry'] != manifest['schema_registry']
+                or descriptor['bootstrap_registry'] != {'registry_id':bootstrap.registry_id,'registry_digest':bootstrap.registry_digest}
+                or descriptor['runtime_manifest'] != {k:manifest[k] for k in ('manifest_id','manifest_digest')}
+                or descriptor['policies'] != manifest['policies']):
+            raise SecurityBootstrapError('SECURITY_BOOTSTRAP_RESOURCE')
+        for label,path,key in (
+            ('resource','config/contracts/resource-profile-v1.json','profile_id'),
+            ('cost','config/contracts/cost-schedule-v1.json','schedule_id'),
+            ('schema','config/contracts/schema-profile-v1.json','profile_id')):
+            index=paths.index(path)
+            expected={key:documents[path][key], 'body_digest':'sha256-raw-v1:'+hashlib.sha256(bodies[index]).hexdigest()}
+            if descriptor['profiles'][label]!=expected:
+                raise SecurityBootstrapError('SECURITY_BOOTSTRAP_RESOURCE')
+        # Unsealed validation frame: discarded with parsed policies, never published.
+        # Only SecurityContextIssuer issues capabilities from committed durable rows.
+        validation_frame = object.__new__(SecurityRuntimeManifest)
+        for name,value in fields.items(): object.__setattr__(validation_frame,name,value)
+        object.__setattr__(validation_frame,'_issuer',None)
+        for path, parser in (
+            ('config/actions/action-policy-v1.json',ActionPolicy),
+            ('config/security/disclosure-policy-v1.json',DisclosurePolicy),
+            ('config/security/evidence-policies-v1.json',EvidencePolicyRegistry),
+            ('config/security/input-safety-policy-v1.json',InputSafetyPolicy),
+            ('config/security/redaction-policy-v1.json',RedactionPolicy),
+            ('config/security/retention-policies-v1.json',RetentionPolicyRegistry)):
+            parser.from_dict(documents[path],schema_registry=foundation,context=context,runtime=validation_frame)
+        vector = [dict(path=p,raw_sha256=hashlib.sha256(b).hexdigest()) for p,b in zip(paths,bodies,strict=True)]
+        return dict(context=context, descriptor=descriptor, manifest=manifest, foundation=foundation,
+                    bootstrap=bootstrap, resource_vector_digest=semantic_record_digest({
+                        'contract':'security-bootstrap-resource-vector-v1','value':vector}))
+    except SecurityBootstrapError:
+        raise
+    except ContractError:
+        raise SecurityBootstrapError('SECURITY_BOOTSTRAP_RESOURCE_LIMIT') from None
+    except DistributionIdentityError as error:
+        code='SECURITY_BOOTSTRAP_RESOURCE_LIMIT' if str(error)=='SECURITY_BOOTSTRAP_RESOURCE_LIMIT' else 'SECURITY_BOOTSTRAP_RESOURCE'
+        raise SecurityBootstrapError(code) from None
+    except (OSError, TypeError, ValueError, KeyError, MemoryError, RecursionError):
+        raise SecurityBootstrapError('SECURITY_BOOTSTRAP_RESOURCE') from None
+
+
+def _bootstrap_initial_state(sources, revision, snapshot_digest):
+    """Reconstruct the original empty projection; never replace evolved state."""
+    from graph_engineering.core.security.identity import SecurityBinding
+    scope=sources['scope']
+    binding=dict(schema_version='1.0.0',**sources['identity'],scope_id=scope['scope_id'],scope_digest=scope['scope_digest'],
+        baselines={ref['kind']:ref['digest'] for ref in sources['baselines']},snapshot_digest=snapshot_digest,
+        targets=[dict(target_id=scope['scope_id'],target_kind='project-scope',canonical_identity=scope['scope_id'],
+                      target_digest=scope['scope_digest'])])
+    binding['binding_digest']=SecurityBinding.digest_document(binding)
+    return dict(schema_version='1.0.0',task_id=sources['identity']['task_id'],task_revision=revision,
+        task_snapshot_digest=snapshot_digest,binding=binding,destinations={},authority_digests=[],data_refs={},
+        evidence_expectations={},retention_subjects={})
+
+
+def _bootstrap_validate_initial_state(receipt, sources):
+    initial=_bootstrap_initial_state(sources,receipt['initial_task_revision'],receipt['initial_snapshot_digest'])
+    expected=semantic_record_digest({'contract':'task-security-state-v1','value':initial})
+    if not hmac.compare_digest(receipt['initial_state_digest'],expected):
+        raise SecurityBootstrapError('SECURITY_BOOTSTRAP_INTEGRITY')
+
+
+def _validate_current_binding(state, sources, bundle):
+    from graph_engineering.core.security.identity import SecurityBinding
+    binding=state['binding'];scope=sources['scope']
+    if (type(binding) is not dict or bundle['foundation'].validate('urn:gew:schema:security-binding:1.0.0',binding,bundle['context'])
+            or binding['binding_digest']!=SecurityBinding.digest_document(binding)
+            or any(binding[k]!=v for k,v in sources['identity'].items())
+            or binding['scope_id']!=scope['scope_id'] or binding['scope_digest']!=scope['scope_digest']
+            or binding['baselines']!={ref['kind']:ref['digest'] for ref in sources['baselines']}
+            or binding['snapshot_digest']!=sources['snapshot_digest']
+            or binding['targets']!=[dict(target_id=scope['scope_id'],target_kind='project-scope',
+                canonical_identity=scope['scope_id'],target_digest=scope['scope_digest'])]):
+        raise SecurityBootstrapError('SECURITY_BOOTSTRAP_STALE')
+
+
+def _bootstrap_validate_receipt(receipt, digest, name, bundle):
+    context = bundle['context']
+    if (type(receipt) is not dict or bundle['bootstrap'].validate('urn:gew:schema:'+name+':1.0.0',receipt,context)
+            or receipt['receipt_digest'] != digest or _bootstrap_digest(receipt,name,context) != digest):
+        raise SecurityBootstrapError('SECURITY_BOOTSTRAP_INTEGRITY')
+
+
+def _bootstrap_require_owned_transaction(connection, factory):
+    """The existing factory guard admits application roles only; maintenance is explicit."""
+    from .connection import _ISSUED_CONNECTION_OWNERS
+    if (type(factory) is not ConnectionFactory or type(connection) is not ManagedConnection
+            or _ISSUED_CONNECTION_OWNERS.get(connection) is not factory
+            or not connection._in_transaction):
+        raise SecurityBootstrapError('SECURITY_BOOTSTRAP_AUTHORITY')
+    if connection._role == 'application':
+        factory._require_owned_transaction(connection)
+    elif connection._role == 'migration' and factory._maintenance:
+        factory.require_mutation_authority(); connection._check()
+    else:
+        raise SecurityBootstrapError('SECURITY_BOOTSTRAP_AUTHORITY')
+
+
+def _bootstrap_installation_locked(connection, factory, bundle):
+    """Bounded validation in the caller's owned transaction; origin is historical."""
+    _bootstrap_require_owned_transaction(connection,factory)
+    return _bootstrap_installation_facts(connection,bundle)
+
+
+def _bootstrap_installation_facts(connection, bundle):
+    """Pure validation, also usable on a bounded read-only migration image."""
+    from .repository import _recovery_scope, _recovery_rows, _recovery_json
+    _bootstrap_require_schema(connection)
+    context=bundle['context']
+    with _recovery_scope(context) as budget, ExitStack() as stack:
+        rows=stack.enter_context(_recovery_rows(connection,[
+            ('receipt',('receipt_json','receipt_digest'),'security_bootstrap_installation_receipts'),
+            ('runtime',('manifest_json','manifest_id','manifest_digest','schema_registry_id','schema_registry_digest'),
+             'security_runtime_installation')],{},context,budget,source_id='security-bootstrap-installation'))
+        if len(rows['receipt'])!=1 or len(rows['runtime'])!=1:
+            raise SecurityBootstrapError('SECURITY_BOOTSTRAP_INTEGRITY')
+        receipt=stack.enter_context(_recovery_json(rows['receipt'][0][0],context,budget,source_id='security-bootstrap-installation'))
+        _bootstrap_validate_receipt(receipt,rows['receipt'][0][1],'security-installation-receipt',bundle)
+        manifest=bundle['manifest'];descriptor=bundle['descriptor']
+        expected=(canonical_text(manifest),manifest['manifest_id'],manifest['manifest_digest'],
+                  bundle['foundation'].registry_id,bundle['foundation'].registry_digest)
+        if (rows['runtime'][0]!=expected or receipt['descriptor_digest']!=descriptor['descriptor_digest']
+                or receipt['resource_vector_digest']!=bundle['resource_vector_digest']
+                or receipt['manifest_digest']!=manifest['manifest_digest']
+                or receipt['schema_registry_digest']!=bundle['foundation'].registry_digest):
+            raise SecurityBootstrapError('SECURITY_BOOTSTRAP_STALE')
+        return freeze(receipt)
+
+
+def _bootstrap_migration_facts(connection, *, bundle=None):
+    """Admit optional receipts and their current sources before migration captures rows."""
+    from .repository import (_recovery_scope, _recovery_rows, _recovery_json,
+                             _security_bootstrap_source_facts)
+    if not _bootstrap_schema_present(connection):return ()
+    if bundle is None:bundle=_bootstrap_bundle()
+    context=bundle['context']
+    installation=_bootstrap_installation_facts(connection,bundle)
+    with _recovery_scope(context) as budget,ExitStack() as stack:
+        rows=stack.enter_context(_recovery_rows(connection,[
+            ('receipt',('task_id','request_id','request_digest','receipt_json','receipt_digest'),
+             'security_bootstrap_task_receipts ORDER BY task_id'),
+            ('state',('task_id',),'task_security_states ORDER BY task_id')],{},context,budget,
+             source_id='security-bootstrap-migration'))
+        if [r[0] for r in rows['receipt']]!=[r[0] for r in rows['state']]:
+            raise SecurityBootstrapError('SECURITY_BOOTSTRAP_INTEGRITY')
+        for row in rows['receipt']:
+            receipt=stack.enter_context(_recovery_json(row[3],context,budget,source_id='security-bootstrap-migration'))
+            _bootstrap_validate_receipt(receipt,row[4],'security-task-initialization-receipt',bundle)
+            with _security_bootstrap_source_facts(connection,row[0],context) as sources:
+                identity=semantic_record_digest({'contract':'security-bootstrap-identity-v1','value':sources['identity']})
+                baseline=semantic_record_digest({'contract':'security-bootstrap-baselines-v1','value':sources['baselines']})
+                request=semantic_record_digest({'contract':'security-bootstrap-request-v1','value':dict(
+                    task_id=row[0],request_id=row[1],expected_revision=receipt['initial_task_revision'],
+                    expected_snapshot_digest=receipt['initial_snapshot_digest'],identity_digest=identity)})
+                if (receipt['task_id']!=row[0] or receipt['request_id']!=row[1]
+                        or receipt['request_digest']!=row[2] or row[2]!=request
+                        or receipt['identity_digest']!=identity or receipt['baseline_refs_digest']!=baseline
+                        or receipt['scope_approval_digest']!=sources['scope_approval_digest']
+                        or receipt['installation_receipt_digest']!=installation['receipt_digest']):
+                    raise SecurityBootstrapError('SECURITY_BOOTSTRAP_STALE')
+                _bootstrap_validate_initial_state(receipt,sources)
+                state,_digest=SecurityStateRepository._load_task_state(connection,row[0],context)
+                try:_validate_current_binding(state,sources,bundle)
+                finally:budget.release_projection(state)
+    return _BOOTSTRAP_TABLES
+
+
+def _initialize_security_bootstrap_locked(connection, factory, activation, bundle, fault):
+    import sys
+    from .migration import InstallationMigrationRepository
+    caller=sys._getframe(1)
+    if (caller.f_code is not InstallationMigrationRepository.initialize_security_storage.__code__
+            or type(caller.f_locals.get('self')) is not InstallationMigrationRepository):
+        raise SecurityBootstrapError('SECURITY_BOOTSTRAP_AUTHORITY')
+    _bootstrap_require_owned_transaction(connection,factory)
+    if _bootstrap_schema_present(connection):
+        return _bootstrap_installation_locked(connection,factory,bundle)
+    if (connection.execute('SELECT 1 FROM security_runtime_installation LIMIT 1').fetchone()
+            or connection.execute('SELECT 1 FROM task_security_states LIMIT 1').fetchone()):
+        raise SecurityBootstrapError('SECURITY_BOOTSTRAP_CONFLICT')
+    fault('security-bootstrap.before-insert')
+    for statement in (*_BOOTSTRAP_SCHEMA,*_BOOTSTRAP_TRIGGERS): connection.execute(statement)
+    manifest=bundle['manifest'];foundation=bundle['foundation']
+    connection.execute('INSERT INTO security_runtime_installation VALUES(1,?,?,?,?,?)',
+        (canonical_text(manifest),manifest['manifest_id'],manifest['manifest_digest'],foundation.registry_id,foundation.registry_digest))
+    fault('security-bootstrap.between-installation-writes')
+    receipt=dict(schema_version='1.0.0',origin_installation_id=activation.installation_id,
+        origin_repository_id=activation.repository_id,origin_activation_epoch=activation.activation_epoch,
+        descriptor_digest=bundle['descriptor']['descriptor_digest'],resource_vector_digest=bundle['resource_vector_digest'],
+        manifest_digest=manifest['manifest_digest'],schema_registry_digest=foundation.registry_digest)
+    receipt['receipt_digest']=_bootstrap_digest(receipt,'security-installation-receipt',bundle['context'])
+    _bootstrap_validate_receipt(receipt,receipt['receipt_digest'],'security-installation-receipt',bundle)
+    connection.execute('INSERT INTO security_bootstrap_installation_receipts VALUES(1,?,?)',
+                       (canonical_text(receipt),receipt['receipt_digest']))
+    from .clock import strict_trusted_now
+    connection.execute("INSERT INTO schema_versions VALUES('security-bootstrap','1.0.0',?)",(str(strict_trusted_now(connection)),))
+    return _bootstrap_installation_locked(connection,factory,bundle)
+
+
 _STATE_KEYS = frozenset({
     "schema_version",
     "task_id",

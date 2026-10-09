@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "urn:gew:schema-registry:security-bootstrap:1.0.0",
+  "resources": [
+    {
+      "schema_id": "urn:gew:schema:security-bootstrap:1.0.0",
+      "body_digest": "sha256-raw-v1:9600a496f637332165d8846c54707ba25083873955213bdb24514011bcb09cf0"
+    },
+    {
+      "schema_id": "urn:gew:schema:security-installation-receipt:1.0.0",
+      "body_digest": "sha256-raw-v1:a67dcf8adbc779cee0fcf90e65c75077758a7097dc0ea88c86590faed6ac2870"
+    },
+    {
+      "schema_id": "urn:gew:schema:security-task-initialization-receipt:1.0.0",
+      "body_digest": "sha256-raw-v1:866db54876a216eebee9be59f7a53c04cc69cfa40da12375753a5933d06343eb"
+    }
+  ],
+  "registry_digest": "sha256-jcs-v1:9c11701f40834c4540814269c38cbcd8a831292e2eb839814b3cd0397e2191db"
+}
