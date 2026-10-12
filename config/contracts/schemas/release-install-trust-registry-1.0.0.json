@@ -1,0 +1,88 @@
+{
+  "$id": "urn:gew:schema:release-install-trust-registry:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "generation": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "keys": {
+      "items": {
+        "properties": {
+          "allowed_release_ids": {
+            "items": {
+              "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 65536,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "id": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "public_key_hex": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "purpose": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "public_key_hex",
+          "purpose",
+          "allowed_release_ids"
+        ],
+        "type": "object",
+        "unevaluatedProperties": false
+      },
+      "maxItems": 65536,
+      "type": "array"
+    },
+    "registry_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "registry_id": {
+      "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "revoked_key_ids": {
+      "items": {
+        "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+        "maxLength": 128,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 65536,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    }
+  },
+  "required": [
+    "schema_version",
+    "registry_id",
+    "generation",
+    "keys",
+    "revoked_key_ids",
+    "registry_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

@@ -28,6 +28,13 @@ __all__ = ["installed_version", "main"]
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graph-engineering")
     subcommands = parser.add_subparsers(dest="command")
+    release = subcommands.add_parser("release-check")
+    release.add_argument("--bundle", type=pathlib.Path, required=True)
+    release.add_argument("--manifest", type=pathlib.Path, required=True)
+    release.add_argument("--format", choices=("json",), required=True)
+    doctor = subcommands.add_parser("doctor")
+    doctor.add_argument("--installation", type=pathlib.Path)
+    doctor.add_argument("--format", choices=("json",), required=True)
     capabilities = subcommands.add_parser("capabilities")
     capabilities.add_argument("--format", choices=("json",), required=True)
     capabilities.add_argument("--locator", type=pathlib.Path, required=True)
@@ -90,6 +97,17 @@ def main(argv: list[str] | None = None) -> int:
         print(installed_version())
         return 0
     parsed = _parser().parse_args(arguments)
+    if parsed.command in ("release-check", "doctor"):
+        try:
+            from graph_engineering.application.release_installation import release_check, doctor
+            result, exit_code = (release_check(parsed.bundle, parsed.manifest)
+                if parsed.command == "release-check" else doctor(parsed.installation))
+        except Exception:
+            from graph_engineering.core.release_installation import bootstrap_diagnostic
+            phase = 'check' if parsed.command == 'release-check' else 'doctor'
+            result, exit_code = bootstrap_diagnostic(phase), (4 if phase == 'check' else 3)
+        print(json.dumps(result, sort_keys=True, separators=(",", ":")))
+        return exit_code
     if parsed.command == "capabilities":
         guard = load_runtime_resource_guard(
             parsed.runtime_resource_policy, parsed.resource_profile, parsed.cost_schedule,

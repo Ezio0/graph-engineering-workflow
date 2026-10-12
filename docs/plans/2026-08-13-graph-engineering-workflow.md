@@ -1976,3 +1976,317 @@ Reconcile M task estimates to27h (GEW-SECURITY-BOOTSTRAP-PLAN-R0-001).
 R2: make D5 depend explicitly on D4 for its destination guarded-issuance oracle;
 same files, selectors, task sizes and estimates. Preserve r1 PASS as historical
 review; this changed Plan requires a fresh independent binding before advancement.
+
+## WP-10 verified installation plan — W10, 2026-10-10
+
+### W10-P1 Summary and stage boundary
+
+Implement [Spec W10](../specs/graph-engineering-workflow.md#wp-10-verified-installation-design)
+and [ADR0015](../adr/0015-release-installation-and-upgrade.md) in A admission/Doctor,
+B isolated staging and C atomic repository/tuple publication. Current authority
+is six-file design/review only. The next concrete request covers **A only**:39
+prospective files (17 existing,22 new),32 new behavioral tests,275 existing tests
+(including two affected performance-installation regressions),six statics. A has
+eight XS/S/M tasks, estimated23h plus actual test/review runtime, all unstarted.
+No elapsed implementation time or PASS is claimed. A ends with independently
+reviewed final-tree evidence and honest unavailable install/upgrade capabilities.
+It does not repair the production uv.lock or complete WP10/native/release acceptance.
+
+### W10-P2 Phases and exits
+
+| Phase | Tasks | Deliverable and observable exit |
+|---|---|---|
+| A0 entry/contracts | A0–A2 | approved exact scope;32 methods collect; closed models and installation-owned11-resource source/wheel loader reject malformed/substituted resources |
+| A1 physical admission | A3–A4 | actual local byte/archive/METADATA closure, signature/license/provenance/security/lock/SBOM checks; no extraction/execution/network |
+| A2 diagnostics/evidence | A5–A7 | read-only Doctor and CLI, current package/pins, all307 tests/six statics on frozen final tree, independent implementation/verification/Candidate review |
+| B later staging | separate exact scope after A | supplied verified interpreter/installer/artifacts, isolated immutable tool/Skill environment, two-clean-install equality on each planned native cell |
+| C later activation | separate exact scope after B | quiescent existing migration integration, single authoritative active reference, crash/retry/rollback and real Skill/native journeys |
+
+B/C rows are dependent delivery milestones, not permission or runnable implementation
+tickets. Before either starts, prepare its exact files, formats, selectors, supplied
+artifact hashes and authority request; break producing work into XS/S/M tasks with
+behavioral tests first. No current A allowlist permits modifying migration, clocks,
+action ledgers, Skills/locators or release activation state.
+
+### W10-P3 Tasks, ownership and acceptance
+
+Root is sole writer; required reviewers are fresh independent read-only agents.
+Register A0–A7 detached Kanban cards before future implementation, record actual
+start/finish/runtime after execution, and retain failed attempts. All tasks use the
+39-file allowlist below, never a glob. Each producing task collects its tests and
+establishes behavioral RED before code; an absent selector/import is not behavioral
+RED. New modules are observed through real ports once collectable. Current package,
+source inventories and affected pins must be refreshed within each producing task
+before source/wheel acceptance; A7 verifies combined closure, not the first valid
+package. No source changes while final serial evidence runs.
+
+| Task | Phase; size; estimate | Depends; blocks | Files/behavior and first tests |
+|---|---|---|---|
+| A0 recover and register | A0; XS;0.5h | exact Owner A approval; A1 | Manifest/boundary/docs and detached inventory; rehash approved design/Intent, resolve275 existing selectors and32 proposed methods, verify unchanged290/300 ceilings |
+| A1 pure contracts | A0; M;4h | A0; A2,A3 | core/release_installation.py,seven schemas, fixture/support/unit/contract modules; U1–U8,C1–C4: closed nested fields, domain-separated projection, graph/markers/extras/range/trust/error semantics |
+| A2 attested resources | A0; M;4h | A1; A3 | core initializer,11 resources,pyproject,source_checkout_attestation,WP00/four bootstraps; C5–C6,W2: genuine private source/wheel inputs, empty production trust refuses, replaced resource/provider refuses |
+| A3 physical local bundle | A1; M;4h | A2; A4 | adapter/release_installation.py and checked build_backend observation seam, physical archive fixtures; I1–I2,S2–S4: full bytes/metadata/closure/currentness/bounds without extraction/execution |
+| A4 supply-chain admission | A1; M;4h | A3; A5 | adapter/core,scripts/verify_supply_chain.py,fixture/support; I3–I4,S1,S6: exact lock/SBOM/provenance/license/security freshness, signed substitutions and private diagnostics |
+| A5 read-only Doctor | A2; S;2h | A4; A6 | application/adapter release_installation.py; I5–I6,S5: actual existing/missing roots, strict zero-write/clock invariants and honest capability routing |
+| A6 CLI and installed journey | A2; M;4h | A5; A7 | application/cli.py and wheel/integration/support tests; I7–I8,W1,W3–W4: correct exit/JSON, outside-checkout/decoys/config variation, no ambient config or artifact execution |
+| A7 combined evidence/review | A2; XS;0.5h overhead | A6; separate irreversible gate | four active bootstrap vectors/pyproject/WP00/boundary final check; exact307 tests+six statics, independent implementation/verification/Candidate review; execution time measured additionally |
+
+Estimates total23h excluding measured final command execution and independent review
+latency. They schedule effort, not forecast acceptance. Kanban and actual times are
+TBD before/after the relevant authorized task, never fabricated now.
+
+- [ ] A0: exact39-file/313-command request approved; all upstream refs/current protection checks validate; no implicit B/C or irreversible authority.
+- [ ] A1: U1–U8/C1–C4 collected and behaviorally RED→GREEN; recursive closure, normalization, exact digest/signature purpose, marker/extras/range and report bounds tested.
+- [ ] A2: C5–C6/W2 prove actual source/wheel owned11-resource closure and legacy preservation; signed fixture trust is confined to a freshly attested private root.
+- [ ] A3: I1–I2/S2–S4 validate real ZIP/tar/wheel bytes and preallocation/stream bounds, swapped parent/provider races and bidirectional closure; zero artifact execution/extraction.
+- [ ] A4: I3–I4/S1/S6 prove independently expected lock/SBOM/provenance/license/security results and signature/privacy refusals; incomplete production uv.lock input refuses.
+- [ ] A5: I5–I6/S5 compare all synthetic roots/task/clock state before/after; missing roots remain absent, invalid/backward time refuses and no writable clock API is invoked.
+- [ ] A6: I7–I8/W1/W3–W4 execute actual installed CLI outside checkout, exact stable codes/minimized JSON and config-dependent behavior with unchanged engine hashes; install/upgrade/release remain unavailable.
+- [ ] A7: all32 new +273 retained +two performance selectors execute once each/skip0, six statics pass, final scope/pins/Candidate evidence review converges; no commit/push occurs.
+
+### W10-P4 Exact next inventory and dependencies
+
+Immutable detached `wp10-installation-design-implementation-inventory-r0.json` and
+`wp10-installation-design-test-inventory-r0.json` below the current delivery detached
+prefix enumerate every path/selector/argv and raw protected input reference. The
+same39 paths are listed here for direct Owner review. Future Manifest narrows to
+actually changed members; do not manufacture diffs merely to include39 files.
+- `.workflow/manifest.json`
+- `docs/specs/graph-engineering-workflow.md`
+- `docs/impact/graph-engineering-workflow.md`
+- `docs/plans/2026-08-13-graph-engineering-workflow.md`
+- `docs/test-plans/graph-engineering-workflow.md`
+- `docs/adr/0015-release-installation-and-upgrade.md`
+- `core/graph_engineering/core/release_installation.py`
+- `application/graph_engineering/application/release_installation.py`
+- `adapters/graph_engineering/adapters/release_installation.py`
+- `application/graph_engineering/application/cli.py`
+- `core/graph_engineering/__init__.py`
+- `pyproject.toml`
+- `scripts/build_backend.py`
+- `scripts/verify_supply_chain.py`
+- `config/verification/wp-00-targets.json`
+- `config/verification/wp10-release-admission-boundary-v1.json`
+- `config/migration/migration-rehearsal-installation-bootstrap-v1.json`
+- `config/profiles/scenario-truth-installation-bootstrap-v1.json`
+- `config/release-operations/release-operations-installation-bootstrap-v1.json`
+- `config/performance/performance-benchmark-installation-bootstrap-v1.json`
+- `config/release-installation/release-policy-v1.json`
+- `config/release-installation/release-trust-registry-v1.json`
+- `config/release-installation/release-resource-policy-v1.json`
+- `config/contracts/release-installation-schema-registry-v1.json`
+- `config/contracts/schemas/release-install-manifest-1.0.0.json`
+- `config/contracts/schemas/release-install-artifact-1.0.0.json`
+- `config/contracts/schemas/release-install-policy-1.0.0.json`
+- `config/contracts/schemas/release-install-trust-registry-1.0.0.json`
+- `config/contracts/schemas/release-install-resource-policy-1.0.0.json`
+- `config/contracts/schemas/release-install-diagnostic-1.0.0.json`
+- `config/contracts/schemas/release-install-schema-registry-1.0.0.json`
+- `tests/support/source_checkout_attestation.py`
+- `tests/support/release_installation.py`
+- `tests/fixtures/release-admission-v1.json`
+- `tests/unit/test_release_installation.py`
+- `tests/contract/test_release_installation.py`
+- `tests/integration/test_release_installation.py`
+- `tests/security/test_release_installation.py`
+- `tests/integration/test_release_installation_wheel.py`
+
+All four active bootstraps are prospective mutable targets: migration-rehearsal,
+scenario-truth, release-operations and performance-benchmark. The last directly
+pins build_backend_source/build_backend_raw_sha256, protected_resources,
+protected_closure_digest/bootstrap_digest and pyproject mirrors. Recompute actual
+changed pins only, preserve unaffected vector entries/order/counts and historical
+resources. Historical WP07a/WP08a gate pins identify their original prerequisite
+source, not a new current-tree certification; preserve them and their old evidence.
+Run the two named performance-installation factory tests, not the excluded full P1
+workload. Exact existing selectors are AST-resolved once; new selectors remain
+proposals until future implementation collects them.
+
+| Dependency | Status | Required handling |
+|---|---|---|
+| approved PRD/Intent, Spec/ADR and Impact | available reviewed upstream | current hashes/reducer chain before each task; material change returns to Owner |
+| local .venv, existing bounded parser/attestation and source/wheel tools | local prerequisite | recheck actual availability; no install/download/resolution fallback |
+| synthetic bundle/trust/key/metadata fixtures | A task-produced, not production artifacts | generated in private test roots, genuine attestation, immutable expected test digests; no secrets/real data |
+| production interpreter/installer/transitive wheels/lock/SBOM/provenance/security and Owner trust | unavailable for release acceptance | A must diagnose/refuse; obtain exact inputs and approve finite production ceilings before genuine release admission/B |
+| macos-arm64/macos-x86-64/linux-x86-64 native environments | not certified here | retain all three planned cells; A simulation/wheel checks cannot substitute; later actual evidence required |
+
+### W10-P5 Development risks and mitigations
+
+| Risk | Task; probability/impact | Mitigation |
+|---|---|---|
+| source/resource registration cycle or stale package | A2–A7; medium/high | refresh current inventories and four affected pin/mirror closures before each source/wheel acceptance, then compare unaffected hashes |
+| fixture trust bypass masks verifier failure | A2–A4; medium/high | private newly attested installations, real physical signatures/metadata, independently expected data; no caller map/provider patch or reused seal |
+| all-at-once archive parser implementation exceeds bounds | A3; medium/high | fixed fixture envelope and boundary sentinels before traversal/streaming; lower existing parser caps still win |
+| Doctor accidentally reuses mutable clock/repository services | A5; medium/high | no writable service open, full before/after inventories and retained clock row comparison, absent-root tests |
+| expensive evidence repeats without source cause | A7; medium/medium | collector/argv/scope/pin preflight once, strict serial fail-fast and retained failures; rerun only changed input/failure/concrete concern |
+
+### W10-P6 Rollout and rollback
+
+A runs only on private synthetic source/wheel roots and local supplied test bytes.
+No production percentage/canary applies. Any false admission, write, trust drift,
+unknown source or budget/currentness error blocks completion. Preserve unaccepted
+changes and failed evidence for authorized repair; no actual installation/data
+rollback is part of A. Recovery latency is unmeasured, not a release SLA. B/C later
+use the Spec generation-preserving journal/old-or-new-or-blocked protocol; rollback
+cannot undo external actions, revocation, high-water facts or retained history.
+
+### W10-P7 Verification strategy
+
+Use [Test Plan W10](../test-plans/graph-engineering-workflow.md) and its immutable
+inventory. New32 cases cover pure/contract/physical integration/security/installed
+CLI behavior;275 exact existing selectors cover the previous273 and two affected
+performance factories. Final313 commands are strict serial fail-fast, tests collect1/
+execute1/skip0, native290/canonical300. Six statics retain architecture,lint,type,
+build,reproducible-build and whitespace checks. Workflow/links/scope/protected hashes
+also validate without product execution during design. New product tree needs new
+final evidence; old pushed bootstrap captures are historical support only.
+
+No broad unittest discovery, full274/P1 workload, production/native certification,
+network, real user root or monitoring is included. Native three-cell two-clean-install,
+upgrade/crash/Skill/representative-task tests remain later WP10 release prerequisites,
+not deleted requirements. Independent artifact PASS advances design only.
+
+### W10-P8 Open decisions and deadlines
+
+| Decision/input | Due before | Effect |
+|---|---|---|
+| approve or decline exact39-path/313-command A request | A0 implementation start | all A code/tests/builds; current design approval does not cover these |
+| missing external production artifacts/trust and concrete ceilings | genuine release admission/B implementation request | production refusal remains correct until supplied and reviewed; no guessing or downloads |
+| exact B/C implementation, old/new supported bootstrap formats and native environments | respective producing stage | new closed inventory/behavioral tests/authority; no implied expansion from this Plan |
+| newly necessary target/dependency/security/data/budget/material architecture | before affected task | preserve work, name exception and obtain explicit Owner decision |
+
+No additional product-intent question is pending for A. Production inputs are
+explicit later prerequisites; do not use them to stop already-authorized design
+or bounded synthetic A work after its own approval. Commit/push/merge/deploy/release/
+external communication are separately authorized even after Candidate approval.
+
+### W10-P9 References
+
+[Positioning](../positioning/graph-engineering-workflow.md), [PRD](../prd/graph-engineering-workflow.md),
+[Spec](../specs/graph-engineering-workflow.md), [Impact](../impact/graph-engineering-workflow.md),
+[ADR0015](../adr/0015-release-installation-and-upgrade.md), [Test Plan](../test-plans/graph-engineering-workflow.md).
+Detached inventory source/status is proposed, not authority; actual node verdicts
+and frozen reducer outputs are recorded in the design checkpoint.
+
+### W10-P10 History
+
+2026-10-10 R0: scoped eight-task A request and later B/C prerequisites, exact39 paths,
+307 tests/six statics, four affected bootstrap closures including W10-IMPACT-R0-001.
+All actual implementation/review runtime remains unmeasured until execution.
+
+### W10-A execution status
+
+Owner approval of the exact A request is retained in
+`wp10-release-admission-implementation-approval-r0.json`; the active task is
+`GEW-WP10-RELEASE-ADMISSION-IMPLEMENTATION-V1`. A0 recovered the immutable request,
+approval, six design snapshots and1315 protected tracked files. A1–A6 code and all32
+named methods have been authored; per-command RED/focused observations and pin-refresh
+records are retained in the detached directory. This is implementation progress,
+not final-tree acceptance. Kanban actual durations remain unset where task boundaries
+were not measured; command evidence retains actual elapsed runtime.
+
+The cold installed-launcher W1 oracle fails because Python writes the initial package
+cache before initialization code executes. Strict G5 remains unchanged. The pending
+Owner architecture choice is recorded separately; do not alter protected packaging tests,
+add a launcher or relax the oracle under the existing Envelope. Complete nondependent
+verification and independent review preparation, then apply the approved exception path.
+A7/canonical313/Candidate and separate irreversible authority remain unfinished.
+
+
+### W10-A2 Owner-approved strict launcher amendment
+
+The Owner approved the independently reviewed strict launcher design and then the
+exact41-file/313-command implementation amendment. The immutable authority is
+`wp10-release-admission-implementation-approval-r1.json`; reviewed design
+`wp10-readonly-launcher-design-r1.md` (raw SHA256
+`68d158085fcb2ebbd6efc8ceaf344bbba0b64b1dd41a5cf3730e5bb467881699`)
+and `wp10-readonly-launcher-design-completion-r1.json` remain in the detached directory.
+This supersedes only the previous pending launcher-choice language. G5 is unchanged;
+prior failing evidence and all four W10-IMPLEMENTATION-R0 findings remain retained
+until independently verified repairs. PRD/Intent, other native cells, B/C, PMF-export
+refusal, production trust blockers and separate irreversible action gates remain.
+
+1. Independently review the six-file adoption against the accepted design/authority.
+2. Add meaningful RED subcases within existing selectors for packaged script contract,
+   cold both-command inventories, failed diagnostic bootstrap, Requires-Python
+   compatible/incompatible/malformed metadata and per-Skill protocol compatibility.
+   Add pre-use/during-read/retained-use SpecifierSet substitution oracles in SOURCE/WHEEL.
+3. Implement the deterministic wrapper, metadata/RECORD/mode, narrow build verifier
+   and actual fixture spreading; repair diagnostic failures and both compatibility gaps.
+   Refresh only actual affected allowed source/bootstrap mirrors, preserving pin history.
+4. Retain implementation r0 ESCALATE; issue revision1 with prior artifact digest and
+   the same four finding IDs, independent review and actual reducer. Budget remains4.
+5. Stage exact changed approved targets for canonical313 evidence, then independent
+   verification/Candidate review. Stop before separate commit/push/real-install authority.
+No tests run concurrently; fail-fast and290/300-second ceilings remain. Native clock
+reads may use explicit sandbox escalation when a retained probe proves EPERM; no mock,
+permission-config change or substituted platform evidence. Current source freeze binds
+each test batch and all failures are retained.
+
+
+### W10-A3 Owner-approved closed parser trust boundary
+
+The Owner approved the reviewed `wp10-parser-trust-boundary-design-r1.md` (raw
+SHA256 `7fd4d4f8f7060f9abb6fd2096537b1cfcda4aa81fcfd857ea5ff47c8a6a84fbb`)
+and its concrete implementation request. Immutable approval is
+`wp10-release-admission-implementation-approval-r2.json` in the detached directory.
+The reviewed twelve-section design, including §4.3.1, is the normative amendment.
+PRD/Intent, exact41 targets,313 commands, strict serial/fail-fast, native290/canonical300,
+zero writes, diagnostics, dependencies/platforms and B/C exclusions remain unchanged.
+This supersedes the selected-member parser strategy, not the retained launcher design.
+
+Build one operation-owned, privately linked Version/_ranges/SpecifierSet closure and
+canonicalize_version facade from physically RECORD-verified26.3 source. Validate the
+ambient executable surface against its complete source-derived structural graph before
+and after use and observation reuse. Exact types precede inspection; never invoke
+suspect equality, descriptor, container or regex dispatch. Bind code/defaults/closures,
+classes/metaclasses/bases, slots, aliases, containers/constants/singletons, regex and
+legitimate generated helpers/caches. Unknown dependency sites/objects refuse. Compute
+Requires-Python using private objects, return only a bool, and retain the same owned
+provider through the verifier/observation. No ambient fallback, global image cache,
+candidate code, package import hook, sys.modules publication, external action or new
+persistent schema is permitted. Trusted CPython/stdlib/backend remain the stated base.
+
+Construction has its own closed effects inventory. Omit exactly six overwritten
+overload stubs and the enumerated unread annotation-only declarations/imports before
+execution; preserve concrete function-code/defaults and future-annotation strings.
+Use finite local NamedTuple/ABC/enum/functools/wrapper recipes and a non-caching regex
+compiler facade. No private graph may escape into ambient overload/typing/regex
+registries; never clear or replace shared registries to repair a leak. Success, failure,
+release and repeated construction must preserve ambient bindings and permit private
+graph collection. Partial construction and release drop local references/tracebacks.
+
+Preserve implementation r0–r4 and the r4 regex finding. The separately approved exact
+task-local Policy exception selects max_revision_cycles5 only for implementationr5;
+project Policy and other nodes remain4, with original inputs used for historical replay.
+No task/numbering reset, frozen reducer edit or host permission change is authorized.
+Non-PASS at r5 stops. Only actual implementation ADVANCE permits canonical313 and
+subsequent verification/Candidate review. No completion or commit/push is implied.
+
+Execution order: independent six-file adoption review; genuine signed SOURCE/WHEEL regex RED; closed linker/contracts and construction-effect checks; same-provider integration; meaningful focused GREEN and six statics; fresh independent implementationr5 review; actual ADVANCE; exact41 staging and canonical313; independent verification/Candidate. Preserve failed attempts and every historical finding.
+
+
+### W10-A4 Owner-approved effective-global-binding repair
+
+The Owner separately approved `wp10-parser-global-binding-repair-request-r0.json`
+(raw SHA256 `d64f1b46975b38f15d3c500e7a4e87f7fc1052676d531c930a39d589a089ff22`)
+through `wp10-release-admission-implementation-approval-r3.json`. This is a routine
+correction to the W10-A3 architecture: resolve reference and live function bindings
+independently using globals first, builtins second, then compare effective bindings
+without invoking a substituted callable. Preserve explicit name presence, the trusted
+import recipe, all private-construction/currentness guarantees and existing regressions.
+
+The r5 independent review resolved eight historical findings and retained
+`W10-IMPLEMENTATION-R5-001`; its actual ESCALATE/E_LOOP remains immutable. This new
+approval supersedes only the r5 stop/budget for one implementation revision6 with
+an exact task-local ceiling6 (previous selected ceiling5); project/default and other
+nodes remain4. Preserve the same task, prior digest and exact historical reduction
+inputs. Non-PASS at r6 stops. Exact41,313 commands/307 selectors, native290/canonical300,
+serial/fail-fast, zero writes, diagnostics and all exclusions remain unchanged.
+
+Add meaningful SOURCE/WHEEL acquisition, public refusal, retained-invalidation and
+restoration coverage for `packaging.utils.isinstance` shadowing within existing
+W10-016/W10-026 selectors; require zero substituted calls, bounded independently
+checked diagnostics, privacy, empty stderr and unchanged inventories. Retain actual
+RED/GREEN and run six statics before fresh independent implementationr6 review.
+Only actual ADVANCE permits canonical313, verification and Candidate review.

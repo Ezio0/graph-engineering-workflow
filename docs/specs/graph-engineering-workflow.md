@@ -4709,3 +4709,551 @@ reviewers cannot acquire mutation authority. Existing report failures/evidence r
 immutable. New design bindings invalidate current shared-document descendants and
 require a fresh combined implementation review/Candidate; historical evidence is not
 promoted to current full verification. Commit/push/merge/release remain separate.
+
+
+## WP-10 verified installation design
+
+Date: 2026-10-10. W10 revision 0, design/review only under
+`GEW-WP10-INSTALLATION-DESIGN-V1`. The exact six-file approval is retained in
+`wp10-installation-design-approval-r0.json` in the configured detached directory.
+Proposed interfaces below do not exist yet. This section refines accepted
+[ADR0001](../adr/0001-core-implementation-and-local-packaging.md), without changing
+[PRD](../prd/graph-engineering-workflow.md) or Intent Baseline v2.
+
+### W10-S1 Overview
+
+Provide a local, daemon-free verified-release boundary for Owner/Skill installation,
+read-only diagnosis and staged upgrade. Reuse the packaged namespace, physical
+wheel preflight, canonical executable locator and repository migration boundary.
+The first implementation slice A admits local release inputs and diagnoses them;
+installation/activation belong to later slices B/C. No slice alone proves WP10 exit.
+
+```mermaid
+flowchart LR
+  O[Owner or authenticated Skill] --> P[Read-only plan and Doctor]
+  B[Locally supplied release bundle] --> V[Bounded signature and closure verifier]
+  T[Installation-attested release policy] --> V
+  V --> P
+  P --> H[Exact plan authority boundary]
+  H --> I[Isolated interpreter wheels and Skill staging]
+  I --> M[Existing repository migration and replay]
+  M --> A[Single durable active tuple publication]
+  A --> R[Canonical launcher and runtime handshake]
+  R --> D[Post-switch verification or verified old tuple]
+```
+
+### W10-S2 Goals and acceptance
+
+Trace to PRD FR-01/FR-16, NFR-01/06/08 and US installation/recovery journeys.
+G1: every admitted artifact and dependency edge is enumerated and byte-verified;
+zero unlisted files, duplicate identities, unresolved requirements or ambient index.
+G2: two clean installations of each identical platform bundle yield identical
+semantic installed manifests, excluding installation-local identity as specified S5.
+G3: every failure/crash boundary preserves an executable compatible old tuple, or
+fails closed with an explicit blocked recovery state; zero mixed tuple execution.
+G4: all planned `macos-arm64`, `macos-x86-64`, `linux-x86-64` native cells remain
+obligations; a missing artifact/environment is BLOCKED, never a simulated PASS.
+G5: Doctor and slice-A checking change zero task, repository, installation, locator,
+clock-high-water or Skill bytes. Planning never grants mutation authority.
+
+### W10-S3 Non-goals and retained limits
+
+Reuse PRD non-goals: no daemon, server/control plane, Windows-native support,
+cross-runtime task transfer or automatic external monitoring. This stage is design
+only; product code/tests, downloads/resolution, real Owner installations/data and
+irreversible actions require their later exact authority. PMF-initialized repositories
+continue to refuse export, even when empty/partially initialized. No physical DB copy,
+omission of PMF tables or new export version may bypass this accepted restriction.
+The old full274/P1 run remains historical; no new run is authorized by this design.
+
+### W10-S4 Components, graph and ownership
+
+Core `release_installation.py` owns closed records, digest projections, compatibility,
+set/graph equality and deterministic routing. It imports no packaging/cryptography,
+filesystem or runtime adapter. Application owns orchestration and operation lifetime.
+Adapter owns bounded no-follow bytes, actual platform/interpreter observations,
+existing packaged wheel parser/provider attestation, signature verification and local
+installer subprocesses. Storage in later slice C owns journal/CAS/durable publication;
+existing `InstallationMigrationRepository` remains the sole repository export/import
+implementation. Paths, sources, keys, thresholds and limits are installed configuration.
+
+All code runs in a command process. There is no background retry, resolver or network
+client. Verified inputs cannot be supplied as a caller trust map. A verifier obtains
+policy/schema/key registry through the same actual SOURCE/WHEEL ownership checks as
+other installation resources; it never promotes a candidate's embedded policy/key.
+
+| Executable node | Typed input/output and route | Trust and invalidation |
+|---|---|---|
+| ReleaseAdmissionLoop | bundle ref + current policy -> verified closure or diagnostic | Re-read actual policy, parser/provider and every file binding; any change invalidates closure |
+| InstallationPlanControl | closure + current platform/active tuple -> plan | Pure plan is a description, not capability; changed context requires a fresh plan |
+| OwnerAuthorityNode | exact plan -> approved installation request or refusal | Direct trusted Owner/runtime authority, bound action/targets/prior tuple; scope change returns here |
+| IsolatedStageLoop | approved request -> staged tool/Skills and installed manifest | No active-reference mutation; changed source revokes prepared result |
+| MigrationControl | staged result + existing export/import -> verified repository | Same installation lock/quiescence, exact origin/currentness; PMF refuses before export |
+| ActivationControl | all verified inputs -> verifying tuple -> active or restored tuple | One authoritative pointer, journal/CAS/fsync; no caller outcome or automatic retry |
+| CompletionControl | active tuple + actual native/runtime evidence -> WP10 evidence | Missing cell/test/rollback evidence stays missing; WP11 release review remains separate |
+
+Edges carry exact manifest/policy/source/current-state digests, action purpose and
+owner/installation identity. Failure returns to its responsible node; material scope,
+trust-policy or architecture change returns to Owner. Routine findings use the current
+review budget. A changed upstream record invalidates all dependent completions.
+
+### W10-S5 Closed data contracts and persistence
+
+All new records use `schema_version="1.0.0"`, reject unknown fields recursively,
+non-boolean integer limits, duplicate keys/IDs and noncanonical ordering. IDs are
+bounded ASCII tokens. Raw artifact SHA-256 is 64 lowercase hex; semantic digests use
+the existing charged canonical contract stack and distinct release contract/projection
+IDs. Schema/profile/cost-schedule resources are installation-owned inputs. Do not
+reinterpret existing ActiveRepositoryManifest1.0, GraphRef or task schemas.
+
+ReleaseInstallManifest fields are exactly: `schema_version`, `release_id`, `product`
+(name/version/cli_protocol), `platform` (os/architecture/python_abi), `interpreter`
+(artifact_id/implementation/patch/build_id/executable_member), `installer`
+(artifact_id/version/argv_policy_digest), `artifacts`, `dependencies`, `skills`,
+`compatibility`, `lock_artifact_id`, `sbom_artifact_id`, `security_evidence_artifact_id`,
+`policy_digest`, `trust_registry_digest`, `signing_key_id`, `manifest_digest`, `signature`.
+`signature` is Ed25519 over the domain-separated canonical manifest projection that
+excludes only signature and manifest_digest; manifest_digest covers that projection.
+The separate domain prevents extension/advisory signatures authorizing releases.
+
+Artifact fields: `artifact_id`, `kind`, `relative_path`, `distribution_name`, `version`,
+`size_bytes`, `raw_sha256`, `source_id`, `provenance_artifact_id`, `license_ids`.
+Kind is interpreter/installer/core-wheel/dependency-wheel/build-input/skill/lock/sbom/
+security-evidence/provenance. Unused distribution/version fields are null, not absent.
+Paths are portable relative segments, unique after platform case/normalization checks;
+no absolute, dot-dot, symlink, hardlink, special file or duplicate archive member.
+Source IDs resolve in the installed policy allowlist, never to a fetched URL.
+
+Dependency fields: `parent_artifact_id`, `child_artifact_id`, `requirement`, `marker`,
+`extras`. Resolve actual METADATA requirements with the attested packaged parser for
+the exact manifest platform/interpreter/extras. The complete reachable closure must
+match declared wheels, lock and SBOM bidirectionally; no extra/unreachable wheel,
+ambiguous normalized name/version, unlisted sdist or runtime build. Build-only inputs
+are a separately typed complete set, not runtime dependencies. Keep current direct
+pins `cryptography==50.0.0` and `packaging==26.3`; transitive identities come from
+verified metadata and supplied artifacts, never guessed or silently upgraded.
+
+Skill fields: `runtime_kind`, `skill_id`, `version`, `artifact_id`, `entry_member`,
+`protocol_range`. Compatibility fields are exact ranges for core/cli/adapter/Skill/
+repository contract+bundle/schema registry/graph/profile/overlay/action protocols,
+with required capabilities. Their values are configuration, not engine constants.
+
+ReleasePolicy fields: `schema_version`, `policy_id`, `platforms`, `source_ids`,
+`allowed_license_ids`, `security_rule_digest`, `required_provenance_kinds`,
+`trust_registry_digest`, `resource_policy_digest`, `policy_digest`. ReleaseTrustRegistry
+fields: `schema_version`, `registry_id`, `generation`, `keys`, `revoked_key_ids`,
+`registry_digest`; each key is id/public_key_hex/purpose/allowed_release_ids. Trust
+comes from owner-attested installation bytes. Checked-in initial release keys/sources
+may be empty and must then refuse, not allow a default test issuer. Private test roots
+may contain explicitly attested fixture trust, without altering a real installation.
+
+ReleaseResourcePolicy fields: `schema_version`, `policy_id`, `max_manifest_bytes`,
+`max_artifacts`, `max_dependency_edges`, `max_artifact_bytes`, `max_bundle_bytes`,
+`max_archive_members`, `max_expanded_bytes`, `max_expansion_ratio`, `max_path_segments`,
+`max_report_bytes`, `max_hash_bytes`, `policy_digest`. All limits are finite positive
+integers, bounded by the existing resource profile where applicable. Signed sizes
+cannot raise installed ceilings. No permissive fallback when policy/artifacts are
+unavailable. Concrete production archive ceilings are frozen from the supplied exact
+platform artifacts before an implementation release-acceptance request, not invented
+as an installer performance claim. Test policies use small attested fixture limits.
+
+InstallPlan fields: `schema_version`, `request_id`, `operation`, `installation_id`,
+`prior_tuple_digest` (nullable for new installation), `release_manifest_digest`,
+`policy_digest`, `closure_digest`, `platform_digest`, `target_refs`, `preserve_data`,
+`plan_digest`. Operation is check/install/init/upgrade/rollback/uninstall. Target refs
+are already validated configured root identities, never executable path text in reports.
+Plan hashes confer no permission. A later opaque InstallationAuthority is produced by
+the trusted Owner invocation/runtime boundary for this exact operation and plan.
+A supplied boolean, signed bundle or JSON decision alone cannot produce that authority.
+
+InstalledReleaseManifest contains exactly schema/release/platform, interpreter identity,
+ordered distribution name/version/wheel+installed-RECORD hashes, Skill asset/protocol
+hashes, lock/SBOM/security evidence/policy digests and installed_manifest_digest. These
+are normalized logical entries; installation-local absolute paths, owner, inode and
+incarnation live in a separate InstallationBinding and do not participate in the
+same-bundle reproducibility comparison. They remain mandatory at every use; excluding
+them from equality never excludes them from currentness validation.
+
+Later ReleaseActivationRecord contains schema/installation/request/generation,
+previous_tuple_digest, release_manifest_digest, installed_manifest_digest,
+interpreter/tool/Skill-root bindings, repository locator+ActiveRepositoryManifest
+binding, state (verifying/active/blocked), authority_ref, journal_head_digest,
+record_digest. Immutable record history and a bounded same-directory active reference
+live under the explicit owner-only installation control root. The reference selects
+one complete record; publication is write+fsync(record) -> fsync(directory) ->
+write+fsync(temp reference) -> atomic replace -> fsync(directory). Nothing executes
+from a `verifying` or inconsistent tuple.
+
+### W10-S6 Process/API surface and compatibility
+
+Proposed stable commands: `graph-engineering release-check --bundle <root>
+--manifest <file> --format json` and `graph-engineering doctor --format json`
+are slice A; neither creates control roots or initializes state. Trusted policy roots
+are discovered from the running distribution/verified locator, not from these request
+arguments. `doctor` may take `--installation <existing-control-root>` for explicit
+read-only diagnosis of that configured installation. Missing roots remain missing.
+
+Later `install-plan --operation <install|init|upgrade|rollback|uninstall> --request
+<closed-file> --format json` prepares only. `install-apply --plan <file> --format json`
+requires a trusted exact-plan InstallationAuthority from the local Owner/runtime
+adapter; no `--trusted`, `--force`, skip-verification or hash-only authorization flag.
+Local Owner invocation confirms the displayed exact plan through the installer adapter;
+Skill invocation requires the authenticated same-Owner runtime approval. These are
+installation maintenance authority, not fabricated task ActionAuthorityLedger entries.
+No generic new task action kinds or permissions are implied.
+
+Library interfaces (proposed): core `ReleaseInstallManifest.from_dict(value, guard)`,
+`compare_release_closure(manifest, observed)`, `build_install_plan(admitted, context)`;
+adapter `InstalledReleaseInputs.open_owned()`, `LocalReleaseVerifier.check(bundle_ref)`,
+`ReadOnlyDoctor.inspect(existing_ref)`; later application `ReleaseInstaller.plan(request)`,
+`apply(plan, authority)`, `recover(existing_ref)`. Admission returns a process-local,
+factory-owned typed observation plus a serializable diagnostic; reconstructing a Python
+record or replaying its JSON cannot acquire apply authority. Every use rechecks actual
+bytes/context and operation purpose. No long-lived memo or exported seal is introduced.
+
+Diagnostic exact fields: schema_version/request_id/status/phase/code/checks/refs/
+capabilities/next_route/diagnostic_digest. Checks contain only id/status/code/ref;
+status is preflight-valid/blocked/rejected; phase identifies check/doctor/plan/stage/
+migrate/activate/recover. The read-only first slice always reports install/upgrade/
+release capabilities unavailable until their own evidence/implementation exists.
+`preflight-valid` is not installed/supported/released. `refs` contain opaque IDs/digests,
+no machine paths, task contents, raw parser output or secrets. Result bounds are charged
+before forming the report. Existing CLI commands and JSON protocols remain unchanged.
+
+### W10-S7 Error model
+
+Use `ReleaseInstallationError(code)` with a closed sanitized code; adapter exceptions
+map at the application boundary without echoing paths or source contents. CLI exits:
+0 preflight-valid/read-only checks satisfied; 2 malformed request; 3 blocked prerequisite;
+4 rejected trust/currentness/compatibility. Later successful apply requires its own
+phase-specific completion record, never inferred from exit0.
+
+| Code | Meaning and retry route |
+|---|---|
+| RELEASE_INPUT_INVALID | Closed record/order/ID/relative-path invalid; correct input, no retry |
+| RELEASE_TRUST_REJECTED | Unknown/revoked/wrong-purpose key, signature/source/provenance/license/security refusal; Owner-approved input required |
+| RELEASE_CLOSURE_MISMATCH | Bytes/METADATA/lock/SBOM/requirements differ; rebuild exact bundle |
+| RELEASE_RESOURCE_LIMIT | Installed bound or cumulative expansion/work exhausted; no automatic higher limit |
+| RELEASE_PLATFORM_UNAVAILABLE | Missing exact interpreter/artifact/native platform evidence; obtain explicit prerequisite |
+| RELEASE_CURRENTNESS | Source/provider/policy/active context changed; new admission and plan |
+| RELEASE_CLOCK_UNAVAILABLE | Actual OS clock invalid/rollback relative to retained trusted facts; refuse freshness-dependent conclusion |
+| RELEASE_AUTHORITY_REQUIRED | Missing/wrong/stale operation+plan authorization; return to Owner |
+| RELEASE_QUIESCENCE | Live leases/unresolved claims/holds/migration prevent transition; reconcile, never force |
+| RELEASE_PMF_EXPORT_BLOCKED | Any initialized learning namespace blocks migration export; preserve old tuple |
+| RELEASE_RECOVERY_BLOCKED | Journal/reference/history inconsistent or post-switch target unsafe; diagnostics only |
+| RELEASE_PHASE_UNAVAILABLE | Requested phase not implemented/verified; route to its bounded delivery slice |
+
+### W10-S8 Upgrade, crash and rollback protocol
+
+Slice B stages immutable versioned interpreter/tool/Skill roots after authority and
+full admission; it never uses ambient Python, uv configuration, index or an unlisted
+installer. The adapter's exact argv/version are part of the verified installer policy;
+prove offline/no-download semantics with the supplied binary before admitting a real
+release. Missing binaries/argv support fail closed. No runtime dependency on uv.
+
+Slice C coordinates under the existing installation-wide exclusive control lock,
+then existing repository/object/resource lock order. All ordinary commands hold the
+shared installation control scope for their entire operation. Recheck quiescence,
+source/target currentness and authority immediately before publishing. Migration
+uses only existing API export/import/replay; PMF refusal happens before source export
+or candidate writes. Preserve leases/claims/fences/retention/bootstrap provenance.
+
+Registered WP10 installations use one release active reference as the authoritative
+selector. Their repository leaf manifests are immutable selected bindings, not a
+second independently mutable active truth. Existing repository activation must prepare
+and validate the leaf under that same coordinator/control lock; it cannot separately
+publish a repository-only change inside a registered release. Each manager command
+entry rechecks its release registration/selected tuple through an internally issued
+control context. A caller flag or raw path cannot select legacy bypass behavior.
+Unregistered historical repositories retain their current semantics; they are not
+silently adopted or upgraded. Adoption needs an explicit compatible plan and export;
+missing exact old release bundle/protocol or initialized PMF refuses before mutation.
+Old tools/Skills that cannot understand the release registration/dispatch protocol
+are unsupported transition inputs; do not make them read a new repository format.
+
+Skill native roots install a verified stable bootstrap/locator once under Owner
+installation authority. Upgrades select immutable versioned Skill assets through the
+same active record as executable/repository. No independent per-Skill symlink writes
+may masquerade as atomic whole-tuple publication. Bootstrap compatibility is checked
+before staging; needing to replace an incompatible bootstrap is a separate explicit
+plan, not an automatic fallback. Runtime may only invoke a tuple-verified executable.
+
+Durable journal states: prepared -> staged -> repository-verified -> verifying ->
+active, or failed-before-switch/restored/blocked. Request identity and exact input
+bindings are append-only. Same-request replay returns the original completed receipt
+after fresh validation; different request/stale prior generation cannot resume it.
+After crash, explicit recover under exclusive control verifies journal, record,
+reference and every retained binding. Before-switch failures leave old pointer intact.
+A durable verifying pointer blocks commands until post-switch checks complete or a
+verified old tuple is republished with a new generation. Never decrease generation,
+fencing high-water, advisory/revocation state or erase action history to roll back.
+If new irreversible actions occurred, automatic software rollback stops for action
+reconciliation. Recovery is bounded, records outcomes and never launches background retry.
+
+| Fault boundary | Required observation |
+|---|---|
+| manifest/streaming/archive/stage failure | No active/old repository/locator/Skill writes |
+| export or PMF restriction | Old executable and repository unchanged; explicit refusal |
+| candidate doctor/migration/replay failure | Old tuple usable; candidate quarantined under bounded retention |
+| record or reference fsync/replace crash | Recover selects a fully durable old or verifying new record, never mixed |
+| post-switch doctor/handshake failure | Old tuple verified and restored, otherwise blocked; no unsupported-format reads |
+| concurrent apply/recover/request replay | Exactly one durable publication/receipt, no reset or duplicate migration |
+
+### W10-S9 Resource and execution boundary
+
+Read metadata and charge declared/observed sizes before body allocation, hashing,
+archive traversal, JSON parsing and report materialization. Stream raw digests in
+bounded chunks; account cumulative compressed/expanded sizes, members, path depth,
+closure edges and repeated summaries, including duplicate-reference overhead. Existing
+resource-profile raw JSON/work limits remain ceilings. Current archive/parser physical
+bounds are reused and cannot be raised by a release document. Missing production
+artifact sizing is an admission blocker, not permission for unbounded reads.
+
+Every future named test retains native290s/canonical300s, strict serial/fail-fast;
+no latency/SLA or installation-throughput claim is fabricated without native artifacts.
+First-slice offline checks use zero network and zero persistent writes. Full native
+clean install performance is measured in later bounded commands, with its concrete
+argv/fixtures frozen before execution. No full274/P1 or automatic timeout retry.
+
+### W10-S10 Security, privacy and authority matrix
+
+| Actor | Read/verify | Mutation |
+|---|---|---|
+| Bundle supplier | Submit untrusted local refs only | None |
+| Admitted verifier/Doctor | Owned policy + bounded local artifacts/current facts | None, including clock high-water |
+| Owner/runtime authority adapter | Exact minimized plan + configured owner binding | Issue purpose/plan-bound installation approval only |
+| Installer coordinator | Fresh admitted closure/authority/quiescent tuple | Only approved isolated targets and atomic active publication |
+| Ordinary command/runtime | Selected compatible tuple under shared scope | Existing task authority only; no install promotion |
+
+Wheel/policy digests and signatures establish byte authenticity, not human installation
+permission. Same-user arbitrary modification of the entire trusted installation remains
+outside the existing threat model; untrusted bundle/target/task inputs are inside it.
+All directory components and file identities are revalidated before/use/after, no
+followed symlinks or trust from caller hash/PASS. Installed key/policy changes invalidate
+plans. Release trust is distinct from extension/advisory trust.
+
+Doctor reads actual OS clock only for freshness checks, compares it to retained trusted
+facts when present and rejects invalid/backward observations; it must not call
+`storage.clock.strict_trusted_now`, which writes high-water. Such read-only observations
+are never replayable activation clock authority. Apply later rechecks time under the
+existing authorized maintenance transaction and monotonic retained state. Security
+reports require the installed policy's current snapshot/validity and exact scope,
+never caller-provided time or a vulnerability-free string. Missing evidence blocks.
+
+No task content/prompt/secret/absolute path/boot identifier enters reports, SBOM or
+journal. Native identity is normalized/digested. Retention cleanup is explicit and
+uses existing hold/claim policy; uninstall removes only approved tool/Skill assets,
+preserves repositories/data by default and refuses live/unknown operations. Deleting
+retained data would need its own exact authority and is outside the proposed first slice.
+
+### W10-S11 Prerequisites, slicing and decisions
+
+Approved semantics are fixed by ADR0001 and the Owner's six-file design authority.
+No PRD or architecture change is proposed. Design completion is not implementation
+readiness, an install grant or product release. Slice A's exact implementation/test
+request must identify all resource/packaging/pin effects. Later B/C/native evidence
+remain required for WP10; no unavailable capability is waived.
+
+Before A implementation approval, freeze finite fixture limits, exact new file/resource
+closure and selectors; keep production trust empty if release keys/sources are not
+provided. Before genuine release admission, require owner-approved exact interpreter,
+installer and transitive wheels/provenance/license/security snapshot and lock/SBOM
+bytes. Before B/C activation implementation, freeze concrete durable integration
+oracles and supported old/new bootstrap formats. Before native acceptance, supply
+actual three planned platform environments. These are explicit stage prerequisites,
+not arbitrary dated promises or automatic network acquisition. Any new dependency,
+license/security-policy exception, support-matrix change or budget expansion returns
+to Owner; routine documentation precision stays within the approved review graph.
+
+### W10-S12 References and traceability
+
+[Positioning](../positioning/graph-engineering-workflow.md),
+[PRD/Intent v2](../prd/graph-engineering-workflow.md),
+[ADR0001](../adr/0001-core-implementation-and-local-packaging.md),
+[ADR0002](../adr/0002-local-event-repository-and-coordination.md),
+[ADR0015](../adr/0015-release-installation-and-upgrade.md),
+[Impact](../impact/graph-engineering-workflow.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md),
+[Test Plan](../test-plans/graph-engineering-workflow.md).
+Current source/deficiency observations are bound to pushed `3b5eaef` by the approved
+continuation audit. Existing WP00 build/reproducibility and WP08A physical closure are
+prerequisites, not ReleaseInstallManifest/installed/native/upgrade acceptance. W10-A
+will test exact byte admission and read-only diagnosis; W10-B/C and native matrix must
+supply all remaining GEW-PKG obligations before WP10 completion.
+
+### W10-A1 Slice-A implementation clarifications and current gate
+
+The Owner approved the exact39-path/313-command A request through a direct `批准`;
+`wp10-release-admission-implementation-approval-r0.json` binds it to the immutable
+request and effective Envelope in the delivery detached directory. The approved
+six-file design bodies are preserved separately. This subsection clarifies A's
+record/verification implementation; it does not change G5 or authorize B/C.
+
+ReleasePolicy platform entries are closed objects containing os/architecture/python_abi,
+`supported_versions` (the same11 compatibility names) and ordered `capabilities`.
+These installation-owned configured values are compared to manifest ranges after
+observing the actual OS/architecture/ABI. Artifact versions accept the already pinned
+two-part `packaging==26.3`; compatibility ranges continue to use explicit three-part
+bounds. No dependency version or parser activation status changes.
+
+The artifact schema is a closed versioned wrapper with `schema_version` and `artifact`,
+whose `$defs/artifact` is the exact unversioned nested Artifact described in S5. The
+Manifest references that definition. This preserves the frozen schema profile's
+versioned-root rule without adding a field to the nested Artifact contract. ASCII
+IDs/paths, ordering and signature/version grammar use charged core validation;
+schemas use only patterns already allowed by the frozen profile.
+
+Local support records are closed and domain separated:
+
+- Lock: schema_version/release_id/platform/components/dependencies/export_digest.
+- SBOM: schema_version/release_id/components/dependencies/sbom_digest.
+- Each component: artifact_id/distribution_name/version/raw_sha256/size_bytes/source_id/license_ids;
+  its set is exactly the physical runtime wheels, including actual transitive wheels.
+- Provenance: schema_version/release_id/subjects/provenance_digest. Subjects contain
+  artifact_id/kind/raw_sha256/size_bytes/source_id/license_ids for the executable and
+  build-input set. The manifest pins provenance bytes; support-record self-digests
+  alone never establish trust.
+- Security evidence: schema_version/release_id/policy_digest/security_rule_digest/subjects/
+  issued_at/expires_at/verdict/signing_key_id/signature. UTC-second integers are
+  compared to an actual OS read and the installed verification freshness rule.
+  A separate `security-evidence` purpose key signs the canonical security-evidence
+  domain. The release-purpose signature cannot substitute for it. Unknown/non-PASS,
+  expired/future or incorrectly bound results refuse.
+
+The legacy minimal SBOM command retains its limited declaration-check meaning.
+`scripts/verify_supply_chain.py release-inputs --bundle ... --manifest ...` delegates
+to the real release admission application and cannot promote empty legacy components
+or the incomplete checked-in uv.lock into release evidence.
+
+The physical reader binds descriptor, entry and every parent identity, owner/mode,
+size/timestamps and raw hash until return. The entire archive closure is structurally
+bounded before member parsing; no extraction or candidate code execution occurs.
+ZIP central/local headers and RECORD reuse the attested backend. Tar currently admits
+regular-file ustar without extension/link/device records; unsupported encodings refuse.
+Resource reservations count all archive members and cumulative expanded bytes, including
+a conservative full second wheel expansion for the validator's repeated metadata read.
+`max_bundle_bytes` counts physical inputs once; `max_hash_bytes` counts repeated artifact
+reads cumulatively across verification and observation use. A fresh use rechecks real
+inputs; it cannot reset the retained observation's hash budget. Lower existing limits
+continue to win. These reservations and fixture limits are not production sizing claims.
+
+Doctor opens no SQLite file with a writable SQLite connection. It checks bounded
+existing file snapshots and reads retained clock facts from an in-memory SQLite image;
+that diagnostic memory image is never persisted/exported or passed to migration.
+It never calls writable clock, repository initialization, export or apply APIs. Missing
+roots remain missing. Without later active-tuple formats, the result remains blocked;
+WAL/journal ambiguity, malformed/rollback clocks and changed inputs also block.
+
+Actual cold installed console-script testing exposed one unresolved G5 issue:
+Python may cache the initial package `__init__` before its code can disable subsequent
+bytecode writes. The Doctor result is correctly blocked, but the initial `.pyc` and
+package-directory change fail the strict installation zero-write oracle. The exact
+choice is retained as `wp10-admission-readonly-launcher-design-choice-r0.json`.
+No test-only `-B` run replaces that failing cold-launch evidence. A separately
+approved launcher design or explicit acceptance change is required; A and WP10 are
+not complete while this gate remains open.
+
+
+### W10-A2 Owner-approved strict launcher amendment
+
+The Owner approved the independently reviewed strict launcher design and then the
+exact41-file/313-command implementation amendment. The immutable authority is
+`wp10-release-admission-implementation-approval-r1.json`; reviewed design
+`wp10-readonly-launcher-design-r1.md` (raw SHA256
+`68d158085fcb2ebbd6efc8ceaf344bbba0b64b1dd41a5cf3730e5bb467881699`)
+and `wp10-readonly-launcher-design-completion-r1.json` remain in the detached directory.
+This supersedes only the previous pending launcher-choice language. G5 is unchanged;
+prior failing evidence and all four W10-IMPLEMENTATION-R0 findings remain retained
+until independently verified repairs. PRD/Intent, other native cells, B/C, PMF-export
+refusal, production trust blockers and separate irreversible action gates remain.
+
+The reviewed design sections1–12 are the normative bounded amendment. A backend-owned
+finite direct script, recorded as the sole expected `.data/scripts/graph-engineering`
+member with executable mode and RECORD hash/size, sets dont_write_bytecode before
+first product import for both read-only commands. Build configuration replaces this
+command's console entry with exact `tool.gew.build.direct-scripts`; no overlapping
+console entry, ambient code/template, startup hook or test-only wrapper is allowed.
+Keep public command grammar and installed `graph_engineering.cli:main`. The private
+fixture spreads actual wheel script bytes and updates installed RECORD; this is not
+a product installer or native/uv certification. Build verification permits exactly
+this member and rejects other `.data` content. No externally added -B/cache variable,
+prewarming or cache deletion can satisfy cold-launch acceptance.
+
+Bootstrap failure returns a finite existing-schema, correctly framed/digested refusal
+under1KiB using trusted stdlib/literals, without rereading failed installation/seed
+providers or emitting exception text/paths. Stable check4/Doctor3 exits are required;
+normal diagnostics keep their typed, charged context. No ambient default authority.
+Every physical wheel's actual Requires-Python is parsed through the extended attested
+SpecifierSet callable boundary and checked against the manifest's full Python patch;
+absent means no additional constraint, duplicate/malformed/incompatible means refusal.
+Recheck exported class/backend alias/used callable code before use and after observation,
+including retained use. Every Skill protocol_range must accept the installation-owned
+selected supported_versions.skill, independently of top-level compatibility.
+
+
+### W10-A3 Owner-approved closed parser trust boundary
+
+The Owner approved the reviewed `wp10-parser-trust-boundary-design-r1.md` (raw
+SHA256 `7fd4d4f8f7060f9abb6fd2096537b1cfcda4aa81fcfd857ea5ff47c8a6a84fbb`)
+and its concrete implementation request. Immutable approval is
+`wp10-release-admission-implementation-approval-r2.json` in the detached directory.
+The reviewed twelve-section design, including §4.3.1, is the normative amendment.
+PRD/Intent, exact41 targets,313 commands, strict serial/fail-fast, native290/canonical300,
+zero writes, diagnostics, dependencies/platforms and B/C exclusions remain unchanged.
+This supersedes the selected-member parser strategy, not the retained launcher design.
+
+Build one operation-owned, privately linked Version/_ranges/SpecifierSet closure and
+canonicalize_version facade from physically RECORD-verified26.3 source. Validate the
+ambient executable surface against its complete source-derived structural graph before
+and after use and observation reuse. Exact types precede inspection; never invoke
+suspect equality, descriptor, container or regex dispatch. Bind code/defaults/closures,
+classes/metaclasses/bases, slots, aliases, containers/constants/singletons, regex and
+legitimate generated helpers/caches. Unknown dependency sites/objects refuse. Compute
+Requires-Python using private objects, return only a bool, and retain the same owned
+provider through the verifier/observation. No ambient fallback, global image cache,
+candidate code, package import hook, sys.modules publication, external action or new
+persistent schema is permitted. Trusted CPython/stdlib/backend remain the stated base.
+
+Construction has its own closed effects inventory. Omit exactly six overwritten
+overload stubs and the enumerated unread annotation-only declarations/imports before
+execution; preserve concrete function-code/defaults and future-annotation strings.
+Use finite local NamedTuple/ABC/enum/functools/wrapper recipes and a non-caching regex
+compiler facade. No private graph may escape into ambient overload/typing/regex
+registries; never clear or replace shared registries to repair a leak. Success, failure,
+release and repeated construction must preserve ambient bindings and permit private
+graph collection. Partial construction and release drop local references/tracebacks.
+
+Preserve implementation r0–r4 and the r4 regex finding. The separately approved exact
+task-local Policy exception selects max_revision_cycles5 only for implementationr5;
+project Policy and other nodes remain4, with original inputs used for historical replay.
+No task/numbering reset, frozen reducer edit or host permission change is authorized.
+Non-PASS at r5 stops. Only actual implementation ADVANCE permits canonical313 and
+subsequent verification/Candidate review. No completion or commit/push is implied.
+
+Internal APIs: `_owned_constraint_provider()`, exact-str `requires_python` returning exact bool, and `require_current` returning a validated primitive binding. Physical source/RECORD and contract-version/digest bindings are rechecked at every barrier. A closed/replaced provider invalidates its retained observation. Public signatures/schema/exits remain unchanged.
+
+
+### W10-A4 Owner-approved effective-global-binding repair
+
+The Owner separately approved `wp10-parser-global-binding-repair-request-r0.json`
+(raw SHA256 `d64f1b46975b38f15d3c500e7a4e87f7fc1052676d531c930a39d589a089ff22`)
+through `wp10-release-admission-implementation-approval-r3.json`. This is a routine
+correction to the W10-A3 architecture: resolve reference and live function bindings
+independently using globals first, builtins second, then compare effective bindings
+without invoking a substituted callable. Preserve explicit name presence, the trusted
+import recipe, all private-construction/currentness guarantees and existing regressions.
+
+The r5 independent review resolved eight historical findings and retained
+`W10-IMPLEMENTATION-R5-001`; its actual ESCALATE/E_LOOP remains immutable. This new
+approval supersedes only the r5 stop/budget for one implementation revision6 with
+an exact task-local ceiling6 (previous selected ceiling5); project/default and other
+nodes remain4. Preserve the same task, prior digest and exact historical reduction
+inputs. Non-PASS at r6 stops. Exact41,313 commands/307 selectors, native290/canonical300,
+serial/fail-fast, zero writes, diagnostics and all exclusions remain unchanged.
+
+Add meaningful SOURCE/WHEEL acquisition, public refusal, retained-invalidation and
+restoration coverage for `packaging.utils.isinstance` shadowing within existing
+W10-016/W10-026 selectors; require zero substituted calls, bounded independently
+checked diagnostics, privacy, empty stderr and unchanged inventories. Retain actual
+RED/GREEN and run six statics before fresh independent implementationr6 review.
+Only actual ADVANCE permits canonical313, verification and Candidate review.

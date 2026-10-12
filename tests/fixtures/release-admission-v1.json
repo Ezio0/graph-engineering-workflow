@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_id": "release-admission-synthetic-v1",
+  "fixture_limits": {
+    "max_manifest_bytes": 65536,
+    "max_artifacts": 64,
+    "max_dependency_edges": 256,
+    "max_artifact_bytes": 16777216,
+    "max_bundle_bytes": 67108864,
+    "max_archive_members": 8192,
+    "max_expanded_bytes": 134217728,
+    "max_expansion_ratio": 32,
+    "max_path_segments": 16,
+    "max_report_bytes": 65536,
+    "max_hash_bytes": 268435456
+  },
+  "platform": {
+    "os": "macos",
+    "architecture": "arm64",
+    "python_abi": "cp312"
+  },
+  "versions": {
+    "core": "0.1.0",
+    "cli": "1.0.0",
+    "adapter": "1.0.0",
+    "skill": "1.0.0",
+    "repository_contract": "1.0.0",
+    "repository_bundle": "1.0.0",
+    "schema_registry": "1.0.0",
+    "graph": "1.0.0",
+    "profile": "1.0.0",
+    "overlay": "1.0.0",
+    "action": "1.0.0"
+  },
+  "capabilities": [
+    "release-check"
+  ],
+  "artifact_kinds": [
+    "interpreter",
+    "installer",
+    "core-wheel",
+    "dependency-wheel",
+    "skill",
+    "lock",
+    "sbom",
+    "security-evidence",
+    "provenance"
+  ],
+  "source_id": "synthetic-local",
+  "release_id": "synthetic-v1",
+  "product": {
+    "name": "graph-engineering-workflow",
+    "version": "0.1.0",
+    "cli_protocol": "1.0.0"
+  },
+  "direct_requirements": [
+    "cryptography==50.0.0",
+    "packaging==26.3"
+  ],
+  "runtime_distributions": [
+    {
+      "artifact_id": "core",
+      "name": "graph-engineering-workflow",
+      "version": "0.1.0",
+      "requires": [
+        "cryptography==50.0.0",
+        "packaging==26.3"
+      ]
+    },
+    {
+      "artifact_id": "crypto",
+      "name": "cryptography",
+      "version": "50.0.0",
+      "requires": [
+        "synthetic-cffi==1.0.0"
+      ]
+    },
+    {
+      "artifact_id": "parser",
+      "name": "packaging",
+      "version": "26.3",
+      "requires": []
+    },
+    {
+      "artifact_id": "cffi",
+      "name": "synthetic-cffi",
+      "version": "1.0.0",
+      "requires": []
+    }
+  ],
+  "security_rule_id": "synthetic-release-security-pass-v1",
+  "legacy_resource_paths": [
+    "config/security/dependency-advisory-installation-bootstrap-v1.2.json",
+    "config/learning/learning-policy-v3.json",
+    "config/contracts/resource-profile-v1.json",
+    "config/security/security-bootstrap-v1.json"
+  ],
+  "legacy_resource_hashes": {
+    "config/security/dependency-advisory-installation-bootstrap-v1.2.json": "c7668d34fc946b5bb9bc5ea600b5bd7661849e2e5a3ad819a7f054373bbe0424",
+    "config/learning/learning-policy-v3.json": "05ff82752733734be1ee14090d936204f8e1189b16a0fae06086454bb5dc760a",
+    "config/contracts/resource-profile-v1.json": "8976f8fa464f06228a488e63346db8f266585b66407cedbaaffe203b43446812",
+    "config/security/security-bootstrap-v1.json": "52ebc768d8c56ed550b5a53a85d10943375aed937f0ffd9c670dd92cde414d4c"
+  }
+}

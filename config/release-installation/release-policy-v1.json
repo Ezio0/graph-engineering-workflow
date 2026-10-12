@@ -1,0 +1,86 @@
+{
+  "allowed_license_ids": [
+    "Apache-2.0",
+    "BSD-3-Clause",
+    "LicenseRef-Proprietary"
+  ],
+  "platforms": [
+    {
+      "architecture": "x86_64",
+      "capabilities": [
+        "release-check"
+      ],
+      "os": "linux",
+      "python_abi": "cp312",
+      "supported_versions": {
+        "action": "1.0.0",
+        "adapter": "1.0.0",
+        "cli": "1.0.0",
+        "core": "0.1.0",
+        "graph": "1.0.0",
+        "overlay": "1.0.0",
+        "profile": "1.0.0",
+        "repository_bundle": "1.0.0",
+        "repository_contract": "1.0.0",
+        "schema_registry": "1.0.0",
+        "skill": "1.0.0"
+      }
+    },
+    {
+      "architecture": "arm64",
+      "capabilities": [
+        "release-check"
+      ],
+      "os": "macos",
+      "python_abi": "cp312",
+      "supported_versions": {
+        "action": "1.0.0",
+        "adapter": "1.0.0",
+        "cli": "1.0.0",
+        "core": "0.1.0",
+        "graph": "1.0.0",
+        "overlay": "1.0.0",
+        "profile": "1.0.0",
+        "repository_bundle": "1.0.0",
+        "repository_contract": "1.0.0",
+        "schema_registry": "1.0.0",
+        "skill": "1.0.0"
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "capabilities": [
+        "release-check"
+      ],
+      "os": "macos",
+      "python_abi": "cp312",
+      "supported_versions": {
+        "action": "1.0.0",
+        "adapter": "1.0.0",
+        "cli": "1.0.0",
+        "core": "0.1.0",
+        "graph": "1.0.0",
+        "overlay": "1.0.0",
+        "profile": "1.0.0",
+        "repository_bundle": "1.0.0",
+        "repository_contract": "1.0.0",
+        "schema_registry": "1.0.0",
+        "skill": "1.0.0"
+      }
+    }
+  ],
+  "policy_digest": "sha256-jcs-v1:0c6b495720b531566602f38c1c847d94bd08ad5bdd8dede0d5190134addc5a9c",
+  "policy_id": "release-install-owner-unconfigured-v1",
+  "required_provenance_kinds": [
+    "core-wheel",
+    "dependency-wheel",
+    "installer",
+    "interpreter",
+    "skill"
+  ],
+  "resource_policy_digest": "sha256-jcs-v1:c094c7401c929a0f4f9894029d36816f6b62870ca4c2b18df6b81616517dded8",
+  "schema_version": "1.0.0",
+  "security_rule_digest": "sha256-jcs-v1:93c46845fb22c01b3b109cd9ad716abbc6f05ca1fbe3490bbd2264caaa7fd6b3",
+  "source_ids": [],
+  "trust_registry_digest": "sha256-jcs-v1:25ecc006185860466a75c90494b03d66211b66f7b07a5f647f7068422c20c97c"
+}

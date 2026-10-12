@@ -1,0 +1,35 @@
+{
+  "registry_digest": "sha256-jcs-v1:88d9052b5fc0d0c8167716f91f1512a93cefaf40d94ee355bd7a4671b7092897",
+  "registry_id": "urn:gew:schema-registry:release-installation:1.0.0",
+  "resources": [
+    {
+      "body_digest": "sha256-raw-v1:6f95e5239c33663b47887a03f25d43b40a776bf9c06964a0c0fd9903ad6e6bf9",
+      "schema_id": "urn:gew:schema:release-install-artifact:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:e27b4cf0274fe56d1829da1491f15bbe849a2075b2e9a06d1317dd0da2a1b694",
+      "schema_id": "urn:gew:schema:release-install-diagnostic:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:5e0072911aa07213ac07d769540ab7a300acee35302b003c3fca6b63e06e0445",
+      "schema_id": "urn:gew:schema:release-install-manifest:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:0022fffbe325c3eb7f9ef897cc06e5df52a2369565c26af487add05fb3a94e2b",
+      "schema_id": "urn:gew:schema:release-install-policy:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:c1e26cae4e6e4f8a68e1d6266066d3d5b66afea03cf943207b23f4b2a9aff396",
+      "schema_id": "urn:gew:schema:release-install-resource-policy:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:e25998e587ced05c3777729fd43eae5be97bbcdb230caddd948530b896b50f97",
+      "schema_id": "urn:gew:schema:release-install-schema-registry:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:f940f4eeab7d64a98d71840b3323d27ebf7ab40328f9f11ed3c05e6d48422b2c",
+      "schema_id": "urn:gew:schema:release-install-trust-registry:1.0.0"
+    }
+  ],
+  "schema_version": "1.0.0"
+}

@@ -2,6 +2,13 @@
 
 from __future__ import annotations
 
+import sys
+
+# The wheel-owned direct script sets this flag before importing the package.
+# Retain the guard for callers that invoke the read-only commands as a module.
+if len(sys.argv) > 1 and sys.argv[1] in ("release-check", "doctor"):
+    sys.dont_write_bytecode = True
+
 import base64
 import csv
 import ctypes
@@ -37,6 +44,21 @@ _CONTROL_LOCK = "installation-maintenance.lock"
 _ATTESTATION_KEY = "source-checkout-attestation-v1.key"
 _ATTESTATION_FILE = "source-checkout-attestation-v1.json"
 _SOURCE_FILES = (
+    "core/graph_engineering/core/release_installation.py",
+    "application/graph_engineering/application/release_installation.py",
+    "adapters/graph_engineering/adapters/release_installation.py",
+    "config/release-installation/release-policy-v1.json",
+    "config/release-installation/release-trust-registry-v1.json",
+    "config/release-installation/release-resource-policy-v1.json",
+    "config/contracts/release-installation-schema-registry-v1.json",
+    "config/contracts/schemas/release-install-manifest-1.0.0.json",
+    "config/contracts/schemas/release-install-artifact-1.0.0.json",
+    "config/contracts/schemas/release-install-policy-1.0.0.json",
+    "config/contracts/schemas/release-install-trust-registry-1.0.0.json",
+    "config/contracts/schemas/release-install-resource-policy-1.0.0.json",
+    "config/contracts/schemas/release-install-diagnostic-1.0.0.json",
+    "config/contracts/schemas/release-install-schema-registry-1.0.0.json",
+
     "application/graph_engineering/application/security_bootstrap.py",
     "config/security/security-bootstrap-v1.json",
     "config/contracts/security-bootstrap-schema-registry-v1.json",
@@ -3742,3 +3764,9 @@ def _security_bootstrap_installation_resources(context) -> tuple[bytes, ...]:
             schema_id='urn:gew:schema:security-bootstrap:1.0.0') != descriptor['descriptor_digest']:
         raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
     return bodies
+
+
+def _release_installation_resources(context):
+    """Capture the exact closed release resources through the owned boundary."""
+    locations=('config/release-installation/release-policy-v1.json', 'config/release-installation/release-trust-registry-v1.json', 'config/release-installation/release-resource-policy-v1.json', 'config/contracts/release-installation-schema-registry-v1.json', 'config/contracts/schemas/release-install-manifest-1.0.0.json', 'config/contracts/schemas/release-install-artifact-1.0.0.json', 'config/contracts/schemas/release-install-policy-1.0.0.json', 'config/contracts/schemas/release-install-trust-registry-1.0.0.json', 'config/contracts/schemas/release-install-resource-policy-1.0.0.json', 'config/contracts/schemas/release-install-diagnostic-1.0.0.json', 'config/contracts/schemas/release-install-schema-registry-1.0.0.json')
+    return locations, _installation_owned_resources(locations, context=context)

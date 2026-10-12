@@ -1,0 +1,51 @@
+{
+  "$id": "urn:gew:schema:release-install-schema-registry:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "registry_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "registry_id": {
+      "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "resources": {
+      "items": {
+        "properties": {
+          "body_digest": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "type": "string"
+          },
+          "schema_id": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_id",
+          "body_digest"
+        ],
+        "type": "object",
+        "unevaluatedProperties": false
+      },
+      "maxItems": 65536,
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    }
+  },
+  "required": [
+    "schema_version",
+    "registry_id",
+    "resources",
+    "registry_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

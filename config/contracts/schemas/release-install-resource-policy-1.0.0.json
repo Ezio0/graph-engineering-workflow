@@ -1,0 +1,92 @@
+{
+  "$id": "urn:gew:schema:release-install-resource-policy:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "max_archive_members": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "max_artifact_bytes": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "max_artifacts": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "max_bundle_bytes": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "max_dependency_edges": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "max_expanded_bytes": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "max_expansion_ratio": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "max_hash_bytes": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "max_manifest_bytes": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "max_path_segments": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "max_report_bytes": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "policy_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "policy_id": {
+      "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    }
+  },
+  "required": [
+    "schema_version",
+    "policy_id",
+    "max_manifest_bytes",
+    "max_artifacts",
+    "max_dependency_edges",
+    "max_artifact_bytes",
+    "max_bundle_bytes",
+    "max_archive_members",
+    "max_expanded_bytes",
+    "max_expansion_ratio",
+    "max_path_segments",
+    "max_report_bytes",
+    "max_hash_bytes",
+    "policy_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

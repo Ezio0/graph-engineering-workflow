@@ -1,0 +1,404 @@
+{
+  "$id": "urn:gew:schema:release-install-manifest:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "artifacts": {
+      "items": {
+        "$ref": "urn:gew:schema:release-install-artifact:1.0.0#/$defs/artifact"
+      },
+      "maxItems": 65536,
+      "minItems": 1,
+      "type": "array"
+    },
+    "compatibility": {
+      "properties": {
+        "action": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "adapter": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "cli": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "core": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "graph": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "overlay": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "profile": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "repository_bundle": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "repository_contract": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "required_capabilities": {
+          "items": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 65536,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "schema_registry": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "skill": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "core",
+        "cli",
+        "adapter",
+        "skill",
+        "repository_contract",
+        "repository_bundle",
+        "schema_registry",
+        "graph",
+        "profile",
+        "overlay",
+        "action",
+        "required_capabilities"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "dependencies": {
+      "items": {
+        "properties": {
+          "child_artifact_id": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "extras": {
+            "items": {
+              "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 65536,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "marker": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              }
+            ]
+          },
+          "parent_artifact_id": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "requirement": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "parent_artifact_id",
+          "child_artifact_id",
+          "requirement",
+          "marker",
+          "extras"
+        ],
+        "type": "object",
+        "unevaluatedProperties": false
+      },
+      "maxItems": 65536,
+      "type": "array"
+    },
+    "installer": {
+      "properties": {
+        "argv_policy_digest": {
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "artifact_id": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "version": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "version",
+        "argv_policy_digest"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "interpreter": {
+      "properties": {
+        "artifact_id": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "build_id": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "executable_member": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 1024,
+          "minLength": 1,
+          "type": "string"
+        },
+        "implementation": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "patch": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "implementation",
+        "patch",
+        "build_id",
+        "executable_member"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "lock_artifact_id": {
+      "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "manifest_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "platform": {
+      "properties": {
+        "architecture": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "os": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "python_abi": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "os",
+        "architecture",
+        "python_abi"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "policy_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "product": {
+      "properties": {
+        "cli_protocol": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "type": "string"
+        },
+        "name": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "version": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "cli_protocol"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "release_id": {
+      "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "sbom_artifact_id": {
+      "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "security_evidence_artifact_id": {
+      "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "signature": {
+      "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+      "type": "string"
+    },
+    "signing_key_id": {
+      "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "skills": {
+      "items": {
+        "properties": {
+          "artifact_id": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "entry_member": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          "protocol_range": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "runtime_kind": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "skill_id": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "version": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 128,
+            "type": "string"
+          }
+        },
+        "required": [
+          "runtime_kind",
+          "skill_id",
+          "version",
+          "artifact_id",
+          "entry_member",
+          "protocol_range"
+        ],
+        "type": "object",
+        "unevaluatedProperties": false
+      },
+      "maxItems": 65536,
+      "type": "array"
+    },
+    "trust_registry_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "release_id",
+    "product",
+    "platform",
+    "interpreter",
+    "installer",
+    "artifacts",
+    "dependencies",
+    "skills",
+    "compatibility",
+    "lock_artifact_id",
+    "sbom_artifact_id",
+    "security_evidence_artifact_id",
+    "policy_digest",
+    "trust_registry_digest",
+    "signing_key_id",
+    "manifest_digest",
+    "signature"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

@@ -1,4 +1,4 @@
-"""Verify the WP-00 dependency license policy and emit a minimal SBOM."""
+"""Check legacy project declarations or verified local release inputs."""
 
 from __future__ import annotations
 
@@ -20,8 +20,22 @@ def _inputs() -> tuple[dict[str, object], dict[str, object]]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=("license", "sbom"))
+    parser.add_argument("mode", choices=("license", "sbom", "release-inputs"))
+    parser.add_argument("--bundle", type=pathlib.Path)
+    parser.add_argument("--manifest", type=pathlib.Path)
     arguments = parser.parse_args(argv)
+    if arguments.mode == "release-inputs":
+        if arguments.bundle is None or arguments.manifest is None:
+            parser.error("release-inputs requires bundle and manifest")
+        # Trust and physical closure come from the running installation. This
+        # mode neither accepts a caller policy nor treats the legacy empty SBOM
+        # as release evidence.
+        from graph_engineering.application.release_installation import release_check
+        result, code = release_check(arguments.bundle, arguments.manifest)
+        print(json.dumps(result, sort_keys=True, separators=(",", ":")))
+        return code
+    if arguments.bundle is not None or arguments.manifest is not None:
+        parser.error("release input options require release-inputs mode")
     project, policy = _inputs()
     dependencies = project.get("dependencies", [])
     if dependencies != policy["runtime_dependencies"] or project["license"] != policy["project_license"]:

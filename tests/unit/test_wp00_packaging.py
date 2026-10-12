@@ -30,6 +30,26 @@ def learning_wheel_probe(code):
         if result.returncode:raise AssertionError('isolated learning wheel probe failed')
 
 
+def assert_direct_script_contract(test, configuration):
+    test.assertEqual(
+        configuration["tool"]["gew"]["build"].get("direct-scripts", {}).get("graph-engineering"),
+        "graph_engineering.cli:main",
+    )
+    test.assertNotIn("graph-engineering", configuration["project"].get("scripts", {}))
+    from scripts import build_backend
+    import base64, csv, io, stat
+    with tempfile.TemporaryDirectory(prefix="gew-direct-script-") as directory:
+        wheel=pathlib.Path(directory)/build_backend.build_wheel(directory)
+        with zipfile.ZipFile(wheel) as archive:
+            name="graph_engineering_workflow-0.1.0.data/scripts/graph-engineering"
+            body=archive.read(name);info=archive.getinfo(name)
+            test.assertTrue(body.startswith(b"#!python\n"))
+            test.assertEqual(stat.S_IMODE(info.external_attr >> 16), 0o755)
+            rows=list(csv.reader(io.StringIO(archive.read("graph_engineering_workflow-0.1.0.dist-info/RECORD").decode())))
+            test.assertIn([name,"sha256="+base64.urlsafe_b64encode(hashlib.sha256(body).digest()).rstrip(b"=").decode(),str(len(body))],rows)
+            test.assertNotIn(b"graph-engineering =",archive.read("graph_engineering_workflow-0.1.0.dist-info/entry_points.txt"))
+
+
 class PackagingContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
@@ -158,10 +178,7 @@ print("changed bytes and identical-content installation replacement rejected; re
         )
 
     def test_console_script_uses_installed_distribution_namespace(self) -> None:
-        self.assertEqual(
-            self.pyproject["project"]["scripts"]["graph-engineering"],
-            "graph_engineering.cli:main",
-        )
+        assert_direct_script_contract(self, self.pyproject)
 
     def test_responsibility_roots_map_to_one_namespace(self) -> None:
         expected = {

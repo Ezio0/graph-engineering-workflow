@@ -1,0 +1,165 @@
+{
+  "$id": "urn:gew:schema:release-install-diagnostic:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "capabilities": {
+      "properties": {
+        "doctor": {
+          "const": "available"
+        },
+        "install": {
+          "const": "unavailable"
+        },
+        "release": {
+          "const": "unavailable"
+        },
+        "release-check": {
+          "const": "available"
+        },
+        "upgrade": {
+          "const": "unavailable"
+        }
+      },
+      "required": [
+        "release-check",
+        "doctor",
+        "install",
+        "upgrade",
+        "release"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "checks": {
+      "items": {
+        "properties": {
+          "code": {
+            "enum": [
+              "ok",
+              "input_invalid",
+              "trust_rejected",
+              "closure_mismatch",
+              "resource_limit",
+              "platform_unavailable",
+              "currentness",
+              "clock_unavailable",
+              "authority_required",
+              "quiescence",
+              "pmf_export_blocked",
+              "recovery_blocked",
+              "phase_unavailable"
+            ]
+          },
+          "id": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "ref": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "preflight-valid",
+              "blocked",
+              "rejected"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "code",
+          "ref"
+        ],
+        "type": "object",
+        "unevaluatedProperties": false
+      },
+      "maxItems": 65536,
+      "type": "array"
+    },
+    "code": {
+      "enum": [
+        "ok",
+        "input_invalid",
+        "trust_rejected",
+        "closure_mismatch",
+        "resource_limit",
+        "platform_unavailable",
+        "currentness",
+        "clock_unavailable",
+        "authority_required",
+        "quiescence",
+        "pmf_export_blocked",
+        "recovery_blocked",
+        "phase_unavailable"
+      ]
+    },
+    "diagnostic_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "next_route": {
+      "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "phase": {
+      "enum": [
+        "check",
+        "doctor",
+        "plan",
+        "stage",
+        "migrate",
+        "activate",
+        "recover"
+      ]
+    },
+    "refs": {
+      "items": {
+        "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+        "maxLength": 128,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 65536,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "request_id": {
+      "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "preflight-valid",
+        "blocked",
+        "rejected"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "status",
+    "phase",
+    "code",
+    "checks",
+    "refs",
+    "capabilities",
+    "next_route",
+    "diagnostic_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import base64
+import ast
+import abc
+import types
 import contextlib
 import contextvars
 import copy
 import csv
+import functools
 import hashlib
 import importlib
 import importlib.metadata
@@ -27,18 +31,45 @@ from collections.abc import Callable, Iterable, Iterator
 from email.parser import Parser
 from typing import NamedTuple
 
+def _parser_namespace(module: object, expected_name: str | None=None) -> dict[str, object]:
+    if type(module) is not types.ModuleType:
+        raise ValueError('package parser module is substituted')
+    namespace=vars(module)
+    if any(type(key) is not str for key in namespace):
+        raise ValueError('package parser module namespace is substituted')
+    name=namespace.get('__name__')
+    if type(name) is not str or (expected_name is not None and name!=expected_name):
+        raise ValueError('package parser module name is substituted')
+    return namespace
+
+
+def _validate_loaded_parser_namespaces() -> None:
+    # Backend reloading must reject malformed live dictionaries before Python's
+    # import machinery or module attribute lookups can consult their keys.
+    for name,module in tuple(sys.modules.items()):
+        if type(name) is str and (name=='packaging' or name.startswith('packaging.')):
+            _parser_namespace(module,name)
+
+
+_validate_loaded_parser_namespaces()
+
 import packaging
 import packaging.requirements
+import packaging.specifiers
+import packaging._ranges
 import packaging.tags
 import packaging.utils
 import packaging.version
 from packaging.requirements import InvalidRequirement, Requirement
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.tags import parse_tag, sys_tags
 from packaging.utils import canonicalize_name, parse_wheel_filename
 from packaging.version import InvalidVersion, Version
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+if pathlib.Path(__file__).name == "build_backend.py" and pathlib.Path(__file__).parent.name == "graph_engineering":
+    ROOT = pathlib.Path(__file__).resolve().parent
 PYPROJECT = ROOT / "pyproject.toml"
 ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 ACTION_ADAPTER_PROVENANCE_RESOURCE = "graph_engineering/pyproject.toml"
@@ -46,6 +77,7 @@ _RAW_SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 _PARSER_MODULES = (
     packaging,
     packaging.requirements,
+    packaging.specifiers,
     packaging.tags,
     packaging.utils,
     packaging.version,
@@ -182,9 +214,22 @@ def _normalized_metadata_name(value: object) -> str:
     return re.sub(r"[-_.]+", "-", value).lower()
 
 
+
 def _package_parser_attestation() -> PackageParserAttestation:
     """Attest the configured packaging distribution before any preflight parse."""
 
+    # Module lookups precede parsing too. Inspect exact module dictionaries so
+    # a missing export cannot invoke a substituted module __getattr__ hook.
+    root_namespace=_parser_namespace(packaging,'packaging')
+    if sys.modules.get('packaging') is not packaging:
+        raise ValueError('package parser root module is substituted')
+    public={}
+    for suffix in ('requirements','specifiers','tags','utils','version','_ranges'):
+        module=sys.modules.get('packaging.'+suffix)
+        namespace=_parser_namespace(module,'packaging.'+suffix)
+        if root_namespace.get(suffix) is not module:
+            raise ValueError('package parser module link is substituted')
+        public[suffix]=namespace
     build = _configuration().get("tool", {}).get("gew", {}).get("build", {})  # type: ignore[union-attr]
     parser_config = build.get("package-parser-requirement") if isinstance(build, dict) else None
     if not isinstance(parser_config, dict) or set(parser_config) != {"path", "sha256"}:
@@ -292,6 +337,7 @@ def _package_parser_attestation() -> PackageParserAttestation:
         raise ValueError("package parser source closure is unavailable")
     module_digests: list[tuple[str, str, str]] = []
     expected_modules: dict[str, pathlib.Path] = {}
+    verified_parser_sources: dict[str, bytes] = {}
     for relative_origin in source_names:
         relative = pathlib.PurePosixPath(relative_origin)
         if (
@@ -318,48 +364,55 @@ def _package_parser_attestation() -> PackageParserAttestation:
         if not module_name or module_name in expected_modules:
             raise ValueError("package parser module identity is ambiguous")
         expected_modules[module_name] = origin
+        verified_parser_sources[module_name] = module_raw
         module_digests.append((module_name, relative_origin, module_digest.hex()))
 
     for module_name, module in tuple(sys.modules.items()):
         if module_name != "packaging" and not module_name.startswith("packaging."):
             continue
-        if module is None:
-            raise ValueError("package parser loaded module is unavailable")
-        origin_value = getattr(module, "__file__", None)
-        specification = getattr(module, "__spec__", None)
+        namespace=_parser_namespace(module,module_name)
+        origin_value = namespace.get("__file__")
+        specification = namespace.get("__spec__")
+        if type(specification) is not importlib.machinery.ModuleSpec:
+            raise ValueError("package parser module specification is substituted")
+        specification_namespace=vars(specification)
+        if type(specification_namespace) is not dict or any(type(key) is not str for key in specification_namespace):
+            raise ValueError('package parser module specification namespace is substituted')
+        specification_origin_value=specification_namespace.get('origin')
         found = importlib.util.find_spec(module_name)
         if (
             type(origin_value) is not str
-            or specification is None
-            or type(specification.origin) is not str
-            or found is None
-            or type(found.origin) is not str
+            or type(specification_origin_value) is not str
+            or found is not specification
         ):
             raise ValueError("package parser module origin is unavailable")
         origin = pathlib.Path(origin_value).resolve(strict=True)
-        specification_origin = pathlib.Path(specification.origin).resolve(strict=True)
-        found_origin = pathlib.Path(found.origin).resolve(strict=True)
+        specification_origin = pathlib.Path(specification_origin_value).resolve(strict=True)
         expected_origin = expected_modules.get(module_name)
         if (
             expected_origin is None
             or origin != specification_origin
-            or origin != found_origin
             or origin != expected_origin
             or origin.is_symlink()
         ):
             raise ValueError("package parser module origin is shadowed")
-    if any(module.__name__ not in expected_modules for module in _PARSER_MODULES):
+    if any(_parser_namespace(module)['__name__'] not in expected_modules for module in _PARSER_MODULES):
         raise ValueError("package parser public module closure is incomplete")
     if (
-        packaging.__version__ != distribution_version
-        or Requirement is not packaging.requirements.Requirement
-        or parse_tag is not packaging.tags.parse_tag
-        or sys_tags is not packaging.tags.sys_tags
-        or canonicalize_name is not packaging.utils.canonicalize_name
-        or parse_wheel_filename is not packaging.utils.parse_wheel_filename
-        or Version is not packaging.version.Version
+        type(vars(packaging).get('__version__')) is not str
+        or vars(packaging).get('__version__') != distribution_version
+        or Requirement is not public['requirements'].get('Requirement')
+        or parse_tag is not public['tags'].get('parse_tag')
+        or sys_tags is not public['tags'].get('sys_tags')
+        or canonicalize_name is not public['utils'].get('canonicalize_name')
+        or parse_wheel_filename is not public['utils'].get('parse_wheel_filename')
+        or Version is not public['version'].get('Version')
+        or SpecifierSet is not public['specifiers'].get('SpecifierSet')
+        or SpecifierSet is not public['requirements'].get('SpecifierSet')
+        or InvalidSpecifier is not public['specifiers'].get('InvalidSpecifier')
     ):
         raise ValueError("package parser callable binding is substituted")
+    contract_digest = _attest_specifier_callables(verified_parser_sources, expected_modules)
     body = {
         "schema_version": "1.0.0",
         "requirement_digest": requirement_digest,
@@ -368,6 +421,7 @@ def _package_parser_attestation() -> PackageParserAttestation:
         "distribution_root": os.fspath(distribution_root),
         "record_digest": record_digest,
         "module_digests": module_digests,
+        "constraint_contract_digest": contract_digest,
     }
     attestation_digest = hashlib.sha256(_canonical_json(body)).hexdigest()
     return PackageParserAttestation(
@@ -379,6 +433,488 @@ def _package_parser_attestation() -> PackageParserAttestation:
         tuple(module_digests),
         attestation_digest,
     )
+
+
+
+# Source-derived constraint graph. This is owned backend code, not candidate code.
+_CONSTRAINT_OPERATION: contextvars.ContextVar[dict[str, object] | None] = contextvars.ContextVar(
+    'owned_constraint_operation', default=None)
+_CONSTRAINT_METADATA = {
+    'packaging.version': frozenset(('LocalType','CmpLocalType','CmpSuffix','CmpKey',
+                                    'VersionComparisonMethod','_VersionReplace')),
+    'packaging.specifiers': frozenset(('T','UnparsedVersion','UnparsedVersionVar')),
+    'packaging._ranges': frozenset(),
+}
+
+
+def _constraint_code(code: types.CodeType) -> types.CodeType:
+    return code.replace(co_filename='<verified-parser>', co_consts=tuple(
+        _constraint_code(v) if type(v) is types.CodeType else v for v in code.co_consts))
+
+
+class _ConstraintImage:
+    """Finite source image; no registration, ambient parser execution or disk cache."""
+    def __init__(self, sources: dict[str, bytes], origins: dict[str, pathlib.Path]):
+        import builtins, dis, enum, typing, __future__
+        if sys.implementation.name != 'cpython' or sys.version_info[:2] != (3,12):
+            raise ValueError('constraint construction recipe is unavailable')
+        self.modules: dict[str, types.ModuleType] = {}
+        self.sites: list[tuple[object, ...]] = []
+        self.links: dict[int, object] = {}
+        self.omitted: dict[str, set[str]] = {}
+        self.metadata_nodes: dict[str,dict[str,ast.AST]] = {}
+        self.annotation_imports: dict[str,dict[str,object]] = {}
+        self.key = tuple((name, hashlib.sha256(sources[name]).hexdigest()) for name in
+                         ('packaging.version','packaging._ranges','packaging.specifiers','packaging.utils'))
+        typing_facade=types.SimpleNamespace(TYPE_CHECKING=False,NamedTuple=typing.NamedTuple)
+        def compile_pattern(pattern: str, flags: object=0) -> re.Pattern[str]:
+            if type(pattern) is not str or type(flags) not in (int,re.RegexFlag):
+                raise ValueError('constraint regex construction is invalid')
+            # Same compiler as re._compile, without its process-wide caches.
+            return re._compiler.compile(pattern,int(flags))
+        regex_facade=types.SimpleNamespace(compile=compile_pattern,VERBOSE=re.VERBOSE,
+                                           IGNORECASE=re.IGNORECASE,ASCII=re.ASCII)
+        self.links[id(typing_facade)]=typing;self.links[id(regex_facade)]=re
+        stdlib={'abc':abc,'re':regex_facade,'sys':sys,'typing':typing_facade,
+                'enum':enum,'functools':functools,'warnings':__import__('warnings'),
+                '__future__':__future__}
+        for name,obj in stdlib.items():
+            self.links.setdefault(id(obj),obj)
+        self.links[id(typing.NamedTuple)]=typing.NamedTuple
+        self.intrinsics=dict(vars(builtins))
+        self.bytecode: dict[int, types.CodeType] = {}
+        self.instructions: dict[int, tuple[object, ...]] = {}
+        def importer(name: str, global_ns: dict[str, object] | None=None, local_ns: dict[str, object] | None=None, fromlist: tuple[str, ...]=(), level: int=0) -> object:
+            if level:
+                if level!=1 or name not in ('version','_ranges','utils'):
+                    raise ValueError('constraint relative import is unavailable')
+                target=self.modules.get('packaging.'+name)
+                if target is None:raise ValueError('constraint import order is invalid')
+                return target
+            if name not in stdlib:raise ValueError('constraint stdlib import is unavailable')
+            return stdlib[name]
+        self.builtins=dict(self.intrinsics,__import__=importer)
+        self.overload_sites=0
+        def prepare(body: list[ast.stmt], name: str) -> list[ast.stmt]:
+            result=[]
+            for node in body:
+                if isinstance(node,(ast.Import,ast.ImportFrom)):
+                    if isinstance(node,ast.ImportFrom) and node.module=='typing':
+                        names=[a for a in node.names if a.name in ('NamedTuple','TYPE_CHECKING')]
+                        self.annotation_imports.setdefault(name,{}).update({a.asname or a.name:getattr(typing,a.name) for a in node.names if a not in names})
+                        if not names:continue
+                        node=ast.copy_location(ast.ImportFrom(module='typing',names=names,level=0),node)
+                    self.sites.append((name,node.lineno,'import',ast.unparse(node)))
+                if isinstance(node,ast.If):
+                    # Both branches retain source correspondence. TYPE_CHECKING
+                    # never executes and unavailable import routes fail closed.
+                    if ast.unparse(node.test) in ('typing.TYPE_CHECKING','TYPE_CHECKING'):
+                        self.sites.append((name,node.lineno,'annotation-branch'))
+                        result.extend(prepare(node.orelse,name))
+                        continue
+                    node.body=prepare(node.body,name);node.orelse=prepare(node.orelse,name)
+                if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)):
+                    overloads=[d for d in node.decorator_list if ast.unparse(d)=='typing.overload']
+                    if overloads:
+                        if (name!='packaging.specifiers' or node.name!='filter' or len(overloads)!=1
+                                or len(node.body)!=1 or not isinstance(node.body[0],ast.Expr)
+                                or not isinstance(node.body[0].value,ast.Constant)
+                                or node.body[0].value.value is not Ellipsis):
+                            raise ValueError('constraint overload projection is invalid')
+                        self.overload_sites+=1;self.sites.append((name,node.lineno,'overwritten-overload',hashlib.sha256(ast.dump(node).encode()).hexdigest()));continue
+                declared=node.name if isinstance(node,ast.ClassDef) else None
+                if isinstance(node,ast.Assign) and len(node.targets)==1 and isinstance(node.targets[0],ast.Name):declared=node.targets[0].id
+                if declared in _CONSTRAINT_METADATA.get(name,()):
+                    self.omitted.setdefault(name,set()).add(declared)
+                    self.metadata_nodes.setdefault(name,{})[declared]=node
+                    self.sites.append((name,node.lineno,'unread-metadata',declared,hashlib.sha256(ast.dump(node).encode()).hexdigest()));continue
+                if isinstance(node,ast.ClassDef):
+                    overloaded=[n for n in node.body if isinstance(n,ast.FunctionDef) and any(ast.unparse(d)=='typing.overload' for d in n.decorator_list)]
+                    if overloaded:
+                        concrete=[n for n in node.body if isinstance(n,ast.FunctionDef) and n.name=='filter' and not any(ast.unparse(d)=='typing.overload' for d in n.decorator_list)]
+                        if len(overloaded)!=2 or len(concrete)!=1 or concrete[0].lineno<=max(n.lineno for n in overloaded):
+                            raise ValueError('constraint overload implementation is unavailable')
+                    node.body=prepare(node.body,name)
+                result.append(node)
+            return result
+        try:
+            for name in ('packaging.version','packaging.utils','packaging._ranges','packaging.specifiers'):
+                tree=ast.parse(sources[name],filename=str(origins[name]))
+                if name=='packaging.utils':
+                    nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='canonicalize_version']
+                    if len(nodes)!=1:raise ValueError('constraint utility source is unavailable')
+                    tree.body=[ast.ImportFrom(module='__future__',names=[ast.alias(name='annotations')],level=0,lineno=1,col_offset=0,end_lineno=1,end_col_offset=1),*nodes]
+                else:tree.body=prepare(tree.body,name)
+                ast.fix_missing_locations(tree)
+                code=compile(tree,str(origins[name]),'exec',dont_inherit=True)
+                def inventory(c: types.CodeType) -> None:
+                    self.bytecode[id(c)]=_constraint_code(c)
+                    instructions=tuple(dis.get_instructions(c));self.instructions[id(c)]=instructions
+                    for i in instructions:
+                        if i.opname in ('LOAD_GLOBAL','LOAD_NAME') and i.argval in self.omitted.get(name,set())|set(self.annotation_imports.get(name,{})):
+                            raise ValueError('constraint metadata has an executable dependency')
+                        if i.opname in ('LOAD_GLOBAL','LOAD_ATTR','LOAD_METHOD','IMPORT_NAME','IMPORT_FROM'):
+                            self.sites.append((name,c.co_qualname,i.offset,i.opname,str(i.argval)))
+                    for value in c.co_consts:
+                        if type(value) is types.CodeType:inventory(value)
+                inventory(code)
+                module=types.ModuleType(name);namespace=vars(module)
+                namespace.update(__builtins__=self.builtins,__file__=str(origins[name]),__package__='packaging')
+                if name=='packaging.utils':
+                    namespace.update({k:vars(self.modules['packaging.version'])[k] for k in ('Version','InvalidVersion','_TrimmedRelease')})
+                exec(code,namespace,namespace)
+                self.modules[name]=module
+            if self.overload_sites!=6 or any(self.omitted.get(n,set())!=set(v) for n,v in _CONSTRAINT_METADATA.items()):
+                raise ValueError('constraint construction inventory is incomplete')
+            self.class_pairs={}
+            for name in ('packaging.version','packaging._ranges','packaging.specifiers'):
+                ambient=sys.modules.get(name)
+                if type(ambient) is not types.ModuleType:raise ValueError('constraint module type is substituted')
+                for key,value in vars(self.modules[name]).items():
+                    if isinstance(value,type) and type.__getattribute__(value,'__module__')==name:
+                        self.class_pairs[id(value)]=vars(ambient).get(key)
+            self.contract_digest=self.check()
+        except BaseException:
+            self.close();raise
+
+    def close(self) -> None:
+        for module in self.modules.values():vars(module).clear()
+        self.modules.clear();self.links.clear();self.builtins.clear();self.intrinsics.clear()
+        self.bytecode.clear();self.instructions.clear();self.sites.clear()
+        if hasattr(self,'class_pairs'):self.class_pairs.clear()
+
+    def check(self) -> str:
+        import builtins,dis,enum,weakref
+        pairs={};reverse={};projection=[];checked_namespaces={}
+        scalars=(str,bytes,int,bool,float,type(None),type(Ellipsis),type(NotImplemented))
+        def refuse() -> None:raise ValueError('package parser constraint graph is substituted')
+        def primitive(value: object) -> tuple[object, ...]:
+            t=type(value)
+            if t not in scalars:refuse()
+            return (t.__name__,value.hex() if t is bytes else repr(value) if t in (float,type(Ellipsis),type(NotImplemented)) else value)
+        def check_cache(reference: object,live: object) -> None:
+            if type(reference) is tuple:
+                if type(live) is not tuple or len(reference)!=len(live):refuse()
+                for a,b in zip(reference,live,strict=True):check_cache(a,b)
+            elif type(reference) not in scalars or type(live) is not type(reference) or primitive(reference)!=primitive(live):refuse()
+        def rawclass(cls: type) -> types.MappingProxyType:return type.__getattribute__(cls,'__dict__')
+        def key(value: object) -> tuple[object, ...]:
+            if type(value) in scalars:return primitive(value)
+            if type(value) in (type,abc.ABCMeta,enum.EnumType):
+                module=type.__getattribute__(value,'__module__');name=type.__getattribute__(value,'__qualname__')
+                if type(module) is not str or type(name) is not str:refuse()
+                return ('class',module,name)
+            refuse()
+        def bind(reference: object,live: object,site: str) -> bool:
+            prior=pairs.get(id(reference));other=reverse.get(id(live))
+            if prior is not None:
+                if prior is not live:refuse()
+                return True
+            if other is not None and other is not reference:refuse()
+            pairs[id(reference)]=live;reverse[id(live)]=reference
+            projection.append((site,type(reference).__name__))
+            return False
+        def effective(function: types.FunctionType,name: str) -> object:
+            namespace=function.__globals__
+            if name in namespace:return namespace[name]
+            intrinsic=function.__builtins__
+            if name not in intrinsic:refuse()
+            return intrinsic[name]
+        def compare(reference: object,live: object,site: str) -> None:
+            t=type(reference)
+            if t in scalars:
+                if type(live) is not t or primitive(reference)!=primitive(live):refuse()
+                projection.append((site,*primitive(reference)));return
+            linked=self.links.get(id(reference))
+            if linked is not None:
+                if live is not linked:refuse()
+                projection.append((site,'stdlib-link'));return
+            if reference is live:
+                # Only source-independent shared primitives can have identical
+                # identities across the private and ambient object graphs.
+                projection.append((site,'shared-intrinsic'));return
+            if t in (type,abc.ABCMeta,enum.EnumType):
+                if self.class_pairs.get(id(reference)) is not live or type(live) is not t:refuse()
+                if bind(reference,live,site):return
+                compare(type.__getattribute__(reference,'__bases__'),type.__getattribute__(live,'__bases__'),site+'.bases')
+                left=dict(rawclass(reference));right=dict(rawclass(live))
+                if any(type(k) is not str for k in right):refuse()
+                if set(left)!=set(right):refuse()
+                for name in sorted(left):
+                    if name=='_abc_impl':
+                        if type(left[name]) is not type(right[name]):refuse()
+                        registry,positive,negative,_=abc._get_dump(live)
+                        if registry:refuse()
+                        allowed=tuple(self.class_pairs.values())+(object,str,int,float,bool,bytes,tuple,list,dict,set,frozenset,type(None))
+                        for entries,is_positive in ((positive,True),(negative,False)):
+                            for entry in entries:
+                                if type(entry) is not weakref.ReferenceType:refuse()
+                                target=weakref.ReferenceType.__call__(entry)
+                                if target is None:continue
+                                if not any(target is candidate for candidate in allowed) or type(target) not in (type,abc.ABCMeta,enum.EnumType):refuse()
+                                inherited=any(base is live for base in type.__getattribute__(target,'__mro__'))
+                                if inherited is not is_positive:refuse()
+                        projection.append((site+'.'+name,'owned-abc-cache'));continue
+                    compare(left[name],right[name],site+'.'+name)
+                return
+            mapped=self.class_pairs.get(id(t))
+            if mapped is not None:
+                if type(live) is not mapped:refuse()
+                compare(t,mapped,site+'.class')
+                if bind(reference,live,site):return
+                slots=[]
+                for base in type.__getattribute__(t,'__mro__'):
+                    entry=rawclass(base).get('__slots__',())
+                    slots.extend((entry,) if type(entry) is str else entry)
+                if slots:
+                    for slot in slots:
+                        if slot in ('__weakref__','__dict__'):continue
+                        owner=next(base for base in type.__getattribute__(t,'__mro__') if slot in rawclass(base))
+                        descriptor=rawclass(owner)[slot];actual_owner=self.class_pairs.get(id(owner))
+                        if type(descriptor) is not types.MemberDescriptorType or actual_owner is None:refuse()
+                        actual_descriptor=rawclass(actual_owner)[slot]
+                        try:a=types.MemberDescriptorType.__get__(descriptor,reference,t)
+                        except AttributeError:a=NotImplemented
+                        try:b=types.MemberDescriptorType.__get__(actual_descriptor,live,mapped)
+                        except AttributeError:b=NotImplemented
+                        if slot in ('_key_cache','_hash_cache') and t is vars(self.modules['packaging.version'])['Version']:
+                            if b is not None:
+                                derived=reference._key if slot=='_key_cache' else hash(reference._key)
+                                check_cache(derived,b)
+                            projection.append((site+'.'+slot,'source-derived-cache'));continue
+                        compare(a,b,site+'.'+slot)
+                else:compare(object.__getattribute__(reference,'__dict__'),object.__getattribute__(live,'__dict__'),site+'.fields')
+                return
+            if type(live) is not t:refuse()
+            if t is re.Pattern:
+                compare(reference.pattern,live.pattern,site+'.pattern');compare(reference.flags,live.flags,site+'.flags');return
+            if t in (tuple,list):
+                if len(reference)!=len(live):refuse()
+                if bind(reference,live,site):return
+                for index,(a,b) in enumerate(zip(reference,live,strict=True)):compare(a,b,site+'.'+str(index))
+                return
+            if t in (set,frozenset):
+                a=sorted(key(v) for v in reference);b=sorted(key(v) for v in live)
+                if a!=b:refuse()
+                projection.append((site,'primitive-set',a));return
+            if t is dict:
+                a={key(k):(k,v) for k,v in dict.items(reference)};b={key(k):(k,v) for k,v in dict.items(live)}
+                if a.keys()!=b.keys():refuse()
+                if bind(reference,live,site):return
+                for k in sorted(a):
+                    compare(a[k][0],b[k][0],site+'.key.'+str(k));compare(a[k][1],b[k][1],site+'.value.'+str(k))
+                return
+            if t is types.FunctionType:
+                if type(live.__globals__) is not dict or type(live.__builtins__) is not dict:refuse()
+                if bind(reference,live,site):return
+                for namespace in (live.__globals__,live.__builtins__):
+                    if id(namespace) not in checked_namespaces:
+                        if any(type(k) is not str for k in namespace):refuse()
+                        checked_namespaces[id(namespace)]=namespace
+                expected=self.bytecode.get(id(reference.__code__))
+                if expected is None:expected=_constraint_code(reference.__code__)
+                if _constraint_code(live.__code__)!=expected:refuse()
+                for attr in ('__defaults__','__kwdefaults__','__annotations__','__dict__','__closure__'):
+                    compare(object.__getattribute__(reference,attr),object.__getattribute__(live,attr),site+'.'+attr)
+                for name,module in self.modules.items():
+                    if reference.__globals__ is vars(module):
+                        ambient=sys.modules.get(name)
+                        if type(ambient) is not types.ModuleType or live.__globals__ is not vars(ambient):refuse()
+                        break
+                instructions=self.instructions.get(id(reference.__code__))
+                if instructions is None:
+                    instructions=tuple(dis.get_instructions(reference.__code__));self.instructions[id(reference.__code__)]=instructions
+                for instruction in instructions:
+                    if instruction.opname=='IMPORT_NAME':
+                        # IMPORT_NAME reads __import__ from this function's
+                        # captured builtins, independently of its module globals.
+                        if live.__builtins__.get('__import__') is not builtins.__import__:refuse()
+                        continue
+                    if instruction.opname!='LOAD_GLOBAL':continue
+                    name=instruction.argval
+                    a=effective(reference,name);b=effective(live,name)
+                    if name=='__import__' and name not in reference.__globals__:
+                        if b is not builtins.__import__:refuse()
+                        continue
+                    compare(a,b,site+'.global.'+name)
+                return
+            if t is types.CellType:
+                try:a=reference.cell_contents
+                except ValueError:a=NotImplemented
+                try:b=live.cell_contents
+                except ValueError:b=NotImplemented
+                compare(a,b,site+'.cell');return
+            if t in (staticmethod,classmethod):compare(reference.__func__,live.__func__,site+'.function');return
+            if t is property:
+                for name in ('fget','fset','fdel','__doc__'):compare(getattr(reference,name),getattr(live,name),site+'.'+name)
+                return
+            if t in (types.MemberDescriptorType,types.GetSetDescriptorType):
+                if reference.__name__!=live.__name__:refuse()
+                compare(reference.__objclass__,live.__objclass__,site+'.owner');return
+            if t is types.MethodType:
+                compare(reference.__func__,live.__func__,site+'.function');compare(reference.__self__,live.__self__,site+'.self');return
+            # NamedTuple field descriptors and annotation ForwardRefs are generated
+            # by the finite trusted factory, never general object fallbacks.
+            if t.__module__=='collections' and t.__name__=='_tuplegetter':
+                compare(t.__reduce__(reference),t.__reduce__(live),site+'.tuple-field');return
+            if t.__module__=='typing' and t.__name__=='ForwardRef':
+                for name in ('__forward_arg__','__forward_module__','__forward_is_argument__','__forward_is_class__'):
+                    compare(object.__getattribute__(reference,name),object.__getattribute__(live,name),site+'.'+name)
+                if object.__getattribute__(live,'__forward_evaluated__') is not False:refuse()
+                return
+            refuse()
+        def metadata_expr(module: str,node: ast.AST,value: object) -> None:
+            import typing
+            if isinstance(node,ast.Name):
+                declaration=self.metadata_nodes.get(module,{}).get(node.id)
+                if declaration is not None:
+                    metadata(module,node.id,value);return
+                target=vars(builtins).get(node.id)
+                if node.id=='Version':target=vars(sys.modules['packaging.version']).get('Version')
+                if target is None or value is not target:refuse()
+                return
+            if isinstance(node,ast.Constant):
+                compare(node.value,value,'metadata.literal');return
+            if not isinstance(node,ast.Subscript) or not isinstance(node.value,ast.Name):refuse()
+            kind=node.value.id;args=list(node.slice.elts) if isinstance(node.slice,ast.Tuple) else [node.slice]
+            if kind=='Union':expected_type=typing._UnionGenericAlias;origin=typing.Union
+            elif kind=='Callable':
+                expected_type=typing._CallableGenericAlias;origin=Callable
+                if len(args)!=2 or not isinstance(args[0],ast.List):refuse()
+                args=[*args[0].elts,args[1]]
+            elif kind=='tuple':expected_type=types.GenericAlias;origin=tuple
+            else:refuse()
+            if type(value) is not expected_type or object.__getattribute__(value,'__origin__') is not origin:refuse()
+            actual_args=object.__getattribute__(value,'__args__')
+            if type(actual_args) is not tuple or len(actual_args)!=len(args):refuse()
+            for child,actual in zip(args,actual_args,strict=True):metadata_expr(module,child,actual)
+        def metadata(module: str,field: str,value: object) -> None:
+            import typing
+            node=self.metadata_nodes[module][field]
+            if isinstance(node,ast.ClassDef):
+                if type(value) is not typing._TypedDictMeta:refuse()
+                members=type.__getattribute__(value,'__dict__');annotations=members.get('__annotations__')
+                declared={n.target.id:ast.unparse(n.annotation) for n in node.body if isinstance(n,ast.AnnAssign) and isinstance(n.target,ast.Name)}
+                if type(annotations) is not dict or any(type(k) is not str for k in annotations) or set(annotations)!=set(declared):refuse()
+                for key,expected in declared.items():
+                    forward=annotations[key]
+                    if type(forward) is not typing.ForwardRef or object.__getattribute__(forward,'__forward_evaluated__') is not False:refuse()
+                    compare(expected,object.__getattribute__(forward,'__forward_arg__'),'metadata.annotation')
+                compare(module,members.get('__module__'),'metadata.module')
+                if members.get('__total__') is not False:refuse()
+            elif isinstance(node,ast.Assign) and isinstance(node.value,ast.Call):
+                if type(value) is not typing.TypeVar:refuse()
+                if object.__getattribute__(value,'__name__')!=field or object.__getattribute__(value,'__constraints__')!=():refuse()
+                bound=next((k.value for k in node.value.keywords if k.arg=='bound'),None)
+                if bound is None:
+                    if object.__getattribute__(value,'__bound__') is not None:refuse()
+                else:metadata_expr(module,bound,object.__getattribute__(value,'__bound__'))
+                if object.__getattribute__(value,'__covariant__') or object.__getattribute__(value,'__contravariant__'):refuse()
+            elif isinstance(node,ast.Assign):metadata_expr(module,node.value,value)
+            else:refuse()
+            projection.append((module+'.'+field,'source-metadata-projection'))
+        for name in ('packaging.version','packaging._ranges','packaging.specifiers'):
+            module=sys.modules.get(name)
+            if type(module) is not types.ModuleType:refuse()
+            expected=vars(self.modules[name]);actual=vars(module)
+            if any(type(k) is not str for k in actual):refuse()
+            loader_metadata={'__builtins__','__cached__','__loader__','__spec__','__file__','__package__'}
+            omitted=set(_CONSTRAINT_METADATA.get(name,()))|set(self.annotation_imports.get(name,{}))
+            if set(actual)-loader_metadata-omitted!=set(expected)-loader_metadata:refuse()
+            for field in sorted(omitted):
+                if field not in actual:refuse()
+                imported=self.annotation_imports.get(name,{}).get(field)
+                if imported is not None:
+                    if actual[field] is not imported:refuse()
+                else:metadata(name,field,actual[field])
+            for field in sorted(set(expected)-loader_metadata):compare(expected[field],actual[field],name+'.'+field)
+        compare(vars(self.modules['packaging.utils'])['canonicalize_version'],vars(packaging.utils).get('canonicalize_version'),'packaging.utils.canonicalize_version')
+        return hashlib.sha256(_canonical_json({'recipe':'constraint-closure-1','sources':self.key,'sites':self.sites,'structure':projection})).hexdigest()
+
+
+def _attest_specifier_callables(sources: dict[str, bytes], origins: dict[str, pathlib.Path]) -> str:
+    state=_CONSTRAINT_OPERATION.get();image=None;failed=False;result=None
+    try:
+        key=tuple((name,hashlib.sha256(sources[name]).hexdigest()) for name in
+                  ('packaging.version','packaging._ranges','packaging.specifiers','packaging.utils'))
+        if state is not None:
+            if state.get('owner')!=(os.getpid(),threading.get_ident()):raise ValueError('constraint provider owner changed')
+            image=state.get('image')
+            if image is None:
+                image=_ConstraintImage(sources,origins);state['image']=image
+            if type(image) is not _ConstraintImage or image.key!=key:raise ValueError('constraint provider source changed')
+            result=image.check()
+        else:
+            image=_ConstraintImage(sources,origins);result=image.contract_digest
+    except Exception as error:
+        # Raise the finite refusal outside the handler: no private exception or
+        # construction traceback becomes its cause/context or a registry root.
+        error.__traceback__=None;failed=True
+    finally:
+        if state is None and image is not None:image.close()
+        image=None
+    if failed or type(result) is not str:raise ValueError('package parser constraint attestation refused')
+    return str(result)
+
+
+class _ConstraintProvider:
+    def __init__(self):
+        self._state={'owner':(os.getpid(),threading.get_ident()),'provider':self};self._closed=False
+        try:
+            with self.operation():self._binding=_package_parser_attestation()
+        except BaseException:self.close();raise
+
+    @contextlib.contextmanager
+    def operation(self) -> Iterator[None]:
+        if self._closed or self._state.get('owner')!=(os.getpid(),threading.get_ident()):raise ValueError('constraint provider is closed or foreign')
+        token=_CONSTRAINT_OPERATION.set(self._state)
+        try:yield
+        finally:_CONSTRAINT_OPERATION.reset(token)
+
+    def require_current(self) -> str:
+        try:
+            with self.operation():
+                if _package_parser_attestation()!=self._binding:raise ValueError('constraint provider changed')
+            return self._binding.attestation_digest
+        except BaseException:
+            self.close();raise
+
+    def requires_python(self,python_patch: str,constraint: str) -> bool:
+        if type(python_patch) is not str or type(constraint) is not str:raise ValueError('constraint inputs are not exact strings')
+        self.require_current();failed=False;result=None
+        image=self._state['image'];version=vars(image.modules['packaging.version'])['Version'];specifiers=vars(image.modules['packaging.specifiers'])['SpecifierSet']
+        try:
+            result=version(python_patch) in specifiers(constraint)
+            self.require_current()
+            if type(result) is not bool:raise ValueError('constraint result is invalid')
+        except Exception as error:
+            error.__traceback__=None;failed=True
+        finally:image=version=specifiers=None
+        if failed:
+            self.close();raise ValueError('release wheel interpreter constraint refused')
+        return result is True
+
+    def close(self) -> None:
+        if not self._closed:
+            self._closed=True;image=self._state.pop('image',None)
+            if image is not None:image.close()
+            self._state.clear()
+
+
+def _owned_constraint_provider() -> _ConstraintProvider:
+    return _ConstraintProvider()
+
+
+@contextlib.contextmanager
+def _constraint_provider_operation() -> Iterator[_ConstraintProvider]:
+    state=_CONSTRAINT_OPERATION.get();owned=state is None
+    provider=_owned_constraint_provider() if owned else state.get('provider')
+    if type(provider) is not _ConstraintProvider or (not owned and provider._state is not state):
+        raise ValueError('constraint provider binding is substituted')
+    try:
+        with provider.operation():yield provider
+    finally:
+        if owned:provider.close()
 
 
 def _project() -> dict[str, object]:
@@ -995,7 +1531,10 @@ def _metadata_files() -> list[tuple[str, bytes]]:
         )
     ).encode()
     wheel = b"Wheel-Version: 1.0\nGenerator: gew-build-backend\nRoot-Is-Purelib: true\nTag: py3-none-any\n"
-    scripts = project["scripts"]  # type: ignore[assignment]
+    scripts = project.get("scripts", {})
+    _direct_script_configuration()
+    if set(scripts) & {"graph-engineering"}:
+        raise ValueError("direct script conflicts with console entry point")
     entries = "".join(f"{name} = {target}\n" for name, target in sorted(scripts.items()))
     entry_points = f"[console_scripts]\n{entries}".encode()
     dist_info = _dist_info()
@@ -1004,6 +1543,60 @@ def _metadata_files() -> list[tuple[str, bytes]]:
         (f"{dist_info}/WHEEL", wheel),
         (f"{dist_info}/entry_points.txt", entry_points),
     ]
+
+
+
+def _direct_script_configuration() -> None:
+    build = _configuration().get('tool', {}).get('gew', {}).get('build', {})
+    if build.get('direct-scripts') != {'graph-engineering': 'graph_engineering.cli:main'}:
+        raise ValueError('direct script configuration is not exact')
+    if 'graph-engineering' in _project().get('scripts', {}):
+        raise ValueError('direct script conflicts with console entry point')
+
+
+def _direct_script_files() -> list[tuple[str, bytes]]:
+    _direct_script_configuration()
+    # Finite fallback literals are generated here from backend-owned code. They
+    # remain available even when the installed product cannot be imported.
+    source = """#!python
+import sys
+_readonly = len(sys.argv) > 1 and sys.argv[1] in ('release-check', 'doctor')
+if _readonly:
+    sys.dont_write_bytecode = True
+try:
+    from graph_engineering.cli import main
+    _exit = main()
+    if _readonly:
+        sys.stdout.flush()
+except Exception:
+    if not _readonly:
+        raise
+    import hashlib
+    import json
+    _phase = 'check' if sys.argv[1] == 'release-check' else 'doctor'
+    _body = {'schema_version':'1.0.0','request_id':'release-'+_phase,
+        'status':'rejected' if _phase=='check' else 'blocked','phase':_phase,
+        'code':'trust_rejected','checks':[],'refs':[],
+        'capabilities':{'release-check':'available','doctor':'available',
+            'install':'unavailable','upgrade':'unavailable','release':'unavailable'},
+        'next_route':'inspect-inputs'}
+    _envelope = {'algorithm':'sha-256','body':_body,
+        'canonicalizer':'urn:gew:canonicalizer:jcs-input:1.0.0',
+        'contract_type':'urn:gew:contract:release-install-diagnostic',
+        'digest_domain':'urn:gew:digest:semantic:1.0.0',
+        'projection_id':'urn:gew:digest-projection:release-install-diagnostic:1.0.0',
+        'schema_id':'urn:gew:schema:release-install-diagnostic:1.0.0'}
+    _raw = json.dumps(_envelope,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()
+    _body['diagnostic_digest'] = 'sha256-jcs-v1:'+hashlib.sha256(_raw).hexdigest()
+    _exit = 4 if _phase=='check' else 3
+    try:
+        print(json.dumps(_body,sort_keys=True,separators=(',',':')))
+        sys.stdout.flush()
+    except OSError:
+        sys.stdout = None
+raise SystemExit(_exit)
+"""
+    return [(f'{_distribution_name()}-{_version()}.data/scripts/graph-engineering', source.encode('utf-8'))]
 
 
 def _offline_dependency_plan(
@@ -1983,10 +2576,10 @@ def _record(files: list[tuple[str, bytes]]) -> bytes:
     return output.getvalue().encode()
 
 
-def _write_zip_member(archive: zipfile.ZipFile, path: str, body: bytes) -> None:
+def _write_zip_member(archive: zipfile.ZipFile, path: str, body: bytes, *, executable: bool = False) -> None:
     info = zipfile.ZipInfo(path, date_time=ZIP_TIMESTAMP)
     info.compress_type = zipfile.ZIP_DEFLATED
-    info.external_attr = 0o100644 << 16
+    info.external_attr = (0o100755 if executable else 0o100644) << 16
     archive.writestr(info, body)
 
 
@@ -2016,11 +2609,67 @@ def build_wheel(
     filename = f"{_distribution_name()}-{_version()}-py3-none-any.whl"
     destination = pathlib.Path(wheel_directory)
     destination.mkdir(parents=True, exist_ok=True)
-    files = list(_package_files()) + _metadata_files()
+    direct_scripts = _direct_script_files()
+    files = list(_package_files()) + _metadata_files() + direct_scripts
     files.sort(key=lambda item: item[0])
     record = _record(files)
     with zipfile.ZipFile(destination / filename, "w") as archive:
         for path, body in files:
-            _write_zip_member(archive, path, body)
+            _write_zip_member(archive, path, body, executable=path == direct_scripts[0][0])
         _write_zip_member(archive, f"{_dist_info()}/RECORD", record)
     return filename
+
+
+def observe_release_wheel(
+    path: pathlib.Path, *, expected_name: str, expected_version: str,
+    max_members: int, max_member_bytes: int, max_expanded_bytes: int,
+    max_requirements: int, python_patch: str,
+) -> dict[str, object]:
+    """Read a real wheel through the existing physical/parser boundary, never install it."""
+    with _configuration_parse_operation(), _constraint_provider_operation() as provider:
+        before = _package_parser_attestation()
+        policy = dict(_offline_wheel_policy())
+        for key, ceiling in (("max-members", max_members), ("max-member-bytes", max_member_bytes),
+                             ("max-total-bytes", max_expanded_bytes)):
+            if type(ceiling) is not int or ceiling <= 0:
+                raise ValueError("release wheel resource ceiling is invalid")
+            policy[key] = min(int(policy[key]), ceiling)
+        opened = _open_wheel(_enumerate_wheel(path), max_total_bytes=int(policy["max-total-bytes"]))
+        try:
+            physical = _inspect_physical_wheel(opened, policy)
+            _, requirements = _validate_wheel(path, expected_name=expected_name,
+                expected_version=expected_version, expected_requirements=None,
+                physical=physical, remaining_requirements=max_requirements)
+            with zipfile.ZipFile(io.BytesIO(physical.raw)) as archive:
+                metadata = Parser().parsestr(archive.read(
+                    f"{_normalized_distribution(expected_name)}-{expected_version}.dist-info/METADATA"
+                ).decode("utf-8", errors="strict"))
+            # Actual METADATA is RECORD-bound above; manifest text is not a
+            # substitute for checking its full interpreter patch constraint.
+            if _package_parser_attestation() != before:
+                raise ValueError("release wheel parser changed before constraint parse")
+            python_constraints = metadata.get_all("Requires-Python", [])
+            if len(python_constraints) > 1:
+                raise ValueError("release wheel interpreter constraint is duplicated")
+            if python_constraints:
+                constraint = python_constraints[0]
+                if not constraint or not constraint.strip():
+                    raise ValueError("release wheel interpreter constraint is empty")
+                try:
+                    compatible = provider.requires_python(python_patch,constraint)
+                except (InvalidVersion, InvalidSpecifier) as error:
+                    raise ValueError("release wheel interpreter constraint is invalid") from error
+                if not compatible:
+                    raise ValueError("release wheel interpreter constraint is incompatible")
+            licenses = metadata.get_all("License-Expression", [])
+            if len(licenses) != 1 or not licenses[0] or any(x in licenses[0] for x in (" ", "\n", "\r")):
+                raise ValueError("release wheel license identity is unavailable")
+            _recheck_open_wheel(opened)
+            if _package_parser_attestation() != before:
+                raise ValueError("release wheel parser changed")
+            return {"requirements": list(requirements), "license_ids": licenses,
+                    "raw_sha256": opened.binding.raw_digest,
+                    "size_bytes": opened.binding.descriptor_size,
+                    "parser_attestation_digest": before.attestation_digest}
+        finally:
+            _close_open_wheel(opened)

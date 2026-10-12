@@ -1873,3 +1873,245 @@ resolve the pending genuine-positive implementation or full final evidence findi
 target/resource/pin closure identified, retained product and authority unchanged.
 R1: clarify complete WP00 owned-root membership for new configuration resources
 and verification boundary as well as modules (GEW-SECURITY-BOOTSTRAP-IMPACT-R0-001).
+
+## WP-10 verified installation impact — W10, 2026-10-10
+
+### W10-I1 Scope and upstream
+
+This impact analysis derives from independently reviewed [Spec W10](../specs/graph-engineering-workflow.md#wp-10-verified-installation-design)
+and [ADR0015](../adr/0015-release-installation-and-upgrade.md), refining accepted
+ADR0001/0002 and PRD FR16/NFR01/NFR08. Current authority remains exact six-file
+design/review. Slice A below is a proposed next implementation request, not current
+code/testing/installation authority. Slice A does not complete WP10 or WP11.
+
+### W10-I2 Call paths and first-slice ownership
+
+| Layer | Proposed slice A change | Invariants and verification |
+|---|---|---|
+| core/release_installation.py | closed signed manifest/policy/resource/diagnostic models, pure exact closure comparisons | no filesystem, platform command, network, installer or task-state dependency; nested unknowns/digests/ranges/counts fail closed |
+| adapters/release_installation.py | installation-owned policy capture, local bounded byte/archive/metadata admission, read-only Doctor | actual private source/wheel attestation and packaged parser; no caller trust map, artifact execution/extraction, writable clock or root initialization |
+| application/release_installation.py and application/cli.py | orchestrate check/Doctor and stable bounded JSON/exit routing | existing capabilities/owner-flow protocol preserved; no install-apply or maintenance-authority issuer in A |
+| core initializer, pyproject and build backend | register exact resources/modules and expose reusable checked physical wheel observation if required by adapter | preserve existing parser attestation, preallocation/currentness checks and wheel/source namespace boundary; no permissive parser or ambient fallback |
+| supply-chain helper | additional release-input mode compares exact graph/lock/SBOM/provenance/license/security bytes | old WP00 minimal mode stays explicitly minimal; no claim its empty components certify releases |
+| tests/support and new test modules | private attested release roots, actual archives/wheels/RECORD and subprocess CLI oracles | fixture signatures test validation only; no injected provider/seal, fabricated installation authority or production-key mutation |
+
+Slice A's CLI can inspect an existing control root but does not open a writable
+repository, call initialization/migration or `strict_trusted_now`, change retained
+clock high-water values, or create missing control/Skill/data paths. Production
+release sources/keys initially remain empty and refuse real admission. Positive
+cases use newly attested private fixture installations whose installed resources
+explicitly authorize only their synthetic artifacts; changing their installed
+configuration invalidates old observations. A trust flag or returned dictionary
+cannot substitute for this source/wheel boundary.
+
+### W10-I3 Exact proposed closure and transitive pins
+
+The Plan freezes the exact prospective paths for A: the six design files; three
+new release_installation modules; existing application CLI, core initializer,
+pyproject, build_backend and verify_supply_chain; four new release-installation
+policy/registry resources, seven new closed schemas; WP00 source inventory and a
+new verification boundary; four affected active bootstrap resources; existing
+source_checkout_attestation helper; five new test modules, one support module
+and one fixture JSON. No uv.lock/dependency/version change is included in A.
+The checked-in incomplete uv.lock remains a genuine release blocker; release
+admission must reject its incomplete closure when offered as bundle input.
+
+New owned resources require both source attestation membership and wheel RECORD/
+owned mapping membership. Register all new code/config/test paths under existing
+WP00 roots; do not change the roots or remove old members. The core initializer
+is directly pinned by migration-rehearsal, scenario-truth and release-operations
+bootstraps. The proposed build_backend.py seam is additionally pinned by the active
+performance-benchmark bootstrap (build_backend_source/build_backend_raw_sha256 and
+its protected_resources row); its protected_closure_digest/bootstrap_digest and
+pyproject performance-benchmark mirrors are also affected. Thus the future allowlist
+contains all four bootstraps. Refresh only actual affected raw/semantic hashes and pyproject
+mirrors after source/packaging changes, checking preserved order/counts/unaffected
+entries. No historical bootstrap/resource bytes or dependency advisory trust
+registries are mutable targets. Read-only reused migration/clock/locator/security/
+parser code remains protected except the named build-backend observation seam.
+
+### W10-I4 Later installation and migration impact
+
+B/C require a new exact implementation inventory and Owner authority after A.
+They add the explicit owner-only release coordinator/journal/active reference,
+immutable interpreter/tool/Skill staging and dispatcher integration with existing
+installation lock/migration entry points. They must preserve the accepted existing
+ActiveRepositoryManifest version, task receipts, action history, leases, fencing,
+retention holds and trust bootstrap. Release selection binds one immutable leaf;
+repository-only publication cannot bypass registered release coordination.
+
+Historical unregistered roots retain old semantics and do not become registered
+by observation. Adoption needs the exact supported old release/bootstrap protocol
+and verified migration path. PMF-initialized export still refuses, including
+empty/partial schema and purged histories; neither omitted learning data nor a
+physical DB copy is an alternative. Full PMF migration is outside this design.
+A checks absence/compatibility honestly; it does not rewrite old locators or Skills.
+
+### W10-I5 Data, security and privacy
+
+Bundle bytes, metadata, signatures and paths are untrusted. Installed policy/keys/
+resource ceilings and actual platform/parser/distribution ownership are separate
+trust inputs. Limits precede JSON/ZIP/tar traversal, cumulative hashing, expansion
+accounting and report formation. Archive paths, duplicate members, hardlinks,
+symlinks, device entries, normalization collisions and swapped parent/files refuse;
+A reads streams for validation without executing or extracting interpreter/installer.
+A process-local admission observation is not install authority or durable approval.
+
+Read-only time observation cannot advance repository clock facts; absent/invalid/
+backward or insufficiently bound security freshness yields blocked/rejected.
+Reports contain minimized opaque IDs/digests/status/route, not absolute paths,
+source content, raw parser errors, executable output or secrets. No new product
+telemetry, network, background process or real user-data access is introduced.
+Later installation journals are owner-only audit metadata, subject to explicit
+retention/data-preserving uninstall and existing claims/holds, not task payloads.
+
+### W10-I6 Risks, compatibility and containment
+
+| Risk | Consequence | Containment / oracle |
+|---|---|---|
+| signature valid but closure incomplete | unlisted transitive code executes later | actual METADATA-derived bidirectional equality across wheels/lock/SBOM and exact provenance/security binding |
+| ambient parser/config/PATH or caller policy | substitutes a different accepted installation | attested provider/parser/current physical bytes, swapped-root tests, outside-checkout installed subprocess |
+| Doctor performs normal service initialization | hidden task/control/clock writes | full synthetic before/after file/content/metadata inventory plus missing-root and clock-row oracles |
+| source/package pin churn | old tests or protected trust inputs silently drift | recompute named vectors only, current package per producing task, retained273 regression selectors and six static checks |
+| multiple mutable activation pointers | mixed CLI/Skill/repository execution after crash | deferred B/C single-reference protocol with real crash/concurrency tests; no A acceptance claim |
+| fixture PASS mistaken for native release support | unjustified platform/release statement | fixtures clearly synthetic; all three native cells and supplied exact production artifacts remain mandatory later |
+
+No public install/upgrade format is claimed already stable or implemented. New A
+commands are additive; malformed input uses the new bounded diagnostic/error model.
+Existing public CLI JSON outputs and task behavior retain their original contracts.
+No production performance/latency result or security policy waiver is inferred.
+
+### W10-I7 Verification, rollout and authority
+
+Design uses whitespace, links, Manifest/schema checks, exact allowlist/protected
+hashes and independent reviews, with no product tests/build/install execution.
+Future A uses the exact Test Plan selectors (new behavioral contracts/integration/
+security/wheel checks plus retained273 and six statics), native290/canonical300,
+strict serial fail-fast, zero skip/zero-test PASS. Current tree edits invalidate
+prior current-tree evidence; the pushed bootstrap evidence remains historical.
+
+Future A rollout is confined to private synthetic source/wheel roots and offline
+byte fixtures. No production canary applies. Any integrity/resource/currentness
+failure refuses rather than repairs roots or relaxes policy. Unaccepted changes
+remain reviewable with rejected evidence retained. B/C, production artifact admission,
+Owner install/data, all native acceptance, full274/P1, WP11, commit/push/merge/release/
+deploy/external communication require their own applicable authorization.
+
+### W10-I8 References and history
+
+[Positioning](../positioning/graph-engineering-workflow.md), [PRD](../prd/graph-engineering-workflow.md),
+[Spec](../specs/graph-engineering-workflow.md), [ADR0015](../adr/0015-release-installation-and-upgrade.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md), [Test Plan](../test-plans/graph-engineering-workflow.md).
+2026-10-10 R0: scoped release admission and read-only Doctor impact, later atomic
+installation integration retained; no product mutation or acceptance claimed.
+R1: include the active performance-benchmark build-backend pin/closure and pyproject
+mirrors in the four-bootstrap prospective dependency closure (W10-IMPACT-R0-001).
+
+### W10-A implementation observation
+
+The exact A Envelope is approved; implementation and private source/wheel verification
+are in progress. The11 new owned resources and three modules are registered in source
+attestation and wheel mappings. Changes to the initializer/backend require the four
+active bootstrap vectors and pyproject mirrors to refresh together; the performance
+protected set remains38 entries. Historical WP07/WP08 gate captures remain historical.
+No dependency, lock, license policy or production trust/source activation is changed.
+
+Cold installed console-script testing found initial `.pyc` creation before package
+initialization. This is an observed incompatibility with Spec G5, not a passing Doctor
+zero-write result. `wp10-admission-readonly-launcher-design-choice-r0.json` records the
+material launcher/acceptance choice for the Owner. No extra launcher/test target or
+packaging architecture change is authorized by the current39-file Envelope. Other
+bounded admission/Doctor verification may continue; Candidate completion cannot.
+
+
+### W10-A2 Owner-approved strict launcher amendment
+
+The Owner approved the independently reviewed strict launcher design and then the
+exact41-file/313-command implementation amendment. The immutable authority is
+`wp10-release-admission-implementation-approval-r1.json`; reviewed design
+`wp10-readonly-launcher-design-r1.md` (raw SHA256
+`68d158085fcb2ebbd6efc8ceaf344bbba0b64b1dd41a5cf3730e5bb467881699`)
+and `wp10-readonly-launcher-design-completion-r1.json` remain in the detached directory.
+This supersedes only the previous pending launcher-choice language. G5 is unchanged;
+prior failing evidence and all four W10-IMPLEMENTATION-R0 findings remain retained
+until independently verified repairs. PRD/Intent, other native cells, B/C, PMF-export
+refusal, production trust blockers and separate irreversible action gates remain.
+
+The only additions to the original39 paths are `tests/unit/test_wp00_packaging.py`
+and `scripts/verify_build.py`. The first updates the existing packaging contract for
+the declared direct script; the second narrowly verifies its standard wheel location,
+executable regular-file mode, RECORD binding and absence of conflicting entry points.
+No new launcher source path is added: the already attested backend owns generation.
+Metadata consumers that discover this command through console entry points must use
+the declared direct-script route; callable/command interfaces remain intact. Existing
+installed source ownership, active pin refresh direction and historical pins remain.
+All1313 other tracked inputs are protected. Canonical evidence is invalidated by these
+source changes; earlier275 regression passes/6 statics are preflight history only.
+
+
+### W10-A3 Owner-approved closed parser trust boundary
+
+The Owner approved the reviewed `wp10-parser-trust-boundary-design-r1.md` (raw
+SHA256 `7fd4d4f8f7060f9abb6fd2096537b1cfcda4aa81fcfd857ea5ff47c8a6a84fbb`)
+and its concrete implementation request. Immutable approval is
+`wp10-release-admission-implementation-approval-r2.json` in the detached directory.
+The reviewed twelve-section design, including §4.3.1, is the normative amendment.
+PRD/Intent, exact41 targets,313 commands, strict serial/fail-fast, native290/canonical300,
+zero writes, diagnostics, dependencies/platforms and B/C exclusions remain unchanged.
+This supersedes the selected-member parser strategy, not the retained launcher design.
+
+Build one operation-owned, privately linked Version/_ranges/SpecifierSet closure and
+canonicalize_version facade from physically RECORD-verified26.3 source. Validate the
+ambient executable surface against its complete source-derived structural graph before
+and after use and observation reuse. Exact types precede inspection; never invoke
+suspect equality, descriptor, container or regex dispatch. Bind code/defaults/closures,
+classes/metaclasses/bases, slots, aliases, containers/constants/singletons, regex and
+legitimate generated helpers/caches. Unknown dependency sites/objects refuse. Compute
+Requires-Python using private objects, return only a bool, and retain the same owned
+provider through the verifier/observation. No ambient fallback, global image cache,
+candidate code, package import hook, sys.modules publication, external action or new
+persistent schema is permitted. Trusted CPython/stdlib/backend remain the stated base.
+
+Construction has its own closed effects inventory. Omit exactly six overwritten
+overload stubs and the enumerated unread annotation-only declarations/imports before
+execution; preserve concrete function-code/defaults and future-annotation strings.
+Use finite local NamedTuple/ABC/enum/functools/wrapper recipes and a non-caching regex
+compiler facade. No private graph may escape into ambient overload/typing/regex
+registries; never clear or replace shared registries to repair a leak. Success, failure,
+release and repeated construction must preserve ambient bindings and permit private
+graph collection. Partial construction and release drop local references/tracebacks.
+
+Preserve implementation r0–r4 and the r4 regex finding. The separately approved exact
+task-local Policy exception selects max_revision_cycles5 only for implementationr5;
+project Policy and other nodes remain4, with original inputs used for historical replay.
+No task/numbering reset, frozen reducer edit or host permission change is authorized.
+Non-PASS at r5 stops. Only actual implementation ADVANCE permits canonical313 and
+subsequent verification/Candidate review. No completion or commit/push is implied.
+
+Impact is confined to the existing owned backend, release adapter, regression selectors and affected active pin consumers in exact41. No new source/config/dependency path, database migration, real Owner/installation data or runtime reference repository is introduced. Construction work remains inside existing read/hash/resource ceilings; timeout is failure.
+
+
+### W10-A4 Owner-approved effective-global-binding repair
+
+The Owner separately approved `wp10-parser-global-binding-repair-request-r0.json`
+(raw SHA256 `d64f1b46975b38f15d3c500e7a4e87f7fc1052676d531c930a39d589a089ff22`)
+through `wp10-release-admission-implementation-approval-r3.json`. This is a routine
+correction to the W10-A3 architecture: resolve reference and live function bindings
+independently using globals first, builtins second, then compare effective bindings
+without invoking a substituted callable. Preserve explicit name presence, the trusted
+import recipe, all private-construction/currentness guarantees and existing regressions.
+
+The r5 independent review resolved eight historical findings and retained
+`W10-IMPLEMENTATION-R5-001`; its actual ESCALATE/E_LOOP remains immutable. This new
+approval supersedes only the r5 stop/budget for one implementation revision6 with
+an exact task-local ceiling6 (previous selected ceiling5); project/default and other
+nodes remain4. Preserve the same task, prior digest and exact historical reduction
+inputs. Non-PASS at r6 stops. Exact41,313 commands/307 selectors, native290/canonical300,
+serial/fail-fast, zero writes, diagnostics and all exclusions remain unchanged.
+
+Add meaningful SOURCE/WHEEL acquisition, public refusal, retained-invalidation and
+restoration coverage for `packaging.utils.isinstance` shadowing within existing
+W10-016/W10-026 selectors; require zero substituted calls, bounded independently
+checked diagnostics, privacy, empty stderr and unchanged inventories. Retain actual
+RED/GREEN and run six statics before fresh independent implementationr6 review.
+Only actual ADVANCE permits canonical313, verification and Candidate review.

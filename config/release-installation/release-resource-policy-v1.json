@@ -1,0 +1,16 @@
+{
+  "max_archive_members": 8192,
+  "max_artifact_bytes": 16777216,
+  "max_artifacts": 64,
+  "max_bundle_bytes": 67108864,
+  "max_dependency_edges": 256,
+  "max_expanded_bytes": 134217728,
+  "max_expansion_ratio": 32,
+  "max_hash_bytes": 268435456,
+  "max_manifest_bytes": 65536,
+  "max_path_segments": 16,
+  "max_report_bytes": 65536,
+  "policy_digest": "sha256-jcs-v1:c094c7401c929a0f4f9894029d36816f6b62870ca4c2b18df6b81616517dded8",
+  "policy_id": "release-install-fixture-envelope-v1",
+  "schema_version": "1.0.0"
+}

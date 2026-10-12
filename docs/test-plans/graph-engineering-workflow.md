@@ -3366,3 +3366,422 @@ proposed with unchanged290/300 bounds. No new product test executed or passed.
 R1: add explicit initial-source refusal subcases and zero-write/source-preservation
 oracles to I02/S05 (GEW-SECURITY-BOOTSTRAP-TEST-PLAN-R0-001); same selector/argv,
 target and budget boundary.
+
+
+## WP-10 verified installation test plan — W10, 2026-10-10
+
+### W10-T1 Scope, critical journeys and coverage
+
+This plan derives from [Plan W10](../plans/2026-08-13-graph-engineering-workflow.md#wp-10-verified-installation-plan--w10-2026-10-10),
+[Spec W10](../specs/graph-engineering-workflow.md#wp-10-verified-installation-design),
+[Impact W10](../impact/graph-engineering-workflow.md#wp-10-verified-installation-impact--w10-2026-10-10)
+and [ADR0015](../adr/0015-release-installation-and-upgrade.md). Current authority is
+design/review only, zero product execution. Next A request is39 prospective paths,
+32 new methods +275 existing methods +six statics =313 exact commands. Later B/C
+cases remain mandatory and need their own exact implementation/argv approval.
+
+| CUJ / PRD trace | A coverage | Later mandatory coverage |
+|---|---|---|
+| Owner verifies local release / FR16 | complete physical closure and trust/refusal diagnostics | actual exact interpreter/installer execution and installed-byte comparison |
+| Owner diagnoses installation / NFR06 | existing/missing root, zero writes, bounded private JSON and stable routes | actual active-tuple Doctor at install/upgrade/recovery boundaries |
+| ordinary user invokes Skill / NFR01,NFR08 | outside-checkout CLI/namespace and honest unavailable mutation capabilities | actual canonical Codex/Hermes Skill lookup/handshake/representative task on native cells |
+| Owner upgrades/recovers / FR16 | refusal/phase boundary only | old-or-verified-new-or-blocked, crash/concurrency/idempotence/PMF/action/retention invariants |
+| Owner uninstalls / FR16 | no uninstall surface/mutation in A | explicit Owner authority, data preserved by default, live claims/holds enforced |
+
+Every in-scope CUJ has both positive and refusal oracles below. No arbitrary line
+coverage percentage or test count is a product success metric. The32 methods are
+risk-selected behaviors; parameterized subcases within each method cover boundary
+variants. A does not certify a real release, actual install, native Linux, WP11,
+PMF migration, full274/P1 workload or production/real user data. These are excluded
+from A execution, not removed from product acceptance.
+
+### W10-T2 Layers, tools and exact selectors
+
+Use existing unittest/attested single-selector runner. Eight pure unit +six contract
+methods isolate closed semantics/resources; eight integration +six security methods
+exercise actual physical/trust/process boundaries; four wheel methods exercise the
+installed CLI. The14/14/4 distribution reflects this trust-heavy boundary rather
+than adding redundant unit tests to force a numerical pyramid. Every method collects1,
+executes1, skip0; zero collection/import error/skip/xfail cannot pass. Speed ceilings
+remain290s native/300s canonical per command, strict serial fail-fast; no invented
+10ms/1s/30s targets or extension on timeout. Actual elapsed time is recorded later.
+
+New methods are proposed, not present/executed now. The immutable detached
+`wp10-installation-design-test-inventory-r0.json` contains all32 full selectors,
+275 existing selectors, every exact argv, IDs W10-001–W10-313, counts and fixture
+ceilings. Existing275 were resolved by read-only AST, not rerun. Each new command:
+`.venv/bin/python -B scripts/run_wp09_tests.py --test <exact-selector> --timeout-seconds 290`.
+Canonical recorder wraps the same argv with existing Policy300 ceiling. The six
+static argv remain architecture, lint, type, build, reproducible-build and diff-check.
+The two extra existing selectors are PackagingContractTests' performance installation
+closure/source-drift tests; no performance benchmark/full P1 execution is added.
+
+U1–U8,C1–C6,I1–I8,S1–S6,W1–W4 are aliases in Plan A tasks, in the following order.
+GEW-PKG-001–032 bind the32 A behaviors;033–100 below preserve full packaging exit.
+
+| Packaging ID / alias | Exact proposed selector | Independent behavior oracle |
+|---|---|---|
+| GEW-PKG-001 / U1 | `tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_manifest_projection` | Independent canonical projection/signature-domain bytes match; changing each covered field changes digest; excluded signature/digest cannot self-authorize |
+| GEW-PKG-002 / U2 | `tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_closure_order_invariance` | Permutation of equivalent observed input yields identical canonical closure; noncanonical serialized manifest still refuses |
+| GEW-PKG-003 / U3 | `tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_graph_reachability` | Exact reachable graph passes; cycle, dangling edge, unreachable extra and missing transitive child refuse |
+| GEW-PKG-004 / U4 | `tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_duplicate_normalization` | Normalized distribution/case/path aliases, duplicate versions/IDs/keys refuse before ambiguity |
+| GEW-PKG-005 / U5 | `tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_marker_extras` | Attested parser evaluates exact platform markers/extras; both wrongly included and omitted branches refuse |
+| GEW-PKG-006 / U6 | `tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_compatibility_ranges` | Every configured core/CLI/adapter/Skill/repository/schema/graph/profile/overlay/action range and required capability is checked; mismatch refuses |
+| GEW-PKG-007 / U7 | `tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_diagnostic_budget` | Report reservation exact/one-over/UTF-8 sizing checked before materialization; no truncation PASS |
+| GEW-PKG-008 / U8 | `tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_trust_purpose` | Correct installed release-purpose key passes; revoked/wrong-purpose/release/key-generation mismatch refuses |
+| GEW-PKG-009 / C1 | `tests.contract.test_release_installation.ReleaseInstallationContractTests.test_manifest_nested_closed` | All manifest/artifact/dependency/Skill/compatibility nested unknown/absent/wrong-type/noncanonical fields refuse |
+| GEW-PKG-010 / C2 | `tests.contract.test_release_installation.ReleaseInstallationContractTests.test_policy_closed` | Policy source/license/platform/security/resource/trust crossrefs exact; duplicate/unknown/empty production trust fails closed |
+| GEW-PKG-011 / C3 | `tests.contract.test_release_installation.ReleaseInstallationContractTests.test_registry_resource_closed` | Resource and registry/schema records closed; boolean/zero/negative/unbounded limits and dangling schema refs refuse |
+| GEW-PKG-012 / C4 | `tests.contract.test_release_installation.ReleaseInstallationContractTests.test_diagnostic_closed` | Diagnostic status/phase/code/check/ref/capability/route shape exact and minimized; unknown fields/status refuse |
+| GEW-PKG-013 / C5 | `tests.contract.test_release_installation.ReleaseInstallationContractTests.test_installed_resource_closure` | Eleven actual owned source/wheel resources agree with source list/RECORD/registry; missing extra/substituted resource refuses |
+| GEW-PKG-014 / C6 | `tests.contract.test_release_installation.ReleaseInstallationContractTests.test_legacy_resources_preserved` | Original schema/trust/bootstrap resource bytes outside exact four mutable pins stay identical; prior formats still validate |
+| GEW-PKG-015 / I1 | `tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_valid_physical_bundle` | Private attested signed fixture bundle with actual wheel/archives/METADATA/RECORD passes check, returns preflight-valid and unavailable mutation capabilities |
+| GEW-PKG-016 / I2 | `tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_missing_extra_dependency` | Actual wheel METADATA/transitive artifact omission or extra wheel refuses even when manifest strings/signature are valid |
+| GEW-PKG-017 / I3 | `tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_lock_sbom_provenance` | Independently expected lock graph/export/SBOM/provenance bytes match exact physical identities bidirectionally; empty/current incomplete product lock and substituted exports refuse |
+| GEW-PKG-018 / I4 | `tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_license_security_freshness` | Allowed fixture source/license and fresh correctly bound security result pass; forbidden license/source, expired/unknown/missing scan or wrong artifact/policy binding refuses |
+| GEW-PKG-019 / I5 | `tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_doctor_zero_writes` | Actual Doctor existing-root before/after content/permission/mtime/size/directory and task/event/clock-row inventories identical; stdout aside no new files |
+| GEW-PKG-020 / I6 | `tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_missing_root_no_create` | Absent installation/control/Skill/data roots remain absent; missing active release routes blocked/unavailable without initialization |
+| GEW-PKG-021 / I7 | `tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_cli_exit_routes` | Actual subprocess JSON:0 preflight-valid,2 malformed,3 blocked,4 integrity/compatibility rejection; no unsupported apply command or mutation capability |
+| GEW-PKG-022 / I8 | `tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_no_ambient_config_artifact_execution` | Poisoned ambient config/index/PATH and interpreter/installer execution canaries cannot influence read-only admission; no child artifact execution/network/extraction |
+| GEW-PKG-023 / S1 | `tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_substitution_signature` | Resigning is impossible with untrusted caller key; tampered signature/projection/key/source/installed registry substitution refuses; caller diagnostic replay confers no authority |
+| GEW-PKG-024 / S2 | `tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_archive_paths_members_links` | Actual ZIP/tar fixtures reject traversal/absolute/dot/case/Unicode-normalization collision/duplicate members, symlink/hardlink/device entries before extraction (none performed) |
+| GEW-PKG-025 / S3 | `tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_preallocation_cumulative` | Each finite fixture cap at/exact+1, truncated/oversized declaration and cumulative hash/expansion repeated reads use sentinels to prove preallocation refusal, bounded streaming and no huge allocation |
+| GEW-PKG-026 / S4 | `tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_stale_file_parent_provider_race` | Barrier swaps files/parents/installed provider after capture and during stream; use-time physical identity/hash/attestation recheck refuses, no reused observation accepted |
+| GEW-PKG-027 / S5 | `tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_clock_no_write_refusal` | Actual OS-read Doctor against owned retained future/backward clock facts and expired/fresh evidence; strict_trusted_now never called, high-water and DB/root inventories unchanged |
+| GEW-PKG-028 / S6 | `tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_diagnostic_privacy` | Input path/secret/task/prompt and parser exception canaries absent from all JSON/stderr/refs; bounded stable code and next route remain available |
+| GEW-PKG-029 / W1 | `tests.integration.test_release_installation_wheel.ReleaseInstallationWheelTests.test_installed_check_doctor` | Fresh built wheel in private outside-checkout environment runs actual installed release-check/Doctor and correct read-only result; no source fallback |
+| GEW-PKG-030 / W2 | `tests.integration.test_release_installation_wheel.ReleaseInstallationWheelTests.test_installed_owned_resource_substitution` | Installed policy/schema/key/RECORD/provider file missing/changed/replaced during capture/use refuses, no caller map can replace the real loader |
+| GEW-PKG-031 / W3 | `tests.integration.test_release_installation_wheel.ReleaseInstallationWheelTests.test_outside_checkout_decoys` | Outside-checkout decoy common-name packages/PATH executables/duplicate origins cannot change namespace/canonical selection; legitimate installed origin passes |
+| GEW-PKG-032 / W4 | `tests.integration.test_release_installation_wheel.ReleaseInstallationWheelTests.test_installed_fixture_config_variation` | Two separately attested private installed fixture configurations with identical engine hashes produce expected allow/refuse change; stale first observation refuses under second config |
+
+### W10-T3 Behavioral strategy, full packaging obligations
+
+Pure tests use production reducers/models, independently specified inputs/expected
+outputs and no filesystem mocks. Contract tests use actual installed owned resources
+and retained validators. Integration/security tests use real private files/archives,
+wheel metadata/RECORD, signature bytes, OS clocks and existing service setup where
+needed to establish preexisting roots; Doctor itself never opens a writable service.
+Fault probes observe boundaries or coordinate barriers; they cannot issue authority,
+replace attestation/parser/provider, return fabricated PASS or bypass source checks.
+Wheel checks build from current accepted bytes and execute the actual installed CLI
+in an isolated outside-checkout child. Test fixtures may attest synthetic policies
+through the real private source/wheel installation boundary, never injected maps.
+
+A0–A7 test order is the reviewed Plan: per-producer collection and meaningful RED,
+implementation/current package/pins, GREEN; A7 final combined evidence. Failure/timeouts
+stop serial capture and retain the failed immutable attempt. Subsequent changes
+invalidate affected/current final evidence. New source requires new staged final-tree
+capture after separately authorized staging; no commit/push is implied.
+
+The following68 cases are **not A execution selectors or PASS claims**. They are the
+concrete acceptance obligations for future B/C inventory and native verification.
+Each becomes one or more named methods before its later producing task. All failure/
+crash cases compare actual old CLI/Skill/repository usability, pointer/journal/history
+and absence of mixed execution; text-only/SQL/simulated PASS does not satisfy them.
+
+| Packaging ID | Later slice / case | Required observable oracle |
+|---|---|---|
+| GEW-PKG-033 | B: macos-arm64 twice-clean-install | Two actual clean roots from same exact verified bundle yield equal normalized InstalledReleaseManifest; local identity bindings differ and both validate |
+| GEW-PKG-034 | B: macos-x86-64 twice-clean-install | Same independent equality/currentness oracle on actual x86-64 macOS, no emulation substitution |
+| GEW-PKG-035 | B: linux-x86-64 twice-clean-install | Same oracle on actual Linux x86-64, no macOS/source/wheel substitution |
+| GEW-PKG-036 | B: checkout independence | Supported install/CLI works without checkout/reference project; decoy namespace cannot supply runtime |
+| GEW-PKG-037 | B: interpreter exact identity | Actual managed executable/patch/build/ABI and archive provenance equal signed expectation |
+| GEW-PKG-038 | B: wrong interpreter | Wrong patch/build/ABI refuses before staging mutation/publication |
+| GEW-PKG-039 | B: missing interpreter | Missing exact artifact blocks without PATH/system Python fallback or download |
+| GEW-PKG-040 | B: installer exact identity | Actual installer version/raw bytes/argv policy match; substituted installer refuses before execution |
+| GEW-PKG-041 | B: ambient configuration | Poisoned user/project installer config ignored by actual supported invocation; exact installed closure unchanged |
+| GEW-PKG-042 | B: offline no index | Actual installer denied external access still succeeds using exact verified local closure; index request fails test |
+| GEW-PKG-043 | B: system Python decoy | Unqualified PATH/system interpreter canary is never selected or executed |
+| GEW-PKG-044 | B: installed distributions | Enumerate actual installed names/versions/wheel and RECORD hashes equals complete signed expected closure |
+| GEW-PKG-045 | B: installed tamper | Changed/missing installed file or RECORD refuses use; matching metadata text is insufficient |
+| GEW-PKG-046 | B: unlisted dependency | Unexpected installed distribution refuses post-install Doctor/publication |
+| GEW-PKG-047 | B: no runtime build | sdist/build step or unlisted build input refuses before execution |
+| GEW-PKG-048 | B: Codex Skill staging | Actual configured native Skill asset/entry/protocol/digest installed immutably and canonical bootstrap locates it |
+| GEW-PKG-049 | B: Hermes Skill staging | Equivalent actual native Hermes Skill installation and locator verification |
+| GEW-PKG-050 | B: canonical locator | Owner-only absolute selected executable/package/release bindings validate before every write-capable call |
+| GEW-PKG-051 | B: PATH shadow | Malicious PATH graph-engineering canary never executes through supported Skill |
+| GEW-PKG-052 | B: duplicate executable | Duplicate/ambiguous package/executable origin refuses handshake |
+| GEW-PKG-053 | B: moved executable | Moved/replaced root or executable after issuance refuses currentness |
+| GEW-PKG-054 | B: missing Skill asset | Absent/mismatched selected Skill entry refuses without task creation |
+| GEW-PKG-055 | B: handshake mismatch | Each required protocol/range/capability mismatch permits diagnostic only, zero task/tool writes |
+| GEW-PKG-056 | B: discovery read-only | Successful and refused capability discovery leave task/repository histories unchanged |
+| GEW-PKG-057 | C: fresh init | Explicit exact-plan Owner authority initializes selected new installation/repository; no JSON flag grants authority |
+| GEW-PKG-058 | C: foreign init authority | Wrong owner/installation/purpose/prior tuple/stale plan refuses before creating roots |
+| GEW-PKG-059 | C: relaunch selection | Fresh process resolves the same verified active tuple and freshly checks actual bindings |
+| GEW-PKG-060 | C: daemon-free exit | Command completion/pause leaves no product resident process and no later event/head mutation |
+| GEW-PKG-061 | C: interpreter-stage failure | Injected stage failure leaves old executable/Skill/repository usable and no active-pointer change |
+| GEW-PKG-062 | C: tool-stage failure | Same oracle after actual wheel installer failure, with immutable failed-attempt evidence retained |
+| GEW-PKG-063 | C: Skill-stage failure | Same oracle after Skill asset/locator preparation failure; no mixed Skill publication |
+| GEW-PKG-064 | C: pre-switch Doctor failure | Actual candidate Doctor failure leaves old tuple selected |
+| GEW-PKG-065 | C: compatibility failure | Candidate tuple protocol mismatch leaves old selected and no migration/publication |
+| GEW-PKG-066 | C: export failure | Actual verified export fault retains old data/tuple and no imported active leaf |
+| GEW-PKG-067 | C: empty PMF export | Real initialized but empty PMF schema refuses before export/staging writes |
+| GEW-PKG-068 | C: partial PMF export | Partial namespace/marker/tables refuse; omission/DB-copy path not invoked |
+| GEW-PKG-069 | C: purged PMF export | Purged/tombstoned PMF root remains export-ineligible; old task/action history preserved |
+| GEW-PKG-070 | C: migration-candidate failure | Actual import/verify failure leaves old CLI/repository usable, no tuple activation |
+| GEW-PKG-071 | C: receipt codec roundtrip | No-PMF actual export/import retains task/bootstrap receipts/origin/action/retention and enforces fresh destination trust |
+| GEW-PKG-072 | C: live claim | Actual unresolved live lease/claim blocks maintenance under installation exclusive scope |
+| GEW-PKG-073 | C: unresolved action | Unknown/pending external action blocks unsafe transition and routes explicit reconciliation |
+| GEW-PKG-074 | C: retention holds | Migration/rollback preserves holds, claims, fence high-water and retained receipts exactly |
+| GEW-PKG-075 | C: shared/exclusive race | Independent ordinary-command and maintenance processes/barriers prevent mixed observation and nested-lock deadlock |
+| GEW-PKG-076 | C: lost-response retry | Same exact request after actual crash returns original result only after fresh binding checks; no duplicate transition |
+| GEW-PKG-077 | C: conflicting retry | Changed request/plan/prior tuple conflicts deterministically without mutation |
+| GEW-PKG-078 | C: crash record fsync | SIGKILL at immutable record write/fsync boundary; restart selects old or verified-new or blocks, zero mixed execution |
+| GEW-PKG-079 | C: crash record-directory fsync | Same oracle at durable record directory boundary with real process restart |
+| GEW-PKG-080 | C: crash temporary-reference fsync | Same oracle at temporary active-reference fsync boundary |
+| GEW-PKG-081 | C: crash atomic replacement | Same oracle before/after actual replace; no partially decoded or guessed active reference |
+| GEW-PKG-082 | C: crash final-directory fsync | Same oracle around final directory durability boundary; interrupted attempts retained |
+| GEW-PKG-083 | C: post-switch verification failure | Verifying tuple never executes; explicit recover restores eligible old via new generation or remains blocked |
+| GEW-PKG-084 | C: eligible rollback | Exact-plan Owner rollback to still-trusted old tuple succeeds via fresh verification, immutable new generation and complete pointer |
+| GEW-PKG-085 | C: revoked rollback target | Revoked/expired/incompatible old tuple refuses; never undo trust revocation to recover |
+| GEW-PKG-086 | C: monotonic provenance | Failure/retry/rollback cannot lower generation, activation epoch or fencing/clock/advisory high-water facts |
+| GEW-PKG-087 | C: action history preservation | No recovery/uninstall rewrites or erases action/receipt/journal history to manufacture success |
+| GEW-PKG-088 | C: repository-only bypass | Direct registered migration activation without internally issued current release coordinator context refuses |
+| GEW-PKG-089 | C: verifying tuple dispatch | Actual ordinary CLI/Skill dispatch against verifying/inconsistent record refuses before task/tool effects |
+| GEW-PKG-090 | C: stable Skill dispatcher | Concurrent real Skill reads around publication select wholly old/new assets through the one release reference |
+| GEW-PKG-091 | C: unsupported historical adoption | Missing supported old bootstrap/protocol/release bytes refuses explicit adoption; no silent registration |
+| GEW-PKG-092 | C: legacy unregistered behavior | Historical unregistered roots retain their accepted old semantics and are distinguishable from WP10 registration |
+| GEW-PKG-093 | C: supported old-to-new bootstrap | Actual supplied exact old/new formats complete verified transition; unsupported pair refuses before changes |
+| GEW-PKG-094 | C: data-preserving uninstall | Default authorized uninstall removes selected executable/Skill records only, leaves repositories/user data intact |
+| GEW-PKG-095 | C: explicit selected deletion | Data deletion requires distinct exact Owner plan/authority and retained hold/claim checks; absent authority preserves data |
+| GEW-PKG-096 | C: uninstall live claim | Active command/lease/hold prevents unsafe removal under actual coordinator lock |
+| GEW-PKG-097 | B/C: owner-only modes | Actual installed/control/Skill/locator ownership/modes remain owner-only; wrong owner/writable parent refuses |
+| GEW-PKG-098 | B/C: native Skill representative task | On each real supported cell actual installed Codex or Hermes Skill completes representative task and compatibility refusal without source checkout |
+| GEW-PKG-099 | B/C: honest capability evidence | Capabilities become available only for independently accepted actual phases; fixture/missing/native evidence cannot claim release support |
+| GEW-PKG-100 | B/C: complete packaging matrix | Coverage collector requires all100 cases plus all3 native cells and exact source/artifact/evidence bindings; missing/stale/substituted cell refuses WP10 exit |
+
+For033–035 and098–100 freeze exact release/interpreter/installer/lock/dependency/Skill/
+policy/native OS+architecture identities before execution. Two clean roots use the
+same bundle bytes, compare normalized installed manifests, and independently verify
+local identity binding; do not compare machine-local inode/path fields as reproducible
+payload. All planned cells macos-arm64,macos-x86-64,linux-x86-64 remain required.
+No cross-platform source test, simulated clock, wheel unpack or substituted cell
+can certify native installed use. Native environment absence is recorded BLOCKED.
+
+### W10-T4 Data, resources, privacy and cleanup
+
+`tests/fixtures/release-admission-v1.json` defines synthetic expected identities,
+fixed shape variants, source/license/security cases and finite fixture limits;
+`tests/support/release_installation.py` constructs fresh private attested source/
+wheel roots, physically signed bundles/archives and independent expected graph/lock/
+SBOM/provenance bytes. Keys are test-only per fixture, never production issuers.
+Actual attested parser reads METADATA; synthetic dependency wheels test graph
+behavior without claiming genuine cryptography/interpreter production binaries.
+Positive A results are preflight-valid fixture observations, not production support.
+Current production uv.lock with no dependency closure must fail when offered.
+
+Fixture resource envelope is frozen in the proposed inventory, not a measured
+production performance claim:
+
+| Limit | Fixture ceiling | Basis and boundary verification |
+|---|---:|---|
+| manifest/report bytes |65536 each|below existing1MiB document/result limits; exact and one-over UTF-8 reservation |
+| artifacts/dependency edges |64/256|finite synthetic graph, below existing array ceiling; cycle/duplicate/count sentinels |
+| artifact/bundle bytes |16777216/67108864|16MiB member and64MiB aggregate synthetic envelope; streaming/declared-vs-actual sentinels |
+| archive members/expanded bytes/ratio |8192/134217728/32|finite128MiB cumulative expansion envelope, duplicate/link/bomb fixtures refused without extraction |
+| path segments |16|below existing1024 path-token ceiling; portable path and normalization variants |
+| cumulative hash bytes |268435456|256MiB per observation including rereads/repeated members, exact and one-over sentinels |
+
+All values are installed fixture policy data, positive finite non-boolean integers.
+Existing parser/resource ceilings win when lower. No large allocation is required
+to demonstrate refusal: metadata/stream counters/sentinels expose prohibited reads
+before buffering. Unknown/truncated/inconsistent declarations cannot raise ceilings.
+Before genuine release acceptance, actual supplied artifacts require reviewed finite
+production ceilings; fixture values cannot silently authorize them.
+
+Doctor oracles snapshot content hash/size/mode/mtime and directory membership across
+synthetic control/Skill/data/task roots, and preexisting event/receipt/clock rows,
+then compare after both success and every refusal. Filesystem atime induced by reads
+is excluded from the write oracle; intentional product writes, mtime/content/permission
+changes and root creation are forbidden. Do not call trusted_now/strict_trusted_now;
+for backward-time refusal use an owned fixture retained fact greater than actual OS
+observation, without changing host time. Signature/security fixtures include fresh,
+expired, future/wrong-scope/unknown cases bound to actual artifact and installed policy.
+
+Path/secret/prompt/raw parser canaries test all diagnostic/stdout/stderr outputs and
+stable routes. No real PII, credentials, owner installations or reference repository
+writes. Each test owns its temporary roots/processes, tears them down, leaves no
+resident child or global fixture state, and retains only sanitized execution evidence.
+
+### W10-T5 Environments and evidence
+
+| Environment | A use / authority | Later use |
+|---|---|---|
+| local .venv/private source and installed wheel roots | future exact A tests only, offline; actual availability checked at entry | development feedback does not certify matrix |
+| CI / remote hosts | not authorized or claimed by this request | separately authorized environments/evidence |
+| native three-cell clean installs | not executed/certified in A | mandatory supplied exact artifacts and two-root/Skill acceptance |
+| staging/production/real user data | none | separate applicable Owner authority, never implicit from design/test PASS |
+
+The exact arithmetic is32 new+275 existing=307 tests, plus6 statics
+=313 commands. This explicit count supersedes no prior full-suite inventory; do not
+reinterpret a historical274 label as this set. Collector preflight must resolve each
+selector, command identity/count/timeouts and source/pin hashes before costly capture.
+Evidence binds actual current staged tree/Manifest/Policy/task/base and argv; immutable
+failed/rejected attempts remain. The previous pushed279-command bootstrap capture is
+historical for its tree and cannot certify A. Independent implementation/verification/
+Candidate reviews remain required before requesting any irreversible action.
+
+### W10-T6 Non-functional and compatibility checks
+
+Security and bounded resources are in scope in A: untrusted streams/nested fields/
+trust/currentness/signature/closure/freshness refusal and minimized diagnostics.
+Compatibility covers actual parser/platform/range/CLI source/wheel behavior; actual
+native install and stable Skill upgrade are later033–100. Recovery A is fail-closed
+and zero mutation, not an activation journal claim. Performance checks are existing
+finite budgets and two affected performance-factory conformance selectors, not
+benchmark workload or throughput certification. Daemon-free CLI child exit is checked.
+Accessibility UI and production canary/monitoring do not apply to this local read-only
+CLI slice. Existing task/learning/security behavior remains covered by retained273.
+
+Four active affected bootstrap vectors/mirrors must match current bytes in source and
+wheel: migration-rehearsal,scenario-truth,release-operations,performance-benchmark.
+Performance build-backend raw/protected/closure/bootstrap pins and pyproject mirrors
+are explicit per W10-IMPACT-R0-001. Preserve vector order/counts, all unaffected and
+historical resource bytes; do not rewrite historical WP07a/WP08a prerequisite pins
+as if recertified. No dependency/version or uv.lock resolution/update is authorized.
+
+### W10-T7 Open decisions and exits
+
+Before A execution: Owner exact39-file/313-command approval, current reviewed design
+hashes and actual runner/tool availability. Before B/C or genuine release admission:
+new exact inventory/argv, supplied production artifact/trust/source/license/security
+bytes, finite concrete production ceilings and actual three native environments.
+Missing inputs keep that stage blocked; A synthetic validation after its own approval
+can proceed. New target/dependency/data/security/architecture/budget changes escalate
+before affected work; routine testability findings stay within revision budget4.
+
+A exit requires32 new+275 existing selectors execute1/skip0 and all6 statics pass on
+one frozen final tree, exact scope/resource/pin/privacy/no-write oracles, zero open
+blocking findings and independent reviews. It establishes offline release checking
+and read-only diagnostics only. WP10 exit still requires all001–100 and actual
+three-cell installation/Skill/upgrade evidence. WP11/whole-project/release/PMF success
+and irreversible authority never follow merely from A or this design completion.
+
+### W10-T8 References and history
+
+[Positioning](../positioning/graph-engineering-workflow.md), [PRD](../prd/graph-engineering-workflow.md),
+[Spec](../specs/graph-engineering-workflow.md), [Impact](../impact/graph-engineering-workflow.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md), [ADR0015](../adr/0015-release-installation-and-upgrade.md).
+2026-10-10 R0: exact first-slice32 behavioral methods and275 regression/six-static
+boundary, full100 packaging obligations and honest later native/artifact blockers.
+No product tests/builds/installations or elapsed results were executed in this design.
+
+### W10-A verification progress and retained failure
+
+The exact A request is now approved. All32 selectors exist and collect through the
+normal attested native runner. Each refusal group first admits a genuine positive
+fixture, so a missing port or uniformly rejecting implementation cannot fake coverage.
+S3 independently derives the installed limits' exact accepted boundary and one-unit
+excess for all11 caps, including cumulative expanded/hash work and compressed ZIP ratio.
+S4 includes actual during-read thread barriers and both capture/return swap boundaries.
+I3 also exercises the real release-inputs supply-chain script. Configuration variants
+are freshly attested private installations with unchanged engine bytes.
+
+W1 intentionally invokes the installed launcher without `-B` or a test-provided
+bytecode suppression variable. Its retained failure demonstrates initial package
+cache/directory changes. That oracle and G5 remain required; passing source/`-B` tests
+do not waive it. No overall32/307/313 PASS, final canonical evidence or completed WP10
+is claimed before this architecture/acceptance gate is resolved and the final tree is
+verified. Source/wheel fixtures do not certify other native platform cells.
+
+
+### W10-A2 Owner-approved strict launcher amendment
+
+The Owner approved the independently reviewed strict launcher design and then the
+exact41-file/313-command implementation amendment. The immutable authority is
+`wp10-release-admission-implementation-approval-r1.json`; reviewed design
+`wp10-readonly-launcher-design-r1.md` (raw SHA256
+`68d158085fcb2ebbd6efc8ceaf344bbba0b64b1dd41a5cf3730e5bb467881699`)
+and `wp10-readonly-launcher-design-completion-r1.json` remain in the detached directory.
+This supersedes only the previous pending launcher-choice language. G5 is unchanged;
+prior failing evidence and all four W10-IMPLEMENTATION-R0 findings remain retained
+until independently verified repairs. PRD/Intent, other native cells, B/C, PMF-export
+refusal, production trust blockers and separate irreversible action gates remain.
+
+Keep all307 selector methods/313 commands and their existing IDs. Extend existing
+packaging and W1 methods to verify actual wheel script bytes/RECORD/executable mode,
+no duplicate console entry and cold direct commands from cache-free private installs.
+Test check success/refusal and Doctor blocked routes without external cache masks;
+compare the entire environment and task/source/control inventories including directories.
+Validate fallback schema/digest, <1KiB output, exits4/3 and no stderr/path/canary leakage
+for missing/changed source attestation, owned-resource/seed substitution and duplicate
+installed origins. Never recursively acquire a failed diagnostic provider.
+
+Extend compatible physical SOURCE/WHEEL positives with signed, RECORD-consistent
+Requires-Python matching/incompatible/malformed/missing/duplicate cases and Skill
+protocol_range matching/mismatching cases. Rebuild actual support/signature closure.
+SpecifierSet alias/class/used method substitutions before use, mid-observation and on
+retained reuse must refuse; restoration must admit the compatible positive. Retain
+typed provider/origin/currentness and complete zero-write/privacy assertions. New
+subcases must fail before implementation, not merely assert implementation text.
+Earlier28 new passes and the cold failure are retained; the final amended tree needs
+all32 new selectors, all275 retained selectors and six statics. No historical pass,
+source-only -B run or native substitution certifies final admission or WP10 completion.
+
+
+### W10-A3 Owner-approved closed parser trust boundary
+
+The Owner approved the reviewed `wp10-parser-trust-boundary-design-r1.md` (raw
+SHA256 `7fd4d4f8f7060f9abb6fd2096537b1cfcda4aa81fcfd857ea5ff47c8a6a84fbb`)
+and its concrete implementation request. Immutable approval is
+`wp10-release-admission-implementation-approval-r2.json` in the detached directory.
+The reviewed twelve-section design, including §4.3.1, is the normative amendment.
+PRD/Intent, exact41 targets,313 commands, strict serial/fail-fast, native290/canonical300,
+zero writes, diagnostics, dependencies/platforms and B/C exclusions remain unchanged.
+This supersedes the selected-member parser strategy, not the retained launcher design.
+
+Build one operation-owned, privately linked Version/_ranges/SpecifierSet closure and
+canonicalize_version facade from physically RECORD-verified26.3 source. Validate the
+ambient executable surface against its complete source-derived structural graph before
+and after use and observation reuse. Exact types precede inspection; never invoke
+suspect equality, descriptor, container or regex dispatch. Bind code/defaults/closures,
+classes/metaclasses/bases, slots, aliases, containers/constants/singletons, regex and
+legitimate generated helpers/caches. Unknown dependency sites/objects refuse. Compute
+Requires-Python using private objects, return only a bool, and retain the same owned
+provider through the verifier/observation. No ambient fallback, global image cache,
+candidate code, package import hook, sys.modules publication, external action or new
+persistent schema is permitted. Trusted CPython/stdlib/backend remain the stated base.
+
+Construction has its own closed effects inventory. Omit exactly six overwritten
+overload stubs and the enumerated unread annotation-only declarations/imports before
+execution; preserve concrete function-code/defaults and future-annotation strings.
+Use finite local NamedTuple/ABC/enum/functools/wrapper recipes and a non-caching regex
+compiler facade. No private graph may escape into ambient overload/typing/regex
+registries; never clear or replace shared registries to repair a leak. Success, failure,
+release and repeated construction must preserve ambient bindings and permit private
+graph collection. Partial construction and release drop local references/tracebacks.
+
+Preserve implementation r0–r4 and the r4 regex finding. The separately approved exact
+task-local Policy exception selects max_revision_cycles5 only for implementationr5;
+project Policy and other nodes remain4, with original inputs used for historical replay.
+No task/numbering reset, frozen reducer edit or host permission change is authorized.
+Non-PASS at r5 stops. Only actual implementation ADVANCE permits canonical313 and
+subsequent verification/Candidate review. No completion or commit/push is implied.
+
+Within existing selectors assert signed RECORD-consistent >=3.13rc1 refusal for manifest3.12.12, before-acquisition regex proxy rejection and retained-observation invalidation/restoration in SOURCE/WHEEL. Retain seven resolved regressions. Cover transitive constants/singletons/defaults/closures/aliases/unknown types, alternate PEP440 semantics and legitimate caches/generated helpers. Inspect ambient overload/typing/regex bindings before/during/after success/failure/repeated release; prove no private strong roots and collectibility without shared-cache clearing. Assert bounded independently digested diagnostics, empty stderr/privacy, unchanged inventories and resource ceilings.
+
+
+### W10-A4 Owner-approved effective-global-binding repair
+
+The Owner separately approved `wp10-parser-global-binding-repair-request-r0.json`
+(raw SHA256 `d64f1b46975b38f15d3c500e7a4e87f7fc1052676d531c930a39d589a089ff22`)
+through `wp10-release-admission-implementation-approval-r3.json`. This is a routine
+correction to the W10-A3 architecture: resolve reference and live function bindings
+independently using globals first, builtins second, then compare effective bindings
+without invoking a substituted callable. Preserve explicit name presence, the trusted
+import recipe, all private-construction/currentness guarantees and existing regressions.
+
+The r5 independent review resolved eight historical findings and retained
+`W10-IMPLEMENTATION-R5-001`; its actual ESCALATE/E_LOOP remains immutable. This new
+approval supersedes only the r5 stop/budget for one implementation revision6 with
+an exact task-local ceiling6 (previous selected ceiling5); project/default and other
+nodes remain4. Preserve the same task, prior digest and exact historical reduction
+inputs. Non-PASS at r6 stops. Exact41,313 commands/307 selectors, native290/canonical300,
+serial/fail-fast, zero writes, diagnostics and all exclusions remain unchanged.
+
+Add meaningful SOURCE/WHEEL acquisition, public refusal, retained-invalidation and
+restoration coverage for `packaging.utils.isinstance` shadowing within existing
+W10-016/W10-026 selectors; require zero substituted calls, bounded independently
+checked diagnostics, privacy, empty stderr and unchanged inventories. Retain actual
+RED/GREEN and run six statics before fresh independent implementationr6 review.
+Only actual ADVANCE permits canonical313, verification and Candidate review.

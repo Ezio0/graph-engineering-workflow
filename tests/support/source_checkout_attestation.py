@@ -20,6 +20,21 @@ LOCK_FILENAME = "installation-maintenance.lock"
 KEY_FILENAME = "source-checkout-attestation-v1.key"
 ATTESTATION_FILENAME = "source-checkout-attestation-v1.json"
 SOURCE_FILES = (
+    "core/graph_engineering/core/release_installation.py",
+    "application/graph_engineering/application/release_installation.py",
+    "adapters/graph_engineering/adapters/release_installation.py",
+    "config/release-installation/release-policy-v1.json",
+    "config/release-installation/release-trust-registry-v1.json",
+    "config/release-installation/release-resource-policy-v1.json",
+    "config/contracts/release-installation-schema-registry-v1.json",
+    "config/contracts/schemas/release-install-manifest-1.0.0.json",
+    "config/contracts/schemas/release-install-artifact-1.0.0.json",
+    "config/contracts/schemas/release-install-policy-1.0.0.json",
+    "config/contracts/schemas/release-install-trust-registry-1.0.0.json",
+    "config/contracts/schemas/release-install-resource-policy-1.0.0.json",
+    "config/contracts/schemas/release-install-diagnostic-1.0.0.json",
+    "config/contracts/schemas/release-install-schema-registry-1.0.0.json",
+
     "application/graph_engineering/application/security_bootstrap.py",
     "config/security/security-bootstrap-v1.json",
     "config/contracts/security-bootstrap-schema-registry-v1.json",

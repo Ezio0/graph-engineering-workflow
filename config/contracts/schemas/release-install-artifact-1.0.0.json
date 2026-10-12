@@ -1,0 +1,128 @@
+{
+  "$defs": {
+    "artifact": {
+      "properties": {
+        "artifact_id": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "distribution_name": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            }
+          ]
+        },
+        "kind": {
+          "enum": [
+            "interpreter",
+            "installer",
+            "core-wheel",
+            "dependency-wheel",
+            "build-input",
+            "skill",
+            "lock",
+            "sbom",
+            "security-evidence",
+            "provenance"
+          ]
+        },
+        "license_ids": {
+          "items": {
+            "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 65536,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "provenance_artifact_id": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            }
+          ]
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "relative_path": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 1024,
+          "minLength": 1,
+          "type": "string"
+        },
+        "size_bytes": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "source_id": {
+          "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$comment": "ASCII token/path/version/signature grammar is enforced by the charged release record validator.",
+              "maxLength": 128,
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "relative_path",
+        "distribution_name",
+        "version",
+        "size_bytes",
+        "raw_sha256",
+        "source_id",
+        "provenance_artifact_id",
+        "license_ids"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    }
+  },
+  "$id": "urn:gew:schema:release-install-artifact:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "artifact": {
+      "$ref": "#/$defs/artifact"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}
