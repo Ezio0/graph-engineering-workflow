@@ -35,6 +35,15 @@ def _parser() -> argparse.ArgumentParser:
     doctor = subcommands.add_parser("doctor")
     doctor.add_argument("--installation", type=pathlib.Path)
     doctor.add_argument("--format", choices=("json",), required=True)
+    planning = subcommands.add_parser("install-plan")
+    planning.add_argument("--operation", required=True)
+    planning.add_argument("--request", type=pathlib.Path, required=True)
+    applying = subcommands.add_parser("install-apply")
+    applying.add_argument("--plan", type=pathlib.Path, required=True)
+    for command in (planning, applying):
+        command.add_argument("--bundle", type=pathlib.Path, required=True)
+        command.add_argument("--manifest", type=pathlib.Path, required=True)
+        command.add_argument("--format", choices=("json",), required=True)
     capabilities = subcommands.add_parser("capabilities")
     capabilities.add_argument("--format", choices=("json",), required=True)
     capabilities.add_argument("--locator", type=pathlib.Path, required=True)
@@ -97,6 +106,17 @@ def main(argv: list[str] | None = None) -> int:
         print(installed_version())
         return 0
     parsed = _parser().parse_args(arguments)
+    if parsed.command in ("install-plan", "install-apply"):
+        from graph_engineering.application.release_staging import (
+            BundleRef, install_plan, install_apply_unavailable, bootstrap_stage_diagnostic,
+        )
+        try:
+            result, exit_code = (install_plan(parsed.operation, parsed.request, BundleRef(parsed.bundle, parsed.manifest))
+                if parsed.command == "install-plan" else install_apply_unavailable())
+        except Exception:
+            result, exit_code = bootstrap_stage_diagnostic('plan' if parsed.command == 'install-plan' else 'stage'), 4
+        print(json.dumps(result, sort_keys=True, separators=(",", ":")))
+        return exit_code
     if parsed.command in ("release-check", "doctor"):
         try:
             from graph_engineering.application.release_installation import release_check, doctor

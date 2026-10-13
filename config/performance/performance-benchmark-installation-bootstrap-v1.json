@@ -1,7 +1,7 @@
 {
-  "bootstrap_digest": "sha256-jcs-v1:f0289d0d354e62caaca948e91cc7a1b75a8dee671636bff9178dca16aa915f05",
+  "bootstrap_digest": "sha256-jcs-v1:0da239ad3bd5ab11a20134ff3990ec1e772188019602334e8a2a6ea85c986a15",
   "bootstrap_id": "performance-benchmark-installation-v1",
-  "build_backend_raw_sha256": "1575485d8d5e853feb9cd20a36f6964c35472c54b421f9441c1b1df72dc016f5",
+  "build_backend_raw_sha256": "015440771024141e7d43be9ab5f4f01bd2de757f21a539acc87d33eb48bd66d3",
   "build_backend_resource": "graph_engineering/build_backend.py",
   "build_backend_source": "scripts/build_backend.py",
   "child_raw_sha256": "9de5fcfdc5fdcbf6a84aa5adb4e58ecd4291af571210c4ae38b6fc74aae07f32",
@@ -37,7 +37,7 @@
   "profile_schema_registry_raw_sha256": "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd",
   "profile_schema_registry_resource": "graph_engineering/config/contracts/profile-schema-registry-v1.json",
   "profile_schema_registry_source": "config/contracts/profile-schema-registry-v1.json",
-  "protected_closure_digest": "sha256-jcs-v1:3eb45f966e1de6a8bc804711e66d26531ee818c931b6a9656a315dc80558a53b",
+  "protected_closure_digest": "sha256-jcs-v1:bf7cd2308f32355271e280be9efb2e5c1b3ad646e375ded89439be4a81c55e31",
   "protected_resources": [
     {
       "raw_sha256": "9de5fcfdc5fdcbf6a84aa5adb4e58ecd4291af571210c4ae38b6fc74aae07f32",
@@ -225,7 +225,7 @@
       "source": "core/graph_engineering/core/profile_execution.py"
     },
     {
-      "raw_sha256": "1575485d8d5e853feb9cd20a36f6964c35472c54b421f9441c1b1df72dc016f5",
+      "raw_sha256": "015440771024141e7d43be9ab5f4f01bd2de757f21a539acc87d33eb48bd66d3",
       "resource": "graph_engineering/build_backend.py",
       "source": "scripts/build_backend.py"
     }

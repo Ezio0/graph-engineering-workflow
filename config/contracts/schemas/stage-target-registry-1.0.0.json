@@ -1,0 +1,75 @@
+{
+  "$id": "urn:gew:schema:stage-target-registry:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "installation_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "registry_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "registry_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "roots": {
+      "items": {
+        "properties": {
+          "mode_policy": {
+            "const": "owner-only"
+          },
+          "owner_id": {
+            "$comment": "Decimal owner ID grammar is enforced by the charged stage record validator.",
+            "maxLength": 20,
+            "minLength": 1,
+            "type": "string"
+          },
+          "path": {
+            "maxLength": 1024,
+            "minLength": 2,
+            "type": "string"
+          },
+          "ref": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "installation",
+              "candidate-parent",
+              "skill-bootstrap"
+            ]
+          }
+        },
+        "required": [
+          "ref",
+          "role",
+          "path",
+          "owner_id",
+          "mode_policy"
+        ],
+        "type": "object",
+        "unevaluatedProperties": false
+      },
+      "maxItems": 65536,
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    }
+  },
+  "required": [
+    "schema_version",
+    "registry_id",
+    "installation_id",
+    "roots",
+    "registry_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

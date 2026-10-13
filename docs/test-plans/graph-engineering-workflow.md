@@ -3785,3 +3785,264 @@ W10-016/W10-026 selectors; require zero substituted calls, bounded independently
 checked diagnostics, privacy, empty stderr and unchanged inventories. Retain actual
 RED/GREEN and run six statics before fresh independent implementationr6 review.
 Only actual ADVANCE permits canonical313, verification and Candidate review.
+
+
+## WP-10 read-only staging dependency tests — W10B, 2026-10-12
+
+### W10B-T1 Scope and critical user journeys
+
+[Spec W10B](../specs/graph-engineering-workflow.md),
+[Impact W10B](../impact/graph-engineering-workflow.md) and accepted
+[Plan W10B-P1–P10](../plans/2026-08-13-graph-engineering-workflow.md) define the first
+B0 implementation request. In scope: eight closed schema contracts,12 owned resource
+inputs, exact recipe selection/digests, physical configured target planning, owned
+StagePlanEnvelope, privacy/refusal/currentness, cold installed read-only CLI and
+retained A/earlier regressions. This design defines tests; no B0 test/build has run.
+
+Out of scope for B0: installation grants, extraction, installer process execution,
+candidate writes, staged receipts, full installed normalization/binding, C migration/
+publication/recovery, actual old/new user installation, production trust/dependencies,
+network, native certification, WP11, full274/P1 benchmark, monitoring and irreversible
+actions. All remain separate requirements or exclusions; none is waived by B0 PASS.
+
+Every listed B0 CUJ must be covered100%; use the project risk-based selector boundary,
+not a generic numeric code-coverage target or E2E quota. Add subcases to the14 meaningful
+methods below, without counting individual subcases as independently executed selectors.
+
+| CUJ | Observable result | New methods |
+|---|---|---|
+| B0-J1 compatible local bundle and configured absent install target | owned read-only envelope with exact independently recomputed projections, unchanged physical/task/control state | U1–U5,C1,C2,I1,W1 |
+| B0-J2 invalid/ambiguous/missing inputs | bounded deterministic refusal, no arbitrary recipe/default targets, no executable invocation or writes | U1,U4–U6,C1,I3,S1,W1 |
+| B0-J3 input or execution-provider replacement | refuse before use; retained owned handle invalidates permanently; fresh restored admission succeeds | C2,I2,S1,W1 |
+| B0-J4 packaged public commands | actual cold wheel script plans successfully or refuses with correct JSON/exits/privacy and zero file/directory/environment changes | C3,I3,W1,retained packaging/A launcher selectors |
+| B0-J5 unsupported producing operations | apply/stage/reopen and upgrade without C registered tuple unavailable, no grant/receipt/process/candidate/root initialization | I3,S1,W1 |
+
+The prospective IDs `W10B0-001..014` are local new-method identifiers. They do not
+replace or certify any of the existing100 GEW-PKG obligations. Full B-G1 before-write
+and post-grant behavior, B-G2 complete installed closure, B-G3 two-root normalized
+equality/local binding distinction and B-G4 interrupted-stage old-state preservation
+remain mandatory after their concrete mutating/native implementation scope is approved.
+B0 establishes its own zero-write/planning behavior only.
+
+### W10B-T2 Layers, inventory and execution boundary
+
+[wp10-b0-test-inventory-r0.json](../../.workflow/delivery/GEW-REMAINING54-V1/detached/wp10-b0-test-inventory-r0.json)
+contains every exact selector/argv/expected result:14 new+307 retained=321 tests,
+then six statics=327 commands. The307 retained methods are all32 A methods plus275
+previous retained methods, including both affected performance factory methods.
+Their313 prior argv/expectation objects are unchanged and retain old IDs in a mapping;
+new final IDs are `W10B0-001..327`. Preparation AST uniquely resolves all307 without
+imports; the14 new methods do not exist before approved implementation.
+
+| Layer | New methods | Tool / risk boundary | Mock policy / speed ceiling |
+|---|---:|---|---|
+| unit | 6 | native unittest runner; pure closed contracts/projections/selection/bounds | actual core, synthetic inert values; no executable mocks; native290s/canonical300s per command |
+| contract | 3 | same runner; resource/schema/origin/pin closure in SOURCE/WHEEL | real attestation/RECORD and installed resource bytes, no caller resource maps; same ceilings |
+| integration | 3 | same runner; physical bundle/target/currentness/API | real private files/signatures/source/provider; barriers only schedule replacement; same ceilings |
+| security | 1 | same runner; adversarial public input/provider/privacy | synthetic canaries and physical substitutions, no relaxed trust; same ceilings |
+| installed CLI | 1 | same runner; actual wheel launcher subprocess and full inventories | no entrypoint replacement/cache suppression; same ceilings |
+
+The six statics are architecture, lint, type, build, reproducible build and whitespace:
+`.venv/bin/python -B scripts/check_architecture.py`,
+`.venv/bin/python -B scripts/check_sources.py lint`,
+`.venv/bin/python -B scripts/check_sources.py type`,
+`.venv/bin/python -B scripts/verify_build.py`,
+`.venv/bin/python -B scripts/verify_reproducible_build.py`, `git diff --check`.
+The two build verifiers/supply-chain script are not B0 write targets. No blanket test
+discovery, skips or historic PASS substitutes for final frozen-tree evidence.
+Generic checklist millisecond/second layer budgets are not applicable to attested
+physical fixtures; no unmeasured speed claim or extra performance SLA is introduced.
+
+### W10B-T3 Exact new methods and behavioral oracles
+
+All new methods use module `tests.<layer>.test_release_staging`, except W1 uses
+`tests.integration.test_release_staging_wheel`. Exact class/method spelling is frozen
+in the inventory. Each refusal family first demonstrates a compatible genuine positive;
+a missing API, uniform refusal, hand-built seal or altered engine cannot pass.
+Tests implement the independent documented projections rather than invoking the
+production digest helper as their expected-value oracle.
+
+Unit class `ReleaseStagingUnitTests`:
+
+| ID / alias / method | Required oracle |
+|---|---|
+| 001 / U1 / `test_stage_request_closed_bounds` | install request round-trip; upgrade shape retained but cannot certify prior tuple; unknown/missing/duplicate fields/refs, wrong types including bool-as-int, false preserve_data, malformed digests and lower applicable resource bounds refuse before physical work |
+| 002 / U2 / `test_install_plan_projection_policy` | exact W10-S5 fields/projection, ordered opaque target refs, nullable new-install prior tuple, independent closure/platform/plan digests; policy_digest remains A ReleasePolicy and cannot be replaced by StagePolicy |
+| 003 / U3 / `test_context_and_envelope_projections` | all Spec stage/installer/recipe/target registry/physical target-binding digests independently recompute; envelope includes unchanged nested plan plus explicit context; unknown fields/domain mix/digest omission or changed unused registry entry refuse |
+| 004 / U4 / `test_recipe_exact_unique_selection` | complete platform, both artifact IDs and exact interpreter patch/installer version match; no match and multiple full matches refuse before digest filtering, including two matching recipes with only one matching signed digest |
+| 005 / U5 / `test_recipe_argv_tokens_and_versions` | closed ordered step/environment/generated template grammar, admitted identity/version agreement and signed manifest argv_policy_digest equality; unknown tokens/executable, PATH/shell/response-file/environment escape, duplicate/order/type or policy substitution refuse; never run an artifact |
+| 006 / U6 / `test_diagnostic_budgets` | closed stage-specific failure/report shape with W10 error/exits and independent digest; opaque refs only, finite output/collection bounds at boundary and one-unit excess, malformed/nested unknown input refusal; no A schema/enumeration widening or staged-success claim |
+
+Contract class `ReleaseStagingContractTests`:
+
+| ID / alias / method | Required oracle |
+|---|---|
+| 007 / C1 / `test_stage_schema_registry_closure` | registry names/digests exactly match eight physically packaged schemas, recursive fields/types/bounds/projections and no missing/extra/duplicate schema asset; cross-check actual fixtures against own closed expected contract |
+| 008 / C2 / `test_owned_source_wheel_policy_inputs` |12 actual B0 resource bytes acquired from fresh owned SOURCE/WHEEL with unchanged engine, exact source/RECORD/provider closure; origin/resource/seed/provider substitutions at acquisition/during read/retained use refuse with zero substituted calls; restoration requires fresh operation |
+| 009 / C3 / `test_legacy_resource_closure_preserved` | A11-resource order/schema/commands unchanged, all new code/config/schema package mappings and source attestation targets present; independently recompute four affected current bootstrap mirrors and preserve historical/unaffected vectors; existing packaging methods retain their own positive/refusal requirements |
+
+Integration class `ReleaseStagingIntegrationTests`:
+
+| ID / alias / method | Required oracle |
+|---|---|
+| 010 / I1 / `test_plan_current_bundle_without_writes` | actual valid fixture A admission plus exact recipe and configured target refs produces operation-owned envelope; independently hash StageContext including private target projection, bind actual absent installation/verified existing parent/candidate-parent disjointness; complete before/after no-write inventories for source,bundle,environment,task/control/target/old roots |
+| 011 / I2 / `test_policy_recipe_context_replacement_refuses` | vary StagePolicy, InstallerPolicy (including unused recipe), selected recipe, registry, target directory/parent identity/mode/owner/absence, admitted bundle bytes/manifest, source/resource provider and applicable security/clock currentness before acquisition, during observed plan read and retained-handle use; refuse/sticky invalidate/zero substituted calls, no write/clock advance; fresh restored positive succeeds |
+| 012 / I3 / `test_missing_prerequisites_and_apply_unavailable` | empty production keys/sources/recipes/roots, zero/multiple matches, wrong signed argv digest, missing binary/config/target/parent, present unregistered installation, unsupported operation, explicit CLI operation mismatch and missing C prior context refuse; stage/reopen/install-apply unavailable even with copied plan/JSON/boolean/caller callback; no issuer, extraction, artifact/process spawn, candidate or receipt |
+
+Security class `ReleaseStagingSecurityTests`, ID013/S1,
+`test_plan_input_and_privacy_refusals`: exercise duplicate keys, oversized/deep/nonfinite
+JSON, request-supplied raw path/authority/config, traversal/symlink/mode/owner/alias or
+overlapping roots and missing intermediate parent. Public fake/copied/PID/thread/
+operation handle cannot become owned trust. Use actual installed public input paths
+and physical substitutions; counters prove suspect callable/equality/descriptor code
+is not invoked. Diagnostics contain no root/argv/env/stdout/stderr/canary/real identity
+values; bounded independently checked digest/exit and empty stderr. Inventory actual
+filesystem (including directories/modes), process-spawn counters, DB/clock/security,
+locator/active/native Skill roots and environment; all unchanged.
+
+Wheel class `ReleaseStagingWheelTests`, ID014/W1,
+`test_installed_plan_cli_zero_writes`: build a genuine private wheel installation from
+unchanged approved engine bytes and fixture config; invoke its actual packaged script
+from a cold cache-free environment, **without** `-B` or test-supplied bytecode-disable
+variables. Do not invoke `python -m` in place of the script. Test compatible install-plan,
+missing input/wrong operation, replacement refusal and unavailable install-apply.
+Assert one bounded JSON result with correct envelope or failure schema/digest/exit,
+empty stderr, no secrets/paths/canaries, complete unchanged environment/source/task/
+control/target/old-root file and directory inventories. Verify wrapper/RECORD/mode
+and no duplicate console entry through existing packaging assertions. Privately spread
+wheels here test packaged planning; they do not constitute managed Python/uv installation.
+
+Task mapping: B0-0 uses entry/hash/scope checks; B0-1→U1–U6/C1;
+B0-2→C2/C3 and packaging extensions; B0-3→I1/I2/S1;
+B0-4→I3/W1 and retained A/packaging; B0-5→all327 frozen commands/independent evidence.
+Write importable minimal ports, establish meaningful behavioral RED and retain failure;
+then implement and obtain focused GREEN. A failing import alone is not TDD evidence.
+Never fake a positive by patching the engine/factory/seal/provider/currentness or clock.
+
+### W10B-T4 Synthetic data, limits and cleanup
+
+New `tests/support/release_staging.py` composes the existing ReleaseFixture and a freshly
+attested private SOURCE/WHEEL stage config; it does not alter A helper behavior. It may
+reuse A's fixture keys/signatures/archive builders, but must refresh actual manifest,
+installer metadata/member hashes, signatures and support closure when recipe digests
+change. Never mutate an already issued source attestation in place: acquire a fresh
+private source/control origin and issue through the real attestation boundary. Actual
+engine bytes must equal approved working-tree bytes. Missing real binaries are explicit;
+inert signed interpreter/tool fixture members are never executed or called native evidence.
+
+Only synthetic opaque IDs/canaries/private temporary directories/actual configured owner
+facts are used. No real task/user PII or production trust/roots. Production recipes/roots
+remain empty; fixtures vary configuration, not engine constants. Private registry paths
+and decimal OS owner IDs are acquired in the test and written only into fixture config.
+No static user/home path or UID enters engine logic or checked-in production roots.
+
+Fixture StagePolicy uses max_stage_bytes1048576,max_stage_files64,max_process_seconds2,
+max_output_bytes4096,max_failed_candidates2,max_cleanup_entries64. These finite inputs
+exercise contract bounds; B0 performs no process/stage/cleanup actions. A fixture ceilings
+remain manifest/report65536,artifacts64,edges256,artifact16777216,bundle67108864,
+archive_members8192,expanded134217728,ratio32,path_segments16,hash268435456.
+Existing lower resource-profile guards win. Exercise accepted boundaries and one-unit
+excess in the applicable parsing/contracts; process cancellation/real stage quota tests
+remain later mutating B obligations. No fabricated production throughput/size limit.
+
+Take before/after inventories only after fixture preparation and before tested operation;
+fixture preparation/teardown writes are not engine writes. Test teardown removes only its
+own bounded temporary roots after process exit; refuse uncertain ownership. Do not clean
+real installations, old assets or caches to make an oracle pass. Retain sanitized failures
+and evidence references; raw paths/output/env/credentials do not enter review records.
+
+### W10B-T5 Environments and evidence lifecycle
+
+Local approved implementation uses existing pinned venv/native runner and real private
+SOURCE/WHEEL inputs on this host. No dependency install, uv resolution or new native
+platform is needed for B0. CI/remote/staging/production execution is not authorized by
+this design or proposed B0 request. The selected existing regression fixtures keep their
+current genuine file/DB/native clock behavior; do not introduce mock-based equivalence.
+
+All commands run strictly serial/fail-fast, native timeout290s and canonical timeout300s.
+Each selector must collect1/execute1/skip0; any other count, timeout, unexpected write,
+nonzero status or mismatched input/source hash fails. Record per-command elapsed and
+recording overhead separately. Preserve failures and revised inputs; focused GREEN is
+not final327. After implementation review actually advances, stage only actually changed
+approved targets for final canonical evidence/Candidate review. Do not commit until
+separate explicit authority. New input changes invalidate affected evidence and require
+only applicable required reruns, not arbitrary repeated full work.
+
+Independent implementation, verification and Candidate reviews must bind exact files,
+commands, evidence and approved Envelope. Default budget4 stays unchanged. Missing
+native input/issuer or nonconvergence is recorded/escalated, never accepted by rerun,
+revision reset, modified frozen workflow or permission bypass.
+
+### W10B-T6 Non-functional and later acceptance
+
+| Area | B0 coverage / limitation |
+|---|---|
+| resource/performance | finite charged parse/hash/report work and unchanged native290/canonical300 limits; no installer SLA, full274/P1 rerun or measured production throughput |
+| security/privacy | owned SOURCE/WHEEL trust, no-follow configured targets, provider/input substitution, handle lifetime, sanitized bounded output and zero-write clocks/data/locator/Skill roots |
+| compatibility | unchanged A schema/resource/CLI/parser/launcher semantics; exact fixture recipe platform/version; full native support not certified |
+| recovery | B0 failures leave everything untouched; no candidate exists; mutating process/crash/retry/quarantine/old-state tests remain mandatory later |
+| accessibility | no new interactive visual UI; UI accessibility tests inapplicable to this JSON CLI scope |
+
+Before genuine full B acceptance, derive exact selectors for real supplied binaries,
+physical complete installed RECORD/launcher/Skill closure, generated normalized RECORD
+path/hash/**size** and unique empty self-row, two independent clean roots with different
+prefix lengths (equal semantic manifests, distinct physical bindings), bounded extraction/
+process failures and child termination/reaping, every interruption/receipt/fsync/crash/
+retry boundary, zero old/user/task/clock/locator/native Skill writes and fresh post-grant
+currentness/issuer refusal. Those are not claimed by the14 B0 methods. Preserve actual
+macos-arm64,macos-x86-64,linux-x86-64 and representative-task/native Skill/upgrade
+acceptance requirements. Synthetic fixture process or platform substitution cannot
+close any missing native cell. C publication/migration/rollback remains separately scoped.
+
+### W10B-T7 Open decisions and exit
+
+Before B0 implementation: approve or decline exact40 prospective paths/327 commands
+and fixture-only boundary after all four design nodes converge. Until then no B0 code,
+product tests, build or package changes. Before mutating B: close concrete trusted issuer
+ports, exact producing inventory and refusal oracles. Before genuine B/native: supplied
+verified binary/metadata/trust/finite production ceilings and three actual environments.
+Before upgrade/C: independently registered prior tuple/coordinator/publication/recovery
+formats and exact authority. No production input is guessed to unblock this design.
+
+B0 exit requires100% listed CUJs,14 new methods+307 retained and six statics PASS on one
+frozen tree, complete scope/pin/no-write/privacy oracles, zero open blocking findings and
+independent reviews. WP10 still requires full B/C/native/100 obligations; WP11 and
+whole-project completion are not implied. No current design PASS grants implementation,
+commit/push/deploy/release or external communication authority.
+
+### W10B-T8 References and history
+
+[Positioning](../positioning/graph-engineering-workflow.md),
+[PRD/Intent](../prd/graph-engineering-workflow.md),
+[Spec W10B](../specs/graph-engineering-workflow.md),
+[Impact W10B](../impact/graph-engineering-workflow.md),
+[Plan W10B](../plans/2026-08-13-graph-engineering-workflow.md),
+[ADR0015](../adr/0015-release-installation-and-upgrade.md),
+[prospective40 targets](../../.workflow/delivery/GEW-REMAINING54-V1/detached/wp10-b0-prospective-targets-r0.json).
+Older A progress/failure sections above are history; accepted A commit/push evidence
+supersedes their pending status without deleting them. Current B0 preparation records
+only AST/format/hash/scope/link checks, no new product execution. The eight-section
+checklist is applied to this bounded risk-based scope; no generic E2E quota, percent,
+real staging/production run or unmeasured per-layer speed target is imposed.
+2026-10-12 revision1:14 new exact behavioral selectors,307 retained+six statics, complete
+B0 CUJ/oracles/private fixture strategy and explicit full B/native/C prerequisites.
+
+### W10B B0 implementation observation — 2026-10-13
+
+All fourteen prospective methods now exist and each has a focused PASS. Meaningful
+behavioral RED observations precede implementation (request round-trip, resource count,
+recipe token refusal and installed command admission); import absence alone is not used.
+Failed/interrupted attempts remain separate from passing observations.
+
+The tests independently calculate the complete planned envelope and actual directory
+ancestor binding, validate all eight schema shapes, and recompute four current bootstrap
+mirrors. SOURCE/WHEEL positives precede resource/provider, directory/absence/manifest/
+artifact and PID/thread/operation refusals. Actual descriptor replacement is exercised
+during a read. Cold installed commands run their genuine launcher without external
+bytecode masks. Missing policy assets are tested at that public bootstrap boundary,
+where invalid origins can be diagnosed before importing the package.
+
+At this source freeze, final canonical evidence is pending. It must run all321 selectors
+(each collect1/execute1/skip0) followed by six statics on one staged tree, serial/fail-fast.
+Focused records do not waive any selected A/earlier regression or future B/C/native
+obligation. No test grants authority or certifies genuine interpreter/installer staging.

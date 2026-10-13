@@ -1,0 +1,5200 @@
+{
+  "schema_version": "1.0",
+  "task_id": "GEW-WP10-READONLY-INSTALL-PLAN-IMPLEMENTATION-V1",
+  "mode": "strict-serial-fail-fast",
+  "counts": {
+    "prospective_targets": 40,
+    "existing_targets": 17,
+    "new_targets": 23,
+    "new_methods": 14,
+    "retained_methods": 307,
+    "tests": 321,
+    "statics": 6,
+    "commands": 327
+  },
+  "native_timeout_seconds": 290,
+  "canonical_timeout_seconds": 300,
+  "test_selectors": [
+    "tests.unit.test_release_staging.ReleaseStagingUnitTests.test_stage_request_closed_bounds",
+    "tests.unit.test_release_staging.ReleaseStagingUnitTests.test_install_plan_projection_policy",
+    "tests.unit.test_release_staging.ReleaseStagingUnitTests.test_context_and_envelope_projections",
+    "tests.unit.test_release_staging.ReleaseStagingUnitTests.test_recipe_exact_unique_selection",
+    "tests.unit.test_release_staging.ReleaseStagingUnitTests.test_recipe_argv_tokens_and_versions",
+    "tests.unit.test_release_staging.ReleaseStagingUnitTests.test_diagnostic_budgets",
+    "tests.contract.test_release_staging.ReleaseStagingContractTests.test_stage_schema_registry_closure",
+    "tests.contract.test_release_staging.ReleaseStagingContractTests.test_owned_source_wheel_policy_inputs",
+    "tests.contract.test_release_staging.ReleaseStagingContractTests.test_legacy_resource_closure_preserved",
+    "tests.integration.test_release_staging.ReleaseStagingIntegrationTests.test_plan_current_bundle_without_writes",
+    "tests.integration.test_release_staging.ReleaseStagingIntegrationTests.test_policy_recipe_context_replacement_refuses",
+    "tests.integration.test_release_staging.ReleaseStagingIntegrationTests.test_missing_prerequisites_and_apply_unavailable",
+    "tests.security.test_release_staging.ReleaseStagingSecurityTests.test_plan_input_and_privacy_refusals",
+    "tests.integration.test_release_staging_wheel.ReleaseStagingWheelTests.test_installed_plan_cli_zero_writes",
+    "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_manifest_projection",
+    "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_closure_order_invariance",
+    "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_graph_reachability",
+    "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_duplicate_normalization",
+    "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_marker_extras",
+    "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_compatibility_ranges",
+    "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_diagnostic_budget",
+    "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_trust_purpose",
+    "tests.contract.test_release_installation.ReleaseInstallationContractTests.test_manifest_nested_closed",
+    "tests.contract.test_release_installation.ReleaseInstallationContractTests.test_policy_closed",
+    "tests.contract.test_release_installation.ReleaseInstallationContractTests.test_registry_resource_closed",
+    "tests.contract.test_release_installation.ReleaseInstallationContractTests.test_diagnostic_closed",
+    "tests.contract.test_release_installation.ReleaseInstallationContractTests.test_installed_resource_closure",
+    "tests.contract.test_release_installation.ReleaseInstallationContractTests.test_legacy_resources_preserved",
+    "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_valid_physical_bundle",
+    "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_missing_extra_dependency",
+    "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_lock_sbom_provenance",
+    "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_license_security_freshness",
+    "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_doctor_zero_writes",
+    "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_missing_root_no_create",
+    "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_cli_exit_routes",
+    "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_no_ambient_config_artifact_execution",
+    "tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_substitution_signature",
+    "tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_archive_paths_members_links",
+    "tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_preallocation_cumulative",
+    "tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_stale_file_parent_provider_race",
+    "tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_clock_no_write_refusal",
+    "tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_diagnostic_privacy",
+    "tests.integration.test_release_installation_wheel.ReleaseInstallationWheelTests.test_installed_check_doctor",
+    "tests.integration.test_release_installation_wheel.ReleaseInstallationWheelTests.test_installed_owned_resource_substitution",
+    "tests.integration.test_release_installation_wheel.ReleaseInstallationWheelTests.test_outside_checkout_decoys",
+    "tests.integration.test_release_installation_wheel.ReleaseInstallationWheelTests.test_installed_fixture_config_variation",
+    "tests.contract.test_security_bootstrap.SecurityBootstrapContractTests.test_descriptor_closed",
+    "tests.contract.test_security_bootstrap.SecurityBootstrapContractTests.test_receipts_closed",
+    "tests.contract.test_security_bootstrap.SecurityBootstrapContractTests.test_scope_target_projection",
+    "tests.contract.test_security_bootstrap.SecurityBootstrapContractTests.test_legacy_resource_bytes_preserved",
+    "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_installation_atomic_replay",
+    "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_task_derivation_empty_authority",
+    "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_retry_preserves_evolved_state",
+    "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_task_crash_restart",
+    "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_installation_crash_restart",
+    "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_parallel_initialization",
+    "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_genuine_learning_lifecycle",
+    "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_migration_roundtrip",
+    "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_legacy_roots_distinguishable",
+    "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_scope_reapproval_refused",
+    "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_foreign_unissued_runtime_refused",
+    "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_caller_trust_payload_refused",
+    "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_missing_replaced_resources_refused",
+    "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_stale_sources_race",
+    "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_partial_marker_corruption_refused",
+    "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_bounded_before_materialization",
+    "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_receipts_minimized_holds_preserved",
+    "tests.integration.test_security_bootstrap_wheel.SecurityBootstrapWheelTests.test_installed_bootstrap_learning",
+    "tests.integration.test_security_bootstrap_wheel.SecurityBootstrapWheelTests.test_installed_resource_closure",
+    "tests.integration.test_security_bootstrap_wheel.SecurityBootstrapWheelTests.test_installed_substitution_refused",
+    "tests.integration.test_security_bootstrap_wheel.SecurityBootstrapWheelTests.test_installed_legacy_config_variants",
+    "tests.unit.test_learning_reports.LearningReportUnitTests.test_all_support",
+    "tests.unit.test_learning_reports.LearningReportUnitTests.test_all_counter",
+    "tests.unit.test_learning_reports.LearningReportUnitTests.test_mixed",
+    "tests.unit.test_learning_reports.LearningReportUnitTests.test_insufficient_precedence",
+    "tests.unit.test_learning_reports.LearningReportUnitTests.test_empty_required_rules_rejected",
+    "tests.unit.test_learning_reports.LearningReportUnitTests.test_unknown_verdict_rejected",
+    "tests.unit.test_learning_reports.LearningReportUnitTests.test_duplicate_rule_rejected",
+    "tests.unit.test_learning_reports.LearningReportUnitTests.test_input_order_invariance",
+    "tests.unit.test_learning_reports.LearningReportUnitTests.test_ratio_semantics_unchanged",
+    "tests.unit.test_learning_reports.LearningReportUnitTests.test_counter_union_bounds",
+    "tests.contract.test_learning_reports.LearningReportContractTests.test_policy_v12_closed",
+    "tests.contract.test_learning_reports.LearningReportContractTests.test_experiments_v11_closed",
+    "tests.contract.test_learning_reports.LearningReportContractTests.test_required_rule_coverage",
+    "tests.contract.test_learning_reports.LearningReportContractTests.test_suggestion_partition_cycles",
+    "tests.contract.test_learning_reports.LearningReportContractTests.test_legacy_versions_preserved",
+    "tests.contract.test_learning_reports.LearningReportContractTests.test_report_v12_closed",
+    "tests.contract.test_learning_reports.LearningReportContractTests.test_owner_input_unchanged",
+    "tests.contract.test_learning_reports.LearningReportContractTests.test_installed_resource_closure",
+    "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_supported_cohort",
+    "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_counter_cohort",
+    "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_mixed_hypothesis",
+    "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_insufficient_cohort",
+    "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_unknown_vs_excluded",
+    "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_overlap_no_duplicates",
+    "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_fr13_full_owner_journey",
+    "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_valid_installed_config_changes",
+    "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_report_retry_idempotent",
+    "tests.security.test_learning_reports.LearningReportPrivacyTests.test_no_consent_no_source_read",
+    "tests.security.test_learning_reports.LearningReportPrivacyTests.test_foreign_endpoint_no_read",
+    "tests.security.test_learning_reports.LearningReportPrivacyTests.test_config_change_stale_replay",
+    "tests.security.test_learning_reports.LearningReportPrivacyTests.test_revoke_report_process_race",
+    "tests.security.test_learning_reports.LearningReportPrivacyTests.test_report_preallocation_limit",
+    "tests.security.test_learning_reports.LearningReportPrivacyTests.test_no_content_in_reports_or_receipts",
+    "tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_installed_hypothesis_report",
+    "tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_installed_valid_config_variation",
+    "tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_legacy_resources_preserved",
+    "tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_missing_or_replaced_resource_refused",
+    "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_closed_watermark",
+    "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_category_dedup",
+    "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_alias_mapping",
+    "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_mapping_digest",
+    "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_unmapped_category_unavailable",
+    "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_pending_rejected_excluded",
+    "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_revoked_history_retained",
+    "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_revision_baseline_filter",
+    "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_unknown_vs_zero",
+    "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_ordinal_bounds",
+    "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_source_projection",
+    "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_count_bounds",
+    "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_policy_v11_closed",
+    "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_record_v11_closed",
+    "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_report_v11_source_vector",
+    "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_input_v10_unchanged",
+    "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_receipt_v10_unchanged",
+    "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_old_policy_compatibility",
+    "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_resource_closure",
+    "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_unknown_component_version",
+    "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_experiment_schema_compatibility",
+    "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_mapping_change_requires_regrant",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_genuine_approval_count",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_same_category_retry",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_late_consent_excludes_approval",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_consent_first_process_race",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_approval_first_process_race",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_report_first_process_race",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_approval_before_report_process_race",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_unchanged_pending_commit_window",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_prd_reapproval_rejects_old_challenge",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_regrant_rejects_changed_security",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_revoke_expiry_keeps_history",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_order_append_atomic_faults",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_anchor_upgrade_atomic_faults",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_pmf_upgrade_legacy_unavailable",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_legacy_bundle_import",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_bundle_v12_roundtrip",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_new_epoch_reseal",
+    "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_forged_order_partition",
+    "tests.integration.test_authorized_stage_learning_wheel.AuthorizedStageWheelTests.test_installed_genuine_chain",
+    "tests.integration.test_authorized_stage_learning_wheel.AuthorizedStageWheelTests.test_installed_old_owner_contract",
+    "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_no_consent_no_ledger_read",
+    "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_total_preallocation",
+    "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_foreign_identity_epoch",
+    "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_canary_absent",
+    "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_purge_keeps_action_audit",
+    "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_selected_task_body_gate",
+    "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_selected_body_tamper",
+    "tests.unit.test_wp09_learning.LearningTests.test_closed_fields",
+    "tests.unit.test_wp09_learning.LearningTests.test_rational_denominators",
+    "tests.unit.test_wp09_learning.LearningTests.test_duplicate_identity",
+    "tests.unit.test_wp09_learning.LearningTests.test_window_unknown_vs_zero",
+    "tests.unit.test_wp09_learning.LearningTests.test_counter_evidence_rules",
+    "tests.unit.test_wp09_learning.LearningTests.test_caller_time_not_trusted",
+    "tests.unit.test_wp09_learning.LearningTests.test_context_relation_identity",
+    "tests.unit.test_wp09_learning.LearningTests.test_boundary_limits",
+    "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_native_monotonic",
+    "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_cross_process_domain",
+    "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_changed_domain",
+    "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_forged_provider",
+    "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_integer_and_backward",
+    "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_wall_clock_independence",
+    "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_six_operations",
+    "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_explicit_consent_parser",
+    "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_unknown_schema_policy",
+    "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_installed_resource_binding",
+    "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_legacy_owner_operations",
+    "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_replay_request_conflict",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_failure_recovery_sequence",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_source_mapping_unknowns",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_caller_time_provenance",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_relation_endpoint_currentness",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_revoke_publish_race",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_fr13_positive",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_fr13_refusal",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_terminal_vs_self_report",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_context_cas_stale_recollect",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_source_head_race",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_prospective_regrant",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_schema_upgrade_restart",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_schema_upgrade_crash",
+    "tests.integration.test_wp09_learning.LearningIntegrationTests.test_migration_no_pmf_export",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_reapproval_window",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_restart_start_sample",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_review_no_double_count",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_forged_review_binding",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_repeat_wait_entry",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_pause_resume",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_non_decision_waits",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_revoke_commit_race",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_wheel_real_provider",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_source_gap",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_duplicate_transaction",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_real_human_interruptions",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_missing_boundary",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_real_review_verdicts",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_context_preserves_observation",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_pre_post_approval_grants",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_real_run_terminal",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_no_consent_no_sampling",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_late_grant_unknown",
+    "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_rollback_and_crash",
+    "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_tampered_installed_policy",
+    "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_cas_body_not_copied",
+    "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_canary_absent",
+    "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_purge_crash_restart",
+    "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_purge_legal_hold",
+    "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_retained_handle_currentness",
+    "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_purge_authority_consumption",
+    "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_corrupt_chain_rejected",
+    "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_expired_consent_no_read",
+    "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_preallocation_bounds",
+    "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_foreign_identity_before_read",
+    "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_clock_rollback",
+    "tests.unit.test_action_authority.ActionAuthorityContractTests.test_closed_contracts",
+    "tests.unit.test_action_authority.ActionAuthorityContractTests.test_digest_binding",
+    "tests.unit.test_action_authority.ActionAuthorityContractTests.test_nonce_session_binding",
+    "tests.unit.test_action_authority.ActionAuthorityContractTests.test_terminal_transitions",
+    "tests.unit.test_action_authority.ActionAuthorityContractTests.test_exact_request_conflict",
+    "tests.unit.test_action_authority.ActionAuthorityContractTests.test_policy_bounds",
+    "tests.unit.test_action_authority.ActionAuthorityContractTests.test_receipt_status",
+    "tests.unit.test_action_authority.ActionAuthorityContractTests.test_epoch_tuple",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_forged_or_wrong_source_refused",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_capacity_reserves_terminal_entries",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_genuine_approval_registration",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_pending_rejected_no_membership",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_atomic_commit_faults_and_retry",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_revoke_pending_and_approved",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_superseded_invocation_refused",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_direct_commit_batch_cannot_bypass",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_wait_releases_installation_scope",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_restart_pending_requires_new_decision",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_precondition_changes_refused",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_unrelated_security_change_and_relevant_staleness",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_unsupported_component_and_contract",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_migration_component_compatibility",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_revoke_first_process_race",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_claim_first_process_race",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_registration_revoke_process_race",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_three_start_paths_share_guard",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_restore_epoch_and_claim_audit",
+    "tests.integration.test_action_authority.ActionAuthorityTests.test_mixed_learning_source_chain",
+    "tests.integration.test_action_authority_wheel.ActionAuthorityWheelTests.test_wheel_runtime_port_parity",
+    "tests.integration.test_action_authority_wheel.ActionAuthorityWheelTests.test_local_config_cannot_approve",
+    "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_011_public_export_is_complete_and_clears_durable_hold",
+    "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_012_migration_held_export_reuses_exact_exclusive_token",
+    "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_013_bundle_tamper_or_missing_object_fails_validation",
+    "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_014_import_replays_exact_history_and_objects_in_isolated_root",
+    "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_015_activation_recovery_exposes_only_verified_active_or_blocked",
+    "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_016_stale_restore_creates_gap_and_never_lowers_fence",
+    "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_017_fault_schedule_is_exact_sorted_and_executable",
+    "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_018_interrupted_export_hold_requires_explicit_recovery",
+    "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_019_concurrent_public_exports_do_not_reenter_or_partial_publish",
+    "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_020_sigkill_before_verifying_preserves_old_active",
+    "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_021_sigkill_after_verifying_rolls_back_to_old_active",
+    "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_022_sigkill_before_active_rolls_back_to_old_active",
+    "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_023_sigkill_after_active_preserves_new_active",
+    "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_024_two_process_activation_has_one_authority",
+    "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_025_command_shared_scope_cannot_cross_activation_switch",
+    "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_026_corrupt_history_publishes_stable_explicit_blocked",
+    "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_040_one_control_authority_spans_exact_durable_migration_graph",
+    "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_041_ledger_history_and_head_tamper_fail_exact_validation",
+    "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_post_activation_operations_route_only_current_repository",
+    "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_042_versioned_fault_schedule_covers_every_production_cut",
+    "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_043_every_durable_cut_sigkill_recovers_active_or_blocked",
+    "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_044_two_process_orchestrators_have_one_exact_authority",
+    "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_045_recovery_cuts_preserve_hold_and_rollback_oracles",
+    "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_046_restore_gap_cuts_recover_blocked_or_reactivated",
+    "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_034_export_uses_exact_stable_control_exclusive",
+    "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_035_bundle_binds_approved_snapshot_identity",
+    "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_036_bundle_reader_is_exact_bounded_and_no_follow",
+    "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_037_activation_recomputes_exact_candidate",
+    "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_038_activation_seeds_candidate_fencing_high_water",
+    "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_039_restore_gap_is_persistent_and_blocks_commands",
+    "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_receipt_and_compensation_have_no_direct_durable_or_adapter_bypass",
+    "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_prepare_authorize_started_claim_call_receipt_and_target_reconcile",
+    "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_wp05_code_r1_002_normal_receipt_object_is_durable_and_exactly_bound",
+    "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_non_idempotent_timeout_is_unknown_and_never_auto_replayed",
+    "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_crash_after_effect_leaves_started_claim_and_never_replays",
+    "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_failure_before_effect_reconciles_no_effect_without_replay",
+    "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_success_receipt_with_target_mismatch_remains_durably_unreconciled",
+    "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_post_call_observation_binding_mutations_never_consume_claim",
+    "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_reconcile_observation_binding_mutations_never_consume_claim",
+    "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_succeeded_unresolved_action_can_later_reconcile_with_fresh_exact_evidence",
+    "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_compensation_with_stale_snapshot_is_zero_write_rejected",
+    "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_missing_repository_authority_membership_is_zero_write_fail_closed",
+    "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_durable_action_bodies_are_bounded_before_model_digest_or_use",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_wp05_code_r1_001_rejects_recomputed_wrong_observation_resource",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_wp05_code_r1_001_rejects_recomputed_wrong_rollback_state",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_expired_p",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_wp05_code_r1_002_compensation_receipt_object_is_durable_and_exactly_bound",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_live_p",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_start_replay_r",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_exact_r",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_no_new_lease_claim_r",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_authority_r",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_compensation_only_r",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_verify_r",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_attempt_id_p",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_concurrency_r",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_lock_span_p",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_verify_p",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_no_replay_r",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_attempt_id_r",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_receipt_binding_r",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_start_event_payload_exact_r",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_reconcile_event_payload_exact_r",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_freeze_p",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_process_crash_matrix",
+    "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_wp05_code_r1_002_invocation_oracle_rejects_known_double_call_mutation",
+    "tests.unit.test_wp00_packaging.PackagingContractTests.test_performance_installation_closure_matches_packaged_resources",
+    "tests.unit.test_wp00_packaging.PackagingContractTests.test_performance_installation_rejects_source_drift_and_replaced_root"
+  ],
+  "commands": [
+    {
+      "id": "W10B0-001",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_staging.ReleaseStagingUnitTests.test_stage_request_closed_bounds",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "W10B0-002",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_staging.ReleaseStagingUnitTests.test_install_plan_projection_policy",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "W10B0-003",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_staging.ReleaseStagingUnitTests.test_context_and_envelope_projections",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "W10B0-004",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_staging.ReleaseStagingUnitTests.test_recipe_exact_unique_selection",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "W10B0-005",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_staging.ReleaseStagingUnitTests.test_recipe_argv_tokens_and_versions",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "W10B0-006",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_staging.ReleaseStagingUnitTests.test_diagnostic_budgets",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "W10B0-007",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_release_staging.ReleaseStagingContractTests.test_stage_schema_registry_closure",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "W10B0-008",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_release_staging.ReleaseStagingContractTests.test_owned_source_wheel_policy_inputs",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "W10B0-009",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_release_staging.ReleaseStagingContractTests.test_legacy_resource_closure_preserved",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "W10B0-010",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_staging.ReleaseStagingIntegrationTests.test_plan_current_bundle_without_writes",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "W10B0-011",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_staging.ReleaseStagingIntegrationTests.test_policy_recipe_context_replacement_refuses",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "W10B0-012",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_staging.ReleaseStagingIntegrationTests.test_missing_prerequisites_and_apply_unavailable",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "W10B0-013",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_release_staging.ReleaseStagingSecurityTests.test_plan_input_and_privacy_refusals",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "id": "W10B0-014",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_staging_wheel.ReleaseStagingWheelTests.test_installed_plan_cli_zero_writes",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_manifest_projection",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-001",
+      "id": "W10B0-015"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_closure_order_invariance",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-002",
+      "id": "W10B0-016"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_graph_reachability",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-003",
+      "id": "W10B0-017"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_duplicate_normalization",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-004",
+      "id": "W10B0-018"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_marker_extras",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-005",
+      "id": "W10B0-019"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_compatibility_ranges",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-006",
+      "id": "W10B0-020"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_diagnostic_budget",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-007",
+      "id": "W10B0-021"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_release_installation.ReleaseInstallationUnitTests.test_trust_purpose",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-008",
+      "id": "W10B0-022"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_release_installation.ReleaseInstallationContractTests.test_manifest_nested_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-009",
+      "id": "W10B0-023"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_release_installation.ReleaseInstallationContractTests.test_policy_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-010",
+      "id": "W10B0-024"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_release_installation.ReleaseInstallationContractTests.test_registry_resource_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-011",
+      "id": "W10B0-025"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_release_installation.ReleaseInstallationContractTests.test_diagnostic_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-012",
+      "id": "W10B0-026"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_release_installation.ReleaseInstallationContractTests.test_installed_resource_closure",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-013",
+      "id": "W10B0-027"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_release_installation.ReleaseInstallationContractTests.test_legacy_resources_preserved",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-014",
+      "id": "W10B0-028"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_valid_physical_bundle",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-015",
+      "id": "W10B0-029"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_missing_extra_dependency",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-016",
+      "id": "W10B0-030"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_lock_sbom_provenance",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-017",
+      "id": "W10B0-031"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_license_security_freshness",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-018",
+      "id": "W10B0-032"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_doctor_zero_writes",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-019",
+      "id": "W10B0-033"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_missing_root_no_create",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-020",
+      "id": "W10B0-034"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_cli_exit_routes",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-021",
+      "id": "W10B0-035"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_installation.ReleaseInstallationIntegrationTests.test_no_ambient_config_artifact_execution",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-022",
+      "id": "W10B0-036"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_substitution_signature",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-023",
+      "id": "W10B0-037"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_archive_paths_members_links",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-024",
+      "id": "W10B0-038"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_preallocation_cumulative",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-025",
+      "id": "W10B0-039"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_stale_file_parent_provider_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-026",
+      "id": "W10B0-040"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_clock_no_write_refusal",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-027",
+      "id": "W10B0-041"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_release_installation.ReleaseInstallationSecurityTests.test_diagnostic_privacy",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-028",
+      "id": "W10B0-042"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_installation_wheel.ReleaseInstallationWheelTests.test_installed_check_doctor",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-029",
+      "id": "W10B0-043"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_installation_wheel.ReleaseInstallationWheelTests.test_installed_owned_resource_substitution",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-030",
+      "id": "W10B0-044"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_installation_wheel.ReleaseInstallationWheelTests.test_outside_checkout_decoys",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-031",
+      "id": "W10B0-045"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_release_installation_wheel.ReleaseInstallationWheelTests.test_installed_fixture_config_variation",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-032",
+      "id": "W10B0-046"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_security_bootstrap.SecurityBootstrapContractTests.test_descriptor_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-033",
+      "id": "W10B0-047"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_security_bootstrap.SecurityBootstrapContractTests.test_receipts_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-034",
+      "id": "W10B0-048"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_security_bootstrap.SecurityBootstrapContractTests.test_scope_target_projection",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-035",
+      "id": "W10B0-049"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_security_bootstrap.SecurityBootstrapContractTests.test_legacy_resource_bytes_preserved",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-036",
+      "id": "W10B0-050"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_installation_atomic_replay",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-037",
+      "id": "W10B0-051"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_task_derivation_empty_authority",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-038",
+      "id": "W10B0-052"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_retry_preserves_evolved_state",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-039",
+      "id": "W10B0-053"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_task_crash_restart",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-040",
+      "id": "W10B0-054"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_installation_crash_restart",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-041",
+      "id": "W10B0-055"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_parallel_initialization",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-042",
+      "id": "W10B0-056"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_genuine_learning_lifecycle",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-043",
+      "id": "W10B0-057"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_migration_roundtrip",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-044",
+      "id": "W10B0-058"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_legacy_roots_distinguishable",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-045",
+      "id": "W10B0-059"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap.SecurityBootstrapIntegrationTests.test_scope_reapproval_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-046",
+      "id": "W10B0-060"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_foreign_unissued_runtime_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-047",
+      "id": "W10B0-061"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_caller_trust_payload_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-048",
+      "id": "W10B0-062"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_missing_replaced_resources_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-049",
+      "id": "W10B0-063"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_stale_sources_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-050",
+      "id": "W10B0-064"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_partial_marker_corruption_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-051",
+      "id": "W10B0-065"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_bounded_before_materialization",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-052",
+      "id": "W10B0-066"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_security_bootstrap.SecurityBootstrapSecurityTests.test_receipts_minimized_holds_preserved",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-053",
+      "id": "W10B0-067"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap_wheel.SecurityBootstrapWheelTests.test_installed_bootstrap_learning",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-054",
+      "id": "W10B0-068"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap_wheel.SecurityBootstrapWheelTests.test_installed_resource_closure",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-055",
+      "id": "W10B0-069"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap_wheel.SecurityBootstrapWheelTests.test_installed_substitution_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-056",
+      "id": "W10B0-070"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_security_bootstrap_wheel.SecurityBootstrapWheelTests.test_installed_legacy_config_variants",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-057",
+      "id": "W10B0-071"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_all_support",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-058",
+      "id": "W10B0-072"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_all_counter",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-059",
+      "id": "W10B0-073"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_mixed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-060",
+      "id": "W10B0-074"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_insufficient_precedence",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-061",
+      "id": "W10B0-075"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_empty_required_rules_rejected",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-062",
+      "id": "W10B0-076"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_unknown_verdict_rejected",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-063",
+      "id": "W10B0-077"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_duplicate_rule_rejected",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-064",
+      "id": "W10B0-078"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_input_order_invariance",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-065",
+      "id": "W10B0-079"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_ratio_semantics_unchanged",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-066",
+      "id": "W10B0-080"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_learning_reports.LearningReportUnitTests.test_counter_union_bounds",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-067",
+      "id": "W10B0-081"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_policy_v12_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-068",
+      "id": "W10B0-082"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_experiments_v11_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-069",
+      "id": "W10B0-083"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_required_rule_coverage",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-070",
+      "id": "W10B0-084"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_suggestion_partition_cycles",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-071",
+      "id": "W10B0-085"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_legacy_versions_preserved",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-072",
+      "id": "W10B0-086"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_report_v12_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-073",
+      "id": "W10B0-087"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_owner_input_unchanged",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-074",
+      "id": "W10B0-088"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_learning_reports.LearningReportContractTests.test_installed_resource_closure",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-075",
+      "id": "W10B0-089"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_supported_cohort",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-076",
+      "id": "W10B0-090"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_counter_cohort",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-077",
+      "id": "W10B0-091"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_mixed_hypothesis",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-078",
+      "id": "W10B0-092"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_insufficient_cohort",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-079",
+      "id": "W10B0-093"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_unknown_vs_excluded",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-080",
+      "id": "W10B0-094"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_overlap_no_duplicates",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-081",
+      "id": "W10B0-095"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_fr13_full_owner_journey",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-082",
+      "id": "W10B0-096"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_valid_installed_config_changes",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-083",
+      "id": "W10B0-097"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports.LearningReportIntegrationTests.test_report_retry_idempotent",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-084",
+      "id": "W10B0-098"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_learning_reports.LearningReportPrivacyTests.test_no_consent_no_source_read",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-085",
+      "id": "W10B0-099"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_learning_reports.LearningReportPrivacyTests.test_foreign_endpoint_no_read",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-086",
+      "id": "W10B0-100"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_learning_reports.LearningReportPrivacyTests.test_config_change_stale_replay",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-087",
+      "id": "W10B0-101"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_learning_reports.LearningReportPrivacyTests.test_revoke_report_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-088",
+      "id": "W10B0-102"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_learning_reports.LearningReportPrivacyTests.test_report_preallocation_limit",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-089",
+      "id": "W10B0-103"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_learning_reports.LearningReportPrivacyTests.test_no_content_in_reports_or_receipts",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-090",
+      "id": "W10B0-104"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_installed_hypothesis_report",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-091",
+      "id": "W10B0-105"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_installed_valid_config_variation",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-092",
+      "id": "W10B0-106"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_legacy_resources_preserved",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-093",
+      "id": "W10B0-107"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_learning_reports_wheel.LearningReportWheelTests.test_missing_or_replaced_resource_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-094",
+      "id": "W10B0-108"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_closed_watermark",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-095",
+      "id": "W10B0-109"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_category_dedup",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-096",
+      "id": "W10B0-110"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_alias_mapping",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-097",
+      "id": "W10B0-111"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_mapping_digest",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-098",
+      "id": "W10B0-112"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_unmapped_category_unavailable",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-099",
+      "id": "W10B0-113"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_pending_rejected_excluded",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-100",
+      "id": "W10B0-114"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_revoked_history_retained",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-101",
+      "id": "W10B0-115"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_revision_baseline_filter",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-102",
+      "id": "W10B0-116"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_unknown_vs_zero",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-103",
+      "id": "W10B0-117"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_ordinal_bounds",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-104",
+      "id": "W10B0-118"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_source_projection",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-105",
+      "id": "W10B0-119"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_authorized_stage_learning.AuthorizedStageUnitTests.test_count_bounds",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-106",
+      "id": "W10B0-120"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_policy_v11_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-107",
+      "id": "W10B0-121"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_record_v11_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-108",
+      "id": "W10B0-122"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_report_v11_source_vector",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-109",
+      "id": "W10B0-123"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_input_v10_unchanged",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-110",
+      "id": "W10B0-124"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_receipt_v10_unchanged",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-111",
+      "id": "W10B0-125"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_old_policy_compatibility",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-112",
+      "id": "W10B0-126"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_resource_closure",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-113",
+      "id": "W10B0-127"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_unknown_component_version",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-114",
+      "id": "W10B0-128"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_experiment_schema_compatibility",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-115",
+      "id": "W10B0-129"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_authorized_stage_learning.AuthorizedStageContractTests.test_mapping_change_requires_regrant",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-116",
+      "id": "W10B0-130"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_genuine_approval_count",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-117",
+      "id": "W10B0-131"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_same_category_retry",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-118",
+      "id": "W10B0-132"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_late_consent_excludes_approval",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-119",
+      "id": "W10B0-133"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_consent_first_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-120",
+      "id": "W10B0-134"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_approval_first_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-121",
+      "id": "W10B0-135"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_report_first_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-122",
+      "id": "W10B0-136"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_approval_before_report_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-123",
+      "id": "W10B0-137"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_unchanged_pending_commit_window",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-124",
+      "id": "W10B0-138"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_prd_reapproval_rejects_old_challenge",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-125",
+      "id": "W10B0-139"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_regrant_rejects_changed_security",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-126",
+      "id": "W10B0-140"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_revoke_expiry_keeps_history",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-127",
+      "id": "W10B0-141"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_order_append_atomic_faults",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-128",
+      "id": "W10B0-142"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_anchor_upgrade_atomic_faults",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-129",
+      "id": "W10B0-143"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_pmf_upgrade_legacy_unavailable",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-130",
+      "id": "W10B0-144"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_legacy_bundle_import",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-131",
+      "id": "W10B0-145"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_bundle_v12_roundtrip",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-132",
+      "id": "W10B0-146"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_new_epoch_reseal",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-133",
+      "id": "W10B0-147"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning.AuthorizedStageIntegrationTests.test_forged_order_partition",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-134",
+      "id": "W10B0-148"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning_wheel.AuthorizedStageWheelTests.test_installed_genuine_chain",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-135",
+      "id": "W10B0-149"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_authorized_stage_learning_wheel.AuthorizedStageWheelTests.test_installed_old_owner_contract",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-136",
+      "id": "W10B0-150"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_no_consent_no_ledger_read",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-137",
+      "id": "W10B0-151"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_total_preallocation",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-138",
+      "id": "W10B0-152"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_foreign_identity_epoch",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-139",
+      "id": "W10B0-153"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_canary_absent",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-140",
+      "id": "W10B0-154"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_purge_keeps_action_audit",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-141",
+      "id": "W10B0-155"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_selected_task_body_gate",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-142",
+      "id": "W10B0-156"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_authorized_stage_learning.AuthorizedStagePrivacyTests.test_selected_body_tamper",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-143",
+      "id": "W10B0-157"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_closed_fields",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-144",
+      "id": "W10B0-158"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_rational_denominators",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-145",
+      "id": "W10B0-159"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_duplicate_identity",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-146",
+      "id": "W10B0-160"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_window_unknown_vs_zero",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-147",
+      "id": "W10B0-161"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_counter_evidence_rules",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-148",
+      "id": "W10B0-162"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_caller_time_not_trusted",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-149",
+      "id": "W10B0-163"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_context_relation_identity",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-150",
+      "id": "W10B0-164"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning.LearningTests.test_boundary_limits",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-151",
+      "id": "W10B0-165"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_native_monotonic",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-152",
+      "id": "W10B0-166"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_cross_process_domain",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-153",
+      "id": "W10B0-167"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_changed_domain",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-154",
+      "id": "W10B0-168"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_forged_provider",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-155",
+      "id": "W10B0-169"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_integer_and_backward",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-156",
+      "id": "W10B0-170"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp09_learning_clock.ClockProviderTests.test_wall_clock_independence",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-157",
+      "id": "W10B0-171"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_six_operations",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-158",
+      "id": "W10B0-172"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_explicit_consent_parser",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-159",
+      "id": "W10B0-173"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_unknown_schema_policy",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-160",
+      "id": "W10B0-174"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_installed_resource_binding",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-161",
+      "id": "W10B0-175"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_legacy_owner_operations",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-162",
+      "id": "W10B0-176"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.contract.test_wp09_learning_contracts.LearningContractTests.test_replay_request_conflict",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-163",
+      "id": "W10B0-177"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_failure_recovery_sequence",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-164",
+      "id": "W10B0-178"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_source_mapping_unknowns",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-165",
+      "id": "W10B0-179"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_caller_time_provenance",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-166",
+      "id": "W10B0-180"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_relation_endpoint_currentness",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-167",
+      "id": "W10B0-181"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_revoke_publish_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-168",
+      "id": "W10B0-182"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_fr13_positive",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-169",
+      "id": "W10B0-183"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_fr13_refusal",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-170",
+      "id": "W10B0-184"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_terminal_vs_self_report",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-171",
+      "id": "W10B0-185"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_context_cas_stale_recollect",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-172",
+      "id": "W10B0-186"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_source_head_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-173",
+      "id": "W10B0-187"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_prospective_regrant",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-174",
+      "id": "W10B0-188"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_schema_upgrade_restart",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-175",
+      "id": "W10B0-189"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_schema_upgrade_crash",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-176",
+      "id": "W10B0-190"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning.LearningIntegrationTests.test_migration_no_pmf_export",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-177",
+      "id": "W10B0-191"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_reapproval_window",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-178",
+      "id": "W10B0-192"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_restart_start_sample",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-179",
+      "id": "W10B0-193"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_review_no_double_count",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-180",
+      "id": "W10B0-194"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_forged_review_binding",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-181",
+      "id": "W10B0-195"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_repeat_wait_entry",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-182",
+      "id": "W10B0-196"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_pause_resume",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-183",
+      "id": "W10B0-197"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_non_decision_waits",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-184",
+      "id": "W10B0-198"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_revoke_commit_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-185",
+      "id": "W10B0-199"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_wheel_real_provider",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-186",
+      "id": "W10B0-200"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_source_gap",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-187",
+      "id": "W10B0-201"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_duplicate_transaction",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-188",
+      "id": "W10B0-202"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_real_human_interruptions",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-189",
+      "id": "W10B0-203"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_missing_boundary",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-190",
+      "id": "W10B0-204"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_real_review_verdicts",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-191",
+      "id": "W10B0-205"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_context_preserves_observation",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-192",
+      "id": "W10B0-206"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_pre_post_approval_grants",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-193",
+      "id": "W10B0-207"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_real_run_terminal",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-194",
+      "id": "W10B0-208"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_no_consent_no_sampling",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-195",
+      "id": "W10B0-209"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_late_grant_unknown",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-196",
+      "id": "W10B0-210"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp09_learning_metric_sources.LearningMetricSourceTests.test_rollback_and_crash",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-197",
+      "id": "W10B0-211"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_tampered_installed_policy",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-198",
+      "id": "W10B0-212"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_cas_body_not_copied",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-199",
+      "id": "W10B0-213"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_canary_absent",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-200",
+      "id": "W10B0-214"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_purge_crash_restart",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-201",
+      "id": "W10B0-215"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_purge_legal_hold",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-202",
+      "id": "W10B0-216"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_retained_handle_currentness",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-203",
+      "id": "W10B0-217"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_purge_authority_consumption",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-204",
+      "id": "W10B0-218"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_corrupt_chain_rejected",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-205",
+      "id": "W10B0-219"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_expired_consent_no_read",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-206",
+      "id": "W10B0-220"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_preallocation_bounds",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-207",
+      "id": "W10B0-221"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_foreign_identity_before_read",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-208",
+      "id": "W10B0-222"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.security.test_wp09_learning_privacy.LearningPrivacyTests.test_clock_rollback",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-209",
+      "id": "W10B0-223"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_closed_contracts",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-210",
+      "id": "W10B0-224"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_digest_binding",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-211",
+      "id": "W10B0-225"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_nonce_session_binding",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-212",
+      "id": "W10B0-226"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_terminal_transitions",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-213",
+      "id": "W10B0-227"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_exact_request_conflict",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-214",
+      "id": "W10B0-228"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_policy_bounds",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-215",
+      "id": "W10B0-229"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_receipt_status",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-216",
+      "id": "W10B0-230"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_action_authority.ActionAuthorityContractTests.test_epoch_tuple",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-217",
+      "id": "W10B0-231"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_forged_or_wrong_source_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-218",
+      "id": "W10B0-232"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_capacity_reserves_terminal_entries",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-219",
+      "id": "W10B0-233"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_genuine_approval_registration",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-220",
+      "id": "W10B0-234"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_pending_rejected_no_membership",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-221",
+      "id": "W10B0-235"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_atomic_commit_faults_and_retry",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-222",
+      "id": "W10B0-236"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_revoke_pending_and_approved",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-223",
+      "id": "W10B0-237"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_superseded_invocation_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-224",
+      "id": "W10B0-238"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_direct_commit_batch_cannot_bypass",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-225",
+      "id": "W10B0-239"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_wait_releases_installation_scope",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-226",
+      "id": "W10B0-240"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_restart_pending_requires_new_decision",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-227",
+      "id": "W10B0-241"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_precondition_changes_refused",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-228",
+      "id": "W10B0-242"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_unrelated_security_change_and_relevant_staleness",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-229",
+      "id": "W10B0-243"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_unsupported_component_and_contract",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-230",
+      "id": "W10B0-244"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_migration_component_compatibility",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-231",
+      "id": "W10B0-245"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_revoke_first_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-232",
+      "id": "W10B0-246"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_claim_first_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-233",
+      "id": "W10B0-247"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_registration_revoke_process_race",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-234",
+      "id": "W10B0-248"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_three_start_paths_share_guard",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-235",
+      "id": "W10B0-249"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_restore_epoch_and_claim_audit",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-236",
+      "id": "W10B0-250"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority.ActionAuthorityTests.test_mixed_learning_source_chain",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-237",
+      "id": "W10B0-251"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority_wheel.ActionAuthorityWheelTests.test_wheel_runtime_port_parity",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-238",
+      "id": "W10B0-252"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_action_authority_wheel.ActionAuthorityWheelTests.test_local_config_cannot_approve",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-239",
+      "id": "W10B0-253"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_011_public_export_is_complete_and_clears_durable_hold",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-240",
+      "id": "W10B0-254"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_012_migration_held_export_reuses_exact_exclusive_token",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-241",
+      "id": "W10B0-255"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_013_bundle_tamper_or_missing_object_fails_validation",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-242",
+      "id": "W10B0-256"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_014_import_replays_exact_history_and_objects_in_isolated_root",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-243",
+      "id": "W10B0-257"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_015_activation_recovery_exposes_only_verified_active_or_blocked",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-244",
+      "id": "W10B0-258"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_repository.WP06MigrationRepositoryTests.test_gew_mig_016_stale_restore_creates_gap_and_never_lowers_fence",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-245",
+      "id": "W10B0-259"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_017_fault_schedule_is_exact_sorted_and_executable",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-246",
+      "id": "W10B0-260"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_018_interrupted_export_hold_requires_explicit_recovery",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-247",
+      "id": "W10B0-261"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_019_concurrent_public_exports_do_not_reenter_or_partial_publish",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-248",
+      "id": "W10B0-262"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_020_sigkill_before_verifying_preserves_old_active",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-249",
+      "id": "W10B0-263"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_021_sigkill_after_verifying_rolls_back_to_old_active",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-250",
+      "id": "W10B0-264"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_022_sigkill_before_active_rolls_back_to_old_active",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-251",
+      "id": "W10B0-265"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_023_sigkill_after_active_preserves_new_active",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-252",
+      "id": "W10B0-266"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_024_two_process_activation_has_one_authority",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-253",
+      "id": "W10B0-267"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_025_command_shared_scope_cannot_cross_activation_switch",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-254",
+      "id": "W10B0-268"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_failure.WP06MigrationFailureTests.test_gew_mig_026_corrupt_history_publishes_stable_explicit_blocked",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-255",
+      "id": "W10B0-269"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_040_one_control_authority_spans_exact_durable_migration_graph",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-256",
+      "id": "W10B0-270"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_041_ledger_history_and_head_tamper_fail_exact_validation",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-257",
+      "id": "W10B0-271"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_post_activation_operations_route_only_current_repository",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-258",
+      "id": "W10B0-272"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_042_versioned_fault_schedule_covers_every_production_cut",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-259",
+      "id": "W10B0-273"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_043_every_durable_cut_sigkill_recovers_active_or_blocked",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-260",
+      "id": "W10B0-274"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_044_two_process_orchestrators_have_one_exact_authority",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-261",
+      "id": "W10B0-275"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_045_recovery_cuts_preserve_hold_and_rollback_oracles",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-262",
+      "id": "W10B0-276"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_orchestration.WP06MigrationOrchestrationTests.test_gew_mig_046_restore_gap_cuts_recover_blocked_or_reactivated",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-263",
+      "id": "W10B0-277"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_034_export_uses_exact_stable_control_exclusive",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-264",
+      "id": "W10B0-278"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_035_bundle_binds_approved_snapshot_identity",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-265",
+      "id": "W10B0-279"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_036_bundle_reader_is_exact_bounded_and_no_follow",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-266",
+      "id": "W10B0-280"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_037_activation_recomputes_exact_candidate",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-267",
+      "id": "W10B0-281"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_038_activation_seeds_candidate_fencing_high_water",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-268",
+      "id": "W10B0-282"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp06_migration_authority.WP06MigrationAuthorityTests.test_gew_mig_039_restore_gap_is_persistent_and_blocks_commands",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-269",
+      "id": "W10B0-283"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_receipt_and_compensation_have_no_direct_durable_or_adapter_bypass",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-270",
+      "id": "W10B0-284"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_prepare_authorize_started_claim_call_receipt_and_target_reconcile",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-271",
+      "id": "W10B0-285"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_wp05_code_r1_002_normal_receipt_object_is_durable_and_exactly_bound",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-272",
+      "id": "W10B0-286"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_non_idempotent_timeout_is_unknown_and_never_auto_replayed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-273",
+      "id": "W10B0-287"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_crash_after_effect_leaves_started_claim_and_never_replays",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-274",
+      "id": "W10B0-288"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_failure_before_effect_reconciles_no_effect_without_replay",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-275",
+      "id": "W10B0-289"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_success_receipt_with_target_mismatch_remains_durably_unreconciled",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-276",
+      "id": "W10B0-290"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_post_call_observation_binding_mutations_never_consume_claim",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-277",
+      "id": "W10B0-291"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_reconcile_observation_binding_mutations_never_consume_claim",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-278",
+      "id": "W10B0-292"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_succeeded_unresolved_action_can_later_reconcile_with_fresh_exact_evidence",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-279",
+      "id": "W10B0-293"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_compensation_with_stale_snapshot_is_zero_write_rejected",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-280",
+      "id": "W10B0-294"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_missing_repository_authority_membership_is_zero_write_fail_closed",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-281",
+      "id": "W10B0-295"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_action_protocol.WP05ActionProtocolTests.test_durable_action_bodies_are_bounded_before_model_digest_or_use",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-282",
+      "id": "W10B0-296"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_wp05_code_r1_001_rejects_recomputed_wrong_observation_resource",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-283",
+      "id": "W10B0-297"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_wp05_code_r1_001_rejects_recomputed_wrong_rollback_state",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-284",
+      "id": "W10B0-298"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_expired_p",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-285",
+      "id": "W10B0-299"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_wp05_code_r1_002_compensation_receipt_object_is_durable_and_exactly_bound",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-286",
+      "id": "W10B0-300"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_live_p",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-287",
+      "id": "W10B0-301"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_start_replay_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-288",
+      "id": "W10B0-302"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_exact_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-289",
+      "id": "W10B0-303"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_no_new_lease_claim_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-290",
+      "id": "W10B0-304"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_authority_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-291",
+      "id": "W10B0-305"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_compensation_only_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-292",
+      "id": "W10B0-306"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_verify_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-293",
+      "id": "W10B0-307"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_attempt_id_p",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-294",
+      "id": "W10B0-308"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_concurrency_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-295",
+      "id": "W10B0-309"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_lock_span_p",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-296",
+      "id": "W10B0-310"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_verify_p",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-297",
+      "id": "W10B0-311"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_no_replay_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-298",
+      "id": "W10B0-312"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_attempt_id_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-299",
+      "id": "W10B0-313"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_receipt_binding_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-300",
+      "id": "W10B0-314"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_start_event_payload_exact_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-301",
+      "id": "W10B0-315"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_reconcile_event_payload_exact_r",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-302",
+      "id": "W10B0-316"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_claim_freeze_p",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-303",
+      "id": "W10B0-317"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_gew_act_recovery_process_crash_matrix",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-304",
+      "id": "W10B0-318"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.integration.test_wp05_recovery_claim.WP05RecoveryClaimTests.test_wp05_code_r1_002_invocation_oracle_rejects_known_double_call_mutation",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-305",
+      "id": "W10B0-319"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp00_packaging.PackagingContractTests.test_performance_installation_closure_matches_packaged_resources",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-306",
+      "id": "W10B0-320"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/run_wp09_tests.py",
+        "--test",
+        "tests.unit.test_wp00_packaging.PackagingContractTests.test_performance_installation_rejects_source_drift_and_replaced_root",
+        "--timeout-seconds",
+        "290"
+      ],
+      "expected_tests": 1,
+      "expected_skips": 0,
+      "retained_command_id": "W10-307",
+      "id": "W10B0-321"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/check_architecture.py"
+      ],
+      "retained_command_id": "W10-308",
+      "id": "W10B0-322"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/check_sources.py",
+        "lint"
+      ],
+      "retained_command_id": "W10-309",
+      "id": "W10B0-323"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/check_sources.py",
+        "type"
+      ],
+      "retained_command_id": "W10-310",
+      "id": "W10B0-324"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/verify_build.py"
+      ],
+      "retained_command_id": "W10-311",
+      "id": "W10B0-325"
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "scripts/verify_reproducible_build.py"
+      ],
+      "retained_command_id": "W10-312",
+      "id": "W10B0-326"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "retained_command_id": "W10-313",
+      "id": "W10B0-327"
+    }
+  ],
+  "authority_boundary": "B0 private SOURCE/WHEEL contracts/read-only plan only; no installer/issuer/candidate mutation/actual install/C/commit/push."
+}

@@ -1,5 +1,5 @@
 {
-  "bootstrap_digest": "sha256-jcs-v1:d0c213829fe6400b9014e5960fb98f2dd43ed1176bf54bbe3f6737f61985d61c",
+  "bootstrap_digest": "sha256-jcs-v1:7428677db33f98824acd08cc3a21d5c829216079751da0b31baee82d01814818",
   "bootstrap_id": "urn:gew:scenario-truth-installation-bootstrap:1.0.0",
   "fixture_registry_digest": "sha256-jcs-v1:c770fada0716fa36336ed076793321ba9252025df2be4452bb3c95bb48341818",
   "fixture_registry_id": "urn:gew:scenario-truth-fixture-registry:v1",
@@ -9,7 +9,7 @@
   "policy_registry_raw_sha256": "3a718cbda3d72d12d77e565eddccd6bda34b65a3959dade0c8169cb1cf7e42fa",
   "profile_schema_registry_digest": "sha256-jcs-v1:913235899306d64a4bc8eff96b3a4bbddd61ec6a7e57b8dfdaafe98041c81f76",
   "profile_schema_registry_raw_sha256": "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd",
-  "protected_closure_digest": "sha256-jcs-v1:a39bf176821317b150a28c4d32e4e68ff8cd85126f76970cab86eb8b24a85a98",
+  "protected_closure_digest": "sha256-jcs-v1:88ab96e6bc6312ac22fb195dc3e2283071193b1767a669d29cf6b8b63082e7f6",
   "protected_resources": [
     {
       "path": "application/graph_engineering/application/profile_execution.py",
@@ -21,7 +21,7 @@
     },
     {
       "path": "core/graph_engineering/__init__.py",
-      "raw_sha256": "f8a028b91ac3ec503c28b335aa7d99e8285ca6039e286947a0bd50c561737da1"
+      "raw_sha256": "05ea9446a3228bd692707c11df0a27a9cb4affb114f8c5d336ab32d3e682b171"
     },
     {
       "path": "core/graph_engineering/core/profile_execution.py",
@@ -37,7 +37,7 @@
     },
     {
       "path": "scripts/build_backend.py",
-      "raw_sha256": "1575485d8d5e853feb9cd20a36f6964c35472c54b421f9441c1b1df72dc016f5"
+      "raw_sha256": "015440771024141e7d43be9ab5f4f01bd2de757f21a539acc87d33eb48bd66d3"
     }
   ],
   "schema_vectors": [

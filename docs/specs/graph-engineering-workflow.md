@@ -5257,3 +5257,377 @@ W10-016/W10-026 selectors; require zero substituted calls, bounded independently
 checked diagnostics, privacy, empty stderr and unchanged inventories. Retain actual
 RED/GREEN and run six statics before fresh independent implementationr6 review.
 Only actual ADVANCE permits canonical313, verification and Candidate review.
+
+## WP-10 isolated staging clarification — W10B, 2026-10-12
+
+### W10B-S1 Overview
+
+Refine the already accepted IsolatedStageLoop for a local Owner or authenticated
+same-Owner runtime. This is documentation/review under the retained original
+`GEW-WP10-INSTALLATION-DESIGN-V1` six-file authority, not B implementation authority.
+Slice A completed at commit `2a8ecbbabc069fd2897d1bec53bf29dfe9f44222` with independently
+reviewed313-command evidence and verified Receipt/push; old W10/A in-progress prose
+records its historical phase. B prepares private immutable assets; C alone migrates
+and publishes the active tuple. This amendment does not change PRD/Intent v2.
+
+### W10B-S2 Goals
+
+Trace [PRD](../prd/graph-engineering-workflow.md) FR-01/16, NFR-01/06/08 and installation/
+recovery journeys. B-G1: zero writes before exact current authority; zero writes to old
+tool, repository, active reference, runtime locator, task/security/clock or native Skill
+roots throughout staging. B-G2: every accepted installed asset has physically verified
+origin and membership; zero unlisted distributions, generated executable templates or
+Skill files. B-G3: two clean roots from identical bundle/policy produce equal normalized
+installed manifests while retaining distinct local physical bindings. B-G4: every stage
+failure/interruption yields no accepted staged result and leaves old assets usable;
+all three planned native cells remain required for eventual genuine B acceptance.
+
+### W10B-S3 Non-goals
+
+Retain [PRD](../prd/graph-engineering-workflow.md) and W10-S3. This design adds no daemon,
+network acquisition/resolution, dependency or platform. B does not initialize/migrate a
+repository, publish an active reference, install a native Skill bootstrap, activate,
+rollback or uninstall. These remain subsequent operations, not removed requirements.
+Production artifacts/trust, real Owner data, PMF export and irreversible delivery actions
+remain outside current documentation authority. A preflight-valid result is not B proof.
+
+### W10B-S4 Architecture and executable edges
+
+```mermaid
+flowchart LR
+  A[Fresh owned A observation] --> P[InstallationPlanControl]
+  O[Direct Owner or authenticated runtime] --> H[OwnerAuthorityNode]
+  P --> H
+  H --> S[IsolatedStageLoop]
+  S --> V[Physical installed asset verification]
+  V --> R[Owned staged result]
+  R --> C[Future C coordinator]
+  S --> F[Bounded failed candidate diagnosis]
+```
+
+Core owns closed request/plan/stage-policy/installed-manifest/binding validation and
+pure equality; no filesystem, interpreter, packaging or cryptography imports. Application
+owns process-local observation/authority lifetime and ordered stage orchestration. Adapter
+owns configured roots, no-follow extraction, trusted local process boundary and actual
+post-install bytes. No storage module, DB table, ActionAuthorityLedger kind or activation
+reference is added by B. All work runs in the invoked command, with no background retry.
+
+| Edge | Typed transfer / route | Trust, currentness and invalidation |
+|---|---|---|
+| A → Plan | owned admitted release + closed StageRequest → owned StagePlanEnvelope (nested InstallPlan and StageContext) or diagnostic | recheck A-owned source/provider/bytes, target identity/platform and prior tuple; JSON cannot replace A observation |
+| Plan → Authority | exact owned StagePlanEnvelope + direct trusted Owner/runtime decision → opaque InstallationAuthority | binds plan/context/envelope digests, operation/installation/request, bundle/policy/platform/prior tuple and target identities; no boolean/hash/JSON setter |
+| Authority → Stage | live authority + same observation → candidate-root acquisition | authority and all bindings rechecked before first mutation; changed input returns to Plan/Owner |
+| Stage → Verify | actual interpreter/tool/Skill files + process outcome → installed manifest/binding | process exit0 is insufficient; verify every file, RECORD transformation and generated executable |
+| Verify → Result | current physical candidate + exact plan → owned StagedReleaseObservation | result only after all files/directories are durable; changed candidate revokes use |
+| Result → future C | freshly reacquired owned result + C authority → C preconditions | B grants no migration/publication authority; C rechecks ownership/currentness under its coordinator |
+
+### W10B-S5 Closed records and private persistence
+
+Use existing bounded charged canonical release contracts, schema1.0.0, recursive
+unknown-field rejection, exact ordering/IDs and non-boolean integer limits. Each new
+record has a distinct projection ID; no old schema is reinterpreted. Proposed resources
+are installation-owned, loaded through the existing physical SOURCE/WHEEL boundary.
+
+StageRequest fields: `schema_version`, `request_id`, `operation`, `installation_id`,
+`release_manifest_digest`, `prior_tuple_digest`, `target_refs`, `preserve_data`.
+Only install/upgrade are B-producing operations; preserve_data must be true. Other
+existing InstallPlan operations retain W10 semantics and refuse B apply as unavailable.
+Bundle location is a separately bounded adapter input, never persisted as a trust source.
+InstallPlan retains W10-S5 fields/projection; its target_refs include candidate-root and
+existing installation identities. No caller-selected arbitrary path is accepted as a root.
+
+StagePolicy fields: `schema_version`, `policy_id`, `installer_policy_digest`,
+`max_stage_bytes`, `max_stage_files`, `max_process_seconds`, `max_output_bytes`,
+`max_failed_candidates`, `max_cleanup_entries`, `policy_digest`. All positive finite
+integers; applicable A/resource-profile ceilings still win. No production fallback.
+An unavailable installer policy blocks before candidate creation.
+
+InstallerPolicy fields: `schema_version`, `policy_id`, `recipes`, `policy_digest`.
+Each ordered recipe has exactly `recipe_id`, `platform`, `interpreter_artifact_id`,
+`installer_artifact_id`, `interpreter_version`, `installer_version`, `steps`,
+`generated_files`, `recipe_digest`. Each step is `step_id`, `executable_ref`,
+`argv`, `cwd_ref`, `environment`; executable_ref selects only the previously verified
+interpreter or installer, never PATH/shell. argv is ordered literals or closed token
+objects `{ref}` selecting stage-owned interpreter/tool/wheelhouse paths. environment
+is an exact ordered name/value list from installed policy with the same closed token
+grammar, never an inherited environment merge. No shell/substitution/import hook,
+response-file escape, arbitrary executable or unknown token. Generated file declarations
+are `logical_path`, `kind`, `template_digest`; kinds are launcher/script/RECORD. Templates
+are verified release/build inputs, not arbitrary caller transformations. The recipe is
+data for accepted local installer execution, not authority to execute an arbitrary bundle.
+The production recipes list remains empty until exact binaries/argv/offline behavior
+are supplied and separately approved. Synthetic fixture recipes never become production.
+
+Recipe selection is exact and unique: first select recipes whose platform equals the
+complete manifest platform, interpreter_artifact_id equals manifest.interpreter.artifact_id,
+installer_artifact_id equals manifest.installer.artifact_id, interpreter_version equals
+manifest.interpreter.patch and installer_version equals manifest.installer.version.
+Require exactly one such recipe before checking its digest; zero or multiple matches
+refuse even if one later digest would match. The actual admitted interpreter identity
+(implementation/patch/build_id/executable member) and installer identity/version/bytes
+must equal the manifest descriptors; recipe IDs cannot stand in for those observations.
+recipe_digest is the charged domain-separated canonical `release-installer-recipe-v1`
+projection of all recipe fields except recipe_digest, including platform, binary IDs/
+versions, ordered steps, environment and generated templates. It must equal the signed
+manifest.installer.argv_policy_digest. InstallerPolicy.policy_digest is the separate
+`release-installer-policy-v1` projection of all its fields except policy_digest, including
+the exact ordered recipes. StagePolicy.policy_digest uses `release-stage-policy-v1`
+over all its fields except policy_digest; its installer_policy_digest must equal that
+physically owned InstallerPolicy.policy_digest. Changing an unused registry recipe also
+invalidates this stage context; no subset registry is silently substituted.
+
+StageContext fields: `schema_version`, `stage_policy_digest`, `installer_policy_digest`,
+`recipe_digest`, `target_registry_digest`, `target_binding_digest`, `context_digest`; the last uses `release-stage-context-v1` over the
+other fields. The existing InstallPlan.policy_digest keeps its A ReleasePolicy meaning;
+closure_digest and plan_digest projections are unchanged. A new StagePlanEnvelope has
+exactly `schema_version`, `plan`, `stage_context`, `envelope_digest`, using
+`release-stage-plan-envelope-v1` over the first three fields. It contains the existing
+InstallPlan plus this closed context, never a new interpretation of policy_digest.
+The displayed Owner request and opaque authority bind both plan_digest and context_digest
+(and envelope_digest), not a bare InstallPlan file. Physically rederive all three policy/
+recipe digests and selection before displaying consent, before first mutation, at use/
+finalization and when reopening a staged result. Any mismatch refuses; after consent it
+invalidates the old authority and requires a fresh plan/Owner decision.
+
+The installed StageTargetRegistry is the closed environment configuration, never a
+caller trust map. Fields: `schema_version`, `registry_id`, `installation_id`, `roots`,
+`registry_digest`; projection `release-stage-target-registry-v1` excludes only its
+digest. Each ordered root has exactly `ref`, `role`, `path`, `owner_id`, `mode_policy`.
+role is installation/candidate-parent/skill-bootstrap; mode_policy is owner-only.
+Paths and decimal OS owner IDs are private configuration, never engine constants or
+public reports. Reject duplicate refs/physical paths, unknown roles/fields, malformed
+absolute paths and unbounded records through the charged schema/resource guard.
+Production roots may be empty; missing configured targets block, never derive defaults
+from cwd, HOME, PATH or request-supplied paths. Fixture roots live only in independently
+attested private source/wheel inputs, with unchanged engine bytes.
+
+The adapter resolves every requested ref through that registry and no-follow-observes
+actual directory/ancestor identity, ownership and owner-only modes. candidate-parent
+must exist and be disjoint from old tool/repository/native Skill roots; no root is created
+by planning. For a new install, the installation target must be absent under an existing
+verified owner-only parent; bind both parent identity and observed absence. A present
+unregistered/unsupported installation is not silently adopted. Upgrade planning requires
+an independently verified registered prior tuple from the future C integration and
+otherwise refuses as unavailable; caller prior_tuple_digest cannot certify that tuple.
+
+The private target-binding projection `release-stage-target-binding-v1` includes the
+registry_digest, requested refs, roles, configured normalized paths, OS owner facts,
+no-follow physical directory/ancestor identities, present/absent state and observed prior
+tuple binding. Its digest enters StageContext; raw values remain process-private and
+are reacquired, never trusted from JSON. Any changed target/parent/absence/registry or
+prior tuple invalidates the envelope. InstallPlan.target_refs remain the ordered opaque
+configured refs; their physical meaning is bound by this separate context, not by a
+raw path or caller claim. C still rechecks these inputs under its own control scope.
+The exact private projection body is `registry_digest`, `requested_refs`, `roots`,
+`prior_tuple_digest`; roots is ordered by ref with exactly ref/role/normalized_path/
+owner_id/present/ancestors. Each ordered ancestor observation contains exactly
+logical_index/device/inode/mode/owner_id. Observe all existing path segments through
+no-follow directory handles; present records include the target identity, absent records
+stop at the verified existing parent and bind the missing final segment in normalized_path.
+Reject missing intermediate parents and symlinks instead of creating or resolving them.
+Use charged finite root/path/JSON limits; no stat result supplied by a caller is trusted.
+
+InstalledReleaseManifest fields are exactly `schema_version`, `release_id`, `platform`,
+`interpreter_identity`, `distributions`, `skills`, `lock_digest`, `sbom_digest`,
+`security_evidence_digest`, `policy_digest`, `installed_manifest_digest`. Platform and
+interpreter identity retain the accepted release fields. A distribution is exactly
+`name`, `version`, `wheel_sha256`, `installed_record_digest`; a Skill is exactly
+`runtime_kind`, `skill_id`, `version`, `protocol_range`, `asset_digest`. Entries are
+ordered by normalized distribution name and (runtime_kind,skill_id); duplicates refuse.
+These are semantic logical entries as required by W10-S5, not absolute-path hashes.
+
+InstallationBinding fields: `schema_version`, `installation_id`, `request_id`,
+`plan_digest`, `stage_context_digest`, `candidate_identity`, `interpreter_binding`, `installer_binding`,
+`files`, `binding_digest`. Root/executable bindings contain the existing checked
+physical identity facts; files is the ordered complete logical-path/raw-SHA256/size/
+mode/physical-identity inventory, including actual installed RECORD and launcher bytes.
+Binding is mandatory but excluded from same-bundle equality. Root identities retain
+opaque owner/volume/incarnation facts privately; public reports never serialize them.
+
+Normalize only declared installer-generated entries. Verify actual launcher bytes
+against the exact owned template and bound interpreter prefix before replacing that
+specific generated prefix with a logical interpreter token in semantic hashing.
+installed_record_digest hashes canonical logical RECORD rows whose declared generated
+file hashes are the corresponding normalized bytes. Preserve actual raw RECORD and
+generated file hashes in InstallationBinding and verify RECORD against actual files
+first. A canonical logical RECORD row is exactly the mapped logical path, canonical
+hash cell and canonical decimal size cell. For a declared generated entry, derive both
+hash and size from the verified normalized bytes, including their normalized prefix;
+never retain that entry's physical size in the semantic row. Ordinary rows use actual
+verified bytes/hash/size unchanged. The unique RECORD self-entry uses its mapped logical
+path and empty hash and size cells, matching physical self-entry verification; it is
+not recursively hashed as its own content. Reject missing/duplicate self-entries,
+unmapped paths or invalid physical hash/size cells before any normalization. Physical
+bindings retain actual original paths (privately), raw hashes, sizes and complete RECORD
+bytes, including the self-file's independently measured raw digest/size. Two clean-root
+oracles must deliberately use different prefix lengths, then compare semantic equality
+and distinct physical bindings. Every other byte remains exact. No arbitrary string replacement, line stripping,
+path omission or broad exclusion can make unequal installations compare equal.
+RECORD's legitimate installer script locations must resolve through declared template
+mapping inside the same candidate root; no untrusted traversal, symlink or outside write.
+
+StageReceipt fields: `schema_version`, `request_id`, `plan_digest`,
+`release_manifest_digest`, `stage_context_digest`, `installed_manifest_digest`, `binding_digest`,
+`status`, `receipt_digest`; status is staged. This is candidate metadata, not C's
+activation journal or installation authority. The configured private candidate root
+contains assets plus bounded owner-only installed-manifest/binding/receipt records.
+Create an exclusive request-owned root and make accepted records durable before
+returning a result. A partial/tampered root has no accepted receipt. No overwrite or
+automatic adoption of an existing root; explicit same-request retry revalidates its
+exact receipt/physical closure under fresh authority, otherwise refuses/quarantines.
+
+### W10B-S6 API and operation lifetime
+
+Proposed library: `ReleaseInstaller.plan(request, bundle_ref) -> StagePlanEnvelope|Diagnostic`,
+`stage(envelope: StagePlanEnvelope, authority) -> StagedReleaseObservation|Diagnostic`,
+`reopen_staged(envelope: StagePlanEnvelope, authority) -> StagedReleaseObservation|Diagnostic`.
+Here StagePlanEnvelope is the factory-owned application handle containing the closed
+serializable envelope; bare InstallPlan remains only its nested deterministic record.
+The factory-owned observation exposes normalized manifest and a sanitized completion
+diagnostic; use revalidates all actual bytes/bindings. It cannot be reconstructed from
+Python dataclass/JSON or reused across PID/thread/operation boundaries. `reopen_staged`
+physically rebuilds current trust; it does not deserialize a saved seal or replay consent.
+The plan method returns a factory-owned StagePlanEnvelope, whose JSON contains the
+unchanged InstallPlan and explicit StageContext. stage/reopen_staged accept that owned
+plan envelope. Public install-plan writes only that envelope to its output; install-apply
+reads the closed envelope, reacquires current inputs and obtains live matching authority.
+An old bare InstallPlan or a copied envelope is not executable authority. Reopening
+requires stored receipt/binding stage_context_digest to equal the freshly rederived
+StageContext and the authority's exact envelope/plan/context binding.
+
+The proposed public forms are `install-plan --operation <...> --request <file>
+--bundle <root> --manifest <file> --format json` and later `install-apply --plan <file>
+--bundle <root> --manifest <file> --format json`. The explicit operation must equal
+StageRequest.operation. Reuse A's bounded local bundle/manifest path admission;
+neither argument is policy, target configuration or authority. Reacquire the same
+bundle/manifest at apply; their absence or digest mismatch refuses. Plan is strictly read-only. B apply
+reports only phase=stage/status=staged, with activation/upgrade-completed/release
+capabilities unavailable. It never prints installed/active or claims the tuple switched.
+Invalid/unsupported operations use W10-S7 codes. A commands/protocol remain unchanged.
+
+Direct local Owner apply verifies configured owner/root identity and obtains an exact
+plan decision through the trusted invocation boundary. Noninteractive/Skill callers
+must use the authenticated same-Owner runtime approval port; absent port refuses before
+writes. A plan file, piped yes, caller approval callback, environment flag or user-supplied
+authority object is not that port. The actual invocation/issuance implementation and its
+independent refusal tests must be closed before B implementation approval; introducing
+a new authentication mechanism is a material choice, not a routine design permission.
+
+### W10B-S7 Error model and reporting
+
+Reuse W10-S7 sanitized error vocabulary and exits2/3/4; do not echo installer stderr,
+paths, argv values, environment or artifact contents. Invalid recipe/request is input
+invalid; wrong/missing grant authority-required; stale bindings currentness; exceeded
+stage/process/output limits resource-limit; missing binary/recipe/native prerequisite
+platform-unavailable; installed membership/RECORD mismatch closure-mismatch; incomplete
+or unsafe candidate recovery-blocked. Exit0 plus phase-specific staged receipt means
+only candidate preparation. No automatic retry or higher bound follows any error.
+
+Completion checks and refs retain W10 diagnostic bounds/opaque identifiers. A bounded
+stage-specific completion record uses the same sanitized checks/refs and its own closed
+staged status; the existing A diagnostic1.0.0 schema is not widened silently.
+
+### W10B-S8 Failure and interruption
+
+| Boundary | Detection | Required result |
+|---|---|---|
+| before first candidate write | full fresh A/authority/platform/prior-root check | zero new roots or changed old bytes on refusal |
+| extraction | no-follow root handles, membership/budget checks before each write | partial candidate unaccepted; old installation untouched |
+| process spawn/use | verified executable/argv/environment, timeout/output bounds and process lifetime | no exit-code-only acceptance; terminate/reap owned process before returning failure |
+| post-process verification | actual complete interpreter/tool/Skill/RECORD/launcher inventory | mismatch invalidates entire candidate |
+| receipt/fsync failure or SIGKILL | receipt absent/incomplete, physical closure not durably verified | no owned accepted result; explicit retry performs fresh validation |
+| concurrent same target/request | exclusive create/ownership binding | one candidate owner; others refuse, never merge or overwrite |
+| retained-result/source swap | fresh acquisition and pre-use/final binding comparison | sticky result invalidation; re-admission/plan required |
+
+Candidate cleanup is explicit and bounded by the same request authority and root
+identity; it may remove only verified request-owned candidate entries. If identity,
+membership, process liveness or cleanup budget is uncertain, stop and report blocked;
+never traverse unknown roots or delete retained old assets. C's crash publication and
+durable generation history remain separate. B need not add a second installation lock:
+it must observe old context and refuse drift; C still rechecks under its exclusive scope.
+
+### W10B-S9 Resource and performance bounds
+
+Charge compressed/expanded bytes, entries/path depth, actual stage bytes/files,
+generated metadata and cumulative process output before allocation/write. Bound process
+wall time and owned-child teardown; an unconfirmed surviving process blocks result and
+cleanup. Production values are missing until exact supplied artifacts are measured and
+approved. Fixtures use small finite per-case limits; neither invent an installer SLA
+nor raise native290/canonical300 command ceilings. Latency/throughput/cost percentiles
+are unmeasured, not release claims. No network or long-lived service budget applies.
+
+### W10B-S10 Security, privacy and audit
+
+| Actor | Plan/read diagnostics | Candidate mutation | Old assets/active/data |
+|---|---|---|---|
+| Untrusted request/bundle | closed parsing only | never | never |
+| Direct verified Owner / authenticated same-Owner runtime | yes | exact live plan authority only | never in B |
+| Factory-owned stage process | necessary bounded private inputs | request-owned candidate only | never |
+| Reviewer | read-only evidence | never | never |
+
+No credential, user task content or real PII is required. Machine paths/physical owner
+facts stay inside owner-only bindings; diagnostics retain opaque refs only. Preserve
+failure evidence and candidate receipts under configured finite retention; cleanup
+never erases active/action/security/clock history. A release signature identifies supplied
+artifacts, not execution consent. Test issuers/recipes are confined to newly attested
+private roots and cannot populate production trust. The trusted CPython/OS/stdlib and
+installer process threat boundary stays explicit; this design does not claim an OS
+sandbox can safely execute an arbitrary signed hostile program.
+
+### W10B-S11 Remaining implementation prerequisites
+
+Derive exact future code/config/schema/pin files/selectors and finite fixture limits
+before their implementation request. A bounded first B0 request may implement closed
+contracts and strictly read-only planning, with all stage/apply/reopen capabilities
+unavailable. B0 does not issue authority, spawn an installer, create candidate roots
+or produce a staged receipt; it cannot satisfy B-G2/G3/G4 or genuine B acceptance.
+This is a dependency step toward B, not a reduced completion criterion.
+
+Before the first mutating B implementation request can be approved: resolve the trusted
+Owner/runtime issuance path into concrete existing ports and refusal oracles.
+If doing so requires a new auth/security/material architecture decision, stop with that
+specific delta; this six-file authority does not make it routine. No implementation
+readiness is inferred from a Spec PASS while those obligations remain unresolved.
+
+Before genuine installation/native acceptance: supply exact interpreter archive,
+installer and supported argv, full wheels/lock/SBOM/provenance/license/security bytes,
+production trust/source policy, supported bootstrap formats and three actual native
+environments. Missing production resources remain empty/refused. Synthetic process
+fixtures can validate orchestration/failures, not actual Python/uv installation or
+offline guarantees. Before C: separately close migration/coordinator/control-context/
+publication/recovery formats and exact authority. PMF export remains blocked.
+
+### W10B-S12 References
+
+[Positioning](../positioning/graph-engineering-workflow.md),
+[PRD/Intent v2](../prd/graph-engineering-workflow.md),
+[ADR0001](../adr/0001-core-implementation-and-local-packaging.md),
+[ADR0015](../adr/0015-release-installation-and-upgrade.md),
+[Impact](../impact/graph-engineering-workflow.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md),
+[Test Plan](../test-plans/graph-engineering-workflow.md).
+Detached original design approval, continuation-r1, historical five-node-revision replay
+and A commit Receipt/push audit bind this clarification; new independent Spec review
+and actual reducer decision determine its acceptance, not this prose.
+
+### W10B B0 implementation observation — 2026-10-13
+
+The Owner approved GEW-WP10-READONLY-INSTALL-PLAN-SCOPE-V1 and its exact40-path/327-command
+boundary. The closed planning records, twelve owned resources, physical target binding,
+operation-owned read-only envelope and public install-plan port are now implemented.
+The target-binding roots inventory includes every configured root, including refs
+omitted from the request. Isolation compares no-follow directory and ancestor identities,
+including the attested running tool/source root; case variants cannot establish disjointness.
+A observation serialization, lifetime checks and cleanup use sealed original methods.
+The public port and retained observations also validate the owned A input class, factory,
+property descriptors and document/currentness providers before consuming them.
+The A ReleasePolicy and eleven-resource order remain unchanged. Production recipes and
+target roots remain empty; stage/reopen/install-apply remain unavailable.
+
+Each of the fourteen new methods has a focused passing observation, including independent
+full-envelope/physical-target projections and cold installed commands. These observations
+are not canonical acceptance of one final staged tree. The implementation graph, final327
+capture and independent implementation/verification/Candidate decisions remain the
+authoritative completion evidence. No issuer, installation, native-platform, B/C or
+irreversible-action completion is implied. Accepted design snapshots and every rejected
+revision remain immutable in the detached records.

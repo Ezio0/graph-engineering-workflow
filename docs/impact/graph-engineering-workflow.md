@@ -2115,3 +2115,132 @@ W10-016/W10-026 selectors; require zero substituted calls, bounded independently
 checked diagnostics, privacy, empty stderr and unchanged inventories. Retain actual
 RED/GREEN and run six statics before fresh independent implementationr6 review.
 Only actual ADVANCE permits canonical313, verification and Candidate review.
+
+## WP-10 isolated staging impact — W10B, 2026-10-12
+
+### W10B-I1 Current authority and baseline
+
+[Spec W10B](../specs/graph-engineering-workflow.md#wp-10-isolated-staging-clarification--w10b-2026-10-12)
+refines the existing A/B/C architecture under the retained six-file documentation/
+review authority. Spec4 passed independent review and actual frozen reduction; no
+node budget was reset. A's accepted313-command tree is committed/pushed at
+`2a8ecbbabc069fd2897d1bec53bf29dfe9f44222`. Its evidence remains historical for that
+tree. This design does not recertify changed code or authorize implementation.
+
+### W10B-I2 Dependency steps and code ownership
+
+The first concrete future request is **B0 contracts and read-only planning only**.
+It can be implemented with private attested synthetic inputs while genuine binaries,
+installation authority issuance and native environments remain missing. B0 neither
+spawns an installer nor produces staged assets/receipts. Full B still requires actual
+stage, physical closure, twice-clean-install equality and all planned native cells.
+
+| Future producer / consumer | Exact prospective responsibility and boundary |
+|---|---|
+| new core/release_staging.py | closed StageRequest, existing-meaning InstallPlan, recipe/policies/target registry/StageContext/envelope/diagnostic projections; pure unique recipe selection, no paths or process logic in core |
+| new application/release_staging.py | factory-owned ReleaseInstaller planning lifetime, fresh A observation and target/context binding; stage/reopen unavailable in B0; no authority issuer or mutation |
+| new adapters/release_staging.py | owned12-resource acquisition, actual read-only platform/target/ancestor/absence observations, private context digest; no extraction/process creation/write API |
+| existing application/cli.py | install-plan bundle/manifest/request/operation parsing and read-only JSON; unsupported apply cannot issue authority or invoke an installer; A behavior retained |
+| initializer / build_backend / pyproject | register exact new source/resources through actual SOURCE/WHEEL ownership, retain A11 and historical resources and strict launcher/parser contract |
+| source_checkout_attestation / WP00 inventory | include newly necessary source/resource/test members before package verification, with genuine private fixture attestation |
+| four current bootstrap vectors | recompute only changed real protected inputs/closure digests/mirrors in migration/scenario-truth/release-operations/performance; preserve unaffected entries/order and historical vectors |
+| test support / five new modules | real private SOURCE/WHEEL origins, independent expected projections and physical refusal/read-only inventories; synthetic trust never enters production |
+
+The future exact inventory is derived in the [Plan](../plans/2026-08-13-graph-engineering-workflow.md).
+No migration, action ledger, clock, runtime adapter or locator source is a B0 target.
+scripts/verify_build.py is read-only validation of the unchanged strict wrapper, not
+a prospective write target; scripts/verify_supply_chain.py's A implementation is retained.
+No extra target may be added merely to repair a scope failure after implementation starts.
+
+### W10B-I3 Data, schema and packaging closure
+
+Add proposed StagePolicy, InstallerPolicy and StageTargetRegistry configuration;
+production recipes/roots remain empty. Register eight new closed schemas for
+stage-request/install-plan/stage-context/stage-plan-envelope/stage-policy/
+installer-policy/stage-target-registry/stage-diagnostic plus their distinct registry.
+These12 resource members are separate from A's11 release-admission resources.
+Do not widen existing A diagnostic/schema1.0.0 enums or reinterpret its policy_digest.
+
+StageContext additionally binds all policy/recipe digests and the registry plus
+physically reobserved target binding. InstallPlan.policy_digest remains ReleasePolicy;
+its nested deterministic record is not a capability. Root paths/OS identities live in
+configuration/private observations, not engine literals or public output. New-install
+absence/parent facts require fresh observation; unknown/upgraded prior tuples remain
+unavailable until C, not accepted from caller JSON. Planning must not create target,
+candidate/control/cache roots, initialize DB/clock facts or touch native Skill state.
+
+Future package updates must register new physical source bytes and their owned resource
+map before any source/wheel test. Recompute acyclic pyproject/bootstraps using actual
+changed inputs only; preserve source-build projection exclusions and existing wheel
+RECORD/strict-launcher rules. Historical dependency1.0/1.1 and WP07a/WP08a pins keep
+their historical meaning; no fake refresh of unchanged values. Build and verify current
+packages inside producing tasks, then freeze the final tree for exact serial evidence.
+
+### W10B-I4 Compatibility and retained protections
+
+No PRD/Intent, protocol/runtime support matrix, dependency version, DB schema/table,
+GraphRef or task action kind changes. Existing A APIs/CLI and strict no-cache launch
+acceptance remain. New plan APIs are not published installation/upgrade capability.
+No saved bool, plan/envelope JSON, fixture callback or receipt becomes consent.
+Owner/runtime issuer integration is a later mutating-B prerequisite, not a task-ledger
+shortcut. Local runtime HumanDecisionRequest is task-bound; do not repurpose its
+authorize_task or configured human_status as an installation grant.
+
+### W10B-I5 Risks, verification and later prerequisites
+
+| Risk | Evidence / mitigation before future acceptance |
+|---|---|
+| wrong or ambiguous installer recipe | exact unique match and signed argv-policy projection; independent policy/recipe substitutions after planning refuse |
+| environment config masquerades as trust | owned registry and actual no-follow observations; unconfigured roots/foreign ownership/unsupported prior tuple refuse; paths stay private |
+| package/source pin cycle or partial registration | verify each producing task's source/wheel closure; final327 proposed commands freeze all inputs before acceptance |
+| B0 mistaken for installation completion | zero installer calls/writes; honest unavailable stage/apply/reopen/native/C capabilities; full B obligations retain separate evidence |
+| future physical RECORD equality loses data | B1 must verify actual rows first, then normalize both hash and size only for declared templates; distinct prefix-length roots and raw bindings are mandatory |
+| repeated evidence overhead | retain actual313 timing observation; no frozen recorder edit or weakened snapshots/parallel product runs; do not rerun product tests during design |
+
+B0 uses source/wheel physical fixtures, not mocks of its own verifier. Future real B
+requires supplied exact interpreter/installer/argv, complete artifact/trust/security
+closure, measured finite ceilings, supported bootstrap formats and native environments.
+These are explicit unmet prerequisites, not reasons to block B0 documentation or its
+later separately approved synthetic/read-only implementation. B0 cannot close B-G2/G3/G4.
+
+C remains responsible for installation control contexts, quiescent migration, atomic
+active selection, crash recovery and monotone history. PMF-initialized export remains
+blocked; there is no DB-copy or omitted-table bypass. WP11, full274/P1, monitoring,
+real Owner installations/data and commit/push/merge/deploy/release remain excluded.
+
+### W10B-I6 Rollout and traceability
+
+No production rollout/rollback applies to design or B0's private read-only tests.
+Future producing code needs its own exact file/command authority, TDD and independent
+implementation/verification/Candidate review. A later commit/push also needs separate
+authority; historical approvals do not authorize new delivery actions.
+
+Trace to [PRD](../prd/graph-engineering-workflow.md),
+[ADR0015](../adr/0015-release-installation-and-upgrade.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md) and
+[Test Plan](../test-plans/graph-engineering-workflow.md).
+Current six-file design protects all1348 other tracked files. New source/schema/config/
+tests below this boundary are proposed inventory only, not current changes or PASS.
+
+### W10B B0 implementation observation — 2026-10-13
+
+The approved implementation adds three planning modules, eight schemas plus registry,
+three intentionally unconfigured production resources and the exact327 verification
+inventory. Existing CLI/launcher, source attestation, package mappings, four current
+bootstrap mirrors and packaging assertions were updated within the approved forty paths.
+All1337 protected tracked files, including dependency, resource/Policy, locator, storage
+and clock inputs, remain unchanged. No build/supply-chain verifier was edited.
+
+Focused SOURCE/WHEEL observations cover successful plans, altered resources/target state,
+missing prerequisites, fake/PID/thread/operation handles and cold command refusals. Actual
+fixture inventories include directories, environment, synthetic task DB/high-water clock,
+locator and Skill files; planning leaves them unchanged and execution counters stay zero.
+An observed trust-source exception escaping a retained-plan check was normalized to
+currentness with sticky invalidation. This is a routine contract repair inside B0.
+Final same-tree327 evidence and independent gates are pending at this source freeze.
+
+B0 provider-entry checks additionally bind the original owned-input class methods and
+plan-session construction/serialization/close methods before acquisition. Focused
+substitution probes observe zero replacement calls; fresh restored acquisition succeeds.
+When those trusted providers are unavailable, the existing finite trust-error diagnostic
+remains the fallback rather than calling a substituted provider to format a report.

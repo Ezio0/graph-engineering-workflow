@@ -1,0 +1,12 @@
+{
+  "installer_policy_digest": "sha256-jcs-v1:d0339b60fcef9b08921d4cf2cbd3d7c3102d6de4ba6e4b0a2845477a31931459",
+  "max_cleanup_entries": 64,
+  "max_failed_candidates": 2,
+  "max_output_bytes": 4096,
+  "max_process_seconds": 2,
+  "max_stage_bytes": 1048576,
+  "max_stage_files": 64,
+  "policy_digest": "sha256-jcs-v1:4b83bde44a24022fd66df7d7ceb0153c203dbd58cb914b1e29cb72fbba47e883",
+  "policy_id": "unconfigured-stage",
+  "schema_version": "1.0.0"
+}

@@ -48,6 +48,18 @@ def assert_direct_script_contract(test, configuration):
             rows=list(csv.reader(io.StringIO(archive.read("graph_engineering_workflow-0.1.0.dist-info/RECORD").decode())))
             test.assertIn([name,"sha256="+base64.urlsafe_b64encode(hashlib.sha256(body).digest()).rstrip(b"=").decode(),str(len(body))],rows)
             test.assertNotIn(b"graph-engineering =",archive.read("graph_engineering_workflow-0.1.0.dist-info/entry_points.txt"))
+            from tests.support.source_checkout_attestation import SOURCE_FILES
+            new_resources=[p for p in SOURCE_FILES if p.startswith('config/') and ('stage-' in p or 'staging-' in p or 'installer-policy' in p or '/install-plan-' in p)]
+            test.assertEqual(len(new_resources),12)
+            for relative in new_resources:
+                target=configuration['tool']['gew']['build']['owned-root-files'][relative]
+                actual=archive.read(target);test.assertEqual(actual,(ROOT/relative).read_bytes())
+                encoded="sha256="+base64.urlsafe_b64encode(hashlib.sha256(actual).digest()).rstrip(b"=").decode()
+                test.assertEqual(rows.count([target,encoded,str(len(actual))]),1)
+            for layer in ('core','application','adapters'):
+                target='graph_engineering/'+layer+'/release_staging.py'
+                test.assertEqual(archive.read(target),(ROOT/layer/'graph_engineering'/layer/'release_staging.py').read_bytes())
+
 
 
 class PackagingContractTests(unittest.TestCase):

@@ -2290,3 +2290,226 @@ W10-016/W10-026 selectors; require zero substituted calls, bounded independently
 checked diagnostics, privacy, empty stderr and unchanged inventories. Retain actual
 RED/GREEN and run six statics before fresh independent implementationr6 review.
 Only actual ADVANCE permits canonical313, verification and Candidate review.
+
+
+## WP-10 isolated staging plan — W10B, 2026-10-12
+
+### W10B-P1 Summary and entry
+
+The next separately approvable implementation is B0: closed installation contracts
+and an owned, strictly read-only `install-plan`. It is a dependency of full B, not
+its completion. [Spec W10B-S1–S12](../specs/graph-engineering-workflow.md), accepted
+Spec4 and Impact2 determine behavior; this Plan does not change PRD/Intent, issuer,
+installation, normalization or native acceptance. Original six-file documentation
+approval remains effective. Product code/tests/builds need a new exact B0 approval.
+A is committed/pushed at `2a8ecbbabc069fd2897d1bec53bf29dfe9f44222`; its307 selectors
+are regression inputs, not acceptance evidence for a future changed tree.
+
+Three dependency phases contain six XS/M tasks, approximately17 authoring hours
+excluding unmeasured test/review execution. Actual durations are unset until measured.
+Done means reviewed B0 behavior, all321 selectors and six statics on one frozen tree,
+zero open findings and independent Candidate evidence. It does not mean installed,
+staged, active, upgraded, full WP10 or whole-project completion.
+
+### W10B-P2 Phases and dependency graph
+
+| Phase | Goal / deliverables | Exit |
+|---|---|---|
+| B0-P0 entry | exact approval, current upstream hashes, closed40 inventory and registered task | no missing authority, protected bytes match, task B0-0 complete |
+| B0-P1 contracts and planning | eight closed schemas,12 owned resources, unique recipe and physical target context, read-only API | B0-1–B0-3 meaningful RED/focused GREEN; no writes or substituted provider calls |
+| B0-P2 packaging and evidence | installed CLI, source/wheel/pin closure, canonical327 and independent reviews | B0-4–B0-5 complete, every command PASS,321 executed/zero skipped, Candidate approved |
+
+DAG: B0-0 → B0-1 → B0-2 → B0-3 → B0-4 → B0-5. Root is sole writer and test runner;
+independent reviewers read only. No parallel product tests or shared file writers.
+All tasks use Kanban `TBD — register before approved implementation starts`.
+
+### W10B-P3 Tasks and acceptance
+
+**B0-0 — entry/freeze**, XS, owner `/root`, estimate0.5h, actual unset.
+Depends on separate Owner B0 implementation approval; blocks B0-1. Files: six current
+design/Manifest targets and the verification-boundary configuration in P4, plus detached
+records. Adopt the exact approved task/Envelope/argv; preserve original design history.
+
+- [x] Revalidate approval, accepted Spec/Impact/Plan/Test Plan, closed40 and327 inventory hashes.
+- [x] Freeze protected tracked files and register the six task IDs; no implementation before this gate.
+- [x] Record unstarted/actual-unset status rather than estimating completed runtime.
+
+**B0-1 — pure contracts**, M, owner `/root`, estimate4h, actual unset.
+Depends B0-0; blocks B0-2. Files: new core module, eight schemas/registry, unit tests,
+contract tests and synthetic fixture JSON. Implement Spec's closed request, unchanged
+InstallPlan projection, StageContext/StagePlanEnvelope, policies, target registry and
+bounded stage diagnostic. Do not implement InstalledReleaseManifest, InstallationBinding,
+StageReceipt, normalizer, issuer or producing stage in B0.
+
+- [x] U1–U6/C1 test valid domain projections, exact fields/types/order/bounds and tamper rejection.
+- [x] Recipe selection compares every specified platform/artifact/version field, rejects zero/multiple matches before digest checks and binds signed argv policy.
+- [x] A ReleasePolicy remains nested InstallPlan.policy_digest; stage/installer/recipe/target inputs use explicit StageContext digests.
+- [x] Record behavioral RED after importable public stubs; missing import/attribute alone is not qualifying RED.
+
+**B0-2 — owned resource acquisition**, M, owner `/root`, estimate4h, actual unset.
+Depends B0-1; blocks B0-3. Files: initializer/backend/pyproject, three stage configs,
+source attestation helper, WP00 target inventory, four current bootstrap files,
+new adapters module, new fixture helper and contract tests; packaging method extensions
+remain within the existing packaging test file. Acquire12 B0 resources through the same
+physically verified SOURCE/WHEEL origin. Keep A's existing11-resource tuple unchanged.
+
+- [x] C2/C3 admit genuine freshly attested private SOURCE/WHEEL fixtures and reject origin/resource/currentness substitutions without invoking them.
+- [x] Production recipes/target roots are empty and missing prerequisites refuse; no caller resource map, environment or repository fallback establishes ownership.
+- [x] Add all new sources/resources to wheel/attestation/package inventories and refresh only affected allowed current mirrors before packaged tests.
+- [x] Preserve historical dependency1.0/1.1 and WP07a/WP08a evidence bytes; no dependency resolution or version update.
+
+**B0-3 — read-only planning**, M, owner `/root`, estimate4h, actual unset.
+Depends B0-2; blocks B0-4. Files: new application/adapters modules, integration/security
+tests and fixture support. Compose genuine A bundle admission, exact unique recipe,
+configured target resolution and physical no-follow context into an operation-owned
+StagePlanEnvelope. Requested refs are resolved from configured registry, never paths
+or current directory/home. Record actual ancestors and absence under verified existing
+parents according to Spec; do not require unrelated system ancestors to be owned by
+this installation or invent private-root locations/UIDs in engine logic.
+
+- [x] I1 observes actual compatible physical fixture inputs and absent install target; plan succeeds with complete zero-write inventories.
+- [ ] I2 rejects altered bundle/policy/recipe/registry/root/parent/absence/provider/clock context before use and on retained use; restoration needs fresh admission.
+- [x] S1 rejects unknown/duplicate/over-budget/caller-supplied paths or seals, symlink/mode/owner and copied/PID/thread/operation handle misuse; substituted calls remain zero.
+- [x] `stage`/`reopen_staged` remain sanitized unavailable with zero effects; unsupported upgrade has no fabricated prior registered tuple.
+
+**B0-4 — CLI and package coherence**, M, owner `/root`, estimate4h, actual unset.
+Depends B0-3; blocks B0-5. Files: existing CLI, new wheel/integration tests, packaging
+test extensions and any still-unrefreshed allowed current mirrors. Add the exact
+Spec install-plan arguments; CLI operation must equal request operation. Print the
+closed envelope only on successful read-only planning. `install-apply` reports honest
+unavailability; it cannot issue authority, execute artifacts or create candidates.
+
+- [x] I3 tests missing/ambiguous recipes, missing target config, unavailable upgrade/apply/stage/reopen and bounded privacy-safe refusal.
+- [x] W1 invokes the actual cold installed packaged script without test-supplied cache masks; success and refusal leave all observed files/directories unchanged.
+- [ ] Existing check/Doctor launcher behavior, schema/resource order, source/RECORD/mode and all affected bootstrap closures retain their current contract.
+- [x] No modified build/supply-chain verifier, skipped test, permissive parser or manual seal makes the package pass.
+
+**B0-5 — final evidence**, XS, owner `/root`, estimate0.5h authoring plus unmeasured
+execution/review time, actual unset. Depends B0-4; blocks separate commit authority.
+Files: current Manifest/verification boundary and six documentation targets only where
+necessary for accurate implemented status; detached immutable evidence/checkpoints.
+
+- [ ] Freeze exact approved changed targets and command inputs; run321 selectors then six statics, strict serial fail-fast, native290/canonical300.
+- [ ] Every selector collects/executes1, skips0; retain failures and RED/focused observations separately from final canonical evidence.
+- [ ] Independent implementation/verification/Candidate reviews and actual reducer results converge within configured budget4; non-convergence escalates without reset.
+- [ ] Request commit only after concrete reviewed Candidate; push/merge/deploy/release remain separately authorized.
+
+### W10B-P4 Exact prospective files and dependencies
+
+The immutable preparation inventory is
+[wp10-b0-prospective-targets-r0.json](../../.workflow/delivery/GEW-REMAINING54-V1/detached/wp10-b0-prospective-targets-r0.json):
+40 unique exact paths,17 existing and23 new. Its observed hashes are preparation data;
+freeze final implementation entry inputs after design completion and Owner approval.
+The following groups expand to that exact inventory; no glob grants extra targets.
+
+| Group | Exact paths (shared prefix expanded where stated) |
+|---|---|
+| existing design6 | `.workflow/manifest.json`; `docs/specs/graph-engineering-workflow.md`; `docs/impact/graph-engineering-workflow.md`; `docs/plans/2026-08-13-graph-engineering-workflow.md`; `docs/test-plans/graph-engineering-workflow.md`; `docs/adr/0015-release-installation-and-upgrade.md` |
+| new modules3 | `core/graph_engineering/core/release_staging.py`; `application/graph_engineering/application/release_staging.py`; `adapters/graph_engineering/adapters/release_staging.py` |
+| existing runtime/package4 | `application/graph_engineering/application/cli.py`; `core/graph_engineering/__init__.py`; `pyproject.toml`; `scripts/build_backend.py` |
+| verification2 | existing `config/verification/wp-00-targets.json`; new `config/verification/wp10-release-planning-boundary-v1.json` |
+| existing bootstrap4 | `config/migration/migration-rehearsal-installation-bootstrap-v1.json`; `config/profiles/scenario-truth-installation-bootstrap-v1.json`; `config/release-operations/release-operations-installation-bootstrap-v1.json`; `config/performance/performance-benchmark-installation-bootstrap-v1.json` |
+| new policies/targets3 | `config/release-installation/stage-policy-v1.json`; `config/release-installation/installer-policy-v1.json`; `config/release-installation/stage-target-registry-v1.json` |
+| new schema registry1 | `config/contracts/release-staging-schema-registry-v1.json` |
+| new schemas8, prefix `config/contracts/schemas/` | `stage-request-1.0.0.json`; `install-plan-1.0.0.json`; `stage-context-1.0.0.json`; `stage-plan-envelope-1.0.0.json`; `stage-policy-1.0.0.json`; `installer-policy-1.0.0.json`; `stage-target-registry-1.0.0.json`; `stage-diagnostic-1.0.0.json` |
+| support/fixture3 | existing `tests/support/source_checkout_attestation.py`; new `tests/support/release_staging.py`; new `tests/fixtures/release-staging-v1.json` |
+| new tests5 | `tests/unit/test_release_staging.py`; `tests/contract/test_release_staging.py`; `tests/integration/test_release_staging.py`; `tests/security/test_release_staging.py`; `tests/integration/test_release_staging_wheel.py` |
+| existing packaging1 | `tests/unit/test_wp00_packaging.py` |
+
+`scripts/verify_build.py` and `scripts/verify_supply_chain.py` are unchanged checks,
+not write targets. Existing A modules/resources/tests remain protected except the
+listed shared attestation/packaging files. `uv.lock` is not a target. Existing41 A
+approval does not authorize40 B0 paths. Any newly necessary target must be resolved
+and explicitly approved before writing it, never absorbed by a directory-wide scope.
+
+| Dependency type | Status | Resolution / boundary |
+|---|---|---|
+| internal A admission, strict launcher and accepted Spec4/Impact2 | available; downstream Plan/Test Plan review pending | verify exact immutable hashes before B0 entry; changed upstream invalidates descendants |
+| infrastructure runner/backend/frozen workflow | available for bounded SOURCE/WHEEL verification after approval | actual commands/environment evidence, serial execution; no frozen-recorder edits |
+| external genuine interpreter/installer/native cells | missing, not needed for B0 fixture behavior | production stays refused; required before genuine B/native acceptance, no downloads or binary substitutes |
+| authority issuer / C prior registered tuple and publication | unresolved later mutating work | no B0 grants or upgrade success; close concrete ports/formats/refusal oracles under separate scope |
+
+### W10B-P5 Development risks
+
+| Risk / when | Likelihood / impact | Concrete mitigation |
+|---|---|---|
+| resource additions break bootstrap closure during B0-2/4 | medium / high | enumerate12 new resources, update physical package/source/pin closure before tests, retain all307 regressions |
+| fixture shortcuts hide origin/target trust failure during B0-2/3 | medium / high | unchanged engine bytes, fresh private attestation/real no-follow observations, exact SOURCE/WHEEL replacement/zero-call oracles |
+| B0 interpreted as full B delivery at exit | medium / high | explicit unavailable capabilities and no staged receipt, separate native/issuer/C prerequisites in all completion records |
+| canonical recording overhead obscures timeout diagnosis during B0-5 | observed in A / schedule | retain command vs recorder wall times, honest unmeasured estimate; no parallel tests, raised ceilings or frozen-recorder changes |
+
+A's313 capture took10420.84s wall time with2039.42s summed command time. This supports
+a recording-overhead risk, not a B0 duration prediction or permission to alter checks.
+
+### W10B-P6 Delivery and recovery
+
+B0 has no production rollout/canary/activation percentage: only a private verified
+Candidate is produced after separate implementation approval. Missing resources
+refuse deterministically. A failed test, unexpected write or mismatched resource pin
+stops progression; preserve immutable evidence and revise only authorized targets.
+No user installation or old asset changes exist to roll back in B0; correcting the
+uncommitted working tree and repeating only invalidated required checks is the recovery
+mechanism. Recovery runtime is unmeasured. Commit/push/merge/deploy/release each needs
+its own applicable explicit authority.
+
+### W10B-P7 Verification strategy
+
+[Test Plan W10B](../test-plans/graph-engineering-workflow.md) defines CUJs and14 new
+behavioral methods. Its immutable proposed argv inventory contains14 new+307 retained
+selectors and six statics,327 commands. Existing retained methods were resolved once
+via AST without imports/execution; new methods are prospective. Packaging is tested
+through actual private SOURCE/WHEEL origins and the installed script, not just pure
+unit outputs. Final evidence must bind one frozen new tree; old A PASS cannot certify it.
+No numeric coverage percent, 5–10 E2E quota or fixed per-layer timing from a generic
+checklist overrides this risk-based boundary. Only native290/canonical300 command
+limits apply; collect1/execute1/skip0 and100% of the listed B0 CUJs are mandatory.
+
+### W10B-P8 Open decisions and deadlines
+
+| Decision / input | Deadline | Effect / resolution |
+|---|---|---|
+| Owner exact40-path/327-command B0 implementation approval | before B0-0 starts | separate concrete request after all design reviews; no product execution under current design authority |
+| concrete trusted issuance ports and full producing B inventory | before mutating B implementation request | scope/security/architecture decision if needed; no invented task grant |
+| real binaries, production ceilings, native environments | before genuine B/native acceptance | supplied verified bytes/config; no fixture certification or downloads |
+| C prior tuple/coordinator/publication/recovery formats | before upgrade-success/C implementation request | separate reviewed scope; unsupported B0 upgrade refuses |
+
+There is no unresolved product-intent question for this bounded B0 dependency step.
+Missing later inputs do not block authorized six-file design preparation.
+
+### W10B-P9 References and applicability
+
+[Positioning](../positioning/graph-engineering-workflow.md),
+[PRD/Intent](../prd/graph-engineering-workflow.md),
+[Spec W10B](../specs/graph-engineering-workflow.md),
+[Impact W10B](../impact/graph-engineering-workflow.md),
+[ADR0015](../adr/0015-release-installation-and-upgrade.md),
+[Test Plan](../test-plans/graph-engineering-workflow.md).
+This appended bounded plan is active for B0; older A task/request counts and in-progress
+failure sections are retained history superseded by its verified commit/push records.
+Checklist phase count follows actual dependencies; deployment percent/recovery SLA and
+native fixture substitution are inapplicable. Exact tasks/files, explicit DAG, behavior
+oracles and unchanged scope let another agent execute after actual approval without
+choosing targets or weakening any gate. Independent PASS and actual reducer, not these
+checkboxes, determine acceptance of this Plan.
+
+### W10B-P10 History
+
+2026-10-12 revision1: derive exact40-path B0 dependency, six XS/M tasks,14 new methods
+plus307 retained and six statics; preserve full B/C/native acceptance and original
+six-file documentation authority. No B0 code/test/build or actual task duration claimed.
+
+### W10B B0 implementation checkpoint — 2026-10-13
+
+The exact B0 request was approved; entry rehashed the design chain and froze1337 protected
+tracked files. B0-0 through B0-4 have implementation and focused observations as checked
+above. Any remaining A/clock and final-evidence checkboxes require the same-tree327 run.
+Per-task authoring durations remain unmeasured; recorded command durations are actual
+observations and do not retroactively replace those estimates.
+
+B0-5 remains in progress. The coordinator is the sole writer and serial test runner.
+Independent reviewers are read-only; their unchanged verdicts and the frozen reducer
+control progression. Stage only the approved changed targets after implementation ADVANCE.
+Canonical capture keeps native290/canonical300 and budget4 unchanged, then proceeds to
+verification and Candidate review. Commit and push each require separate authority.
+Detached wp10-b0-implementation-checkpoint.json and its bound immutable records retain
+the live status; this paragraph is a pre-capture observation, not a completion claim.

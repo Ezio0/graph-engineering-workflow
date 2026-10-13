@@ -1560,7 +1560,7 @@ def _direct_script_files() -> list[tuple[str, bytes]]:
     # remain available even when the installed product cannot be imported.
     source = """#!python
 import sys
-_readonly = len(sys.argv) > 1 and sys.argv[1] in ('release-check', 'doctor')
+_readonly = len(sys.argv) > 1 and sys.argv[1] in ('release-check', 'doctor', 'install-plan', 'install-apply')
 if _readonly:
     sys.dont_write_bytecode = True
 try:
@@ -1573,22 +1573,33 @@ except Exception:
         raise
     import hashlib
     import json
-    _phase = 'check' if sys.argv[1] == 'release-check' else 'doctor'
-    _body = {'schema_version':'1.0.0','request_id':'release-'+_phase,
-        'status':'rejected' if _phase=='check' else 'blocked','phase':_phase,
-        'code':'trust_rejected','checks':[],'refs':[],
-        'capabilities':{'release-check':'available','doctor':'available',
-            'install':'unavailable','upgrade':'unavailable','release':'unavailable'},
-        'next_route':'inspect-inputs'}
+    _staging = sys.argv[1] in ('install-plan', 'install-apply')
+    _phase = ('plan' if sys.argv[1]=='install-plan' else 'stage') if _staging else ('check' if sys.argv[1]=='release-check' else 'doctor')
+    if _staging:
+        _body = {'schema_version':'1.0.0','request_id':'stage-'+_phase,
+            'status':'rejected','phase':_phase,'code':'trust_rejected','checks':[],'refs':[],
+            'capabilities':{'install-plan':'available','install-apply':'unavailable','stage':'unavailable','reopen-staged':'unavailable','release':'unavailable'},
+            'next_route':'inspect-inputs'}
+        _contract = 'urn:gew:contract:release-stage-diagnostic-v1'
+        _projection = 'urn:gew:digest-projection:release-stage-diagnostic-v1:1.0.0'
+        _schema = 'urn:gew:schema:stage-diagnostic:1.0.0'
+    else:
+        _body = {'schema_version':'1.0.0','request_id':'release-'+_phase,
+            'status':'rejected' if _phase=='check' else 'blocked','phase':_phase,
+            'code':'trust_rejected','checks':[],'refs':[],
+            'capabilities':{'release-check':'available','doctor':'available',
+                'install':'unavailable','upgrade':'unavailable','release':'unavailable'},
+            'next_route':'inspect-inputs'}
+        _contract = 'urn:gew:contract:release-install-diagnostic'
+        _projection = 'urn:gew:digest-projection:release-install-diagnostic:1.0.0'
+        _schema = 'urn:gew:schema:release-install-diagnostic:1.0.0'
     _envelope = {'algorithm':'sha-256','body':_body,
         'canonicalizer':'urn:gew:canonicalizer:jcs-input:1.0.0',
-        'contract_type':'urn:gew:contract:release-install-diagnostic',
-        'digest_domain':'urn:gew:digest:semantic:1.0.0',
-        'projection_id':'urn:gew:digest-projection:release-install-diagnostic:1.0.0',
-        'schema_id':'urn:gew:schema:release-install-diagnostic:1.0.0'}
+        'contract_type':_contract,'digest_domain':'urn:gew:digest:semantic:1.0.0',
+        'projection_id':_projection,'schema_id':_schema}
     _raw = json.dumps(_envelope,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()
     _body['diagnostic_digest'] = 'sha256-jcs-v1:'+hashlib.sha256(_raw).hexdigest()
-    _exit = 4 if _phase=='check' else 3
+    _exit = 4 if _staging or _phase=='check' else 3
     try:
         print(json.dumps(_body,sort_keys=True,separators=(',',':')))
         sys.stdout.flush()

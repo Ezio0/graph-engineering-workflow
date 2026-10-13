@@ -184,3 +184,36 @@ W10-016/W10-026 selectors; require zero substituted calls, bounded independently
 checked diagnostics, privacy, empty stderr and unchanged inventories. Retain actual
 RED/GREEN and run six statics before fresh independent implementationr6 review.
 Only actual ADVANCE permits canonical313, verification and Candidate review.
+
+### W10-B1 Retained design authority and isolated staging precision
+
+Slice A completed, independently verified, committed and pushed at
+`2a8ecbbabc069fd2897d1bec53bf29dfe9f44222`. Its313 evidence records and immutable
+Receipt remain authoritative for that tree. Historical in-progress statements above
+do not describe current A status; they preserve the original decisions and gates.
+
+The original six-file WP10 design approval remains valid for routine B clarification,
+traceability and testability. Reuse its task, graph, Policy and four-cycle node budget;
+retain Spec0/Impact0–1/Plan0/TestPlan0 and review changed bytes at their next revisions.
+No new approval or broader routine-change vocabulary is manufactured from task rollover.
+
+[Spec W10B](../specs/graph-engineering-workflow.md#wp-10-isolated-staging-clarification--w10b-2026-10-12)
+clarifies already accepted private versioned staging, exact plan authority, physical
+post-install verification and normalized manifest versus mandatory local binding.
+Installer recipes are installation-owned bounded data, with empty production recipes
+until exact supported binaries/argv/offline evidence are supplied and approved.
+Stage receipts select no active tuple. C retains repository coordination/publication;
+actual Owner/runtime issuer integration must be closed before an implementation request.
+New authentication or other material choices retain their Owner gate. No product code,
+actual installation, production trust, PMF export, native certification or irreversible
+authority follows from this design clarification.
+
+### B0 implementation observation — 2026-10-13
+
+The approved B0 increment implements only closed contracts and owned read-only planning
+through the existing source/wheel trust boundary. No new issuer, authentication mechanism,
+installer execution, installed normalizer, staged receipt or C publication was introduced.
+Production recipes/roots remain empty. Focused observations are retained; same-tree327
+evidence and independent graph/Candidate gates determine final B0 acceptance. Full B and
+three-platform native acceptance remain separate prerequisites, with no ADR decision
+changed by this implementation status note.

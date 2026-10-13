@@ -1,0 +1,33 @@
+{
+  "generated_files": [],
+  "installation_id": "synthetic-install",
+  "recipe_id": "synthetic-offline",
+  "request_id": "plan-test",
+  "schema_version": "1.0.0",
+  "stage_limits": {
+    "max_cleanup_entries": 64,
+    "max_failed_candidates": 2,
+    "max_output_bytes": 4096,
+    "max_process_seconds": 2,
+    "max_stage_bytes": 1048576,
+    "max_stage_files": 64
+  },
+  "steps": [
+    {
+      "argv": [
+        "--offline",
+        {
+          "ref": "wheelhouse"
+        }
+      ],
+      "cwd_ref": "candidate-root",
+      "environment": [],
+      "executable_ref": "installer",
+      "step_id": "install"
+    }
+  ],
+  "target_refs": [
+    "candidate",
+    "installation"
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "$id": "urn:gew:schema:stage-request:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "installation_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "operation": {
+      "enum": [
+        "install",
+        "upgrade"
+      ]
+    },
+    "preserve_data": {
+      "const": true
+    },
+    "prior_tuple_digest": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+          "type": "string"
+        }
+      ]
+    },
+    "release_manifest_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "request_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "target_refs": {
+      "items": {
+        "maxLength": 128,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 65536,
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "operation",
+    "installation_id",
+    "release_manifest_digest",
+    "prior_tuple_digest",
+    "target_refs",
+    "preserve_data"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

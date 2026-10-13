@@ -1,0 +1,27 @@
+{
+  "$id": "urn:gew:schema:stage-plan-envelope:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "envelope_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "plan": {
+      "$ref": "urn:gew:schema:install-plan:1.0.0"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "stage_context": {
+      "$ref": "urn:gew:schema:stage-context:1.0.0"
+    }
+  },
+  "required": [
+    "schema_version",
+    "plan",
+    "stage_context",
+    "envelope_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

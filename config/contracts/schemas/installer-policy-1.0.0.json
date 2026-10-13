@@ -1,0 +1,238 @@
+{
+  "$id": "urn:gew:schema:installer-policy:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "policy_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "policy_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "recipes": {
+      "items": {
+        "properties": {
+          "generated_files": {
+            "items": {
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "launcher",
+                    "script",
+                    "RECORD"
+                  ]
+                },
+                "logical_path": {
+                  "maxLength": 1024,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "template_digest": {
+                  "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "logical_path",
+                "kind",
+                "template_digest"
+              ],
+              "type": "object",
+              "unevaluatedProperties": false
+            },
+            "maxItems": 65536,
+            "type": "array"
+          },
+          "installer_artifact_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "installer_version": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "interpreter_artifact_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "interpreter_version": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "platform": {
+            "properties": {
+              "architecture": {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              "os": {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              "python_abi": {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "os",
+              "architecture",
+              "python_abi"
+            ],
+            "type": "object",
+            "unevaluatedProperties": false
+          },
+          "recipe_digest": {
+            "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "recipe_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "steps": {
+            "items": {
+              "properties": {
+                "argv": {
+                  "items": {
+                    "anyOf": [
+                      {
+                        "maxLength": 512,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      {
+                        "properties": {
+                          "ref": {
+                            "enum": [
+                              "interpreter",
+                              "tool",
+                              "wheelhouse"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "ref"
+                        ],
+                        "type": "object",
+                        "unevaluatedProperties": false
+                      }
+                    ]
+                  },
+                  "maxItems": 65536,
+                  "type": "array"
+                },
+                "cwd_ref": {
+                  "const": "candidate-root"
+                },
+                "environment": {
+                  "items": {
+                    "properties": {
+                      "name": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "value": {
+                        "anyOf": [
+                          {
+                            "maxLength": 512,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          {
+                            "properties": {
+                              "ref": {
+                                "enum": [
+                                  "interpreter",
+                                  "tool",
+                                  "wheelhouse"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "ref"
+                            ],
+                            "type": "object",
+                            "unevaluatedProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "value"
+                    ],
+                    "type": "object",
+                    "unevaluatedProperties": false
+                  },
+                  "maxItems": 65536,
+                  "type": "array"
+                },
+                "executable_ref": {
+                  "enum": [
+                    "interpreter",
+                    "installer"
+                  ]
+                },
+                "step_id": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "step_id",
+                "executable_ref",
+                "argv",
+                "cwd_ref",
+                "environment"
+              ],
+              "type": "object",
+              "unevaluatedProperties": false
+            },
+            "maxItems": 65536,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "recipe_id",
+          "platform",
+          "interpreter_artifact_id",
+          "installer_artifact_id",
+          "interpreter_version",
+          "installer_version",
+          "steps",
+          "generated_files",
+          "recipe_digest"
+        ],
+        "type": "object",
+        "unevaluatedProperties": false
+      },
+      "maxItems": 65536,
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    }
+  },
+  "required": [
+    "schema_version",
+    "policy_id",
+    "recipes",
+    "policy_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}
