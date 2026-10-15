@@ -59,6 +59,15 @@ def assert_direct_script_contract(test, configuration):
             for layer in ('core','application','adapters'):
                 target='graph_engineering/'+layer+'/release_staging.py'
                 test.assertEqual(archive.read(target),(ROOT/layer/'graph_engineering'/layer/'release_staging.py').read_bytes())
+                target='graph_engineering/'+layer+'/installation_authority.py'
+                test.assertEqual(archive.read(target),(ROOT/layer/'graph_engineering'/layer/'installation_authority.py').read_bytes())
+            approval_resources=[p for p in SOURCE_FILES if p.startswith('config/') and 'installation-approval-' in p]
+            test.assertEqual(len(approval_resources),5)
+            for relative in approval_resources:
+                target=configuration['tool']['gew']['build']['owned-root-files'][relative];body=archive.read(target)
+                test.assertEqual(body,(ROOT/relative).read_bytes())
+                encoded='sha256='+base64.urlsafe_b64encode(hashlib.sha256(body).digest()).rstrip(b'=').decode()
+                test.assertEqual(rows.count([target,encoded,str(len(body))]),1)
 
 
 

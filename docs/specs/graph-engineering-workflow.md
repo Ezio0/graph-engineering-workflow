@@ -5631,3 +5631,283 @@ capture and independent implementation/verification/Candidate decisions remain t
 authoritative completion evidence. No issuer, installation, native-platform, B/C or
 irreversible-action completion is implied. Accepted design snapshots and every rejected
 revision remain immutable in the detached records.
+
+## WP-10 local installation authority design — W10H, 2026-10-13
+
+### W10H-S1 Overview
+
+The Owner approved `wp10-b1-authority-design-request-r0.json` and its digest-bound
+proposal in this chat. New task `GEW-WP10-INSTALLATION-AUTHORITY-DESIGN-V1` designs
+the direct local foreground-terminal installation authority boundary in the same
+six files. This is an explicit material choice, with an independent four-cycle
+design budget, not a reset of completed installation-design Spec4. PRD/Intent v2
+and the A/B/C split are unchanged. B0 completed327 canonical checks and was committed
+and pushed as `83cbbf459cf23be32fb17f390f8a5af18347310b`; earlier in-progress notes
+above are retained history. Neither this approval nor B0 authorizes implementation.
+
+The next proposed dependency increment, **H0**, provides the real local authority
+producer and internal one-use consumer, while stage/reopen/public install-apply
+remain unavailable. H0 is not full B1 or a completed installation journey.
+
+### W10H-S2 Goals
+
+Trace [Positioning](../positioning/graph-engineering-workflow.md) and
+[PRD](../prd/graph-engineering-workflow.md) FR-01/16, NFR-01/06/08 and Owner installation
+journeys. H-G1: every issued grant binds one fresh owned plan and one direct terminal
+decision. H-G2: every absent/foreign/stale/expired/replayed grant causes zero target
+writes and zero substituted-provider calls. H-G3: each grant is consumed at most once
+in its owning PID/thread/operation, with no JSON/copy/restart reconstruction.
+H-G4: configured input, old installation/repository/locator/Skill/task/clock bytes
+remain unchanged; only bounded terminal output occurs. Actual terminal-source and
+installed-wheel positive/refusal evidence is required in future H0 implementation.
+
+### W10H-S3 Non-goals and retained requirements
+
+Retain PRD non-goals and W10B-S3. This task does not implement authority, issue a
+grant, access a terminal, run product tests or install software. H0 later implements
+only the authority dependency: no installer/extraction/normalizer/StageReceipt,
+candidate creation, migration or active publication. Existing three native cells
+and authenticated same-Owner runtime installation remain requirements, deferred
+until supplied native evidence and a concrete trusted host port respectively.
+No task/action ledger, account, credential service, daemon, network or dependency
+is introduced. Real Owner installations/data, PMF export and irreversible actions
+remain separately gated. A terminal decision never grants C or production release.
+
+### W10H-S4 Executable architecture and trust edges
+
+```mermaid
+flowchart LR
+  P[Owned installation-plan control] --> I[Owner and terminal admission control]
+  I --> D[Exact-plan display control]
+  D --> H[Direct Owner decision node]
+  H --> R[Fresh binding revalidation control]
+  R --> G[Opaque grant issue control]
+  G --> U[One-use consumption control]
+  U --> S[Future isolated-stage loop]
+  I --> F[Bounded refusal control]
+  R --> F
+```
+
+All nodes run synchronously in the invoked process. Core owns closed policy,
+challenge and diagnostic validation/digests; no filesystem, terminal, time or
+identity calls. Application owns plan/grant/permit lifetimes and sequencing.
+Adapter owns installation-attested policy/schema inputs, terminal descriptors,
+OS/process facts, monotonic deadlines and bounded I/O. No durable state or worker
+service is added. The future stage consumer is unavailable in H0.
+
+| Edge | Typed input/output and route | Trust/currentness/invalidation |
+|---|---|---|
+| Plan → admission | actual owned StagePlanEnvelope → private approval context | same live ReleaseInstaller operation; recheck all B0 resources, A inputs, physical targets and provider bindings |
+| Admission → display | private context + configured Owner UID + terminal → closed challenge | real/effective UID equality; no caller identity/config/descriptor; unsupported terminal/platform refuses |
+| Display → Owner | exact bounded summary + fresh challenge → one response | same foreground controlling-terminal descriptor; no stdin/environment/approval callback or automatic retry |
+| Owner → revalidation | exact response → pending approved decision | full summary written first, exact nonce and response grammar; EOF/timeout/other input closes session |
+| Revalidation → grant | unchanged live context/terminal/policy → InstallationAuthority | after-wait and pre-issue currentness, deadline and provider checks; mismatch permanently invalidates session |
+| Grant → consumption | same envelope/issuer operation + current grant → private StagePermit | atomically mark consumed before transfer, at most once; keep descriptor/currentness until permit closes |
+| Permit → future stage | private permit + same live operation → first candidate mutation | future stage must recheck immediately before mutation and at later write/process boundaries; H0 never enters it |
+
+### W10H-S5 Closed data, state and identity
+
+New resources are separately owned, not additions/reinterpretations of A's11 or
+B0's12 ordered inputs. `installation-approval-policy-v1.json` has exactly
+`schema_version`, `policy_id`, `max_prompt_bytes`, `max_input_bytes`,
+`max_wait_seconds`, `max_grant_seconds`, `policy_digest`. Schema1.0.0, positive
+non-boolean finite integers, domain-separated self digest and charged profile
+limits are mandatory. Checked-in defaults8192/80/120/30 respectively are bounded
+local-interaction limits, not installer/native throughput claims. Private fixtures
+use8192/80/15/15, with fresh attested bytes. Missing or changed policy refuses.
+
+`InstallationApprovalChallenge` fields: `schema_version`, `request_id`,
+`installation_id`, `operation`, `plan_digest`, `context_digest`, `envelope_digest`,
+`policy_digest`, `owner_id`, `invocation_nonce`, `display_digest`, `challenge_digest`.
+Only `operation=install` is supported in H0. Owner ID is the canonical decimal UID
+already present in the installation-owned stage-target registry; every configured
+root must agree with this UID, `getuid()` and `geteuid()`. No username lookup,
+ambient Owner mapping, caller UID, sudo fallback or invented task is accepted.
+Nonce is32 lowercase hex characters from16 fresh cryptographic random bytes.
+An unpredictable nonce binds a fresh local decision; it is not a credential or
+proof of a different human. Challenge fields/digests alone confer no authority.
+
+The display body is deterministic UTF-8, in fixed field order: operation,
+installation/request IDs, release manifest/closure/platform/ReleasePolicy digests,
+plan/context/envelope/approval-policy digests, preserve-data=true, Owner UID, and
+each requested configured target's ref/role/actual absolute path sorted by ref.
+Paths are JSON-quoted to escape control/escape characters; no bundle-provided
+free text or terminal control sequence is emitted. State clearly that staging,
+activation and release have not happened. `display_digest` hashes those exact
+body bytes under a separate display domain. Append the nonce challenge and
+`Type APPROVE <nonce> followed by Enter; any other response rejects.` The total
+encoded body and prompt must fit max_prompt_bytes before any output.
+
+Approval response is exactly ASCII `APPROVE ` + that nonce + LF. Permit the
+terminal's configured canonical CR→LF translation, not application whitespace,
+case, Unicode, truncation or prefix normalization. Read no more than
+max_input_bytes+1 to detect overflow; reject extra lines/pending bytes. No input
+is read before the entire prompt is written. The nonce is generated only after
+admission; stale already-readable input before prompt output causes refusal.
+
+`InstallationAuthority` and private `StagePermit` are factory-owned weakly tracked
+process-local objects, not dataclasses or deserializable records. Private binding
+includes original owner/operation/envelope identities, all three plan digests,
+challenge/policy/display digests, PID/thread, OS UID/session/process group, retained
+terminal descriptor facts, original sealed providers and monotonic deadlines.
+States: admitted → displayed → decision → issued → consumed → closed; rejection,
+expiry/currentness/provider error or interruption goes permanently to closed.
+One active grant/permit per installer. A new explicit authorization closes an
+older unconsumed grant; a live consumed permit blocks reauthorization. Closing
+or operation rotation revokes descendants. A failed stage never refunds a grant.
+
+No files, DB, journal, cache or saved consent are created. Diagnostic schema has
+exact fields `schema_version`, `request_id`, `phase`, `status`, `code`, `refs`,
+`capabilities`, `next_route`, `diagnostic_digest`; phase is authorization. Status
+approved/rejected/blocked, ordered opaque refs, separate digest projection, bounded
+output and recursive unknown-field refusal. New code `authority_issued` means only
+a live local grant; other codes use W10-S7 semantics. Capabilities explicitly keep
+install-apply/stage/reopen-staged/release unavailable in H0. No raw path/UID/nonce,
+response or terminal content is included in the diagnostic. Private deadlines and
+descriptor facts never enter portable JSON or the durable graph clock.
+
+### W10H-S6 Library and terminal entry
+
+Library `ReleaseInstaller.authorize_local(envelope: StagePlanEnvelope)` returns an
+owned `InstallationAuthority` or the closed authorization diagnostic. It accepts
+no authority callback, UID, policy, descriptor, clock or response argument. This
+is an explicit direct-local invocation; there is no runtime-to-local automatic
+fallback. The adapter constructs the real terminal session and obtains the actual
+decision itself. `InstallationAuthority.require_current()` validates without
+consuming; `.diagnostic()` returns only the sanitized record; `.close()` revokes.
+Copy/deepcopy/pickle/from_dict/constructor reconstruction is refused.
+
+The application's sealed internal `_consume_for_stage(envelope, authority)` returns
+the owned private StagePermit only for the same ReleaseInstaller instance/operation.
+It checks currentness, marks the grant consumed and transfers session ownership in
+one synchronous step without callbacks. A second call refuses. Permit currentness
+and close are internal; it is never a public execution token or arbitrary callable
+gate. H0 tests this genuine consumer but does not connect it to target mutation.
+
+Public `install-plan` retains its existing syntax/read-only result. Public
+`install-apply`, stage and reopen remain unavailable and refuse before prompting;
+no new command serializes an otherwise unusable grant. A later producing B slice
+must integrate this exact local producer/consumer into install-apply after all
+stage prerequisites close, with a fresh decision then. H0 acceptance therefore
+covers a real library/adapter authority dependency, not a successful CLI install.
+
+Terminal admission opens installation-attested fixed `/dev/tty`, never stdin or
+a caller path, using required no-follow/no-controlling-acquisition/close-on-exec/
+nonblocking flags. Verify `/dev` and final device via no-follow observation and
+the retained descriptor is a character terminal. Require `tcgetpgrp(fd)==getpgrp()`,
+stable `getsid(0)`, PID/thread and real/effective UID, and stable descriptor
+device/inode/rdev/type. The `/dev/tty` alias's inode/owner is not treated as the
+actual human identity; UID derives from configured roots and process, while
+foreground checks are applied to the retained descriptor. No arbitrary TTY is
+opened and no setsid/TIOCSCTTY/foreground reassignment is performed by product code.
+Absent syscall/flag or unsupported native behavior refuses before input/output.
+
+Use deadline-bounded readiness polling and nonblocking read/write for every chunk;
+partial writes, EINTR and EAGAIN spend the original finite monotonic wait budget,
+never restart it. Recheck foreground/session/Owner/input/provider facts before
+each I/O and after the human wait. Require canonical, echoing terminal settings
+and retain/recheck their original projection; do not modify or flush terminal
+settings. Reject pending extra input after the line. No repository lock crosses
+the human wait. Grant lifetime starts after the valid decision and cannot exceed
+max_grant_seconds; permit inherits its deadline, with no renewal or replay.
+
+Seal actual consumed application/adapter/core providers and their effective code/
+global bindings before calls, including owned plan/input/serialization/cleanup
+methods, OS/read/write/poll/terminal/clock/random functions and bound descriptors.
+Guard imported aliases and module attributes, not only exported names. Substitution
+must cause zero calls to replacement providers and sticky invalidation; use captured
+original cleanup even after substitution. SOURCE/WHEEL attestation and provider
+checks remain required throughout acquisition, retained use and consumption.
+
+### W10H-S7 Errors and retry
+
+Malformed/foreign input → input_invalid; missing/nonforeground terminal, rejected
+response/EOF/timeout or wrong Owner → authority_required; unsupported primitive/
+operation → phase_unavailable; attestation/provider failure → trust_rejected;
+changed/expired/consumed binding → currentness; byte/resource excess → resource_limit.
+Use W10-S7 exit conventions only if a future CLI exposes these diagnostics; H0
+adds no CLI error-code change. Never leak exception text, terminal/path/response
+bytes or use a permissive fallback. No automatic retry. A caller may explicitly
+request fresh authorization on a still-current plan after denial; stale input
+requires a fresh plan. Consumed/faulted permits always require fresh plan/decision.
+
+### W10H-S8 Failure and interruption
+
+| Failure | Detection / result | Recovery and invariant |
+|---|---|---|
+| absent/background/foreign Owner terminal | admission or currentness check | close; no response read and no target write |
+| partial prompt/write stall | bounded readiness/deadline | close; no grant or input read before complete output |
+| EOF, wrong/replayed nonce, excess or second line | exact grammar/bounded read | permanent rejection, no retry/flush or saved approval |
+| target/plan/policy/provider changes during wait | post-wait fresh observation | no grant; original providers never replaced for cleanup |
+| timeout/monotonic regression | original deadline or decreasing observation | close; no deadline reset/clock ledger update |
+| interrupt/exception/process exit | finally/context lifecycle and OS descriptor close | no persistent grant; no target/repository mutation |
+| copied/foreign PID/thread/installer grant | owned identity/operation checks | sticky invalidation; no consumer success |
+| failure during consumption | grant marked consumed before handoff | revoke grant and any partial permit; never restore use |
+
+### W10H-S9 Resource and performance bounds
+
+Policy bounds reserve prompt/input/diagnostic bytes before use. At most one
+descriptor/challenge/grant-or-permit per installer; no child, installer, network,
+unbounded accumulation or background retry in product H0. Adapter polls against
+captured monotonic_ns, rejecting regression; every read/write loop checks both
+the original wait deadline and resource counters. Grant/permit time includes all
+post-decision work and cannot be extended by require_current. No human-response
+p50/p95/p99 or installer throughput claim is made; configured bounds are directly
+observable. Future tests use real private PTYs and bounded test-worker lifetimes,
+distinct from product process execution. Keep native290/canonical300/serial limits.
+
+### W10H-S10 Security, privacy and audit boundary
+
+The accepted model trusts the local OS and the configured Owner UID. Terminal
+possession does not prove a distinct person's identity or resist root/hostile
+same-UID processes, terminal injection by such a process, or a compromised kernel.
+It is not MFA or authenticated Codex/Hermes host approval. No claim of protection
+against these actors is made; a broader model requires an Owner decision.
+
+| Actor | Permitted access | Refusal / exclusion |
+|---|---|---|
+| direct local Owner foreground invocation | exact configured plan summary and one live grant | other UID, changed targets, stale response or unattended fallback |
+| ordinary caller/JSON/boolean/callback | read bounded diagnostic | cannot construct or consume an unowned grant |
+| Codex/Hermes/Skill unattended runtime | existing read-only planning | no installation-maintenance approval port; no task permission promotion |
+| future trusted stage consumer | same-operation one-use permit | cannot publish/migrate/activate or execute arbitrary callbacks |
+| diagnostic reader | opaque outcome/digests | no UID/path/nonce/response/terminal transcript |
+
+Terminal summary exposes configured absolute paths and UID only to that Owner.
+Do not log prompt/response, retain terminal transcripts or create durable consent
+artifacts in product H0. Detached test evidence contains only sanitized counts/
+digests/status; raw PTY bytes remain transient in private test memory. No durable
+action audit is invented: future B/C must bind their real execution records to the
+challenge/grant digest and actual operation in their separately approved scope.
+
+### W10H-S11 Remaining gates
+
+Before H0 implementation: independently accepted Spec/Impact/Plan/Test Plan,
+exact prospective files/resources/pins/selectors/argv and explicit implementation
+approval. No material ambiguity remains for this bounded local trust choice.
+Before producing B: actual authority-to-stage integration, process/extraction/
+normalization/receipt contracts and private failure tests must close. Before
+genuine/native acceptance: supplied signed interpreter/installer/closure/production
+trust plus actual macos-arm64, macos-x86-64 and linux-x86-64 evidence. Before
+unattended installation: concrete authenticated host port/identity/origin and new
+independent refusal evidence. Before C: prior tuple/coordinator/migration/publication/
+recovery formats and authority. These are stage gates, not waived requirements.
+
+### W10H-S12 References
+
+Upstream Positioning/PRD, W10/W10B, [ADR0015](../adr/0015-release-installation-and-upgrade.md),
+the digest-bound approved request/proposal and frozen graph/Policy in detached
+records govern this design. Existing RuntimeSession human/action ports remain
+task-bound; local owner-turn policy currently returns pending and is not installation
+consent. The [Python OS interface](https://docs.python.org/3.12/library/os.html#os.tcgetpgrp)
+defines descriptor foreground-group access; [termios](https://docs.python.org/3.12/library/termios.html)
+defines terminal attribute observation. These APIs do not certify the three native
+cells; genuine behavior must be verified by subsequent bounded private tests.
+
+Human-approved H0 fixture-time correction — 2026-10-14: private wait/grant15/15s,
+test-worker wall45s replace the original1/1/10s fixture limits only. Actual mandatory
+plan revalidation measured1.0773–1.0943s plus0.1095–0.1116s new-input validation.
+Preserve original short-wait/expiry negatives in separately attested fixtures, all
+currentness/deadline checks, production120/30, byte ceilings, exact33/347, serial
+native290/canonical300 and four-cycle history. No implementation/terminal-positive
+PASS is inferred; the signed request/approval and independent affected-design review
+are retained in detached records. This supplement amends timing data, not scope.

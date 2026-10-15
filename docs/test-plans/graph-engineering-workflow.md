@@ -4046,3 +4046,205 @@ At this source freeze, final canonical evidence is pending. It must run all321 s
 (each collect1/execute1/skip0) followed by six statics on one staged tree, serial/fail-fast.
 Focused records do not waive any selected A/earlier regression or future B/C/native
 obligation. No test grants authority or certifies genuine interpreter/installer staging.
+## WP-10 local installation authority tests — W10H, 2026-10-13
+
+### W10H-T1 Scope, coverage and critical journeys
+
+[Spec W10H](../specs/graph-engineering-workflow.md#wp-10-local-installation-authority-design--w10h-2026-10-13),
+[Impact W10H](../impact/graph-engineering-workflow.md#wp-10-local-installation-authority-impact--w10h-2026-10-13)
+and [Plan W10H](../plans/2026-08-13-graph-engineering-workflow.md#wp-10-local-installation-authority-plan--w10h-2026-10-13)
+define proposed H0. In scope: closed approval contracts/five owned inputs, actual
+private foreground-terminal entry, exact local decision, owned grant/one-use
+consumer, genuine SOURCE/WHEEL ownership/currentness, privacy/finite refusal and
+unchanged public producing refusal. This document defines tests; no H0 product
+test/build or terminal experiment has run under design authority.
+
+Out of scope: installer/extraction/normalizer/StageReceipt/candidate writes, actual
+CLI installation, authenticated runtime host port, production trust/real Owner
+terminal/data, C migration/publication/recovery, PMF export, native certification,
+WP11/full274/P1/monitoring and irreversible delivery. These requirements are not
+removed; real terminal fixtures cannot certify real interpreter/uv installation.
+
+Cover100% of the following CUJs. Use the existing project risk-based selector
+boundary, not a new percentage of code or generic test-pyramid/E2E quota.
+
+| CUJ | Independent observable outcome | New cases |
+|---|---|---|
+| H-J1 direct local Owner approves exact fresh plan | actual owned grant; same-body display/nonce, full plan/UID/physical binding; no target write | U1..5,C1..3,I1,I5,W1 |
+| H-J2 absent/wrong/nonforeground terminal or decision | no grant; no stdin/piped/JSON/callback consent; bounded safe refusal | U3,U4,U6,I2,I3,S2,W2 |
+| H-J3 resource/physical/provider change during wait/use | zero replacement calls; sticky revocation; restored fresh genuine entry succeeds | C2,I4,I6,S1,W2 |
+| H-J4 one-use and operation lifetime | exactly one genuine internal consumer success; expiry/close/foreign/copy/replay never succeeds | U5,I5,I6,S2,W1 |
+| H-J5 public/runtime boundary | install-plan unchanged; install-apply/stage/reopen refuse before prompt; no task/ledger/locator mutation | C3,I7,W2,retained A/B0 cases |
+| H-J6 failure and cleanup | bounded prompt/read/deadline and owned descriptor/worker cleanup; old roots/terminal settings unchanged | U4..6,I3,I6,S1,W1,W2 |
+
+### W10H-T2 Exact layers and command inventory
+
+[wp10-h0-test-inventory-r0.json](../../.workflow/delivery/GEW-REMAINING54-V1/detached/wp10-h0-test-inventory-r0.json)
+contains20 new cases, all321 retained B0/A/earlier selectors and every347 exact argv/
+expectation. New layers: unit6, contract3, integration7, wheel2, security2. Retained
+selectors resolve uniquely by AST without imports/execution. The20 new methods
+are absent before implementation approval. Do not count subcases as independent
+selectors or replace old methods with weaker success/refusal checks.
+
+New IDs `W10H0-001..020` identify methods below. Retained commands occupy021..341,
+then342..347 are the same architecture/lint/type/build/reproducible-build/diff statics.
+Each retained object is embedded unchanged under `retained_command`, while its
+actual argv/expected test/skip values remain equal; final IDs are new mappings,
+not replacement truth. H0 does not certify the100 original GEW-PKG obligations.
+
+Each method runs through `.venv/bin/python -B scripts/run_wp09_tests.py --test
+<exact selector> --timeout-seconds 290`, exactly as enumerated. Canonical timeout
+remains300, strict serial fail-fast; each method collect1/execute1/skip0. No generic
+suite expansion, timeout increase, parallel run or frozen-recorder modification.
+The explicit worker `-B` does not replace cold public CLI tests without it.
+
+### W10H-T3 Method obligations and independent oracles
+
+Selectors use classes and exact names in the JSON inventory. Prefixes U/C/I/W/S
+below map to the numbered layer methods; all expected results derive from these
+contracts and actual physical observations, never returned PASS/authority metadata.
+
+| ID / method suffix | Required behavior and oracle |
+|---|---|
+| 001 / U1 / policy_closed_limits | exact fields/types/version/self digest; zero, bool, nonfinite/huge/one-over/unknown fields and missing policies; production8192/80/120/30 and fixture8192/80/15/15 remain bounded owned inputs |
+| 002 / U2 / challenge_exact_bindings | every plan/context/envelope/Owner/request/installation/operation/policy/display/nonce field; independent domain/digest projection, swapped and nested unknown fields refuse; a well-formed challenge is never authority |
+| 003 / U3 / display_digest_and_safe_render | exact deterministic body/order and all real target refs/roles/paths, preserve-data and full digests; escape CR/LF/ESC/Unicode controls, no bundle text; exact byte ceiling and one-over before output |
+| 004 / U4 / response_exact_grammar | valid nonce grammar, wrong/case/whitespace/Unicode/truncated/old nonce/second line/overflow/EOF reject; pure bounded-I/O control traces cover partial writes/EINTR/EAGAIN and unchanged original deadline, without creating a grant from fake transport |
+| 005 / U5 / lifetime_state_transitions | independent allowed-transition table, monotonic regression/expiry/consumed/closed/partial transfer never returns to issued; no refund or renewal; pure state inputs grant no live owned authority |
+| 006 / U6 / diagnostic_bounds_privacy | independent closed approved/refused diagnostics, immutable four unavailable producing capabilities, exact encoded byte/collection ceiling and excess; no raw UID/path/nonce/response/exception text |
+| 007 / C1 / schema_registry_closure | three distinct closed1.0.0 schema resources, separate domains/projections and exact registry; unknown/missing/duplicate resource and inconsistent digest fail |
+| 008 / C2 / owned_source_wheel_inputs | actual attested SOURCE and installed WHEEL admission of five new inputs; missing/mutated/unlisted resource/metadata/policy and retained use refuse; no caller mapping becomes trusted config |
+| 009 / C3 / legacy_resources_and_origin | byte/order equality of A11/B0 twelve inputs and old parsers/launcher; matching SOURCE_FILES additions and five new RECORD members; decoy checkout or wrong origin cannot issue |
+| 010 / I1 / real_terminal_local_approval | real owned private plan and product adapter in foreground controlling PTY; parent observes complete exact body and sends its fresh nonce; genuine grant require_current and genuine consumer succeed once; independent full binding and before/after inventories |
+| 011 / I2 / terminal_owner_foreground_refusals | no controlling terminal, regular-file/pipe/stdin, nonforeground/session change/noncanonical/non-echo mode, wrong configured Owner UID/root ownership all refuse before decision; no setuid/sudo/user-account operation |
+| 012 / I3 / response_io_limits_and_refusal | actual private PTY wrong/old nonce, pending readable input, rejection, Ctrl-D EOF, long/second line, stalled human input and available output-backpressure cases; bounded no grant/no input before complete prompt, no automatic flush/retry |
+| 013 / I4 / wait_input_currentness | real parent changes bundle/manifest/policy/target or descriptor/session/terminal settings after prompt but before response; no grant, unchanged old roots; fresh restored observation succeeds without reviving old handle |
+| 014 / I5 / grant_consumption_and_operation | same real grant succeeds once at actual internal consumer, then replay/copy/pickle/JSON/foreign installer/plan/operation/PID/thread refuses; close/plan rotation/reauthorization/consumed-permit rules follow Spec |
+| 015 / I6 / deadline_interrupt_and_cleanup | real monotonic expiry and bounded private-child interruption/EOF/close; no renewed grant or target write, preserved terminal settings and descriptor baseline; pure failure-state oracle handles partial handoff; no caller clock/fault callback becomes trusted |
+| 016 / I7 / producing_ports_and_runtime_refuse | public/library stage/reopen/apply refuse before terminal access/consumption, old read-only plan remains valid; generic human/action/extension response cannot authorize; task/security/action/control/locator/clock/Skill inventories unchanged |
+| 017 / W1 / installed_terminal_approval | actual wheel installed outside checkout, genuine owned fixture closure/private PTY and full product producer/consumer positive, exact packaged schema/policy/module/RECORD binding; no SOURCE seal or manufactured grant |
+| 018 / W2 / installed_mutations_and_cold_cli | installed policy/resource/provider/currentness mutations refuse; cold four public commands without `-B` and without ambient checkout/module decoys preserve expected JSON/exits/empty stderr and no pycache/target writes; apply never prompts |
+| 019 / S1 / provider_substitution_zero_calls | acquire/wait/retained/consume phases replace module/class/alias/method/descriptor/effective global for actual plan/input/core/OS/read/write/poll/terminal/time/random/cleanup providers; zero replacement invocations, captured cleanup, sticky invalidation; fresh restored positive |
+| 020 / S2 / unowned_replayed_values_refuse | caller boolean/JSON/hash/challenge/decision/callback/descriptor/UID/policy/clock, foreign/copied/restarted grant and runtime response never authorize; malicious display/path/extra fields remain bounded and sanitized; immutable refusal before consumer/target work |
+
+Digest oracles reconstruct documented fields/labels independently using trusted
+canonical/hash primitives, not the helper under test. Policy/challenge/diagnostic
+use the existing semantic envelope with distinct kind
+`installation-approval-{policy,challenge,diagnostic}`: contract/projection names
+`release-<kind>-v1`, projection version1.0.0, schema `urn:gew:schema:<kind>:1.0.0`.
+For display bytes use raw SHA-256 of UTF-8
+`urn:gew:display:installation-approval:1.0.0` + NUL + exact body bytes, encoded
+`sha256:<64 lowercase hex>`. It hashes the body before appending challenge/response
+instructions, avoiding a self-referential nonce/display digest. Challenge parsing
+has a separate raw-display-digest pattern; other semantic digests retain existing
+`sha256-jcs-v1` format. No fourth display schema or callable serializer is needed.
+
+Diagnostic capabilities have exactly `local-authority`, `runtime-authority`,
+`install-apply`, `stage`, `reopen-staged`, `release`: only local-authority can be
+available after actual issue; the other five remain unavailable in H0. An approved
+diagnostic is data and cannot be consumed. Test actual nested closedness and domain
+separation; do not broaden the old stage/A diagnostics or codes to accommodate it.
+
+### W10H-T4 Fixtures, faults and TDD
+
+New support `tests/support/installation_authority.py` composes existing StageFixture
+and ReleaseFixture, genuine freshly attested SOURCE/WHEEL policies and configured
+private700 directories. New fixture JSON contains synthetic requests/expected
+closed records/limits, no live token, real username, user path or credential.
+Parent/child PTY setup exists only in test support: a fresh test worker obtains its
+own controlling terminal/foreground group, imports installed owned product code
+before the operation inventory, then calls the real library entry. Product code
+does not create sessions/PTYs, change foreground groups or spawn a worker.
+
+The parent is a synthetic terminal peer: it observes the real prompt and responds
+with its nonce, never injects a human callback, private issuer seal or owned result.
+Compare prompt against an independently rendered body built from fixture facts;
+collect transient bytes only in memory. Low-level pure control traces test hard-to-
+force EINTR/partial-I/O branches but cannot prove actual terminal admission or issue
+authority. Actual wrong configured UID/root is a genuine negative; no privileged
+OS identity manipulation is needed. Native-specific UID mismatch/terminal behavior
+not exercised is reported honestly, not fabricated as a real OS transition.
+
+Faults use private PTY peer actions, actual resource/target mutation, real expiry/
+interrupt and forbidden-provider probes. Never add an injectable product decision/
+clock/descriptor/fault callback to make a positive test pass. Before/after physical
+inventories include old tool/repository/control/Skill/locator/candidate-parent and
+input bytes/metadata; only the transient terminal output and bounded test-local
+setup/cleanup are allowed. Restoration is a fresh factory/operation, not an old
+handle becoming current again.
+
+Start H0-1 with importable minimal contracts, run one meaningful behavioral RED
+per producing contract and retain native evidence; then implement focused GREEN.
+Missing import/attribute, replaced expected value or a uniformly refusing stub is
+insufficient. Actual no-grant/wrong-plan/refusal must fail for its named invariant,
+not merely an earlier unrelated missing file. Independent review examines both
+real positives and the complete negative matrix.
+
+### W10H-T5 Environments, resource ceilings and cleanup
+
+Current design uses no terminal/product execution. Future H0 local/CI environment
+is the accepted Python/stdlib and current installed code in disposable private roots.
+At most one test worker lives at a time, hard wall45s and transient transcript16384
+bytes; parent drains both directions boundedly and terminates/reaps only its own
+worker/process group on failure. Never signal the user's foreground group. Restore
+test-local termios/foreground setup through its owning fixture; product authorization
+must not change those settings. No unbounded sleep, retained descriptors, subprocess
+logs or ambient environment dump. Per-selector native290/canonical300 still apply.
+
+Private policy8192 prompt bytes/80 input bytes/15 wait seconds/15 grant seconds is a
+small attested fixture, not production120/30 timing evidence. Positive tests must
+succeed under the approved bounds; actual failures are retained and resolved through
+design review before any limit is changed. Require no skips when a PTY primitive
+is unavailable: record the blocker, not passing native evidence. The three required
+real native cells remain macos-arm64, macos-x86-64 and linux-x86-64; local fixture
+success certifies only the observed authority component on that actual environment.
+No staging/production environment deployment, owner-data migration or installer
+download is authorized. Cold installed library/CLI probes use real wheel bytes,
+not sys.modules substitution or source path fallback.
+
+### W10H-T6 Nonfunctional checks and canonical evidence
+
+Security/currentness/privacy/replay/finite cleanup and actual origin/compatibility
+are in scope through these20 methods and321 retained regressions. Resource checks
+are finite measurable byte/time/worker bounds, not installer SLA, whole-project
+performance benchmark, accessibility test or new E2E quota. Installer/offline/native/
+C completion remains outside H0. No test selects real user data or production trust.
+
+After focused20+six statics and independent implementation ADVANCE, stage only
+exact reviewed33 targets and capture the347 canonical commands once on the same
+frozen tree. Preserve RED/failures/interrupted records; every341 selector must
+collect1/run1/skip0 with native exit0. Build/reproducibility and all six statics must
+pass; no code/test edit after capture. Independent verification/Candidate reviews
+must inspect exact argv, count/skip/order/tree/Policy/authority bindings and real
+terminal positives before actual COMPLETE. Commit/push remain separately gated.
+
+### W10H-T7 Remaining prerequisites and stop rules
+
+Before any H0 product execution: accepted new design graph and exact separate
+implementation approval. Before producing installation: fully reviewed stage
+integration and its new authority-to-first-write/failure oracles. Before unattended
+installation: concrete authenticated same-Owner host port. Before genuine B/native:
+supplied signed interpreter/installer/closure/production trust and actual native
+environments. Before C: approved prior tuple/coordinator/migration/publication/
+recovery formats and authority. New target, dependency, trust model, missing native
+primitive, reviewer conflict or nonconvergence is escalated with exact evidence;
+never change Policy/budget/frozen recorder or claim complete from test intent.
+
+### W10H-T8 References
+
+Plan W10H-P1..P10, Spec W10H-S1..S12, Impact W10H,
+[ADR0015](../adr/0015-release-installation-and-upgrade.md),
+[PRD](../prd/graph-engineering-workflow.md),
+[Positioning](../positioning/graph-engineering-workflow.md),
+exact33-target/347-command inventories and digest-bound new design approval/review
+records in the detached directory. The old Spec4 and B0 immutable327/receipt/push
+records remain historical acceptance, not evidence for the future changed tree.
+
+Human-approved H0 fixture-time correction — 2026-10-14: private wait/grant15/15s,
+test-worker wall45s replace the original1/1/10s fixture limits only. Actual mandatory
+plan revalidation measured1.0773–1.0943s plus0.1095–0.1116s new-input validation.
+Preserve original short-wait/expiry negatives in separately attested fixtures, all
+currentness/deadline checks, production120/30, byte ceilings, exact33/347, serial
+native290/canonical300 and four-cycle history. No implementation/terminal-positive
+PASS is inferred; the signed request/approval and independent affected-design review
+are retained in detached records. This supplement amends timing data, not scope.

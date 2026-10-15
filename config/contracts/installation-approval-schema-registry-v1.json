@@ -1,0 +1,19 @@
+{
+  "registry_digest": "sha256-jcs-v1:1dd2562e54b328b3d1fe0d205b41de80836b09a322c05be58982b945843bedee",
+  "registry_id": "urn:gew:schema-registry:installation-approval:1.0.0",
+  "resources": [
+    {
+      "body_digest": "sha256-raw-v1:faaf3f490d7be07097ffb84c80cc2b55ae331c6071f190ad4e6f789be5738435",
+      "schema_id": "urn:gew:schema:installation-approval-challenge:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:3a4cc17eae302e2e099cc7b26a963ee58b00c8cc15da902f0fa2b9a2f57744b5",
+      "schema_id": "urn:gew:schema:installation-approval-diagnostic:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:18909babe8c25b4a6c38a24c4dcf7ffd1846162ee7fea42af2197f0a047a8323",
+      "schema_id": "urn:gew:schema:installation-approval-policy:1.0.0"
+    }
+  ],
+  "schema_version": "1.0.0"
+}

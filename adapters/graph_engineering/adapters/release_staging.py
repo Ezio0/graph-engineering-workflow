@@ -254,6 +254,34 @@ class PlanningSession:
     def to_dict(self) -> dict[str,object]:
         self.require_current();return thaw(self._record)
 
+    def approval_context(self) -> PlanningApprovalContext:
+        # This snapshot is private data. Admission revalidates the full owned
+        # planning session before opening or using a terminal.
+        _providers()
+        if self._invalid or self._pid!=os.getpid() or self._thread!=threading.get_ident():fail('currentness')
+        owners={r['owner_id'] for r in self._registry['roots']}
+        if len(owners)!=1:fail('authority_required')
+        selected=[{'ref':r['ref'],'role':r['role'],'path':r['path']} for r in self._registry['roots'] if r['ref'] in self._request['target_refs']]
+        result=object.__new__(PlanningApprovalContext)
+        _APPROVAL_CONTEXTS[result]=(self,freeze({'owner_id':next(iter(owners)),'targets':selected,'record':thaw(self._record)}))
+        return result
+
     def close(self) -> None:
         self._invalid=True
         if self._release is not None:_RELEASE_CLOSE(self._release)
+
+
+_PLANNING_CURRENT=PlanningSession.require_current
+_APPROVAL_CONTEXTS=weakref.WeakKeyDictionary()
+
+class PlanningApprovalContext:
+    __slots__=('__weakref__',)
+    def __init__(self):raise TypeError('approval context requires owned planning session')
+    def require_current(self) -> dict[str,object]:
+        if type(self) is not PlanningApprovalContext or self not in _APPROVAL_CONTEXTS:fail('currentness')
+        session,record=_APPROVAL_CONTEXTS[self]
+        try:
+            if PlanningSession.require_current is not _PLANNING_CURRENT:fail('currentness')
+            _PLANNING_CURRENT(session);return thaw(record)
+        except BaseException:
+            _APPROVAL_CONTEXTS.pop(self,None);raise

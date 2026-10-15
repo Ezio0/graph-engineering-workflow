@@ -1,0 +1,9 @@
+{
+  "max_grant_seconds": 30,
+  "max_input_bytes": 80,
+  "max_prompt_bytes": 8192,
+  "max_wait_seconds": 120,
+  "policy_digest": "sha256-jcs-v1:0afae7cfefa2b069eeeeb767e1dc39a8b43343fbfb1762c4ca86a773a6b58512",
+  "policy_id": "local-owner-approval",
+  "schema_version": "1.0.0"
+}

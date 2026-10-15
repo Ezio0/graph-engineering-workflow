@@ -2244,3 +2244,109 @@ plan-session construction/serialization/close methods before acquisition. Focuse
 substitution probes observe zero replacement calls; fresh restored acquisition succeeds.
 When those trusted providers are unavailable, the existing finite trust-error diagnostic
 remains the fallback rather than calling a substituted provider to format a report.
+## WP-10 local installation authority impact — W10H, 2026-10-13
+
+### W10H-I1 Scope and approval
+
+The Owner approved the new exact six-file direct local foreground-terminal authority
+design in `GEW-WP10-INSTALLATION-AUTHORITY-DESIGN-V1`. [Spec W10H](../specs/graph-engineering-workflow.md#wp-10-local-installation-authority-design--w10h-2026-10-13)
+and ADR0015 received independent Spec PASS and actual frozen reducer ADVANCE before
+this Impact. Prior Spec4/four-cycle design history and B0's committed/pushed327
+evidence remain immutable. No PRD/Intent change, production implementation,
+terminal interaction, actual installation or irreversible action occurs here.
+
+The proposed H0 implementation is an authority dependency, not full B1: actual
+local terminal producer, owned grant and genuine internal one-use consumer, with
+all producing public/library ports still unavailable. No task action is fabricated.
+
+### W10H-I2 Exact future producers and consumers
+
+[wp10-h0-prospective-targets-r0.json](../../.workflow/delivery/GEW-REMAINING54-V1/detached/wp10-h0-prospective-targets-r0.json)
+enumerates33 prospective files:17 existing,16 new. This is a future inventory, not
+current write authority; the approved design may change only its existing six paths.
+
+| Future surface | Change and downstream effect |
+|---|---|
+| new core/application/adapters `installation_authority.py` modules | closed policy/challenge/diagnostic; owned grant/permit sequencing; attested terminal OS/I/O/deadlines; no storage, runtime callback or installer |
+| existing application `release_staging.py` | explicit authorize_local and sealed same-owner/operation internal consumption; preserve plan behavior and unavailable stage/reopen |
+| existing adapter `release_staging.py` | owned current approval-context acquisition from genuine PlanningSession; configured Owner UID and actual requested display roots, rechecked against every configured root and existing physical binding |
+| existing core `__init__.py` and test attestation support | include exactly three new module sources and five new resource sources in matching SOURCE_FILES inventories; preserve existing ordered source subsequences and four-command bytecode guard |
+| five new owned resources | one approval policy, one closed schema registry and three schemas (policy/challenge/diagnostic); no serializable authority schema |
+| existing pyproject | package all five resources through owned-root-files; module roots already package new modules automatically |
+| four existing installation-bootstrap mirrors | refresh only actual changed active bytes/digests/closure consumers for package/source inventory; preserve historical embedded vectors and unchanged backend/parser/A semantics |
+| existing wp-00 targets + new installation-authority verification boundary | enumerate exact33 paths and future347 commands; no original B0 boundary mutation or Policy change |
+| new synthetic fixture, test support and five test modules | private real PTY workers, truthful SOURCE/WHEEL bindings and independently derived response/physical/no-write oracles |
+| existing wp00 packaging test | assert exact new five-resource/three-module wheel closure and RECORD membership, retaining A11/B0 twelve-resource assertions |
+| six existing design/Manifest paths | describe H0 implementation scope and register only after its separate approval |
+
+New resource paths: `config/release-installation/installation-approval-policy-v1.json`,
+`config/contracts/installation-approval-schema-registry-v1.json`, and
+`config/contracts/schemas/installation-approval-{policy,challenge,diagnostic}-1.0.0.json`
+(the JSON inventory expands each exact path). The latter three schemas are separate
+closed domain projections. B0 StageContext/InstallPlan/StagePlanEnvelope and A's
+schemas/resource order are not modified or reinterpreted. New owned input acquisition
+rechecks both the separate approval resource closure and existing genuine plan context.
+
+### W10H-I3 Compatibility and packaging closure
+
+No CLI syntax or public read-only result changes. install-apply must reject before
+prompt; runtime/Skill must not fall back to local terminal approval. H0 adds a library
+dependency, not an authenticated runtime capability. No RuntimeInvocationPorts field,
+RuntimeSession task authorization, ActionAuthorityLedger kind, task/security event,
+DB/schema, migration journal, durable clock or native Skill/locator change is needed.
+
+Owned module composition precedes entry to the bounded authorization operation;
+it must not introduce lazy bytecode writes inside the no-write window. Keep actual
+cold CLI probes without `-B` as well as library workers: an explicit test flag alone
+cannot prove public command behavior. Unsupported terminal primitives refuse only
+the new local authority entry, never break existing read-only planning/admission.
+
+`scripts/build_backend.py` is a read-only dependency, not a proposed target: current
+owned module-root/resource packaging already supplies the required mechanism. No
+backend/provider/parser change is assumed necessary. If implementation needs it or
+any other unlisted target, preserve the failure and request that concrete expansion
+before editing it. No unrelated pin is refreshed simply because it is historical.
+
+### W10H-I4 Risks, invariants and evidence
+
+| Risk | Mitigation and observable refusal |
+|---|---|
+| terminal alias mistaken for human identity | configured root UID==real/effective UID; retained descriptor foreground/session facts; explicitly exclude hostile same-UID/root from identity claim |
+| task human result silently promoted | distinct installation producer, no task creation/action grant/security write; noninteractive missing host port refuses |
+| stale/partial prompt or ambient input accepted | exact safe display digest, nonce grammar, bounded nonblocking I/O, post-wait full revalidation and no automatic retry |
+| provider/global or cleanup substitution | original provider/code/global/descriptors checked before calls, zero replacement calls, sticky invalidation and captured cleanup |
+| grant replay or failed handoff restores use | same owned operation/plan; monotonic expiration; consume-before-transfer; no refund, reconstruction or copy |
+| synthetic PTY mistaken for native installation | actual private terminal operation proves only local producer/consumer; all installer/native/C prerequisites remain separate |
+| package inventory/pin propagation omitted | exact33 prospective inventory, SOURCE/WHEEL origin/currentness and old A/B0 vectors plus four actual pin consumers |
+
+Before/after inventories cover private fixture old tool/repository/control/locator/
+Skill roots, configured candidates and input/policy bytes. Authorized terminal output
+is transient and bounded, not a target write or durable audit. No real Owner data,
+secrets or raw terminal transcript enters evidence. Challenge/grant private metadata
+is discarded on close/process exit; future actual B/C execution audit is not invented.
+
+### W10H-I5 Verification and stopping boundaries
+
+Prospective tests add20 meaningful methods to the321 retained B0/A/earlier selectors;
+341 methods plus six unchanged static commands gives347. Exact argv and expectation
+objects are in [wp10-h0-test-inventory-r0.json](../../.workflow/delivery/GEW-REMAINING54-V1/detached/wp10-h0-test-inventory-r0.json).
+All321 existing selectors resolve uniquely by AST without import/execution. New
+methods are absent until approved implementation. Native290/canonical300, serial
+fail-fast, zero skips, same-tree evidence and independent Candidate review remain.
+
+Production interaction limits8192/80/120/30 and small private fixture limits8192/80/15/15
+follow Spec W10H; they do not certify installer performance. Actual private PTY
+worker cleanup/deadline/foreground tests must pass, never skip as native success.
+Current design validation is documentation/Manifest/link/hash/protected-file checks,
+not a product test run or package build. Missing concrete port, new auth model,
+extra target/dependency, nonconvergence or native blocker returns with exact evidence.
+No H0 code/test execution begins before its separate exact implementation approval.
+
+Human-approved H0 fixture-time correction — 2026-10-14: private wait/grant15/15s,
+test-worker wall45s replace the original1/1/10s fixture limits only. Actual mandatory
+plan revalidation measured1.0773–1.0943s plus0.1095–0.1116s new-input validation.
+Preserve original short-wait/expiry negatives in separately attested fixtures, all
+currentness/deadline checks, production120/30, byte ceilings, exact33/347, serial
+native290/canonical300 and four-cycle history. No implementation/terminal-positive
+PASS is inferred; the signed request/approval and independent affected-design review
+are retained in detached records. This supplement amends timing data, not scope.

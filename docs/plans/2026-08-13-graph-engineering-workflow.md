@@ -2513,3 +2513,189 @@ Canonical capture keeps native290/canonical300 and budget4 unchanged, then proce
 verification and Candidate review. Commit and push each require separate authority.
 Detached wp10-b0-implementation-checkpoint.json and its bound immutable records retain
 the live status; this paragraph is a pre-capture observation, not a completion claim.
+## WP-10 local installation authority plan — W10H, 2026-10-13
+
+### W10H-P1 Summary and entry
+
+Implement the proposed **H0 authority dependency** after separate exact implementation
+approval: real direct local terminal decision, same-plan owned grant and one-use
+internal consumer. [Spec W10H](../specs/graph-engineering-workflow.md#wp-10-local-installation-authority-design--w10h-2026-10-13)
+and [Impact W10H](../impact/graph-engineering-workflow.md#wp-10-local-installation-authority-impact--w10h-2026-10-13)
+have independent PASS/actual reducer ADVANCE. PRD/Intent and A/B/C remain unchanged.
+The current new task authorizes only six-file documentation/review, not these product
+tasks. B0 was committed/pushed with327 passing canonical commands at83cbbf4; no redo.
+
+Three phases/seven XS/S/M tasks estimate14 authoring hours, excluding unmeasured
+test/review/canonical capture time. Actuals remain unset until performed. H0 done
+means genuine local producer/consumer behavior,341 exact tests+six statics on one
+frozen tree, zero open findings and independent Candidate approval. It does not
+mean CLI installation, full B1/B, native certification, C, release or whole-project
+completion. Public install-apply/stage/reopen still refuse before prompting.
+
+### W10H-P2 Phases and dependency graph
+
+| Phase | Work | Exit |
+|---|---|---|
+| H0-P0 entry | explicit exact33-file/347-command approval, unchanged upstream, frozen protected bytes and tasks | H0-0 complete; no missing authority |
+| H0-P1 authority | closed contracts/owned inputs, real terminal, one-use lifetime | H0-1..4 meaningful behavioral RED/focused GREEN; no target writes or provider substitution calls |
+| H0-P2 packaging/evidence | SOURCE/WHEEL resources/pins, cold unchanged CLI and exact canonical boundary | H0-5..6; all347 commands PASS/zero skips; independent implementation/verification/Candidate gates |
+
+DAG: H0-0 → H0-1 → H0-2 → H0-3 → H0-4 → H0-5 → H0-6. Root is sole writer and
+serial test runner; independent reviewers are read-only. No concurrent product
+tests or shared-file writers. Each task's Kanban is **TBD — register before approved
+implementation starts**. Spec W10H-S4/S6 owns the actual control-node sequence.
+
+### W10H-P3 Tasks and checkbox acceptance
+
+**H0-0 — authorize/freeze**, XS, owner `/root`, estimate0.5h, actual unset.
+Depends separate Owner implementation approval; blocks H0-1. Files: six design/
+Manifest targets, new verification boundary and detached records.
+
+- [ ] Bind actual approval to accepted design, exact33 targets and347 command inventory.
+- [ ] Verify base/upstream/protected hashes; adopt new implementation Manifest/Envelope without rewriting old design/B0 histories.
+- [ ] Register task IDs, retain original four-cycle Policy and unavailable producing/native/C capabilities.
+
+**H0-1 — closed contracts**, S, owner `/root`, estimate2h, actual unset.
+Depends H0-0; blocks H0-2. Files: new core installation_authority module, five
+resources, fixture JSON, new unit/contract tests.
+
+- [ ] Implement Spec W10H-S5/S7 closed policy/challenge/diagnostic with separate projections and exact bounded rendering/response grammar.
+- [ ] U1..6/C1 demonstrate valid positive behavior, independent digest oracles, boundary/excess/unknown-field/Unicode/control-text failures.
+- [ ] Begin with importable minimal public contracts and meaningful behavioral RED; missing import alone does not qualify.
+
+**H0-2 — owned physical approval context**, M, owner `/root`, estimate3h, actual unset.
+Depends H0-1; blocks H0-3. Files: new adapter module, existing adapter release_staging,
+new contract/integration/security tests and private fixture support.
+
+- [ ] Acquire five new owned inputs separately, preserving A11/B0 twelve-resource semantics/order.
+- [ ] Derive UID/actual target display from current genuine PlanningSession and installation-owned registry, every configured root and full existing plan binding.
+- [ ] Reject missing/replaced resources, ambiguous Owner UID, wrong process UID, copied context and stale physical/provider facts before terminal I/O.
+- [ ] Cover valid source plus wheel origin admission and independently recomputed context, with old/input/target bytes unchanged.
+
+**H0-3 — terminal decision**, M, owner `/root`, estimate4h, actual unset.
+Depends H0-2; blocks H0-4. Files: new adapter module and integration/security test support.
+
+- [ ] Implement required no-follow foreground controlling-terminal admission, captured original OS/terminal/time/random providers and bounded nonblocking I/O per Spec W10H-S6.
+- [ ] Real private PTY positive reads the actual rendered prompt and supplies its exact fresh nonce; response callbacks/forged grant setters never qualify.
+- [ ] Test no terminal/background/noncanonical terminal, pending input, partial writes/EINTR/EAGAIN, EOF/timeout/rejection/excess and changed inputs after wait.
+- [ ] Every refusal closes only owned descriptors, leaves terminal settings unchanged, performs no target write and calls no substituted provider.
+
+**H0-4 — owned grant and consumer**, S, owner `/root`, estimate2h, actual unset.
+Depends H0-3; blocks H0-5. Files: new application module, existing application
+release_staging and integration/security tests. Implements Spec W10H-S6 interfaces.
+
+- [ ] authorize_local uses genuine current owned envelope and adapter entry with no injected identity/policy/clock/response/descriptor.
+- [ ] Exact PID/thread/owner/operation/envelope binding, monotonic expiry and original provider guards survive retained use; failed currentness is sticky.
+- [ ] Genuine internal consumption succeeds once, marks consumed before transfer and revokes partial handoff on failure; no callback executor or deserializable permit.
+- [ ] Reauthorization, close, plan rotation, copy/pickle/JSON/foreign runtime/replayed response/consumed grant cases obey Spec; producing ports still refuse before terminal use.
+
+**H0-5 — package/source closure**, S, owner `/root`, estimate2h, actual unset.
+Depends H0-4; blocks H0-6. Files: core namespace SOURCE_FILES, pyproject, test source
+attestation support, four active bootstrap mirrors, wp00 target inventory, existing
+packaging test and new wheel tests.
+
+- [ ] Enumerate/package exactly three new modules/five resources; matching SOURCE_FILES inventories and actual RECORD/hash/size membership.
+- [ ] Refresh only changed active pin consumers; backend/parser/old schema/clock/resource semantics remain byte-identical where outside exact33.
+- [ ] Real installed-wheel private PTY producer/consumer succeeds without source checkout; malformed/mutated owned inputs/providers refuse.
+- [ ] Cold public commands without test-only `-B` preserve read-only behavior and four-command bytecode guard; install-apply never prompts or consumes a grant.
+
+**H0-6 — exact evidence and review**, XS authoring, owner `/root`, estimate0.5h,
+actual unset. Depends H0-5. Files: six status/design targets, exact verification
+boundary and detached immutable records; canonical execution duration unmeasured.
+
+- [ ] Complete focused20 new methods and all six statics; independent implementation PASS/actual ADVANCE before canonical capture.
+- [ ] Stage exact reviewed changed targets, capture all347 commands serial/fail-fast on one immutable tree, every341 selector collect1/execute1/skip0.
+- [ ] Independently review same-tree verification evidence and Candidate; zero open findings and actual graph completion.
+- [ ] Stop for separately named commit/push authority; no force push, merge, deployment/release or real installation is inferred.
+
+### W10H-P4 Exact future inventory and dependencies
+
+[wp10-h0-prospective-targets-r0.json](../../.workflow/delivery/GEW-REMAINING54-V1/detached/wp10-h0-prospective-targets-r0.json)
+is the complete expanded33-path list (17 existing/16 new), with raw current hashes
+for every existing target. No glob or directory grants writes. The three new module
+paths each use their core/application/adapters layer; both existing release_staging
+modules are explicit targets. The five new resources, core namespace, pyproject,
+four active bootstrap mirrors, wp00/new verification configs, synthetic fixture,
+two support files, five new test files, existing packaging test and six design files
+exhaust the inventory. No application/CLI, runtime/task/action/storage/security or
+build_backend source change is authorized by the proposed H0 request.
+
+| Dependency | State | Handling |
+|---|---|---|
+| internal accepted A/B0 plan/ownership/physical guards | available at83cbbf4 | fresh genuine observations, preserve old projections/order; H0 owns only its new input/lifetime seam |
+| internal W10H Spec/Impact and forthcoming Test Plan | Spec/Impact accepted, remaining graph nodes pending | no implementation before actual completion and separate approval |
+| infrastructure private POSIX PTY + current Python/stdlib | available interfaces; actual behavior untested in this design | genuine disposable worker test; absent behavior is failure/blocker, never skip/fixture PASS promoted to native |
+| external authenticated host installation port | unavailable | retain unattended refusal; no runtime/task permission expansion |
+| external genuine interpreter/installer/production trust/three native cells | missing for full B | not needed for H0, cannot be downloaded/substituted or claimed by PTY evidence |
+
+### W10H-P5 Development risks and mitigation
+
+| Risk during development | Likelihood/impact | Mitigation |
+|---|---|---|
+| tests accidentally manufacture authority | medium/high | actual owned source/wheel plan plus real private PTY, independent prompt/decision/binding oracle and consumer |
+| terminal failures silently skipped on CI/native gap | medium/high | exact expected_tests1/skips0; unavailable primitive blocks acceptance |
+| cross-module ownership/pins omitted | medium/high | exact33 current inventory plus package RECORD/source vectors and four active mirror review |
+| short deadlines yield nondeterministic tests | medium/medium | real bounded positive and explicit deadline refusal; retain observed failures, revise design before changing approved limits |
+| serial canonical recorder overhead | observed/high elapsed time | reuse accepted B0 as regression specification, not evidence; run new required capture once after final implementation review; no frozen tool edit/cache/budget weakening |
+
+Spec W10H-S8 defines runtime failure recovery. These are implementation risks,
+not invented production incidents or permission to broaden tests repeatedly.
+
+### W10H-P6 Rollout and rollback
+
+Current rollout is documentation only. Proposed H0 execution occurs only in
+disposable attested fixtures after approval; no real Owner invocation, production
+trust activation or installation. Preserve all previous modules/evidence/history.
+Any zero-write violation, substituted call, missing genuine positive, unexpected
+skip or stale evidence blocks H0 completion. Close private grant/permit/descriptors
+and bounded test workers; retain sanitized failure evidence. No data rollback or
+target deletion is needed/authorized because H0 cannot stage. Recovery time is
+unmeasured; no invented SLA/canary percentage applies to this local library increment.
+
+### W10H-P7 Verification boundary
+
+[Test Plan W10H](../test-plans/graph-engineering-workflow.md#wp-10-local-installation-authority-tests--w10h-2026-10-13)
+will define every20 new selector/oracle. The detached inventory already enumerates
+20 new+321 unchanged retained selectors, six unchanged statics and all347 exact
+argv/expectations. Unit6/contract3/integration7/wheel2/security2 reflect this trust
+boundary's risk; do not add generic pyramid/E2E quotas. Real adapter entry and real
+wheel library are exercised; actual installed CLI staging remains unavailable.
+Native290/canonical300 and strict serial fail-fast remain fixed. Full274/P1,
+monitoring, real user/terminal data and genuine installer/native/C acceptance are
+not executed by H0. No current product tests/builds are authorized by design approval.
+
+### W10H-P8 Remaining decisions and gates
+
+No unresolved material choice for the accepted local UID/terminal model. Before
+H0-0: complete this new design graph and request exact implementation authority.
+Before producing B: connect actual local grant/consumer with fully reviewed staging
+and supply its own tests, not a copied H0 approved diagnostic. Before unattended
+installation: close concrete authenticated host origin/decision port. Before genuine
+native acceptance/C: retain Spec W10H-S11 prerequisites. A necessary unlisted path,
+changed security model, dependency or budget returns to Owner before modification.
+Routine authorized corrections continue independent review within the four-cycle
+budget, never restart prior Spec4/B0 histories.
+
+### W10H-P9 References
+
+[Positioning](../positioning/graph-engineering-workflow.md),
+[PRD](../prd/graph-engineering-workflow.md), Spec W10H, Impact W10H,
+[ADR0015](../adr/0015-release-installation-and-upgrade.md), Test Plan W10H and the
+approved request/proposal, immutable state/verdict/decision records and both exact
+prospective inventories in the task's detached record directory.
+
+### W10H-P10 History
+
+2026-10-13: Owner approved distinct local installation-authority six-file design;
+Spec0/Impact0 independently PASS and actual ADVANCE. Proposed H0 tasks are unstarted,
+all actual durations unset. Design review/completion records govern later status;
+this plan records no executed H0 product tests or installation.
+
+Human-approved H0 fixture-time correction — 2026-10-14: private wait/grant15/15s,
+test-worker wall45s replace the original1/1/10s fixture limits only. Actual mandatory
+plan revalidation measured1.0773–1.0943s plus0.1095–0.1116s new-input validation.
+Preserve original short-wait/expiry negatives in separately attested fixtures, all
+currentness/deadline checks, production120/30, byte ceilings, exact33/347, serial
+native290/canonical300 and four-cycle history. No implementation/terminal-positive
+PASS is inferred; the signed request/approval and independent affected-design review
+are retained in detached records. This supplement amends timing data, not scope.

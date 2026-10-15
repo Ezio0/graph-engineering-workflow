@@ -8,6 +8,7 @@ import weakref
 from dataclasses import dataclass
 from pathlib import Path
 from graph_engineering.adapters import release_staging as physical
+from graph_engineering.application import installation_authority as _LOCAL_AUTHORITY
 from graph_engineering.core.release_installation import ReleaseInstallationError,fail
 from graph_engineering.core.release_staging import stage_diagnostic
 
@@ -101,6 +102,9 @@ class ReleaseInstaller:
     def stage(self,envelope: object,authority: object=None) -> dict[str,object]:return _diagnostic('phase_unavailable','stage')
     def reopen_staged(self,envelope: object,authority: object=None) -> dict[str,object]:return _diagnostic('phase_unavailable','stage')
 
+    def authorize_local(self,envelope: StagePlanEnvelope) -> _LOCAL_AUTHORITY.InstallationAuthority|dict[str,object]:return _LOCAL_AUTHORIZE(self,envelope)
+    def _consume_for_stage(self,envelope: StagePlanEnvelope,authority: object):return _LOCAL_CONSUME(self,envelope,authority)
+
 
 def _exit_code(value):
     return 2 if value['code']=='input_invalid' else (3 if value['status']=='blocked' else 4)
@@ -135,3 +139,25 @@ def install_plan(operation: str,request_path: Path,bundle_ref: BundleRef) -> tup
 
 def install_apply_unavailable() -> tuple[dict[str,object],int]:
     value=_diagnostic('phase_unavailable','stage');return value,_exit_code(value)
+
+
+from graph_engineering.application import installation_authority as _LOCAL_AUTHORITY
+_LOCAL_AUTHORIZE=_LOCAL_AUTHORITY.authorize
+_LOCAL_CONSUME=_LOCAL_AUTHORITY.consume
+def _local_bridges():
+    capture=_LOCAL_AUTHORITY.physical._copy_cleanup
+    # Planning bindings finalize below; captured bridge code validates those
+    # live bindings through its private original guard before consuming them.
+    authorize=capture(_LOCAL_AUTHORIZE,freeze_globals=False);consume=capture(_LOCAL_CONSUME,freeze_globals=False)
+    guard=capture(_LOCAL_AUTHORITY._GUARD);seal=_LOCAL_AUTHORITY._SEAL;diagnostic=capture(_LOCAL_AUTHORITY._diagnostic)
+    def authorize_local(self,envelope: StagePlanEnvelope) -> _LOCAL_AUTHORITY.InstallationAuthority|dict[str,object]:
+        try:guard(seal)
+        except (ValueError,TypeError):return diagnostic('trust_rejected')
+        return authorize(self,envelope)
+    def consume_for_stage(self,envelope: StagePlanEnvelope,authority: object) -> _LOCAL_AUTHORITY.StagePermit:
+        # The original consumer performs rejection cleanup even for a changed bridge alias.
+        return consume(self,envelope,authority)
+    return capture(authorize_local),capture(consume_for_stage)
+
+ReleaseInstaller.authorize_local,ReleaseInstaller._consume_for_stage=_local_bridges()
+_LOCAL_AUTHORITY.bind_planning(__import__(__name__,fromlist=['ReleaseInstaller']))

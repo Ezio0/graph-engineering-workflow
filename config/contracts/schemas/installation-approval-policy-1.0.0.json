@@ -1,0 +1,50 @@
+{
+  "$id": "urn:gew:schema:installation-approval-policy:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "max_grant_seconds": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "max_input_bytes": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "max_prompt_bytes": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "max_wait_seconds": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "policy_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "policy_id": {
+      "$comment": "Exact grammar ^[A-Za-z0-9][A-Za-z0-9:._-]{0,127}$ is enforced by the charged approval record validator.",
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    }
+  },
+  "required": [
+    "schema_version",
+    "policy_id",
+    "max_prompt_bytes",
+    "max_input_bytes",
+    "max_wait_seconds",
+    "max_grant_seconds",
+    "policy_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

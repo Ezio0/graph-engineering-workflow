@@ -1,0 +1,103 @@
+{
+  "$id": "urn:gew:schema:installation-approval-diagnostic:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "capabilities": {
+      "properties": {
+        "install-apply": {
+          "const": "unavailable"
+        },
+        "local-authority": {
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        },
+        "release": {
+          "const": "unavailable"
+        },
+        "reopen-staged": {
+          "const": "unavailable"
+        },
+        "runtime-authority": {
+          "const": "unavailable"
+        },
+        "stage": {
+          "const": "unavailable"
+        }
+      },
+      "required": [
+        "local-authority",
+        "runtime-authority",
+        "install-apply",
+        "stage",
+        "reopen-staged",
+        "release"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "code": {
+      "enum": [
+        "authority_issued",
+        "input_invalid",
+        "authority_required",
+        "currentness",
+        "resource_limit",
+        "trust_rejected",
+        "phase_unavailable"
+      ]
+    },
+    "diagnostic_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "next_route": {
+      "$comment": "Exact grammar ^[A-Za-z0-9][A-Za-z0-9:._-]{0,127}$ is enforced by the charged approval record validator.",
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "phase": {
+      "const": "authorization"
+    },
+    "refs": {
+      "items": {
+        "maxLength": 128,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 0,
+      "type": "array"
+    },
+    "request_id": {
+      "$comment": "Exact grammar ^[A-Za-z0-9][A-Za-z0-9:._-]{0,127}$ is enforced by the charged approval record validator.",
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "approved",
+        "rejected",
+        "blocked"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "phase",
+    "status",
+    "code",
+    "refs",
+    "capabilities",
+    "next_route",
+    "diagnostic_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

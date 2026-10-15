@@ -217,3 +217,33 @@ Production recipes/roots remain empty. Focused observations are retained; same-t
 evidence and independent graph/Candidate gates determine final B0 acceptance. Full B and
 three-platform native acceptance remain separate prerequisites, with no ADR decision
 changed by this implementation status note.
+
+### W10H local Owner terminal authority decision — 2026-10-13
+
+The Owner explicitly approved the digest-bound `wp10-b1-authority-design-request-r0.json`
+and its proposal for the new six-file installation-authority design task. Adopt a
+direct local foreground controlling-terminal decision, bound to the configured
+installation Owner UID, exact current plan/physical context, fresh nonce and
+one-use process-local grant. The accepted threat model trusts the OS and Owner UID;
+it does not authenticate a different human or resist hostile same-UID/root processes.
+No new account, credential service, network, daemon or dependency is introduced.
+
+Existing RuntimeSession human/action ports require task-bound authorization; the
+task action ledger and policy-generated local Owner response cannot issue this
+installation grant. Reuse their ownership/currentness patterns, never manufacture
+task/action/security state. Unattended Codex/Hermes/Skill installation remains
+unavailable until a concrete authenticated same-Owner host port is separately accepted.
+
+[Spec W10H](../specs/graph-engineering-workflow.md#wp-10-local-installation-authority-design--w10h-2026-10-13)
+defines the chosen local composition, finite terminal I/O, private identity/lifetime,
+refusal and one-use consumer. Proposed H0 implements only that dependency with real
+private terminal SOURCE/WHEEL tests; public stage/reopen/install-apply stay unavailable
+and do not prompt. Saved JSON and bounded approved diagnostics never become execution
+tokens. Producing B must later connect the actual producer/consumer and collect its
+own evidence; full native installation and C remain separately gated.
+
+The old installation-design Spec4/four-cycle history and B0 completion remain
+immutable. This explicitly approved new material scope has its own unchanged
+four-cycle design ceiling; it cannot retry old findings or alter Policy. Design
+approval permits only six-file documentation/independent review, not H0 product
+implementation, terminal interaction, installation, commit, push or release.

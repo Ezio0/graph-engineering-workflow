@@ -44,6 +44,15 @@ _CONTROL_LOCK = "installation-maintenance.lock"
 _ATTESTATION_KEY = "source-checkout-attestation-v1.key"
 _ATTESTATION_FILE = "source-checkout-attestation-v1.json"
 _SOURCE_FILES = (
+    "adapters/graph_engineering/adapters/installation_authority.py",
+    "application/graph_engineering/application/installation_authority.py",
+    "core/graph_engineering/core/installation_authority.py",
+    "config/contracts/installation-approval-schema-registry-v1.json",
+    "config/contracts/schemas/installation-approval-challenge-1.0.0.json",
+    "config/contracts/schemas/installation-approval-diagnostic-1.0.0.json",
+    "config/contracts/schemas/installation-approval-policy-1.0.0.json",
+    "config/release-installation/installation-approval-policy-v1.json",
+
     "adapters/graph_engineering/adapters/release_staging.py",
     "application/graph_engineering/application/release_staging.py",
     "core/graph_engineering/core/release_staging.py",
@@ -944,9 +953,31 @@ def _archive_identity(path: pathlib.Path) -> tuple[int, int, int, int, int, str]
         os.close(descriptor)
 
 
-def _profile_coverage_protected_resources(provenance: bytes) -> tuple[str, ...]:
+def _provenance_values(provenance: bytes):
+    """Memoize pure parse results only within a capture, never resource validity."""
+    current=getattr(_record_capture_local,'current',None)
+    eligible=current is not None and current[0]==(os.getpid(),threading.get_ident())
+    key=('provenance-values',provenance,_SOURCE_FILES)
+    prior=None if not eligible else current[1].get(key)
+    if prior is not None:return prior
     try:
-        document = tomllib.loads(provenance.decode("utf-8", errors="strict"))
+        document=tomllib.loads(provenance.decode('utf-8',errors='strict'));project=document['project']
+        if type(project) is not dict or type(project.get('name')) is not str or type(project.get('version')) is not str:raise TypeError('project')
+        result=(project.get('name'),project.get('version'),_profile_coverage_from_document(document))
+    except (KeyError,TypeError,UnicodeError,tomllib.TOMLDecodeError) as error:
+        raise DistributionIdentityError('installed provenance resource is malformed') from error
+    # Expose only immutable pure values. Every caller still rereads and verifies
+    # actual RECORD, provenance and all protected resource bytes on each barrier.
+    if eligible:current[1][key]=result
+    return result
+
+
+def _profile_coverage_protected_resources(provenance: bytes) -> tuple[str, ...]:
+    return _provenance_values(provenance)[2]
+
+
+def _profile_coverage_from_document(document) -> tuple[str, ...]:
+    try:
         coverage = document["tool"]["gew"]["profile"]["coverage-execution-plan"]
     except (KeyError, TypeError, UnicodeError, tomllib.TOMLDecodeError) as error:
         raise DistributionIdentityError(
@@ -1103,22 +1134,9 @@ def _validate_distribution_identity_capture():
         or _archive_identity(distribution_archive) != archive_identity
     ):
         raise DistributionIdentityError("installed distribution archive changed")
-    try:
-        manifest = tomllib.loads(manifest_body.decode("utf-8", errors="strict"))
-        project = manifest["project"]
-    except (KeyError, TypeError, UnicodeError, tomllib.TOMLDecodeError) as error:
-        raise DistributionIdentityError(
-            "installed provenance resource is malformed"
-        ) from error
-    if (
-        type(project) is not dict
-        or project.get("name") != _DISTRIBUTION_NAME
-        or project.get("version") != distribution.version
-    ):
-        raise DistributionIdentityError(
-            "installed provenance distribution binding changed"
-        )
-    protected_resources = _profile_coverage_protected_resources(manifest_body)
+    name,version,protected_resources=_provenance_values(manifest_body)
+    if name!=_DISTRIBUTION_NAME or version!=distribution.version:
+        raise DistributionIdentityError('installed provenance distribution binding changed')
     if distribution_archive is not None:
         _validate_archive_resource_uniqueness(
             distribution, distribution_archive, protected_resources,
