@@ -5911,3 +5911,518 @@ currentness/deadline checks, production120/30, byte ceilings, exact33/347, seria
 native290/canonical300 and four-cycle history. No implementation/terminal-positive
 PASS is inferred; the signed request/approval and independent affected-design review
 are retained in detached records. This supplement amends timing data, not scope.
+
+## WP-10 isolated staging execution design — W10E, 2026-10-16
+
+### W10E-S1 Overview and entry
+
+The Owner approved `wp10-b1-staging-design-request-r0.json`, its proposal and exact
+six-document Envelope. This section refines W10B into a local-install staging
+contract after H0, without changing PRD/Intent v2. H0 completed at
+`c9a158eb8144fb0bb7bafde094955c2f6b3bba16`: 341 tests plus six statics, independent
+implementation/verification/Candidate approvals, verified Receipt and origin/main
+push. Older unstarted H0 prose is historical; detached records determine completion.
+This task designs execution; it does not implement or execute it.
+
+### W10E-S2 Goals
+
+Trace PRD FR-01/16, NFR-01/06/08 and installation/recovery journeys. E-G1: zero
+candidate writes or child starts without a current matching consumed local grant.
+E-G2: every accepted payload member and generated file has verified membership,
+bytes and physical origin. E-G3: identical bundles in two clean roots of different
+prefix lengths have equal semantic manifests and distinct physical bindings.
+E-G4: every injected failure boundary returns no accepted result and preserves old
+tool/repository/Skill/active/task/security/clock inventories. E-G5: all approved
+future selectors execute once without skips, including genuine SOURCE/WHEEL ports.
+
+### W10E-S3 Non-goals and compatibility
+
+Retain W10B-S3 and PRD non-goals. First execution supports only operation=install,
+prior_tuple_digest=null and preserve_data=true. Upgrade/C migration/publication,
+rollback/uninstall, native Skill bootstrap and unattended runtime authority retain
+their separate gates. No production keys, recipes, roots, binaries or network source
+are invented. Synthetic process fixtures cannot establish real CPython/uv installation,
+offline guarantees or any of the three required native acceptance cells.
+Do not widen existing A/B0/H0 schema1.0.0 diagnostics or digest projections. New
+execution records below have their own schema/projection identities.
+
+### W10E-S4 Components, executable edges and state machine
+
+```mermaid
+flowchart LR
+  P[Fresh B0 owned plan] --> H[H0 local decision and single consume]
+  H --> X[Exclusive candidate acquisition]
+  X --> E[Bounded no-follow extraction]
+  E --> C[Trusted recipe process loop]
+  C --> V[Actual byte and RECORD verification]
+  V --> D[Durable records and final currentness]
+  D --> R[Owned read-only staged observation]
+  R --> O[Fresh authority and physical reopen]
+  X --> F[Unaccepted candidate diagnosis]
+  E --> F
+  C --> F
+  V --> F
+  D --> F
+```
+
+Core owns closed execution records, template expansion/normalization projections and
+semantic equality. Application owns stage/reopen sequencing, weak-owned handles,
+grant consumption and failure propagation. A physical execution adapter owns directory
+descriptors, archive bytes, process lifetime, actual inventory and fsync. All run in
+the invoked process; one owned child group at a time, no daemon/background retry.
+
+| Edge / route | Typed input and output | Deterministic barrier |
+| --- | --- | --- |
+| plan → consume | same ReleaseInstaller + StagePlanEnvelope + InstallationAuthority → StagePermit | captured guards, full source/policy/target facts and original deadline; consume before first mkdir |
+| consume → acquire | live permit + verified candidate-parent → private candidate descriptors | full permit/currentness; exclusive request-derived component; no overwrite |
+| acquire → extract | admitted artifact bytes + member inventory → payload files | charge/reserve before writing, no-follow relative handles, root facts and permit |
+| extract → process | exact recipe + observed binaries + reserved output layout → bounded child outcome | full fresh inputs/root/permit and original code/provider guards before each start |
+| process → verify | confirmed exited/reaped group + actual payload → normalized manifest and private binding | exit0 insufficient; complete membership/bytes/modes/RECORD/template verification |
+| verify → accept | fresh physical closure + live permit → durable records and observation | file/dir fsync, receipt-last protocol, final currentness and deadline |
+| staged → reopen | fresh owned same-envelope plan + new local grant → new read-only observation | consume once, complete durable/physical validation, never run installer or repair root |
+
+Volatile states: planned → permitted → acquired → extracted → running → verified →
+durable → accepted; any rejection is terminal for that invocation. Retired/failed
+permits are not refunded. Disk states are absent, unaccepted or complete-staged;
+partial files do not constitute a recoverable permission or accepted result.
+
+### W10E-S5 Data, layout, projections and persistence
+
+Use W10B's StageRequest/InstallPlan/StageContext/StagePlanEnvelope unchanged. No new
+runtime locator, database table, task authority kind or active reference. All new
+JSON is charged, recursively closed and schema1.0.0. Logical paths are portable,
+case-fold collision-free, finite and relative; every physical path comes from the
+installed registry and actual observations, never a caller destination argument.
+
+Candidate component is `stage-` followed by the 64 lowercase hex digits of the
+domain-separated `stage-candidate-name` projection over request_id, installation_id
+and envelope_digest. Open only below the already verified candidate-parent handle.
+mkdir is exclusive0700; an existing component makes stage return recovery_blocked.
+reopen is explicit and never adopts a partial or foreign root. Candidate name is a
+location convention, not a seal or proof of ownership.
+
+Fixed logical layout: `payload/interpreter/` and `payload/installer/` contain exactly
+the admitted regular-file archive members; interpreter executable member and installer
+`bin/uv` retain their signed descriptors. `payload/wheelhouse/` contains the complete
+admitted wheel set under validated original wheel basenames, without collisions.
+`payload/tool/` is the recipe's installation prefix; Skill assets map to
+`payload/skills/<runtime_kind>/<skill_id>/<version>/` from admitted descriptors.
+`metadata/` is reserved to the coordinator; bundle/recipe paths cannot select it.
+The interpreter token resolves to its actual candidate executable, tool to the
+candidate tool prefix and wheelhouse to its candidate directory. cwd_ref resolves
+only to the candidate root. No string interpolation creates additional tokens.
+
+Before mkdir, derive the **expected** install inventory from admitted wheels and
+templates, independently of any installer output. Supported wheels retain A's
+Root-Is-Purelib=true subset. Let PY be the admitted patch's decimal major.minor,
+and SITE=`payload/tool/lib/python<PY>/site-packages`. An ordinary member p maps
+to SITE/p, including its unique matching .dist-info directory. Its .dist-info/RECORD
+maps there too but is the declared generated self-file, not copied wheel RECORD bytes.
+For the unique distribution-matching `.data/purelib/p`, map to SITE/p.
+For `.data/scripts/name`, map to `payload/tool/bin/name`; require a matching declared
+template and verify the admitted source starts with the supported `#!python` marker
+or already matches the template's fixed literals. Only that declared script's
+interpreter-prefix rewrite is allowed. Unknown .data categories, nested script names,
+native/platlib wheels outside A's accepted subset, nonempty automatic console/gui
+entry-point declarations and unsupported script schemes refuse before mutation.
+This design does not widen the admitted wheel formats to achieve native acceptance.
+
+The expected generated set is the exact recipe-generated_files/template bijection.
+Besides declared scripts and each distribution's RECORD, the only additional
+permitted installer text metadata are that distribution's .dist-info/INSTALLER
+and .dist-info/REQUESTED, each explicitly declared kind=script with a literal-only
+template; here script denotes verified generated text, not permission to execute it.
+REQUESTED alone may use an empty segment list for a zero-byte file. Nothing is
+inferred from the installer: undeclared INSTALLER/REQUESTED, direct_url.json, caches,
+pyc, entry-point wrappers and arbitrary extra files reject. A real recipe that cannot
+produce this supported exact closure remains unavailable; no suppression flag or
+compatible uv behavior is invented by this document.
+
+Assign every expected file exactly one distribution or admitted asset owner. Reject
+case-fold destination collisions across distributions, duplicate ownership even for
+equal bytes, file/directory ancestor collisions, and generated paths replacing an
+ordinary file except that distribution's declared script/RECORD transformation.
+Shared namespace directories are allowed; the directory inventory is exactly the
+ancestor closure of expected files plus the fixed payload/metadata layout. No
+installer-created directory is accepted merely because it is empty. Expected sizes
+come from admitted ordinary bytes or fully expanded declared templates; RECORD's
+maximum is bounded before writing from that distribution's known complete row set.
+This expected ownership/path/size table supplies reservation and final verification.
+
+Installed RECORD paths resolve relative to SITE, using the unique canonical POSIX
+relative spelling to an expected owned file. Thus ordinary `graph_engineering/cli.py`
+maps to SITE/graph_engineering/cli.py; for the existing direct script, the admitted
+`graph_engineering-<version>.data/scripts/graph-engineering` maps to
+payload/tool/bin/graph-engineering and its physical RECORD path is
+`../../../bin/graph-engineering`. Permit these calculated parent segments only when
+the complete normalized destination equals that declared distribution-owned mapping;
+no arbitrary traversal, alternate spelling, outside-root or cross-distribution row.
+Require exactly one row for every expected file owned by that distribution, including
+explicit metadata, and exactly one empty-hash/size RECORD self-row. An absent ordinary
+file or undeclared generated file therefore fails against the prederived table even
+if an installer rewrites RECORD to agree with its own output.
+
+Template sources are admitted kind=build-input artifacts whose entire JSON bytes
+match their signed raw digest. A StageGeneratedTemplate is exactly schema_version,
+logical_path, kind, segments, template_digest. kind is launcher/script/RECORD.
+For launcher/script, each segment is exactly either `{literal: ASCII-text}` or
+`{ref: interpreter|tool}`; empty/NUL/control literals and ambiguous overlapping
+expansions refuse, except LF/TAB explicitly present in a literal script body.
+RECORD uses segments=[] and names exactly its declared self-file. template_digest
+is `stage-generated-template` over the other four fields. A recipe declaration
+must have exactly one matching admitted template with the same path/kind/digest;
+unmatched, duplicate and unused template documents refuse before mutation.
+No build-input bytes are executed or treated as a provider.
+
+**Required future admission bridge.** Baseline A's LocalReleaseVerifier currently
+rejects every build-input at release_installation.py's archive-dispatch barrier;
+the existing B0 PlanningSession invokes that real verifier. Therefore implementing
+the following bounded bridge is a prerequisite, not an already available capability.
+Include that exact adapter source in the later implementation inventory. No changed
+A source is authorized by this documentation task.
+
+After the existing signature, artifact membership/source/license checks and raw
+size/SHA256 comparison, recognize only a StageGeneratedTemplate JSON object in a
+kind=build-input artifact. Parse under the same _ReadFile/_Budget/WorkContext limits,
+including max_manifest_bytes, cumulative hash/parse/array/string charges, before
+materialization. Enforce the new physically owned template schema, exact closed
+fields, supported segments/path/kind and recomputed template_digest. Reject duplicate
+logical template paths or template digests. Generic unsupported build-input remains
+phase_unavailable; a recognizable attempted template with missing/unknown fields,
+invalid segments or bad self-digest rejects as input_invalid/trust_rejected.
+It is data only, never imported, evaluated, executed or accepted as a provider.
+
+The existing manifest signature and unchanged release-closure projection include
+every template artifact's raw SHA256/size; require its existing provenance reference,
+exact provenance subject, source/license and security/SBOM treatment under A's rules.
+No new ArtifactKind, trust key, release schema, A diagnostic, plan/context/envelope
+field or digest projection is introduced. Keep template _ReadFile descriptors and
+snapshots in the real ReleaseObservation alongside other artifacts; its currentness
+checks cover their exact bytes, identity and ancestors. Capture/validate the new
+schema loaders/parsers/template functions and their effective bindings before calls,
+and on retained use, through the same original-provider guard closure.
+
+Only after genuine A admission does B0 select its physically owned recipe. Then
+join its complete generated_files list with the admitted template documents and
+require the path/kind/digest bijection above. Unknown/unused/missing templates refuse
+before a plan can be returned or authority issued. The unchanged plan closure_digest
+therefore binds all template raw bytes and context.recipe_digest binds every selected
+declaration. Public template-free A check/Doctor keeps its existing output/schema/
+projection and zero-write behavior; unsupported non-template build inputs stay refused.
+This narrowly accepts the newly specified template subset in a later approved
+implementation; it does not silently reclassify all historical build-input failures.
+
+Future contract tests must drive the production A verifier and B0 planner in both
+owned SOURCE and WHEEL fixtures: valid signed template-bearing bundles reach an owned
+plan, while malformed/unknown/unused/swapped/raw- or self-digest-mismatched templates
+refuse before authority/candidate mutation. A fabricated ReleaseObservation, patched
+admission callback or injected parser result is not a qualifying positive.
+
+New contracts, installation-owned through a new execution schema registry:
+
+These unimplemented execution-family definitions supersede W10B's proposed field
+lists where made explicit below; published A/B0/H0 record shapes/projections are
+unchanged. In particular, the new StageReceipt binds private execution provenance.
+
+| Record / digest projection | Exact fields |
+| --- | --- |
+| InstalledReleaseManifest / installed-release-manifest | schema_version, release_id, platform, interpreter_identity, distributions, skills, lock_digest, sbom_digest, security_evidence_digest, policy_digest, installed_manifest_digest |
+| InstallationBinding / installation-binding | schema_version, installation_id, request_id, plan_digest, stage_context_digest, candidate_identity, interpreter_binding, installer_binding, files, binding_digest |
+| StageReceipt / stage-receipt | schema_version, request_id, plan_digest, release_manifest_digest, stage_context_digest, installed_manifest_digest, binding_digest, execution_binding_digest, status, receipt_digest |
+| StageExecutionBinding / stage-execution-binding | schema_version, installation_id, request_id, operation, plan_digest, stage_context_digest, envelope_digest, challenge_digest, execution_binding_digest |
+| StageGeneratedTemplate / stage-generated-template | schema_version, logical_path, kind, segments, template_digest |
+| StageExecutionDiagnostic / stage-execution-diagnostic | schema_version, request_id, status, phase, code, checks, refs, capabilities, next_route, diagnostic_digest |
+
+Each digest is W10B's charged domain-separated `stage_digest(kind, body-without-own-
+digest)` construction, using that record's distinct schema/projection ID. Receipt
+status is staged only. Manifest nested platform/interpreter identity/distribution/
+Skill fields and ordering follow W10B-S5 exactly; no absolute prefix enters it.
+
+candidate_identity is exactly device,inode,mode,owner_id. Each executable binding is
+logical_path,raw_sha256,size_bytes,mode,physical_identity. files is a path-ordered
+complete payload inventory; rows are logical_path,kind,raw_sha256,size_bytes,mode,
+physical_identity. kind=file|directory; directories use null raw_sha256 and size0.
+physical_identity is device,inode,owner_id,mtime_ns,ctime_ns,ancestors; ancestors are
+ordered device/inode/mode/owner_id observations from the candidate root to the parent.
+All OS numeric identities/times use canonical unsigned decimal strings; modes/sizes
+use charged non-boolean bounded integers. Physical inventories stay owner-only.
+
+Only four coordinator files are accepted: metadata/installed-manifest.json,
+metadata/binding.json, metadata/execution-binding.json and metadata/receipt.json.
+Payload inventory excludes those four files to avoid recursive hashes; their complete canonical bytes are bound by
+their validated record digests and receipt references. Root membership must otherwise
+equal the payload inventory plus its directories and these exact metadata entries.
+No accepted lifecycle marker, temp file, installer cache or unknown empty directory.
+
+StageExecutionBinding is private execution provenance required by W10H-S10, not a
+new authorization token. operation is exactly install. At genuine consume, obtain
+the original challenge_digest from the captured StagePermit.require_current path
+and its owned challenge facts; compare operation/installation/request/plan/context/
+envelope with the current owned plan before first mutation. Keep this original
+digest in the factory-owned stage session. Before persisting or accepting, recheck
+the live permit returns the same digest and validate every binding field against
+that session/plan. Its self-digest excludes only execution_binding_digest; the final
+receipt includes that digest as well as installed-manifest/binding digests. This
+connects the exact approval to the actual staged operation without retaining nonce,
+response, terminal transcript, deadline or identity. No task/audit database is added.
+
+Reopen validates all four records and their cross-links, operation and freshly
+rederived plan/context/envelope, then physically verifies the root. Its newly consumed
+grant supplies a distinct process-private reopen challenge digest; it must authorize
+this plan but cannot replace or overwrite the immutable originating stage binding.
+Missing, malformed or inconsistent execution provenance refuses. Two independent
+approvals of equivalent plans yield distinct challenge/execution-binding digests;
+the semantic InstalledReleaseManifest deliberately excludes them and remains equal.
+Self-digests prove consistency, not the authenticity of a past human decision after
+arbitrary private-file rewriting; fresh authority and physical revalidation remain
+mandatory. No stored binding, copied receipt or hash reconstructs a grant or handle.
+
+SOURCE/WHEEL tests must compare the persisted origin with the exact real consumed
+permit challenge observed independently from the private parent prompt. Missing or
+mismatched binding/receipt links refuse. Fresh authorization of the unchanged plan
+must produce a distinct challenge and retire the previous grant; it cannot stage
+twice into the existing derived root. Two independent clean-root executions retain
+distinct originating bindings while semantic manifests compare equal. A fresh
+authorized reopen preserves the original execution-binding bytes. Copied records
+without genuine fresh authority cannot recreate permission or an observation.
+Public diagnostic/privacy oracles reject nonce, response, transcript and UID leakage.
+
+Verify actual RECORD CSV rows and actual file hashes/sizes before normalization.
+Map only declared candidate-internal script paths. Require exactly one RECORD self-row
+with empty hash/size; every nonself row names exactly one expected physical file.
+Normalize only fully matched declared template expansions to their logical token
+segments, including both hash and size in semantic RECORD rows. Ordinary bytes are
+unchanged; the self-row stays empty. Private binding retains actual bytes/digests,
+sizes, modes and identities. A metadata digest cannot substitute for actual files.
+
+Normative normalized **content bytes** for a declared launcher/script are UTF-8 JCS
+serialization of its segments array alone: sorted object keys, comma/colon separators,
+no BOM/newline, literal strings preserved with JSON escaping. They are not executable
+script bytes or a serialization of the entire template. A reference remains an
+object with key ref; literal token-like text remains an object with key literal.
+The semantic RECORD hash is `sha256=` plus unpadded URL-safe base64 SHA256 of these
+bytes; its size is their exact decimal byte length. Ordinary rows instead use actual
+unchanged file bytes and size. RECORD self-rows remain empty. For RECORD templates,
+the normalized content is UTF-8 JCS of the path-ordered canonical semantic row list
+with exactly logical_path,hash,size string cells; the self-row has empty hash/size.
+
+Normative vector: segments are `[{"literal":"#!"},{"ref":"interpreter"},{"literal":"\n"}]`.
+Interpreter `/a/bin/python` expands to bytes `#!/a/bin/python` followed by LF;
+`/longer-root/bin/python` expands likewise with the longer prefix. Both must match
+their actual declared template and raw physical RECORD first. Both normalize to
+the exact 57 ASCII bytes `[{"literal":"#!"},{"ref":"interpreter"},{"literal":"\n"}]`
+(the last string contains the two JSON escape bytes backslash,n). Hash cell is
+`sha256=vXODppfqd9WEMtoWQEny_BLT1YV93YRHLHosQu5nZH0`, size cell `57`.
+`[{"literal":"interpreter"}]` is distinct from `[{"ref":"interpreter"}]` and cannot
+be normalized into it. A one-byte ordinary member change remains closure_mismatch.
+
+### W10E-S6 Interfaces and lifetime
+
+`ReleaseInstaller.stage(envelope, authority)` becomes
+`StagedReleaseObservation|StageExecutionDiagnostic` only after separate implementation
+approval. It consumes H0 through the existing `_consume_for_stage` seam. Passing a
+StagePermit directly, JSON, copied plan or foreign object refuses before mutation.
+`reopen_staged(envelope, authority)` has the same result type and obtains the exact
+derived candidate location; it never takes a caller-selected path or runs a process.
+
+StagedReleaseObservation is factory-only, weak-owned and PID/thread/operation-bound.
+`require_current()` reopens/rechecks full source, policies, configured roots, durable
+records and actual candidate membership; it returns receipt_digest. `to_dict()`
+returns only the semantic InstalledReleaseManifest. `diagnostic()` returns the
+sanitized staged diagnostic; `close()` drops descriptors without deleting the root.
+Copies, pickle and JSON cannot recreate a handle. Rotation/owner death/changed facts
+cause sticky invalidation. The mutation permit closes after final acceptance; the
+result holds no mutation authority and its read checks do not renew an expired grant.
+Future C obtains its own approval and fresh observations; this result is not C consent.
+
+The physical session is internal and factory-owned, not a callback injectable into
+the public API. It exposes acquire, extract, run_recipe, verify, persist, reopen,
+require_current and close to captured original application code. All consumed
+functions/classes/descriptors/effective bindings join the provider closure before
+calling them, with private captured guard/cleanup code. No caller-supplied writer,
+process runner, clock, identity, inventory or result can certify execution.
+
+Public local `install-apply --plan <file> --bundle <root> --manifest <file> --format json`
+first bounded-reads the plan, reacquires the same bundle and actual owned planning
+inputs, compares the complete envelope, obtains a new genuine H0 local decision and
+stages. A mismatch refuses before prompting/writing. It prints only StageExecutionDiagnostic,
+never private binding or authority. No environment approval flag or piped response.
+Successful plan input remains the unchanged B0 envelope. Noninteractive/runtime
+invocations remain unavailable. No command implicitly reopens or cleans partial roots.
+
+### W10E-S7 Errors and public result
+
+Reuse W10 codes/exits2/3/4. New diagnostic phase is stage; status is staged, rejected
+or blocked. Checks are ordered closed id/status/code/ref rows; refs remain opaque.
+For success, code=staged, next_route=await-activation and capabilities are exactly
+install-plan=available, install-apply=stage-only, stage=available,
+reopen-staged=local-authority-only, release=unavailable. Failure capabilities state
+the same supported surface without claiming a successful installation. Old A/B0/H0
+diagnostics keep their old contracts; bootstrap refusal uses its captured original body.
+
+| Cause | Code / exit | Recovery |
+| --- | --- | --- |
+| malformed plan/recipe/template/record | input_invalid /2 | correct inputs, new planning operation |
+| absent/wrong/expired grant or missing terminal | authority_required /4 | new plan and local decision |
+| source/provider/root swap or stale handle | currentness /4 | sticky invalidation; reacquire |
+| stage/process/output/teardown bound | resource_limit /4 | no automatic raised budget or retry |
+| missing recipe/real binary/platform primitive | platform_unavailable /3 | supply separately approved prerequisites |
+| actual membership/RECORD/template mismatch | closure_mismatch /4 | unaccepted root; inspect privately |
+| existing partial root, unconfirmed process or durability failure | recovery_blocked /3 | explicit bounded diagnosis; no adoption/repair |
+
+No raw child output, absolute path, UID, nonce, argv, environment or binding is public
+or retained in detached test evidence. Success reports staged only, not installed/active.
+
+### W10E-S8 Failures, concurrency, durability and cleanup
+
+Before each candidate write and child start validate permit, exact sources and root
+handles. Root handles must still match the configured ancestor chain. After each child,
+require group exit/reap and full currentness before consuming outputs. SIGINT/exception
+invalidates the invocation; capture original close/terminate/reap operations.
+
+All payload files are exclusive regular files, no-follow and confined to observed
+relative directory descriptors. Reject links, special files, collisions, traversal,
+setid modes and unlisted members. Extraction uses admitted regular ustar offsets and
+verified wheel members; not generic extractall. New directory permissions0700;
+coordinator metadata0600. Payload modes retain only admitted ordinary read/execute
+semantics, forbid group/other write and setid, and remain behind the private root.
+
+Run only the admitted absolute interpreter/installer executable with sealed
+`subprocess.Popen`, shell=false, exact argv, exact fresh environment, stdin=DEVNULL,
+closed inherited descriptors and a new owned process group. Independently poll/drain
+stdout/stderr with a cumulative shared byte ceiling; no communicate accumulation.
+Reserve teardown before starting, with no new StagePolicy field or larger bound.
+Let t0 be the captured monotonic launch time, G the owned original grant deadline,
+D=min(G,t0+max_process_seconds), B=D-t0. If B<=0, do not start. The execution cutoff
+is X=t0+B/2, forced-kill cutoff K=t0+3B/4 and final bound D. Thus half of the existing
+window is reserved for teardown; normal execution cannot spend it. No step recomputes
+G or renews any cutoff. On normal exit, drain within output limits and confirm child
+and owned group completion before proceeding. At X or earlier error/interrupt,
+signal TERM only to the owned group; if still live at K, signal KILL, then bounded
+nonblocking poll/reap until D. Signal/reap are revocation cleanup, not installation
+mutation permission, and remain permitted after a grant expires. No broad name kill.
+
+If scheduling or a blocking trusted OS primitive returns after K/D, issue the missing
+owned-group KILL immediately and make one nonblocking reap/liveness check; never
+start a new wait window. At D, confirmed completion returns the original failure
+(normally resource_limit for timeout), never staged. If child/group liveness is
+unconfirmed, return recovery_blocked, close parent I/O handles and preserve the root.
+No acceptance, filesystem cleanup, automatic retry, daemon or later PID-based kill
+is authorized. This explicit blocked outcome does not claim the child was reaped.
+Subsequent stage refuses the existing root; reopen refuses its incomplete closure.
+Normal successful stages require confirmed group exit, not merely the parent PID.
+
+Timing examples with t0=100,G=102,max_process_seconds=2 yield X=101,K=101.5,D=102:
+normal exit100.8 may proceed; a TERM-ignoring child is killed101.5 and, if confirmed
+reaped101.7, returns timeout failure. With G=100.4, X=100.2,K=100.3,D=100.4; the
+execution window shrinks rather than extending grant expiry. If liveness remains
+unconfirmed100.4, recovery_blocked returns and candidate cleanup is forbidden.
+An unsupported required host primitive refuses, never weakens the behavior. Source
+and executable facts are checked immediately before launch and again afterwards;
+the trusted OS/CPython/installer boundary is explicit, not a sandbox for hostile
+same-UID actors able to rewrite owned process memory or for arbitrary signed programs.
+
+Reserve the complete admitted extraction footprint, expected install membership and
+bounded metadata before mutation. Before a trusted recipe starts, reserve its entire
+remaining StagePolicy byte/file allowance; actual post-process inventory must fit and
+match the expected closure. Parent-owned writes are charged before allocation/write.
+This is a coordinator reservation and acceptance limit, not an OS disk quota for an
+arbitrary malicious child. Unexpected child files reject the candidate. Genuine
+offline/footprint assertions require supplied trusted recipe/native evidence; private
+synthetic success cannot establish them.
+
+Persist the original execution binding, canonical manifest then physical binding with exclusive creation, complete bounded
+write loops, file fsync and directory fsync. Receipt is created last, file-fsynced,
+then metadata/root/candidate-parent directories are fsynced before returning. Recheck
+permit/deadline, source and actual records/root after durability. A crash before this
+sequence returns no success; after restart reopen always freshly verifies the full
+four-record closure and fsyncs it before accepting. Receipt existence alone is never
+enough. Concurrent stage requests for the same derived root have one exclusive winner;
+others refuse, never merge. Existing complete root requires explicit reopen and new grant.
+
+Failure does not automatically delete a root or replay consent. Bounded internal
+cleanup during a still-authorized invocation may remove only exclusively created,
+identity-confirmed known entries after confirmed child exit. Missing deadline, unknown
+membership, replaced root, live child or exhausted max_cleanup_entries blocks cleanup.
+Retain an unaccepted root rather than guessing. Old assets/action history are untouched.
+
+### W10E-S9 Resource and verification bounds
+
+Existing StagePolicy fields remain unchanged: max_stage_bytes/files, max_process_seconds,
+max_output_bytes, max_failed_candidates and max_cleanup_entries; stricter A WorkContext
+limits win. Metadata, directories, templates, normalized bytes and cumulative child
+output are charged, not ignored. Original H0 grant deadline is never renewed.
+Candidate-parent enumeration is bounded before allocation; exceeding the failed-root
+count refuses acquisition. Count every existing stage-prefixed entry, not merely roots
+with an accepted receipt; unknown entries are not traversed/adopted.
+
+Current unconfigured policy values are not production performance claims. The proposed
+implementation must retain them and private H0 wait/grant15/15, worker45 and transcript16384
+unless an exact later amendment is approved. Native290/canonical300 and strict serial
+fail-fast recording remain unchanged. Percentiles, throughput, real installer latency
+and recovery SLA remain unmeasured. H0 canonical347 took13130.31s wall,3688.18s command
+time; retain that distinction when estimating later capture, without modifying F.
+
+### W10E-S10 Trust, privacy and audit
+
+| Actor | Read/plan | Candidate mutation | Old installation/data/activation |
+| --- | --- | --- | --- |
+| Untrusted request or serialized plan/result | bounded parsing | never | never |
+| Direct verified local Owner | fresh exact plan decision | owned install candidate only, via consumed H0 permit | never in this slice |
+| Trusted admitted recipe process | necessary private payload | reserved candidate paths under declared recipe | no authority; not a hostile-program sandbox |
+| Read-only staged observation / independent reviewer | current semantic facts / evidence | never | never |
+
+Private paths, UIDs and physical facts stay under owner-only roots. Test peers are
+synthetic/owned and raw PTY/output bytes remain transient. No task authority/audit DB
+is fabricated. Receipt identifies actual verified staging, not execution consent;
+future C revalidates and records its own authorized operation. Production trust and
+roots remain unconfigured/refused; fixtures do not populate them.
+
+### W10E-S11 Remaining gates and acceptance
+
+Before implementation: independently accepted Spec/Impact/Plan/Test Plan, exact new
+files/resources/pins/argv, finite fixture construction and explicit implementation
+approval. Behavioral RED must demonstrate reachable wrong behavior, not import failure.
+Before genuine B/native acceptance: actual compatible interpreter/installer archives,
+approved exact offline argv/templates, complete wheels/lock/SBOM/provenance/security,
+production source/trust and macos-arm64/macos-x86-64/linux-x86-64 evidence. Missing inputs
+remain blocked, not downloaded or replaced by helper binaries. Archive format or budget
+expansion, authenticated runtime and C formats/authority each need their own decision.
+All E-G1..5 and Test Plan CUJs must be met before a future implementation Candidate.
+
+### W10E-S12 References
+
+[PRD/Intent](../prd/graph-engineering-workflow.md),
+[Positioning](../positioning/graph-engineering-workflow.md), W10B-S4..11, W10H-S11,
+[ADR0015](../adr/0015-release-installation-and-upgrade.md),
+[Impact](../impact/graph-engineering-workflow.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md),
+[Test Plan](../test-plans/graph-engineering-workflow.md).
+Approved request/proposal, H0 canonical completion/Receipt/push and the frozen
+validator/Policy/graph are digest-bound in detached design entry records. Product
+sources are inspected only; no child/terminal/extraction experiment runs in this task.
+
+### W10E-S14 Private native fixture execution-window amendment
+
+This annex becomes effective only after the Owner approves the digest-bound
+`wp10-b1-staging-native-window-request-r1.json` and the affected design reviews
+advance. It supersedes only the new W10E
+private fixture's StagePolicy max_process_seconds:2 becomes4. The unchanged
+algorithm has X=t0+2,K=t0+3,D=t0+4 when G permits; D remains min(G,t0+4).
+The original grant G is never extended. All shorter-deadline behavior still applies.
+
+The measured native entry cost was about0.87s with about0.003s subsequent native
+parsing/file/RECORD work; an immediate-return variant confirmed exit around0.97s.
+These are distinct private diagnostic samples, not a same-source benchmark or
+production/native certification. Normal fixtures have also truthfully returned
+resource_limit under the former1-second execution half-window.
+
+Only ExecutionFixture applies its own declared stage_limits. Production/unconfigured
+StagePolicy2, retained H0 fixtures15/15, new grant30, worker45, prompt/input/output/
+transcript, byte/file/cleanup/compiler bounds, frozen verifier and review budget4
+retain their existing values. Delay3s and scheduler pause5s preserve real X/D
+negative journeys under the new4s total window. No production install/C/release,
+commit or push authority is added. The effective human amendment and unchanged
+prior review history accompany affected independent design reviews first, then
+subsequent implementation review. Changed upstream completions are invalidated;
+they are not silently reused for the changed budget inputs.

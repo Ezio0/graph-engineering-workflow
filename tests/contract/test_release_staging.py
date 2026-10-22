@@ -194,9 +194,17 @@ print(json.dumps({'admission_substituted_calls':len(calls)}))
         from tests.support.source_checkout_attestation import SOURCE_FILES
         from tests.unit.test_wp00_packaging import assert_direct_script_contract
         configuration=tomllib.loads((ROOT/'pyproject.toml').read_text());mapping=configuration['tool']['gew']['build']['owned-root-files']
-        resources=[p for p in SOURCE_FILES if p.startswith('config/') and ('stage-' in p or 'staging-' in p or 'installer-policy' in p or '/install-plan-' in p)]
+        legacy_names=('stage-request','install-plan','stage-context','stage-plan-envelope','stage-policy','installer-policy','stage-target-registry','stage-diagnostic')
+        expected_legacy={'config/contracts/release-staging-schema-registry-v1.json'}|{'config/contracts/schemas/'+n+'-1.0.0.json' for n in legacy_names}|{'config/release-installation/'+n+'-v1.json' for n in ('stage-policy','installer-policy','stage-target-registry')}
+        execution_names=('installed-release-manifest','installation-binding','stage-receipt','stage-generated-template','stage-execution-diagnostic','stage-execution-binding')
+        execution_resources={'config/contracts/staging-execution-schema-registry-v1.json'}|{'config/contracts/schemas/'+n+'-1.0.0.json' for n in execution_names}
+        selected={p for p in SOURCE_FILES if p.startswith('config/') and ('stage-' in p or 'staging-' in p or 'installer-policy' in p or '/install-plan-' in p)}
+        resources=selected-execution_resources
         self.assertEqual(len(resources),12)
-        for p in resources:self.assertEqual(mapping[p],'graph_engineering/'+p)
+        self.assertEqual(resources,expected_legacy)
+        self.assertEqual(set(SOURCE_FILES)&execution_resources,execution_resources)
+        self.assertFalse(expected_legacy&execution_resources)
+        for p in sorted(resources|execution_resources):self.assertEqual(mapping[p],'graph_engineering/'+p)
         for installed in (False,True):
             with StageFixture(installed=installed) as f:
                 x=require_success(self,f.run("import graph_engineering as g;from graph_engineering.adapters.release_installation import _fresh_context; p,b=g._release_installation_resources(_fresh_context());expected=('release-policy','release-trust-registry','release-resource-policy');assert p[:3]==tuple('config/release-installation/'+x+'-v1.json' for x in expected);assert p[3]=='config/contracts/release-installation-schema-registry-v1.json';assert p[4:]==tuple('config/contracts/schemas/release-install-'+x+'-1.0.0.json' for x in ('manifest','artifact','policy','trust-registry','resource-policy','diagnostic','schema-registry'));print(json.dumps({'count':len(p)}))"))

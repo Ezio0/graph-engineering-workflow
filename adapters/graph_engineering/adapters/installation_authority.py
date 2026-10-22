@@ -31,130 +31,14 @@ _RECORD_OP=installation._record_capture_operation
 _CONTEXT=planning._CONTEXT;_NATIVE=planning._NATIVE;_ORIGIN=planning._ORIGIN
 _CONTEXT_TYPE=planning.PlanningApprovalContext
 _CONTEXT_CURRENT=_CONTEXT_TYPE.require_current
+_EXECUTION_CONTEXT_CURRENT=_CONTEXT_TYPE.require_execution_current
 _CLOSE=os.close;_READ=os.read;_WRITE=os.write;_OPEN=os.open;_FSTAT=os.fstat
 _POLL=select.select;_CLOCK=time.monotonic_ns;_RANDOM=os.urandom
 _ATTR=termios.tcgetattr;_PID=os.getpid;_THREAD=threading.get_ident
 _UID=os.getuid;_EUID=os.geteuid;_PGRP=os.getpgrp;_SID=os.getsid;_FG=os.tcgetpgrp
 _ABSENT=object()
 
-def _copy_cleanup(function: types.FunctionType,*,freeze_globals: bool=True) -> types.FunctionType:
-    """Capture owned code; guards/cleanup also snapshot effective bindings."""
-    namespace=dict(function.__globals__) if freeze_globals else function.__globals__
-    if freeze_globals:
-        builtins=namespace.get('__builtins__',{})
-        namespace['__builtins__']=dict(vars(builtins) if type(builtins) is types.ModuleType else builtins)
-    result=types.FunctionType(function.__code__,namespace,function.__name__,function.__defaults__,function.__closure__)
-    result.__kwdefaults__=dict(function.__kwdefaults__ or {})
-    return result
-
-class ProviderChanged(ValueError):
-    """A sealed provider changed before use."""
-
-class ProviderSeal:
-    """Bind functions, their effective globals and original class descriptors."""
-    def __init__(self):self._records=None
-    def freeze(self,modules: tuple[types.ModuleType,...],classes: tuple[type,...]=(),*,_vars: Callable=vars,_type: type=type) -> None:
-        if self._records is not None:raise RuntimeError('provider seal already frozen')
-        attrs=[];functions=[];class_names=[];pending_classes=list(classes)
-        seen_classes=set();seen_members=set()
-        def dependency(value: object) -> None:
-            if _type(value) is types.FunctionType:functions.append(value)
-            elif isinstance(value,type) and value.__module__!='builtins':pending_classes.append(value)
-            elif _type(value).__module__ not in ('builtins','types'):pending_classes.append(_type(value))
-        def members(module: types.ModuleType,names: set[str]) -> None:
-            mapping=_vars(module)
-            for name in names:
-                if name not in mapping or (id(module),name) in seen_members:continue
-                seen_members.add((id(module),name));value=mapping[name]
-                attrs.append((mapping,name,value));dependency(value)
-        for module in modules:
-            for name,value in tuple(_vars(module).items()):
-                if _type(value) is types.FunctionType:
-                    attrs.append((_vars(module),name,value));functions.append(value)
-        for module,names in ((os,('open','close','read','write','fstat','lstat','isatty','getuid','geteuid','getpid','getpgrp','getsid','tcgetpgrp','urandom','O_RDONLY','O_RDWR','O_DIRECTORY','O_NOFOLLOW','O_NOCTTY','O_CLOEXEC','O_NONBLOCK')),
-             (select,('select',)),(time,('monotonic_ns',)),(stat,('S_ISCHR',)),(termios,('tcgetattr','ICANON','ECHO')),(threading,('get_ident',)),(hashlib,('sha256',))):
-            attrs.extend((_vars(module),n,_vars(module).get(n)) for n in names)
-        facts=[];seen=set()
-        while functions or pending_classes:
-            while pending_classes:
-                cls=pending_classes.pop()
-                if id(cls) in seen_classes:continue
-                seen_classes.add(id(cls));mapping=_vars(cls)
-                class_names.append((mapping,tuple(mapping)))
-                attrs.extend((mapping,name,value) for name,value in mapping.items())
-                for base in cls.__bases__:dependency(base)
-                for value in mapping.values():
-                    if _type(value) in (classmethod,staticmethod):dependency(value.__func__)
-                    elif _type(value) is property:
-                        for fn in (value.fget,value.fset,value.fdel):dependency(fn)
-                    else:dependency(value)
-            if not functions:continue
-            fn=functions.pop()
-            if id(fn) in seen or _type(fn) is not types.FunctionType:continue
-            seen.add(id(fn));g=fn.__globals__;b=g.get('__builtins__',{})
-            if _type(b) is types.ModuleType:b=_vars(b)
-            names=set();codes=[fn.__code__];imports=[]
-            while codes:
-                code=codes.pop();names.update(code.co_names)
-                codes.extend(c for c in code.co_consts if _type(c) is types.CodeType)
-                imports.extend(i.argval for i in dis.get_instructions(code) if i.opname=='IMPORT_NAME')
-            # Local imports have no effective global binding. Resolve only
-            # already loaded modules; binding must never execute an import.
-            for name in imports:
-                module=sys.modules.get(name)
-                if _type(module) is types.ModuleType:
-                    attrs.append((sys.modules,name,module));members(module,names)
-            dependencies=[]
-            for name in names:
-                if name in g:
-                    value=g[name]
-                    # This library observation cache is populated by a normal
-                    # platform read. All other effective bindings, including
-                    # library constants and encoder objects, remain exact.
-                    if not (fn.__module__=='platform' and name=='_uname_cache'):
-                        dependencies.append((g,name,value))
-                    dependency(value)
-                    if _type(value) is types.ModuleType:members(value,names)
-                elif name in b:
-                    dependencies.append((g,name,_ABSENT));dependencies.append((b,name,b[name]))
-            cells=tuple((cell,cell.cell_contents) for cell in (fn.__closure__ or ()))
-            for value in (*(fn.__defaults__ or ()),*(fn.__kwdefaults__ or {}).values(),*(value for cell,value in cells)):
-                dependency(value)
-            facts.append((fn,fn.__code__,fn.__defaults__,fn.__kwdefaults__,tuple((fn.__kwdefaults__ or {}).items()),cells,tuple(dependencies)))
-        self._records=(tuple(attrs),tuple(facts),tuple(class_names))
-    def require_current(self,*,_type: type=type,_missing: object=_ABSENT,_error: type[ValueError]=ValueError,_id: Callable=id,_state: Callable=object.__getattribute__) -> None:
-        records=_state(self,'__dict__')['_records']
-        if records is None:raise _error('unbound providers')
-        attrs,facts,class_names=records
-        for mapping,names in class_names:
-            if len(mapping)!=len(names):raise _error('changed class namespace')
-            for key in mapping:
-                if _type(key) is not str:raise _error('invalid class namespace')
-            for name in names:
-                if name not in mapping:raise _error('changed class namespace')
-        namespaces={}
-        for mapping,name,value in attrs:
-            if _id(mapping) not in namespaces:
-                for key in mapping:
-                    if _type(key) is not str:raise _error('invalid provider namespace')
-                namespaces[_id(mapping)]=True
-            if mapping.get(name,_missing) is not value:raise _error('changed provider')
-        for fn,code,defaults,kwdefaults,kwitems,cells,deps in facts:
-            if fn.__code__ is not code or fn.__defaults__ is not defaults or fn.__kwdefaults__ is not kwdefaults:raise _error('changed function')
-            if kwdefaults is not None:
-                if len(kwdefaults)!=len(kwitems):raise _error('changed keyword defaults')
-                for key in kwdefaults:
-                    if _type(key) is not str:raise _error('invalid keyword defaults')
-                for key,value in kwitems:
-                    if kwdefaults.get(key,_missing) is not value:raise _error('changed keyword default')
-            for cell,value in cells:
-                if cell.cell_contents is not value:raise _error('changed closure')
-            for mapping,name,value in deps:
-                if _id(mapping) not in namespaces:
-                    for key in mapping:
-                        if _type(key) is not str:raise _error('invalid effective namespace')
-                    namespaces[_id(mapping)]=True
-                if mapping.get(name,_missing) is not value:raise _error('changed effective binding')
+from graph_engineering.adapters.release_installation import ProviderSeal,ProviderChanged,_copy_cleanup
 
 _SEAL=ProviderSeal()
 _GUARD=ProviderSeal.require_current
@@ -253,6 +137,21 @@ class ApprovalSession:
             r,w,_=_POLL([] if write else [state['fd']],[state['fd']] if write else [],[],max(0,(state['deadline']-now)/1_000_000_000))
         except InterruptedError:return False
         self.require_current();return bool(w if write else r)
+
+    def require_execution_current(self,*,_guard: Callable=_copy_cleanup(_GUARD),_seal: ProviderSeal=_SEAL,_cleanup: Callable=_copy_cleanup(_close_session),_state: Callable=object.__getattribute__) -> int:
+        state=_state(self,'__dict__')
+        try:
+            _guard(_seal)
+            with _RECORD_OP():
+                now=self.require_facts_current()
+                # The genuine planning context rereads its whole owned closure,
+                # including these approval resources, and compares their fresh
+                # bytes/origin/native facts with this original session binding.
+                if _EXECUTION_CONTEXT_CURRENT(state['context'],approval_binding=state['binding'])!=state['record']:fail('currentness')
+                end=_CLOCK()
+                if end<now or end>=state['deadline']:fail('currentness')
+                state['last']=end;_guard(_seal);return end
+        except BaseException:_cleanup(self);raise
 
     def _write_prompt(self,prompt,*,_state=object.__getattribute__):
         state=_state(self,'__dict__')

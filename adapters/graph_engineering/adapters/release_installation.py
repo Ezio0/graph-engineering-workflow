@@ -8,6 +8,12 @@ import platform as host_platform
 import stat
 import sys
 import zipfile
+import types
+import dis
+import select
+import time
+import threading
+from graph_engineering.core import staging_execution as _template_contracts
 from pathlib import Path
 from typing import Callable
 
@@ -25,6 +31,134 @@ _CAPTURE_LOADER = getattr(graph_engineering, '_release_installation_resources', 
 _OWNED_LOADER = graph_engineering._installation_owned_resources
 _SEED_LOADER = graph_engineering._security_bootstrap_seed_resources
 _PARSER_RESOURCES = graph_engineering._dependency_parser_resources
+_INPUT_PARSE_CACHE=[]
+
+
+_ABSENT=object()
+
+def _copy_cleanup(function: types.FunctionType,*,freeze_globals: bool=True) -> types.FunctionType:
+    """Capture owned code; guards/cleanup also snapshot effective bindings."""
+    namespace=dict(function.__globals__) if freeze_globals else function.__globals__
+    if freeze_globals:
+        builtins=namespace.get('__builtins__',{})
+        namespace['__builtins__']=dict(vars(builtins) if type(builtins) is types.ModuleType else builtins)
+    result=types.FunctionType(function.__code__,namespace,function.__name__,function.__defaults__,function.__closure__)
+    result.__kwdefaults__=dict(function.__kwdefaults__ or {})
+    return result
+
+class ProviderChanged(ValueError):
+    """A sealed provider changed before use."""
+
+class ProviderSeal:
+    """Bind functions, their effective globals and original class descriptors."""
+    def __init__(self):self._records=None
+    def freeze(self,modules: tuple[types.ModuleType,...],classes: tuple[type,...]=(),*,_vars: Callable=vars,_type: type=type) -> None:
+        if self._records is not None:raise RuntimeError('provider seal already frozen')
+        attrs=[];functions=[];class_names=[];pending_classes=list(classes)
+        seen_classes=set();seen_members=set()
+        def dependency(value: object) -> None:
+            if _type(value) is types.FunctionType:functions.append(value)
+            elif isinstance(value,type) and value.__module__!='builtins':pending_classes.append(value)
+            elif _type(value).__module__ not in ('builtins','types'):pending_classes.append(_type(value))
+        def members(module: types.ModuleType,names: set[str]) -> None:
+            mapping=_vars(module)
+            for name in names:
+                if name not in mapping or (id(module),name) in seen_members:continue
+                seen_members.add((id(module),name));value=mapping[name]
+                attrs.append((mapping,name,value));dependency(value)
+        for module in modules:
+            for name,value in tuple(_vars(module).items()):
+                if _type(value) is types.FunctionType:
+                    attrs.append((_vars(module),name,value));functions.append(value)
+        for module,names in ((os,('open','close','read','write','fstat','lstat','isatty','getuid','geteuid','getpid','getpgrp','getsid','tcgetpgrp','urandom','O_RDONLY','O_RDWR','O_DIRECTORY','O_NOFOLLOW','O_NOCTTY','O_CLOEXEC','O_NONBLOCK')),
+             (select,('select',)),(time,('monotonic_ns',)),(stat,('S_ISCHR',)),(sys.modules.get('termios'),('tcgetattr','ICANON','ECHO')),(threading,('get_ident',)),(hashlib,('sha256',))):
+            if module is not None:attrs.extend((_vars(module),n,_vars(module).get(n)) for n in names)
+        facts=[];seen=set()
+        while functions or pending_classes:
+            while pending_classes:
+                cls=pending_classes.pop()
+                if id(cls) in seen_classes:continue
+                seen_classes.add(id(cls));mapping=_vars(cls)
+                class_names.append((mapping,tuple(mapping)))
+                attrs.extend((mapping,name,value) for name,value in mapping.items())
+                for base in cls.__bases__:dependency(base)
+                for value in mapping.values():
+                    if _type(value) in (classmethod,staticmethod):dependency(value.__func__)
+                    elif _type(value) is property:
+                        for fn in (value.fget,value.fset,value.fdel):dependency(fn)
+                    else:dependency(value)
+            if not functions:continue
+            fn=functions.pop()
+            if id(fn) in seen or _type(fn) is not types.FunctionType:continue
+            seen.add(id(fn));g=fn.__globals__;b=g.get('__builtins__',{})
+            if _type(b) is types.ModuleType:b=_vars(b)
+            names=set();codes=[fn.__code__];imports=[]
+            while codes:
+                code=codes.pop();names.update(code.co_names)
+                codes.extend(c for c in code.co_consts if _type(c) is types.CodeType)
+                imports.extend(i.argval for i in dis.get_instructions(code) if i.opname=='IMPORT_NAME')
+            # Local imports have no effective global binding. Resolve only
+            # already loaded modules; binding must never execute an import.
+            for name in imports:
+                module=sys.modules.get(name)
+                if _type(module) is types.ModuleType:
+                    attrs.append((sys.modules,name,module));members(module,names)
+            dependencies=[]
+            for name in names:
+                if name in g:
+                    value=g[name]
+                    # This library observation cache is populated by a normal
+                    # platform read. All other effective bindings, including
+                    # library constants and encoder objects, remain exact.
+                    if not (fn.__module__=='platform' and name=='_uname_cache'):
+                        dependencies.append((g,name,value))
+                    dependency(value)
+                    if _type(value) is types.ModuleType:members(value,names)
+                elif name in b:
+                    dependencies.append((g,name,_ABSENT));dependencies.append((b,name,b[name]))
+            cells=tuple((cell,cell.cell_contents) for cell in (fn.__closure__ or ()))
+            for value in (*(fn.__defaults__ or ()),*(fn.__kwdefaults__ or {}).values(),*(value for cell,value in cells)):
+                dependency(value)
+            facts.append((fn,fn.__code__,fn.__defaults__,fn.__kwdefaults__,tuple((fn.__kwdefaults__ or {}).items()),cells,tuple(dependencies)))
+        self._records=(tuple(attrs),tuple(facts),tuple(class_names))
+    def require_current(self,*,_type: type=type,_missing: object=_ABSENT,_error: type[ValueError]=ValueError,_id: Callable=id,_state: Callable=object.__getattribute__) -> None:
+        records=_state(self,'__dict__')['_records']
+        if records is None:raise _error('unbound providers')
+        attrs,facts,class_names=records
+        for mapping,names in class_names:
+            if len(mapping)!=len(names):raise _error('changed class namespace')
+            for key in mapping:
+                if _type(key) is not str:raise _error('invalid class namespace')
+            for name in names:
+                if name not in mapping:raise _error('changed class namespace')
+        namespaces={}
+        for mapping,name,value in attrs:
+            if _id(mapping) not in namespaces:
+                for key in mapping:
+                    if _type(key) is not str:raise _error('invalid provider namespace')
+                namespaces[_id(mapping)]=True
+            if mapping.get(name,_missing) is not value:raise _error('changed provider')
+        for fn,code,defaults,kwdefaults,kwitems,cells,deps in facts:
+            if fn.__code__ is not code or fn.__defaults__ is not defaults or fn.__kwdefaults__ is not kwdefaults:raise _error('changed function')
+            if kwdefaults is not None:
+                if len(kwdefaults)!=len(kwitems):raise _error('changed keyword defaults')
+                for key in kwdefaults:
+                    if _type(key) is not str:raise _error('invalid keyword defaults')
+                for key,value in kwitems:
+                    if kwdefaults.get(key,_missing) is not value:raise _error('changed keyword default')
+            for cell,value in cells:
+                if cell.cell_contents is not value:raise _error('changed closure')
+            for mapping,name,value in deps:
+                if _id(mapping) not in namespaces:
+                    for key in mapping:
+                        if _type(key) is not str:raise _error('invalid effective namespace')
+                    namespaces[_id(mapping)]=True
+                if mapping.get(name,_missing) is not value:raise _error('changed effective binding')
+
+_TEMPLATE_SEAL=ProviderSeal()
+_TEMPLATE_GUARD=_copy_cleanup(ProviderSeal.require_current)
+_TEMPLATE_RESOURCES=('config/contracts/staging-execution-schema-registry-v1.json',)+tuple('config/contracts/schemas/'+name+'-1.0.0.json' for name in sorted(_template_contracts.RECORD_FIELDS))
+_TEMPLATE_PARSE_CACHE=[]
 
 
 def _release_backend():
@@ -40,7 +174,8 @@ def _release_backend():
     return scope
 
 
-def _fresh_context():
+def _fresh_context(*,_guard=_TEMPLATE_GUARD,_seal=_TEMPLATE_SEAL):
+    _guard(_seal)
     if graph_engineering._security_bootstrap_seed_resources is not _SEED_LOADER:fail('currentness')
     profile,schedule=_SEED_LOADER()
     return WorkContext(ResourceProfile.from_dict(parse_json(profile)),CostSchedule.from_dict(parse_json(schedule)))
@@ -74,6 +209,10 @@ def _capture():
             or graph_engineering._installation_owned_resources is not _OWNED_LOADER):fail('currentness')
     context=_fresh_context();before=_origin_binding();paths,bodies=_CAPTURE_LOADER(context)
     schema_profile=_OWNED_LOADER(('config/contracts/schema-profile-v1.json',),context=context)[0]
+    native=_resource_native_binding(paths);cache_key=(paths,bodies,schema_profile,context.profile,before,native)
+    if _INPUT_PARSE_CACHE and _INPUT_PARSE_CACHE[0][0]==cache_key:
+        if _origin_binding()!=before or _resource_native_binding(paths)!=native:fail('currentness')
+        return paths,bodies,_INPUT_PARSE_CACHE[0][1]
     documents=[parse_json(b,context=context,source_id=p) for p,b in zip(paths,bodies,strict=True)]
     bypath=dict(zip(paths,documents,strict=True));registry_doc=bypath['config/contracts/release-installation-schema-registry-v1.json']
     schema_bodies={d['$id']:b for d,b in zip(documents,bodies,strict=True) if '$id' in d}
@@ -91,6 +230,7 @@ def _capture():
     if _resource_native_binding(paths)!=native:fail('currentness')
     binding=semantic('input-binding',{'origin':before,'native':native,'resources':[
         {'path':path,'raw_sha256':hashlib.sha256(body).hexdigest()} for path,body in zip(paths,bodies,strict=True)]},context)
+    _INPUT_PARSE_CACHE[:]=[(cache_key,binding)]
     return paths,bodies,binding
 
 
@@ -178,7 +318,7 @@ def _stat_binding(s):
 
 class _ReadFile:
     """Descriptor and complete parent chain retained through the operation."""
-    def __init__(self,path,maximum,budget,*,account_bundle=True):
+    def __init__(self,path,maximum,budget,*,account_bundle=True,_cleanup=None):
         self.path=Path(path).absolute();self.descriptors=[];self.parents=[];self.fd=-1
         try:
             if self.path.resolve(strict=True)!=self.path:fail('currentness')
@@ -196,7 +336,7 @@ class _ReadFile:
             self.raw_sha256=hashlib.sha256(self.raw).hexdigest()
             self._check_stat()
         except BaseException:
-            self.close();raise
+            _cleanup(self);raise
 
     def _check_stat(self):
         if _stat_binding(os.fstat(self.fd))!=self.binding:fail('currentness')
@@ -224,10 +364,33 @@ class _ReadFile:
 
     def snapshot(self) -> tuple[object, ...]:return (str(self.path),self.binding,tuple((str(p),b[:4]) for p,b in self.parents),self.raw_sha256)
 
-    def close(self) -> None:
-        if self.fd>=0:os.close(self.fd);self.fd=-1
-        for fd in reversed(self.descriptors):os.close(fd)
-        self.descriptors=[]
+    def close(self,*,_cleanup: Callable|None=None) -> None:
+        _cleanup(self)
+
+
+def _close_read_file(self,*,_state=vars(_ReadFile)['__dict__'].__get__,_close=os.close,_reverse=reversed,_error=OSError):
+    """Retire original owned descriptors without consulting live methods."""
+    state=_state(self);fd=state.get('fd',-1);parents=state.get('descriptors',[])
+    state['fd']=-1;state['descriptors']=[]
+    for descriptor in (fd,*_reverse(parents)):
+        if descriptor>=0:
+            try:_close(descriptor)
+            except _error:pass
+
+_READ_FILE_CLOSE=_copy_cleanup(_close_read_file)
+for _name in ('__init__','close'):
+    vars(_ReadFile)[_name].__kwdefaults__['_cleanup']=_READ_FILE_CLOSE
+
+
+def _close_read_files(items,*,_close=_READ_FILE_CLOSE,_reverse=reversed):
+    failure=None
+    for item in _reverse(items):
+        try:_close(item)
+        except BaseException as error:
+            if failure is None:failure=error
+    if failure is not None:raise failure
+
+_READ_FILES_CLOSE=_copy_cleanup(_close_read_files)
 
 
 def _member_path(name,limits,seen):
@@ -297,6 +460,48 @@ def _tar_structure(raw,budget):
         if end>len(raw):fail('input_invalid')
         members[name]=(start,end);cursor=start+((size+511)//512)*512
     fail('input_invalid')
+
+
+def _template_inputs(*,_guard=_TEMPLATE_GUARD,_seal=_TEMPLATE_SEAL) -> tuple[ClosedSchemaRegistry,tuple]:
+    """All six schemas are installation-owned; never load candidate providers."""
+    _guard(_seal)
+    c=_fresh_context();origin=_origin_binding();captured=_OWNED_LOADER(_TEMPLATE_RESOURCES+('config/contracts/schema-profile-v1.json',),context=c);native=_resource_native_binding(_TEMPLATE_RESOURCES)
+    bodies=captured[:-1];profile_raw=captured[-1]
+    key=(bodies,profile_raw,c.profile)
+    if _TEMPLATE_PARSE_CACHE and _TEMPLATE_PARSE_CACHE[0][0]==key:registry=_TEMPLATE_PARSE_CACHE[0][1]
+    else:
+        documents=[parse_json(b,context=c,source_id=p) for p,b in zip(_TEMPLATE_RESOURCES,bodies,strict=True)]
+        profile=SchemaProfilePolicy.from_dict(parse_json(profile_raw,context=c,source_id='stage-execution-schema-profile'))
+        registry=ClosedSchemaRegistry.build(documents[0],{doc['$id']:b for doc,b in zip(documents[1:],bodies[1:],strict=True)},c.profile,profile,c)
+        _TEMPLATE_PARSE_CACHE[:]=[(key,registry)]
+    if _origin_binding()!=origin or _resource_native_binding(_TEMPLATE_RESOURCES)!=native:fail('currentness')
+    return registry,(origin,native,tuple(hashlib.sha256(b).hexdigest() for b in bodies))
+
+def _template_bytes(raw: bytes,context: WorkContext) -> tuple[dict[str,object],tuple]:
+    values,binding=_template_batch((raw,),context)
+    return values[0],binding
+
+def _template_batch(raws: tuple[bytes,...],context: WorkContext,*,_guard=_TEMPLATE_GUARD,_seal=_TEMPLATE_SEAL) -> tuple[tuple[dict[str,object],...],tuple]:
+    """One owned schema capture surrounds a closed batch of signed raw templates."""
+    _guard(_seal)
+    values=[]
+    for raw in raws:
+        _guard(_seal)
+        try:value=parse_json(raw,context=context,source_id='signed-stage-template')
+        except (ValueError,TypeError):
+            # Preserve the existing refusal code for malformed attempted templates;
+            # raw spelling never gates a successfully parsed template object.
+            fail('input_invalid' if b'"logical_path"' in raw or b'"template_digest"' in raw else 'phase_unavailable')
+        if type(value) is not dict or not ('logical_path' in value or 'template_digest' in value):fail('phase_unavailable')
+        values.append(value)
+    try:registry,binding=_template_inputs()
+    except (ValueError,TypeError,OSError):fail('trust_rejected')
+    for value in values:
+        _guard(_seal)
+        if registry.validate('urn:gew:schema:stage-generated-template:1.0.0',value,context):fail('input_invalid')
+        _template_contracts.validate_template(value,context)
+    if _template_inputs()[1]!=binding:fail('currentness')
+    return tuple(values),binding
 
 
 def _bundle_members(root,limits):
@@ -372,15 +577,17 @@ def _security_check(value,manifest,policy,trust,subjects,context):
 
 class ReleaseObservation:
     """Process-local verified bytes; JSON never grants installation authority."""
-    __slots__=('_inputs','_files','_root','_members','_limits','_diagnostic','_freshness','_parser','_budget','_provider','_provider_current','_provider_close','_backend_binding')
+    __slots__=('_inputs','_files','_root','_members','_limits','_diagnostic','_freshness','_parser','_budget','_provider','_provider_current','_provider_close','_backend_binding','_templates','_template_binding')
     def __init__(self):raise TypeError('release observation requires verification')
 
-    def require_current(self) -> str:
-        try:return self._require_current()
+    def require_current(self,*,_guard: Callable=_TEMPLATE_GUARD,_seal: ProviderSeal=_TEMPLATE_SEAL,_close: Callable|None=None) -> str:
+        try:
+            _guard(_seal);return self._require_current()
         except BaseException:
-            self.close();raise
+            _close(self);raise
 
-    def _require_current(self) -> str:
+    def _require_current(self,*,_guard=_TEMPLATE_GUARD,_seal=_TEMPLATE_SEAL,_cleanup=_READ_FILE_CLOSE) -> str:
+        _guard(_seal)
         import time
         current=self._provider_current;provider=current.__self__
         if self._provider is not provider:fail('currentness')
@@ -391,42 +598,60 @@ class ReleaseObservation:
             opened=_ReadFile(Path(path),self._limits['max_artifact_bytes'],budget,account_bundle=False)
             try:
                 if opened.snapshot()!=(path,binding,parents,raw_hash):fail('currentness')
-            finally:opened.close()
+            finally:_cleanup(opened)
         if tuple(_PARSER_RESOURCES())!=self._backend_binding or current()!=self._parser:fail('currentness')
         now=time.time_ns()//10**9;issued,expiry,freshness=self._freshness
         if not issued<=now<=expiry or now-issued>freshness:fail('clock_unavailable')
         self._inputs.require_current()
+        if self._template_binding is not None:
+            if _template_inputs()[1]!=self._template_binding:fail('currentness')
         return self._diagnostic['diagnostic_digest']
 
-    def close(self) -> None:
-        self._provider_close()
+    def close(self,*,_close: Callable|None=None) -> None:
+        _close(self)
 
-    def __del__(self):
-        try:self.close()
+    def __del__(self,*,_close=None):
+        try:_close(self)
         except (AttributeError,ValueError,RuntimeError):pass
 
-    def to_dict(self) -> dict[str, object]:
-        from graph_engineering.core.contracts import thaw,freeze
-        self.require_current();return thaw(freeze(self._diagnostic))
+    def to_dict(self,*,_guard: Callable=_TEMPLATE_GUARD,_seal: ProviderSeal=_TEMPLATE_SEAL,_close: Callable|None=None) -> dict[str, object]:
+        try:
+            _guard(_seal)
+            from graph_engineering.core.contracts import thaw,freeze
+            self.require_current();return thaw(freeze(self._diagnostic))
+        except BaseException:
+            _close(self);raise
+
+
+
+def _close_release_observation(self,*,_slot=vars(ReleaseObservation)['_provider_close'].__get__):
+    try:_slot(self)()
+    except AttributeError:pass
+
+for _name in ('require_current','to_dict','close','__del__'):
+    vars(ReleaseObservation)[_name].__kwdefaults__['_close']=_copy_cleanup(_close_release_observation)
 
 
 class LocalReleaseVerifier:
-    def check(self,bundle_ref: Path,manifest_ref: Path,*,_probe_hook: Callable[[str], None] | None=None) -> ReleaseObservation:
+    def check(self,bundle_ref: Path,manifest_ref: Path,*,_probe_hook: Callable[[str], None] | None=None,_guard: Callable=_TEMPLATE_GUARD,_seal: ProviderSeal=_TEMPLATE_SEAL,_fail: Callable=_copy_cleanup(fail),_cleanup: Callable=_READ_FILES_CLOSE) -> ReleaseObservation:
         if _probe_hook is not None and not callable(_probe_hook):fail('input_invalid')
-        opened=[];provider=None
+        opened=[];provider=None;cleanup=None
         try:
+            _guard(_seal)
             backend=_release_backend();provider=backend['_owned_constraint_provider']()
+            cleanup=types.MethodType(_copy_cleanup(provider.close.__func__),provider)
             with provider.operation():
                 result=self._check(Path(bundle_ref),Path(manifest_ref),opened,_probe_hook,backend,provider)
             provider=None  # Ownership transfers to the returned observation.
             return result
         except ReleaseInstallationError:raise
-        except (OSError,ValueError,TypeError,RuntimeError,KeyError,IndexError,OverflowError,zipfile.BadZipFile):fail('closure_mismatch')
+        except (OSError,ValueError,TypeError,RuntimeError,KeyError,IndexError,OverflowError,zipfile.BadZipFile):_fail('closure_mismatch')
         finally:
-            for item in reversed(opened):item.close()
-            if provider is not None:provider.close()
+            try:_cleanup(opened)
+            finally:
+                if provider is not None and cleanup is not None:cleanup()
 
-    def _check(self,bundle,manifest_path,opened,probe,backend,provider):
+    def _check(self,bundle,manifest_path,opened,probe,backend,provider,*,_guard=_TEMPLATE_GUARD,_seal=_TEMPLATE_SEAL):
         from graph_engineering.core.release_installation import (select_release_key,manifest_signature_preimage,
             check_compatibility,compare_release_closure,closed,validate_self,diagnostic)
         import io,zipfile
@@ -451,7 +676,7 @@ class LocalReleaseVerifier:
         if manifest_path.is_relative_to(bundle):expected_files.add(manifest_path.relative_to(bundle).as_posix())
         if members[0]!=frozenset(expected_files):fail('closure_mismatch')
         if sum(r['size_bytes'] for r in value['artifacts'])+len(manifest_file.raw)>limits['max_bundle_bytes']:fail('resource_limit')
-        files={};structures={};facts=[]
+        files={};structures={};facts=[];templates=[];template_binding=None
         for row in value['artifacts']:
             if row['source_id'] not in policy['source_ids'] or not set(row['license_ids']).issubset(policy['allowed_license_ids']):fail('trust_rejected')
             budget.ceiling('max_artifact_bytes',row['size_bytes'])
@@ -471,7 +696,16 @@ class LocalReleaseVerifier:
                     budget.charge('max_expanded_bytes',structures[row['artifact_id']][1])
             elif row['kind'] in ('interpreter','installer'):
                 structures[row['artifact_id']]=_tar_structure(raw,budget)
-            elif row['kind']=='build-input':fail('phase_unavailable')
+            elif row['kind']=='build-input':
+                if len(raw)>limits['max_manifest_bytes']:fail('resource_limit')
+                budget.charge('max_hash_bytes',len(raw))
+        template_raws=tuple(files[row['artifact_id']].raw for row in value['artifacts'] if row['kind']=='build-input')
+        if template_raws:
+            _guard(_seal)
+            parsed_templates,template_binding=_template_batch(template_raws,context)
+            for template in parsed_templates:
+                if any(t['logical_path']==template['logical_path'] or t['template_digest']==template['template_digest'] for t in templates):fail('closure_mismatch')
+                templates.append(template)
         metadata={};requirements_count=0
         for row in value['artifacts']:
             ident=row['artifact_id'];raw=files[ident].raw
@@ -555,7 +789,7 @@ class LocalReleaseVerifier:
         inputs.require_current()
         report=diagnostic('preflight-valid','check','ok',[],sorted([value['manifest_digest'],closure]),context,max_bytes=limits['max_report_bytes'])
         result=object.__new__(ReleaseObservation);result._inputs=inputs;result._files=tuple(i.snapshot() for i in opened)
-        result._root=bundle;result._members=members;result._limits=limits;result._diagnostic=report;result._freshness=freshness;result._parser=parser.attestation_digest;result._budget=budget;result._provider=provider;result._provider_current=provider.require_current;result._provider_close=provider.close;result._backend_binding=original
+        result._root=bundle;result._members=members;result._limits=limits;result._diagnostic=report;result._freshness=freshness;result._parser=parser.attestation_digest;result._budget=budget;result._provider=provider;result._provider_current=provider.require_current;result._provider_close=types.MethodType(_copy_cleanup(provider.close.__func__),provider);result._backend_binding=original;result._templates=tuple(templates);result._template_binding=template_binding
         return result
 
 
@@ -588,7 +822,7 @@ def _clock_from_snapshot(raw,context):
 
 
 class ReadOnlyDoctor:
-    def inspect(self,existing_ref: Path | None=None) -> dict[str, object]:
+    def inspect(self,existing_ref: Path | None=None,*,_cleanup: Callable=_copy_cleanup(_READ_FILES_CLOSE)) -> dict[str, object]:
         from graph_engineering.core.release_installation import diagnostic,bootstrap_diagnostic
         opened=[];context=None
         try:
@@ -616,4 +850,7 @@ class ReadOnlyDoctor:
             if context is None:return bootstrap_diagnostic('doctor')
             return diagnostic('blocked','doctor','recovery_blocked',[],[],context,max_bytes=context.profile.limits['result_bytes'])
         finally:
-            for item in reversed(opened):item.close()
+            _cleanup(opened)
+
+# Standalone A owns this seal before any B0 application import/configuration.
+_TEMPLATE_SEAL.freeze((sys.modules[__name__],_template_contracts),(ReleaseObservation,LocalReleaseVerifier))

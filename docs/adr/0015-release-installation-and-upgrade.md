@@ -247,3 +247,54 @@ immutable. This explicitly approved new material scope has its own unchanged
 four-cycle design ceiling; it cannot retry old findings or alter Policy. Design
 approval permits only six-file documentation/independent review, not H0 product
 implementation, terminal interaction, installation, commit, push or release.
+
+## W10E Owner-approved isolated staging design scope
+
+2026-10-16: the Owner approved `GEW-WP10-ISOLATED-STAGING-DESIGN-V1`, its exact
+six-file proposal and documentation/review Envelope. H0 is now complete at
+`c9a158eb8144fb0bb7bafde094955c2f6b3bba16`, with canonical347, independent reviews,
+Receipt and push. This new scope closes how its existing local one-use grant
+reaches isolated candidate writes, a trusted recipe process and durable staged
+records. It does not authorize running those operations or reset prior reviews.
+
+Decision under review: retain the original grant deadline across consumption and
+all write/process/finalization barriers. Exclusively derive a request/envelope-bound
+candidate below the existing configured parent; never overwrite/adopt a root.
+Use the accepted regular-file archive subset, descriptor-relative parent-owned
+writes, complete actual installed membership and narrowly declared normalization.
+Persist receipt last and revalidate the full durable closure when reopening with
+new local authority. An accepted owned result provides only current read facts;
+it cannot mutate or grant C activation rights after its mutation permit closes.
+
+The private StageExecutionBinding records the original consumed H0 challenge digest,
+plan/context/envelope and actual install operation; the new StageReceipt binds its
+digest. A fresh reopen grant is distinct and cannot overwrite that originating
+binding. Semantic manifests exclude execution provenance for clean-root equality.
+Stored records remain consistency evidence, never replayable authorization.
+
+The recipe/OS/CPython boundary remains trusted. Closed argv/environment and
+pre-reserved/verified candidate footprints are not an OS sandbox or disk quota
+for arbitrary malicious signed executables. No same-UID arbitrary process-memory
+tampering defense or genuine offline/native installation claim is inferred.
+Unknown membership, an unconfirmed live process, changed identity or exhausted
+cleanup/deadline budget blocks acceptance and cleanup rather than broad deletion.
+
+Alternatives rejected within this design: renewing H0 grants during staging,
+reconstructing consent from receipt/JSON, inferring installation from exit0,
+normalizing arbitrary path-bearing bytes, and publishing a mixed active tuple.
+Keep production inputs empty/refused, direct local install as the first producing
+operation, and upgrade/unattended/C/native gates intact. The accepted Spec/Impact/
+Plan/Test Plan and a separate exact implementation approval remain prerequisites.
+
+### W10E private fixture process-window amendment
+
+Exact Owner approval of the native-window amendment allows only the new private
+fixture process total4s rather than2s. Execution/forced-kill/final fractions and
+the original grant cap remain identical. Actual measured entry/exit overhead
+nearly consumed the former1s execution half-window; native payload work was about3ms
+in one observed normal sample. These observations do not certify a native installer.
+
+No production StagePolicy, architecture, dependency, permission, irreversible
+action, review-cycle or broader timeout changes. The original independent reviews
+and failed attempts remain replayable; subsequent implementation review checks
+the exact approved amendment and its concrete negative-test adjustments.

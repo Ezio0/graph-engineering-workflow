@@ -1,4 +1,4 @@
-"""Owned read-only plans; installation grants and producing stages unavailable."""
+"""Owned release plans, local grants and private stage-only execution."""
 from __future__ import annotations
 import hashlib
 import json
@@ -7,6 +7,7 @@ import threading
 import weakref
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 from graph_engineering.adapters import release_staging as physical
 from graph_engineering.application import installation_authority as _LOCAL_AUTHORITY
 from graph_engineering.core.release_installation import ReleaseInstallationError,fail
@@ -31,9 +32,9 @@ def bootstrap_stage_diagnostic(phase: str) -> dict[str,object]:
     if phase not in ('plan','stage'):raise ValueError('unsupported stage phase')
     v={'schema_version':'1.0.0','request_id':'stage-'+phase,'status':'rejected','phase':phase,'code':'trust_rejected','checks':[],'refs':[],
         'capabilities':{'install-plan':'available','install-apply':'unavailable','stage':'unavailable','reopen-staged':'unavailable','release':'unavailable'},'next_route':'inspect-inputs'}
-    e={'algorithm':'sha-256','body':v,'canonicalizer':'urn:gew:canonicalizer:jcs-input:1.0.0','contract_type':'urn:gew:contract:release-stage-diagnostic-v1',
-        'digest_domain':'urn:gew:digest:semantic:1.0.0','projection_id':'urn:gew:digest-projection:release-stage-diagnostic-v1:1.0.0','schema_id':'urn:gew:schema:stage-diagnostic:1.0.0'}
-    v['diagnostic_digest']='sha256-jcs-v1:'+hashlib.sha256(json.dumps(e,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest();return v
+    # Both closed bootstrap bodies are fixed. Refusal after a provider change
+    # must not execute a changed serializer/hash provider to render that refusal.
+    v['diagnostic_digest']='sha256-jcs-v1:'+('213fa9cb396c84160e4566cf8bd3811925b1fc2c861c44adca97fe2a25c1f74a' if phase=='plan' else '3265bd642700d029447169495e719c4ded22db79fc1812472252241345b8c944');return v
 
 
 def _diagnostic(code,phase):
@@ -110,7 +111,7 @@ def _exit_code(value):
     return 2 if value['code']=='input_invalid' else (3 if value['status']=='blocked' else 4)
 
 
-def install_plan(operation: str,request_path: Path,bundle_ref: BundleRef) -> tuple[dict[str,object],int]:
+def install_plan(operation: str,request_path: Path,bundle_ref: BundleRef,*,_reader_close: Callable=physical.admission._copy_cleanup(physical.admission._READ_FILE_CLOSE),_plan_close: Callable|None=None) -> tuple[dict[str,object],int]:
     result=None
     try:
         physical._providers();c=physical._CONTEXT()
@@ -127,18 +128,48 @@ def install_plan(operation: str,request_path: Path,bundle_ref: BundleRef) -> tup
             opened.recheck(budget)
             if type(result) is StagePlanEnvelope:return result.to_dict(),0
             return result,_exit_code(result)
-        finally:opened.close()
+        finally:_reader_close(opened)
     except ReleaseInstallationError as e:
         v=_diagnostic(e.code,'plan');return v,_exit_code(v)
     except (FileNotFoundError,ValueError,TypeError):
         v=_diagnostic('input_invalid','plan');return v,2
     except (OSError,RuntimeError,KeyError,AttributeError):return bootstrap_stage_diagnostic('plan'),4
     finally:
-        if type(result) is StagePlanEnvelope:result.close()
+        if type(result) is StagePlanEnvelope:_plan_close(result)
 
 
 def install_apply_unavailable() -> tuple[dict[str,object],int]:
     value=_diagnostic('phase_unavailable','stage');return value,_exit_code(value)
+
+def install_apply(plan_path: Path,bundle_ref: BundleRef,*,_cleanup: Callable|None=None) -> tuple[dict[str,object],int]:
+    """Reacquire and compare the full plan before the genuine local decision."""
+    result=None;plan=None;opened=None;grant=None
+    try:
+        physical._providers();inputs=physical.InstalledStageInputs.open_owned();docs=inputs.documents()
+        if not any(r['generated_files'] for r in docs['config/release-installation/installer-policy-v1.json']['recipes']):return install_apply_unavailable()
+        c=physical._CONTEXT();limits=physical._ADMISSION_OPEN.__get__(None,physical._ADMISSION_INPUTS)().limits
+        opened=physical.admission._ReadFile(plan_path,limits['max_manifest_bytes'],physical.admission._Budget(limits))
+        from graph_engineering.core.contracts import parse_json
+        from graph_engineering.core.release_staging import validate_envelope
+        supplied=validate_envelope(parse_json(opened.raw,context=c,source_id='stage-apply-plan'),c)
+        fields=('schema_version','request_id','operation','installation_id','release_manifest_digest','prior_tuple_digest','target_refs','preserve_data')
+        request={k:supplied['plan'][k] for k in fields}
+        owner=ReleaseInstaller();plan=owner.plan(request,bundle_ref)
+        if type(plan) is not StagePlanEnvelope:return plan,_exit_code(plan)
+        if plan.to_dict()!=supplied:fail('currentness')
+        opened.recheck(physical.admission._Budget(limits));grant=owner.authorize_local(plan)
+        if type(grant) is dict:
+            value=_EXECUTION.contracts.diagnostic(grant['code'],supplied['plan']['request_id'],physical._CONTEXT());return value,_exit_code(value)
+        opened.recheck(physical.admission._Budget(limits));result=owner.stage(plan,grant)
+        if type(result) is _EXECUTION.StagedReleaseObservation:return result.diagnostic(),0
+        return result,_exit_code(result)
+    except ReleaseInstallationError as e:
+        value=_EXECUTION.contracts.diagnostic(e.code,'stage-execution',physical._CONTEXT());return value,_exit_code(value)
+    except (FileNotFoundError,TypeError,ValueError):
+        value=_diagnostic('input_invalid','stage');return value,2
+    except (OSError,RuntimeError,KeyError,AttributeError):return bootstrap_stage_diagnostic('stage'),4
+    finally:
+        _cleanup(result,plan,opened,grant)
 
 
 from graph_engineering.application import installation_authority as _LOCAL_AUTHORITY
@@ -160,4 +191,41 @@ def _local_bridges():
     return capture(authorize_local),capture(consume_for_stage)
 
 ReleaseInstaller.authorize_local,ReleaseInstaller._consume_for_stage=_local_bridges()
+from graph_engineering.application import staging_execution as _EXECUTION
+_EXECUTION.configure(__import__(__name__,fromlist=['ReleaseInstaller']))
+def _retire_cli(result,plan,opened,grant,*,_obs_type=_EXECUTION.StagedReleaseObservation,_plan_type=StagePlanEnvelope,
+    _obs_close=_EXECUTION._CAPTURE(_EXECUTION.StagedReleaseObservation.close),_plan_close=_EXECUTION._PLAN_CLOSE,
+    _reader_close=physical.admission._copy_cleanup(physical.admission._READ_FILE_CLOSE),_grant_close=_EXECUTION._GRANT_CLOSE,
+    _cleanup=_EXECUTION._RETIRE_RESOURCES):
+    resources=[]
+    if type(result) is _obs_type:resources.append((_obs_close,result))
+    if type(plan) is _plan_type:resources.append((_plan_close,plan))
+    if opened is not None:resources.append((_reader_close,opened))
+    if grant is not None:resources.append((_grant_close,grant))
+    _cleanup(resources)
+
+install_plan.__kwdefaults__['_plan_close']=_EXECUTION._PLAN_CLOSE
+install_apply.__kwdefaults__['_cleanup']=physical.admission._copy_cleanup(_retire_cli)
+
+def _guarded_plan():
+    capture=_LOCAL_AUTHORITY.physical._copy_cleanup
+    guard=capture(_LOCAL_AUTHORITY._GUARD);seal=_LOCAL_AUTHORITY._SEAL
+    original=capture(ReleaseInstaller.plan,freeze_globals=False);fallback=capture(bootstrap_stage_diagnostic)
+    def plan(self,request: object,bundle_ref: BundleRef) -> StagePlanEnvelope|dict[str,object]:
+        try:guard(seal)
+        except (ValueError,TypeError):return fallback('plan')
+        return original(self,request,bundle_ref)
+    return capture(plan)
+ReleaseInstaller.plan=_guarded_plan()
+def _guarded_apply():
+    capture=_LOCAL_AUTHORITY.physical._copy_cleanup
+    guard=capture(_LOCAL_AUTHORITY._GUARD);seal=_LOCAL_AUTHORITY._SEAL
+    original=capture(install_apply,freeze_globals=False);fallback=capture(bootstrap_stage_diagnostic)
+    def apply(plan_path: Path,bundle_ref: BundleRef) -> tuple[dict[str,object],int]:
+        try:guard(seal)
+        except (ValueError,TypeError):return fallback('stage'),4
+        return original(plan_path,bundle_ref)
+    return capture(apply)
+install_apply=_guarded_apply()
 _LOCAL_AUTHORITY.bind_planning(__import__(__name__,fromlist=['ReleaseInstaller']))
+_EXECUTION.bind_providers(__import__(__name__,fromlist=['ReleaseInstaller']))

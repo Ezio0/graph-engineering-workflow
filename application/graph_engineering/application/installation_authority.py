@@ -13,6 +13,7 @@ _GRANTS={};_PERMITS={};_ACTIVE={};_RETIRED=weakref.WeakKeyDictionary()
 _PLANNING=None;_SEAL=physical.ProviderSeal();_GUARD=physical.ProviderSeal.require_current
 _RECORD_OP=physical._RECORD_OP
 _APPROVE=physical.approve;_SESSION=physical.ApprovalSession;_CURRENT=_SESSION.require_current;_FACTS_CURRENT=_SESSION.require_facts_current;_CLOSE=_SESSION.close
+_EXECUTION_CURRENT=_SESSION.require_execution_current
 
 def _close(handle,table,*,_close_session=physical._copy_cleanup(_CLOSE),_active=_ACTIVE):
     row=table.get(id(handle))
@@ -125,6 +126,28 @@ def consume(owner: object,envelope: object,authority: object,*,_guard: Callable=
         if row is not None:_close_session(row['session'])
         if permit is not None:_cleanup(permit,_PERMITS)
         raise
+
+def execution_facts(permit: object,*,full: bool=True,_guard: Callable=physical._copy_cleanup(_GUARD),_seal: physical.ProviderSeal=_SEAL,_cleanup: Callable=physical._copy_cleanup(_close)) -> dict[str,object]:
+    """Original consumed-grant provenance; private facts never renew its deadline."""
+    if type(full) is not bool or type(permit) is not StagePermit:fail('authority_required')
+    if full:challenge=StagePermit.require_current(permit)
+    else:
+        try:
+            _guard(_seal);row=_PERMITS.get(id(permit))
+            if row is None or row['handle']() is not permit or row['pid']!=os.getpid() or row['thread']!=threading.get_ident():fail('currentness')
+            owner=row['owner']();plan=row['plan']()
+            if owner is None or plan is None or owner._operation is not row['operation']:fail('currentness')
+            _plan_binding(owner,plan);_EXECUTION_CURRENT(row['session']);challenge=row['session'].challenge['challenge_digest']
+        except BaseException:_cleanup(permit,_PERMITS);raise
+    row=_PERMITS[id(permit)]
+    owner=row['owner']();plan=row['plan']();binding=_plan_binding(owner,plan)
+    session=row['session'];facts=session.challenge
+    record=binding[2]._record
+    if (facts['challenge_digest']!=challenge or facts['operation']!=record['plan']['operation']
+        or facts['request_id']!=record['plan']['request_id'] or facts['installation_id']!=record['plan']['installation_id']
+        or facts['plan_digest']!=record['plan']['plan_digest'] or facts['context_digest']!=record['stage_context']['context_digest']
+        or facts['envelope_digest']!=record['envelope_digest']):fail('currentness')
+    return {'challenge_digest':challenge,'deadline_ns':session.deadline,'planning_session':binding[2]}
 
 def _bootstrap():
     return {'schema_version': '1.0.0', 'request_id': 'local-approval', 'phase': 'authorization', 'status': 'rejected', 'code': 'trust_rejected', 'refs': [], 'capabilities': {'local-authority': 'unavailable', 'runtime-authority': 'unavailable', 'install-apply': 'unavailable', 'stage': 'unavailable', 'reopen-staged': 'unavailable', 'release': 'unavailable'}, 'next_route': 'fresh-owner-decision', 'diagnostic_digest': 'sha256-jcs-v1:e685efd1136cf342e28555092ac06670a345b3db4629a909543569c13d81c34e'}

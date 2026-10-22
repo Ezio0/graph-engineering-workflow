@@ -44,6 +44,17 @@ _CONTROL_LOCK = "installation-maintenance.lock"
 _ATTESTATION_KEY = "source-checkout-attestation-v1.key"
 _ATTESTATION_FILE = "source-checkout-attestation-v1.json"
 _SOURCE_FILES = (
+    "adapters/graph_engineering/adapters/staging_execution.py",
+    "application/graph_engineering/application/staging_execution.py",
+    "core/graph_engineering/core/staging_execution.py",
+    "config/contracts/staging-execution-schema-registry-v1.json",
+    "config/contracts/schemas/installed-release-manifest-1.0.0.json",
+    "config/contracts/schemas/installation-binding-1.0.0.json",
+    "config/contracts/schemas/stage-receipt-1.0.0.json",
+    "config/contracts/schemas/stage-generated-template-1.0.0.json",
+    "config/contracts/schemas/stage-execution-diagnostic-1.0.0.json",
+    "config/contracts/schemas/stage-execution-binding-1.0.0.json",
+
     "adapters/graph_engineering/adapters/installation_authority.py",
     "application/graph_engineering/application/installation_authority.py",
     "core/graph_engineering/core/installation_authority.py",
@@ -772,16 +783,21 @@ def _record_matches(distribution,resource_name):
     eligible=(current is not None and current[0]==(os.getpid(),threading.get_ident())
               and getattr(type(distribution),'files',None) is _DISTRIBUTION_FILES_DESCRIPTOR)
     body=distribution.read_text('RECORD') if eligible else None
-    key=(str(distribution.locate_file('')),body)
-    index=None if not eligible else current[1].get(key)
+    root=str(distribution.locate_file(''))
+    prior=None if not eligible else current[1].get('record-index')
+    index=prior[2] if prior is not None and prior[:2]==(root,body) else None
     if index is None:
         files=distribution.files
         index={}
         for item in (() if files is None else files):
             name=pathlib.PurePosixPath(str(item)).as_posix()
             index.setdefault(name,[]).append(item)
-        if eligible and body==distribution.read_text('RECORD'):
-            current[1].clear();current[1][key]=index
+        if (eligible and resource_name.startswith(_MODULE_RESOURCE.partition('/')[0]+'/')
+                and body==distribution.read_text('RECORD')):
+            # Keep one installation RECORD index, separate from the one pure
+            # provenance parse. A dependency lookup must not evict either.
+            # Root/actual RECORD bytes are still checked on every lookup.
+            current[1]['record-index']=(root,body,index)
     return index.get(resource_name,[])
 
 
@@ -958,8 +974,8 @@ def _provenance_values(provenance: bytes):
     current=getattr(_record_capture_local,'current',None)
     eligible=current is not None and current[0]==(os.getpid(),threading.get_ident())
     key=('provenance-values',provenance,_SOURCE_FILES)
-    prior=None if not eligible else current[1].get(key)
-    if prior is not None:return prior
+    prior=None if not eligible else current[1].get('provenance-values')
+    if prior is not None and prior[0]==key:return prior[1]
     try:
         document=tomllib.loads(provenance.decode('utf-8',errors='strict'));project=document['project']
         if type(project) is not dict or type(project.get('name')) is not str or type(project.get('version')) is not str:raise TypeError('project')
@@ -968,7 +984,7 @@ def _provenance_values(provenance: bytes):
         raise DistributionIdentityError('installed provenance resource is malformed') from error
     # Expose only immutable pure values. Every caller still rereads and verifies
     # actual RECORD, provenance and all protected resource bytes on each barrier.
-    if eligible:current[1][key]=result
+    if eligible:current[1]['provenance-values']=(key,result)
     return result
 
 
@@ -1180,6 +1196,16 @@ def _validated_archive_resource(resource_name: str) -> bytes | None:
 
 def _current_distribution_resource(resource_name: str) -> bytes:
     """Re-read one exact RECORD-bound resource from the loaded distribution."""
+    return _current_distribution_resources((resource_name,))[0]
+
+
+def _current_distribution_resources(resource_names: tuple[str, ...]) -> tuple[bytes, ...]:
+    """Capture a closed byte batch with full installation checks on both sides."""
+    with _record_capture_operation():
+        return _current_distribution_resource_batch(resource_names)
+
+
+def _current_distribution_resource_batch(resource_names: tuple[str, ...]) -> tuple[bytes, ...]:
 
     _validate_distribution_identity()
     distributions = _matching_installed_distributions()
@@ -1196,14 +1222,15 @@ def _current_distribution_resource(resource_name: str) -> bytes:
         distribution_archive = pathlib.Path(archive_name).resolve(strict=True)
     else:
         distribution_root = pathlib.Path(root_location).resolve(strict=True)
-    body = _record_resource(
-        distribution,
-        distribution_root,
-        distribution_archive,
-        resource_name,
-    )
+    record = distribution.read_text('RECORD')
+    identity = None if distribution_archive is None else _archive_identity(distribution_archive)
+    bodies = tuple(_record_resource(distribution, distribution_root, distribution_archive, name)
+                   for name in resource_names)
     _validate_distribution_identity()
-    return body
+    if (record != distribution.read_text('RECORD') or distribution_archive is not None
+            and identity != _archive_identity(distribution_archive)):
+        raise DistributionIdentityError('installed distribution changed during capture')
+    return bodies
 
 
 def _category_policy_installation_resources() -> tuple[bytes, bytes, bytes]:
@@ -2154,11 +2181,10 @@ def _dependency_parser_resources() -> tuple[bytes, bytes, bytes, str]:
         module_path = None
     source_root = None if module_path is None else _source_checkout_root(module_path)
     if source_root is None:
-        provenance = _current_distribution_resource(_PROVENANCE_RESOURCE)
-        backend = _current_distribution_resource("graph_engineering/build_backend.py")
-        requirement = _current_distribution_resource(
-            "graph_engineering/config/supply-chain/extension-package-parser-requirement-v1.json"
-        )
+        provenance, backend, requirement = _current_distribution_resources((
+            _PROVENANCE_RESOURCE, "graph_engineering/build_backend.py",
+            "graph_engineering/config/supply-chain/extension-package-parser-requirement-v1.json",
+        ))
     else:
         _validate_source_checkout_attestation(source_root)
         owner = os.lstat(source_root).st_uid
@@ -3754,11 +3780,16 @@ def _security_bootstrap_seed_resources():
                 or type(row['size-bytes']) is not int or not 1<=row['size-bytes']<=9007199254740991
                 or type(row['raw-sha256']) is not str or re.fullmatch('[0-9a-f]{64}',row['raw-sha256']) is None):
             raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
-    bodies=_installation_owned_resources(paths,maximum_sizes=tuple(row['size-bytes'] for row in rows))
+    # The seed sizes come from the already RECORD-bound provenance. Capture the
+    # seed files and the second provenance read together, retaining the same
+    # before/after complete installation checks and pre-read size ceilings.
+    captured=_installation_owned_resources(paths+('pyproject.toml',),
+        maximum_sizes=tuple(row['size-bytes'] for row in rows)+(len(provenance),))
+    bodies=captured[:2]
     if any(len(body)!=row['size-bytes'] or hashlib.sha256(body).hexdigest()!=row['raw-sha256']
            for row,body in zip(rows,bodies,strict=True)):
         raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
-    if _installation_owned_resources(('pyproject.toml',))[0]!=provenance:
+    if captured[2]!=provenance:
         raise DistributionIdentityError('SECURITY_BOOTSTRAP_RESOURCE')
     return bodies
 

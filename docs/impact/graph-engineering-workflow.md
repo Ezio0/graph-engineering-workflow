@@ -2350,3 +2350,156 @@ currentness/deadline checks, production120/30, byte ceilings, exact33/347, seria
 native290/canonical300 and four-cycle history. No implementation/terminal-positive
 PASS is inferred; the signed request/approval and independent affected-design review
 are retained in detached records. This supplement amends timing data, not scope.
+
+## WP-10 isolated staging execution impact — W10E, 2026-10-16
+
+### W10E-I1 Approved basis and present boundary
+
+The Owner approved the exact six-document staging-design Envelope. Spec revision3
+passed independent review with actual ADVANCE; immutable findings001..005 are
+resolved, not erased. This Impact follows that accepted W10E contract. H0 is complete,
+committed/Receipt-verified/pushed at `c9a158e`; its341 tests/six statics are historical
+evidence for that tree, not a pass for future stage code. Only the six design files
+may change now;1387 tracked files remain protected. No product execution occurs.
+
+### W10E-I2 Exact prospective implementation surface
+
+The complete proposed inventory is
+[wp10-b1-staging-prospective-targets-r2.json](../../.workflow/delivery/GEW-REMAINING54-V1/detached/wp10-b1-staging-prospective-targets-r2.json):
+40 unique paths,21 existing and19 new. Its observed hashes are preparation data;
+freeze actual inputs after design completion and separate implementation approval.
+Earlier38/39 drafts are retained and superseded, not independent write permissions.
+
+| Exact path group | Future change / reason | Protected compatibility |
+| --- | --- | --- |
+| the six approved design files | Manifest/status/traceability for the eventual implementation task | current design approval never authorizes product files |
+| new core/graph_engineering/core/staging_execution.py | six closed records, projections, expected-member mapping, exact normalized bytes and pure timing decisions | no filesystem/process/authentication logic in core |
+| new application/graph_engineering/application/staging_execution.py | stage/reopen state machine, private execution provenance and owned read-only result | no new task authority or activation behavior |
+| new adapters/graph_engineering/adapters/staging_execution.py | owned execution resources, actual candidate/archives/process/inventory/fsync | no caller runner/writer/clock or arbitrary destination |
+| existing adapters/graph_engineering/adapters/release_installation.py | narrowly admit signed StageGeneratedTemplate build inputs through the genuine A path | template-free A output/projections/read-only behavior retained; all other unsupported build input remains refused |
+| existing adapters/graph_engineering/adapters/release_staging.py | join owned admitted templates with the selected recipe before returning a plan; expose owned internal stage inputs | unchanged StageContext/envelope fields and projection; no fabricated ReleaseObservation |
+| existing application/graph_engineering/application/release_staging.py | compose genuine consume with stage/reopen and owned observations | read-only plan unchanged; only local install becomes stage-capable after implementation approval |
+| existing application/graph_engineering/application/cli.py | bounded local install-apply inputs, fresh actual plan equality/local decision and honest stage diagnostic | old check/Doctor/install-plan arguments and cold launcher remain |
+| existing application and adapters installation_authority.py | internal captured access to original permit challenge/facts/deadline needed by stage; preserve closure/lifetime tests | no new public grant constructor, clock injection, deadline renewal, runtime issuer or wider Owner trust |
+| existing core/graph_engineering/__init__.py and pyproject.toml | three modules/seven owned execution resources/source membership/pins | preserve old SOURCE_FILES ordered subsequence, published resource orders, strict launcher and existing provenance parse memo semantics |
+| existing tests/support/source_checkout_attestation.py and tests/unit/test_wp00_packaging.py | genuine fresh SOURCE/WHEEL fixtures and package inventory expectations | no manual seal/RECORD trust bypass, skip or changed source verifier |
+| existing config/verification/wp-00-targets.json; new config/verification/wp10-staging-execution-boundary-v1.json | exact owned package and later366-command boundary | frozen workflow and original retained argv stay unchanged |
+| four existing migration/scenario-truth/release-operations/performance installation-bootstrap mirrors | refresh only actually affected current source/core/package pins | unchanged historical dependency/evidence bytes; unused mirror remains byte-identical and is explicitly narrowed from actual Manifest |
+| five new tests, new tests/support/staging_execution.py, new tests/fixtures/staging-execution-v1.json and tests/fixtures/staging_process_v1.c |19 behavioral selectors, real private physical process/terminal fixtures and independent oracles | synthetic helper is not actual Python/uv/native certification; no real Owner data |
+
+The seven new owned resources are
+`config/contracts/staging-execution-schema-registry-v1.json` and schemas under
+`config/contracts/schemas/`: installed-release-manifest-1.0.0.json,
+installation-binding-1.0.0.json, stage-receipt-1.0.0.json,
+stage-generated-template-1.0.0.json, stage-execution-diagnostic-1.0.0.json and
+stage-execution-binding-1.0.0.json. Their new registry has exact raw schema hashes;
+existing A/B0/H0 registries and projection identities are not widened.
+
+### W10E-I3 Required cross-layer changes
+
+**Template admission is an implementation prerequisite.** Current A refuses all
+build-inputs before B0 can plan. The future A adapter must keep its real signed/raw/
+provenance/resource validation, then admit only the closed template subset. Retain
+its _ReadFile descriptors and exact bytes in real ReleaseObservation currentness.
+The new schema/parser/provider dependencies must be captured before calls and on
+retained use. B0 then requires recipe/template bijection, including unused-template
+refusal, before any terminal prompt. A plan fabricated by a fixture is insufficient.
+
+**Expected installation is derived before mutation.** Accepted purelib wheels and
+supported .data/purelib/scripts mappings, unique ownership, declared metadata,
+directory closure and canonical installed RECORD references determine the table.
+Installer output cannot define its own expected set. Generated bytes must match
+the exact signed template; normalized57-byte vector and literal/ref distinction
+remain normative. Ordinary bytes cannot be normalized to hide differences.
+
+**Execution provenance is separate from semantics and authority.** Capture the
+actual original consumed permit challenge with its plan/operation facts. The private
+StageExecutionBinding is written before receipt, self-digested and linked from it.
+Four exact metadata records replace W10B's unimplemented three-record proposal.
+Reopen needs new genuine authority, preserves original binding bytes and never
+reconstructs consent from a hash. Two clean roots retain distinct physical/execution
+bindings but equal semantic manifests. No new ledger/database or user identity field.
+
+**Process and durability are execution semantics.** Execution cutoff X, kill K and
+final D derive from the original window; no extra timeout field or renewed grant.
+Closed argv/env and reserved verified footprints assume the trusted installer,
+not a malicious-program OS sandbox/quota. Unconfirmed group liveness means blocked,
+not claimed reap. Captured revocation cleanup can signal an owned group after expiry;
+filesystem deletion still needs current authority and confirmed ownership/liveness.
+Receipt is last, all files/directories are fsynced and final facts are rechecked.
+
+### W10E-I4 API, data and migration compatibility
+
+Published A/B0/H0 schemas, diagnostic bodies, signature/plan projections and old
+resource order remain. A now accepts a newly specified supported template subset
+only after separate implementation; this behavioral extension is explicit.
+Unsupported non-template build inputs retain phase_unavailable; recognizable invalid
+templates use the existing appropriate input/trust/closure failures. New execution
+diagnostics have their own schema and staged code; no old unavailable capability map
+is silently reused for success. CLI only returns stage-only status after real success.
+
+No repository schema, migration/export, active tuple, runtime locator, installed Skill
+bootstrap, action authorization, clock-high-water or retention history changes.
+Therefore no data migration/rollback procedure is introduced by this design or its
+first stage increment. Production recipes and roots stay empty/refused. Unsupported
+archive layouts, missing native primitives and genuine release inputs remain blockers.
+Adding another future path/dependency/budget/security choice requires a concrete
+authority decision; a broad directory group does not grant extra paths.
+
+### W10E-I5 Risks and verification consequences
+
+| Development risk | Likelihood / impact | Concrete control |
+| --- | --- | --- |
+| unsupported template bridge makes stage success unreachable | observed / high | real A→B0 SOURCE/WHEEL positives; malformed/unused/swapped templates refuse before authority |
+| self-consistent installer RECORD hides missing/extra files | medium / high | independent prederived table, cross-distribution and directory collision oracles |
+| validation cost spends grant/worker bound | observed H0 cost / high | measure genuine focused stage paths, eliminate only proven redundant work while preserving fresh barriers; never automatically raise limits or cache trust across human wait |
+| child timeout leaves unsafe cleanup or false success | medium / high | native TERM-ignoring/output/interrupt cases plus pure unconfirmed-state model; original X/K/D timestamps independently observed |
+| receipt/provenance conflated with reusable authority | medium / high | actual consumed challenge equality, preserved origin on fresh reopen, copied/foreign/PID/thread/replayed refusal |
+| package/pin drift breaks cold installed entry | medium / high | fresh physical package closure, deterministic build and unchanged cold launcher tests; actual pins only |
+| synthetic process mistaken for genuine installer proof | medium / high | explicit helper/native limitations; no production config activation or offline/platform certification claim |
+
+The prospective test inventory contains19 new+341 retained selectors and six
+statics,366 commands. Retained347 argv are byte-for-byte preserved as JSON arrays.
+Tests use real source/wheel acquisition, private terminal/process/filesystem inputs,
+not mocked admission or caller-created grants. No product tests run now. Future
+focused evidence is distinct from final same-tree canonical evidence and review.
+
+### W10E-I6 Delivery, recovery and unchanged blockers
+
+Spec→Impact→Plan→Test Plan is the approved reversible design graph, with independent
+reviews and frozen reducer. This Impact does not claim later nodes passed. Completion
+must yield a precise implementation request; implementation, tests/builds and every
+irreversible action remain separately authorized. Changes after evidence invalidate
+that evidence and require the appropriate same-tree capture, never relabeling old PASS.
+
+Actual release interpreter/installer/closure/trust and all three native environments
+are still missing for genuine acceptance. The private helper can verify orchestration
+and refusal without downloading them, but cannot close those later gates. C, PMF-export
+restrictions, unattended auth and production operations remain unchanged. Failed roots
+retain explicit blocked status; no automatic deletion/retry or old asset migration.
+
+### W10E-I7 References
+
+[Spec W10E](../specs/graph-engineering-workflow.md#wp-10-isolated-staging-execution-design--w10e-2026-10-16),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md),
+[Test Plan](../test-plans/graph-engineering-workflow.md),
+[ADR0015](../adr/0015-release-installation-and-upgrade.md),
+[PRD/Intent](../prd/graph-engineering-workflow.md).
+Detached approved request, Spec3 verdict/actual ADVANCE, prospective targets-r2,
+test-inventory-r0 and current protected input hashes are the exact supporting inputs.
+
+### W10E private native-window amendment impact
+
+After exact Owner approval, the new private ExecutionFixture uses process total4s
+(execution2s, forced-kill3s, original final bound4s capped by original G). The old
+private/production configuration, original grant deadline and all other resource
+or authority boundaries are unchanged. Nine existing approved paths are affected:
+five design documents, the new fixture JSON/support/C and verification boundary.
+There is no engine algorithm, schema, dependency, backend or target expansion.
+
+The native delayed-exit and scheduling-pause fixtures become3s and5s to exercise
+the same execution-cutoff/overdue semantics. Per-case elapsed time and aggregate
+selector timing must be remeasured under original45/290/300 bounds; no passing
+claim or higher quota is inferred. Prior failures and source-binding clarification
+remain in immutable detached records. The compiler is never overlapped with an
+execution worker, and unknown child state still preserves an unaccepted root.

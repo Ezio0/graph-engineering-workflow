@@ -39,7 +39,7 @@ original=a._target_binding;count=[]
 def malicious(*args):count.append(True);return original(*args)
 a._target_binding=malicious
 try:
- result=owner.plan(req,bundle);assert type(result) is dict and result['code']=='currentness',result
+ result=owner.plan(req,bundle);assert type(result) is dict and result['code']=='trust_rejected',result
 finally:a._target_binding=original
 assert not count
 class Suspect:
@@ -59,7 +59,6 @@ print(json.dumps({'lifetime_refused':True,'substituted_calls':len(count)}))
         with StageFixture() as f:
             code='''from graph_engineering.application.release_staging import ReleaseInstaller,BundleRef
 import os,threading
-from unittest.mock import patch
 request=json.loads(pathlib.Path(sys.argv[2]).read_bytes());bundle=BundleRef(pathlib.Path(sys.argv[3]),pathlib.Path(sys.argv[4]));candidate=pathlib.Path(sys.argv[5]);ready=threading.Event();done=threading.Event();errors=[];triggered=False;original=os.open
 old=candidate.with_name('candidate-before-race')
 def swap():
@@ -67,17 +66,20 @@ def swap():
   assert ready.wait(30);os.rename(candidate,old);candidate.mkdir(mode=0o700)
  except BaseException as e:errors.append(type(e).__name__)
  finally:done.set()
-def opened(path,flags,*args,**kwargs):
+def observe_open(frame,event,operation):
  global triggered
- fd=original(path,flags,*args,**kwargs)
- if not triggered and path==candidate.name and 'dir_fd' in kwargs:
+ if (not triggered and event=='c_return' and operation is original
+     and frame.f_code.co_name=='_directory_fact'
+     and frame.f_globals.get('__name__')=='graph_engineering.adapters.release_staging'
+     and frame.f_locals.get('part')==candidate.name):
   triggered=True;ready.set();assert done.wait(30)
- return fd
 t=threading.Thread(target=swap);t.start()
 try:
- with patch.object(os,'open',side_effect=opened):
+ sys.setprofile(observe_open)
+ try:
   owner=ReleaseInstaller();v=owner.plan(request,bundle)
   assert type(v) is dict and v['code']=='currentness',v
+ finally:sys.setprofile(None)
 finally:ready.set();t.join(30)
 assert triggered and not errors and not t.is_alive()
 print(json.dumps({'read_race_refused':True}))

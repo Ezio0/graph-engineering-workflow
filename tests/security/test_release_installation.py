@@ -97,7 +97,8 @@ class ReleaseInstallationSecurityTests(unittest.TestCase):
                 f.replace('core',physical_wheel(fixture()['runtime_distributions'][0],requires_python='>=3.13rc1'));f.refresh_closure()
                 incompatible_rc=f.base/'incompatible-rc-bundle';shutil.copytree(f.bundle,incompatible_rc)
                 for name,body in saved.items():(f.bundle/name).write_bytes(body)
-                code='''from graph_engineering.adapters import release_installation as a
+                code='''import tempfile
+from graph_engineering.adapters import release_installation as a
 from graph_engineering.application.cli import main
 import packaging.specifiers as s,os
 from unittest.mock import patch
@@ -133,9 +134,17 @@ real=s.SpecifierSet
 import abc,packaging.requirements as requirements,contextlib,io,hashlib
 bad=pathlib.Path(sys.argv[4]);bad_args=['release-check','--bundle',str(bad),'--manifest',str(bad/'release.json'),'--format','json']
 def refused(arguments):
- output=io.StringIO()
- with contextlib.redirect_stdout(output):exit_code=main(arguments)
- text=output.getvalue();assert exit_code==4,'constructor dispatch admitted incompatible wheel'
+ # Capture the descriptor while retaining the sealed sys.stdout object.
+ stream=sys.stdout;stream.flush();saved=os.dup(stream.fileno())
+ try:
+  with tempfile.TemporaryFile(mode='w+b') as output:
+   os.dup2(output.fileno(),stream.fileno())
+   try:exit_code=main(arguments)
+   finally:stream.flush();os.dup2(saved,stream.fileno())
+   output.seek(0);text=output.read().decode('utf-8')
+ finally:os.close(saved)
+ assert exit_code==4,'constructor dispatch admitted incompatible wheel'
+
  assert len(text.encode())<1024 and str(root.parent) not in text
  value=json.loads(text);claimed=value.pop('diagnostic_digest')
  envelope={'algorithm':'sha-256','body':value,'canonicalizer':'urn:gew:canonicalizer:jcs-input:1.0.0',
@@ -158,10 +167,14 @@ with patch.object(s,'SpecifierSet',replacement),patch.object(requirements,'Speci
  else:raise AssertionError('retained observation accepted constructor dispatch replacement')
 assert main(args)==0
 refused(bad_args)
+try:o.require_current()
+except ValueError:pass
+else:raise AssertionError('constructor-invalidated observation rehabilitated')
 class Forged:
  __module__='packaging.specifiers'
  def __init__(self,*args,**kwargs):pass
  def contains(self,*args,**kwargs):return True
+o=a.LocalReleaseVerifier().check(root,manifest);o.require_current()
 with patch.object(s,'SpecifierSet',Forged):
  assert main(args)==4,'pre-use parser replacement admitted'
  try:o.require_current()
@@ -175,18 +188,21 @@ except ValueError:pass
 else:raise AssertionError('backend parser alias accepted replacement')
 real_read=os.read;inode=(root/next(p.name for p in root.glob('graph_engineering_workflow-*.whl'))).stat().st_ino
 reads=0;changed=False;contains=real.contains
-def read(fd,size):
+read_code=a._ReadFile._read.__code__
+def observe_read(frame,event,operation):
  global reads,changed
- data=real_read(fd,size)
- if data and os.fstat(fd).st_ino==inode:
-  reads+=1
-  if reads==2:
-   real.contains=lambda *args,**kwargs:True;changed=True
- return data
+ if event=='c_return' and operation is real_read and frame.f_code is read_code:
+  observed=frame.f_locals['self']
+  if (len(frame.f_locals['data'])<frame.f_locals['maximum']
+      and os.fstat(observed.fd).st_ino==inode):
+   reads+=1
+   if reads==2:
+    real.contains=lambda *args,**kwargs:True;changed=True
 try:
- with patch.object(os,'read',side_effect=read):assert main(args)==4,'during-read callable replacement admitted'
+ sys.setprofile(observe_read)
+ assert main(args)==4,'during-read callable replacement admitted'
  assert changed,'physical read barrier was not exercised'
-finally:real.contains=contains
+finally:sys.setprofile(None);real.contains=contains
 assert main(args)==0
 assert main(['doctor','--format','json'])==3
 '''
@@ -404,19 +420,20 @@ def swap():
   q=root/'replacement';q.write_bytes(p.read_bytes());os.replace(q,p)
  except BaseException as e:errors.append(e)
  finally:done.set()
-def read(fd,size):
+read_code=a._ReadFile._read.__code__
+def observe_read(frame,event,operation):
  global triggered
- data=original(fd,size)
- if not triggered and os.fstat(fd).st_ino==inode:
+ if (not triggered and event=='c_return' and operation is original
+     and frame.f_code is read_code
+     and os.fstat(frame.f_locals['self'].fd).st_ino==inode):
   triggered=True;ready.set();assert done.wait(10),'swap barrier did not finish'
- return data
 worker=threading.Thread(target=swap);worker.start()
 try:
- with patch.object(os,'read',side_effect=read):
-  try:a.LocalReleaseVerifier().check(root,manifest)
-  except a.ReleaseInstallationError as e:assert e.code=='currentness',e.code
-  else:raise AssertionError('during-stream file replacement accepted')
-finally:ready.set();worker.join(10)
+ sys.setprofile(observe_read)
+ try:a.LocalReleaseVerifier().check(root,manifest)
+ except a.ReleaseInstallationError as e:assert e.code=='currentness',e.code
+ else:raise AssertionError('during-stream file replacement accepted')
+finally:sys.setprofile(None);ready.set();worker.join(10)
 assert triggered and not worker.is_alive() and not errors
 """
             p=f.run(code,arguments=(f.bundle,f.manifest_path));self.assertEqual(p.returncode,0,p.stderr)

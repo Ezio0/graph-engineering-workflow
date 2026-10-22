@@ -35,7 +35,8 @@ class ReleaseInstallationIntegrationTests(unittest.TestCase):
                 incompatible=f.base/'shadow-incompatible';shutil.copytree(f.bundle,incompatible)
                 for name,body in saved.items():(f.bundle/name).write_bytes(body)
                 before=inventory(f.base)
-                code='''from graph_engineering.adapters import release_installation as a
+                code='''import os,tempfile
+from graph_engineering.adapters import release_installation as a
 from graph_engineering.application.cli import main
 import packaging,packaging.utils as u,packaging.specifiers as s,contextlib,io,hashlib,types
 from unittest.mock import patch
@@ -43,9 +44,16 @@ root=pathlib.Path(sys.argv[2]);manifest=pathlib.Path(sys.argv[3]);bad=pathlib.Pa
 args=['release-check','--bundle',str(root),'--manifest',str(manifest),'--format','json']
 bad_args=['release-check','--bundle',str(bad),'--manifest',str(bad/'release.json'),'--format','json']
 def command(arguments,expected):
- output=io.StringIO()
- with contextlib.redirect_stdout(output):status=main(arguments)
- body=output.getvalue();assert status==expected,(status,expected)
+ # Observe OS output without replacing a sealed Python stream binding.
+ stream=sys.stdout;stream.flush();saved=os.dup(stream.fileno())
+ try:
+  with tempfile.TemporaryFile(mode='w+b') as output:
+   os.dup2(output.fileno(),stream.fileno())
+   try:status=main(arguments)
+   finally:stream.flush();os.dup2(saved,stream.fileno())
+   output.seek(0);body=output.read().decode('utf-8')
+ finally:os.close(saved)
+ assert status==expected,(status,expected)
  assert len(body.encode())<=(1024 if expected else 65536)
  assert str(root.parent) not in body and 'shadow-must-not-execute' not in body
  value=json.loads(body);claimed=value.pop('diagnostic_digest')

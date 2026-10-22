@@ -1,0 +1,120 @@
+{
+  "$id": "urn:gew:schema:stage-execution-diagnostic:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "capabilities": {
+      "properties": {
+        "install-apply": {
+          "const": "stage-only"
+        },
+        "install-plan": {
+          "const": "available"
+        },
+        "release": {
+          "const": "unavailable"
+        },
+        "reopen-staged": {
+          "const": "local-authority-only"
+        },
+        "stage": {
+          "const": "available"
+        }
+      },
+      "required": [
+        "install-plan",
+        "install-apply",
+        "stage",
+        "reopen-staged",
+        "release"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "checks": {
+      "items": {
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "ref": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "staged",
+              "rejected",
+              "blocked"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "code",
+          "ref"
+        ],
+        "type": "object",
+        "unevaluatedProperties": false
+      },
+      "maxItems": 65536,
+      "type": "array"
+    },
+    "code": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "diagnostic_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "next_route": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "phase": {
+      "const": "stage"
+    },
+    "refs": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 65536,
+      "type": "array"
+    },
+    "request_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "staged",
+        "rejected",
+        "blocked"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "status",
+    "phase",
+    "code",
+    "checks",
+    "refs",
+    "capabilities",
+    "next_route",
+    "diagnostic_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

@@ -108,11 +108,11 @@ def main(argv: list[str] | None = None) -> int:
     parsed = _parser().parse_args(arguments)
     if parsed.command in ("install-plan", "install-apply"):
         from graph_engineering.application.release_staging import (
-            BundleRef, install_plan, install_apply_unavailable, bootstrap_stage_diagnostic,
+            BundleRef, install_plan, install_apply, bootstrap_stage_diagnostic,
         )
         try:
             result, exit_code = (install_plan(parsed.operation, parsed.request, BundleRef(parsed.bundle, parsed.manifest))
-                if parsed.command == "install-plan" else install_apply_unavailable())
+                if parsed.command == "install-plan" else install_apply(parsed.plan, BundleRef(parsed.bundle, parsed.manifest)))
         except Exception:
             result, exit_code = bootstrap_stage_diagnostic('plan' if parsed.command == 'install-plan' else 'stage'), 4
         print(json.dumps(result, sort_keys=True, separators=(",", ":")))

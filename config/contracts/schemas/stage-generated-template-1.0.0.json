@@ -1,0 +1,69 @@
+{
+  "$id": "urn:gew:schema:stage-generated-template:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "kind": {
+      "enum": [
+        "launcher",
+        "script",
+        "RECORD"
+      ]
+    },
+    "logical_path": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "segments": {
+      "items": {
+        "oneOf": [
+          {
+            "properties": {
+              "literal": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "literal"
+            ],
+            "type": "object",
+            "unevaluatedProperties": false
+          },
+          {
+            "properties": {
+              "ref": {
+                "enum": [
+                  "interpreter",
+                  "tool"
+                ]
+              }
+            },
+            "required": [
+              "ref"
+            ],
+            "type": "object",
+            "unevaluatedProperties": false
+          }
+        ]
+      },
+      "maxItems": 65536,
+      "type": "array"
+    },
+    "template_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "logical_path",
+    "kind",
+    "segments",
+    "template_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

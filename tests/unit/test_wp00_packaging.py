@@ -49,7 +49,9 @@ def assert_direct_script_contract(test, configuration):
             test.assertIn([name,"sha256="+base64.urlsafe_b64encode(hashlib.sha256(body).digest()).rstrip(b"=").decode(),str(len(body))],rows)
             test.assertNotIn(b"graph-engineering =",archive.read("graph_engineering_workflow-0.1.0.dist-info/entry_points.txt"))
             from tests.support.source_checkout_attestation import SOURCE_FILES
-            new_resources=[p for p in SOURCE_FILES if p.startswith('config/') and ('stage-' in p or 'staging-' in p or 'installer-policy' in p or '/install-plan-' in p)]
+            execution_resources=[p for p in SOURCE_FILES if p.startswith('config/') and any(n in p for n in ('staging-execution-','installed-release-manifest-','installation-binding-','stage-receipt-','stage-generated-template-','stage-execution-'))]
+            test.assertEqual(len(execution_resources),7)
+            new_resources=[p for p in SOURCE_FILES if p.startswith('config/') and p not in execution_resources and ('stage-' in p or 'staging-' in p or 'installer-policy' in p or '/install-plan-' in p)]
             test.assertEqual(len(new_resources),12)
             for relative in new_resources:
                 target=configuration['tool']['gew']['build']['owned-root-files'][relative]
@@ -61,6 +63,13 @@ def assert_direct_script_contract(test, configuration):
                 test.assertEqual(archive.read(target),(ROOT/layer/'graph_engineering'/layer/'release_staging.py').read_bytes())
                 target='graph_engineering/'+layer+'/installation_authority.py'
                 test.assertEqual(archive.read(target),(ROOT/layer/'graph_engineering'/layer/'installation_authority.py').read_bytes())
+                target='graph_engineering/'+layer+'/staging_execution.py'
+                test.assertEqual(archive.read(target),(ROOT/layer/'graph_engineering'/layer/'staging_execution.py').read_bytes())
+            for relative in execution_resources:
+                target=configuration['tool']['gew']['build']['owned-root-files'][relative];body=archive.read(target)
+                test.assertEqual(body,(ROOT/relative).read_bytes())
+                encoded='sha256='+base64.urlsafe_b64encode(hashlib.sha256(body).digest()).rstrip(b'=').decode()
+                test.assertEqual(rows.count([target,encoded,str(len(body))]),1)
             approval_resources=[p for p in SOURCE_FILES if p.startswith('config/') and 'installation-approval-' in p]
             test.assertEqual(len(approval_resources),5)
             for relative in approval_resources:

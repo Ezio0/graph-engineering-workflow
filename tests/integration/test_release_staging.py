@@ -7,12 +7,13 @@ class ReleaseStagingIntegrationTests(unittest.TestCase):
         for installed in (False,True):
             with self.subTest(installed=installed),StageFixture(installed=installed) as f:
                 code='''from graph_engineering.application.release_staging import ReleaseInstaller,BundleRef
-import os,subprocess
-from unittest.mock import patch
+import os
 calls=[];environment=dict(os.environ)
-def forbidden(*a,**k):calls.append(True);raise AssertionError('release execution attempted')
-with patch.object(subprocess,'Popen',side_effect=forbidden),patch.object(os,'system',side_effect=forbidden),patch.object(os,'execve',side_effect=forbidden):
- owner=ReleaseInstaller();p=owner.plan(json.loads(pathlib.Path(sys.argv[2]).read_bytes()),BundleRef(pathlib.Path(sys.argv[3]),pathlib.Path(sys.argv[4])));value=p.to_dict();p.close()
+def forbid_execution(event,args):
+ if event in ('subprocess.Popen','os.system','os.exec','os.posix_spawn','os.fork','os.forkpty'):
+  calls.append(event);raise AssertionError('release execution attempted')
+sys.addaudithook(forbid_execution)
+owner=ReleaseInstaller();p=owner.plan(json.loads(pathlib.Path(sys.argv[2]).read_bytes()),BundleRef(pathlib.Path(sys.argv[3]),pathlib.Path(sys.argv[4])));value=p.to_dict();p.close()
 assert not calls and dict(os.environ)==environment
 print(json.dumps(value))
 '''

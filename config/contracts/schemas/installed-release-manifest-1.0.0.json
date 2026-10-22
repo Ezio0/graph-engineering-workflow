@@ -1,0 +1,173 @@
+{
+  "$id": "urn:gew:schema:installed-release-manifest:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "distributions": {
+      "items": {
+        "properties": {
+          "installed_record_digest": {
+            "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "version": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "wheel_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "wheel_sha256",
+          "installed_record_digest"
+        ],
+        "type": "object",
+        "unevaluatedProperties": false
+      },
+      "maxItems": 65536,
+      "type": "array"
+    },
+    "installed_manifest_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "interpreter_identity": {
+      "properties": {
+        "artifact_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "build_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "executable_member": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "implementation": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "patch": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "implementation",
+        "patch",
+        "build_id",
+        "executable_member"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "lock_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "platform": {
+      "properties": {
+        "architecture": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "os": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "python_abi": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "os",
+        "architecture",
+        "python_abi"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "policy_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "release_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "sbom_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "security_evidence_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "skills": {
+      "items": {
+        "properties": {
+          "asset_digest": {
+            "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "protocol_range": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "runtime_kind": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "skill_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "version": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "runtime_kind",
+          "skill_id",
+          "version",
+          "protocol_range",
+          "asset_digest"
+        ],
+        "type": "object",
+        "unevaluatedProperties": false
+      },
+      "maxItems": 65536,
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "release_id",
+    "platform",
+    "interpreter_identity",
+    "distributions",
+    "skills",
+    "lock_digest",
+    "sbom_digest",
+    "security_evidence_digest",
+    "policy_digest",
+    "installed_manifest_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

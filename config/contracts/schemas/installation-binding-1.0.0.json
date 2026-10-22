@@ -1,0 +1,411 @@
+{
+  "$id": "urn:gew:schema:installation-binding:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "binding_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "candidate_identity": {
+      "properties": {
+        "device": {
+          "maxLength": 20,
+          "minLength": 1,
+          "type": "string"
+        },
+        "inode": {
+          "maxLength": 20,
+          "minLength": 1,
+          "type": "string"
+        },
+        "mode": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "owner_id": {
+          "maxLength": 20,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "inode",
+        "mode",
+        "owner_id"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "files": {
+      "items": {
+        "properties": {
+          "kind": {
+            "enum": [
+              "file",
+              "directory"
+            ]
+          },
+          "logical_path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "mode": {
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "physical_identity": {
+            "properties": {
+              "ancestors": {
+                "items": {
+                  "properties": {
+                    "device": {
+                      "maxLength": 20,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "inode": {
+                      "maxLength": 20,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "mode": {
+                      "maximum": 9007199254740991,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "owner_id": {
+                      "maxLength": 20,
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "device",
+                    "inode",
+                    "mode",
+                    "owner_id"
+                  ],
+                  "type": "object",
+                  "unevaluatedProperties": false
+                },
+                "maxItems": 65536,
+                "type": "array"
+              },
+              "ctime_ns": {
+                "maxLength": 20,
+                "minLength": 1,
+                "type": "string"
+              },
+              "device": {
+                "maxLength": 20,
+                "minLength": 1,
+                "type": "string"
+              },
+              "inode": {
+                "maxLength": 20,
+                "minLength": 1,
+                "type": "string"
+              },
+              "mtime_ns": {
+                "maxLength": 20,
+                "minLength": 1,
+                "type": "string"
+              },
+              "owner_id": {
+                "maxLength": 20,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "device",
+              "inode",
+              "owner_id",
+              "mtime_ns",
+              "ctime_ns",
+              "ancestors"
+            ],
+            "type": "object",
+            "unevaluatedProperties": false
+          },
+          "raw_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "size_bytes": {
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "logical_path",
+          "raw_sha256",
+          "size_bytes",
+          "mode",
+          "physical_identity",
+          "kind"
+        ],
+        "type": "object",
+        "unevaluatedProperties": false
+      },
+      "maxItems": 65536,
+      "type": "array"
+    },
+    "installation_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "installer_binding": {
+      "properties": {
+        "logical_path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "mode": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "physical_identity": {
+          "properties": {
+            "ancestors": {
+              "items": {
+                "properties": {
+                  "device": {
+                    "maxLength": 20,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "inode": {
+                    "maxLength": 20,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "mode": {
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "owner_id": {
+                    "maxLength": 20,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "device",
+                  "inode",
+                  "mode",
+                  "owner_id"
+                ],
+                "type": "object",
+                "unevaluatedProperties": false
+              },
+              "maxItems": 65536,
+              "type": "array"
+            },
+            "ctime_ns": {
+              "maxLength": 20,
+              "minLength": 1,
+              "type": "string"
+            },
+            "device": {
+              "maxLength": 20,
+              "minLength": 1,
+              "type": "string"
+            },
+            "inode": {
+              "maxLength": 20,
+              "minLength": 1,
+              "type": "string"
+            },
+            "mtime_ns": {
+              "maxLength": 20,
+              "minLength": 1,
+              "type": "string"
+            },
+            "owner_id": {
+              "maxLength": 20,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "device",
+            "inode",
+            "owner_id",
+            "mtime_ns",
+            "ctime_ns",
+            "ancestors"
+          ],
+          "type": "object",
+          "unevaluatedProperties": false
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "size_bytes": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "logical_path",
+        "raw_sha256",
+        "size_bytes",
+        "mode",
+        "physical_identity"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "interpreter_binding": {
+      "properties": {
+        "logical_path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "mode": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "physical_identity": {
+          "properties": {
+            "ancestors": {
+              "items": {
+                "properties": {
+                  "device": {
+                    "maxLength": 20,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "inode": {
+                    "maxLength": 20,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "mode": {
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "owner_id": {
+                    "maxLength": 20,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "device",
+                  "inode",
+                  "mode",
+                  "owner_id"
+                ],
+                "type": "object",
+                "unevaluatedProperties": false
+              },
+              "maxItems": 65536,
+              "type": "array"
+            },
+            "ctime_ns": {
+              "maxLength": 20,
+              "minLength": 1,
+              "type": "string"
+            },
+            "device": {
+              "maxLength": 20,
+              "minLength": 1,
+              "type": "string"
+            },
+            "inode": {
+              "maxLength": 20,
+              "minLength": 1,
+              "type": "string"
+            },
+            "mtime_ns": {
+              "maxLength": 20,
+              "minLength": 1,
+              "type": "string"
+            },
+            "owner_id": {
+              "maxLength": 20,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "device",
+            "inode",
+            "owner_id",
+            "mtime_ns",
+            "ctime_ns",
+            "ancestors"
+          ],
+          "type": "object",
+          "unevaluatedProperties": false
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "size_bytes": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "logical_path",
+        "raw_sha256",
+        "size_bytes",
+        "mode",
+        "physical_identity"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "plan_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "request_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "stage_context_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "installation_id",
+    "request_id",
+    "plan_digest",
+    "stage_context_digest",
+    "candidate_identity",
+    "interpreter_binding",
+    "installer_binding",
+    "files",
+    "binding_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

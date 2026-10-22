@@ -1,0 +1,58 @@
+{
+  "$id": "urn:gew:schema:stage-receipt:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "binding_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "execution_binding_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "installed_manifest_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "plan_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "receipt_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "release_manifest_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "request_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "stage_context_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "status": {
+      "const": "staged"
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "plan_digest",
+    "release_manifest_digest",
+    "stage_context_digest",
+    "installed_manifest_digest",
+    "binding_digest",
+    "execution_binding_digest",
+    "receipt_digest",
+    "status"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

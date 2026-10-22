@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0.0",
+  "boundary_id": "wp10-staging-execution-boundary-v1",
+  "status": "implemented-private-stage-only",
+  "operation": "install",
+  "supported_surface": "private-stage-only",
+  "actual_owner_installation": false,
+  "native_certification": false,
+  "production_configuration_activated": false,
+  "fixture_limits": {
+    "approval_limits": {
+      "max_prompt_bytes": 8192,
+      "max_input_bytes": 80,
+      "max_wait_seconds": 15,
+      "max_grant_seconds": 30
+    },
+    "stage_limits": {
+      "max_stage_bytes": 1048576,
+      "max_stage_files": 64,
+      "max_process_seconds": 4,
+      "max_output_bytes": 4096,
+      "max_failed_candidates": 2,
+      "max_cleanup_entries": 64
+    },
+    "test_worker_limits": {
+      "max_live_workers": 1,
+      "max_wall_seconds": 45,
+      "max_transient_transcript_bytes": 16384
+    },
+    "compiler_limits": {
+      "max_wall_seconds": 45,
+      "max_helper_executable_bytes": 262144,
+      "overlap_with_stage_worker": false
+    },
+    "retained_h0_approval_limits": {
+      "max_prompt_bytes": 8192,
+      "max_input_bytes": 80,
+      "max_wait_seconds": 15,
+      "max_grant_seconds": 15
+    },
+    "unchanged_production_approval_limits": {
+      "max_prompt_bytes": 8192,
+      "max_input_bytes": 80,
+      "max_wait_seconds": 120,
+      "max_grant_seconds": 30
+    }
+  },
+  "verification": {
+    "new_methods": 19,
+    "retained_methods": 341,
+    "static_commands": 6,
+    "total_commands": 366,
+    "native_timeout_seconds": 290,
+    "canonical_timeout_seconds": 300,
+    "execution_order": "serial-fail-fast"
+  },
+  "original_grant_deadline_renewed": false,
+  "records": [
+    "installed-manifest.json",
+    "binding.json",
+    "execution-binding.json",
+    "receipt.json"
+  ],
+  "authority_source": "genuine-local-consumed-H0-only",
+  "process_boundary": "trusted-admitted-process-no-OS-sandbox-or-disk-quota-claim"
+}

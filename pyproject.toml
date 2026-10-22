@@ -21,6 +21,13 @@ graph-engineering = "graph_engineering.cli:main"
 "adapters/graph_engineering/adapters" = "graph_engineering.adapters"
 
 [tool.gew.build.owned-root-files]
+"config/contracts/schemas/stage-execution-binding-1.0.0.json" = "graph_engineering/config/contracts/schemas/stage-execution-binding-1.0.0.json"
+"config/contracts/schemas/stage-execution-diagnostic-1.0.0.json" = "graph_engineering/config/contracts/schemas/stage-execution-diagnostic-1.0.0.json"
+"config/contracts/schemas/stage-generated-template-1.0.0.json" = "graph_engineering/config/contracts/schemas/stage-generated-template-1.0.0.json"
+"config/contracts/schemas/stage-receipt-1.0.0.json" = "graph_engineering/config/contracts/schemas/stage-receipt-1.0.0.json"
+"config/contracts/schemas/installation-binding-1.0.0.json" = "graph_engineering/config/contracts/schemas/installation-binding-1.0.0.json"
+"config/contracts/schemas/installed-release-manifest-1.0.0.json" = "graph_engineering/config/contracts/schemas/installed-release-manifest-1.0.0.json"
+"config/contracts/staging-execution-schema-registry-v1.json" = "graph_engineering/config/contracts/staging-execution-schema-registry-v1.json"
 "config/contracts/installation-approval-schema-registry-v1.json" = "graph_engineering/config/contracts/installation-approval-schema-registry-v1.json"
 "config/contracts/schemas/installation-approval-challenge-1.0.0.json" = "graph_engineering/config/contracts/schemas/installation-approval-challenge-1.0.0.json"
 "config/contracts/schemas/installation-approval-diagnostic-1.0.0.json" = "graph_engineering/config/contracts/schemas/installation-approval-diagnostic-1.0.0.json"
@@ -253,8 +260,8 @@ transform-raw-sha256 = "0b68dc63f71cec61ebe014e50ce161b68b129448021d18faa0e45485
 transform-source = "config/migration/migration-rehearsal-transform-manifest-v1.json"
 transform-resource = "graph_engineering/config/migration/migration-rehearsal-transform-manifest-v1.json"
 bootstrap-id = "urn:gew:migration-rehearsal-bootstrap:v1"
-bootstrap-digest = "sha256-jcs-v1:84f6125f89671c7e255d1dfa0c626c8e23a4af15fc43ec7d5374b80185ca7d67"
-bootstrap-raw-sha256 = "d7648d8d3dedb506dab7fefb56f05879e38011164e3ea36d9fc9d34ccbe69b94"
+bootstrap-digest = "sha256-jcs-v1:c55d4c90b35ae87ecf28de404488a7e0cd4641e4277fbe451caee8a790084531"
+bootstrap-raw-sha256 = "606a3f0a34127f2dfd0e38e7f5e4f3f6782877cd3645ed0405ad97cc716a1fc0"
 bootstrap-source = "config/migration/migration-rehearsal-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/migration/migration-rehearsal-installation-bootstrap-v1.json"
 profile-schema-registry-id = "urn:gew:schema-registry:profiles:1.0.0"
@@ -268,11 +275,11 @@ source-attestation-policy-id = "source-checkout-attestation-v1"
 build-backend-raw-sha256 = "015440771024141e7d43be9ab5f4f01bd2de757f21a539acc87d33eb48bd66d3"
 build-backend-source = "scripts/build_backend.py"
 build-backend-resource = "graph_engineering/scripts/build_backend.py"
-protected-closure-digest = "sha256-jcs-v1:8d54f0f0faeb3ffe83e4198e3811c99bf37f1b3c1e1c7398d0e1f7f2a1dd395a"
+protected-closure-digest = "sha256-jcs-v1:f9098f7bf1b75e99422fde59b795f3a72229b9a1d07dea373ade7e623aecf886"
 protected-resources = [
   { raw-sha256 = "049000ebc8355e092f960cfeca817223d835c59567b710d0c1eacc56084c0276", resource = "graph_engineering/application/migration_rehearsal.py", source = "application/graph_engineering/application/migration_rehearsal.py" },
   { raw-sha256 = "ff88c598e8d7e6964fa1dd9d90caeb22935cb499c43ee6b6b47bba982fa34101", resource = "graph_engineering/application/profile_execution.py", source = "application/graph_engineering/application/profile_execution.py" },
-  { raw-sha256 = "7ed8fc6f69571600833347a7fb1815d1b15b16709e28b83d0c4dcb8f2d6c68da", resource = "graph_engineering/__init__.py", source = "core/graph_engineering/__init__.py" },
+  { raw-sha256 = "6e851ae5cdbd2589ac6d767f1a34f93edb93ade51d1a51f34260b5fb2fe13efc", resource = "graph_engineering/__init__.py", source = "core/graph_engineering/__init__.py" },
   { raw-sha256 = "2a7d82251d04e517acbf45ba26b9b5382560ce1138e707e576ddd84c1b2a6269", resource = "graph_engineering/core/migration_rehearsal.py", source = "core/graph_engineering/core/migration_rehearsal.py" },
   { raw-sha256 = "07d6fd953dc970a1229106789913859ec4ad38e913ec439bf73c1bb013ec2e45", resource = "graph_engineering/core/profile_execution.py", source = "core/graph_engineering/core/profile_execution.py" },
   { raw-sha256 = "015440771024141e7d43be9ab5f4f01bd2de757f21a539acc87d33eb48bd66d3", resource = "graph_engineering/scripts/build_backend.py", source = "scripts/build_backend.py" },
@@ -418,8 +425,8 @@ schema-vectors = [
 
 [tool.gew.profile.scenario-truth]
 bootstrap-id = "urn:gew:scenario-truth-installation-bootstrap:1.0.0"
-bootstrap-digest = "sha256-jcs-v1:9108e4293f9ed008aab4a0370ff699e363783ff24e33baf73b97a08f77721c2a"
-bootstrap-raw-sha256 = "358a285e34ad277eeb662b0413abd1aa8926aa2d395e59a50e194d8fffe4ffe5"
+bootstrap-digest = "sha256-jcs-v1:4b509f3b7ebd6ad8a346707847dbc2169b3c381e3f266146e6dc9fae4d2dd03f"
+bootstrap-raw-sha256 = "57a63287031c8f35537222f48efaccdce139ae944d1a4694a8cdbaf31a4decea"
 bootstrap-source = "config/profiles/scenario-truth-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/profiles/scenario-truth-installation-bootstrap-v1.json"
 policy-source = "config/profiles/scenario-truth-policy-registry-v1.json"
@@ -475,8 +482,8 @@ distribution-version = "0.1.0"
 
 [tool.gew.profile.release-operations]
 bootstrap-id = "urn:gew:release-operations-installation-bootstrap:1.0.0"
-bootstrap-digest = "sha256-jcs-v1:4a4c769268a3b4a13df524cfd57c1737ae22a9328eaaa77b2f61bc6d05dac159"
-bootstrap-raw-sha256 = "c684abdec3f606d4e54c3042f3a6b9b10c228f4bef3e33964fec1fdf5edaa5e4"
+bootstrap-digest = "sha256-jcs-v1:561ec413c5714e74120fe7800e697bb07b0147f5ebacfed106ee5082084fe7fe"
+bootstrap-raw-sha256 = "ecad56b7bee5e223f57c240462c0bf5239fc627f3cfd6d9ea1368a92c34915da"
 bootstrap-source = "config/release-operations/release-operations-installation-bootstrap-v1.json"
 bootstrap-resource = "graph_engineering/config/release-operations/release-operations-installation-bootstrap-v1.json"
 policy-source = "config/release-operations/release-operations-policy-registry-v1.json"

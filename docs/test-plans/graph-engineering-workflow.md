@@ -4248,3 +4248,269 @@ currentness/deadline checks, production120/30, byte ceilings, exact33/347, seria
 native290/canonical300 and four-cycle history. No implementation/terminal-positive
 PASS is inferred; the signed request/approval and independent affected-design review
 are retained in detached records. This supplement amends timing data, not scope.
+
+## WP-10 isolated staging execution tests — W10E, 2026-10-16
+
+### W10E-T1 Scope, CUJs and acceptance
+
+[Spec W10E](../specs/graph-engineering-workflow.md#wp-10-isolated-staging-execution-design--w10e-2026-10-16),
+[Impact](../impact/graph-engineering-workflow.md#wp-10-isolated-staging-execution-impact--w10e-2026-10-16)
+and [Plan](../plans/2026-08-13-graph-engineering-workflow.md#wp-10-isolated-staging-execution-plan--w10e-2026-10-16)
+are independently accepted with actual ADVANCE. This test design does not execute
+tests or authorize implementation. Future exact40-path approval must bind this plan,
+fixture data and all366 command argv before product work begins.
+
+In scope: closed execution records/projections, actual template admission/A→B0,
+genuine local grant/consume, private extraction/process/installed inventory,
+origin-bound four-record durability/reopen, live observations, provider/target
+substitutions, cold installed stage-only CLI and all retained compatibility checks.
+Out of scope: actual Owner terminal/data/install, production trust/recipes, real
+Python/uv installation/offline guarantees, downloads, unsupported archive layouts,
+unattended authentication, C/activation/PMF export, three-platform certification
+and irreversible delivery. Missing later evidence stays blocked, not simulated PASS.
+
+| Critical journey, mandatory100% | Independent success/failure oracle | New selectors |
+| --- | --- | --- |
+| CUJ1 signed templates reach real A/B0 | raw signed/provenance/size/hash bytes plus actual factory-owned plan; unsupported/unused/swapped inputs refuse before prompt/write |005,017 |
+| CUJ2 actual local decision gates first mutation | parent-observed real prompt/challenge, genuine consumed grant; pre-write inventory unchanged on absent/expired/foreign/replayed authorization |007,009,016,019 |
+| CUJ3 exact exclusive extraction | parent no-follow inventory and prederived wheel ownership/paths; links/collisions/limits/old-root drift refuse |003,009,012,017 |
+| CUJ4 owned process bounds and teardown | actual native child/group status, stdout/stderr count, captured original timestamps/signals; no false confirmed-reap result |004,010,015 |
+| CUJ5 actual installed closure/normalization | independent admitted-wheel/RECORD/template byte mapping; two different prefix lengths yield equal semantics/distinct physical bindings |002,006,008,017 |
+| CUJ6 private origin and durable reopen | stored original real challenge equals parent observation, four record cross-links/fsync order; new grant preserves origin; crash/tamper no acceptance |006,011,014,019 |
+| CUJ7 concurrency/limited cleanup | exclusive root winner, no overwrite/merge; known-entry cleanup or explicit blocked preserved root; old inventories equal |012,016 |
+| CUJ8 live trust and owned handles | module/member/code/descriptor substitution counters0, sticky invalidation, fresh restored positive; PID/thread/copy/JSON cannot own results |016,018,019 |
+| CUJ9 public cold CLI and privacy | real installed strict launcher, exact parsed stage-only diagnostic, no pycache/UID/path/nonce/response/argv/raw child output |013,014,015 |
+| CUJ10 package/resource compatibility | owned source/wheel/RECORD origin, seven new resources and unchanged old ordering/projections/current pins |005, retained341+six statics |
+
+All Spec E-G1..5 and every Plan E0..8 acceptance map to these journeys. No numeric
+code-coverage threshold, mirrored implementation-text test or arbitrary E2E quota
+substitutes for them. Failure, skip, unexpected write, stale input or unconfirmed
+required observation blocks completion.
+
+### W10E-T2 Exact layers and command inventory
+
+[Test inventory-r0](../../.workflow/delivery/GEW-REMAINING54-V1/detached/wp10-b1-staging-test-inventory-r0.json)
+contains19 prospective methods,341 retained methods and six statics,366 commands.
+All347 retained argv and nested original command records are unchanged. New tests
+use the existing unittest/native runner, one selector per invocation, native290/
+canonical300, collected1/executed1/outcomes1/skip0, strict serial/fail-fast.
+
+| Layer/class, new method suffixes exactly as inventory | IDs / count | Plan tasks |
+| --- | --- | --- |
+| tests.unit.test_staging_execution.StagingExecutionUnitTests: test_closed_stage_records; test_template_normalization_projection; test_expected_wheel_membership; test_budget_and_process_timing |001..004 /4 | E1,E5 |
+| tests.contract.test_staging_execution.StagingExecutionContractTests: test_owned_execution_source_wheel_inputs; test_installed_inventory_and_record_oracle |005..006 /2 | E2,E6,E7 |
+| tests.integration.test_staging_execution.StagingExecutionIntegrationTests: test_local_authority_stage_success; test_two_roots_semantic_equality; test_mutation_barriers_and_one_use; test_process_failure_output_and_reap; test_receipt_durability_faults_and_reopen; test_concurrent_root_and_bounded_cleanup; test_apply_cli_local_and_refusals |007..013 /7 | E3..7 |
+| tests.integration.test_staging_execution_wheel.StagingExecutionWheelTests: test_installed_local_stage_and_reopen; test_installed_failures_and_cold_cli |014..015 /2 | E2..7 |
+| tests.security.test_staging_execution.StagingExecutionSecurityTests: test_before_write_source_target_substitution; test_member_mapping_record_and_template_rejection; test_provider_substitution_zero_calls; test_foreign_replayed_handles_and_deadline |016..019 /4 | E2..7 |
+
+Physical trust/process risks justify more integration than unit methods. Historical
+checklist pyramid ratios,5–10E2E quotas and fixed millisecond budgets do not override
+this project-approved risk boundary. Six retained statics are architecture/lint/type/
+build/reproducibility/diff checks. Existing H0 fixture15/15 tests are retained, not
+replaced by new fixtures. Packaging extensions remain inside retained test methods.
+
+### W10E-T3 Per-layer behavioral strategy
+
+**001..004 — pure contracts.** Use literal independent bodies, standard hashlib/
+base64/JCS-subset oracles, not production digest helpers to form expected answers.
+Cover every unknown/type/order/digest/budget field; map ordinary package/direct-script/
+purelib/metadata/RECORD ownership, cross-distribution collisions and unsupported data.
+Reproduce the normative57-byte vector and literal token-like text. Pure timing state
+models exercise all original X/K/D observations, including deterministic unconfirmed
+liveness. Such model facts are never injected into an owned product process port.
+
+**005 — genuine admission.** Build fully signed/provenance-bound template-bearing
+bundles through existing fixture issuers under newly attested SOURCE and WHEEL
+inputs. Invoke the real A verifier and B0 planner, not a fake ReleaseObservation or
+stubbed parser. Independently validate complete plan fields/closure/context. Test
+missing/duplicate/unused/unknown/malformed/swapped/raw-digest/self-digest template
+cases and unchanged template-free A. No authority prompt or candidate write on refusal.
+
+**006/008/017 — installed byte oracles.** Expected members derive independently from
+actual admitted wheel ZIP/RECORD and signed template bytes before stage. Deliberately
+remove an ordinary file while updating installer RECORD, add an undeclared metadata
+file, swap ownership/paths, change raw hash/size or self-row and introduce an unknown
+empty directory; all refuse. Two roots with deliberately different prefix lengths
+share exactly the same compiled/admitted bundle bytes. Compare entire normalized
+manifests, different physical bindings and different original challenges, not just
+the semantic digest. A one-byte ordinary mutation cannot normalize away.
+
+**007/009/016/019 — genuine authority and write barriers.** Parent private PTY peer
+reads the full real challenge, checks every displayed plan/context/target field
+independently, sends the exact fresh APPROVE line and invokes actual stage/consume.
+No caller UID/clock/FD/callback/boolean or manually inserted grant table entry.
+Observe source/policy/registry/target-parent/absence swaps before first mkdir, during
+extraction, before child start and before final acceptance. Missing authority yields
+zero roots/child starts; after mutation failures yield unaccepted root only and equal
+old inventories. Rotation, reused/foreign/copy/pickle/JSON/PID/thread handles refuse.
+Use actual elapsed monotonic deadlines; never assume validation is slow enough to
+expire a grant. Restored providers require a fresh plan/decision, not revived handles.
+
+**010/015 — true child lifecycle.** Compile the small checked-in native fixture C
+driver with the configured existing host compiler into a private test directory.
+Use actual emitted bytes in synthetic signed interpreter/installer archive entries;
+separately admit their release-runtime descriptors. The driver performs bounded
+fixture payload actions and modes: normal exit, nonzero exit, cumulative output
+overflow, delayed exit, ignored TERM and a same-group descendant. It neither emits
+StageReceipt nor bypasses verification. It is explicitly not real CPython/uv proof.
+Run the production process port/closed recipe, observe real signals/group exit/reap
+and original deadlines; no mocked Popen/clock/signal provider supplies a positive.
+Scheduling-pause tests accept only the outcome justified by actually observed
+liveness; the unit model covers a deterministic still-unconfirmed state without
+assuming a minimum OS kill/reap delay. An unconfirmed native outcome must be blocked,
+never claimed reaped, and cannot trigger filesystem cleanup or staged acceptance.
+
+**011/012/014 — durability, provenance and concurrency.** Parent observes genuine
+original challenge digest and compares the private StageExecutionBinding/receipt
+cross-links against it, operation and owned plan. Remove/mismatch any of the four
+records, raw bytes, links or actual files; reopen refuses. Reauthorization of an
+equivalent/unchanged plan produces a different challenge and retires the previous
+grant; same-root stage refuses existing entries. Fresh-authority reopen preserves
+the exact original binding bytes and semantic manifest, without another installer
+start. Copied records alone never grant a handle. Private test-worker trace points
+or parent signals inject faults/interruption at each write/file-fsync/dir-fsync/
+receipt-last/final-barrier; product source and providers remain unchanged. Retain
+failed/crashed roots as unaccepted and assert old executable/repository/Skill/clock/
+task/active inventories equal. Race two private invocations for one derived root:
+one exclusive winner at most, no merge/overwrite. Cleanup is bounded to actual known
+owned entries after confirmed group exit; expired/unknown/live cases retain blocked.
+
+**013..015 — public installed entry.** Run the actual cold strict packaged launcher
+with genuine private sources/roots/terminal, no `-B` wrapper or environment cache mask
+supplied by the test. Exercise check, Doctor, install-plan and local install-apply.
+Apply compares the complete freshly owned plan, prompts only when eligible and prints
+only its new schema stage-only diagnostic. Missing production config/noninteractive/
+upgrade/runtime/C remains unavailable. Decoy cwd and bad PYTHONPATH retain old refusal
+behavior. Independently parse schema/exit/status/capabilities/digest/privacy; inspect
+the full filesystem for cache or old writes, not just stderr emptiness.
+
+**018 and retained security — zero substituted calls.** Isolate module-member,
+function.__code__, class/descriptor, effective binding and guard/cleanup mutations
+across admission, acquisition, waiting, stage/consume, retained result and reopen.
+Counters live independently in the actual replacement function globals. Every
+rejection has zero replacement invocations, original descriptor/process cleanup,
+sticky invalidation and a fresh restored positive. No test changes engine bytes or
+weakens a provider seal merely to obtain a post-mutation success.
+
+Behavioral RED must come from reachable wrong behavior: an importable stub rejects
+a valid pure record or the existing real stage port returns phase_unavailable after
+genuine owned planning/authorization. Missing import/attribute alone does not qualify.
+Keep RED/focused observations separate from final canonical same-tree evidence.
+
+### W10E-T4 Fixture data and cleanup
+
+Only synthetic requests/keys/UID-bound private directories are used. Reuse genuine
+ReleaseFixture/StageFixture/H0 parent-PTY construction with fresh source attestation
+or installed wheel RECORD for every owned variant; unchanged engine bytes throughout.
+New support/fixture JSON/C files are prospective40-path targets, not written now.
+
+| Finite new-stage fixture input | Value / basis |
+| --- | --- |
+| prompt/input |8192/80 bytes, unchanged production/H0 ceilings |
+| private wait/grant |15/30 seconds for the new stage fixture; wait matches H0, grant uses existing production30, not a raised production limit |
+| retained H0 fixtures |15/15 unchanged; original separately attested short negatives retained |
+| stage bytes/files |1048576/64, existing unconfigured StagePolicy bounds |
+| process/output |2 seconds inclusive original execution+teardown window /4096 cumulative bytes |
+| failed roots/cleanup entries |2/64, existing policy bounds; proposed root counts before creation |
+| live test workers / worker wall / transient PTY |1 /45 seconds /16384 bytes, unchanged approved limits |
+| compiler invocation |45 seconds maximum, no overlap with a stage worker; existing configured compiler only |
+| helper binary data |each at most262144 bytes (one quarter of stage byte cap); complete predicted payload/metadata must still fit1048576/64 |
+| metadata JSON and parsing |existing A max_manifest_bytes and stricter WorkContext limits; charge all four records/templates |
+
+The new fixture30-second grant is explicitly part of this Test Plan and the later
+implementation request; it does not amend H0's existing fixture or any production
+budget, and no execution is authorized now. Compile once per selector if useful;
+reuse only immutable helper bytes, never validation/ownership results. Two-root
+equality uses the identical compiled bundle, not separately nondeterministic builds.
+No real release keys, task data or production configuration are populated.
+
+Compiler presence is a test-infrastructure prerequisite; `/usr/bin/cc` lookup was
+observed, successful compilation is unmeasured. Missing/incompatible compiler blocks
+these required cases; no downloads, fake binary/caller-process positive or skip.
+Test peers own their exact child/groups; teardown confirms them before deleting
+known private fixture roots. Product-blocked roots remain unaccepted. Never kill by
+name, delete unknown roots, or retain raw PTY/child output in detached evidence.
+
+### W10E-T5 Environments and measured timing boundary
+
+Local `.venv` native runner performs source and freshly packaged wheel cases with
+one private worker/group at a time after separate implementation approval. System
+execution may be needed for owned PTYs; sandbox refusal is not a passing test or
+permission to access the actual Owner terminal. CI uses the same argv/toolchain/
+fixture bounds when available; absent primitives block, not reduce coverage.
+No staging/production deployment or monitoring occurs in this task.
+
+Native290/canonical300 bound each exact selector, not an invented per-layer SLA.
+Each selector's staged positive/failure groups must fit these bounds; worker45 and
+nonrenewed original grant are separately asserted. Actual duration is unset until
+executed. Measure focused paths before capture; a necessary scope/budget adjustment
+returns to Owner with measured evidence before running it. Do not silently split,
+skip, relabel failed current-source evidence or enlarge a timeout to pass.
+
+Real macos-arm64/macos-x86-64/linux-x86-64 acceptance remains a later required matrix
+with genuine binaries/recipes/trust/closures. Private helper evidence cannot replace
+any cell, prove offline operation or claim this project finished installation.
+
+### W10E-T6 Nonfunctional and final evidence
+
+In scope: strict byte/file/output/parse/process/cleanup/deadline bounds; root isolation,
+provider/currentness/privacy, interruptions/races/durability/reopen and cold package
+compatibility. Accessibility/UI, production throughput/p99/cost, malicious-program
+OS sandbox/quota and genuine offline/native certification are out of this dependency
+test boundary for the explicit reasons in Spec S3/S8/S9. No invented percentage or
+latency result is recorded.
+
+After same-source focused methods and six statics pass, obtain actual independent
+implementation ADVANCE, stage only the actual changed subset of40 and use unchanged
+F to capture366 canonical records strict serial/fail-fast. Each selector must collect
+and execute1 with no skip; statics must pass. Records bind task/Manifest/Policy/base/
+tree/argv/source. Independent verification and Candidate review precede any commit
+request. An edit/restage/stale evidence/failure invalidates dependent capture; retain
+all attempts and repeat only affected required checks. Old H0 PASS is not new-tree proof.
+
+### W10E-T7 Decisions and stop conditions
+
+| Missing input/decision | Deadline / effect |
+| --- | --- |
+| exact implementation approval including40 paths/366 commands/new fixture bounds | before E0 or any product test/build/worker |
+| actual native helper compiler/primitives and focused path durations | before declaring applicable cases PASS; failure is blocked/revise, not skip or budget increase |
+| actual production binaries/trust/recipes/three cells | before genuine B/native/offline claim |
+| unsupported archive/auth/C changes | before their own implementation; return specific material choice to Owner |
+
+All new selectors have explicit data, oracles and test-layer strategy; no mock
+admission/authority/owned process is required to finish this bounded design. Four-cycle
+revision budgets, stable finding IDs and irreversible-action gates remain unchanged.
+
+### W10E-T8 References
+
+[Plan W10E](../plans/2026-08-13-graph-engineering-workflow.md#wp-10-isolated-staging-execution-plan--w10e-2026-10-16),
+[Spec W10E](../specs/graph-engineering-workflow.md#wp-10-isolated-staging-execution-design--w10e-2026-10-16),
+[Impact](../impact/graph-engineering-workflow.md#wp-10-isolated-staging-execution-impact--w10e-2026-10-16),
+[PRD/Intent](../prd/graph-engineering-workflow.md),
+[Positioning](../positioning/graph-engineering-workflow.md),
+[ADR0015](../adr/0015-release-installation-and-upgrade.md).
+Detached prospective40-path inventory-r2,366-command inventory-r0, approved request/
+Envelope and accepted Spec3/Impact0/Plan0 records bind this plan. Applicable checklist
+sections are covered above; fixed historical ratio/count/millisecond requirements
+do not supersede project CUJs and authorized finite limits.
+
+### W10E-T6 Private native-window amendment
+
+The digest-bound Owner amendment changes only the new private stage-process total
+window2→4 seconds. At a full window X=2,K=3,D=4 from actual t0; original G caps D
+and is never renewed. Production/unconfigured2 and retained H0 fixtures remain.
+No worker45, native290/canonical300, grant30, compiler45, output4096/transcript16384,
+byte/file/failed-root/cleanup bound, selector or command argv is increased.
+
+ExecutionFixture now explicitly applies its own stage_limits before sealing its
+private StagePolicy. The independent actual process observer derives its maximum
+from that JSON. The native delayed-exit mode waits3s, and the private parent resumes
+an actually stopped worker after5s, ensuring the same X/after-D journeys. Assert
+actual liveness, original cutoffs, full closure and preserved old inventories;
+unknown completion remains blocked with no root deletion or later PID retry.
+
+Rerun all affected native/fault/authority/CLI journeys and all366 final canonical
+commands. Existing19+341+six inventory, serial fail-fast, collected/executed1 and
+skip0 rules are unchanged. The measured startup cost motivates this amendment;
+it is not a production throughput, real CPython/uv/offline or native-certification
+claim. No prewarming or successful ownership cache is introduced.
