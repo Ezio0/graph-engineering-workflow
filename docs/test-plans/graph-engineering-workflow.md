@@ -4514,3 +4514,215 @@ commands. Existing19+341+six inventory, serial fail-fast, collected/executed1 an
 skip0 rules are unchanged. The measured startup cost motivates this amendment;
 it is not a production throughput, real CPython/uv/offline or native-certification
 claim. No prewarming or successful ownership cache is introduced.
+
+## WP-10 release activation test plan — W10C, 2026-10-22
+
+### W10C-T1 Scope and critical journeys
+
+This is TestPlan2 under the original installation-design task and approved
+ceiling10. Spec6/Impact3/Plan3 independently passed and actually advanced;
+Spec5/Plan2 rejected records/findings and all original history remain immutable.
+No product test, build, terminal or process experiment runs during this design.
+Later execution requires exact C0 implementation/test authority for28 paths/378
+commands. Current B1's366 PASS proves its tree only, not prospective C0 code.
+
+In scope: six closed record shapes/domains, reference/tuple relationships,
+finite normal/failure/recovery chains and one-level recovery binding, None-only
+pure APIs, resource/diagnostic limits and genuine package/resource membership.
+Out of C0 scope: owned physical inspection/currentness, grant issuance, new CLI,
+registration, real pointer publication/fsync/SIGKILL recovery, live migration/
+rollback/uninstall, unattended auth and genuine native certification. These remain
+later mandatory C1/C2/C3/native acceptance, not waivers or simulated completion.
+
+| CUJ | New acceptance / exact methods below | Goal coverage and limitation |
+| --- | --- | --- |
+| C-CUJ1 Valid contract inputs are still untrusted |001,002,007,011 | C-G2/G5 pure data only; no operational authority/currentness proved |
+| C-CUJ2 One tuple consistently binds its declared assets/leaf |008,009,010,012 | C-G1 model/package support only; shared-scope real dispatch remains later |
+| C-CUJ3 Reference/journal/receipt construction is acyclic and exact |002,003,004,005 | C-G3 model support only; actual durability cuts remain C3 |
+| C-CUJ4 Cross-installation/replay/phase/counter substitution refuses |001,003,004,005,012 | C-G2/G4 declared relationships; live fences/revocations/actions remain C2/C3 |
+| C-CUJ5 Finite work and privacy always apply |006,007,011 | C-G5 resource/no-side-effect boundary, no invented production performance |
+
+All five CUJs require every positive and negative case below; no percentage quota
+or stubbed PASS substitutes. C-CUJ2 additionally exercises validate_tuple_links
+through012 with all existing linked records, including independently mismatched
+installation/release/stage/binding/leaf and compatible positive restoration.
+
+### W10C-T2 Layers, tools and exact inventory
+
+[Inventory-r0](../../.workflow/delivery/GEW-REMAINING54-V1/detached/wp10-activation-design-c0-test-inventory-r0.json)
+contains12 new unittest methods plus the unchanged366 retained command objects:
+372 methods+six statics=378 commands. IDs W10C-001..012 map exactly below. All new
+method selectors are tests.<layer>.test_release_activation.<Class>.<method>.
+Runner argv is `.venv/bin/python -B scripts/run_wp09_tests.py --test <selector>
+--timeout-seconds 290`, canonical timeout300, expected collected/executed1, skips0.
+No guessed selector, whole-module substitution, split, skip or timeout expansion.
+
+| Layer | Class / count | Tools and boundary |
+| --- | --- | --- |
+| unit | ReleaseActivationUnitTests /7 | real core validators/WorkContext plus handwritten vectors, no product I/O |
+| contract | ReleaseActivationContractTests /3 | real schema/resource/package metadata and attested SOURCE membership; retained wheel tests verify genuine installed closure |
+| security | ReleaseActivationSecurityTests /2 | pure relationship attacks and side-effect sentinels, no synthetic consent/authority |
+| retained integration/wheel/CLI/native fixture journeys |360 retained methods across existing layers | unchanged genuine private build/process/PTY behavior from current inventory; no new fixture/task/data/source trust substitution |
+| static |6 retained commands | unchanged exact argv from retained inventory |
+
+There is no new full activation E2E because C0 exposes no active operation. Risk-
+based contract/CUJ coverage replaces example pyramid counts/E2E quotas. Existing
+physical E2E journeys remain required. New method speed is measured after actual
+implementation; no arbitrary10ms/1s target is imposed. Native290/canonical300,
+existing worker/grant/fixture limits and strict serial fail-fast are fixed ceilings.
+
+### W10C-T3 Exact methods, oracles and RED/GREEN
+
+| ID / layer | Method | Synthetic inputs and independent observable assertions |
+| --- | --- | --- |
+|001 unit | test_closed_record_fields_and_types | valid fixture for all six kinds; field deletion/addition, unknown kind, bool/float/int-string, invalid token/digest, illegal null/op/bootstrap/enum reject with exact bounded code; each valid call returns None |
+|002 unit | test_domain_digest_known_vectors | fixed independently precomputed self hashes for six domains; change schema/projection kind, self field/body/hash or whitespace-significant token; raw expected hashes never computed through stage_digest/validator under test; cross-kind substitution rejects |
+|003 unit | test_reference_successor_monotonicity | exact+1 generation/epoch and matching prior/installation positive; same/decreased/skipped counters, wrong prior, bool, MAX_SAFE+1 and overflow successor reject; first-generation shape cannot create registration |
+|004 unit | test_journal_routes_and_sticky_bindings | handwritten exhaustive legal/illegal edge table for all four ops and recover dispositions; prepared/seq0, terminal immutability, candidate/observation evolution, missing/skipped/changed request/intent/plan/target/prior; acyclic preparation/reference publication positives and swapped-link negatives |
+|005 unit | test_receipt_terminal_consistency | exact completed, recovered_old/new and block-publication receipts positive; prefix/preparation-crash/direct-blocked/failed_before_switch require null receipt; swapped terminal/selected reference/mode/outcome/plan reject; incomplete prefix never reports completed |
+|006 unit | test_record_limits_and_cumulative_work | exact finite WorkContext boundary and boundary+1 for raw/canonical bytes, JSON nodes/depth, refs/collections, cumulative hashes/linked records; repeated-reference work counts, over-safe counters and one-level recover bound; rejection before large allocation/no unbounded generator |
+|007 unit | test_diagnostic_privacy_and_capabilities | exact closed five-key unavailable capability map and allowed status/code/route pairs; wrong/staged/authority_issued/available/extra-key combinations refuse; refs0/128/129, ordering/duplicates/control/path-bearing strings; bounded error codes expose no fixture secret/path |
+|008 contract | test_activation_schema_registry_closure | six exact schema IDs/kinds/self fields/raw hashes and registry self digest, recursive field closure/types/enums; missing/extra/swapped schema or old-registry widening detected; JSON duplicate-key refusal uses the existing bounded decoder contract, not a new C0 parser |
+|009 contract | test_packaged_source_resource_membership | actual pyproject/source-attestation/package inventory includes exactly new core+seven resources and expected bytes; no manual seal/RECORD or installed identity forgery; existing physical wheel-package regressions in retained commands are still required |
+|010 contract | test_retained_resource_order_and_bytes | all previous ordered source/resource entries remain an unchanged subsequence, old schema bodies/orders unchanged, current actually affected mirror pins agree; unrelated/unused mirror bytes remain fixed; strict launcher/backend/dependencies unchanged |
+|011 security | test_valid_records_confer_no_authority_or_io | acquire genuine baseline imports/WorkContext before observation; around pure API calls use fail-on-use sentinels for filesystem writes/readers, clock-high-water, terminal/process, registration and authority construction; all valid results are None, no handle or supported activation capability; assert sentinel calls0 and no mutation |
+|012 security | test_cross_installation_replay_and_conflicting_chains | validate_tuple_links with genuine contract-valid synthetic existing stage/manifest/binding/leaf records; self-consistent foreign installation/release/receipt/binding/leaf swaps reject; exact normal and fresh recover positives; wrong source tail/current ref/disposition/target, duplicate refs/tuples, competing generations and nested recover reject |
+
+Methods may use finite subtests but each named selector must collect/execute1.
+Expected state edges and outcomes are written independently in the fixture/test,
+not generated from the implementation transition map. Known digest vectors are
+calculated once by an independent standard hashlib+explicit canonical/domain
+projection construction and frozen with expected bytes/hash; compare that recipe
+to existing canonical contract, never call stage_digest to manufacture its own
+expected answer. Valid linked stage/leaf fixtures use their real pure validators;
+they are untrusted synthetic records, never factory-forged owned observations.
+
+Follow Plan3 T0→T1a→T1→T2: after separate approval T1a creates only minimal
+importable four-interface no-op bodies. T1 calls them with invalid fixture data;
+expected-refusal assertion failures AFTER those calls are qualifying behavioral
+RED. Missing import/attribute, test collection failure or a fixture-generated
+expected answer does not qualify. Preserve case/input/source and actual assertion
+failure, then T2 repairs behavior and reruns affected methods. This plan records
+no RED/GREEN execution or result in advance.
+
+Layer mock strategy: no mocks replace core/schema/hash/provider/authority truth.
+011's sentinels are only forbidden-effect observers around already acquired pure
+calls, not alternate product readers/writers/clock or consent providers. Contract
+reads use actual files and owned attested fixtures. New tests spawn no product
+process/build/PTY; retained package/process methods still run their unchanged
+actual paths under later explicit execution authority. A sentinel proves only
+C0's pure-call boundary, not real install isolation/currentness.
+
+### W10C-T4 Data, bounds and retention
+
+Use only new release-activation-contract-v1.json plus finite dictionaries in the
+three new test modules. All tokens/paths/secrets/installation IDs are synthetic;
+no real repository, UID, account, terminal transcript or Owner material. Fixture
+contains six known-vector records, explicit legal/illegal edges, complete ordinary
+chain, preparation-linked crash prefix, failure/direct-blocked/block-publication
+and fresh recovery-old/new bundles. Recovery source is non-recover only; nested
+recover is an explicit unsupported v1 negative, never silently flattened.
+
+Bound test generation before allocation. Boundary+1 payloads are minimal finite
+values at existing profile limits, not giant buffers. Original context ceilings
+win, record/report65536 and GEW safe integer9007199254740991 remain; no fixture
+can enlarge production policy. Contract read fixture roots are private and owned;
+C0 creates no target/journal/receipt/data to clean. Existing retained fixture
+cleanup/unknown-live-process rules remain unchanged. Preserve failed evidence;
+no automatic retry, broad deletion or reconstructed consent.
+
+### W10C-T5 Environments and execution order
+
+Current phase: document structure/scope/link checks plus frozen historical reducer
+replay only. Proposed implementation after exact approval: real local .venv,
+attested source/package fixtures and existing offline build inputs, no download
+or dependency resolution. No network CI/staging/production environment is created
+or executed by this request. Unsupported fixture/runtime primitive blocks, not skip.
+
+T5 focused12 methods+six statics on one source → fresh independent implementation
+review → actual ADVANCE → exact actual changed-subset staging → frozen F all378
+serial fail-fast captures → independent verification/Candidate. Preserve original
+366 commands exactly, including their real private SOURCE/WHEEL/build/PTY/process
+work and original finite bounds. This does not authorize new native fixtures.
+Reports must distinguish command duration from recorder wall duration; B1 historical
+capture timing is not C0 performance or a new test timeout.
+
+After an edit/restage/stale pin/evidence mismatch, invalidate affected evidence and
+run required checks; once valid checks pass, broaden/repeat only for new inputs,
+failure or unresolved concrete risk. No full old274/P1 unrelated campaign.
+
+### W10C-T6 Nonfunctional and later acceptance
+
+In scope: bounded parse/hash/work, closed types/domains/relationships, privacy,
+no C0 effects/authority, source/package compatibility and all retained regression
+journeys. Accessibility/GUI, live activation throughput/p99/cost, OS sandboxing,
+real fsync/pointer recovery and actual native certification are outside this pure
+increment for the explicit reasons in S3/S9/S11. Do not report them passed.
+
+Later mandatory physical matrix: every before/after journal/reference/pointer/
+receipt fsync/replace cut, real SIGKILL/restart, concurrent shared dispatch and
+exclusive transition, no mixed executable/Skill/repository, source/target swap,
+expired/wrong-purpose grant, live leases/claims/holds, PMF before-mutation refusal,
+action/revocation/fence preservation, lossless rollback or explicit blocked state.
+Initial bootstrap registration, nested recovery compatibility and data-preserving
+uninstall need exact future contracts. Genuine macos-arm64/macos-x86-64/linux-
+x86-64 requires actual interpreter/uv/recipes/complete release closure and trust;
+helper/model tests close none of those cells.
+
+### W10C-T7 Decisions and stop conditions
+
+| Missing authority/evidence | Deadline / required route |
+| --- | --- |
+| exact C0 implementation/test/build28/378 approval | before any T0 product mutation or product test/build; design COMPLETE is insufficient |
+| genuine source/package fixtures and frozen input equality | before first relevant method; mismatch stops reuse, no fake source stamp or seal |
+| qualifying assertion RED before repair | T1/T2; import-only failure is insufficient; retain actual failure |
+| acceptable focused and final same-tree evidence | before implementation ADVANCE/final verification/Candidate respectively; no conditional PASS |
+| actual C physical/auth/bootstrap/native dependencies | before later implementations/claims; explicit missing inputs remain blocked |
+
+No missing product-intent choice prevents pure C0. New target, budget, dependency,
+security or architecture changes require concrete Owner decisions; routine fixes
+keep finding IDs and current task counters. Commit/push/release are separate.
+
+### W10C-T8 References and applicability
+
+[Plan W10C](../plans/2026-08-13-graph-engineering-workflow.md#wp-10-release-activation-plan--w10c-2026-10-22),
+[Spec W10C](../specs/graph-engineering-workflow.md#wp-10-release-activation-and-recovery-clarification--w10c-2026-10-22),
+[Impact W10C](../impact/graph-engineering-workflow.md#wp-10-release-activation-impact--w10c-2026-10-22),
+[PRD/Intent](../prd/graph-engineering-workflow.md),
+[Positioning](../positioning/graph-engineering-workflow.md),
+[ADR0015](../adr/0015-release-installation-and-upgrade.md).
+Applicable checklist items map T1..8. Historical sample pyramid/coverage/latency/
+deployment counts do not override the exact CUJs, original limits and approved
+scope. Only unchanged independent verdict plus actual frozen reducer accepts this
+Test Plan; no checkbox or author assertion grants product execution authority.
+
+### W10C C0 verification checkpoint — 2026-10-22
+
+The exact implementation/test request is Owner-approved. Behavioral RED reached
+validate_activation_record and failed its refusal assertion after a real call,
+with successful imports/attributes. The12 new selectors have intermediate PASS;
+retain their earlier schema-profile failures and actual pin-oracle correction.
+Schema structure uses the frozen profile; token lexical correctness is independently
+checked by core negatives. The three allowed mirror pin changes are verified against
+committed baseline documents, while every other old resource stays byte-identical.
+Final aligned-source focused12+six, independent implementation and canonical378 are
+pending; no previous B1 record or intermediate pass is reused as that final evidence.
+
+## W10C C0 first-failure diagnostic acceptance
+
+The amendment changes only observation/reporting in the existing W10E-010
+selector; no new selector, native fixture, scenario, skip, timeout or expected
+result. Before its ten real cases, synthetic exceptions must prove foreign
+module exclusion, original OSError location/errno, absence of sentinel text and
+paths, first/last retention under overflow and a6144-byte compact JSON ceiling.
+A preparation-only synthetic owner must catch an OSError and return trust_rejected
+before process creation: the original no-observation assertion still fails and
+its worker-error payload must retain the earlier exception metadata. Validate
+the unchanged PTY child program still compiles after the report-field substitution.
+
+Focused verification is12 C0 selectors, this one retained selector, and six
+statics once, serial fail-fast. One separately requested fresh canonical attempt
+uses the exact original378 argv entries and unchanged290/300-second limits.
+Do not combine old passing evidence with the new source tree. Failure stops;
+no automatic retry or deletion of unknown-live fixtures. Successful diagnostic
+capture does not establish the original flood root cause or complete the project.

@@ -1,0 +1,65 @@
+{
+  "$comment": "Token lexical grammar and digest/link semantics are enforced by the pure core validator; schema uses the unchanged frozen GEW profile.",
+  "$id": "urn:gew:schema:release-transition-receipt:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "installation_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "operation": {
+      "enum": [
+        "activate",
+        "upgrade",
+        "rollback",
+        "recover"
+      ]
+    },
+    "outcome": {
+      "enum": [
+        "active",
+        "restored",
+        "blocked"
+      ]
+    },
+    "plan_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "receipt_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "request_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "selected_reference_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "terminal_record_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "installation_id",
+    "request_id",
+    "operation",
+    "plan_digest",
+    "terminal_record_digest",
+    "selected_reference_digest",
+    "outcome",
+    "receipt_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

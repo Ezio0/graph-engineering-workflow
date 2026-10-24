@@ -1,0 +1,31 @@
+{
+  "registry_digest": "sha256-jcs-v1:8e40034d08552b1d18a78cf656bf6dfb42e9440f7c9123f0bea735ae06ccd0c7",
+  "registry_id": "urn:gew:schema-registry:release-activation:1.0.0",
+  "resources": [
+    {
+      "body_digest": "sha256-raw-v1:ecc2797451bf467336c46bfd5d9ec17a03ab1c5238980a71a6eefe91960f217e",
+      "schema_id": "urn:gew:schema:activation-diagnostic:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:8b075ff414a53eb10791b14c227db1b74c4af6d40c10aa979797b88e76af5322",
+      "schema_id": "urn:gew:schema:activation-intent:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:1ef719e759cb558fd5d1e78be3dcbaebbbb6fadbf18f0bf59c27f075b135cffd",
+      "schema_id": "urn:gew:schema:active-release-reference:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:46339d7aaf80deb434d67132279337dd1702dd6a7fbd80e0561be4183c588bd7",
+      "schema_id": "urn:gew:schema:release-transition-receipt:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:3c152c14fb3fc93f30e95d999f1c28e74cf38972b29c6c4dd7fcf3206b051ebb",
+      "schema_id": "urn:gew:schema:release-transition-record:1.0.0"
+    },
+    {
+      "body_digest": "sha256-raw-v1:cbd3e07ba332a4d37ac28ede91b442bab478e498ff2a2b4ead0b55d66674e7a4",
+      "schema_id": "urn:gew:schema:release-tuple-manifest:1.0.0"
+    }
+  ],
+  "schema_version": "1.0.0"
+}

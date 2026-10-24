@@ -2503,3 +2503,157 @@ selector timing must be remeasured under original45/290/300 bounds; no passing
 claim or higher quota is inferred. Prior failures and source-binding clarification
 remain in immutable detached records. The compiler is never overlapped with an
 execution worker, and unknown child state still preserves an unaccepted root.
+
+## WP-10 release activation impact — W10C, 2026-10-22
+
+### W10C-I1 Baseline and delivery boundary
+
+Spec6 independently passed after its three Spec5 findings were resolved; the
+actual frozen reducer advanced to Impact. Original installation-design task,
+its12 historical entries and all new rejected/accepted records remain. The Owner
+approved task-only ceiling4→10. Default Policy4 and exact six-file documentation/
+review authority are unchanged. B1 at7dd244e remains pushed with366 checks; this
+Impact neither reuses that evidence for changed code nor claims C implementation.
+
+W10C's first proposed C0 increment is pure validation of six closed records,
+reference/tuple links and finite transition chains. Valid data is still untrusted;
+no owned current plan, filesystem observation, grant, terminal, installation or
+repository selection is created. Later C1/C2/C3 compose the existing architecture
+through independently scoped implementations. Initial registration, recursive
+recovery of a recovering operation, uninstall, actual bootstrap lifetime and real
+native release acceptance are not claimed by the bounded C0 format.
+
+### W10C-I2 Exact prospective C0 footprint
+
+[Prospective targets-r0](../../.workflow/delivery/GEW-REMAINING54-V1/detached/wp10-activation-design-c0-prospective-targets-r0.json)
+contains28 unique exact paths:15 existing and13 new. Its hashes are authoring-time
+observations, not final implementation inputs or write authority. Freeze current
+bytes after all design nodes pass and the concrete implementation request exists.
+Only optional unchanged mirrors may be narrowed with reviewed alignment; an
+additional file is an explicit target expansion, not inferred directory access.
+
+| Exact group | Change and reason | Compatibility / exclusion |
+| --- | --- | --- |
+| the six currently approved design files | Manifest and Spec/ADR/Impact/Plan/Test Plan traceability for later C0 | no implementation authority from current task |
+| new core/graph_engineering/core/release_activation.py | six pure shapes/self domains; four W10C-S5 interfaces and acyclic chain rules | existing WorkContext/canonical/digest and migration/stage validators; no storage or authority issuer |
+| new config/contracts/release-activation-schema-registry-v1.json | six exact schema IDs/raw hashes, its own registry digest | do not widen existing A/B/H/E registries or schemas |
+| new config/contracts/schemas/{activation-intent,release-tuple-manifest,active-release-reference,release-transition-record,release-transition-receipt,activation-diagnostic}-1.0.0.json | exact field/type/null/enum/limit contracts from Spec6 | no invented operational capability; all extra fields rejected |
+| core/graph_engineering/__init__.py and pyproject.toml | include new core and seven owned resources through established SOURCE/WHEEL provenance/resource closure | preserve old ordered source subsequence, old resources and cold launcher/backend/dependencies |
+| tests/support/source_checkout_attestation.py and tests/unit/test_wp00_packaging.py | genuine attested test source membership and package inventory assertions | never fake a seal/RECORD or bypass provenance |
+| config/verification/wp-00-targets.json; new config/verification/wp10-activation-contract-boundary-v1.json | exact new membership and378-command verification boundary | unchanged recorder, six statics and all366 retained command objects/argv |
+| four existing installation-bootstrap mirrors named in prospective inventory | refresh only actually affected package/core/current pins | no dependency/evidence rewrite; retain any unused mirror byte-for-byte |
+| new tests/unit/test_release_activation.py, tests/contract/test_release_activation.py, tests/security/test_release_activation.py |12 behavioral methods, fixed independent vectors, package and refusal evidence | no new PTY/process/native fixture or real Owner data |
+| new tests/fixtures/release-activation-contract-v1.json | handwritten records/edges/known hashes with explicit expected outcomes | test data cannot grant currentness/activation or populate production roots |
+
+The four possible mirrors are config/migration/migration-rehearsal-installation-
+bootstrap-v1.json, config/profiles/scenario-truth-installation-bootstrap-v1.json,
+config/release-operations/release-operations-installation-bootstrap-v1.json and
+config/performance/performance-benchmark-installation-bootstrap-v1.json. Full
+literal paths, rather than wrapped prose, are authoritative in the JSON inventory.
+No application/adapters/CLI, migration storage, authority module, root registry,
+installer policy, uv.lock or build backend is in the proposed product footprint.
+
+### W10C-I3 Contracts, source ownership and data effects
+
+Use one new schema registry with the six exact kind→schema/projection mappings.
+Core record validation returns None; relationship checks accept explicit bounded
+untrusted linked records, not a physical reader or callback. Reuse the original
+stage/leaf self-digest rules and charge cumulative work, including the bounded
+non-recover source bundle in recover validation. No recursive recovery nesting.
+Duplicate JSON keys are refused by existing bounded readers before core mapping;
+C0 does not introduce an alternative parser or a new trusted acquisition path.
+
+The preparation→reference→publication record sequence is acyclic. A reference
+binds the already persisted preparation hash; the later publication hashes that
+reference. Tests must independently distinguish a missing publication crash prefix
+from a completed receipt, and a direct unresolved blocked chain from actual
+blocked-reference publication. Pure success must not acquire a handle/grant or
+make any C capability available. Counters use existing JCS safe integer bounds.
+
+The new core/source/resources extend package closure and therefore can invalidate
+current package pins, even without a runtime CLI change. Retain deterministic
+wheel ownership and source membership. Read-only SOURCE/WHEEL/package tests must
+use genuine attested fixtures and the unchanged strict launcher. Do not replace
+old physical tests with a model just because C0 itself is pure.
+
+No repository data/schema migration, active pointer, journal writer, executable/
+Skill bootstrap, lock semantics or authorization implementation changes in C0.
+Existing initialized PMF refusal, fences, action audit, claims/holds and legacy
+behavior remain. Rollback of uncommitted C0 work is code/evidence repair only;
+no user data or live installation rollback is authorized or necessary.
+
+### W10C-I4 Later integration dependencies
+
+| Later boundary | Existing source / required adaptation | Prerequisite before implementation |
+| --- | --- | --- |
+| C1 inspection and registration | owned B1 stage closure, runtime locator/handshake and actual installation-control identity | exact compatible old/new bootstrap/lifetime protocol, finite physical read policy and no legacy fallback |
+| C2 purpose authority and leaf preparation | H0 local OS/Owner UID patterns plus migration export/import/replay/fence seeding | fresh exact C-purpose displays/consumer; current H0 install grant remains unusable; separate leaf preparation from current independent repository publication |
+| C3 publication/commands/recovery | existing shared/exclusive installation lock, RestoreGap/action reconciliation and retention | complete fsync/replace/SIGKILL/concurrent dispatch/recovery oracles and explicit compatibility/data-loss refusal |
+| genuine B/C/native acceptance | actual CPython/uv/wheels/lock/SBOM/provenance/security/trust and production recipes/roots | all three native cells; no helper or pure contract substitution |
+
+These are dependency observations, not broad implementation targets or approval.
+Any new material authentication/architecture choice returns to Owner with concrete
+options; routine precision uses the existing approved design graph.
+
+### W10C-I5 Risks and verification effects
+
+| Development risk | Likelihood / impact | Required control |
+| --- | --- | --- |
+| mutually dependent digest links or fake completed prefixes | observed Spec5 gap / high | immutable known vectors for preparation/reference/publication/receipt and swapped-link negatives |
+| permissive operation/state relations | observed Spec5 gap / high | handwritten exhaustive state table, skipped/terminal/wrong-purpose/source-tail rejection |
+| syntactically valid data treated as permission/currentness | medium / high | None-only pure API, no-I/O/no-authority sentinels, unchanged CLI capabilities |
+| new resource/source closure invalidates unrelated current pins | observed prior increments / high | genuine package membership, retained SOURCE/WHEEL checks and only actual affected mirror updates |
+| full verification cost causes repeated unnecessary capture | observed B1 capture / medium | focused12+six first, independent implementation ADVANCE, then one exact378 capture; repeat only for changed inputs/failures/invalid evidence |
+| bounded v1 limitations mistaken for complete recovery/native support | medium / high | explicit gates/unsupported paths in diagnostics, tests and final report |
+
+[Prospective inventory](../../.workflow/delivery/GEW-REMAINING54-V1/detached/wp10-activation-design-c0-test-inventory-r0.json)
+adds12 to360 retained methods plus six statics:378 total. All366 retained command
+objects/argv are unchanged. New selectors are pure contract/package checks; retained
+commands still include genuine private build/process/PTY journeys, requiring later
+explicit execution approval. No product tests run in this documentation phase.
+
+### W10C-I6 Delivery and retention
+
+Current sequence is Spec6→Impact3→Plan2→TestPlan2 with independent verdicts and
+actual frozen decisions, preserving findings/history/budgets. After design COMPLETE,
+prepare one exact C0 implementation/test request; neither completion nor the
+current budget amendment authorizes product writes/builds/tests. Retain rejected
+Spec5, its actual REVISE, Spec6 unchanged independent PASS and the corrected state
+metadata plus actual ADVANCE; no changed verdict or rewritten prior state.
+No commit/push/deployment/release permission follows. Protect all1406 tracked
+files outside the six-file current design boundary.
+
+### W10C-I7 References
+
+[Spec W10C](../specs/graph-engineering-workflow.md#wp-10-release-activation-and-recovery-clarification--w10c-2026-10-22),
+[ADR0015](../adr/0015-release-installation-and-upgrade.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md),
+[Test Plan](../test-plans/graph-engineering-workflow.md),
+[PRD/Intent](../prd/graph-engineering-workflow.md).
+
+### W10C C0 implementation scope alignment — 2026-10-22
+
+Owner approval activates the separate C0 implementation Envelope. Actual changed
+subset is27 of28: performance-benchmark-installation-bootstrap-v1.json is unchanged
+and excluded from the active Manifest. Three other mirrors refresh only current
+protected-resource hashes and derived closure/self digests. Frozen schema profile
+supports length-bounded token schemas; core retains exact lexical/ref/digest rules.
+Old non-mirror resource bodies/order and source subsequence remain protected.
+No application/adapter/migration/authorization/CLI target was added.12 intermediate
+focused passes are not final378 proof; acceptance uses the new task's own evidence.
+
+## W10C C0 test-observability scope amendment
+
+The current canonical4 W10E-010 flood case failed with trust_rejected; the one
+approved diagnostic subsequently passed all ten cases without reproduction.
+Root cause remains unknown. Proposed scope adds only
+tests/support/staging_execution.py and tests/integration/test_staging_execution.py
+to the original28 allowed paths (30 allowed,29 actual changed); update existing
+Manifest, boundary, Spec, Impact, Plan and Test Plan accordingly. Native/process
+limits, expected failures, production code and runtime authority remain unchanged.
+Two test files leave the protected set only after approval; retain the original
+1397-file baseline and verify the other1395 byte-for-byte. Budget exception is
+C0-task-local4→10; global Policy stays4. Invalidate implementation4 completion
+for changed inputs, preserve all seven history entries, and continue at
+implementation5 and later verification2 without resetting counters. No commit,
+push or real activation authority is requested.

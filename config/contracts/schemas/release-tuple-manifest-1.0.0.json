@@ -1,0 +1,62 @@
+{
+  "$comment": "Token lexical grammar and digest/link semantics are enforced by the pure core validator; schema uses the unchanged frozen GEW profile.",
+  "$id": "urn:gew:schema:release-tuple-manifest:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "bootstrap_protocol": {
+      "const": "release-dispatch-v1"
+    },
+    "installation_binding_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "installation_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "installed_manifest_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "release_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "release_manifest_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "repository_leaf_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "stage_receipt_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "tuple_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "installation_id",
+    "release_id",
+    "release_manifest_digest",
+    "installed_manifest_digest",
+    "stage_receipt_digest",
+    "installation_binding_digest",
+    "repository_leaf_digest",
+    "bootstrap_protocol",
+    "tuple_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

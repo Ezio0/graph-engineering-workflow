@@ -70,6 +70,14 @@ def assert_direct_script_contract(test, configuration):
                 test.assertEqual(body,(ROOT/relative).read_bytes())
                 encoded='sha256='+base64.urlsafe_b64encode(hashlib.sha256(body).digest()).rstrip(b'=').decode()
                 test.assertEqual(rows.count([target,encoded,str(len(body))]),1)
+            activation_resources=[p for p in SOURCE_FILES if p.startswith('config/') and any(n in p for n in ('release-activation-schema-registry','activation-intent-','release-tuple-manifest-','active-release-reference-','release-transition-record-','release-transition-receipt-','activation-diagnostic-'))]
+            test.assertEqual(len(activation_resources),7)
+            test.assertEqual(archive.read('graph_engineering/core/release_activation.py'),(ROOT/'core/graph_engineering/core/release_activation.py').read_bytes())
+            for relative in activation_resources:
+                target=configuration['tool']['gew']['build']['owned-root-files'][relative]
+                body=archive.read(target);test.assertEqual(body,(ROOT/relative).read_bytes())
+                encoded='sha256='+base64.urlsafe_b64encode(hashlib.sha256(body).digest()).rstrip(b'=').decode()
+                test.assertEqual(rows.count([target,encoded,str(len(body))]),1)
             approval_resources=[p for p in SOURCE_FILES if p.startswith('config/') and 'installation-approval-' in p]
             test.assertEqual(len(approval_resources),5)
             for relative in approval_resources:

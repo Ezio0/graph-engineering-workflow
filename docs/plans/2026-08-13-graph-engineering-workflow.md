@@ -2938,3 +2938,161 @@ new selectors and six statics precede independent implementation review. Only it
 actual ADVANCE permits staging and frozen366-command capture, then independent
 verification/Candidate review. This checkpoint claims no canonical result, commit,
 push, production install, actual CPython/uv/offline/native or C acceptance.
+
+## WP-10 release activation plan — W10C, 2026-10-22
+
+### W10C-P1 Summary
+
+Implement C0 only after a separate exact implementation/test approval: six pure
+untrusted contracts and four W10C-S5 checks, owned package resources and12 new
+methods. No active release selection, physical inspector, local purpose grant,
+CLI command, migration or bootstrap change. Current Spec6 and Impact3 have
+independent PASS and actual ADVANCE; original design history/budget amendment
+remain. Proposed footprint28 (15 existing/13 new);378 final commands contain all366
+retained unchanged. Completion is bounded implementation/verification/Candidate
+acceptance, not a genuine installation or completed WP10. Estimate11–18 engineering
+hours plus canonical capture/independent-review elapsed time; actuals unmeasured.
+Task estimates below are planning ranges, not granted runtime budgets or deadlines.
+
+### W10C-P2 Phases and exits
+
+| Phase | Dependency | Deliverable | Exit |
+| --- | --- | --- | --- |
+| C0-0 Preparation and behavioral RED | explicit exact implementation/test authority | recovered design/source/inventory, genuine fixtures and independent vectors | all required hashes match; reachable contract behavior fails assertions before repair, not only missing imports |
+| C0-1 Pure contracts and package ownership | C0-0 | six shapes, four checks, seven resources and actual source/pin closure |12 focused methods and six statics pass on one source; no new active capability |
+| C0-2 Independent acceptance | C0-1 | implementation ADVANCE, actual378 capture, verification/Candidate review | exact-tree372 methods+six statics PASS with no skips; actual final graph COMPLETE |
+
+No deployment phase/percentage or live-install rollback is applicable to this
+private contract increment. Later C1/C2/C3 require their own prerequisites/scopes.
+
+### W10C-P3 Tasks, ownership and acyclic dependencies
+
+All tasks are owned by the authorized coordinator; separate reviewers are read-only.
+Tracking IDs below are task-local; no external issue is created or implied.
+XS≈30min, S≈1–2h, M≈half-day; actual duration remains unset until executed.
+
+| ID / phase / size / estimate | Exact responsibility and files | Depends / blocks | Acceptance |
+| --- | --- | --- | --- |
+| C0-T0 /0/XS/0.5h | recover design/current bytes; adopt separately approved exact Manifest and boundaries; six design files | implementation approval /T1 | [ ] retain all old decisions; derive actual changed subset within28 and unchanged366 argv; protect all other files |
+| C0-T1a /0/XS/0.5h | create only minimal importable release_activation.py with the four exact public signatures; intentionally permissive no-op bodies return None, with no validation/I/O or functional repair | T0 /T1 | [ ] all four interfaces can actually be called; no missing module/attribute is counted as RED |
+| C0-T1 /0/S/1–2h | handwritten fixed vectors/known digests/state edges in new fixture and unit/security methods; execute callable T1a interfaces on invalid inputs | T1a /T2 | [ ] expected-refusal assertions fail after the interface returns incorrectly; retain exact case/input identity and actual assertion failure, excluding import/attribute errors and implementation-generated expected results |
+| C0-T2 /1/M/3–4h | new core release_activation.py and six schemas/registry; implement the four exact pure W10C-S5 interfaces | T1 /T3,T4 | [ ] types/nulls/domains/edges/links/overflow/one-level recovery match Spec; None-only success, no I/O/handle/authority |
+| C0-T3 /1/S/1–2h | core __init__, pyproject, source attestation support, packaging test/wp-00 targets; only affected four mirrors | T2 /T5 | [ ] genuine source/wheel ownership; old resource bytes/order/subsequence retained; no backend/dependency change |
+| C0-T4 /1/S/1–2h | complete12 methods in three new test modules and prospective activation verification boundary | T2 /T5 | [ ] all declared positive/negative CUJs and independent expected outcomes implemented; no new PTY/process/native fixtures |
+| C0-T5 /1/S/1–2h | focused12 plus six statics and exact scope/pin alignment | T3,T4 /T6 | [ ] same-source PASS, no skips or raised bounds; unchanged unused mirrors explicitly narrowed if applicable |
+| C0-T6 /2/XS/0.5h author + reviewer latency | immutable implementation source/state/evidence and fresh independent review | T5 /T7 | [ ] actual reducer ADVANCE; preserve findings/stable IDs and four-cycle implementation budget |
+| C0-T7 /2/S/1–2h handling + measured capture wall time | stage exact actual Manifest subset and execute all378 unchanged frozen-recorder commands | T6 /T8 | [ ]372 collected/executed methods, skip0, six statics PASS on same tree; retain every failed attempt |
+| C0-T8 /2/XS/0.5h author + reviewer latency | independent verification, exact Candidate/Technical Review and actual final reducer | T7 /later human gate | [ ] bound Evidence/Candidate accepted; report capability limits; commit/push remain separate |
+
+Dependency DAG: T0→T1a→T1→T2; T2→T3,T4; T3+T4→T5→T6→T7→T8. No task
+starts from a conditional PASS or a plan checkbox. Code changes stay within the
+[exact28 paths](../../.workflow/delivery/GEW-REMAINING54-V1/detached/wp10-activation-design-c0-prospective-targets-r0.json).
+No application/adapter/CLI/authority/migration-storage product target is included.
+
+### W10C-P4 Dependencies and blockers
+
+| Type / input | State | Required handling |
+| --- | --- | --- |
+| internal: Spec6/Impact3, retained original design and B1 completion | available | rehash exact raw inputs/reducer decisions; changed current docs require their own fresh acceptance |
+| internal: WorkContext/JCS/stage/leaf validators and package provenance | available | use actual implementations, no alternative serializer or manual trust fixture |
+| infrastructure: frozen F, native wrapper, owned private source/wheel fixtures | available at baseline | retain all366 argv and original timeouts; fixture/build/PTY behavior is authorized only by later exact execution request |
+| external: production interpreter/uv/recipes/roots/closure/trust/native cells | missing for genuine installation | C0 pure contracts can be verified without them; keep installation/certification blocked |
+| future C1/C2/C3 registration/dispatch lifetime/purpose/refactor/cutpoint oracles | not implemented | separate exact scopes and accepted physical protocols before their implementation |
+
+### W10C-P5 Development risks
+
+| Risk | Likelihood / impact | Phase control |
+| --- | --- | --- |
+| validators and tests share the same wrong state/digest algorithm | medium / high | T1 handwritten vectors and independently computed fixed hashes, explicit swapped-link/source negatives |
+| syntactic PASS accidentally becomes current/owned authority | medium / high | T2/T4 None-only API, forbidden-side-effect sentinels and existing CLI capability regression |
+| incomplete package/mirror closure causes late full-capture failures | observed / high | T3 genuine source/wheel ownership and packaging regressions before T6; update only actual affected pins |
+| pure API expands into physical recovery to make a test pass | medium / high | T0/T5 exact28/protected-file check; stop for target/architecture choice, never implement an unlisted adapter |
+| repeated expensive canonical runs | observed / medium | T5 focused checks, independent T6 ADVANCE, single exact-tree T7 capture unless changed inputs/failure/invalid evidence |
+
+These are implementation risks; runtime fsync/rollback failures remain in Spec S8.
+
+### W10C-P6 Rollout and recovery
+
+Current rollout is documentation only. Proposed C0 rollout is source/wheel fixtures
+and packaging compatibility, with unchanged production roots/recipes and old public
+capabilities. No flag/canary percentage/production SLA or actual rollback estimate
+applies. Any scope drift, unexpected effect, stale pin or failed test stops acceptance.
+Repair authorized uncommitted code, preserve failure evidence and recapture required
+invalidated checks. Do not touch Owner data or attempt a live restore/uninstall.
+
+### W10C-P7 Verification strategy
+
+[Test Plan W10C](../test-plans/graph-engineering-workflow.md) maps all five C goals
+to12 exact new selectors. Focused12+six precede independent implementation review;
+only actual ADVANCE permits final378. New tests use pure/core/resource boundaries,
+while retained360 methods continue their genuine integration/wheel/CLI/process/PTY
+coverage. Their existing finite fixtures, native290/canonical300 and serial fail-fast
+semantics remain; no new terminal/process experiment is part of C0. Use no coverage
+quota that replaces the CUJ matrix, no skipped selector and no caller-fabricated
+PASS/owned handle. Candidate evidence must bind actual staged tree/task/Manifest/
+Policy/base/source. Current documentation acceptance runs no product test/build.
+
+### W10C-P8 Decisions and deadlines
+
+| Decision/input | Deadline / route |
+| --- | --- |
+| exact C0 implementation/test/build scope28/378, default implementation budget4 | before T0/product mutation or execution; issue one concrete request after design COMPLETE |
+| baseline package/pin/fixture validity | T0/T3; changed/missing facts invalidate reuse, repair only within explicit scope |
+| bounded v1 recovery limitations | before C1/C2/C3 claims; nested recovery/registration/uninstall are not silently accepted by C0 |
+| genuine release/native materials and compatible bootstraps | before their own implementation/acceptance; supply accepted bytes/environments or remain blocked |
+
+No unresolved product-intent or authentication choice prevents this pure C0
+increment. New material choices retain the Owner gate. Plan acceptance is not
+implementation or irreversible authority.
+
+### W10C-P9 References and applicability
+
+[Spec W10C](../specs/graph-engineering-workflow.md#wp-10-release-activation-and-recovery-clarification--w10c-2026-10-22),
+[Impact W10C](../impact/graph-engineering-workflow.md#wp-10-release-activation-impact--w10c-2026-10-22),
+[PRD/Intent](../prd/graph-engineering-workflow.md),
+[Positioning](../positioning/graph-engineering-workflow.md),
+[ADR0015](../adr/0015-release-installation-and-upgrade.md).
+Applicable Plan checklist sections are P1..10; example deployment percentages,
+three-layer new test quotas and fabricated recovery SLA do not apply to pure C0.
+Actual independent verdict/reducer determines completion.
+
+### W10C-P10 History
+
+2026-10-22: derive ten XS/S/M tasks from accepted Spec6/Impact3; prospective28 paths
+and12 new+366 retained commands. Actual task durations unset, no product execution.
+Original Spec0..4/Impact0..2/Plan0..1/TestPlan0..1 and new Spec5/6 remain immutable;
+this Plan is revision3 under the original design task and approved ceiling10.
+
+Plan3 clarifies finding W10C-PLAN-R2-001: T1a creates callable interfaces before
+T1 behavioral RED, and T2 alone repairs the qualifying wrong behavior afterward.
+The same28 targets/378 commands and separate execution authority remain. No
+product scaffold, test or repair has been executed during this design revision.
+
+### W10C C0 execution checkpoint — 2026-10-22
+
+The Owner approved exact28/378 implementation and existing private fixture execution.
+T0/T1a/T1 completed: genuine callable scaffold and expected-refusal assertion RED
+were retained. T2/T3/T4 are implemented; pre-alignment12 focused methods passed.
+The active Manifest narrows to27 actual changed targets, leaving the optional
+performance bootstrap unchanged. T5 final same-source12+six, independent T6 and
+T7/T8 canonical378/verification/Candidate are still pending. No completion, actual
+release operation, commit or push follows from the intermediate observations.
+
+## W10C C0 first-failure observability continuation
+
+After explicit approval of the detached patch and task-local4→10 amendment:
+
+1. Verify the approved patch, old source/protected pins and exact current staged
+   tree; retain immutable before/after Envelope and task Policy plus the explicit
+   authority/upstream bridge after history entry7. Historical replay keeps its
+   original inputs and counters; the new recovery helper must verify the bridge,
+   exact two-file scope delta, unchanged global Policy and1395 protected hashes.
+2. Apply the eight prepared target drafts, validate synthetic metadata/privacy/
+   retention and early-refusal checks, then run focused12 plus W10E-010 and six
+   statics once, serial fail-fast. Preserve any failure; no automatic retry.
+3. Obtain independent implementation5 review and actual reducer ADVANCE before
+   staging the exact29 changed paths. Create one new immutable canonical attempt
+   for all378 commands on that staged tree, native290/outer300, serial fail-fast.
+4. Any canonical failure stops this launch authority with first-failure records.
+   If all pass, continue independent verification2 and Candidate review within
+   the existing reversible actions. Stop before separately authorized commit/push.

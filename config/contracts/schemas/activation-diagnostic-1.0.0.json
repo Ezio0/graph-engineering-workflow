@@ -1,0 +1,167 @@
+{
+  "$comment": "Token lexical grammar and digest/link semantics are enforced by the pure core validator; schema uses the unchanged frozen GEW profile.",
+  "$id": "urn:gew:schema:activation-diagnostic:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "proposed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "code": {
+            "enum": [
+              "phase_unavailable"
+            ]
+          },
+          "next_route": {
+            "const": "contract-review"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "blocked"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "code": {
+            "enum": [
+              "phase_unavailable"
+            ]
+          },
+          "next_route": {
+            "const": "phase-implementation"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "rejected"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "code": {
+            "enum": [
+              "input_invalid",
+              "trust_rejected",
+              "closure_mismatch",
+              "resource_limit"
+            ]
+          },
+          "next_route": {
+            "const": "supply-inputs"
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "capabilities": {
+      "additionalProperties": false,
+      "properties": {
+        "activate": {
+          "const": "unavailable"
+        },
+        "activation-plan": {
+          "const": "unavailable"
+        },
+        "recover": {
+          "const": "unavailable"
+        },
+        "rollback": {
+          "const": "unavailable"
+        },
+        "uninstall": {
+          "const": "unavailable"
+        }
+      },
+      "required": [
+        "activation-plan",
+        "activate",
+        "recover",
+        "rollback",
+        "uninstall"
+      ],
+      "type": "object"
+    },
+    "code": {
+      "enum": [
+        "input_invalid",
+        "trust_rejected",
+        "closure_mismatch",
+        "resource_limit",
+        "phase_unavailable"
+      ]
+    },
+    "diagnostic_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "next_route": {
+      "enum": [
+        "contract-review",
+        "supply-inputs",
+        "fresh-owner-decision",
+        "explicit-recovery",
+        "phase-implementation"
+      ]
+    },
+    "phase": {
+      "const": "activation"
+    },
+    "refs": {
+      "items": {
+        "maxLength": 128,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 128,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "request_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "rejected",
+        "blocked"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "phase",
+    "status",
+    "code",
+    "refs",
+    "capabilities",
+    "next_route",
+    "diagnostic_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

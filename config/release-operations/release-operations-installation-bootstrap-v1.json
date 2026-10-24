@@ -13,7 +13,7 @@
     "local_runtime_digest": "sha256-jcs-v1:28437ee8e9281422f0406d45707ebb3458e087cd0ab4d2cdea33aca99d92dd42",
     "local_runtime_raw_sha256": "5eea85f72d13920d6c1ba5931921caec60de999d87ac24008050eae68a7519b1"
   },
-  "bootstrap_digest": "sha256-jcs-v1:561ec413c5714e74120fe7800e697bb07b0147f5ebacfed106ee5082084fe7fe",
+  "bootstrap_digest": "sha256-jcs-v1:941dec6fd74cabf44d49a1a794c34eaa04580e3841f3ec2c7bc1d8b2c40c92ad",
   "bootstrap_id": "urn:gew:release-operations-installation-bootstrap:1.0.0",
   "fixture_registry_digest": "sha256-jcs-v1:68e9412ffb9f8323d7c33341cb150fa29b23443054b45e86f429374f4ae4df77",
   "fixture_registry_id": "urn:gew:release-simulator-fixture-registry:v1",
@@ -29,7 +29,7 @@
   "profile_schema_registry_digest": "sha256-jcs-v1:913235899306d64a4bc8eff96b3a4bbddd61ec6a7e57b8dfdaafe98041c81f76",
   "profile_schema_registry_id": "urn:gew:schema-registry:profiles:1.0.0",
   "profile_schema_registry_raw_sha256": "bfa232735b3fce9690212a7461dc208ad6a6ccb712f35d5fee7c0ace66bb5afd",
-  "protected_closure_digest": "sha256-jcs-v1:4691204810aa2b483a75f18f1d0882716f95150f987cf13bf87b1669ac14953c",
+  "protected_closure_digest": "sha256-jcs-v1:7d437674a2faa3b545706b0b91fa23b3a169921d102ef94eb8282240b85d104d",
   "protected_resources": [
     {
       "path": "adapters/graph_engineering/adapters/action_adapters.py",
@@ -121,7 +121,7 @@
     },
     {
       "path": "core/graph_engineering/__init__.py",
-      "raw_sha256": "6e851ae5cdbd2589ac6d767f1a34f93edb93ade51d1a51f34260b5fb2fe13efc"
+      "raw_sha256": "2277453d3ec415d2ef3c93f1fd297aa6e5e80bde7df4c9fe75cb54c986ed09bc"
     },
     {
       "path": "core/graph_engineering/core/artifacts/__init__.py",

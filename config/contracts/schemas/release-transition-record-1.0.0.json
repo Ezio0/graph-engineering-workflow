@@ -1,0 +1,122 @@
+{
+  "$comment": "Token lexical grammar and digest/link semantics are enforced by the pure core validator; schema uses the unchanged frozen GEW profile.",
+  "$id": "urn:gew:schema:release-transition-record:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "candidate_leaf_digest": {
+      "anyOf": [
+        {
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "installation_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "intent_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "observed_reference_digest": {
+      "anyOf": [
+        {
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "operation": {
+      "enum": [
+        "activate",
+        "upgrade",
+        "rollback",
+        "recover"
+      ]
+    },
+    "plan_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "previous_record_digest": {
+      "anyOf": [
+        {
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "prior_reference_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "record_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "request_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "sequence": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "state": {
+      "enum": [
+        "prepared",
+        "repository_verified",
+        "verifying_prepared",
+        "verifying_published",
+        "active_prepared",
+        "active_published",
+        "completed",
+        "recovery_prepared",
+        "recovered_old",
+        "recovered_new",
+        "block_prepared",
+        "blocked",
+        "failed_before_switch"
+      ]
+    },
+    "target_tuple_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "installation_id",
+    "request_id",
+    "operation",
+    "sequence",
+    "state",
+    "intent_digest",
+    "plan_digest",
+    "prior_reference_digest",
+    "target_tuple_digest",
+    "candidate_leaf_digest",
+    "observed_reference_digest",
+    "previous_record_digest",
+    "record_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

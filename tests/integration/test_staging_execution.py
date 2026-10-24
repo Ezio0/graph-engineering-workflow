@@ -1,7 +1,7 @@
 """Real local grant, signed process bytes, physical closure and durable staging."""
 import json
 import unittest
-from tests.support.staging_execution import ExecutionFixture,success,native_helper,inventory,require_success,durability_fault,process_observation,concurrent_stage,reopen_rejection,running_provider_fault,stage_reader_fault
+from tests.support.staging_execution import ExecutionFixture,success,native_helper,inventory,require_success,durability_fault,process_observation,check_process_failure_diagnostics,concurrent_stage,reopen_rejection,running_provider_fault,stage_reader_fault
 
 class StagingExecutionIntegrationTests(unittest.TestCase):
     def test_local_authority_stage_success(self):
@@ -56,10 +56,11 @@ value={'one_use':True}
         with ExecutionFixture() as f:self.assertTrue(success(self,f,exercise=exercise)['one_use'])
 
     def test_process_failure_output_and_reap(self):
+        check_process_failure_diagnostics(self)
         helper=native_helper()
         for mode,code in [('fail','closure_mismatch'),('flood','resource_limit'),('hang','resource_limit'),('delay','resource_limit'),('overdue','resource_limit'),('extra','closure_mismatch'),('missing','closure_mismatch'),('badrecord','closure_mismatch'),('descendant','resource_limit'),('cumulative','resource_limit')]:
             with self.subTest(mode=mode),ExecutionFixture(mode=mode,helper=helper) as f:
-                value=success(self,f,exercise=process_observation())
+                value=success(self,f,exercise=process_observation(),expected_process_code=code)
                 self.assertEqual(value['code'],'recovery_blocked' if value['unconfirmed_group'] else code)
                 self.assertTrue(all(row['bounds_checked'] for row in value['observations']))
                 if mode in ('hang','descendant'):self.assertTrue(value['term_observed']);self.assertTrue(value['kill_observed'])

@@ -1,0 +1,98 @@
+{
+  "$comment": "Token lexical grammar and digest/link semantics are enforced by the pure core validator; schema uses the unchanged frozen GEW profile.",
+  "$id": "urn:gew:schema:active-release-reference:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "else": {
+        "properties": {
+          "previous_reference_digest": {
+            "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+            "type": "string"
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "generation": {
+            "const": 1
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "activation_epoch": {
+            "const": 1
+          },
+          "previous_reference_digest": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "activation_epoch": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "generation": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "installation_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "journal_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "mode": {
+      "enum": [
+        "verifying",
+        "active",
+        "blocked"
+      ]
+    },
+    "previous_reference_digest": {
+      "anyOf": [
+        {
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reference_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "tuple_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "installation_id",
+    "generation",
+    "activation_epoch",
+    "mode",
+    "tuple_digest",
+    "previous_reference_digest",
+    "journal_digest",
+    "reference_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}

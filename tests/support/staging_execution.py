@@ -146,7 +146,7 @@ class ExecutionFixture(StageFixture):
     os.kill(pid,signal.SIGCONT);resumed=True
 '''
                 code=code.replace(anchor,pause+anchor)
-            code=code.replace("{'worker_error':type(e).__name__,'frames':frames}","{'worker_error':type(e).__name__,'frames':frames,'actual_code':next((arg.get('code') for arg in e.args if type(arg) is dict),None)}")
+            code=code.replace("{'worker_error':type(e).__name__,'frames':frames}","{'worker_error':type(e).__name__,'frames':frames,'actual_code':next((arg.get('code') for arg in e.args if type(arg) is dict),None),'process_diagnostics':stage_failure_diagnostics() if 'stage_failure_diagnostics' in globals() else None}")
             anchor="value=json.loads(rows[-1]) if rows else {'worker_error':'no-result'}"
             check=anchor+'''
 if 'origin_challenge_digest' in value:
@@ -661,10 +661,75 @@ value={'code':result['code'],'fault_observed':True}
 '''.replace('PHASE',repr(phase))
 
 
+def process_failure_observer():
+    """Read-only, bounded metadata; no exception text, locals or physical paths."""
+    return '''process_exception_first=[];process_exception_recent=[];process_exception_count=0
+def process_identifier(value,limit,qualified=False):
+ if type(value) is not str or len(value)>limit or not value.isascii():return 'unavailable'
+ parts=value.split('.') if qualified else [value]
+ if not all(part.isidentifier() for part in parts):return 'unavailable'
+ return value
+def note_process_exception(frame,event,arg):
+ global process_exception_count
+ if event!='exception':return
+ module=frame.f_globals.get('__name__','')
+ if type(module) is not str or not module.startswith('graph_engineering.'):return
+ error=arg[1]
+ row={'module':process_identifier(module,96,True),'function':process_identifier(frame.f_code.co_name,64),'line':frame.f_lineno,'error_type':process_identifier(type(error).__name__,48)}
+ fields=object.__getattribute__(error,'__dict__');code=fields.get('code')
+ if type(code) is str and code in ('input_invalid','trust_rejected','closure_mismatch','resource_limit','currentness','authority_required','recovery_blocked','clock_unavailable','quiescence','phase_unavailable'):row['code']=code
+ if isinstance(error,OSError):
+  number=OSError.errno.__get__(error,OSError)
+  if type(number) is int and -2147483648<=number<=2147483647:row['errno']=number
+ process_exception_count=min(process_exception_count+1,2147483647)
+ if len(process_exception_first)<16:process_exception_first.append(row)
+ else:
+  process_exception_recent.append(row)
+  if len(process_exception_recent)>48:del process_exception_recent[0]
+def stage_failure_diagnostics():
+ rows=process_exception_first+process_exception_recent
+ value={'exception_events':rows,'exception_count':process_exception_count,'truncated':process_exception_count>len(rows)}
+ while len(json.dumps(value,ensure_ascii=True,separators=(',',':')).encode())>6144:
+  del rows[len(rows)//2];value['truncated']=True
+ return value
+'''
+
+def check_process_failure_diagnostics(test):
+    """Synthetic exceptions prove the observer before any private native fixture."""
+    namespace={'json':json};exec(process_failure_observer(),namespace)
+    source="def failure():\n raise OSError(5,'DO_NOT_RETAIN_NONCE_OR_PATH')\n"
+    owned={'__name__':'graph_engineering.application.synthetic_diagnostic'}
+    foreign={'__name__':'external.synthetic_diagnostic'}
+    exec(compile(source,'/synthetic/private/path.py','exec'),owned)
+    exec(compile(source,'/synthetic/private/path.py','exec'),foreign)
+    def emit(function):
+        try:function()
+        except OSError as error:
+            tb=error.__traceback__.tb_next
+            namespace['note_process_exception'](tb.tb_frame,'exception',(type(error),error,tb))
+    emit(foreign['failure']);test.assertEqual(namespace['stage_failure_diagnostics']()['exception_count'],0)
+    emit(owned['failure']);first=namespace['stage_failure_diagnostics']()
+    test.assertEqual(first,{'exception_events':[{'module':owned['__name__'],'function':'failure','line':2,'error_type':'OSError','errno':5}],'exception_count':1,'truncated':False})
+    # Distinct line numbers make retention of both ends mechanically visible.
+    for line in range(3,103):
+        exec(compile('\n'*(line-2)+source,'/synthetic/private/path.py','exec'),owned);emit(owned['failure'])
+    value=namespace['stage_failure_diagnostics']();raw=json.dumps(value,ensure_ascii=True,separators=(',',':'))
+    test.assertEqual(value['exception_count'],101);test.assertTrue(value['truncated'])
+    test.assertEqual(value['exception_events'][0]['line'],2);test.assertEqual(value['exception_events'][-1]['line'],102)
+    test.assertLessEqual(len(value['exception_events']),64);test.assertLessEqual(len(raw.encode()),6144)
+    test.assertNotIn('DO_NOT_RETAIN',raw);test.assertNotIn('/synthetic/private',raw)
+    # Byte trimming is exercised separately with longest accepted identifiers.
+    for row in namespace['process_exception_first']+namespace['process_exception_recent']:
+        row.update(module='graph_engineering.'+'a'*78,function='b'*64,error_type='c'*48,code='authority_required',errno=2147483647)
+    bounded=namespace['stage_failure_diagnostics']()
+    test.assertLessEqual(len(json.dumps(bounded,ensure_ascii=True,separators=(',',':')).encode()),6144)
+    test.assertTrue(bounded['truncated']);test.assertEqual(bounded['exception_events'][0]['line'],2);test.assertEqual(bounded['exception_events'][-1]['line'],102)
+
 def process_observation():
-    return '''import signal,time,math
+    return process_failure_observer()+'''import signal,time,math
 observed=[];signals=[]
 def run_return(frame,event,arg):
+ note_process_exception(frame,event,arg)
  if event=='return':
   values=frame.f_locals;process=values.get('process')
   if process is None:return None
@@ -679,9 +744,12 @@ def run_return(frame,event,arg):
   observed.append({'confirmed':confirmed,'output_bytes':values['count'],'returncode':process.returncode,'bounds_checked':True})
  return run_return
 def selected(frame,event,arg):
+ note_process_exception(frame,event,arg)
  if event=='call' and frame.f_code.co_filename.endswith('/adapters/staging_execution.py'):
   if frame.f_code.co_name=='_run':frame.f_trace_lines=False;return run_return
   if frame.f_code.co_name=='_revoke':signals.append(frame.f_locals['number'])
+ if event=='call' and frame.f_globals.get('__name__','').startswith('graph_engineering.'):
+  frame.f_trace_lines=False;return selected
  return None
 sys.settrace(selected)
 try:result=owner.stage(plan,grant)
@@ -689,7 +757,7 @@ finally:sys.settrace(None)
 assert type(result) is dict and observed,result
 unknown=any(not row['confirmed'] for row in observed)
 assert result['code']=='recovery_blocked' if unknown else result['code'] in ('resource_limit','closure_mismatch'),result
-value={'code':result['code'],'observations':observed,'term_observed':signal.SIGTERM in signals,'kill_observed':signal.SIGKILL in signals,'unconfirmed_group':unknown}
+value={'code':result['code'],'observations':observed,'term_observed':signal.SIGTERM in signals,'kill_observed':signal.SIGKILL in signals,'unconfirmed_group':unknown,'process_diagnostics':stage_failure_diagnostics()}
 '''.replace('PROCESS_SECONDS',str(fixture()['stage_limits']['max_process_seconds']))
 
 def concurrent_stage():
@@ -727,7 +795,7 @@ value={'exclusive_winners':len(winner),'loser_refused':True,'origin_challenge_di
 '''
 
 
-def success(test,f,**kwargs):
+def success(test,f,*,expected_process_code=None,**kwargs):
     old=inventory(f.old_state)
     try:
         process=f.execute_stage(**kwargs)
@@ -736,8 +804,10 @@ def success(test,f,**kwargs):
     except BaseException:
         f.unconfirmed_process=True
         raise
-    if result['worker_exit']!=0 or not result['display_verified'] or not result['responded']:
-        f.unconfirmed_process=True
+    peer_failed=result['worker_exit']!=0 or not result['display_verified'] or not result['responded']
+    code_mismatch=expected_process_code is not None and result['value'].get('code')!=('recovery_blocked' if result['value'].get('unconfirmed_group') else expected_process_code)
+    if peer_failed:f.unconfirmed_process=True
+    if peer_failed or code_mismatch:
         # Keep failure diagnostics at first observation, rather than depending on
         # a replay reproducing timing. Never retain nonce, argv or raw output.
         d=ROOT/'.workflow/delivery/GEW-REMAINING54-V1/detached'

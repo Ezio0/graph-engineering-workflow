@@ -6426,3 +6426,487 @@ commit or push authority is added. The effective human amendment and unchanged
 prior review history accompany affected independent design reviews first, then
 subsequent implementation review. Changed upstream completions are invalidated;
 they are not silently reused for the changed budget inputs.
+
+## WP-10 release activation and recovery clarification — W10C, 2026-10-22
+
+### W10C-S1 Overview and current evidence
+
+This annex refines W10-S8 and ADR0015 within PRD/Intent v2. B1 at `7dd244e`
+completed independently reviewed private SOURCE/WHEEL stage/reopen with366
+canonical checks; it selects no active release. Real installers, configured
+production recipes/roots and all three native cells remain absent. The original
+installation-design task continues Spec5 under its explicit task-only ceiling10
+amendment, retaining all12 historical entries. None of this is C execution authority.
+
+```mermaid
+flowchart LR
+  I[Untrusted intent] --> P[Owned read-only inspection and plan]
+  B[Fresh verified stage] --> P
+  R[Current registered release] --> P
+  P --> H[Fresh purpose-bound local Owner decision]
+  H --> X[Existing exclusive installation scope]
+  X --> M[Existing migration: prepare and verify leaf]
+  M --> V[One verifying release reference]
+  V --> D[Post-switch doctor and tuple handshake]
+  D --> A[One active reference and durable receipt]
+  V --> F[Explicit recovery or blocked]
+  A --> Q[Shared-scope ordinary commands]
+```
+
+All nodes except the actual Owner decision are deterministic. Future composition
+runs locally, with no daemon, remote authentication port or background retry.
+
+### W10C-S2 Goals
+
+| ID | Observable requirement |
+| --- | --- |
+| C-G1 | Every registered command selects interpreter/tool/Skill/repository from exactly one verified reference under shared scope for its entire operation. |
+| C-G2 | Every C mutation requires a fresh purpose/plan/prior-reference grant; saved records and consumed H0 grants cause zero activation writes. |
+| C-G3 | Every durability cut resolves through explicit recovery to verified old, verified new or blocked, never mixed or inferred success. |
+| C-G4 | Generation/epoch/fences/revocations/action audit never regress; PMF and quiescence refusal precedes export/candidate writes. |
+| C-G5 | C0 pure validation has zero filesystem/repository/clock/terminal/process effects and grants no capability. |
+
+These refine PRD installation/upgrade, durable replay and human gates, without
+adding a production latency promise or support-matrix exception.
+
+### W10C-S3 Non-goals and compatibility
+
+Retain W10-S3/H-S3/E-S3: no physical DB copy, PMF export, dependency change,
+automatic legacy adoption or unattended authentication. Data-preserving uninstall
+is distinct from rollback and repository restore; data deletion is excluded.
+H0 currently validates only `operation=install`. Its consumed grant/StagePermit
+and B1 observations cannot authorize C. Future purposes are explicit operations,
+not a reinterpretation of current install-apply success. Initial registration
+and later operational implementations require separately reviewed exact scopes.
+
+### W10C-S4 Components, locks and registered dispatch
+
+Reuse InstallationMigrationRepository's existing installation-exclusive then
+repository/object/resource lock order. No new parallel migration or shared-to-
+exclusive lock upgrade. No lock crosses human input; facts and grant deadline
+are checked again after acquiring exclusive scope. Ordinary commands retain shared
+scope through repository connections, executable work and Skill dispatch.
+
+Installation-owned registration binds installation ID, stable bootstrap protocol,
+release-control location and the existing control-lock identity. It is not a
+caller flag. Only actually unregistered historical installations retain legacy
+behavior. Damaged/missing registered metadata or incompatible bootstrap blocks;
+never fall back to legacy because a registered file cannot be read. Initial
+registration needs an explicit compatible plan and durable bootstrap protocol;
+C0 creates none and accepts no null-reference shortcut to adoption.
+
+Registered manager command/activate/recover/restore-gap/initialization entries
+must require an internally issued parent coordinator context, bound to held
+lock/installation/PID/thread and noncopyable/nonserializable. Public repository-
+only activation/recovery must detect registration and refuse. Current
+`_activate_under_control_exclusive` publishes its own pointer, so it cannot be
+used unchanged. Separate leaf preparation/replay/fence seeding from publication
+while preserving all existing checks and export/import/replay APIs.
+
+Stable executable locator and Skill bootstraps must select the same tuple and
+retain/inherit shared scope through child execution under a verified lifetime
+protocol. A child cannot independently reselect after its parent drops the lock.
+Handshake checks reference digest/generation, interpreter/tool/Skill identities,
+repository leaf and compatible protocol. Cached executable paths are insufficient.
+An incompatible bootstrap is an unsupported transition input, not permission to
+replace it implicitly. Concrete lifetime/registration formats gate later C1.
+
+### W10C-S5 Closed records and selected state
+
+These proposed v1 contracts are untrusted data. The following definitions are
+normative for C0; no physical observation or execution authority follows from
+syntax, hashes or relationship-check success. All fields in each list are
+required, unknown keys are refused and schema_version is exactly `1.0.0`.
+
+Primitive types: T is exact str matching `[A-Za-z0-9][A-Za-z0-9:._-]{0,127}`;
+D is exact str matching `sha256-jcs-v1:[0-9a-f]{64}`; N is exact non-boolean int
+0..9007199254740991 (the existing GEW JCS safe range); P is N>=1; `?` permits
+only JSON null in addition to that type. No floats, bool-as-int or coerced strings.
+Bootstrap protocol is T with the sole v1 value `release-dispatch-v1`; actual
+bootstrap compatibility/registration remains a later implementation prerequisite.
+Operation O is activate/upgrade/rollback/recover. Uninstall is deliberately not
+a v1 executable/chain operation; its earlier preservation requirement remains a
+later scope. All enums below are exact strings, not open token extensions.
+
+| Record / digest kind | Exact fields and types after schema_version |
+| --- | --- |
+| ActivationIntent / activation-intent | request_id:T, installation_id:T, operation:O, target_tuple_digest:D, expected_reference_digest:D, recovery_source_record_digest:D?, recovery_disposition:{finish_new,restore_old}?, preserve_data:true, intent_digest:D |
+| ReleaseTupleManifest / release-tuple-manifest | installation_id:T, release_id:T, release_manifest_digest:D, installed_manifest_digest:D, stage_receipt_digest:D, installation_binding_digest:D, repository_leaf_digest:D, bootstrap_protocol:release-dispatch-v1, tuple_digest:D |
+| ActiveReleaseReference / active-release-reference | installation_id:T, generation:P, activation_epoch:P, mode:{verifying,active,blocked}, tuple_digest:D, previous_reference_digest:D?, journal_digest:D, reference_digest:D |
+| ReleaseTransitionRecord / release-transition-record | installation_id:T, request_id:T, operation:O, sequence:N, state:S, intent_digest:D, plan_digest:D, prior_reference_digest:D, target_tuple_digest:D, candidate_leaf_digest:D?, observed_reference_digest:D?, previous_record_digest:D?, record_digest:D |
+| ReleaseTransitionReceipt / release-transition-receipt | installation_id:T, request_id:T, operation:O, plan_digest:D, terminal_record_digest:D, selected_reference_digest:D, outcome:{active,restored,blocked}, receipt_digest:D |
+| ActivationDiagnostic / activation-diagnostic | request_id:T, phase:activation, status:{proposed,rejected,blocked}, code:E, refs:list[T], capabilities:C, next_route:R, diagnostic_digest:D |
+
+Self digest fields are respectively intent_digest/tuple_digest/reference_digest/
+record_digest/receipt_digest/diagnostic_digest. For each exact kind K in the table,
+call existing stage_digest(K, body_without_self, context): contract type is
+`urn:gew:contract:release-<K>-v1`, projection is
+`urn:gew:digest-projection:release-<K>-v1:1.0.0`, schema is
+`urn:gew:schema:<K>:1.0.0`. Use existing charged GEW canonical/digest code, never
+an alternative JSON serializer. Unknown kind is input_invalid; wrong self hash
+or cross-kind substitution is trust_rejected. None of these schemas accepts a
+caller-selected digest domain. JSON duplicate keys must be refused before mapping
+construction by existing bounded adapters; pure core receives exact dicts only.
+
+For recover, source-record digest and disposition are non-null. For other
+operations both are null. Target always names the exact intended active tuple,
+including recover; expected reference always names the currently inspected
+reference. No null-reference initial install/adoption shortcut. A restore_old
+request names freshly prepared compatible old software plus a successor leaf,
+not an old repository snapshot or a reused old tuple selected at an older epoch.
+All tuple fields are non-null. Installed manifest binds exact interpreter/tool/
+Skill membership. Repository leaf is an ActiveRepositoryManifest with mode=active,
+no restore gap and the target release/installation identity. It is prepared but
+inert until its parent release reference becomes active. In registered mode the
+parent's verifying mode blocks commands even though the immutable prepared leaf
+has mode=active. There is no independently published leaf pointer. This avoids
+changing the tuple hash between verifying and active publication. The leaf's
+repository_digest is its activation snapshot; ordinary later task writes are
+validated through live repository invariants, not equality to that old snapshot.
+
+Reference first-generation shape is1/epoch1/null prior; later references have
+exact prior digest, generation=prior+1, epoch=prior+1. This shape validator cannot
+bootstrap/register an installation. Exhaustion refuses before overflow. A normal
+verifying/active pair keeps identical tuple_digest but advances reference/epoch
+again. Blocked reference selects the last actual tuple, not an unverified target.
+
+#### Journal transition relation and field evolution
+
+S is exactly prepared, repository_verified, verifying_prepared,
+verifying_published, active_prepared, active_published, completed,
+recovery_prepared, recovered_old, recovered_new, block_prepared, blocked,
+failed_before_switch. The following are the only ordinary edges; all other
+state/operation pairs refuse. Every chain starts prepared at sequence0 with null
+previous_record_digest, candidate_leaf_digest and observed_reference_digest.
+No edge leaves completed/recovered_old/recovered_new/blocked/failed_before_switch.
+
+| Operation | Required ordinary path | Receipt outcome |
+| --- | --- | --- |
+| activate/upgrade/rollback | prepared→repository_verified→verifying_prepared→verifying_published→active_prepared→active_published→completed | active |
+| recover, disposition=finish_new | prepared→repository_verified→recovery_prepared→recovered_new | active |
+| recover, disposition=restore_old | prepared→repository_verified→recovery_prepared→recovered_old | restored |
+
+All records retain identical installation/request/operation/intent/plan/prior/
+target bindings; sequence increments1 and previous_record_digest names the exact
+predecessor. prepared→repository_verified sets candidate_leaf_digest to the target
+tuple's leaf; thereafter it never changes. Before that it remains null, including
+failure records. observed_reference_digest is null until the first publication
+record in this chain. A preparation/nonpublication record copies its predecessor's
+observation; publication records set it to the newly constructed reference.
+
+Exceptional edges: any nonterminal state may go directly to blocked, retaining
+all candidate/observation facts, with NO receipt and NO assertion that a blocked
+reference was published. Dispatch must detect this unresolved chain and block.
+Any nonterminal state may instead go to block_prepared then blocked if a safe
+blocked reference can be constructed and published; block_prepared copies all
+facts, blocked sets observed to that reference, and only this variant may have
+a blocked receipt. Before any publication, prepared/repository_verified/
+verifying_prepared/recovery_prepared may go to failed_before_switch, copying
+facts, with no receipt, but only if the supplied current pointer is still the
+exact prior reference and no successor reference was durably published. Pointer
+uncertainty cannot satisfy that predicate: use blocked without a receipt.
+block_prepared has only the blocked successor and cannot enter another recovery
+or normal path. Skipping phases, returning to prepared, changing operation or
+appending after a terminal state is invalid. A failed/blocked operation can only
+be addressed by a NEW recovery intent and new chain/grant.
+
+#### Acyclic construction and publication links
+
+Each reference journal_digest names a PREPARATION record already constructed:
+verifying_prepared for a verifying reference; active_prepared for normal active;
+recovery_prepared for recovered active; block_prepared for blocked. It never
+names a publication/terminal record. Let J be that preparation, P the actual
+prior reference and U the target tuple (or actual previously selected tuple for
+blocking). In order: validate/freeze U; construct J carrying only the preceding
+observation; digest and fsync J; construct reference R with journal_digest=J's
+digest, previous_reference_digest=P's digest, tuple_digest=U's digest, successor
+generation/epoch and prescribed mode; digest/fsync R; replace/fsync the pointer;
+then construct publication Jnext with previous_record_digest=J's digest and
+observed_reference_digest=R's digest. Jnext can hash R; R never hashes Jnext.
+No hash fixed point, rehash of J or immutable edit is needed.
+
+For normal activation repeat this order twice: Jv→Rv→Jvp, then Ja (copy Rv
+observation)→Ra→Jap→completed→receipt. Ra is Rv's successor, both select the same
+target tuple. Recovery uses Jr→Rr(active)→recovered_old/new→receipt, with Rr a
+successor of the exact currently inspected reference. Blocking uses Jb→Rb(blocked)
+→blocked→receipt and retains the tuple selected immediately before Rb. Receipt
+is last and hashes the terminal record and selected reference; neither hashes it.
+Each file and containing directory is durable before its dependent object/pointer
+is accepted. W10C-S8 lists physical write/fsync/replace cuts. A crash between
+pointer replacement and publication journal leaves a preparation-linked reference
+that explicit recovery can recognize, but it cannot fabricate the absent Jnext.
+
+#### Pure interfaces and exact equality predicates
+
+C0 exports the following functions; all return None on contract-valid UNTRUSTED
+inputs. They perform no I/O, create no handle and establish no physical currentness.
+Each validates its own linked inputs, not a caller PASS flag, and charges the
+entire cumulative bounded input before traversal/hash/allocation:
+
+* `validate_activation_record(kind, value, context)` applies the six exact shapes,
+  enum/null rules, self domains and finite bounds.
+* `validate_reference_successor(previous, current, context)` checks both records,
+  installation equality, exact prior hash, generation/epoch +1 and overflow.
+* `validate_tuple_links(tuple_record, installed_manifest, stage_receipt,
+  installation_binding, repository_leaf, context)` validates existing linked
+  records with their original validators/domains, then checks tuple installation
+  equals binding.installation_id and leaf.installation_id; release_id equals
+  installed.release_id and leaf.release_id; installed_manifest_digest equals
+  installed's self hash and receipt.installed_manifest_digest; stage_receipt_digest
+  equals receipt's self hash; installation_binding_digest equals binding's self
+  hash and receipt.binding_digest; release_manifest_digest equals receipt's value;
+  receipt request/plan/stage_context equal binding's corresponding values;
+  repository_leaf_digest equals leaf.manifest_digest, mode=active, gap=null.
+  Bootstrap protocol is the exact v1 value; actual assets/runtime compatibility
+  remain unproved. The stage execution binding is transitively named by the
+  existing receipt but is not authenticated/executed by this pure function.
+* `validate_transition_chain(intent, records, reference_history, tuples,
+  receipt, context, *, recovery_source=None)` checks a nonempty contiguous chain
+  and exact state paths above. Lists are finite, ordered and contain no duplicate
+  digests. All provided references form one contiguous successor chain starting
+  at the intent.expected_reference_digest (first supplied reference is this base,
+  not a purported new root); all tuple digests actually used by those references
+  and target must have exactly one supplied tuple. No unused extra refs/tuples.
+  Journal prior_reference_digest always equals intent.expected_reference_digest,
+  target equals intent.target_tuple_digest, intent_digest equals intent's hash;
+  plan_digest is identical throughout and any receipt. Every publication checks
+  preparation-type/mode, journal/predecessor/observation equalities from the
+  acyclic sequence, installation and selected tuple. Reference advances may occur
+  ONLY at those preparations, at most one per preparation. Partial prefixes may
+  end at any nonterminal state and have receipt=null; terminal failure/no-publication
+  blocked also require receipt=null. A supplied receipt requires an allowed
+  terminal, exact terminal hash, installation/request/operation/plan and final
+  selected reference; outcome must match the table (or blocked publication).
+  completed selects active mode and target tuple; recovered_old/new selects active
+  mode and target; blocked publication selects blocked mode and its previous tuple.
+
+For every chain, supplied reference_history is the exact recorded selection
+history observed by its inspector, not all possible files in a directory. A prefix
+ending at a preparation may contain one final reference linked to that preparation
+without a publication record (the crash window); no receipt is allowed. A chain
+ending failed_before_switch must contain only the base reference. C0 validates
+these declared inputs, not their filesystem completeness or truth.
+
+recovery_source is null for non-recover. For recover it is an exact dict with
+keys intent, records, reference_history, tuples, receipt, recursively checked by
+the same interface but restricted to a NON-recover source operation, preventing
+recursive recovery nesting. The source may be a terminal or interrupted prefix;
+its final record hash must equal intent.recovery_source_record_digest and all
+installation IDs must match. Recover's expected reference must equal the last
+source reference, including a preparation-linked crash-window reference.
+finish_new target must equal source intent target. restore_old target's release/
+installed/stage/binding/bootstrap fields must equal the source base tuple's fields;
+its new repository leaf remains subject to separate live lossless reconciliation.
+If recovery of an already recovering operation is required, diagnose blocked and
+prepare a later explicit format; never ignore/rewrite its history. This bounded
+v1 limitation is not a waiver of eventual full C recovery acceptance.
+
+Definitive vectors: a normal chain with Jv→Rv and Ja→Ra links passes; swapping
+Jv/Ja links or cross-kind hashes fails. prepared→completed, completed→prepared,
+recover→verifying_prepared, or a changed request/plan/target fails. prepared→
+failed_before_switch with base-only history passes without receipt. A prefix
+ending at Jv with Rv selected is recognizable only without receipt. Fresh recover
+bound to that exact source tail/current ref may finish-new or restore-old through
+Jr→Rr; wrong source tail/current ref/disposition/target fails. Direct blocked with
+no receipt passes as an unresolved declaration, never as blocked publication.
+All these vectors are contract checks, not evidence of real execution or safety.
+
+Future owned layout remains bounded tuples/<digest>.json, references/<digest>.json,
+transitions/<request>/<sequence>.json, receipts/<request>.json and active-release.json.
+Names are derived internally under no-follow descriptors; metadata0600/dirs0700,
+no links/special files/cross-device replace/immutable overwrite. C0 has no reader
+or writer for this layout. Physical paths/Owner facts remain private.
+
+### W10C-S6 API, purpose authority and retries
+
+C0 exposes `validate_activation_record(kind, value, context) -> None` plus pure
+successor/chain checks using bounded WorkContext. Success means contract-valid
+untrusted data only. No owned handle, plan/currentness flag, registration, grant
+or executable capability. Invalid data uses existing bounded
+ReleaseInstallationError input_invalid/closure_mismatch/resource_limit. Adapter
+JSON must be bounded before core entry; no new CLI is added by C0.
+
+Later library contracts are inspect_activation(intent)→OwnedActivationPlan or
+ActivationDiagnostic; authorize_activation(plan)→live purpose grant or diagnostic;
+apply_activation(plan,grant) and recover_activation(plan,fresh_grant)→receipt or
+diagnostic. These are future contracts, not C0 functions. Exact inspector closure,
+local purpose display/consumer and bootstrap lifetime need independent design
+currentness and implementation approval first. No injected authority callback,
+serialized record or public constructor can manufacture an owned plan/grant.
+The accepted local OS/Owner UID model remains; a new authentication model stops
+for an Owner decision.
+
+Future plans bind purpose, intent, prior reference/generation, staged closure,
+live repository/action snapshot, trust/policies/bootstrap, configured targets and
+interrupted chain when recovering. The Owner display names this exact operation.
+The one-use grant binds the full plan and original monotonic deadline; recheck
+after lock acquisition and immediately before each mutation/publication. Failure
+never refunds a consumed grant or renews a deadline. Expiry/stale facts require
+a fresh plan and decision. Each recovery/rollback/uninstall purpose is separate.
+Same request and exact completed chain may return a freshly verified receipt
+without writes or prompting. Changed inputs with the same request refuse.
+Incomplete requests require explicit recover with new authority, never replayed
+consent or automatic installer/migration/external-action rerun.
+
+### W10C-S7 Errors and diagnostics
+
+Phase=activation; status=proposed/rejected/blocked. C0 capabilities are exactly
+activation-plan/activate/recover/rollback/uninstall=unavailable; proposed means
+contract data only. refs is sorted unique bounded opaque tokens. next_route is
+contract-review/supply-inputs/fresh-owner-decision/explicit-recovery/phase-implementation.
+No raw path, exception, UID, nonce, terminal or task payload in public output.
+For C0, E is exactly input_invalid/trust_rejected/closure_mismatch/resource_limit/
+phase_unavailable; codes ok/staged/authority_issued are invalid. C is the exact
+five-key map named above, with every value the literal unavailable; refs has
+0..128 sorted unique T values and must also fit the stricter WorkContext limit.
+R is exactly the five next_route values above. proposed permits only
+phase_unavailable/contract-review; rejected permits input_invalid/trust_rejected/
+closure_mismatch/resource_limit with supply-inputs; blocked permits
+phase_unavailable/phase-implementation. Operational codes in the following table
+are future runtime routes, not additions to the C0 diagnostic enum.
+
+| Cause | Existing code / exit | Route |
+| --- | --- | --- |
+| malformed fields/digest/chain | input_invalid /2 | correct inputs |
+| tuple/membership/leaf mismatch | closure_mismatch /4 | fresh inspection; no fallback |
+| changed source/provider/prior state | currentness /4 | sticky invalidation, new plan |
+| wrong-purpose/absent/expired grant | authority_required /4 | new local decision |
+| finite work/read/lock deadline | resource_limit /4 | stop, no automatic increase |
+| PMF/quiescence/uncertain durability | recovery_blocked /3 | preserve and explicitly diagnose |
+| missing native/bootstrap support | platform_unavailable /3 | accepted prerequisites |
+| unimplemented C phase | phase_unavailable /3 | bounded later phase |
+
+### W10C-S8 Durability, recovery and constrained rollback
+
+Under exclusive scope recheck registration/chain, staged assets, contracts,
+live leases, unresolved claims/holds/restore gaps and PMF before export/candidate
+writes. Any initialized PMF, including empty/partial schemas, refuses. Reuse
+existing migration export/import/replay, membership and fence seeding; candidate
+leaf remains nonselected. Reconcile source/candidate fences, revocations and
+action audit before publication, preserving their monotonic history.
+
+| Fault cuts before/after each action | Required durable interpretation |
+| --- | --- |
+| prepared journal write, file fsync, journal-directory fsync | old pointer remains selected; journal cannot grant resume |
+| export/import/replay/fence seed, leaf/tuple fsync, directories fsync | old selected, exact verified candidate retained |
+| verifying reference file/history fsync, journal/directory fsync | old until pointer replacement; record existence is no switch |
+| pointer temp write/fsync, replace, control-directory fsync | old or new verifying; uncertain durability blocks |
+| selected-new doctor/handshake/replay, active leaf/tuple/reference/journal durability | verifying continues to block commands |
+| active pointer write/fsync/replace/directory fsync, terminal journal, receipt fsync/directory fsync | success only after exact current active closure and durable receipt |
+
+A returned fsync/replace uncertainty cannot claim old stayed usable or new became
+active: preserve files and report blocked. Commands require a matching durable
+journal and no conflicting unfinished chain. Missing/corrupt pointer/history,
+competing same-generation records or excessive scans block, never select by
+filename/mtime or a leftover temporary file. Explicit recovery alone repairs.
+
+Recover validates exact pointer, predecessor chain, journal, assets and leaf
+under exclusive scope. Before-switch failures retain old. A verifying pointer
+can finish verified-new or republish verified-old software with a new generation/
+epoch, only as named by its fresh recovery plan/grant. If neither is safe, block.
+If even blocked-reference publication is unsafe, retain physical inconsistency
+and block dispatch; never claim a record was persisted when it was not.
+
+Rollback cannot copy an old repository snapshot over current progress. Use the
+existing RestoreGap and action-reconciliation protocol; merge fence high-water
+by maximum and preserve revocations/audit. New irreversible actions, unresolved
+claims or incompatible data require reconciliation and a new compatible plan.
+No lossless supported rollback means blocked, never silent data loss. A later
+explicit uninstall disables only approved tool/Skill selection after quiescence
+and compatible bootstrap handling; preserve repositories/history/recovery assets.
+Uninstall is outside the first C increments.
+
+### W10C-S9 Resource and verification boundary
+
+C0 reuses WorkContext/release resource/profile limits: raw record<=65536 bytes,
+report<=65536, stricter configured JSON depth/node/hash/work ceilings win. Charge
+before allocation and account repeated refs, cumulative hashing and collections.
+Records cannot raise limits. C0 has no I/O/process/lock. Future scans/retention/
+lock windows need finite owned policy and exact separately approved fixtures.
+Production latency/percentiles/throughput/recovery SLA remain unmeasured.
+Native290/canonical300, serial fail-fast and recorder semantics stay unchanged.
+No366 rerun is needed for documentation. The new C0 selectors add only contract checks, no new terminal/process/installer/
+real activation/migration/data fixtures. The retained366 commands still exercise
+their existing private builds/process/PTY fixtures under a later exact test/build
+authorization; the design phase executes none of them. Pure tests cannot replace C native/fault acceptance.
+
+### W10C-S10 Security, privacy and audit
+
+| Actor | Read/validate | Active mutation |
+| --- | --- | --- |
+| untrusted supplier/serialized record | bounded contract syntax only | never |
+| C0 validator/reviewer | digest/chain arithmetic | never |
+| future owned inspector | fresh admitted closure/live facts | never |
+| actual local Owner through accepted port | exact purpose/plan display | one fresh selected operation through coordinator |
+| future coordinator, exclusive scope | current tuple/action state | selected operation before original deadline |
+| ordinary command/Skill, shared scope | selected verified tuple | existing task authority only |
+
+Reuse W10H/E captured provider/currentness/no-follow patterns. Signatures, valid
+digests and core validation do not authenticate actors or prove filesystem
+currentness. OS/Owner UID assumptions remain unchanged. Private physical paths/
+UIDs stay owner-only; portable records use minimized opaque refs. No consent
+transcript/task content retention. Unknown/live entries are preserved; cleanup
+needs bounded explicit authority and existing hold/claim policy, not broad delete.
+
+### W10C-S11 Implementation prerequisites and slices
+
+C0 implements only six closed schemas, schema registry, core record/relationship
+validation and meaningful unit/contract/security tests. It can proceed without
+real B/native inputs but must claim no currentness or execution readiness.
+The Plan freezes exact files/selectors before separate implementation approval.
+C1 later closes owned inspection and registration/bootstrap lifetime; C2 closes
+fresh local purposes and parent migration composition; C3 closes durable
+publication/recovery/rollback/dispatch. These dependencies grant no authority.
+Before each implementation freeze its finite fixtures, physical currentness,
+formats and external prerequisites. C1 needs real supported old/new bootstrap
+formats/lifetime protocol; C2 exact purpose displays/consumer and no-parallel-
+migration refactor; C3 all fsync/replace/SIGKILL/concurrency/action oracles.
+New material authentication/architecture decisions return to Owner; routine
+precision stays within the approved design graph.
+
+Genuine acceptance still needs actual interpreter/uv archives, exact offline
+recipes, complete wheels/lock/SBOM/provenance/security, production trust/source
+and macos-arm64/macos-x86-64/linux-x86-64 evidence. Empty recipes/roots remain
+unavailable. Helpers/model tests neither certify native platforms nor finish
+WP10/WP11 or make PMF export compatible.
+
+### W10C-S12 References
+
+[Positioning](../positioning/graph-engineering-workflow.md),
+[PRD/Intent](../prd/graph-engineering-workflow.md), W10-S8/S10/S11,
+W10H-S5/S6, W10E-S6/S8/S11,
+[ADR0001](../adr/0001-core-implementation-and-local-packaging.md),
+[ADR0015](../adr/0015-release-installation-and-upgrade.md),
+[Impact](../impact/graph-engineering-workflow.md),
+[Plan](../plans/2026-08-13-graph-engineering-workflow.md),
+[Test Plan](../test-plans/graph-engineering-workflow.md).
+Source observations bind B1 `7dd244e`: H0 refuses non-install purposes;
+migration.activate publishes repository pointers itself; command_scope already
+holds shared installation control. This annex specifies future adaptation.
+
+### W10C C0 implementation observation — 2026-10-22
+
+The Owner separately approved the exact C0 implementation/test request28/378.
+The pure core and seven owned schema resources are now implemented. Existing frozen
+schema-profile regex restrictions remain: schema tokens use structural length bounds
+and the pure core enforces their exact lexical grammar. No schema engine/parser or
+capability was widened. The initial callable accepted invalid data and produced an
+actual expected-refusal assertion RED;12 focused methods passed on the pre-alignment
+source. These are intermediate observations, not final same-tree378 evidence.
+Actual footprint27 excludes the unchanged optional performance bootstrap; all other
+scope/authority/physical/native restrictions remain. Final source-focused checks,
+independent implementation ADVANCE,378 capture and verification/Candidate are pending.
+
+## W10C C0 test-only first-failure observability amendment
+
+Apply only after the separate human-approved scope/budget amendment. Add
+read-only Python exception observation to the existing process-failure exercise;
+keep production guards, providers, fallback codes, native C fixture, all ten
+cases and existing assertions unchanged. Store only owned module/function/line,
+exception class, closed existing code and bounded integer errno; never messages,
+locals, paths, nonce, argv or raw terminal output. Retain the first16 and last48
+events, trim middle events to6144 compact JSON bytes and report truncation. The
+existing first-peer-failure record also carries these diagnostics; record a
+successful worker's unexpected per-mode code before the original assertion.
+Observer timing can affect reproduction; a diagnostic PASS is not a root-cause
+explanation or canonical verification.

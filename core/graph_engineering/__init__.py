@@ -44,6 +44,15 @@ _CONTROL_LOCK = "installation-maintenance.lock"
 _ATTESTATION_KEY = "source-checkout-attestation-v1.key"
 _ATTESTATION_FILE = "source-checkout-attestation-v1.json"
 _SOURCE_FILES = (
+    "core/graph_engineering/core/release_activation.py",
+    "config/contracts/release-activation-schema-registry-v1.json",
+    "config/contracts/schemas/activation-intent-1.0.0.json",
+    "config/contracts/schemas/release-tuple-manifest-1.0.0.json",
+    "config/contracts/schemas/active-release-reference-1.0.0.json",
+    "config/contracts/schemas/release-transition-record-1.0.0.json",
+    "config/contracts/schemas/release-transition-receipt-1.0.0.json",
+    "config/contracts/schemas/activation-diagnostic-1.0.0.json",
+
     "adapters/graph_engineering/adapters/staging_execution.py",
     "application/graph_engineering/application/staging_execution.py",
     "core/graph_engineering/core/staging_execution.py",
@@ -3839,4 +3848,10 @@ def _release_installation_resources(context):
 def _release_staging_resources(context):
     """Capture the twelve B0 planning resources without changing A resource order."""
     locations=('config/contracts/release-staging-schema-registry-v1.json', 'config/contracts/schemas/install-plan-1.0.0.json', 'config/contracts/schemas/installer-policy-1.0.0.json', 'config/contracts/schemas/stage-context-1.0.0.json', 'config/contracts/schemas/stage-diagnostic-1.0.0.json', 'config/contracts/schemas/stage-plan-envelope-1.0.0.json', 'config/contracts/schemas/stage-policy-1.0.0.json', 'config/contracts/schemas/stage-request-1.0.0.json', 'config/contracts/schemas/stage-target-registry-1.0.0.json', 'config/release-installation/installer-policy-v1.json', 'config/release-installation/stage-policy-v1.json', 'config/release-installation/stage-target-registry-v1.json')
+    return locations, _installation_owned_resources(locations, context=context)
+
+
+def _release_activation_resources(context):
+    """Return only the seven owned C0 schema resources; never an activation plan."""
+    locations=('config/contracts/release-activation-schema-registry-v1.json', 'config/contracts/schemas/activation-intent-1.0.0.json', 'config/contracts/schemas/release-tuple-manifest-1.0.0.json', 'config/contracts/schemas/active-release-reference-1.0.0.json', 'config/contracts/schemas/release-transition-record-1.0.0.json', 'config/contracts/schemas/release-transition-receipt-1.0.0.json', 'config/contracts/schemas/activation-diagnostic-1.0.0.json')
     return locations, _installation_owned_resources(locations, context=context)

@@ -298,3 +298,43 @@ No production StagePolicy, architecture, dependency, permission, irreversible
 action, review-cycle or broader timeout changes. The original independent reviews
 and failed attempts remain replayable; subsequent implementation review checks
 the exact approved amendment and its concrete negative-test adjustments.
+
+## W10C retained design clarification — 2026-10-22
+
+B1 `7dd244e` completed private SOURCE/WHEEL staging/reopen,366 canonical checks,
+independent reviews, Receipt and push. It has not activated a release. Earlier
+in-progress notes retain their historical context. The Owner approved original
+installation-design ceiling4→10, preserving12 entries and nextSpec5/Impact3/Plan2/
+TestPlan2. Repository default4, scope, product intent and action authority remain.
+
+[W10C](../specs/graph-engineering-workflow.md#wp-10-release-activation-and-recovery-clarification--w10c-2026-10-22)
+refines the accepted single-reference decision: closed tuple/reference/journal/
+receipt contracts, whole-command shared-scope dispatch, explicit durable cuts and
+monotonic recovery. Existing migration checks are reused but registered leaf
+preparation cannot independently publish a repository pointer. Current activate
+cannot be called unchanged. A leaf binds an activation snapshot, allowing later
+ordinary task writes without pretending immutable repository content.
+
+Retain local OS/Owner UID authority. H0 install grants/stage observations cannot
+authorize C. Future C purposes need fresh exact plan/prior-reference decisions
+and original deadlines. C0 is pure untrusted contract validation only; no owned
+observation, terminal/process, storage or executable capability. Later inspector,
+bootstrap lifetime, purpose consumer and migration composition require exact
+accepted implementation scopes. No new authentication model is silently chosen.
+
+Uncertain durability blocks. Explicit recovery verifies the full chain before
+finishing new or republishing old software with new generation/epoch. Unsupported
+rollback/action reconciliation and PMF export stay blocked; never restore old
+data over current audit/revocations. Uninstall preserves data and is outside C0.
+Real release materials, configured recipes/roots and all three native cells remain
+required. This design grants no implementation, actual operation or irreversible
+authority.
+
+### W10C C0 separately approved implementation observation
+
+Owner-approved C0 adds pure untrusted contracts and package resources only. Actual
+scope27 narrows the approved28 by an unchanged optional mirror. Schema length checks
+and core lexical checks retain the frozen schema profile. No authentication model,
+physical inspector, migration publication, bootstrap or active operation changes.
+Intermediate12-method passes precede final same-tree checks and independent gates;
+none certify C/native installation or grant commit/push/release authority.

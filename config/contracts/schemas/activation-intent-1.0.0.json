@@ -1,0 +1,117 @@
+{
+  "$comment": "Token lexical grammar and digest/link semantics are enforced by the pure core validator; schema uses the unchanged frozen GEW profile.",
+  "$id": "urn:gew:schema:activation-intent:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "else": {
+        "properties": {
+          "recovery_disposition": {
+            "type": "null"
+          },
+          "recovery_source_record_digest": {
+            "type": "null"
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "recover"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "recovery_disposition": {
+            "enum": [
+              "finish_new",
+              "restore_old"
+            ]
+          },
+          "recovery_source_record_digest": {
+            "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+            "type": "string"
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "expected_reference_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "installation_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "intent_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "operation": {
+      "enum": [
+        "activate",
+        "upgrade",
+        "rollback",
+        "recover"
+      ]
+    },
+    "preserve_data": {
+      "const": true
+    },
+    "recovery_disposition": {
+      "anyOf": [
+        {
+          "enum": [
+            "finish_new",
+            "restore_old"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "recovery_source_record_digest": {
+      "anyOf": [
+        {
+          "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "request_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "target_tuple_digest": {
+      "pattern": "^sha256-jcs-v1:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "installation_id",
+    "operation",
+    "target_tuple_digest",
+    "expected_reference_digest",
+    "recovery_source_record_digest",
+    "recovery_disposition",
+    "preserve_data",
+    "intent_digest"
+  ],
+  "type": "object",
+  "unevaluatedProperties": false
+}
